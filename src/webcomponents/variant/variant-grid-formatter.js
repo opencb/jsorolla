@@ -185,8 +185,9 @@ export default class VariantGridFormatter {
                     if (opencgaSession.project && opencgaSession.study) {
                         geneViewMenuLink = `
                             <div class='p-1'>
-                                <a class='text-decoration-none' style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a>
-                            </div>`;
+                                <a class='text-decoration-none' style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}?id=${geneName}' data-cy='gene-view'>Gene View</a>
+                            </div>
+                        `;
                     }
 
                     const tooltipText = `

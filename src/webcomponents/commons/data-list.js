@@ -96,6 +96,7 @@ export default class DataList extends LitElement {
 
     dataObserver() {
         this._data = JSON.parse(JSON.stringify(this.data));
+        // this.requestUpdate();
     }
 
     modeObserver(e, mode) {
@@ -287,23 +288,35 @@ export default class DataList extends LitElement {
     renderToolbar() {
         const float = this._config?.display?.float === "left" ? "float-start" : "float-end";
         return html`
-            <div class="btn-toolbar d-flex ${this._config.display?.classes || ""}" role="toolbar" aria-label="Toolbar with button groups">
+            <div
+                class="d-flex justify-content-between border-bottom border-black ${this._config.display?.classes || ""}"
+                role="toolbar"
+                aria-label="Toolbar with button groups">
+                <!--
                 <div class="input-group m-2 pe-5">
                     <label class="m-2">Showing ${this._data.length} items</label>
                 </div>
-
-                ${this._config.search?.fields?.length > 0 ? html`
-                    <div class="input-group m-2 ps-5">
-                        <div class="input-group-text" id="btnGroupAddon">
-                            <i class="fas fa-search" aria-hidden="true"></i>
+                -->
+                <!-- 1. Data list actions related with data filtering and ordering -->
+                <div class="btn-toolbar m-2" role="toolbar" aria-label="Toolbar filter and order data">
+                    <!-- Filter rows by specified columns -->
+                    ${this._config.search?.fields?.length > 0 ? html`
+                        <div class="input-group me-1">
+                            <div class="input-group-text" id="btnGroupAddon">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                            </div>
+                            <input
+                                id="${this._prefix}InputSearch"
+                                type="text" class="form-control"
+                                placeholder="${this._config.search?.placeholder || "Search ..."}"
+                                aria-label="Input group example"
+                                aria-describedby="btnGroupAddon"
+                                @input="${this.onSearch}"/>
                         </div>
-                        <input id="${this._prefix}InputSearch" type="text" class="form-control" placeholder="${this._config.search?.placeholder || "Search ..."}" aria-label="Input group example" aria-describedby="btnGroupAddon"
-                               @input="${this.onSearch}">
-                    </div>
-                ` : nothing}
-
-                ${this._config.sortBy?.options?.length > 0 ? html`
-                    <div class="input-group m-2">
+                    ` : nothing}
+                    <!-- Sort by specified options -->
+                    ${this._config.sortBy?.options?.length > 0 ? html`
+                    <div class="input-group me-1">
                         <label class="input-group-text fw-semibold" for="${this._prefix}SortBy">Sort by</label>
                         <select id="${this._prefix}SortBy" class="form-select" @change="${this.onSortBy}">
                             <option value="none" style="font-style: italic" selected>Select ...</option>
@@ -314,23 +327,45 @@ export default class DataList extends LitElement {
                         <label class="input-group-text" style="cursor: pointer" @click="${this.onSortByClear}"><i class="fas fa-times"></i></label>
                     </div>
                 ` : nothing}
-
-                ${this._config.groupBy?.options?.length > 0 ? html`
-                    <div class="input-group m-2">
-                        <label class="input-group-text fw-semibold" for="${this._prefix}GroupBy">Group by</label>
-                        <select id="${this._prefix}GroupBy" class="form-select" @change="${this.onGroupBy}">
-                            <option value="none" selected>Select ...</option>
-                            ${this._config.groupBy?.options?.map(option => html`
+                </div>
+                <!-- 2. Data list actions related to data view -->
+                <div class="btn-toolbar m-2" role="toolbar" aria-label="Toolbar view mode">
+                    ${this._config.groupBy?.options?.length > 0 ? html`
+                        <div class="input-group me-1">
+                            <label class="input-group-text fw-semibold" for="${this._prefix}GroupBy">Group by</label>
+                            <select id="${this._prefix}GroupBy" class="form-select" @change="${this.onGroupBy}">
+                                <option value="none" selected>Select ...</option>
+                                ${this._config.groupBy?.options?.map(option => html`
                                 <option value="${option.id}">${option.name}</option>
                             `)}
-                        </select>
-                        <label class="input-group-text" style="cursor: pointer" @click="${this.onGroupByClear}"><i class="fas fa-times"></i></label>
+                            </select>
+                            <label class="input-group-text" style="cursor: pointer" @click="${this.onGroupByClear}"><i class="fas fa-times"></i></label>
+                        </div>
+                    ` : nothing}
+                    <div class="btn-group" role="group" aria-label="Data list views">
+                        <input
+                                type="radio"
+                                class="btn-check"
+                                name="mode"
+                                id="mode-list"
+                                autocomplete="off"
+                                @click="${e => this.modeObserver(e, DataList.LIST_MODE)}"
+                                ?checked="${this.mode === DataList.LIST_MODE}"/>
+                        <label class="btn btn-outline-secondary" for="mode-list">
+                            <i class="fas fa-list"></i>
+                        </label>
+                        <input
+                                type="radio"
+                                class="btn-check"
+                                name="mode"
+                                id="mode-grid"
+                                autocomplete="off"
+                                @click="${e => this.modeObserver(e, DataList.GRID_MODE)}"
+                                ?checked="${this.mode === DataList.GRID_MODE}"/>
+                        <label class="btn btn-outline-secondary" for="mode-grid">
+                            <i class="fas fa-th"></i>
+                        </label>
                     </div>
-                ` : nothing}
-
-                <div class="btn-group m-2" role="group" aria-label="Basic example">
-                    <button type="button" class="btn" @click="${e => this.modeObserver(e, DataList.LIST_MODE)}"><i class="fas fa-list"></i></button>
-                    <button type="button" class="btn" @click="${e => this.modeObserver(e, DataList.GRID_MODE)}"><i class="fas fa-th"></i></button>
                 </div>
             </div>
         `;
@@ -495,7 +530,7 @@ export default class DataList extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                classes: "shadow bg-body-tertiary rounded",
+                // classes: "shadow bg-body-tertiary rounded",
                 style: "",
                 float: "left",
             },

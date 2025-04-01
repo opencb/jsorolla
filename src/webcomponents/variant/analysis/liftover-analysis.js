@@ -1,4 +1,4 @@
-import {LitElement, html, render} from "lit";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils";
 import "../../commons/forms/data-form.js";
@@ -73,6 +73,7 @@ export default class LiftOverAnalysis extends LitElement {
         const toolParams = {
             files: this._toolParams.files.split(","),
             targetAssembly: this._toolParams.targetAssembly,
+            vcfDestination: this._toolParams.sameDirectory ? "SAME_AS_INPUT_VCF" : (this._toolParams.vcfDestination || ""),
             outdir: this._toolParams.outdir || "",
         };
         const params = {
@@ -143,17 +144,23 @@ export default class LiftOverAnalysis extends LitElement {
                         },
                     },
                     {
-                        title: "Output Directory",
-                        field: "outdir",
+                        title: "Same Directory As Input Files",
+                        field: "sameDirectory",
+                        type: "checkbox",
+                        defaultValue: false,
+                    },
+                    {
+                        title: "Select Output Directory",
+                        field: "vcfDestination",
                         type: "custom",
                         display: {
-                            render: (outdir, dataFormFilterChange) => {
+                            render: (outdir, dataFormFilterChange, updateParams, toolParams) => {
                                 return html`
                                     <catalog-search-autocomplete
                                         .value="${outdir}"
                                         .resource="${"DIRECTORY"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
+                                        .config="${{multiple: false, disabled: !!toolParams.sameDirectory}}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;

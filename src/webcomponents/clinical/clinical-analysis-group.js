@@ -122,12 +122,14 @@ export default class ClinicalAnalysisGroup extends LitElement {
         return html`
             <div>
                 <div class="d-flex">
+                    <!--
                     ${this.config?.showCreate ? html`
                         <a type="button" href="#clinical-analysis-create/" class="btn btn-light">
                             <i class="fas fa-columns icon-padding"></i>
                             <span>New</span>
                         </a>
                     ` : null}
+                    -->
                     <div class="dropdown ms-auto">
                         <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
                             <i class="fas fa-layer-group me-1"></i>

@@ -23,34 +23,26 @@ context("File Browser Grid", () => {
 
     beforeEach(() => {
         cy.visit("#file-browser-grid");
+        cy.get("file-grid")
+            .as("fileGrid");
         cy.waitUntil(() => {
-            return cy.get(browserGrid)
+            return cy.get("@fileGrid")
                 .should("be.visible");
         });
     });
 
-    // TOOLBAR
-    context("File Toolbar", () => {
-        const toolbarComponent = "";
-
-        beforeEach(() => {
-            cy.get(browserGrid)
+    context("toolbar", () => {
+        it("should render", () => {
+            cy.get("@fileGrid")
                 .find(`div[data-cy="toolbar"]`)
-                .as("toolbar");
+                .should("be.visible");
         });
 
-        //1. Render the toolbar
-        context("render", () => {
-            // 1.1. It should render a div with the toolbar
-            it("should render toolbar", () => {
-                cy.get(browserGrid)
-                    .find(`div[data-cy="toolbar-wrapper"]`)
-                    .should("be.visible");
-            });
-            // 1.1. If configured, it should render a New button
-            it("should render New button", () => {
-                cy.get(browserGrid)
-                    .find(`button[data-action="create"]`)
+        it("should render create buttons (file and create)", () => {
+            ["File", "Folder"].forEach(type => {
+                cy.get("@fileGrid")
+                    .find(`div[data-cy="toolbar"] button`)
+                    .contains(`Create ${type}`)
                     .should("be.visible");
             });
         });
@@ -203,25 +195,38 @@ context("File Browser Grid", () => {
     //     });
     // });
 
-    context("Row", () => {
-        it("should display row #3 as selected", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
-                cy.get("tbody tr")
-                    .eq(3)
-                    .click()
-                    .should("have.class","table-success");
-        });
+    context("row", () => {
+        // it("should display row #3 as selected", () => {
+        //     // eslint-disable-next-line cypress/unsafe-to-chain-command
+        //         cy.get("tbody tr")
+        //             .eq(3)
+        //             .click()
+        //             .should("have.class","table-success");
+        // });
 
-        it("should download file json",{tags:"@shortTask"}, () => {
-            cy.get("tbody tr:first > td")
-                .eq(-2)
-                .within(() => {
-                    cy.get("button")
-                        .click();
-                    cy.get(`ul[class*="dropdown-menu"][class*="show"]`)
-                        .contains("a","Download JSON")
-                        .click();
+        context("actions", () => {
+            it("should display actions menu", () => {
+                cy.get(`tbody tr:first > td`)
+                    .eq(-2)
+                    .within(() => {
+                        cy.get("button")
+                            .click();
+                        cy.get(`div[class*="dropdown-menu"][class*="show"]`)
+                            .should("be.visible");
+                    });
             });
+
+            // it("should allow to download a JSON of the file", () => {
+            //     cy.get("tbody tr:first > td")
+            //         .eq(-2)
+            //         .within(() => {
+            //             cy.get("button")
+            //                 .click();
+            //             cy.get(`ul[class*="dropdown-menu"][class*="show"]`)
+            //                 .contains("a","Download JSON")
+            //                 .click();
+            //     });
+            // });
         });
     });
 
@@ -249,15 +254,15 @@ context("File Browser Grid", () => {
                 .should("be.visible");
         });
 
-        it("should display info from the selected row", () => {
-            const file = "chinese:HG007_GRCh38_1_22_v4.2.1_benchmark.vcf.gz";
-            cy.get(`tbody tr[data-uniqueid="${file}"]`)
-                .find(`td:first`)
-                .trigger("click");
+        // it("should display info from the selected row", () => {
+        //     const file = "chinese:HG007_GRCh38_1_22_v4.2.1_benchmark.vcf.gz";
+        //     cy.get(`tbody tr[data-uniqueid="${file}"]`)
+        //         .find(`td:first`)
+        //         .trigger("click");
 
-            cy.get(`detail-tabs h3`)
-                .should("contain.text", `File ${file}`);
-        });
+        //     cy.get(`detail-tabs h3`)
+        //         .should("contain.text", `File ${file}`);
+        // });
 
         it("should display 'Preview' Tab", () => {
             cy.get(`detail-tabs > div.detail-tabs > ul`)

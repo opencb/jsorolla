@@ -1,0 +1,308 @@
+// typography variables
+$font-size: 13px; // default font size
+// $font-size-base: 0.8125rem; // 13px
+// $font-family-base: Inter, sans-serif;
+$font-family-base: "Lato", serif;
+
+// global options
+// https://getbootstrap.com/docs/5.3/customize/options/
+$spacer: 1rem;
+
+// gray color palette
+// https://github.com/twbs/bootstrap/blob/main/scss/_variables.scss#L24-L34
+$gray-50:  #f9fafa;
+$gray-100: #f3f4f5;
+$gray-200: #d5d9dc;
+$gray-300: #b7bdc3;
+$gray-400: #9ba3ac;
+$gray-500: #7c8792;
+$gray-600: #646e78;
+$gray-700: #4a5259;
+$gray-800: #31363a;
+$gray-900: #191c1f;
+// $gray-950: #0c0d0e;
+
+// theme colors
+$primary: #0456C8;
+// $warning: #cc9900;
+$light: $gray-100;
+$dark: $gray-900;
+$white: #fff;
+
+// custom body configuration
+$body-bg: $gray-50;
+
+// Overwrite z-index configuration
+$zindex-dropdown: 1020;
+$zindex-sticky: 1000;
+
+// custom border configuration
+$border-color: $gray-200;
+$border-width: 1px;
+
+// custom card configuration
+// https://getbootstrap.com/docs/5.3/components/card/#sass-variables
+$card-bg: $white;
+$card-cap-bg: $white;
+
+// custom configuration for dropdowns
+// https://getbootstrap.com/docs/5.3/components/dropdowns/#sass-variables
+$dropdown-bg: $white;
+$dropdown-border-color: var(--bs-border-color);
+$dropdown-padding-x: 0.3 * $spacer;
+$dropdown-padding-y: 0.3 * $spacer;
+$dropdown-item-padding-x: 0.5 * $spacer;
+$dropdown-item-padding-y: 0.3 * $spacer;
+$dropdown-header-padding-x: 0px; // $dropdown-item-padding-x;
+$dropdown-header-padding-y: $dropdown-item-padding-y;
+
+// custom configuration for form components
+// https://getbootstrap.com/docs/5.3/forms/form-control/#sass-variables
+$input-bg: $white;
+
+// import all bootstrap
+@import "../node_modules/bootstrap/scss/bootstrap";
+
+// override document styles
+html {
+    font-size: #{$font-size};
+}
+
+// override body styles
+body {
+    min-height: 100vh;
+}
+
+// Root variables
+:root {
+    --bs-dropdown-border-radius: var(--bs-border-radius);
+    --bs-dropdown-item-border-radius: var(--bs-border-radius-sm);
+}
+
+// override button styles
+.btn-light {
+    --bs-btn-border-color: #{$gray-200};
+    --bs-btn-border-width: #{$border-width};
+}
+// button toggle styles from https://getbootstrap.com/docs/5.3/examples/sidebars/sidebars.css
+.btn-toggle {
+    padding: 0.25rem 0.5rem;
+    font-weight: 600;
+    color: var(--bs-emphasis-color);
+    background-color: transparent;
+}
+.btn-toggle:hover,
+.btn-toggle:focus {
+    color: rgba(var(--bs-emphasis-color-rgb), .85);
+    background-color: var(--bs-tertiary-bg);
+}
+.btn-toggle::before {
+    width: 1.25em;
+    line-height: 0;
+    content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba%280,0,0,.5%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6'/%3e%3c/svg%3e");
+    transition: transform .35s ease;
+    transform-origin: .5em 50%;
+}
+.btn-toggle[aria-expanded="true"] {
+    color: rgba(var(--bs-emphasis-color-rgb), .85);
+}
+.btn-toggle[aria-expanded="true"]::before {
+    transform: rotate(90deg);
+}
+
+// override modal fullsize
+.modal.fullscreen-modal .modal-dialog {
+    position: fixed;
+    top: 40px; /* Adjust this to match your navbar height */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: none;
+    height: calc(100% - 40px); /* Adjust based on navbar height */
+    margin: 0;
+}
+.modal.fullscreen-modal .modal-content {
+    height: 100%;
+    width: 100%;
+    border-radius: 0;
+}
+
+// table for grids styles
+.table-grid {
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+    // overwrite the default styles of thead cells
+    & thead .th-inner {
+        color: $gray-600;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        padding: 0 0.75rem!important;
+    }
+    // overwrite the default styles of tbody cells
+    & tbody tr {
+        background-color: $white;
+        border-radius: $border-radius;
+    }
+    & tbody tr td {
+        background-color: inherit;
+        padding: 0.5rem 0.75rem;
+        &:first-child {
+            border-top-left-radius: $border-radius;
+            border-bottom-left-radius: $border-radius;
+        }
+        &:last-child {
+            border-top-right-radius: $border-radius;
+            border-bottom-right-radius: $border-radius;
+        }
+    }
+}
+
+// fix the dropdown hidden in a bootstrap table
+.force-overflow .fixed-table-body {
+    overflow: visible !important;
+}
+
+// additional color utilities
+// Note: the $grays map is a Sass map that contains all the gray colors
+@each $shade,$color in $grays {
+    .bg-gray-#{$shade} {
+        background-color: $color !important;
+    }
+    .hover\:bg-gray-#{$shade}:hover {
+        background-color: $color !important;
+    }
+    .text-gray-#{$shade} {
+        color: $color;
+    }
+    .hover\:text-gray-#{$shade}:hover {
+        color: $color;
+    }
+    .border-gray-#{$shade} {
+        border-color: $color !important;
+    }
+}
+.hover\:bg-white:hover {
+    background-color: $white !important;
+}
+
+// additional cursor utilities
+.cursor-pointer {
+    cursor: pointer;
+}
+
+// additional width and height utilities
+.w-full {
+    width: 100%;
+}
+.w-px {
+    width: 1px;
+}
+.h-full {
+    height: 100%;
+}
+.h-px {
+    height: 1px;
+}
+.h-screen {
+    height: 100vh;
+}
+
+// Additional font sizes
+// https://getbootstrap.com/docs/5.3/utilities/text/#font-size
+.fs-7 {
+    font-size: $font-size-base * 0.875;
+}
+.fs-8 {
+    font-size: $font-size-base * 0.75;
+}
+
+// additional text decoration utilities
+// https://getbootstrap.com/docs/5.3/utilities/text/#text-decoration
+.hover\:text-decoration-line-through:hover {
+    text-decoration: line-through;
+}
+.hover\:text-decoration-underline:hover {
+    text-decoration: underline;
+}
+
+
+// select2 styles override
+
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-search--inline .select2-search__field {
+    line-height: 1.8;  // fix vertical alignment of the placeholder
+}
+.select2-selection__choice__display {
+    white-space: break-spaces; // selected tag on multiple lines if needed
+}
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove {
+    margin-right: 9px !important;
+}
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice {
+    border: 1px solid #cdd5e3;
+    position: relative;
+    vertical-align: middle;
+    padding: 3px 0 0 5px;
+    background-color: #eff2f7;
+    border-radius: 2px;
+    line-height: 1;
+    word-break: break-all; /* selected tag on multiple lines if needed */
+}
+.select2-results__option.select2-results__option--selected {
+    background-color: #eee;
+}
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove {
+    background: transparent;
+    border: 0;
+}
+.select2-container .select2-selection--multiple {
+    cursor: text;
+    padding-right: 20px;
+}
+/* fix the select2 UI in case the autocomplete dropdown is hidden */
+select.no-data + .select2-container--bootstrap-5.select2-container--open.select2-container--below .select2-selection {
+    border-bottom-color: rgb(126, 182, 226);
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px
+}
+/* adapt select2 placeholder text to the default BT ones */
+.select2-container--bootstrap-5 .select2-search--inline .select2-search__field {
+    font-family: inherit !important; // "Lato", Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+}
+/* dynamic width: it renders active area for the dropdown and selected tokens in one line, where possible */
+.select2-selection__rendered {
+    width: auto;
+}
+.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__rendered {
+    width: auto;
+}
+.select2-search.select2-search--inline {
+    display: inline-block;
+}
+
+// bootstrap-table styles override
+.bootstrap-table .fixed-table-loading {
+    min-height: 120px;
+    z-index: 500 !important;
+}
+// Custom pagination-detail on top of the boostrap-table grids.
+// This removes the pager buttons on top pf the grids leaving only the counter of records.
+// nth-child(2) is the top pager while nth-child(4) would the bottom pager.
+// .bootstrap-table.bootstrap5 .fixed-table-pagination:nth-child(2) .pagination-info {
+//     line-height: 1;
+// }
+// .bootstrap-table.bootstrap5 .fixed-table-pagination:nth-child(2) .page-list,
+// .bootstrap-table.bootstrap5 .fixed-table-pagination:nth-child(2) .pagination {
+//     display: none;
+// }
+// .bootstrap-table .pagination-info {
+//     font-size: 12px;
+// }
+
+// Terrible hack to remove the fixed max-width of 280px of the qtip tooltip
+@supports selector(:has(*)) {
+    .qtip:has(.population-freq-tooltip) {
+        max-width: 500px !important;
+    }
+}

@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/image-viewer.js";
 import "../commons/json-viewer.js";
+import "../commons/html-viewer.js";
+import "../commons/pdf-viewer.js";
 
 export default class FilePreview extends LitElement {
 
@@ -62,6 +65,9 @@ export default class FilePreview extends LitElement {
         this.files = [];
         this.filesWithContent = [];
 
+        // list with the known binary extensions that we can not fetch the content
+        this._binaryExtensions = new Set(["tbi", "bai", "zip", "bigWig", "pbi"]);
+
         this._config = this.getDefaultConfig();
     }
 
@@ -94,17 +100,20 @@ export default class FilePreview extends LitElement {
     }
 
     fileIdsObserver() {
-        if (this.opencgaSession && this.fileIds) {
+        if (this.fileIds?.length > 0 && this.opencgaSession ) {
             const ids = this.fileIds.map(fileId => fileId.replaceAll("/", ":")).join(",");
-            this.opencgaSession.opencgaClient.files().info(ids, {
-                study: this.opencgaSession.study.fqn,
-            })
+            this.opencgaSession.opencgaClient.files()
+                .info(ids, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
                     this.files = response.responses[0].results;
                 })
                 .catch(response => {
                     console.error(response);
                 });
+        } else {
+            this.files = [];
         }
     }
 
@@ -115,24 +124,47 @@ export default class FilePreview extends LitElement {
     }
 
     filesObserver() {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            includeIndividual: true,
-            lines: 200,
-        };
+        if (this.files?.length === 0) {
+            this.filesWithContent = [];
+            this.requestUpdate();
+        }
 
+        // 1. We deeply clone the files array to avoid modifying the original array
         this.filesWithContent = this.files.map(file => {
             return {...file};
         });
 
+        // 2. Fetch the content of each file and extend the file object with the format and content
         for (const fileWithContent of this.filesWithContent) {
-            switch (fileWithContent?.format) {
-                case "PLAIN":
-                case "VCF":
+            let format = fileWithContent.format;
+            // Note: the PLAIN format has been included also as bigWig files are being returned as PLAIN
+            if (format === "UNKNOWN" || format === "PLAIN") {
+                if (fileWithContent.name.endsWith(".html")) {
+                    format = "HTML";
+                } else if (fileWithContent.name.endsWith(".pdf")) {
+                    format = "PDF";
+                } else if (this._binaryExtensions.has(fileWithContent.name.split(".").pop())) {
+                    format = "BINARY";
+                }
+            }
+
+            switch (format) {
                 case "UNKNOWN":
+                case "PLAIN":
+                case "FASTA":
+                case "FASTQ":
+                case "VCF":
+                case "GVCF":
+                case "PED":
+                case "XML":
                 case "TAB_SEPARATED_VALUES":
+                case "COMMA_SEPARATED_VALUES":
                     fileWithContent.contentType = "text";
-                    this.opencgaSession.opencgaClient.files().head(fileWithContent.id, params)
+                    this.opencgaSession.opencgaClient.files()
+                        .head(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                            lines: 500,
+                        })
                         .then(response => {
                             const {format, content} = response.getResult(0);
                             this.format = format;
@@ -147,25 +179,31 @@ export default class FilePreview extends LitElement {
                     break;
                 case "JSON":
                     fileWithContent.contentType = "json";
-                    this.opencgaSession.opencgaClient.files().head(fileWithContent.id, params)
+                    this.opencgaSession.opencgaClient.files()
+                        .download(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                        })
                         .then(response => {
-                            const {content} = response.getResult(0);
                             try {
-                                fileWithContent.content = JSON.parse(content);
-                            } catch (e) {
-                                fileWithContent.content = {content: "Error parsing data from the Server"};
+                                fileWithContent.content = JSON.parse(response);
+                            } catch (error) {
+                                console.error(error);
+                                fileWithContent.content = {
+                                    content: "Error parsing data from the Server",
+                                };
                             }
                             this.requestUpdate();
                         })
                         .catch(response => {
                             console.error(response);
-                            this.content = response.getEvents("ERROR").map(_ => _.message).join("\n");
-                            this.requestUpdate();
                         });
                     break;
                 case "BAM":
                     fileWithContent.contentType = "json";
-                    this.opencgaSession.opencgaClient.files().info(fileWithContent.id, {study: this.opencgaSession.study.fqn})
+                    this.opencgaSession.opencgaClient.files()
+                        .info(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                        })
                         .then(response => {
                             const {attributes} = response.getResult(0);
                             fileWithContent.content = attributes?.alignmentHeader ?? {content: "No content"};
@@ -174,84 +212,162 @@ export default class FilePreview extends LitElement {
                     break;
                 case "IMAGE":
                     fileWithContent.contentType = "image";
-                    this.opencgaSession.opencgaClient.files().image(fileWithContent.id, {study: this.opencgaSession.study.fqn})
+                    this.opencgaSession.opencgaClient.files()
+                        .image(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                        })
                         .then(response => {
                             fileWithContent.content = response.responses[0].results[0].content;
+                            fileWithContent.imageType = UtilsNew.getMimeType(fileWithContent.name.split(".").pop());
                             this.requestUpdate();
                         })
                         .catch(response => {
                             console.error(response);
                         });
                     break;
+                case "HTML":
+                    fileWithContent.contentType = "html";
+                    this.opencgaSession.opencgaClient.files()
+                        .download(fileWithContent.id, {
+                            study: this.opencgaSession.study.fqn,
+                        })
+                        .then(response => {
+                            // NOTE: this endpoint just returns the file content as a response string
+                            fileWithContent.content = response;
+                            this.requestUpdate();
+                        })
+                        .catch(response => {
+                            console.error(response);
+                        });
+                    break;
+                case "PDF":
+                    // Josemi 20250304 NOTE: we can not fetch the content of the PDF file, as it is binary
+                    // we have to provide the fileId to the pdf-viewer component, so this component will use the pdf.js
+                    // library to fetch the file content and render it
+                    fileWithContent.contentType = "pdf";
+                    break;
+                case "BINARY":
+                    fileWithContent.contentType = "binary";
+                    fileWithContent.content = {
+                        icon: "fa-file-archive",
+                        message: "Binary files can not be displayed.",
+                    };
+                    break;
                 default:
                     fileWithContent.contentType = "unsupported";
-                    fileWithContent.content = "Format not recognized: " + fileWithContent.format;
+                    fileWithContent.content = {
+                        icon: "fa-exclamation-triangle",
+                        message: `Format not recognized: ${fileWithContent.format || "UNKNOWN"}.`,
+                    };
             }
         }
     }
 
+    renderFilePreview(fileWithContent) {
+        switch (fileWithContent.contentType) {
+            case "unsupported":
+            case "binary":
+                return html`
+                    <div class="alert alert-warning d-flex flex-column align-items-center justify-content-center py-4">
+                        <i class="fas ${fileWithContent.content?.icon || "fa-exclamation-triangle"} me-2 fs-1 mb-2"></i>
+                        <div class="fw-bold fs-5 text-center mb-1">${fileWithContent.content?.message || "Format not recognized."}</div>
+                        <div class="text-center">
+                            Sorry but we can not display the content of the file <b>${fileWithContent.name}</b>.<br>Please download it to view its content.
+                        </div>
+                    </div>
+                `;
+            case "text":
+                return html`
+                    <pre class="${this._config?.display?.textContentClass}" style="${this._config?.display?.textContentStyle}">${fileWithContent.content}</pre>
+                `;
+            case "image":
+                return html`
+                    <image-viewer
+                        .type="${fileWithContent.imageType}"
+                        .data="${fileWithContent.content}">
+                    </image-viewer>
+                `;
+            case "json":
+                return html`
+                    <json-viewer
+                        .active="${this.active}"
+                        .data="${fileWithContent.content || {}}">
+                    </json-viewer>
+                `;
+            case "html":
+                return html`
+                    <html-viewer
+                        .active="${this.active}"
+                        .data="${fileWithContent.content}">
+                    </html-viewer>
+                `;
+            case "pdf":
+                return html`
+                    <pdf-viewer
+                        .fileId="${fileWithContent.id}"
+                        .active="${this.active}"
+                        .data="${fileWithContent.content}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </pdf-viewer>
+                `;
+            default:
+                return nothing;
+        }
+    }
+
     render() {
+        if (this.filesWithContent?.length === 0) {
+            return nothing;
+        }
+
         return html`
-            <style>
-                .section-title {
-                    border-bottom: 2px solid #eee;
-                }
-                .label-title {
-                    text-align: left;
-                    padding-left: 5px;
-                    padding-right: 10px;
-                }
-                pre.cmd {
-                    background: black;
-                    font-family: "Courier New", monospace;
-                    padding: 15px;
-                    color: #a5a5a5;
-                    font-size: .9em;
-                    min-height: 150px;
-                }
-            </style>
-
-            <div class="row">
-                <div class="col-md-12">
-                    ${this.filesWithContent?.length > 0 ? this.filesWithContent.map(fileWithContent => html`
-                        ${this._config.showFileTitle ? html `
-                            <div style="margin: 25px 0 5px 0">
-                                <label>
-                                    <span style="padding-right:20px;">${fileWithContent.name}</span>
-                                    ${this._config.showFileSize ? html`
-                                        <span>${UtilsNew.getDiskUsage(fileWithContent.size)}</span>
-                                    ` : null}
-                                </label>
+            <div class="d-flex flex-column gap-5">
+                ${this.filesWithContent.map(fileWithContent => html`
+                    <div class="mx-2">
+                        <!-- File information -->
+                        <div class="d-flex align-items-center mb-3">
+                            <div>
+                                ${this._config.showFileName ? html`
+                                    <div class="">
+                                        <span class="fw-bold fs-5">${fileWithContent.name}</span>
+                                        ${this._config.showFileSize ? html`
+                                            <span class="p-2">(${UtilsNew.getDiskUsage(fileWithContent.size)})</span>
+                                        ` : nothing}
+                                    </div>
+                                ` : nothing}
+                                ${this._config.showFilePath ? html`
+                                    <div class="text-muted">/${fileWithContent.path}</div>
+                                ` : nothing}
                             </div>
-                        ` : null}
+                            ${this._config.showDownload ? html`
+                                <div class="ms-auto">
+                                    <a href="${OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, fileWithContent.id)}" target="_blank" class="btn btn-light">
+                                        <i class="fas fa-download pe-2"></i> Download
+                                    </a>
+                                </div>
+                            ` : nothing}
+                        </div>
 
-                        ${fileWithContent.contentType === "unsupported" ? html`
-                            <p class="alert alert-warning">${fileWithContent.content}</p>
-                        ` : null}
-                        ${fileWithContent.contentType === "text" ? html`
-                            <pre class="cmd">${fileWithContent.content}</pre>
-                        ` : null}
-                        ${fileWithContent.contentType === "image" ? html`
-                            <image-viewer
-                                .data="${fileWithContent.content}">
-                            </image-viewer>
-                        ` : null}
-                        ${fileWithContent.contentType === "json" ? html`
-                            <json-viewer
-                                .active="${this.active}"
-                                .data="${fileWithContent.content || {}}">
-                            </json-viewer>
-                        ` : null}
-                    `) : null}
-                </div>
+                        <!-- File preview -->
+                        <div class="">
+                            ${this.renderFilePreview(fileWithContent)}
+                        </div>
+                    </div>
+                `)}
             </div>
         `;
     }
 
     getDefaultConfig() {
         return {
-            showFileTitle: true,
+            display: {
+                textContentStyle: "min-height:160px;max-height:640px;",
+                textContentClass: "bg-gray-900 text-gray-100 p-4 rounded-2",
+            },
+            showFileName: true,
             showFileSize: true,
+            showFilePath: true,
+            showDownload: true,
         };
     }
 

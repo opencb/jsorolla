@@ -16,6 +16,7 @@
 
 import UtilsNew from "../../core/utils-new.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
+import WebUtils from "./utils/web-utils.js";
 
 export default class CatalogGridFormatter {
 
@@ -209,9 +210,10 @@ export default class CatalogGridFormatter {
         if (clinicalAnalysisArray?.length > 0) {
             let result = "";
             for (const clinicalAnalysis of clinicalAnalysisArray) {
+                const caseUrl = WebUtils.getInterpreterLink(opencgaSession, clinicalAnalysis.id);
                 result += `
                     <div class="my-1 mx-0">
-                        <a title="Go to Case Interpreter" class="text-nowrap text-decoration-none" href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
+                        <a title="Go to Case Interpreter" class="text-nowrap text-decoration-none" href="${caseUrl}">
                             <i aria-hidden="true" class="fas fa-user-md"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
                         </a>
                     </div>

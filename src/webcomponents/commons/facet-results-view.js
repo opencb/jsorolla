@@ -21,7 +21,7 @@ import PolymerUtils from "../PolymerUtils.js";
 
 // TODO refactor: this should preprocess data and call simple-chart
 
-export default class OpencgaFacetResultView extends LitElement {
+export default class FacetResultsView extends LitElement {
 
     constructor() {
         super();
@@ -228,9 +228,8 @@ export default class OpencgaFacetResultView extends LitElement {
     }
 
     _getHistogramData() {
-
         let params;
-        if (!this.facetResult?.start) {
+        if (this.facetResult?.buckets || !this.facetResult?.start) {
             const field = this.facetResult;
             const obj = {
                 title: field.name,
@@ -281,7 +280,7 @@ export default class OpencgaFacetResultView extends LitElement {
             const range = this.facetResult;
             const obj = {
                 name: range.name,
-                title: this.fieldNamesMap[range.name] || range.name,
+                title: this.fieldNamesMap?.[range.name] || range.name,
                 categories: [],
                 series: []
             };
@@ -540,5 +539,5 @@ export default class OpencgaFacetResultView extends LitElement {
 
 }
 
-customElements.define("opencga-facet-result-view", OpencgaFacetResultView);
+customElements.define("facet-results-view", FacetResultsView);
 

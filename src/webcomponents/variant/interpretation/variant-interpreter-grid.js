@@ -216,7 +216,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
+                paginationVAlign: "bottom",
                 formatShowingRows: (pageFrom, pageTo, totalRows) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
                 detailView: this._config.detailView,
                 detailFormatter: (value, row) => this.detailFormatter(value, row),
@@ -224,7 +224,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: this,
                 ajax: params => {
-                    this.gridCommons.clearResponseWarningEvents();
                     // Make a deep clone object to manipulate the query sent to OpenCGA
                     const internalQuery = JSON.parse(JSON.stringify(this.query));
 
@@ -309,11 +308,12 @@ export default class VariantInterpreterGrid extends LitElement {
                         .then(() => params.success(variantResponse))
                         .catch(e => params.error(e))
                         .finally(() => {
-                            LitUtils.dispatchCustomEvent(this, "queryComplete", null);
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: variantResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
-                    this.gridCommons.displayResponseWarningEvents(response);
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
@@ -421,7 +421,7 @@ export default class VariantInterpreterGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            paginationVAlign: "both",
+            paginationVAlign: "bottom",
             formatShowingRows: this.gridCommons.formatShowingRows,
             detailView: this._config.detailView,
             detailFormatter: (value, row) => this.detailFormatter(value, row),
@@ -1518,47 +1518,20 @@ export default class VariantInterpreterGrid extends LitElement {
         this.evidenceReview = null;
     }
 
-    getRightToolbar() {
-        if (this._config?.showSettings) {
-            return [
-                {
-                    render: () => html`
-                        <button type="button" class="btn btn-light btn-sm" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
-                            <i class="fas fa-cog"></i> Settings ...
-                        </button>`
-                }
-            ];
-        }
-        return [];
-    }
-
-    renderStyle() {
+    renderToolbarLeftContent() {
         return html`
-            <style>
-                .variant-link-dropdown:hover .dropdown-menu {
-                    display: block;
-                }
-                .qtip-custom-class {
-                    font-size: 13px;
-                    max-width: none;
-                }
-                .check-variant {
-                    transform: scale(1.2);
-                }
-            </style>
+            <span id="${this.gridId + "PaginationInfo"}"></span>
         `;
     }
 
     render() {
         return html`
-
-            <div id="${this.gridId}WarningEvents"></div>
-
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"
                 .settings="${this.toolbarSetting}"
                 .query="${this.filters}"
                 .opencgaSession="${this.opencgaSession}"
+                .leftContent="${this.renderToolbarLeftContent()}"
                 @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"
                 @export="${this.onDownload}">

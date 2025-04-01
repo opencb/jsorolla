@@ -104,7 +104,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             columns: this._getDefaultColumns(),
             create: {
                 display: {
-                    modalTitle: "Clinical Analysis Create",
+                    modalTitle: "Create Clinical Analysis",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
@@ -141,15 +141,17 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
+                paginationVAlign: "bottom",
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+                },
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 gridContext: this,
                 // formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
-                    let response = null;
+                    let clinicalAnalysisResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
@@ -163,21 +165,23 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.fetchData(this.filters)
-                        .then(res => {
-                            response = res;
+                        .then(response => {
+                            clinicalAnalysisResponse = response;
                             // Prepare data for columns extensions
-                            const rows = response.responses?.[0]?.results || [];
+                            const rows = clinicalAnalysisResponse.responses?.[0]?.results || [];
                             return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
                         })
                         .then(() => {
-                            params.success(response);
+                            params.success(clinicalAnalysisResponse);
                         })
                         .catch(error => {
-                            response = error;
+                            console.error(error);
                             params.error(error);
                         })
                         .finally(() => {
-                            LitUtils.dispatchCustomEvent(this, "queryComplete", response);
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: clinicalAnalysisResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
@@ -216,7 +220,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     caseFormatter(value, row) {
         if (row?.id) {
-            const url = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`;
+            const url = WebUtils.getInterpreterLink(this.opencgaSession, row.id);
             return `
                 <div class="mt-1 me-0">
                     <a class="text-decoration-none" title="Go to Case Interpreter" href="${url}" data-cy="case-id">
@@ -293,9 +297,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
             }
         }
 
-        const interpretationUrl = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`;
+        const url = WebUtils.getInterpreterLink(this.opencgaSession, row.id);
         return `
-            <a class="text-decoration-none" data-action="interpreter" title="Go to Case Interpreter" href="${interpretationUrl}">
+            <a class="text-decoration-none" data-action="interpreter" title="Go to Case Interpreter" href="${url}">
                 ${html}
             </a>
         `;
@@ -763,11 +767,18 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
     }
 
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .opencgaSession="${this.opencgaSession}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"

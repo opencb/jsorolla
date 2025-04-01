@@ -136,7 +136,7 @@ export default class JobView extends LitElement {
                 })
                 .finally(() => {
                     this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "jobSearch", this.file, {}, error);
+                    LitUtils.dispatchCustomEvent(this, "jobSearch", this.job, {}, error);
                     this.#setLoading(false);
                 });
         } else {
@@ -313,12 +313,12 @@ export default class JobView extends LitElement {
                             type: "list",
                             display: {
                                 separator: "",
-                                contentLayout: "vertical",
-                                transform: tags => tags.map(tag => ({tag})),
-                                template: "${tag}",
-                                className: {
-                                    "tag": "badge badge-pill badge-primary",
-                                },
+                                contentLayout: "bullets",
+                                // transform: tags => tags.map(tag => ({tag})),
+                                // template: "${tag}",
+                                // className: {
+                                //     "tag": "badge badge-pill badge-primary",
+                                // },
                             },
                         },
                         {

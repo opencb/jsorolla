@@ -39,7 +39,7 @@ export class CellBaseClient {
     getDefaultConfig() {
         return {
             host: "https://ws.zettagenomics.com/cellbase",
-            version: "v5.1",
+            version: "v5.8",
             species: "hsapiens",
             query: {
                 batchSize: "",

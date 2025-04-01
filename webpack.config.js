@@ -23,11 +23,11 @@ const entries = ["iva", "test-app"];
 // internal method to get the path to the custom site
 const getCustomSitePath = (entry, folder) => {
     // NOTE: custom sites are not allowed for 'test-app'
-    if (process.env.npm_config_custom_site && entry !== "test-app") {
+    if (process.env.npm_config_custom_site && entry === "iva") {
         return path.join(__dirname, "custom-sites", process.env.npm_config_custom_site, "iva", folder);
     }
     // return the default path
-    return path.join(__dirname, "src", "sites", entry, folder);
+    return path.join(entry === "iva" ? process.cwd() : __dirname, "src", "sites", entry, folder);
 };
 
 // Setup middlewares for development server.
@@ -59,6 +59,10 @@ module.exports = {
     entry: {
         "iva": "./src/sites/iva/iva-app.js",
         "test-app": "./src/sites/test-app/test-app.js",
+        "pdf-worker": {
+            import: path.join(__dirname, "node_modules/pdfjs-dist/build/pdf.worker.mjs"),
+            filename: "iva/js/pdf.worker.js",
+        },
     },
     output: {
         path: path.join(process.cwd(), "build"),
@@ -95,6 +99,19 @@ module.exports = {
                 use: [MiniCssExtractPlugin.loader, "css-loader"],
             },
             {
+                test: /\.scss$/i,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    "css-loader",
+                    {
+                        loader: "sass-loader",
+                        options: {
+                            implementation: require.resolve("sass"),
+                        },
+                    },
+                ],
+            },
+            {
                 test: /\.(png|svg|jpg|jpeg|gif)$/i,
                 type: "asset/inline",
             },
@@ -109,7 +126,7 @@ module.exports = {
         },
         setupMiddlewares: setupCustomMiddlewares,
         devMiddleware: {
-            writeToDisk: true,
+            writeToDisk: false,
         },
     },
     performance: {
@@ -144,18 +161,22 @@ module.exports = {
                     "node_modules/bootstrap-table/dist/bootstrap-table.min.js",
                     "node_modules/jwt-decode/build/jwt-decode.min.js",
                     "node_modules/clipboard/dist/clipboard.min.js",
+                    "node_modules/swagger-ui/dist/swagger-ui-bundle.js",
+                    "node_modules/swagger-ui/dist/swagger-ui-standalone-preset.js",
+                    // "node_modules/ollama/dist/browser.mjs",
                     // "node_modules/pdfmake/build/pdfmake.min.js",
                     // "node_modules/pdfmake/build/vfs_fonts.js",
                     // "node_modules/html-to-pdfmake/browser.js",
                 ],
                 "[name]/css/globals.[contenthash].css": [
-                    "node_modules/bootstrap/dist/css/bootstrap.min.css",
+                    // "node_modules/bootstrap/dist/css/bootstrap.min.css",
                     "node_modules/select2/dist/css/select2.min.css",
                     "node_modules/select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css",
                     "node_modules/@eonasdan/tempus-dominus/dist/css/tempus-dominus.min.css",
                     "node_modules/bootstrap-table/dist/bootstrap-table.min.css",
                     "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
                     "node_modules/qtip2/dist/jquery.qtip.min.css",
+                    "node_modules/swagger-ui/dist/swagger-ui.css"
                 ],
             },
             chunks: entries,

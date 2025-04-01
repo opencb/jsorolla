@@ -17,21 +17,17 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import "./file-preview.js";
-import "./file-view.js";
 import "../commons/opencga-browser.js";
-import "../commons/opencb-facet-results.js";
-import "../commons/facet-filter.js";
+import "../commons/aggregation-stats.js";
 import "./file-grid.js";
-import "./file-detail.js";
+import "./file-tree.js";
 
 export default class FileBrowser extends LitElement {
 
     constructor() {
         super();
 
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -40,10 +36,10 @@ export default class FileBrowser extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            query: {
                 type: Object
             },
-            query: {
+            opencgaSession: {
                 type: Object
             },
             settings: {
@@ -52,8 +48,9 @@ export default class FileBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "file-browser";
+        this._lastCreatedPath = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -87,28 +84,56 @@ export default class FileBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
-
-        this.requestUpdate();
     }
 
     onSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onFileUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
+
+    onTreePathChange(event, params) {
+        const query = {
+            ...params.executedQuery,
+        };
+
+        // check if the path is empty --> in that case we have clicked in the root folder
+        // so we should remove the path from the query
+        if (!event.detail.value) {
+            delete query.path;
+            delete query.directory;
+        } else {
+            query.path = "~^" + event.detail.value + ".+";
+        }
+
+        // execute the onQuerySearch method of OpencgaBrowser
+        params.onQuerySearch({
+            detail: {
+                query: query,
+            },
+        });
+    }
+
+    onTreePathCreate(event) {
+        this._lastCreatedPath = event.detail.value;
+        this.requestUpdate();
+    }
+
     render() {
-        if (!this.opencgaSession || !this._config) {
-            return "";
+        if (!this.opencgaSession) {
+            return nothing;
         }
 
         return html`
             <opencga-browser
-                resource="FILE"
+                .resource="${"FILE"}"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
-                .config="${this._config}"
+                .config="${this._config || {}}"
                 @fileUpdate="${this.onFileUpdate}">
             </opencga-browser>
         `;
@@ -116,52 +141,66 @@ export default class FileBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "File Browser",
-            icon: "fab fa-searchengin",
-            description: "",
+            title: "File Manager",
             views: [
                 {
                     id: "table-tab-file",
-                    name: "Table result",
+                    name: "Table",
                     icon: "fa fa-table",
                     active: true,
                     render: params => html`
-                        <file-grid
-                            .toolId="${this.COMPONENT_ID}"
-                            .opencgaSession="${params.opencgaSession}"
-                            .query="${params.executedQuery}"
-                            .config="${params.config.filter.result.grid}"
-                            .eventNotifyName="${params.eventNotifyName}"
-                            @selectrow="${e => params.onClickRow(e)}"
-                            @fileUpdate="${e => params.onComponentUpdate(e)}"
-                            @settingsUpdate="${() => this.onSettingsUpdate()}">
-                        </file-grid>
-                        ${params?.detail ? html`
-                            <file-detail
-                                .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}"
-                                .fileId="${params.detail?.id}">
-                            </file-detail>
-                        ` : nothing}
+                        <div class="row">
+                            <div class="col-md-2 my-2">
+                                <file-tree
+                                    .opencgaSession="${params.opencgaSession}"
+                                    .rootDirectoryId="${":"}"
+                                    .currentPath="${params.executedQuery?.directory || (params.executedQuery?.path || "").slice(2, -2)}"
+                                    .lastCreatedPath="${this._lastCreatedPath}"
+                                    .config="${{
+                                        rootDirectoryName: "DATA",
+                                        rootDirectoryIcon: "fa-hdd",
+                                    }}"
+                                    @pathChange="${event => this.onTreePathChange(event, params)}">
+                                </file-tree>
+                            </div>
+                            <div class="col-md-10">
+                                <file-grid
+                                    .toolId="${this.COMPONENT_ID || ""}"
+                                    .opencgaSession="${params.opencgaSession}"
+                                    .query="${params.executedQuery}"
+                                    .config="${params.config.filter.result.grid}"
+                                    .eventNotifyName="${params.eventNotifyName}"
+                                    @queryComplete="${e => params.onQueryComplete(e)}"
+                                    @selectrow="${e => params.onClickRow(e)}"
+                                    @fileUpdate="${e => params.onComponentUpdate(e)}"
+                                    @settingsUpdate="${() => this.onSettingsUpdate()}"
+                                    @pathChange="${e => this.onTreePathChange(e, params)}"
+                                    @pathClear="${e => this.onTreePathClear(e, params)}"
+                                    @pathCreate="${e => this.onTreePathCreate(e)}">
+                                </file-grid>
+                            </div>
+                        </div>
                     `,
                 },
                 {
                     id: "facet-tab-file",
-                    name: "Aggregation stats",
+                    name: "Aggregation Stats",
                     icon: "fas fa-chart-bar",
                     render: params => html`
-                        <opencb-facet-results
+                        <aggregation-stats
                             resource="${params.resource}"
-                            .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
                             .active="${params.active}"
-                            .query="${params.facetQuery}"
-                            .data="${params.facetResults}">
-                        </opencb-facet-results>
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.aggregation}">
+                        </aggregation-stats>
                     `
                 }
             ],
             filter: {
-                searchButton: false,
+                activeFilters: {
+                    lockedFields: [{id: "path"}]
+                },
                 sections: [
                     {
                         title: "Section title",
@@ -169,59 +208,75 @@ export default class FileBrowser extends LitElement {
                         filters: [
                             {
                                 id: "name",
-                                name: "Name",
+                                title: "File Name",
                                 type: "string",
                                 placeholder: "accepted_hits.bam, phenotypes.vcf...",
-                                description: ""
-                            },
-                            {
-                                id: "sampleIds",
-                                name: "Sample ID",
-                                type: "string",
-                                placeholder: "HG01879, HG01880, HG01881...",
-                                description: ""
-                            },
-                            {
-                                id: "jobId",
-                                name: "Job ID",
-                                type: "string",
-                                placeholder: "Job ID ...",
                                 description: "",
+                                quick: true,
                             },
                             {
                                 id: "directory",
-                                name: "Directory",
+                                title: "Directory",
                                 type: "string",
                                 placeholder: "genomes/resources/files/...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "format",
-                                name: "Format",
+                                title: "Format",
                                 type: "string",
                                 placeholder: "Format ...",
-                                description: ""
+                                description: "",
+                                quick: true,
+                            },
+                            {
+                                id: "sampleIds",
+                                title: "Sample ID",
+                                type: "string",
+                                placeholder: "HG01879, HG01880, HG01881...",
+                                description: "",
+                                quick: true,
+                            },
+                            {
+                                id: "jobId",
+                                title: "Job ID",
+                                type: "string",
+                                placeholder: "Job ID ...",
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "internalVariantIndexStatus",
-                                name: "Variant Index Status",
+                                title: "Variant Index Status",
                                 multiple: true,
                                 // NOTE 20230310 Vero: The current internalVariantIndexStatus (internal.variant.index.status) vocabulary is:
                                 // "READY", "DELETED", "NONE", "TRANSFORMED", "TRANSFORMING", "LOADING", "INDEXING"
                                 // But the DELETED status gets mapped in opencga to NONE (Jacobo)
                                 allowedValues: ["READY", "NONE", "TRANSFORMED", "TRANSFORMING", "LOADING", "INDEXING"],
-                                type: "category"
+                                type: "category",
+                                quick: true,
+                            },
+                            {
+                                id: "type",
+                                title: "Type",
+                                multiple: true,
+                                allowedValues: ["FILE", "DIRECTORY"],
+                                type: "category",
+                                quick: true,
                             },
                             {
                                 id: "date",
-                                name: "Date",
+                                title: "Date",
                                 type: "date",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "annotations",
-                                name: "File Annotations",
+                                title: "File Annotations",
                                 description: "",
+                                quick: true,
                             }
                         ]
                     }
@@ -282,15 +337,9 @@ export default class FileBrowser extends LitElement {
                 }
             },
             aggregation: {
-                default: ["creationYear>>creationMonth", "format", "status", "size[0..214748364800]:10737418240", "numSamples[0..10]:1"],
-                render: params => html `
-                    <facet-filter
-                        .config="${params.config.aggregation}"
-                        .selectedFacet="${params.selectedFacet}"
-                        @facetQueryChange="${params.onFacetQueryChange}">
-                    </facet-filter>`,
-                result: {
-                    numColumns: 2
+                default: ["format", "status", "size[0..214748364800]:10737418240"],
+                display: {
+                    showNested: false
                 },
                 sections: [
                     {
@@ -298,57 +347,26 @@ export default class FileBrowser extends LitElement {
                         // collapsed: false,
                         fields: [
                             {
-                                id: "studyId",
-                                name: "Study id",
+                                id: "creationDate",
+                                name: "Creation Date",
+                                type: "date",
+                                allowedValues: ["YEAR", "MONTH", "DAY"],
+                                multiple: false,
+                                description: "Creation date, you can use 'day', 'month' or 'year' to group by"
+                            },
+                            // {
+                            //     id: "status",
+                            //     name: "Status",
+                            //     type: "category",
+                            //     allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED"],
+                            //     description: "Status"
+                            // },
+                            {
+                                id: "internal.variant.index.status.id",
+                                name: "Variant Index Status",
                                 type: "string",
-                                description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
-                            },
-                            {
-                                id: "creationYear",
-                                name: "Creation Year",
-                                type: "string",
-                                description: "Creation year"
-                            },
-                            {
-                                id: "creationMonth",
-                                name: "Creation Month",
-                                type: "category",
-                                multiple: true,
-                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
-                                description: "Creation month (JANUARY, FEBRUARY...)"
-                            },
-                            {
-                                id: "creationDay",
-                                name: "Creation Day",
-                                type: "category",
-                                allowedValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"],
-                                description: "Creation day"
-                            },
-                            {
-                                id: "creationDayOfWeek",
-                                name: "Creation Day Of Week",
-                                type: "category",
-                                allowedValues: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
-                                description: "Creation day of week (MONDAY, TUESDAY...)"
-                            },
-                            {
-                                id: "status",
-                                name: "Status",
-                                type: "category",
-                                allowedValues: ["READY", "DELETED", "TRASHED", "STAGE", "MISSING", "PENDING_DELETE", "DELETING", "REMOVED"],
-                                description: "Status"
-                            },
-                            {
-                                id: "release",
-                                name: "Release",
-                                type: "string",
-                                description: "Release"
-                            },
-                            {
-                                id: "name",
-                                name: "Name",
-                                type: "string",
-                                description: "Name"
+                                // allowedValues: ["READY", "DELETED"],
+                                description: "Variant database index status"
                             },
                             {
                                 id: "type",
@@ -366,85 +384,17 @@ export default class FileBrowser extends LitElement {
                                 description: "Format"
                             },
                             {
-                                id: "external",
-                                name: "External",
-                                type: "category",
-                                allowedValues: ["true", "false"],
-                                defaultValue: "false",
-                                description: "External"
-                            },
-                            {
                                 id: "size",
                                 name: "Size",
                                 type: "integer",
-                                defaultValue: "[0..214748364800]:10737418240",
+                                defaultValue: "[0..214748364800]:1073741824",
                                 description: "Size"
                             },
                             {
-                                id: "softwareName",
+                                id: "software.name",
                                 name: "Software Name",
                                 type: "string",
                                 description: "Software name"
-                            },
-                            {
-                                id: "softwareVersion",
-                                name: "Software Version",
-                                type: "string",
-                                description: "Software version"
-                            },
-                            {
-                                id: "experimentTechnology",
-                                name: "Experiment Technology",
-                                type: "string",
-                                description: "Experiment technology"
-                            },
-                            {
-                                id: "experimentMethod",
-                                name: "Experiment Method",
-                                type: "string",
-                                description: "Experiment method"
-                            },
-                            {
-                                id: "experimentNucleicAcidType",
-                                name: "Experiment Nucleic Acid Type",
-                                type: "string",
-                                description: "Experiment nucleic acid type"
-                            },
-                            {
-                                id: "experimentManufacturer",
-                                name: "Experiment Manufacturer",
-                                type: "string",
-                                description: "Experiment manufacturer"
-                            },
-                            {
-                                id: "experimentPlatform",
-                                name: "Experiment Platform",
-                                type: "string",
-                                description: "Experiment platform"
-                            },
-                            {
-                                id: "experimentLibrary",
-                                name: "Experiment Library",
-                                type: "string",
-                                description: "Experiment library"
-                            },
-                            {
-                                id: "experimentCenter",
-                                name: "Experiment Center",
-                                type: "string",
-                                description: "Experiment center"
-                            },
-                            {
-                                id: "experimentLab",
-                                name: "Experiment Lab",
-                                type: "string",
-                                description: "Experiment lab"
-                            },
-                            {
-                                id: "experimentResponsible",
-                                name: "Experiment Responsible",
-                                type: "string",
-                                description: "Experiment responsible"
                             },
                             {
                                 id: "tags",
@@ -452,38 +402,85 @@ export default class FileBrowser extends LitElement {
                                 type: "string",
                                 description: "Tags"
                             },
-                            {
-                                id: "numSamples",
-                                name: "Number Of Samples",
-                                type: "integer",
-                                description: "Number of samples",
-                                defaultValue: "[0..10]:1"
-                            },
-                            {
-                                id: "numRelatedFiles",
-                                name: "Number Of Related Files",
-                                type: "string",
-                                description: "Number of related files"
-                            },
-                            {
-                                id: "annotations",
-                                name: "Annotations",
-                                type: "string",
-                                description: "Annotations, e.g: key1=value(,key2=value)"
-                            }
+                            // {
+                            //     id: "softwareVersion",
+                            //     name: "Software Version",
+                            //     type: "string",
+                            //     description: "Software version"
+                            // },
+                            // {
+                            //     id: "experimentTechnology",
+                            //     name: "Experiment Technology",
+                            //     type: "string",
+                            //     description: "Experiment technology"
+                            // },
+                            // {
+                            //     id: "experimentMethod",
+                            //     name: "Experiment Method",
+                            //     type: "string",
+                            //     description: "Experiment method"
+                            // },
+                            // {
+                            //     id: "experimentNucleicAcidType",
+                            //     name: "Experiment Nucleic Acid Type",
+                            //     type: "string",
+                            //     description: "Experiment nucleic acid type"
+                            // },
+                            // {
+                            //     id: "experimentManufacturer",
+                            //     name: "Experiment Manufacturer",
+                            //     type: "string",
+                            //     description: "Experiment manufacturer"
+                            // },
+                            // {
+                            //     id: "experimentPlatform",
+                            //     name: "Experiment Platform",
+                            //     type: "string",
+                            //     description: "Experiment platform"
+                            // },
+                            // {
+                            //     id: "experimentLibrary",
+                            //     name: "Experiment Library",
+                            //     type: "string",
+                            //     description: "Experiment library"
+                            // },
+                            // {
+                            //     id: "experimentCenter",
+                            //     name: "Experiment Center",
+                            //     type: "string",
+                            //     description: "Experiment center"
+                            // },
+                            // {
+                            //     id: "experimentLab",
+                            //     name: "Experiment Lab",
+                            //     type: "string",
+                            //     description: "Experiment lab"
+                            // },
+                            // {
+                            //     id: "experimentResponsible",
+                            //     name: "Experiment Responsible",
+                            //     type: "string",
+                            //     description: "Experiment responsible"
+                            // },
+                            // {
+                            //     id: "annotations",
+                            //     name: "Annotations",
+                            //     type: "string",
+                            //     description: "Annotations, e.g: key1=value(,key2=value)"
+                            // }
                         ]
                     },
-                    {
-                        name: "Advanced",
-                        fields: [
-                            {
-                                id: "field",
-                                name: "Field",
-                                type: "string",
-                                description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
-                            }
-                        ]
-                    }
+                    // {
+                    //     name: "Advanced",
+                    //     fields: [
+                    //         {
+                    //             id: "field",
+                    //             name: "Field",
+                    //             type: "string",
+                    //             description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
+                    //         }
+                    //     ]
+                    // }
                 ]
             }
         };

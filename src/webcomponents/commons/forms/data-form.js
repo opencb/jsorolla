@@ -363,7 +363,7 @@ export default class DataForm extends LitElement {
 
     _getVisibleSections() {
         return this.config.sections
-            .filter(section => section.elements[0].type !== "notification" || section.elements.length > 1)
+            .filter(section => section.elements[0]?.type !== "notification" || section.elements.length > 1)
             .filter(section => this._getBooleanValue(section?.display?.visible, true));
     }
 
@@ -1027,6 +1027,7 @@ export default class DataForm extends LitElement {
                         allowedValues = values;
                     }
                 } else {
+                    // FIXME This needs to be reviewed
                     if (typeof element.allowedValues === "function") {
                         let item;
                         if (element.field?.includes("[]")) {
@@ -1195,8 +1196,7 @@ export default class DataForm extends LitElement {
         switch (contentLayout) {
             case "horizontal":
                 content = `
-                    ${values
-                    .map((elem, index) => `
+                    ${values.map((elem, index) => `
                         <span style="${styles[elem]}">${elem}</span>
                         <span>${index < values.length - 1 ? separators[index] ?? ", " : ""}</span>
                     `)
@@ -1205,9 +1205,8 @@ export default class DataForm extends LitElement {
                 break;
             case "vertical":
                 content = `
-                    ${values
-                    .map((elem, index) => `
-                        <div><span style="${styles[elem]}">${elem}</span></div>
+                    ${values.map((elem, index) => `
+                        <div><span style="${styles[elem] || ""}">${elem}</span></div>
                         ${separators[index] ? `<div>${separators[index]}</div>` : ""}
                     `)
                     .join("")
@@ -1561,7 +1560,7 @@ export default class DataForm extends LitElement {
         }
     }
 
-    _createDownloadElement(element) {
+     _createDownloadElement(element) {
         const content = html`
             <download-button
                 .json="${this.data}"
@@ -1743,20 +1742,20 @@ export default class DataForm extends LitElement {
                                             ${element.display.view(item)}
                                         </div>
                                         <div>
-                                            ${this._getBooleanValue(element.display.showEditItemListButton, true) && items[0][element.display.itemId || "id"] ? html`
+                                            ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
                                                 <button type="button" title="Edit item" class="btn btn-sm btn-primary"
                                                         ?disabled="${isDisabled}"
                                                         @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
                                                     <i aria-hidden="true" class="fas fa-edit"></i>
-                                                </button>` : nothing
-                                            }
-                                            ${this._getBooleanValue(element.display.showDeleteItemListButton, true) && items[0][element.display.itemId || "id"] ? html`
+                                                </button>
+                                            ` : nothing}
+                                            ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
                                                 <button type="button" title="Remove item from list" class="btn btn-sm btn-danger"
                                                         ?disabled="${isDisabled}"
                                                         @click="${e => this.#removeFromObjectList(e, item, index, element)}">
                                                     <i aria-hidden="true" class="fas fa-trash-alt"></i>
-                                                </button>` : nothing
-                                            }
+                                                </button>
+                                            ` : nothing}
                                         </div>
                                     </div>
                                     <!--FORM-->
@@ -1769,7 +1768,8 @@ export default class DataForm extends LitElement {
                                                 Close
                                             </button>
                                         </div>
-                                    </div>`;
+                                    </div>
+                                `;
                             })
                         }
                     </div>
@@ -1780,8 +1780,8 @@ export default class DataForm extends LitElement {
                                     @click="${e => this.#toggleObjectListCollapse(element, false)}">
                                 Show more ... (${items?.length} items)
                             </button>
-                        </div>` : nothing
-                    }
+                        </div>
+                    ` : nothing}
 
                     ${collapsable && !element.display.collapsed && (element.display.maxNumItems ?? 5) < items?.length ? html`
                         <div class="pt-0 pe-0 pb-2 ps-0">
@@ -1789,8 +1789,8 @@ export default class DataForm extends LitElement {
                                     @click="${e => this.#toggleObjectListCollapse(element, true)}">
                                 Show less ...
                             </button>
-                        </div>` : nothing
-                    }
+                        </div>
+                    ` : nothing}
                 `;
                 contents.push(view);
             }
@@ -1810,24 +1810,24 @@ export default class DataForm extends LitElement {
                                     @click="${e => this.#addToObjectList(e, element)}">
                                 <i aria-hidden="true" class="fas fa-plus pe-1"></i>
                                 ${element.display?.itemAddText || "Add Item"}
-                            </button>`: nothing
-                        }
+                            </button>
+                        `: nothing}
                         ${this._getBooleanValue(element.display.showAddBatchListButton, false) ? html`
                             <button type="button" class="btn btn-sm btn-primary"
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#toggleAddBatchToObjectList(e, element)}">
                                 <i aria-hidden="true" class="fas fa-file-import pe-1"></i>
                                 Add Batch
-                            </button>`: nothing
-                        }
+                            </button>
+                        `: nothing}
                         ${this._getBooleanValue(element.display.showResetListButton, false) ? html`
                             <button type="button" class="btn btn-sm btn-primary" title="Discard changes in this list"
                                     ?disabled="${isDisabled}"
                                     @click="${e => this.#resetObjectList(e, element)}">
                                 <i aria-hidden="true" class="fas fa-undo pe-1"></i>
                                 Reset
-                            </button>`: nothing
-                        }
+                            </button>
+                        `: nothing}
                     </div>
                     ${this._getBooleanValue(element.display.showAddBatchListButton, true) ? html`
                         <div class="ms-2 ps-3 d-none" id="${this._prefix}-${element?.field}">
@@ -1843,9 +1843,10 @@ export default class DataForm extends LitElement {
                                     OK
                                 </button>
                             </div>
-                        </div>`: nothing
-                    }
-                </div>`;
+                        </div>
+                    `: nothing}
+                </div>
+            `;
             contents.push(createHtml);
         }
         return this._createElementTemplate(element, null, contents);

@@ -40,8 +40,17 @@ export default class OpencbGridToolbar extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            toolId: {
+                type: String,
+            },
+            resource: {
+                type: String,
+            },
             rightToolbar: {
                 type: Array
+            },
+            leftContent: {
+                type: Object,
             },
             query: {
                 type: Object
@@ -70,13 +79,13 @@ export default class OpencbGridToolbar extends LitElement {
             };
         }
 
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("config") || changedProperties.has("resource")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
 
-            this.permissionID = WebUtils.getPermissionID(this._config.resource, "WRITE");
+            this.permissionID = WebUtils.getPermissionID(this.resource || this._config.resource, "WRITE");
         }
 
         super.update(changedProperties);
@@ -109,13 +118,22 @@ export default class OpencbGridToolbar extends LitElement {
         LitUtils.dispatchCustomEvent(this, toolbar + UtilsNew.capitalize(action));
     }
 
-    render() {
-        const rightButtons = [];
-        if (this.rightToolbar?.length > 0) {
-            for (const rightButton of this.rightToolbar) {
-                rightButtons.push(rightButton.render());
+    renderRightButtons() {
+        return (this.rightToolbar || []).map(button => {
+            if (typeof button.render === "function") {
+                return button.render();
+            } else {
+                return html`
+                    <button class="btn btn-light ${button.className || ""} ${button.disabled ? "disabled" : ""}" @click="${button.onClick}">
+                        ${button.icon ? html`<i class="fas ${button.icon} me-1"></i>` : nothing}
+                        ${button.title}
+                    </button>
+                `;
             }
-        }
+        });
+    }
+
+    render() {
         // Button create text
         const buttonCreateText = this._settings?.buttonCreateText || "New...";
 
@@ -139,61 +157,57 @@ export default class OpencbGridToolbar extends LitElement {
         }
 
         return html`
-            <div class="opencb-grid-toolbar">
-                <div class="row mb-2">
-                    <div id="${this._prefix}ToolbarLeft" class="col-md-6">
-                        <!-- Display components on the LEFT -->
-                    </div>
-                    <div id="${this._prefix}toolbar" class="col-md-6" data-cy="toolbar">
-                        <!-- Display components on the RIGHT -->
-                        <div class="d-flex gap-1 justify-content-end" data-cy="toolbar-wrapper">
-                            <!-- First, display custom elements passed as 'rightToolbar' parameter, this must be the first ones displayed -->
-                            ${rightButtons?.length > 0 ? rightButtons.map(rightButton => html`
-                                <div class="btn-group">
-                                    ${rightButton}
-                                </div>
-                            `) : nothing}
-
-                            <!-- Second, display elements configured -->
-                            ${this._config?.create && (this._settings.showCreate || this._settings.showNew) ? html`
-                                <div class="btn-group">
-                                    <!-- Note 20230517 Vero: it is not possible to trigger a tooltip on a disabled button.
-                                    As a workaround, the tooltip will be displayed from a wrapper -->
-                                    ${isCreateDisabled ? html `
-                                        <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="${isCreateDisabledTooltip}">
-                                            <button data-cy="toolbar-btn-create" data-action="create" type="button" class="btn btn-light" disabled>
-                                                <i class="fas fa-file pe-1" aria-hidden="true"></i> ${buttonCreateText}
-                                            </button>
-                                        </span>
-                                    ` : html `
-                                        <button data-cy="toolbar-btn-create" data-action="create" type="button" class="btn btn-light" @click="${this.onActionClick}">
-                                            ${this._settings?.downloading === true ? html`
-                                                <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                                            ` : nothing}
-                                            <i class="fas fa-file pe-1" aria-hidden="true"></i> ${buttonCreateText}
-                                        </button>
-                                    `}
-                                </div>
-                            ` : nothing}
-
-                            ${this._settings.showExport ? html`
-                                <div class="btn-group">
-                                    <button data-cy="toolbar-btn-export" data-action="export" type="button" class="btn btn-light" @click="${this.onActionClick}">
-                                        ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                                        <i class="fas fa-download pe-1" aria-hidden="true"></i> Export ...
-                                    </button>
-                                </div>
-                            ` : nothing}
-
-                            ${this._settings?.showSettings ? html`
-                                <div class="btn-group">
-                                    <button data-cy="toolbar-btn-settings" data-action="settings" type="button" class="btn btn-light" @click="${this.onActionClick}">
-                                        <i class="fas fa-cog pe-1"></i> Settings ...
-                                    </button>
-                                </div>
-                            ` : nothing}
+            <div class="d-flex align-items-center justify-content-between mb-2" data-cy="toolbar">
+                <div class="d-flex align-items-center" data-cy="toolbar-left-content">
+                    ${this.leftContent || nothing}
+                </div>
+                <div class="d-flex gap-1 justify-content-end" data-cy="toolbar-wrapper">
+                    <!-- First, display custom elements passed as 'rightToolbar' parameter, this must be the first ones displayed -->
+                    ${this.rightToolbar?.length > 0 ? html`
+                        <div class="d-flex align-items-stretch gap-1">
+                            ${this.renderRightButtons()}
+                            <div class="w-px bg-gray-200 mx-1"></div>
                         </div>
-                    </div>
+                    ` : nothing}
+
+                    <!-- Second, display elements configured -->
+                    ${this._config?.create && (this._settings.showCreate || this._settings.showNew) ? html`
+                        <div class="btn-group">
+                            <!-- Note 20230517 Vero: it is not possible to trigger a tooltip on a disabled button.
+                            As a workaround, the tooltip will be displayed from a wrapper -->
+                            ${isCreateDisabled ? html `
+                                <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="${isCreateDisabledTooltip}">
+                                    <button data-cy="toolbar-btn-create" data-action="create" type="button" class="btn btn-light" disabled>
+                                        <i class="fas fa-file pe-1" aria-hidden="true"></i> ${buttonCreateText}
+                                    </button>
+                                </span>
+                            ` : html `
+                                <button data-cy="toolbar-btn-create" data-action="create" type="button" class="btn btn-light" @click="${this.onActionClick}">
+                                    ${this._settings?.downloading === true ? html`
+                                        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                    ` : nothing}
+                                    <i class="fas fa-file pe-1" aria-hidden="true"></i> ${buttonCreateText}
+                                </button>
+                            `}
+                        </div>
+                    ` : nothing}
+
+                    ${this._settings.showExport ? html`
+                        <div class="btn-group">
+                            <button data-cy="toolbar-btn-export" data-action="export" type="button" class="btn btn-light" @click="${this.onActionClick}">
+                                ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
+                                <i class="fas fa-download pe-1" aria-hidden="true"></i> Export ...
+                            </button>
+                        </div>
+                    ` : nothing}
+
+                    ${this._settings?.showSettings ? html`
+                        <div class="btn-group">
+                            <button data-cy="toolbar-btn-settings" data-action="settings" type="button" class="btn btn-light" @click="${this.onActionClick}">
+                                <i class="fas fa-cog pe-1"></i> Settings ...
+                            </button>
+                        </div>
+                    ` : nothing}
                 </div>
             </div>
 
@@ -224,11 +238,12 @@ export default class OpencbGridToolbar extends LitElement {
             export: {
                 display: {
                     modalDraggable: true,
-                    modalTitle: this.config?.resource + " Export",
+                    modalTitle: (this.resource || this.config?.resource) + " Export",
                     modalSize: "modal-lg",
                 },
                 render: () => html`
                     <opencga-export
+                        .resource="${this.resource || this.config?.resource}"
                         .config="${this._config}"
                         .query=${this.query}
                         .opencgaSession="${this.opencgaSession}"
@@ -240,14 +255,14 @@ export default class OpencbGridToolbar extends LitElement {
             settings: {
                 display: {
                     modalDraggable: true,
-                    modalTitle: this.config?.resource + " Settings",
+                    modalTitle: (this.resource || this.config?.resource) + " Settings",
                     modalSize: "modal-lg"
                 },
                 render: () => !this._config?.showInterpreterConfig ? html `
                     <catalog-browser-grid-config
                         .opencgaSession="${this.opencgaSession}"
                         .gridColumns="${this._config.columns}"
-                        .toolId="${this._config?.toolId}"
+                        .toolId="${this.toolId || this._config?.toolId}"
                         .config="${this._settings}"
                         @settingsUpdate="${this.onCloseSetting}">
                     </catalog-browser-grid-config>` : html `
@@ -255,7 +270,7 @@ export default class OpencbGridToolbar extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .gridColumns="${this._config.columns}"
                         .config="${this._settings}"
-                        .toolId="${this._config?.toolId}"
+                        .toolId="${this.toolId || this._config?.toolId}"
                         @settingsUpdate="${this.onCloseSetting}">
                     </variant-interpreter-grid-config>
                 `,

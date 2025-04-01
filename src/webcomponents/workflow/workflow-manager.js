@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/data-list.js";
@@ -23,6 +23,7 @@ import "./workflow-view.js";
 import "./workflow-create.js";
 import "./workflow-update.js";
 import "./workflow-import.js";
+import "./workflow-delete.js";
 import "./analysis/workflow-analysis.js";
 import ModalUtils from "../commons/modal/modal-utils";
 import GridCommons from "../commons/grid-commons";
@@ -32,7 +33,6 @@ export default class WorkflowManager extends LitElement {
     constructor() {
         super();
 
-        // Set status and init private properties
         this.#init();
     }
 
@@ -62,6 +62,10 @@ export default class WorkflowManager extends LitElement {
         //     {id: "CLINICAL_INTERPRETATION_ANALYSIS", name: "Clinical Interpretation Analysis"},
         //     {id: "OTHER", name: "Other"},
         // ];
+        this.COMPONENT_ID = "workflow-manager";
+        this._prefix = UtilsNew.randomString(8);
+        this.resource = "WORKFLOW";
+
 
         this.WORKFLOW_TYPES_COLOR_MAP = {
             SECONDARY_ANALYSIS: "blue",
@@ -70,7 +74,94 @@ export default class WorkflowManager extends LitElement {
             OTHER: "black",
         };
 
+        const entityActions = [
+            {
+                id: "workflow-create",
+                tooltip: "New Workflow",
+                icon: "fas fa-plus",
+                title: "Create Workflow",
+                modalId: `${this._prefix}WorkflowCreateModal`,
+                render: () => this.renderWorkflowCreate(),
+                // permission: this.permissions["organization"](),
+            },
+            {
+                id: "workflow-import",
+                tooltip: "Import Workflow",
+                icon: "fas fa-file-import",
+                title: "Import workflow",
+                modalId: `${this._prefix}WorkflowImportModal`,
+                render: () => this.renderWorkflowImport(),
+                // permission: this.permissions["organization"](),
+            },
+        ];
+        const instanceActions = [
+            {
+                id: "workflow-view",
+                title: "View",
+                icon: "fas fa-file-alt",
+                modalTitle: "View Workflow",
+                modalId: `${this._prefix}WorkflowViewModal`,
+                render: () => this.renderWorkflowView(),
+                // permission: this.permissions["organization"](),
+                divider: true,
+            },
+            {
+                id: "workflow-copy",
+                title: "Copy JSON",
+                icon: "fas fa-download",
+                render: () => this.renderWorkflowCopy(),
+                divider: true,
+            },
+            {
+                id: "workflow-download",
+                title: "Download JSON",
+                icon: "fas fa-copy",
+                render: () => this.renderWorkflowDownload(),
+                divider: true,
+            },
+            {
+                id: "workflow-execute",
+                title: "Execute...",
+                icon: "fas fa-play",
+                modalTitle: "Execute",
+                modalId: `${this._prefix}WorkflowExecuteModal`,
+                render: () => this.renderWorkflowExecute(),
+                // permission: this.permissions["organization"](),
+                divider: true,
+            },
+            {
+                id: "workflow-update",
+                title: "Edit...",
+                icon: "fas fa-edit",
+                modalTitle: "Update",
+                modalId: `${this._prefix}WorkflowUpdateModal`,
+                render: () => this.renderWorkflowUpdate(),
+                // permission: this.permissions["organization"](),
+                divider: true,
+            },
+            {
+                id: "workflow-delete",
+                title: "Delete...",
+                icon: "far fa-trash-alt",
+                render: () => this.renderWorkflowDelete(),
+            },
+
+        ];
+
+        this.actions = {
+            "entity": entityActions,
+            "instance": instanceActions,
+        };
+
+        this.currentAction = {};
+
         this._config = this.getDefaultConfig();
+    }
+
+    #initOriginalObjects() {
+        this.currentAction = {};
+        this.workflowId = "";
+        this.workflow = {};
     }
 
     update(changedProperties) {
@@ -106,7 +197,6 @@ export default class WorkflowManager extends LitElement {
                     })
                     .catch(error => {
                         console.error(error);
-                        params.error(error);
                     }).finally(() => {
                     this.requestUpdate();
                 });
@@ -114,49 +204,32 @@ export default class WorkflowManager extends LitElement {
         }
     }
 
-    onActionClick(e, value, workflow) {
-        e.preventDefault();
-
-        const action = e.currentTarget.dataset.action;
-        switch (action) {
-            case "view":
-                this.workflowUpdateId = workflow.id;
-                this.requestUpdate();
-                // await this.updateComplete;
-                ModalUtils.show(`${this._prefix}ViewModal`);
-                break;
-            case "copy":
-                UtilsNew.copyToClipboard(JSON.stringify(workflow, null, "\t"));
-                break;
-            case "execute":
-                this.workflowUpdateId = workflow.id;
-                this.requestUpdate();
-                // await this.updateComplete;
-                ModalUtils.show(`${this._prefix}ExecuteModal`);
-                break;
-            case "edit":
-                this.workflowUpdateId = workflow.id;
-                this.requestUpdate();
-                // await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
-                break;
-            case "delete":
-                // this.clinicalAnalysisManager.deleteInterpretation(interpretationId, interpretationCallback);
-                break;
-        }
+    async onActionClick(e, value, workflow) {
+        this.currentAction = this.actions[e.currentTarget.dataset.type].find(action => action.id === e.currentTarget.dataset.action);
+        debugger
+        this.workflowId = workflow?.id ?? "";
+        this.workflow = workflow ?? {};
+        this.requestUpdate();
+        await this.updateComplete;
+        ModalUtils.show(this.currentAction["modalId"]);
     }
 
-    onWorkflowCreate(e) {
-        ModalUtils.show(`${this._prefix}CreateModal`);
+    onWorkflowAction(e,id) {
+        ModalUtils.close(id);
+        this.#initOriginalObjects();
     }
 
-    renderCreateModal() {
-        return ModalUtils.create(this, `${this._prefix}CreateModal`, {
+    onCloseNotification() {
+        this.#initOriginalObjects();
+    }
+
+    renderWorkflowCreate() {
+        return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
             display: {
-                modalTitle: `Create a new Workflow`,
+                modalTitle: this.currentAction["modalTitle"],
                 modalDraggable: true,
-                modalCyDataName: "modal-execute",
-                modalSize: "modal-xl"
+                modalCyDataName: "modal-workflow-create",
+                modalSize: "modal-lg",
             },
             render: () => html`
                 <workflow-create
@@ -165,17 +238,15 @@ export default class WorkflowManager extends LitElement {
                         buttonClearText: "Cancel",
                         type: "tabs",
                         buttonsLayout: "upper"
-                    }}">
+                    }}"
+                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                    @workflowCreate="${e => this.onWorkflowAction(e, `${this.currentAction["modalId"]}`)}">
                 </workflow-create>
             `,
         });
     }
 
     onWorkflowImport(e) {
-        ModalUtils.show(`${this._prefix}ImportModal`);
-    }
-
-    onWorkflowImported(e) {
         this.opencgaSession.opencgaClient.workflows()
             .search(
                 {
@@ -194,34 +265,34 @@ export default class WorkflowManager extends LitElement {
         });
     }
 
-    renderImportModal() {
-        return ModalUtils.create(this, `${this._prefix}ImportModal`, {
+    renderWorkflowImport() {
+        return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
             display: {
-                modalTitle: `Import NextFlow Workflows`,
+                modalTitle: this.currentAction["modalTitle"],
                 modalDraggable: true,
-                modalCyDataName: "modal-execute",
-                modalSize: "modal-xl"
+                modalCyDataName: `modal-${this.currentAction["id"]}`,
+                modalSize: "modal-lg",
             },
             render: () => html`
                 <workflow-import
                     .opencgaSession="${this.opencgaSession}"
-                    @workflowImport="${this.onWorkflowImported}">
+                    @workflowImport="${this.onWorkflowImport}">
                 </workflow-import>
             `,
         });
     }
 
-    renderViewModal() {
-        return ModalUtils.create(this, `${this._prefix}ViewModal`, {
+    renderWorkflowView() {
+        return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
             display: {
-                modalTitle: `Workflow Execute: ${this.workflowUpdateId}`,
+                modalTitle: this.currentAction["modalTitle"],
                 modalDraggable: true,
-                modalCyDataName: "modal-execute",
-                modalSize: "modal-lg"
+                modalCyDataName: `modal-${this.currentAction["id"]}`,
+                modalSize: "modal-lg",
             },
             render: () => html`
                 <workflow-view
-                    .workflow="${{id: this.workflowUpdateId}}"
+                    .workflowId="${this.workflowId}"
                     .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "bottom"}}"
                     .opencgaSession="${this.opencgaSession}">
                 </workflow-view>
@@ -229,17 +300,17 @@ export default class WorkflowManager extends LitElement {
         });
     }
 
-    renderExecuteModal() {
-        return ModalUtils.create(this, `${this._prefix}ExecuteModal`, {
+    renderWorkflowExecute() {
+        return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
             display: {
-                modalTitle: `Workflow Execute: ${this.workflowUpdateId}`,
+                modalTitle: this.currentAction["modalTitle"],
                 modalDraggable: true,
-                modalCyDataName: "modal-execute",
-                modalSize: "modal-lg"
+                modalCyDataName: `modal-${this.currentAction["id"]}`,
+                modalSize: "modal-lg",
             },
             render: () => html`
                 <workflow-analysis
-                    .toolParams="${{id: this.workflowUpdateId}}"
+                    .toolParams="${{id: this.workflowId}}"
                     .search="${false}"
                     .opencgaSession="${this.opencgaSession}">
                 </workflow-analysis>
@@ -247,71 +318,97 @@ export default class WorkflowManager extends LitElement {
         });
     }
 
-    onWorkflowUpdate() {
-        LitUtils.dispatchCustomEvent(this, "workflowUpdate", null, {
-            workflow: this.clinicalAnalysis,
-        });
-    }
-
-    renderUpdateModal() {
-        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+    renderWorkflowUpdate() {
+        return ModalUtils.create(this, `${this.currentAction["modalId"]}`, {
             display: {
-                modalTitle: `Workflow Update: ${this.workflowUpdateId}`,
+                modalTitle: this.currentAction["modalTitle"],
                 modalDraggable: true,
-                modalCyDataName: "modal-update",
-                modalSize: "modal-lg"
+                modalCyDataName: `modal-${this.currentAction["id"]}`,
+                modalSize: "modal-lg",
             },
             render: active => html`
                 <workflow-update
-                    .workflowId="${this.workflowUpdateId}"
+                    .workflowId="${this.workflowId}"
                     .active="${active}"
                     .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}"
-                    @workflowUpdate="${this.onWorkflowUpdate}">
+                    .opencgaSession="${this.opencgaSession}">
                 </workflow-update>
             `,
         });
     }
 
-    render() {
-        if (this.workflows?.length === 0) {
-            return html`
-                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i>
-                    No workflows available.
-                </div>
-            `;
-        }
+    renderWorkflowCopy() {
+        UtilsNew.copyToClipboard(JSON.stringify(this.workflow, null, "\t"));
+    }
 
+    renderWorkflowDownload() {
+        UtilsNew.downloadData([JSON.stringify(this.workflow, null, "\t")], this.workflow.id + ".json");
+    }
+
+    renderWorkflowDelete() {
+        debugger
+        return html`
+            <workflow-delete
+                .opencgaSession="${this.opencgaSession}"
+                .workflowId="${this.workflowId}"
+                @closeNotification="${e => this.onCloseNotification(e)}">
+            </workflow-delete>
+        `;
+    }
+
+    renderEntityToolbar() {
+        return html`
+            <div class="d-flex gap-1 justify-content-end" data-cy="manager-toolbar-actions">
+                ${
+                    this.actions["entity"].map(action => {
+                        return html`
+                            <div class="btn-group">
+                                <button
+                                    type="button"
+                                    class="btn btn-light ${action.permission}"
+                                    data-action="${action.id}"
+                                    data-type="entity"
+                                    @click="${ (e, value, row) => this.onActionClick(e, value, row)}">
+                                        ${action.icon ? html`<span><i class="${action.icon} fa-lg pe-1"></i></span>` : nothing}
+                                        ${action.title ? html`${action.title}` : nothing}
+                                </button>
+                            </div>
+                        `;
+                    })
+                }
+            </div>
+        `;
+    }
+
+
+    render() {
         return html`
             <div class="interpreter-content-tab">
                 <div class="row">
-                    <div class="col-12 mb-3">
-                        <h2 style="pb-2">Workflows</h2>
-                        <div class="">
-                            <button  type="button" class="btn btn-primary" @click="${this.onWorkflowCreate}">
-                                <i class="fas fa-solid fa-file-medical pe-2" aria-hidden="true"></i>New Workflow ...
-                            </button>
-                            <button  type="button" class="btn btn-primary" @click="${this.onWorkflowImport}">
-                                <i class="fas fa-solid fa-file-medical pe-2" aria-hidden="true"></i>Import ...
-                            </button>
+                    <!-- ENTITY ACTIONS TOOLBAR -->
+                    <div class="d-flex align-items-center justify-content-between pb-2 border-bottom border-black" data-cy="manager-toolbar">
+                        <div class="d-flex align-items-center" data-cy="manager-toolbar-leftcontent">
+                            ${this._leftContent || nothing}
                         </div>
+                        ${this.renderEntityToolbar()}
                     </div>
-
-                    <div>
-                        <data-list
-                            .data="${this.workflows}"
-                            .config="${this._config}">
-                        </data-list>
+                    ${this.workflows?.length === 0 ? html`
+                    <div class="alert alert-info">
+                        <i class="fas fa-3x fa-info-circle align-middle me-2"></i>
+                        No workflows available.
                     </div>
-
+                    ` : html`
+                        <div>
+                            <data-list
+                                .data="${this.workflows}"
+                                .config="${this._config}">
+                            </data-list>
+                        </div>
+                    `}
                 </div>
             </div>
-
-            ${this.renderCreateModal()}
-            ${this.renderImportModal()}
-            ${this.renderViewModal()}
-            ${this.renderExecuteModal()}
-            ${this.renderUpdateModal()}
+            <!-- 3. On entity action click, render the respective modal -->
+            ${UtilsNew.isNotEmpty(this.currentAction) ? this.currentAction["render"](): nothing}
         `;
     }
 
@@ -463,36 +560,58 @@ export default class WorkflowManager extends LitElement {
                         colspan: 1,
                         formatter: () => {
                             return `
-                            <div class="dropdown">
+                                <div class="dropdown d-flex justify-content-end">
+                                    <button type="button" class="btn" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                    ${this.actions["instance"].map(action => {
+                                        return `
+                                            <li>
+                                                <a
+                                                class="dropdown-item ${action.permission}"
+                                                data-action="${action.id}"
+                                                data-type="instance"
+                                                style="cursor:pointer;">
+                                                    ${action.icon ? `<span><i class="${action.icon} pe-2"></i></span>` : ""}
+                                                    ${action.title ? `${action.title}` : ""}
+                                                </a>
+                                            </li>
+                                            ${action.divider ? `<li><hr class="dropdown-divider"></li>` : ""}
+                                        `;
+                                    }).join("")}
+                                    </ul>
+                                </div>
+                            <!--<div class="dropdown">
                                 <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-toolbox pe-2"></i>Actions
                                 </button>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a class="dropdown-item" href="#" data-action="view">
+                                        <a class="dropdown-item" data-action="view">
                                         <i class="fas fa-copy pe-2" aria-hidden="true"></i>View</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="#" data-action="copy">
+                                        <a class="dropdown-item" data-action="copy">
                                         <i class="fas fa-copy pe-2" aria-hidden="true"></i>Copy JSON</a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item" href="#" data-action="execute">
+                                        <a class="dropdown-item" data-action="execute">
                                         <i class="fas fa-download pe-2" aria-hidden="true"></i>Execute ...</a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item" href="#" data-action="edit">
+                                        <a class="dropdown-item" data-action="edit">
                                         <i class="fas fa-eraser pe-2" aria-hidden="true"></i>Edit ...</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item disabled" href="#" data-action="delete">
+                                        <a class="dropdown-item" data-action="delete">
                                         <i class="fas fa-trash pe-2" aria-hidden="true"></i>Delete</a>
                                     </li>
                                 </ul>
-                            </div>
-                        `;
+                            </div>-->
+                            `;
                         },
                         events: {
                             "click a": (e, value, row) => this.onActionClick(e, value, row)

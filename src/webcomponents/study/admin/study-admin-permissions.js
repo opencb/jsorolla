@@ -19,7 +19,8 @@ import UtilsNew from "../../../core/utils-new.js";
 import GridCommons from "../../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import {guardPage, construction} from "../../commons/html-utils.js";
-import "../permission/permission-browser-grid.js";
+// import "../permission/permission-browser-grid.js";
+import "../permission/permission-browser-grid-2.js";
 
 export default class StudyAdminPermissions extends LitElement {
 
@@ -70,11 +71,11 @@ export default class StudyAdminPermissions extends LitElement {
                     active: true,
                     render: (study, active, opencgaSession) => {
                         return html`
-                            <permission-browser-grid
+                            <permission-browser-grid-2
                                 .study=${study}
                                 .active=${active}
                                 .opencgaSession=${opencgaSession}>
-                            </permission-browser-grid>`;
+                            </permission-browser-grid-2>`;
                     }
                 },
                 {

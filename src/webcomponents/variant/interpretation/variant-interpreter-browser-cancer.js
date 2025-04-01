@@ -28,7 +28,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -46,11 +46,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            // query: {
-            //     type: Object
-            // },
             cellbaseClient: {
                 type: Object
+            },
+            title: {
+                type: String,
             },
             settings: {
                 type: Object
@@ -61,7 +61,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "variant-interpreter-cancer-snv";
         this._prefix = UtilsNew.randomString(8);
 
@@ -76,18 +76,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
+
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
-        // if (changedProperties.has("query")) {
-        //     this.queryObserver();
-        // }
+
         super.update(changedProperties);
     }
 
-    /*
-     * Fetch the ClinicalAnalysis object from REST and trigger the observer call.
-     */
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
@@ -297,27 +293,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
         }
 
         return {
-            title: "Cancer Case Interpreter",
-            icon: "fas fa-search",
-            active: false,
-            showOtherTools: false,
-            showTitle: false,
+            title: this.title || "SNV Variant Browser",
             filter: {
-                title: "Filter",
-                searchButton: true,
-                searchButtonText: "Search",
                 activeFilters: {
-                    alias: {
-                        // Example:
-                        "ct": "Consequence Types",
-                        "sample": "Sample Genotype"
-                    },
-                    complexFields: [
-                        {id: "sample", separator: ";"},
-                        {id: "fileData", separator: ","},
-                    ],
                     hiddenFields: [],
                     lockedFields: lockedFields,
+                },
+                save: {
+                    ignoreParams: ["study", "sample", "file", "fileData"],
                 },
                 sections: [ // sections and subsections, structure and order is respected
                     {

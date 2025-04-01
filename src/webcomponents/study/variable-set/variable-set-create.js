@@ -38,7 +38,7 @@ export default class VariableSetCreate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            displayConfig: {
                 type: Object
             }
         };
@@ -46,8 +46,16 @@ export default class VariableSetCreate extends LitElement {
 
     #init() {
         this.variableSet = {
+            unique: true,
+            confidential: false,
             variables: [],
-            unique: true
+        };
+        this.isLoading = false;
+        this.displayConfigDefault = {
+            style: "margin: 10px",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+            buttonOkText: "Create"
         };
         this._config = this.getDefaultConfig();
     }
@@ -57,9 +65,18 @@ export default class VariableSetCreate extends LitElement {
         this.requestUpdate();
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this._config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
+    }
+
     onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        this.variableSet = {...this.variableSet};
+        // const param = field || e.detail.param;
+        // this.variableSet = {...this.variableSet};
+        this.variableSet = {...e.detail.data};
         this.requestUpdate();
     }
 
@@ -71,30 +88,34 @@ export default class VariableSetCreate extends LitElement {
                 this.variableSet = {};
                 this._config = this.getDefaultConfig();
                 this.requestUpdate();
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: "The fields has been cleaned.",
-                });
+                // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                //     message: "The fields has been cleaned.",
+                // });
             }
         });
     }
-
 
     onSubmit() {
         const params = {
             action: "ADD"
         };
+
+        // We need convert the Variable string into an object
+        this.variableSet.variables = JSON.parse(this.variableSet.variables);
+
         let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.studies()
             .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, params)
             .then(() => {
                 this.variableSet = {
+                    unique: true,
+                    confidential: false,
                     variables: [],
-                    unique: true
                 };
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "New VariableSet",
-                    message: "VariableSet created correctly"
+                    title: "New Variable Set",
+                    message: "Variable Set created correctly"
                 });
             })
             .catch(reason => {
@@ -107,40 +128,44 @@ export default class VariableSetCreate extends LitElement {
             });
     }
 
-
     render() {
+        if (this.isLoading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
         return html `
             <data-form
                 .data=${this.variableSet}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                @clear="${e => this.onClear(e)}"
+                @submit="${e => this.onSubmit(e)}">
             </data-form>`;
     }
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            type: "form",
-            display: {
-                style: "margin: 10px",
-                labelWidth: 3,
-                labelAlign: "right",
-                defaultLayout: "horizontal",
-                buttonOkText: "Create"
-            },
+            // type: "form",
+            // display: {
+            //     style: "margin: 10px",
+            //     labelWidth: 3,
+            //     labelAlign: "right",
+            //     defaultLayout: "horizontal",
+            //     buttonOkText: "Create"
+            // },
+            display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
                     title: "General Information",
                     elements: [
-                        {
-                            type: "notification",
-                            text: "Some changes have been done in the form. Not saved, changes will be lost",
-                            display: {
-                                visible: () => Object.keys(this.variableSet).length > 0,
-                                notificationType: "warning",
-                            }
-                        },
+                        // {
+                        //     type: "notification",
+                        //     text: "Some changes have been done in the form. Not saved, changes will be lost",
+                        //     display: {
+                        //         visible: () => Object.keys(this.variableSet).length > 0,
+                        //         notificationType: "warning",
+                        //     }
+                        // },
                         {
                             title: "ID",
                             field: "id",
@@ -149,14 +174,13 @@ export default class VariableSetCreate extends LitElement {
                             display: {
                                 placeholder: "Add a short ID...",
                                 helpIcon: "fas fa-info-circle",
-                                // helpText: "short variableSet id",
-                                validation: {
-                                    message: "Please enter more that 3 character",
-                                    validate: variable => variable?.id?.length > 4 || variable?.id === undefined || variable?.id === ""
-                                    // TODO: this work if we update the config every change
-                                    // to re-evaluate or refresh the form applying the validation.
-                                    // validate: variable => variable?.id?.length > 4
-                                }
+                                // validation: {
+                                //     message: "Please enter more that 3 character",
+                                //     validate: variable => variable?.id?.length > 4 || variable?.id === undefined || variable?.id === ""
+                                //     // TODO: this work if we update the config every change
+                                //     // to re-evaluate or refresh the form applying the validation.
+                                //     // validate: variable => variable?.id?.length > 4
+                                // }
                             }
                         },
                         {
@@ -164,7 +188,7 @@ export default class VariableSetCreate extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ...",
+                                placeholder: "Add a name...",
                                 help: {
                                     // text: "short name variable"
                                 },
@@ -183,11 +207,11 @@ export default class VariableSetCreate extends LitElement {
                                 placeholder: "select a entity..."
                             }
                         },
-                        // {
-                        //     title: "Unique",
-                        //     field: "unique",
-                        //     type: "checkbox",
-                        // },
+                        {
+                            title: "Unique",
+                            field: "unique",
+                            type: "checkbox",
+                        },
                         // {
                         //     title: "Confidential",
                         //     field: "confidential",
@@ -200,13 +224,57 @@ export default class VariableSetCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "variable description..."
+                                placeholder: "VariableSet description..."
+                            }
+                        },
+                        {
+                            title: "Variables",
+                            field: "variables",
+                            type: "input-text",
+                            display: {
+                                rows: 50,
+                                placeholder: `[
+    {
+      "id": "string",
+      "name": "string",
+      "category": "string",
+      "type": {
+        "BOOLEAN": {},
+        "CATEGORICAL": {},
+        "INTEGER": {},
+        "DOUBLE": {},
+        "STRING": {},
+        "OBJECT": {},
+        "MAP_BOOLEAN": {},
+        "MAP_INTEGER": {},
+        "MAP_DOUBLE": {},
+        "MAP_STRING": {}
+      },
+      "defaultValue": {},
+      "required": true,
+      "multiValue": true,
+      "allowedValues": [
+        "string"
+      ],
+      "allowedKeys": [
+        "string"
+      ],
+      "rank": 0,
+      "dependsOn": "string",
+      "description": "string",
+      "variables": {}
+    }
+ ]
+                                `
                             }
                         }
                     ]
                 },
                 {
                     title: "Variables",
+                    display: {
+                        visible: false
+                    },
                     elements: [
                         {
                             title: "Variables",

@@ -21,8 +21,9 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
-import "../commons/opencb-grid-toolbar.js";
 import WebUtils from "../commons/utils/web-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import "../commons/opencb-grid-toolbar.js";
 
 export default class FamilyGrid extends LitElement {
 
@@ -101,7 +102,7 @@ export default class FamilyGrid extends LitElement {
             columns: this._getDefaultColumns(),
             create: {
                 display: {
-                    modalTitle: "Family Create",
+                    modalTitle: "Create Family",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
@@ -203,8 +204,10 @@ export default class FamilyGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
+                paginationVAlign: "bottom",
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+                },
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this.detailFormatter,
@@ -240,6 +243,11 @@ export default class FamilyGrid extends LitElement {
                         .catch(error => {
                             console.error(error);
                             params.error(error);
+                        })
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: familyResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
@@ -316,6 +324,10 @@ export default class FamilyGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
+            paginationVAlign: "bottom",
+            formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+            },
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
@@ -636,7 +648,7 @@ export default class FamilyGrid extends LitElement {
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: `Family Update: ${this.familyUpdateId}`,
+                modalTitle: `Update Family: ${this.familyUpdateId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
@@ -652,12 +664,19 @@ export default class FamilyGrid extends LitElement {
         });
     }
 
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"

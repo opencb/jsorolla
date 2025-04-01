@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 
 export default class ToolHeader extends LitElement {
-
-    constructor() {
-        super();
-    }
 
     createRenderRoot() {
         return this;
@@ -38,29 +34,51 @@ export default class ToolHeader extends LitElement {
             icon: {
                 type: String
             },
+            iconSize: {
+                type: String
+            },
             class: {
                 type: String
             },
+            rightContent: {
+                type: Object,
+            },
+            // 'rhs' is deprecated, use 'rightContent' instead
             rhs: {
                 type: Object
-            }
+            },
         };
+    }
+
+    renderIcon() {
+        if (this.icon) {
+            if (this.icon.match(/\./)?.length) {
+                return html`
+                    <img width="${this.iconSize || 48}px" height="${this.iconSize || 48}px" src="${this.icon}" alt="${this.title}">
+                `;
+            } else {
+                return html`
+                    <i class="fas ${this.icon}"></i>
+                `;
+            }
+        } else {
+            return nothing;
+        }
     }
 
     render() {
         return html`
-            <!-- ms-n3 it's a negative margin (it works with sass) -->
-            <div class="d-flex align-items-center ms-n3 mt-0 mb-3 p-2 ${this.class ?? ""}" style="background-color:#f5f5f5; margin-right: -0.7rem; margin-left: -1rem;">
-                <h1 class="ps-2">
-                    ${this.icon ? this.icon.match(/\./)?.length ?
-                        html`<img width="50" height="50" src="${this.icon}" alt="${this.title}">` :
-                        html`<i class="${this.icon} px-2" aria-hidden="true"></i>` : ""}
-                    ${UtilsNew.renderHTML(this.title)}
+            <div class="d-flex align-items-center my-3 py-2 ${this.class ?? ""}">
+                <h1 class="d-flex align-items-center gap-3 user-select-none">
+                    ${this.renderIcon()}
+                    <span class="fw-bold">${UtilsNew.renderHTML(this.title)}</span>
                 </h1>
-                ${this.subtitle ? html`<h3>${this.subtitle}</h3>` : null}
-                <div class="ms-auto p-2">
-                    ${this.rhs}
-                </div>
+                ${this.subtitle ? html`
+                    <h3>${this.subtitle}</h3>
+                ` : nothing}
+                ${(this.rightContent || this.rhs) ? html`
+                    <div class="ms-auto">${this.rightContent || this.rhs}</div>
+                ` : nothing}
             </div>
         `;
     }

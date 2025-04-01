@@ -242,11 +242,17 @@ export default class UtilsNew {
         if (bytes === 0) {
             return "0 Byte";
         }
-        const k = useInternationalSystem ? 1000 : 1024;
-        const dm = numDecimals ? numDecimals : 2;
+        // 1. International System of Units (SI) - 1000
         const sizes = [" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB"];
         const sizesBinary = [" Bytes", " KiB", " MiB", " GiB", " TiB", " PiB", " EiB", " ZiB", " YiB"];
+
+        // 2. Calculate the size
+        const k = useInternationalSystem ? 1000 : 1024;
         const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+        // 3. Calculate number of decimals.
+        // Note: if the result is in Bytes we don't want decimals
+        const dm = (i === 0) ? 0 : numDecimals;
         return (bytes / Math.pow(k, i)).toFixed(dm) + (useInternationalSystem ? sizes[i] : sizesBinary[i]);
     }
 
@@ -627,7 +633,7 @@ export default class UtilsNew {
         // merge detail tab
         // it doesn't check for external.details.length and external.hiddenDetails.length because it supports empty array
         if (detail?.items) {
-            if (external?.details || external?.hiddenDetails) {
+            if (external?.details?.length > 0 || external?.hiddenDetails) {
                 detail.items = UtilsNew.mergeArray(internal.detail.items, external.details || external.hiddenDetails, !!external.hiddenDetails);
             }
         }
@@ -1085,6 +1091,26 @@ export default class UtilsNew {
             (result[objectValue] = result[objectValue] || []).push(currentValue);
             return result;
         }, {});
+    }
+
+    // get the corresponding mime type for the given file extension
+    static getMimeType(extension) {
+        switch (extension) {
+            case "json":
+                return "application/json";
+            case "png":
+                return "image/png";
+            case "jpg":
+            case "jpeg":
+                return "image/jpeg";
+            case "svg":
+                return "image/svg+xml";
+            case "pdf":
+                return "application/pdf";
+            case "txt":
+            default:
+                return "text/plain";
+        }
     }
 
 }

@@ -70,12 +70,15 @@ export default class OpenCGAParentClass {
             _options.sid = this._config.token;
             _options.token = this._config.token;
         }
-        const _params = {...params, body: body}; // body as param?
+        // const _params = {...params, body: body}; // body as param?
         let url = this._createRestUrl(host, version, category1, ids1, category2, ids2, action);
-        url = this._addQueryParams(url, _params);
-        _options.data = _params.body;
+
         if (action === "upload") {
+            _options.data = params;
             _options["post-method"] = "form";
+        } else {
+            url = this._addQueryParams(url, params);
+            _options.data = body;
         }
 
         // Enable credentials

@@ -204,15 +204,15 @@ export default class WorkflowCreate extends LitElement {
                             type: "object",
                             elements: [
                                 {
-                                    title: "Min CPU cores",
+                                    title: "Min. CPU cores",
                                     field: "minimumRequirements.cpu",
-                                    type: "input-num",
+                                    type: "input-text",
                                     display: {},
                                 },
                                 {
-                                    title: "Min memory",
+                                    title: "Min. memory",
                                     field: "minimumRequirements.memory",
-                                    type: "input-num",
+                                    type: "input-text",
                                     display: {},
                                 },
                             ]
@@ -293,6 +293,7 @@ export default class WorkflowCreate extends LitElement {
                             title: "Scripts",
                             field: "scripts",
                             type: "object-list",
+                            required: true,
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 // CAUTION 20231024 Vero: "collapsedUpdate" not considered in data-form.js. Perhaps "collapsed" (L1324 in data-form.js) ?

@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 
 
-export default class FileUpload extends LitElement {
+export default class FileReader extends LitElement {
 
     constructor() {
         super();
@@ -133,4 +133,4 @@ export default class FileUpload extends LitElement {
 
 }
 
-customElements.define("file-upload", FileUpload);
+customElements.define("file-reader", FileReader);

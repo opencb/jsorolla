@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import VariantGridFormatter from "./variant-grid-formatter.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter.js";
@@ -188,16 +188,16 @@ export default class VariantBrowserGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
-                formatShowingRows: (pageFrom, pageTo, totalRows) =>
-                    this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, this.totalRowsNotTruncated, this.isApproximateCount),
+                paginationVAlign: "bottom",
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, this.totalRowsNotTruncated);
+                },
                 detailView: this._config.detailView,
                 detailFormatter: this.detailFormatter,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
                 variantGrid: this,
                 ajax: params => {
-                    this.gridCommons.clearResponseWarningEvents();
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
@@ -239,76 +239,20 @@ export default class VariantBrowserGrid extends LitElement {
                     let variantResponse = null;
                     this.opencgaSession.opencgaClient.variants()
                         .query(this.filters)
-                        .then(res => {
-                            // FIXME A quick temporary fix -> TASK-947
-                            if (this.opencgaSession?.project?.cellbase?.version === "v4" || this.opencgaSession?.project?.internal?.cellbase?.version === "v4") {
-                                let found = false;
-                                const variants = res.responses[0].results;
-                                for (const variant of variants) {
-                                    for (const ct of variant.annotation.consequenceTypes) {
-                                        if (ct.transcriptFlags || ct.transcriptAnnotationFlags) {
-                                            found = true;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                if (!found) {
-                                    this.cellbaseClient = new CellBaseClient({
-                                        host: this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.project?.internal?.cellbase?.url,
-                                        // host: "https://ws.opencb.org/cellbase-4.8.2",
-                                        version: "v4",
-                                        species: "hsapiens",
-                                    });
-                                    const variantIds = variants.map(v => v.id);
-                                    this.cellbaseClient.get("genomic", "variant", variantIds.join(","), "annotation", {
-                                        assembly: this.opencgaSession.project.organism.assembly,
-                                        exclude: "populationFrequencies,conservation,expression,geneDisease,drugInteraction"
-                                    }).then(response => {
-                                        const annotatedVariants = response.responses;
-                                        for (let i = 0; i < variants.length; i++) {
-                                            // Store annotatedVariant in a Map, so we can search later and we do not need them to have the same order
-                                            const annotatedVariantsMap = new Map();
-                                            for (const av of annotatedVariants[i].results[0].consequenceTypes) {
-                                                // We can ignore the CTs without ensemblTranscriptId since they do not have flags.
-                                                if (av.ensemblTranscriptId) {
-                                                    annotatedVariantsMap.set(av.ensemblTranscriptId, av);
-                                                }
-                                            }
-
-                                            for (let j = 0; j < variants[i].annotation.consequenceTypes.length; j++) {
-                                                if (variants[i].annotation.consequenceTypes[j].ensemblTranscriptId) {
-                                                    // We can ignore the CTs without ensemblTranscriptId since they do not have flags.
-                                                    const annotatedVariant = annotatedVariantsMap.get(variants[i].annotation.consequenceTypes[j].ensemblTranscriptId).transcriptAnnotationFlags;
-                                                    if (annotatedVariant) {
-                                                        variants[i].annotation.consequenceTypes[j].transcriptFlags = annotatedVariant;
-                                                        variants[i].annotation.consequenceTypes[j].transcriptAnnotationFlags = annotatedVariant;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }).catch(error => {
-                                        console.log(error);
-                                    });
-                                }
-                            }
-                            variantResponse = res;
-                            return;
-                        })
-                        .then(() => {
-                            // Prepare data for columns extensions
+                        .then(response => {
+                            variantResponse = response;
                             const rows = variantResponse.responses?.[0]?.results || [];
                             return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
                         })
                         .then(() => params.success(variantResponse))
                         .catch(e => params.error(e))
                         .finally(() => {
-                            LitUtils.dispatchCustomEvent(this, "queryComplete", null);
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: variantResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
-                    this.gridCommons.displayResponseWarningEvents(response);
-
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
 
                     // Only the first 1M pages must be shown
@@ -389,7 +333,9 @@ export default class VariantBrowserGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             paginationVAlign: "bottom",
-            formatShowingRows: this.gridCommons.formatShowingRows,
+            formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+            },
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             loadingTemplate: () => GridCommons.loadingFormatter(),
@@ -1087,13 +1033,19 @@ export default class VariantBrowserGrid extends LitElement {
         LitUtils.dispatchCustomEvent(this, "gridconfigsave", this.__config || {});
     }
 
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
+    }
+
     render() {
         return html`
-            <div id="${this.gridId}WarningEvents"></div>
             ${this._config?.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.query}"
                     .opencgaSession="${this.opencgaSession}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
@@ -1101,7 +1053,7 @@ export default class VariantBrowserGrid extends LitElement {
                     @export="${this.onDownload}"
                     @changeExportField="${this.onChangeExportField}">
                 </opencb-grid-toolbar>
-            ` : null}
+            ` : nothing}
 
             <div data-cy="vb-grid">
                 <table id="${this.gridId}"></table>

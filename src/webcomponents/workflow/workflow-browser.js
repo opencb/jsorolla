@@ -14,25 +14,17 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import "./workflow-view.js";
 import "./workflow-grid.js";
-import "./workflow-detail.js";
-import "./workflow-scripts-view.js";
-import "./workflow-jobs.js";
-import "../clinical/clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
-import "../commons/json-viewer.js";
 import "../commons/facet-filter.js";
-import "../commons/opencb-facet-results.js";
 
 export default class WorkflowBrowser extends LitElement {
 
     constructor() {
         super();
 
-        // Set status and init private properties
         this.#init();
     }
 
@@ -42,10 +34,10 @@ export default class WorkflowBrowser extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            query: {
                 type: Object
             },
-            query: {
+            opencgaSession: {
                 type: Object
             },
             settings: {
@@ -89,26 +81,26 @@ export default class WorkflowBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
-
-        this.requestUpdate();
     }
 
     onSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onWorkflowUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
         if (!this.opencgaSession) {
-            return html`<div>Not valid session</div>`;
+            return nothing;
         }
 
         return html`
             <opencga-browser
-                resource="WORKFLOW"
+                .resource="${"WORKFLOW"}"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
                 .config="${this._config}"
@@ -119,85 +111,70 @@ export default class WorkflowBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Workflow Browser",
-            icon: "fab fa-searchengin",
+            title: "Workflow Manager",
             views: [
                 {
-                    id: "table-tab",
-                    name: "Table result",
+                    id: "table",
+                    name: "Table",
                     icon: "fa fa-table",
                     active: true,
                     render: params => html`
                         <workflow-grid
                             .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
-                            .query="${params.executedQuery}"
-                            .active="${true}"
+                            @queryComplete="${e => params.onQueryComplete(e)}"
                             @selectrow="${e => params.onClickRow(e, "workflow")}"
                             @workflowUpdate="${e => params.onComponentUpdate(e, "workflow")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </workflow-grid>
-                        <workflow-detail
-                            .workflowId="${params.detail?.id}"
-                            .opencgaSession="${params.opencgaSession}"
-                            .config="${params.config.filter.detail}">
-                        </workflow-detail>`
+                    `,
                 },
-                // {
-                //     id: "facet-tab",
-                //     name: "Aggregation stats",
-                //     icon: "fas fa-chart-bar",
-                //     render: params => html`
-                //         <opencb-facet-results
-                //             resource="${params.resource}"
-                //             .opencgaSession="${params.opencgaSession}"
-                //             .active="${params.active}"
-                //             .query="${params.facetQuery}"
-                //             .data="${params.facetResults}">
-                //         </opencb-facet-results>`
-                // }
             ],
             filter: {
-                searchButton: false,
                 sections: [
                     {
-                        title: "Section title",
-                        collapsed: false,
+                        title: "General",
                         filters: [
                             {
                                 id: "id",
-                                name: "Workflow ID",
+                                title: "Workflow ID",
                                 type: "string",
                                 placeholder: "eg. wf1, wf2, ...",
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                             {
                                 id: "name",
-                                name: "Name",
+                                title: "Name",
                                 type: "string",
                                 placeholder: "eg. alignment, variant calling, ...",
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                             {
                                 id: "type",
-                                name: "Type",
+                                title: "Type",
                                 type: "string",
                                 placeholder: "eg. RESEARCH_ANALYSIS,...",
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                             {
                                 id: "tags",
-                                name: "Tags",
+                                title: "Tags",
                                 placeholder: "eg. tag1, tag2, tag3",
                                 allowedValues: "",
                                 description: "",
+                                quick: true
                             },
                             {
                                 id: "date",
-                                name: "Date",
-                                description: ""
+                                title: "Date",
+                                description: "",
+                                quick: true
                             },
                         ]
                     }
@@ -210,61 +187,11 @@ export default class WorkflowBrowser extends LitElement {
                     grid: {
                         pageSize: 10,
                         pageList: [5, 10, 25],
-                        detailView: true,
+                        detailView: false,
                         multiSelection: false,
                         showSelectCheckbox: false
                     }
                 },
-                detail: {
-                    title: "Workflow",
-                    showTitle: true,
-                    display: {
-                        titleClass: "mt-4",
-                        contentClass: "p-3"
-                    },
-                    items: [
-                        {
-                            id: "workflow-view",
-                            name: "Overview",
-                            active: true,
-                            render: (workflow, active, opencgaSession) => html`
-                                <workflow-view
-                                    .workflow="${workflow}"
-                                    .opencgaSession="${opencgaSession}">
-                                </workflow-view>
-                            `,
-                        },
-                        {
-                            id: "workflow-scripts",
-                            name: "Scripts",
-                            render: workflow => html`
-                                <workflow-scripts-view
-                                    .workflow="${workflow}">
-                                </workflow-scripts-view>
-                            `,
-                        },
-                        {
-                            id: "workflow-jobs",
-                            name: "Jobs",
-                            render: (workflow, active, opencgaSession) => html`
-                                <workflow-jobs
-                                    .workflow="${workflow}"
-                                    .opencgaSession="${opencgaSession}">
-                                </workflow-jobs>
-                            `,
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (workflow, active) => html`
-                                <json-viewer
-                                    .data="${workflow}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        }
-                    ]
-                }
             },
             aggregation: {
                 default: ["creationYear>>creationMonth", "status", "ethnicity", "population", "lifeStatus", "phenotypes", "sex", "numSamples[0..10]:1"],

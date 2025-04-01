@@ -29,7 +29,7 @@ class VariantInterpreterBrowserRd extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -47,11 +47,11 @@ class VariantInterpreterBrowserRd extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            // query: {
-            //     type: Object
-            // },
             cellbaseClient: {
                 type: Object
+            },
+            title: {
+                type: String,
             },
             settings: {
                 type: Object
@@ -62,7 +62,7 @@ class VariantInterpreterBrowserRd extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "variant-interpreter-rd";
         this._prefix = UtilsNew.randomString(8);
 
@@ -77,12 +77,11 @@ class VariantInterpreterBrowserRd extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
+
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
-        // if (changedProperties.has("query")) {
-        //     this.queryObserver();
-        // }
+
         super.update(changedProperties);
     }
 
@@ -315,25 +314,14 @@ class VariantInterpreterBrowserRd extends LitElement {
         }
 
         return {
-            title: "RD Case Interpreter",
-            showSaveInterpretation: true,
-            showOtherTools: true,
-            showTitle: false,
+            title: this.title || "RD Variant Browser",
             filter: {
-                title: "Filter",
-                searchButton: true,
-                searchButtonText: "Search",
                 activeFilters: {
-                    alias: {
-                        "ct": "Consequence Types",
-                        "sample": "Sample Genotype"
-                    },
-                    complexFields: [
-                        {id: "sample", separator: ";"},
-                        {id: "fileData", separator: ","},
-                    ],
                     hiddenFields: [],
                     lockedFields: lockedFields
+                },
+                save: {
+                    ignoreParams: ["study", "sample", "file", "fileData"],
                 },
                 sections: [
                     {

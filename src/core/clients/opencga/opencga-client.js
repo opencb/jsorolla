@@ -235,6 +235,8 @@ export class OpenCGAClient {
      */
     getClient(entity) {
         switch (entity?.toUpperCase()) {
+            case "ORGANIZATION":
+                return this.organization();
             case "USER":
                 return this.users();
             case "PROJECT":
@@ -441,14 +443,18 @@ export class OpenCGAClient {
                                                     // We need to store the user permission for the all the studies fetched
                                                     console.log("Fetching user permissions");
 
-                                                    let acl = null;
-                                                    const admins = study.groups.find(g => g.id === "@admins");
-                                                    if (admins.userIds?.includes(session.user.id)) {
-                                                        acl = await this.studies().acl(study.fqn, {});
-                                                    } else {
-                                                        acl = await this.studies().acl(study.fqn, {member: session.user.id});
+                                                    study.acl = [];
+                                                    if (!study.internal.federated) {
+                                                        let acl = null;
+                                                        const admins = study.groups.find(g => g.id === "@admins");
+                                                        if (admins.userIds?.includes(session.user.id)) {
+                                                            acl = await this.studies().acl(study.fqn, {});
+                                                        } else {
+                                                            acl = await this.studies().acl(study.fqn, {member: session.user.id});
+                                                        }
+                                                        study.acl = acl.getResult(0)?.acl || [];
                                                     }
-                                                    study.acl = acl.getResult(0)?.acl || [];
+
 
                                                     // Fetch all the cohort
                                                     console.log("Fetching cohorts");
@@ -513,29 +519,10 @@ export class OpenCGAClient {
                                                 session.projects[i].studies[x].panels = panelResponses[t].getResults();
                                             }
                                         }
-
-                                        // Fetch the Workflows for each Study
-                                        console.log("Fetching Workflows");
-                                        const workflowPromises = [];
-                                        for (const study of studies) {
-                                            const promise = this.workflows()
-                                                .search({
-                                                    study: study,
-                                                    limit: 1000,
-                                                });
-                                            workflowPromises.push(promise);
-                                        }
-                                        const workflowResponses = await Promise.all(workflowPromises);
-                                        for (let i = 0, t = 0; i < session.projects.length; i++) {
-                                            for (let x = 0; x < session.projects[i].studies.length; x++, t++) {
-                                                session.projects[i].studies[x].workflows = workflowResponses[t].getResults();
-                                            }
-                                        }
                                     }
                                     resolve(session);
                                 } catch (e) {
-                                    console.error("Error getting study permissions, cohorts or disease panels");
-                                    console.error(e);
+                                    console.error("Error getting study permissions, cohorts or disease panels: ", e);
                                     reject(new Error("Error getting study permissions / study panels"));
                                 }
                             })

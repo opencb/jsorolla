@@ -18,12 +18,13 @@ import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import "../commons/opencb-grid-toolbar.js";
-import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import "../commons/opencb-grid-toolbar.js";
+import "../loading-spinner.js";
 
 export default class JobGrid extends LitElement {
 
@@ -195,6 +196,10 @@ export default class JobGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
+            paginationVAlign: "bottom",
+            formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+            },
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
@@ -230,7 +235,7 @@ export default class JobGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
+                paginationVAlign: "bottom",
                 formatShowingRows: (pageFrom, pageTo, totalRows) => {
                     return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows) + this.autoRefreshMsg();
                 },
@@ -271,6 +276,11 @@ export default class JobGrid extends LitElement {
                         .catch(error => {
                             console.error(error);
                             params.error(error);
+                        })
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: jobsResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
@@ -553,8 +563,8 @@ export default class JobGrid extends LitElement {
             {
                 id: "executionR",
                 title: "Runtime",
-                field: "execution",
-                formatter: execution => {
+                formatter: (_, row) => {
+                    const execution = row.execution;
                     if (execution?.start) {
                         const duration = moment.duration((execution.end ? execution.end : moment().valueOf()) - execution.start);
                         const f = moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
@@ -567,18 +577,23 @@ export default class JobGrid extends LitElement {
             {
                 id: "executionD",
                 title: "Start/End Date",
-                field: "execution",
-                formatter: execution => execution?.start ?
-                    moment(execution.start).format("D MMM YYYY, h:mm:ss a") + " / " + (execution?.end ? moment(execution.end).format("D MMM YYYY, h:mm:ss a") : "-") :
-                    "-",
+                formatter: (_, row) => {
+                    const execution = row.execution;
+                    const values = [];
+                    if (execution?.start) {
+                        values.push(moment(execution.start).format("D MMM YYYY, h:mm:ss a"));
+                        values.push(execution?.end ? moment(execution.end).format("D MMM YYYY, h:mm:ss a") : "-");
+                    }
+                    return values.join(" / ") || "-";
+                },
                 visible: this.gridCommons.isColumnVisible("executionD")
             },
             {
                 id: "creationDate",
                 title: "Creation Date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
-                visible: this.gridCommons.isColumnVisible("creationDate")
+                formatter: value => CatalogGridFormatter.dateFormatter(value),
+                visible: this.gridCommons.isColumnVisible("creationDate"),
             },
         ];
 
@@ -586,7 +601,6 @@ export default class JobGrid extends LitElement {
             this._columns.push({
                 id: "actions",
                 title: "Actions",
-                field: "actions",
                 align: "center",
                 formatter: (value, row) => {
                     const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
@@ -638,13 +652,12 @@ export default class JobGrid extends LitElement {
                     `;
                 },
                 events: {
-                    "click a": this.onActionClick.bind(this),
+                    "click a": (event, value, job) => this.onActionClick(event, value, job),
                 },
                 visible: this.gridCommons.isColumnVisible("actions"),
             });
         }
 
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
     }
@@ -695,7 +708,7 @@ export default class JobGrid extends LitElement {
             .retry({job: this.jobRetryObj?.id}, params)
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Job Retry",
+                    // title: "Job Retry",
                     message: "Job executed correctly"
                 });
             })
@@ -712,7 +725,7 @@ export default class JobGrid extends LitElement {
             .kill(this.jobKillObj?.id, params)
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Job Kill",
+                    // title: "Kill Job",
                     message: "Job killed correctly"
                 });
             })
@@ -736,7 +749,7 @@ export default class JobGrid extends LitElement {
     renderModalRetry() {
         return ModalUtils.create(this, `${this._prefix}RetryModal`, {
             display: {
-                modalTitle: "Job Retry",
+                modalTitle: "Retry Job",
                 modalDraggable: true,
                 modalbtnsVisible: true,
                 modalSize: "modal-lg",
@@ -756,7 +769,7 @@ export default class JobGrid extends LitElement {
     renderModalKill() {
         return ModalUtils.create(this, `${this._prefix}KillModal`, {
             display: {
-                modalTitle: "Job Kill",
+                modalTitle: "Kill Job",
                 modalDraggable: true,
                 modalbtnsVisible: true,
                 modalSize: "modal-lg",
@@ -774,7 +787,7 @@ export default class JobGrid extends LitElement {
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: "Job Update",
+                modalTitle: "Update Job",
                 modalDraggable: true,
                 modalSize: "modal-lg",
             },
@@ -789,11 +802,18 @@ export default class JobGrid extends LitElement {
         });
     }
 
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.filters}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
                     .rightToolbar="${this.getRightToolbar()}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"

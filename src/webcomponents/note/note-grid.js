@@ -21,6 +21,7 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "./note-create.js";
 import "./note-update.js";
@@ -102,7 +103,7 @@ export default class NoteGrid extends LitElement {
             columns: this._getDefaultColumns(),
             create: {
                 display: {
-                    modalTitle: "Note Create",
+                    modalTitle: "Create Note",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
@@ -161,8 +162,10 @@ export default class NoteGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
+                paginationVAlign: "bottom",
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+                },
                 detailView: !!this.detailFormatter,
                 gridContext: this,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
@@ -191,6 +194,11 @@ export default class NoteGrid extends LitElement {
                         .catch(error => {
                             console.error(error);
                             params.error(error);
+                        })
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: notesResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
@@ -265,6 +273,10 @@ export default class NoteGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
+            paginationVAlign: "bottom",
+            formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+            },
             detailView: this._config.detailView,
             gridContext: this,
             loadingTemplate: () => GridCommons.loadingFormatter(),
@@ -482,7 +494,7 @@ export default class NoteGrid extends LitElement {
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: `Note Update: ${this.noteUpdate?.id}`,
+                modalTitle: `Update Note: ${this.noteUpdate?.id}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
@@ -499,12 +511,19 @@ export default class NoteGrid extends LitElement {
         });
     }
 
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"

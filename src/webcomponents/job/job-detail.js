@@ -16,8 +16,9 @@
 
 import {LitElement, html} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
-import "./job-detail-log.js";
 import "./job-view.js";
+import "./job-result.js";
+import "./job-detail-log.js";
 import "../commons/view/detail-tabs.js";
 
 export default class JobDetail extends LitElement {
@@ -136,6 +137,16 @@ export default class JobDetail extends LitElement {
                             mode="simple"
                             .job="${job}">
                         </job-view>
+                    `,
+                },
+                {
+                    id: "job-result",
+                    name: "Result",
+                    render: (job, active, opencgaSession) => html`
+                        <job-result
+                            .job="${job}"
+                            .opencgaSession="${opencgaSession}">
+                        </job-result>
                     `,
                 },
                 {

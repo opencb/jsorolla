@@ -18,11 +18,19 @@ import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import "../commons/opencb-grid-toolbar.js";
-import "../loading-spinner.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import ModalUtils from "../commons/modal/modal-utils.js";
+import "../commons/opencb-grid-toolbar.js";
+import "../loading-spinner.js";
+import "./file-folder-create.js";
+import "./file-create.js";
+import "./file-upload.js";
+import "./file-fetch.js";
+import "./file-detail.js";
+import "../variant/operation/variant-index-operation.js";
 
 export default class OpencgaFileGrid extends LitElement {
 
@@ -64,6 +72,9 @@ export default class OpencgaFileGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
+        this.activeActionModal = "";
+        this.lastFilters = null;
+        this._selectedFile = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -98,28 +109,41 @@ export default class OpencgaFileGrid extends LitElement {
         };
 
         this.toolbarConfig = {
-            toolId: this.toolId,
-            resource: "FILE",
             columns: this._getDefaultColumns(),
-            create: {
-                display: {
-                    modalTitle: "File Create",
-                    modalDraggable: true,
-                    disabled: true,
-                    disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
-                },
-                render: () => html `
-                    <file-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </file-create>
-                `,
-            },
         };
 
-        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
+        // this.permissionID = WebUtils.getPermissionID("FILE", "WRITE");
+    }
+
+    changeActiveActionModal(actionModal) {
+        // 1. check if there is a modal rendered
+        if (this.activeActionModal) {
+            ModalUtils.close(`${this._prefix}Modal${this.activeActionModal}`);
+        }
+
+        // 2. set the new active action modal
+        this.activeActionModal = actionModal;
+        this.requestUpdate();
+
+        // 3. show the new active action modal (if provided)
+        this.updateComplete.then(() => {
+            if (this.activeActionModal) {
+                ModalUtils.show(`${this._prefix}Modal${this.activeActionModal}`);
+            }
+        });
+    }
+
+    hasPermission(resource = "FILE", mode = "VIEW") {
+        return OpencgaCatalogUtils.getStudyEffectivePermission(
+            this.opencgaSession.study,
+            this.opencgaSession.user.id,
+            WebUtils.getPermissionID(resource, mode),
+            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+    }
+
+    forceTableRefresh() {
+        this.lastFilters = null; // reset last filters to force a refresh of the table
+        this.renderTable();
     }
 
     renderTable() {
@@ -142,7 +166,7 @@ export default class OpencgaFileGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "table-light",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
@@ -153,59 +177,62 @@ export default class OpencgaFileGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "bottom", // "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
+                paginationVAlign: "bottom",
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+                },
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 gridContext: this,
-                // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let filesResponse = null;
-                    this.filters = {
+                    const filters = {
                         study: this.opencgaSession.study.fqn,
-                        type: "FILE",
+                        // type: "FILE",
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        include: "id,name,path,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets",
+                        include: "id,name,path,type,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets,attributes.variantFileMetadata.header.version",
                         ...this.query
                     };
                     // When searching by directory we must also show directories
-                    if (this.filters.directory) {
-                        this.filters.type = "FILE,DIRECTORY";
-                    }
+                    // if (this.filters.directory) {
+                    //     this.filters.type = "FILE,DIRECTORY";
+                    // }
 
                     // Store the current filters
-                    this.lastFilters = {...this.filters};
+                    this.lastFilters = filters;
                     this.opencgaSession.opencgaClient.files()
-                        .search(this.filters)
+                        .search(filters)
                         .then(response => {
                             filesResponse = response;
                             // Prepare data for columns extensions
                             const rows = filesResponse.responses?.[0]?.results || [];
-                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, filters, rows);
                         })
                         .then(() => params.success(filesResponse))
                         .catch(error => {
                             console.error(error);
                             params.error(error);
+                        })
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: filesResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (_, element) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
+                // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onDblClickRow: row => {
+                    if (row.type === "DIRECTORY") {
+                        this.onPathChange(row.path);
+                    } else {
+                        this._selectedFile = row;
+                        this.changeActiveActionModal("view");
                     }
                 },
                 onCheck: row => {
@@ -220,9 +247,9 @@ export default class OpencgaFileGrid extends LitElement {
                 onUncheckAll: rows => {
                     this.gridCommons.onUncheckAll(rows);
                 },
-                onLoadSuccess: data => {
-                    this.gridCommons.onLoadSuccess(data, 1);
-                },
+                // onLoadSuccess: data => {
+                //     this.gridCommons.onLoadSuccess(data, 1);
+                // },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
             });
         }
@@ -236,7 +263,7 @@ export default class OpencgaFileGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            theadClasses: "table-light",
+            classes: "table table-borderless table-hover table-grid",
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
             // data: this.files,
@@ -267,65 +294,90 @@ export default class OpencgaFileGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
+            paginationVAlign: "bottom",
+            formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+            },
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             gridContext: this,
-            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
                 const result = this.gridCommons.onPageChange(page, size);
                 this.from = result.from || this.from;
                 this.to = result.to || this.to;
             },
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-            },
+            // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            // onPostBody: data => {
+            //     // We call onLoadSuccess to select first row
+            //     this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
+            // },
         });
     }
 
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
-    async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase();
-        switch (action) {
-            /*
-            case "edit":
-                this.fileUpdateId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
-                break;
-             */
-            case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
-                break;
-            case "download-json":
-                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
-                break;
-            case "quality-control":
-                alert("Not implemented yet");
-                break;
-        }
+    getCurrentPath() {
+        return this.query?.directory || (this.query?.path || "").slice(2, -2);
     }
 
     _getDefaultColumns() {
         this._columns = [
             {
+                id: "icon",
+                title: "",
+                field: "type",
+                formatter: value => {
+                    return `
+                        <i class="fs-5 fas ${value === "DIRECTORY" ? "fa-folder" : "fa-file-alt"}"></i>
+                    `;
+                },
+                align: "center",
+                width: 40,
+                excludeFromSettings: true,
+            },
+            {
                 id: "name",
                 title: "Name",
                 field: "name",
                 formatter: (fileName, row) => {
+                    const parentPath = "/" + row.path.split("/").slice(0, -1).join("/").replace(/\/\//g, "/");
                     return `
-                        <div>
-                            <span class="fw-bold" style="margin: 5px 0">${fileName}</span>
-                            <span class="d-block text-secondary" style="margin: 5px 0">/${row.path.replace(row.name, "").replace("//", "/")}</span>
-                        </div>`;
+                        <div class="fw-bold mb-1">${fileName}</div>
+                        <div class="text-secondary">${parentPath}</div>
+                    `;
                 },
                 visible: this.gridCommons.isColumnVisible("name")
+            },
+            {
+                id: "format",
+                title: "Format",
+                field: "format",
+                formatter: (format, file) => {
+                    let result = "-";
+                    if (file.type === "FILE") {
+                        switch (file.format) {
+                            case "VCF":
+                                result = `
+                                    <div class="mb-1">${format}</div>
+                                    <div class="text-secondary">${file.attributes?.variantFileMetadata?.header?.version?.replace("VCF", "") || ""}</div>
+                                `;
+                                break;
+                            case "BAM":
+                                result = format;
+                                break;
+                        }
+                    }
+                    return result;
+                },
+                visible: this.gridCommons.isColumnVisible("format")
+            },
+            {
+                id: "size",
+                title: "Size",
+                field: "size",
+                formatter: (size, file) => {
+                    return file.type === "DIRECTORY" ? "-" : UtilsNew.getDiskUsage(size);
+                },
+                visible: this.gridCommons.isColumnVisible("size")
             },
             {
                 id: "sampleIds",
@@ -336,9 +388,9 @@ export default class OpencgaFileGrid extends LitElement {
                     if (sampleIds?.length > 0) {
                         html = `<div class="text-nowrap">`;
                         for (let i = 0; i < sampleIds.length; i++) {
-                            // Display first 3 files
+                            // Display first 3 samples
                             if (i < 3) {
-                                html += `<div style="margin: 2px 0"><span class="fw-bold">${sampleIds[i]}</span></div>`;
+                                html += `<div style="margin: 2px 0"><span class="">${sampleIds[i]}</span></div>`;
                             } else {
                                 html += `<a tooltip-title="Samples" tooltip-text='${sampleIds.join("<br>")}'>... view all samples (${sampleIds.length})</a>`;
                                 break;
@@ -358,35 +410,24 @@ export default class OpencgaFileGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("jobId")
             },
             {
-                id: "size",
-                title: "Size",
-                field: "size",
-                formatter: size => UtilsNew.getDiskUsage(size),
-                visible: this.gridCommons.isColumnVisible("size")
-            },
-            {
-                id: "format",
-                title: "Format",
-                field: "format",
-                visible: this.gridCommons.isColumnVisible("format")
-            },
-            {
                 id: "index",
                 title: "Variant Index Status",
                 field: "internal.variant.index.status.id",
+                formatter: (status, file) => {
+                    let result = "-";
+                    if (file.type === "FILE") {
+                        switch (file.format) {
+                            case "VCF":
+                                result = file.internal?.variant?.index?.status?.id || "-";
+                                break;
+                            case "BAM":
+                                result = file.internal?.alignment?.index?.status?.id || "-";
+                                break;
+                        }
+                    }
+                    return result;
+                },
                 visible: this.gridCommons.isColumnVisible("index"),
-                // NOTE 20230310 Vero: Formatter for displaying in the future information
-                // about annotation and secondary index in the column
-                // formatter: (value, row) => {
-                //     if (row.format === "VCF") {
-                //         return `
-                //             <div>${row.internal.variant.index?.status?.id}</div>
-                //             <div>${row.internal.variant.annotationIndex?.status?.id}</div>
-                //         `;
-                //     } else {
-                //         return `<div>NA</div>`;
-                //     }
-                // }
             },
             {
                 id: "creationDate",
@@ -395,93 +436,120 @@ export default class OpencgaFileGrid extends LitElement {
                 formatter: date => CatalogGridFormatter.dateFormatter(date),
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
+            {
+                id: "actions",
+                field: "actions",
+                formatter: (value, row) => {
+                    const hasDownloadPermission = this.hasPermission("FILE", "DOWNLOAD");
+                    const hasDeletePermission = this.hasPermission("FILE", "DELETE");
+                    const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
+                    const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
+
+                    return `
+                        <div class="d-flex justify-content-end align-items-center gap-1">
+                            <a class="btn border-0 ${row.type === "DIRECTORY" ? "disabled" : "cursor-pointer"}" data-action="view">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <div class="d-inline-block dropdown">
+                                <button class="btn" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <a class="dropdown-item ${row.type === "DIRECTORY" ? "disabled" : "cursor-pointer"}" data-action="view">
+                                        <i class="fas fa-eye me-1"></i>
+                                        <span>View</span>
+                                    </a>
+                                    <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" || !hasDownloadPermission ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
+                                        <i class="fas fa-download me-1"></i> Download
+                                    </a>
+                                    <hr class="dropdown-divider">
+                                    <a data-action="copy-json" class="dropdown-item cursor-pointer">
+                                        <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
+                                    </a>
+                                    <a data-action="download-json" class="dropdown-item cursor-pointer">
+                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
+                                    </a>
+                                    <hr class="dropdown-divider">
+                                    <a data-action="variant-index" class="dropdown-item ${row.format === "VCF" && isStudyAdmin ? "cursor-pointer" : "disabled"}">
+                                        <i class="fas fa-rocket me-1"></i> Run Variant Index
+                                    </a>
+                                    <hr class="dropdown-divider">
+                                    <a data-action="delete" class="dropdown-item ${hasDeletePermission ? "cursor-pointer" : "disabled"}">
+                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                },
+                events: {
+                    "click a": (e, value, file) => this.onActionClick(e, value, file),
+                },
+                excludeFromSettings: true,
+                visible: this._config.showActions, // this.gridCommons.isColumnVisible("actions")
+            },
         ];
 
         if (this._config.annotations?.length > 0) {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
 
-        if (this.opencgaSession && this._config.showActions) {
-            const downloadUrl = this.opencgaSession?.server? [
-                this.opencgaSession?.server.host,
-                "/webservices/rest/",
-                this.opencgaSession?.server.version,
-                "/files/",
-                "FILE_ID",
-                "/download?study=",
-                this.opencgaSession?.study.fqn,
-                "&sid=",
-                this.opencgaSession?.token,
-            ]:[];
-            this._columns.push({
-                id: "actions",
-                title: "Actions",
-                field: "actions",
-                align: "center",
-                formatter: (value, row) => {
-                    const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
-                        this.opencgaSession.study,
-                        this.opencgaSession.user.id,
-                        this.permissionID,
-                        this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
-                    return `
-                        <div class="d-inline-block dropdown">
-                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
-                                <span>Actions</span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a data-action="download"
-                                       class="dropdown-item ${downloadUrl.length === 0 ? "disabled" : ""}"
-                                       href="${downloadUrl.join("").replace("FILE_ID", row.id)}">
-                                            <i class="fas fa-download me-1"></i> Download
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a data-action="copy-json" class="dropdown-item" href="javascript: void 0">
-                                        <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
-                                    </a>
-                                </li>
-                                <li>
-                                    <a data-action="download-json" class="dropdown-item" href="javascript: void 0" >
-                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a data-action="quality-control"
-                                       class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
-                                       title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                           <i class="fas fa-rocket me-1" aria-hidden="true"></i> Calculate Quality Control
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a data-action="edit" class="dropdown-item disabled ${hasWritePermission ? "" : "disabled"}" href="javascript: void 0">
-                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                                    </a>
-                                </li>
-                                <li>
-                                    <a data-action="delete" class="dropdown-item disabled" href="javascript: void 0">
-                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    `;
-                },
-                events: {
-                    "click a": this.onActionClick.bind(this)
-                },
-                visible: this.gridCommons.isColumnVisible("actions")
-            });
-        }
-
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
+    }
+
+    onColumnChange(e) {
+        this.gridCommons.onColumnChange(e);
+    }
+
+    onActionClick(event, value, file) {
+        const action = (event.currentTarget?.dataset?.action || "").toLowerCase();
+        switch (action) {
+            case "view":
+                this._selectedFile = file;
+                this.changeActiveActionModal("view");
+                break;
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(file, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(file, null, "\t")], file.id + ".json");
+                break;
+            case "variant-index":
+                this._selectedFile = file;
+                this.changeActiveActionModal("variant-index");
+                break;
+            case "delete":
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                    title: `Delete <b>${file.name}</b>`,
+                    message: `Do you want to delete the ${file.type === "DIRECTORY" ? "directory" : "file"} <b>${file.name}</b>? This action can not be undone.`,
+                    ok: () => this.onDelete(file),
+                });
+                break;
+        }
+    }
+
+    onDelete(file) {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+        };
+
+        // FIXME 20241217 VERO: When trying to delete a file fetched from an external source in the root path:
+        //  - If delete is used, opencga returns error "Use unlink". This is happening because the field "external" in this case is set to true in opencga.
+        //  - If unlink is used, opencga returns error "[...] Could not unlink [...] Could not delete file: No documents could be found to be updated".
+        //  Bug created:  https://app.clickup.com/t/36631768/TASK-7291
+        const endpoint = file.external ?
+            this.opencgaSession.opencgaClient.files().unlink(file.id, params) :
+            this.opencgaSession.opencgaClient.files().delete(file.id, params);
+        endpoint
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `A new job has been launched to delete the ${file.type === "DIRECTORY" ? "directory" : "file"} ${file.name}.`,
+                });
+            })
+            .catch(error => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            });
     }
 
     async onDownload(e) {
@@ -490,7 +558,7 @@ export default class OpencgaFileGrid extends LitElement {
         await this.updateComplete;
 
         const filters = {
-            ...this.filters,
+            ...this.lastFilters,
             skip: 0,
             limit: 1000,
             count: false
@@ -521,25 +589,228 @@ export default class OpencgaFileGrid extends LitElement {
             });
     }
 
+    onPathChange(path) {
+        LitUtils.dispatchCustomEvent(this, "pathChange", path);
+    }
+
+    onPathClear() {
+        LitUtils.dispatchCustomEvent(this, "pathClear");
+    }
+
+    onPathCreate(newPath) {
+        LitUtils.dispatchCustomEvent(this, "pathCreate", newPath);
+    }
+
+    renderToolbarLeftContent() {
+        const pathFragments = this.getCurrentPath()
+            .split("/")
+            .filter(Boolean)
+            .map((fragment, index, array) => {
+                const active = index === array.length - 1; // Last fragment is marked as active
+                const path = array.slice(0, index + 1).join("/") + "/"; // Build again the path
+                return html`
+                    <span class="breadcrumb-item ${active ? "active" : "cursor-pointer hover:text-decoration-underline"}"
+                          @click="${() => this.onPathChange(path)}">
+                        ${fragment}
+                    </span>
+                `;
+            });
+
+        return html`
+            <div class="breadcrumb mb-0">
+                <span class="breadcrumb-item ${pathFragments.length === 0 ? "active" : "cursor-pointer hover:text-decoration-underline"}"
+                      @click="${() => this.onPathClear()}">
+                    <i class="fas fa-hdd pe-1"></i>
+                    <span>DATA</span>
+                </span>
+                ${pathFragments}
+            </div>
+        `;
+    }
+
+    getRightToolbar() {
+        const hasWritePermission = this.hasPermission("FILE", "WRITE");
+        const hasUploadPermission = this.hasPermission("FILE", "UPLOAD");
+        const hasJobExecutionPermission = this.hasPermission("JOB", "EXECUTE");
+
+        return [
+            {
+                icon: "fa-folder-plus",
+                title: "Create Folder",
+                disabled: !hasWritePermission,
+                onClick: () => this.changeActiveActionModal("create-folder"),
+            },
+            {
+                icon: "fa-file-medical",
+                title: "Create File",
+                disabled: !hasWritePermission,
+                onClick: () => this.changeActiveActionModal("create-file"),
+            },
+            {
+                icon: "fa-file-upload",
+                title: "Upload File",
+                disabled: !hasWritePermission || !hasUploadPermission,
+                onClick: () => this.changeActiveActionModal("upload-file"),
+            },
+            {
+                icon: "fas fa-cloud-download-alt",
+                title: "Fetch File",
+                disabled: !hasWritePermission || !hasJobExecutionPermission,
+                onClick: () => this.changeActiveActionModal("fetch-file"),
+            },
+        ];
+    }
+
+    renderActionModal() {
+        let config = null;
+
+        switch (this.activeActionModal) {
+            case "view":
+                config = {
+                    display: {
+                        modalTitle: `File ${this._selectedFile?.name}`,
+                        modalCyDataName: `modal-file-view`,
+                        modalSize: "modal-lg",
+                    },
+                    render: () => html`
+                        <file-detail
+                            .fileId="${this._selectedFile.id}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </file-detail>
+                    `,
+                };
+                break;
+            case "create-folder":
+                config = {
+                    display: {
+                        modalTitle: "Create Folder",
+                        modalCyDataName: "modal-create",
+                        modalSize: "modal-lg"
+                    },
+                    render: () => html`
+                        <file-folder-create
+                            .opencgaSession="${this.opencgaSession}"
+                            .path="${this.getCurrentPath()}"
+                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                            @folderCreate="${event => {
+                                this.changeActiveActionModal("");
+                                this.forceTableRefresh();
+                                this.onPathCreate(event.detail.path);
+                            }}">
+                        </file-folder-create>
+                    `,
+                };
+                break;
+            case "create-file":
+                config = {
+                    display: {
+                        modalTitle: "Create File",
+                        modalCyDataName: "modal-create",
+                        modalSize: "modal-lg"
+                    },
+                    render: () => html`
+                        <file-create
+                            .opencgaSession="${this.opencgaSession}"
+                            .path="${this.getCurrentPath()}"
+                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                            @fileCreate="${event => {
+                                this.changeActiveActionModal("");
+                                this.forceTableRefresh();
+                                this.onPathCreate(event.detail.path);
+                            }}">
+                        </file-create>
+                    `,
+                };
+                break;
+            case "upload-file":
+                config = {
+                    display: {
+                        modalTitle: "Upload File",
+                        modalCyDataName: "modal-upload",
+                        modalSize: "modal-lg"
+                    },
+                    render: () => html`
+                        <file-upload
+                            .opencgaSession="${this.opencgaSession}"
+                            .path="${this.getCurrentPath()}"
+                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                            @fileUpload="${event => {
+                                this.changeActiveActionModal("");
+                                this.forceTableRefresh();
+                                this.onPathCreate(event.detail.relativeFilePath + event.detail.fileName);
+                            }}">
+                        </file-upload>
+                    `,
+                };
+                break;
+            case "fetch-file":
+                config = {
+                    display: {
+                        modalTitle: "Fetch File",
+                        modalCyDataName: "modal-fectch",
+                        modalSize: "modal-lg"
+                    },
+                    render: () => html`
+                        <file-fetch
+                            .opencgaSession="${this.opencgaSession}"
+                            .path="${this.getCurrentPath()}"
+                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                            @fileUpload="${() => {
+                                this.changeActiveActionModal("");
+                                this.forceTableRefresh();
+                            }}">
+                        </file-fetch>
+                    `,
+                };
+                break;
+            case "variant-index":
+                config = {
+                    display: {
+                        modalTitle: "Run Variant Index",
+                        modalCyDataName: "modal-variant-index",
+                        modalSize: "modal-lg"
+                    },
+                    render: () => html`
+                        <variant-index-operation
+                            .opencgaSession="${this.opencgaSession}"
+                            .toolParams="${{
+                                file: this._selectedFile.id,
+                                study: this.opencgaSession.study.fqn,
+                            }}">
+                        </variant-index-operation>
+                    `,
+                };
+                break;
+        }
+        return config ? ModalUtils.create(this, `${this._prefix}Modal${this.activeActionModal}`, config) : nothing;
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
-                    .query="${this.filters}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.toolbarSetting}"
-                    .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
-                    @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @fileCreate="${this.renderTable}">
-                </opencb-grid-toolbar>
+                <div class="my-2">
+                    <opencb-grid-toolbar
+                        .resource="${"FILE"}"
+                        .toolId="${this.toolId}"
+                        .query="${this.query}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .leftContent="${this.renderToolbarLeftContent()}"
+                        .rightToolbar="${this.getRightToolbar()}"
+                        .settings="${this.toolbarSetting}"
+                        .config="${this.toolbarConfig}"
+                        @columnChange="${this.onColumnChange}"
+                        @download="${this.onDownload}"
+                        @export="${this.onDownload}"
+                        @actionClick="${e => this.onActionClick(e)}">
+                    </opencb-grid-toolbar>
+                </div>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
+
+            ${this.renderActionModal()}
         `;
     }
 
@@ -555,7 +826,7 @@ export default class OpencgaFileGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
+            showCreate: false,
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],

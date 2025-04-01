@@ -214,12 +214,16 @@ export default class JobDetailLog extends LitElement {
                     </button>
                 </div>
             </div>
-            <pre class="overflow-x-scroll cmd log-wrapper ${this.command} rounded">${this.content}\n${this.renderCursor()}</pre>
+            <pre class="${this._config.display?.contentClass}" style="${this._config.display?.contentStyle}">${this.content}\n${this.renderCursor()}</pre>
         `;
     }
 
     getDefaultConfig() {
         return {
+            display: {
+                contentStyle: "min-height:160px;max-height:640px;",
+                contentClass: "bg-gray-900 text-gray-100 p-4 rounded-2",
+            },
             defaultCommand: "head",
             defaultType: "stderr",
             lines: 500,

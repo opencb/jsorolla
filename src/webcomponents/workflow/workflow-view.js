@@ -177,7 +177,7 @@ export default class WorkflowView extends LitElement {
                     ],
                 },
                 {
-                    title: "General",
+                    title: "General Information",
                     collapsed: false,
                     display: {
                         visible: workflow => workflow?.id,
@@ -212,6 +212,34 @@ export default class WorkflowView extends LitElement {
                             field: "version",
                         },
                         {
+                            id: "type",
+                            title: "Type",
+                            field: "type",
+                        },
+                        {
+                            title: "Draft",
+                            field: "draft",
+                            type: "checkbox",
+                            display: {
+                                disabled: true,
+                            },
+                        },
+                        {
+                            title: "Minimum Requirements",
+                            field: "minimumRequirements",
+                            type: "object",
+                            elements: [
+                                {
+                                    title: "Min CPU cores",
+                                    field: "minimumRequirements.cpu",
+                                },
+                                {
+                                    title: "Min memory",
+                                    field: "minimumRequirements.memory",
+                                },
+                            ]
+                        },
+                        {
                             title: "Status",
                             type: "complex",
                             display: {
@@ -221,6 +249,10 @@ export default class WorkflowView extends LitElement {
                                     "internal.status.date": date => UtilsNew.dateFormatter(date)
                                 }
                             },
+                        },
+                        {
+                            title: "Description",
+                            field: "description",
                         },
                         {
                             title: "Creation Date",
@@ -244,6 +276,71 @@ export default class WorkflowView extends LitElement {
                         },
                     ],
                 },
+                {
+                    title: "Input Variables",
+                    text: `
+                        Optional variables that can be used in the workflow, these are NOT necessary for the workflow to run.
+                        The variables will be ONLY used to create automatic forms.
+                    `,
+                    elements: [
+                        {
+                            title: "Variables",
+                            field: "variables",
+                            type: "table",
+                            display: {
+                                defaultValue: "No input parameters are currently configured.",
+                                columns: [
+                                    {
+                                        title: "ID",
+                                        field: "id",
+                                    },
+                                    {
+                                        title: "Name",
+                                        field: "name",
+                                    },
+                                    {
+                                        title: "Required",
+                                        field: "required",
+                                    },
+                                    {
+                                        title: "Default Value",
+                                        field: "defaultValue",
+                                    },
+                                    {
+                                        title: "Description",
+                                        field: "description",
+                                    },
+                                ],
+                            },
+                        },
+                    ],
+                },
+                /*
+                {
+                    title: "Scripts",
+                    elements: [
+                        {
+                            title: "Scripts",
+                            field: "scripts",
+                            type: "list",
+                            display: {
+                                defaultValue: "No scripts are currently available.",
+                                contentLayout: "vertical",
+                                format: script => {
+                                    return `
+                                        <h5 class="card-title">${script.fileName} ${script.main ? `(main)`: ``}</h5>
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <p class="card-text">${script.content}</p>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                            },
+                        },
+                    ],
+                },
+                 */
             ],
         });
     }

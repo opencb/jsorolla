@@ -93,16 +93,46 @@ export default class VariantNotes extends LitElement {
     variantObserver() {
         this.notes = [];
         if (this.variant && this.active) {
-            // 1. get the list of genes
-            const genes = (this.variant?.annotation?.consequenceTypes || []).map(ct => ct.geneName);
+            // 1. Get the list of IDs to search for notes
+            const ids = [];
 
-            // 2. get notes where the ID of the note is the variant ID or the gene ID
-            this.opencgaSession.opencgaClient.studies()
+            // 1.1 Add Variant ID and HGVS
+            ids.push(this.variant.id);
+            ids.push(...this.variant?.annotation?.hgvs);
+
+            // 1.2 Add gene and transcripts IDs
+            for (const ct of this.variant?.annotation?.consequenceTypes || []) {
+                // geneId can be empty in intergenic or regulatory variants
+                if (ct.geneId) {
+                    ids.push(ct.geneId);
+                    ids.push(ct.geneName);
+                    ids.push(ct.transcriptId);
+                    if (ct.transcriptId.includes(".")) {
+                        ids.push(ct.transcriptId.split(".")[0]);
+                    }
+                }
+            }
+
+            // 1.3 Clinical variant IDs
+            ids.push(...(this.variant?.annotation?.traitAssociation || []).map(ta => ta.id));
+
+            // 2. Fetch Variant Notes from Organization and Study
+            // 2.1 Prepare promises
+            const notePromises = [];
+            notePromises.push(this.opencgaSession.opencgaClient.organization()
+                .searchNotes({
+                    id: ids.filter(Boolean).join(","),
+                    scope: "ORGANIZATION",
+                }));
+            notePromises.push( this.opencgaSession.opencgaClient.studies()
                 .searchNotes(this.opencgaSession.study.fqn, {
-                    id: [this.variant.id, ...genes].filter(Boolean).join(","),
-                })
-                .then(response => {
-                    this.notes = response.responses[0].results || [];
+                    id: ids.filter(Boolean).join(","),
+                }));
+
+            // 2.2 Execute promises to fetch notes
+            Promise.all(notePromises)
+                .then(responses => {
+                    this.notes = [...responses[0].responses[0].results, ...responses[1].responses[0].results];
                     this.requestUpdate();
                 })
                 .catch(error => {
@@ -111,13 +141,14 @@ export default class VariantNotes extends LitElement {
         }
     }
 
-    renderNoteByType(note) {
+    renderNoteByValueType(note) {
         let noteHtml;
         switch (note.valueType.toUpperCase()) {
             case "INTEGER":
             case "DOUBLE":
             case "STRING":
-                noteHtml = html`<span>${note.value}</span>`;
+                // noteHtml = html`<div>${note.value}</div>`;
+                noteHtml = UtilsNew.renderHTML(note.value)
                 break;
             case "ARRAY":
                 noteHtml = html`<span>${note.value.join(", ")}</span>`;
@@ -131,37 +162,41 @@ export default class VariantNotes extends LitElement {
                 `;
                 break;
             default:
-                noteHtml = html`<span>${note.value}</span>`;
+                noteHtml = html`<div>${note.value}</div>`;
         }
         return noteHtml;
     }
 
-    renderNotes(noteType) {
+    renderNotes(noteTypes) {
         // 1. filter notes by the specified note type
-        const notes = this.notes.filter(note => note.type === noteType);
+        const notes = this.notes.filter(note => noteTypes.includes(note.type));
 
         // 2. if there are no notes, return a message
         if (notes.length === 0) {
             return html`
-                <span>No ${noteType.toLowerCase()} notes available for variant '${this.variant.id}'</span>
+                <span>No ${noteTypes.join(",").toLowerCase()} notes available for variant '${this.variant.id}'</span>
             `;
         }
-        
+
         // 3. render notes
         return notes.map(note => html`
-            <h4>${note.id}</h4>
-            <div style="background-color:#f3f3f3; border-left: 2px solid #0c2f4c;padding:12px">
-                <div style="float: right">
-                    <span class="px-2">Last modified on ${UtilsNew.dateFormatter(note.modificationDate)}.</span>
-                    <span>(Version ${note.version})</span>
-                </div>
-                <div class="my-2">
-                    <span style="font-weight: bold">Created by user:</span>
-                    <span>${note.userId}</span>
-                </div>
-                <div class="my-2">
-                    <span style="font-weight: bold">Note info:</span>
-                    ${this.renderNoteByType(note)}
+            <div class="mb-3">
+                <h4>${note.id}</h4>
+                <div style="background-color:#f3f3f3; border-left: 2px solid #0c2f4c;padding:12px">
+                    <div style="float: right">
+                        <span class="px-2">Last modified on ${UtilsNew.dateFormatter(note.modificationDate)}.</span>
+                        <span>(Version ${note.version})</span>
+                    </div>
+                    <div class="my-2">
+                        <span style="font-weight: bold">Created by user:</span>
+                        <span>${note.userId}</span>
+                    </div>
+                    <div class="my-2">
+                        <div style="font-weight: bold">Note info:</div>
+                        <div class="m-2">
+                            ${this.renderNoteByValueType(note)}
+                        </div>
+                    </div>
                 </div>
             </div>
         `);
@@ -182,13 +217,13 @@ export default class VariantNotes extends LitElement {
                 <div class="mb-4">
                     <h2>Variant Note</h2>
                     <div class="px-2">
-                        ${this.renderNotes("VARIANT")}
+                        ${this.renderNotes(["VARIANT"])}
                     </div>
                 </div>
                 <div class="mb-4">
                     <h2>Gene Notes</h2>
                     <div class="px-2">
-                        ${this.renderNotes("GENE")}
+                        ${this.renderNotes(["GENE", "TRANSCRIPT"])}
                     </div>
                 </div>
             </div>

@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import LitUtils from "../../commons/utils/lit-utils.js";
+import {html, LitElement, nothing} from "lit";
 import "../../commons/forms/data-form.js";
 import "../../loading-spinner.js";
 
@@ -24,7 +23,7 @@ export default class VariableSetView extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -39,6 +38,9 @@ export default class VariableSetView extends LitElement {
             variableSetId: {
                 type: String
             },
+            variableSets: {
+                type: Array
+            },
             opencgaSession: {
                 type: Object
             },
@@ -48,20 +50,26 @@ export default class VariableSetView extends LitElement {
         };
     }
 
-    _init() {
-        this.variableSet = {};
-        this.isLoading = false;
-    }
+    #init() {
+        this.selectedVariableSet = null;
+        this._loading = false;
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("variableSet")) {
+            this.variableSetObserver();
+        }
         if (changedProperties.has("variableSetId")) {
             this.variableSetIdObserver();
         }
+        if (changedProperties.has("variableSets")) {
+            this.variableSetsObserver();
+        }
+        // if (changedProperties.has("opencgaSession")) {
+        //     this.variableSetsObserver();
+        // }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
@@ -70,12 +78,16 @@ export default class VariableSetView extends LitElement {
 
     variableSetIdObserver() {
         if (this.variableSetId && this.opencgaSession) {
-            this.isLoading = true;
+            this._loading = true;
             let error;
-            this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn, {id: this.variableSetId})
+            this.opencgaSession.opencgaClient.studies()
+                .variableSets(this.opencgaSession.study.fqn,
+                    {
+                        id: this.variableSetId
+                    }
+                )
                 .then(response => {
                     this.variableSet = response.responses[0].results[0];
-                    this.isLoading = false;
                 })
                 .catch(reason => {
                     this.variableSet = {};
@@ -83,23 +95,59 @@ export default class VariableSetView extends LitElement {
                     console.error(reason);
                 })
                 .finally(() => {
+                    this._loading = false;
                     this._config = {...this.getDefaultConfig(), ...this.config};
                     this.requestUpdate();
-                    LitUtils.dispatchCustomEvent(this, "variableSetSearch", this.variableSet, null, error);
                 });
-            // this.variableSetId = "";
         }
     }
 
-    onFilterChange(e) {
-        // This must call sampleIdObserver function
-        console.log(`Searching VariableSet: ${e.detail.value}`);
-        this.variableSetId = e.detail.value;
+    variableSetObserver() {
+        this.variableSets = [this.variableSet];
+    }
+
+    variableSetsObserver() {
+        this.selectedVariableSet = this.variableSets?.length > 0 ? this.variableSets[0] : null;
+        this.requestUpdate();
+    }
+
+    changeVariableSet(e) {
+        this.selectedVariableSet = this.variableSets.find(vs => vs.id === e.target.value);
+        this.requestUpdate();
+    }
+
+    render() {
+        if (this._loading) {
+            return html`<loading-spinner></loading-spinner>`;
+        }
+
+        return html`
+            <!-- Render a select when more than Variable Set exists -->
+            ${this.variableSets?.length > 1 ? html`
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="">
+                            <label for="variableSetSelect" class="form-label">Select a Variable Set:</label>
+                            <select class="form-select" id="variableSetSelect" @change="${this.changeVariableSet}">
+                                ${this.variableSets.map(variableSet => html`
+                                    <option value="${variableSet.id}">${variableSet.name}</option>
+                                `)}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            ` : nothing
+            }
+
+            <data-form
+                .data=${this.selectedVariableSet}
+                .config="${this._config}">
+            </data-form>`;
     }
 
     getDefaultConfig() {
         return {
-            title: "Summary",
+            title: "",
             icon: "",
             display: {
                 buttonsVisible: false,
@@ -110,36 +158,12 @@ export default class VariableSetView extends LitElement {
             },
             sections: [
                 {
-                    title: "Search",
-                    display: {
-                        visible: variableSet => !variableSet?.id
-                    },
-                    elements: [
-                        {
-                            name: "VariableSet ID",
-                            field: "variableSetId",
-                            type: "custom",
-                            display: {
-                                render: () => html `
-                                    <variableset-id-autocomplete
-                                        .value="${this.variableSet?.id}"
-                                        .config=${{multiple: false}}
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @filterChange="${e => this.onFilterChange(e)}">
-                                    </variableset-id-autocomplete>`
-                            }
-                        }
-                    ]
-                },
-                {
-                    title: "General",
+                    title: "",
                     collapsed: false,
-                    display: {
-                        visible: variableSet => variableSet?.id
-                    },
+                    display: {},
                     elements: [
                         {
-                            name: "VariableSet ID",
+                            name: "Variable Set ID",
                             type: "custom",
                             display: {
                                 visible: variableSet => variableSet?.id,
@@ -151,10 +175,9 @@ export default class VariableSetView extends LitElement {
                             field: "name"
                         },
                         {
-                            name: "Confidential",
-                            field: "confidential",
+                            name: "Entity",
+                            field: "entities",
                             display: {
-                                defaultValue: "false"
                             }
                         },
                         {
@@ -175,8 +198,8 @@ export default class VariableSetView extends LitElement {
                             defaultValue: "N/A",
                             display: {
                                 contentLayout: "bullets",
-                                render: variable => {
-                                    return html`${variable?.name} (${variable?.type})`;
+                                format: variable => {
+                                    return `${variable?.name} (${variable?.type})`;
                                 },
                             }
                         },
@@ -184,20 +207,6 @@ export default class VariableSetView extends LitElement {
                 },
             ]
         };
-    }
-
-    render() {
-        if (this.isLoading) {
-            return html`
-                <loading-spinner></loading-spinner>
-            `;
-        }
-
-        return html`
-            <data-form
-                .data=${this.variableSet}
-                .config="${this._config}">
-            </data-form>`;
     }
 
 }

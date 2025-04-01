@@ -76,7 +76,7 @@ export default class StudyUsersManage extends LitElement {
             },
             "study-admin": {
                 displayName: "STUDY ADMIN",
-                check: userId => this.groups.find(group => group.id === "@admins").userIds.includes(userId),
+                check: userId => this.groups.find(group => group.id === "@admins")?.userIds?.includes(userId),
             },
         };
         // Original object
