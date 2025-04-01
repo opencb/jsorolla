@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../loading-spinner.js";
@@ -42,9 +41,6 @@ export default class IndividualSummary extends LitElement {
             individualId: {
                 type: String,
             },
-            search: {
-                type: Boolean,
-            },
             opencgaSession: {
                 type: Object,
             },
@@ -55,21 +51,17 @@ export default class IndividualSummary extends LitElement {
     }
 
     #init() {
-        this.individual = {};
-        this.search = false;
-        this.isLoading = false;
-
+        this._individual = null;
         this._config = this.getDefaultConfig();
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
+        }
+
+        if (changedProperties.has("individual")) {
+            this.individualObserver();
         }
 
         if (changedProperties.has("displayConfig")) {
@@ -80,53 +72,34 @@ export default class IndividualSummary extends LitElement {
     }
 
     individualIdObserver() {
+        this._individual = null;
         if (this.individualId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-            };
-            let error;
-            this.#setLoading(true);
             this.opencgaSession.opencgaClient.individuals()
-                .info(this.individualId, params)
+                .info(this.individualId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
-                    this.individual = response.responses[0].results[0];
+                    this._individual = response.responses[0].results[0];
+                    this.requestUpdate();
                 })
                 .catch(reason => {
-                    this.individual = {};
-                    error = reason;
                     console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, {}, error);
-                    this.#setLoading(false);
                 });
-        } else {
-            this.individual = {};
         }
     }
 
-    onFilterChange(e) {
-        this.individualId = e.detail.value;
+    individualObserver() {
+        this._individual = {...this.individual};
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
-
-        if (!this.individual?.id && this.search === false) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    Individual ID not found.
-                </div>
-            `;
+        if (!this.opencgaSession || !this._individual) {
+            return nothing;
         }
 
         return html`
             <data-form
-                .data="${this.individual || {}}"
+                .data="${this._individual}"
                 .config="${this._config || {}}">
             </data-form>
         `;
@@ -134,7 +107,6 @@ export default class IndividualSummary extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Summary",
             display: {
                 titleVisible: false,
                 buttonsVisible: false,
@@ -142,71 +114,13 @@ export default class IndividualSummary extends LitElement {
             },
             sections: [
                 {
-                    title: "Search",
-                    display: {
-                        visible: individual => !individual?.id && this.search === true,
-                    },
-                    elements: [
-                        {
-                            title: "Individual ID",
-                            // field: "individualId",
-                            type: "custom",
-                            display: {
-                                render: () => html `
-                                    <catalog-search-autocomplete
-                                        .value="${this.sample?.id}"
-                                        .resource="${"INDIVIDUAL"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>`,
-                            },
-                        },
-                    ],
-                },
-                {
                     title: "General",
-                    collapsed: false,
-                    display: {
-                        visible: individual => individual?.id,
-                        // layout: [
-                        //     {
-                        //         id: "name",
-                        //         className: ""
-                        //     },
-                        //     {
-                        //         id: "",
-                        //         className: "row",
-                        //         elements: [
-                        //             {
-                        //                 id: "father",
-                        //                 className: "col-md-6"
-                        //             },
-                        //             {
-                        //                 id: "mother",
-                        //                 className: "col-md-6"
-                        //             }
-                        //         ]
-                        //     },
-                        //     {
-                        //         id: "sex",
-                        //         className: ""
-                        //     },
-                        // ]
-                    },
                     elements: [
                         {
                             title: "Individual ID",
-                            // type: "custom",
                             type: "complex",
                             display: {
-                                // render: data => `
-                                //     <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})
-                                // `,
                                 template: "${id} (UUID: ${uuid})",
-                                // transform: {
-                                //     id: id => id.toLowerCase(),
-                                // },
                                 style: {
                                     id: {
                                         "font-weight": "bold",
@@ -223,40 +137,28 @@ export default class IndividualSummary extends LitElement {
                             id: "father",
                             title: "Father ID",
                             field: "father.id",
-                            // type: "basic",
                         },
                         {
                             id: "mother",
                             title: "Mother ID",
                             field: "mother.id",
-                            // type: "basic",
                         },
                         {
                             id: "sex",
                             title: "Reported Sex (Karyotypic)",
-                            // type: "custom",
                             type: "complex",
                             display: {
-                                // render: individual => `
-                                //     ${individual.sex?.id ?? "Not specified"} (${individual.karyotypicSex ?? "Not specified"})
-                                // `,
                                 defaultValue: "Not specified",
                                 template: "${sex.id} (${karyotypicSex})"
                             },
                         },
                         {
                             title: "Inferred Karyotypic Sex",
-                            // type: "custom",
                             field: "qualityControl",
                             display: {
-                                // render: data => {
-                                //     if (data?.qualityControl?.inferredSexReports?.length > 0) {
-                                //         return data.qualityControl.inferredSexReports[0].inferredKaryotypicSex;
-                                //     } else {
-                                //         return "-";
-                                //     }
-                                // },
-                                format: qualityControl => qualityControl?.inferredSexReports?.length > 0 ? qualityControl.inferredSexReports[0].inferredKaryotypicSex : "-"
+                                format: qualityControl => {
+                                    return qualityControl?.inferredSexReports?.length > 0 ? qualityControl.inferredSexReports[0].inferredKaryotypicSex : "-";
+                                },
                             },
                         },
                         {
@@ -269,7 +171,6 @@ export default class IndividualSummary extends LitElement {
                             type: "list",
                             display: {
                                 contentLayout: "vertical",
-                                // render: disorder => CatalogGridFormatter.disorderFormatter(disorder),
                                 format: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
                                 defaultValue: "N/A",
                             },
@@ -280,22 +181,6 @@ export default class IndividualSummary extends LitElement {
                             type: "list",
                             display: {
                                 contentLayout: "vertical",
-                                // filter: phenotypes => [phenotypes[0]],
-                                // transform: phenotypes => phenotypes.map(phenotype => {
-                                //     phenotype.id = phenotype.id.toLowerCase();
-                                //     return phenotype;
-                                // }),
-                                // render: phenotype => {
-                                //     let id = phenotype.id;
-                                //     if (phenotype.id.startsWith("HP:")) {
-                                //         id = html`
-                                //             <a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">
-                                //                 ${phenotype.id}
-                                //             </a>
-                                //         `;
-                                //     }
-                                //     return html`${phenotype.name} (${id})`;
-                                // },
                                 format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
                                 defaultValue: "N/A",
                             },
@@ -329,7 +214,6 @@ export default class IndividualSummary extends LitElement {
                             title: "Creation Date",
                             field: "creationDate",
                             display: {
-                                // render: field => field ? UtilsNew.dateFormatter(field) : "-"
                                 format: date => UtilsNew.dateFormatter(date)
                             },
                         },
@@ -345,23 +229,6 @@ export default class IndividualSummary extends LitElement {
                             title: "Description",
                             field: "description",
                         },
-                        /*
-                        // Fixme: fix export to pdf
-                        {
-                            title: "Annotation sets",
-                            field: "annotationSets",
-                            type: "custom",
-                            display: {
-                                showPDF: false,
-                                render: field => html`
-                                    <annotation-set-view
-                                        .annotationSets="${field}">
-                                    </annotation-set-view>
-                                `,
-                                defaultValue: "N/A",
-                            },
-                        },
-                        */
                     ],
                 },
                 {
@@ -380,11 +247,6 @@ export default class IndividualSummary extends LitElement {
                                 headerClassName: "",
                                 headerStyle: "",
                                 headerVisible: true,
-                                // filter: array => array.filter(item => item.somatic),
-                                // transform: array => array.map(item => {
-                                //     item.somatic = true;
-                                //     return item;
-                                // }),
                                 defaultValue: "No phenotypes found",
                                 columns: [
                                     {
