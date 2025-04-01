@@ -18,8 +18,6 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/job/job-grid.js";
-import "../../../webcomponents/job/job-detail.js";
-
 
 class JobBrowserGridTest extends LitElement {
 
@@ -115,11 +113,6 @@ class JobBrowserGridTest extends LitElement {
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                     @selectrow="${e => this.onSelectRow(e)}">
                 </job-grid>
-                <job-detail
-                    .job="${this._selectedRow}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.detail}">
-                </job-detail>
             </div>
         `;
     }
@@ -127,7 +120,6 @@ class JobBrowserGridTest extends LitElement {
     getDefaultConfig() {
         return {
             grid: {},
-            detail: {},
         };
     }
 
