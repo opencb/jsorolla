@@ -18,7 +18,6 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
-import "../study/annotationset/annotation-set-view.js";
 
 export default class SampleSummary extends LitElement {
 
@@ -93,13 +92,13 @@ export default class SampleSummary extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession || !this.sample) {
+        if (!this.opencgaSession || !this._sample) {
             return nothing;
         }
 
         return html`
             <data-form
-                .data="${this.sample || {}}"
+                .data="${this._sample || {}}"
                 .config="${this._config || {}}">
             </data-form>
         `;
