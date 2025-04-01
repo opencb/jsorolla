@@ -15,13 +15,10 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-import "../commons/forms/data-form.js";
-import "../commons/filters/catalog-search-autocomplete.js";
-import "../study/annotationset/annotation-set-view.js";
-import "../loading-spinner.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
+import "../commons/forms/data-form.js";
+import "../study/annotationset/annotation-set-view.js";
 
 export default class SampleSummary extends LitElement {
 
