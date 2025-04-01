@@ -19,7 +19,6 @@ import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/forms/data-form.js";
-import "./job-detail-log.js";
 import "../loading-spinner.js";
 
 export default class JobSummary extends LitElement {
@@ -47,9 +46,6 @@ export default class JobSummary extends LitElement {
             },
             opencgaSession: {
                 type: Object,
-            },
-            mode: {
-                type: String,
             },
             displayConfig: {
                 type: Object,
@@ -416,27 +412,6 @@ export default class JobSummary extends LitElement {
                                         field: "internal.status.id"
                                     }
                                 ],
-                            },
-                        },
-                    ],
-                },
-                {
-                    title: "Job log",
-                    display: {
-                        visible: job => job?.id && this.mode === "full",
-                    },
-                    elements: [
-                        {
-                            type: "custom",
-                            display: {
-                                defaultLayout: "vertical",
-                                render: job => html`
-                                    <job-detail-log
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .active="${true}"
-                                        .job="${job}">
-                                    </job-detail-log>
-                                `,
                             },
                         },
                     ],
