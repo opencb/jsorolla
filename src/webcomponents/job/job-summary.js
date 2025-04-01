@@ -22,7 +22,7 @@ import "../commons/forms/data-form.js";
 import "./job-detail-log.js";
 import "../loading-spinner.js";
 
-export default class JobView extends LitElement {
+export default class JobSummary extends LitElement {
 
     constructor() {
         super();
@@ -483,5 +483,5 @@ export default class JobView extends LitElement {
 
 }
 
-customElements.define("job-view", JobView);
+customElements.define("job-summary", JobSummary);
 
