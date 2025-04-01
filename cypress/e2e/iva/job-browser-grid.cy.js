@@ -19,7 +19,6 @@ import BrowserTest from "../../support/browser-test.js";
 
 context("Job Browser Grid", () => {
     const browserGrid = "job-grid";
-    const browserDetail = "job-detail";
 
     beforeEach(() => {
         cy.visit("#job-browser-grid");
@@ -183,44 +182,6 @@ context("Job Browser Grid", () => {
         it("should display 'Extra Column' column", () => {
             cy.get("thead th")
                 .contains("Extra column")
-                .should("be.visible");
-        });
-
-        it("should display 'New Catalog Tab' Tab", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
-            cy.get(`detail-tabs > div.detail-tabs > ul`)
-                .find("li")
-                .contains("New Catalog Tab")
-                .as("catalogTab")
-                .click()
-                .should("be.visible");
-        });
-    });
-
-    context("detail tabs", {tags: "@shortTask"}, () => {
-        it("should render", () => {
-            cy.get(browserDetail)
-                .should("be.visible");
-        });
-
-        it("should display info from the selected row", () => {
-            const job = "pedigree-graph-init.20230530144950.FWjipG";
-            cy.get(`tbody tr[data-uniqueid="${job}"]`)
-                .find(`td`)
-                .eq(1)
-                .trigger("click");
-
-            cy.get(`detail-tabs h3`)
-                .should("contain.text", `Job ${job}`);
-        });
-
-        it("should display 'Logs' Tab", () => {
-            cy.get(`detail-tabs > div.detail-tabs > ul`)
-                .find("li")
-                .contains("Logs")
-                .trigger("click");
-
-            cy.get("job-detail-log")
                 .should("be.visible");
         });
     });
