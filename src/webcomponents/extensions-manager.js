@@ -2,7 +2,7 @@ import {html} from "lit";
 
 export default {
     TYPES: {
-        DETAIL_TAB: "detail-tab",
+        VIEW: "view",
         TOOL: "tool",
         COLUMN: "column",
         INTERPRETER_TOOL: "interpreter-tool",
@@ -10,7 +10,8 @@ export default {
 
         // DEPRECATED: will be removed in future versions
         DEPRECATED_INTERPRETATION_TOOL: "interpretation_tool", // --> use INTERPRETER_TOOL instead
-        DEPRECATED_DETAIL_TAB: "detail_tab",
+        DEPRECATED_OLD_DETAIL_TAB: "detail_tab",
+        DEPRECATED_DETAIL_TAB: "detail-tab",
     },
 
     // Allows to get a list with all extensions of the specified type
@@ -30,7 +31,7 @@ export default {
     // @param {string} componentId - ID of the component where the new detail tabs will be injected
     // @return {array} tabs - a list of detail tabs configuration
     getDetailTabs(componentId) {
-        return this.getByType([this.TYPES.DETAIL_TAB, this.TYPES.DEPRECATED_DETAIL_TAB])
+        return this.getByType([this.TYPES.DEPRECATED_DETAIL_TAB, this.TYPES.DEPRECATED_OLD_DETAIL_TAB])
             .filter(extension => (extension.components || []).includes(componentId))
             .map(extension => ({
                 id: extension.id,
