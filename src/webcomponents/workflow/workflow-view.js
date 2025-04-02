@@ -22,7 +22,7 @@ import "./workflow-scripts-view.js";
 import "./workflow-jobs.js";
 import "./workflow-summary.js";
 
-export default class WorkflowDetail extends LitElement {
+export default class WorkflowView extends LitElement {
 
     constructor() {
         super();
@@ -170,4 +170,4 @@ export default class WorkflowDetail extends LitElement {
 
 }
 
-customElements.define("workflow-detail", WorkflowDetail);
+customElements.define("workflow-view", WorkflowView);
