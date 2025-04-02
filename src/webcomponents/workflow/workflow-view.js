@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
-import "../commons/view/detail-tabs.js";
+import "../commons/forms/data-form.js";
 import "../commons/json-viewer.js";
 import "./workflow-scripts-view.js";
 import "./workflow-jobs.js";
@@ -44,17 +44,16 @@ export default class WorkflowView extends LitElement {
             workflow: {
                 type: Object
             },
-            config: {
-                type: Object
+            displayConfig: {
+                type: Object,
             },
         };
     }
 
     #init() {
-        this.COMPONENT_ID = "workflow-detail";
+        this.COMPONENT_ID = "workflow-view";
         this._workflow = null;
         this._config = this.getDefaultConfig();
-        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
@@ -67,17 +66,14 @@ export default class WorkflowView extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.#updateDetailTabs();
+            this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
     }
 
     workflowIdObserver() {
+        this._workflow = null;
         if (this.opencgaSession && this.workflowId) {
             this.opencgaSession.opencgaClient.workflows()
                 .info(this.workflowId, {
@@ -95,51 +91,46 @@ export default class WorkflowView extends LitElement {
 
     workflowObserver() {
         this._workflow = {...this.workflow};
-        this.requestUpdate();
-    }
-
-    #updateDetailTabs() {
-        this._config.items = [
-            ...this._config.items,
-            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
-        ];
     }
 
     render() {
-        if (!this.opencgaSession) {
-            return "";
+        if (!this.opencgaSession || !this._workflow) {
+            return nothing;
         }
 
         return html`
-            <div data-cy="ib-detail">
-                <detail-tabs
-                    .data="${this._workflow}"
-                    .config="${this._config}"
-                    .opencgaSession="${this.opencgaSession}">
-                </detail-tabs>
-            </div>
+            <data-form
+                .data="${this._workflow}"
+                .config="${this._config || {}}">
+            </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            items: [
+            display: {
+                type: "tabs",
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
+            sections: [
                 {
                     id: "workflow-summary",
                     name: "Overview",
-                    active: true,
-                    render: (workflow, active, opencgaSession) => html`
+                    render: (workflow, active) => html`
                         <workflow-summary
                             .workflow="${workflow}"
-                            .opencgaSession="${opencgaSession}">
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
                         </workflow-summary>
                     `,
                 },
                 {
                     id: "workflow-scripts",
                     name: "Scripts",
-                    render: workflow => html`
+                    render: (workflow, active) => html`
                         <workflow-scripts-view
+                            .active="${active}"
                             .workflow="${workflow}">
                         </workflow-scripts-view>
                     `,
@@ -147,10 +138,11 @@ export default class WorkflowView extends LitElement {
                 {
                     id: "workflow-jobs",
                     name: "Jobs",
-                    render: (workflow, active, opencgaSession) => html`
+                    render: (workflow, active) => html`
                         <workflow-jobs
                             .workflow="${workflow}"
-                            .opencgaSession="${opencgaSession}">
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
                         </workflow-jobs>
                     `,
                 },
@@ -163,7 +155,8 @@ export default class WorkflowView extends LitElement {
                             .active="${active}">
                         </json-viewer>
                     `,
-                }
+                },
+                ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
             ],
         };
     }
