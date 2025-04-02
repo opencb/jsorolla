@@ -26,7 +26,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "./workflow-create.js";
 import "./workflow-import.js";
-import "./workflow-detail.js";
+import "./workflow-view.js";
 import "./workflow-update.js";
 import "./analysis/workflow-analysis.js";
 
@@ -591,15 +591,13 @@ export default class WorkflowGrid extends LitElement {
                     display: {
                         modalTitle: `Workflow ${this.workflowId}`,
                         modalCyDataName: `modal-workflow-view`,
-                        // modalContainerClass: "fullscreen-modal",
-                        // modalTitleHeader: "h4",
                         modalSize: "modal-lg",
                     },
                     render: () => html`
-                        <workflow-detail
+                        <workflow-view
                             .workflowId="${this.workflowId}"
                             .opencgaSession="${this.opencgaSession}">
-                        </workflow-detail>
+                        </workflow-view>
                     `,
                 };
                 break;
