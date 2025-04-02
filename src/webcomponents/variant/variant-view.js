@@ -96,7 +96,7 @@ export default class VariantView extends LitElement {
     #updateDetailTabs() {
         this._config.sections = [
             ...this._config.sections,
-            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+            ...ExtensionsManager.getViews(this.COMPONENT_ID),
         ];
     }
 

@@ -182,7 +182,7 @@ export default class IndividualView extends LitElement {
                     `,
                 },
             ],
-            ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+            ...ExtensionsManager.getViews(this.COMPONENT_ID),
         };
     }
 

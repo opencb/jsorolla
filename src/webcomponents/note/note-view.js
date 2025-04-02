@@ -146,7 +146,7 @@ export default class NoteView extends LitElement {
                         </json-viewer>
                     `,
                 },
-                ...ExtensionsManager.getDetailTabs(this.COMPONENT_ID),
+                ...ExtensionsManager.getViews(this.COMPONENT_ID),
             ],
         };
     }
