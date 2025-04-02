@@ -27,26 +27,27 @@ export default {
             });
     },
 
-    // Gets a list of detail tabs generated from the extensions for the specified component
+    // Gets a list of view tabs generated from the extensions for the specified component
     // @param {string} componentId - ID of the component where the new detail tabs will be injected
-    // @return {array} tabs - a list of detail tabs configuration
-    getDetailTabs(componentId) {
-        return this.getByType([this.TYPES.DEPRECATED_DETAIL_TAB, this.TYPES.DEPRECATED_OLD_DETAIL_TAB])
+    // @param {object} opencgaSession - OpenCGA session object
+    // @return {array} views - a list of views configuration
+    getViews(componentId, opencgaSession) {
+        const viewTypes = [
+            this.TYPES.VIEW,
+            this.TYPES.DEPRECATED_DETAIL_TAB,
+            this.TYPES.DEPRECATED_OLD_DETAIL_TAB,
+        ];
+        return this.getByType(viewTypes)
             .filter(extension => (extension.components || []).includes(componentId))
             .map(extension => ({
                 id: extension.id,
                 name: extension.name,
-                active: false,
-                render: (data, active, opencgaSession) => {
+                render: (data, active) => {
                     return extension.render({
                         html: html,
                         opencgaSession: opencgaSession,
                         data: data,
                         active: active,
-                        // DEPRECATED: 'tabData' and 'tabActive' have been renamed as 'data' and 'active' respectively.
-                        // Will be removed in future versions
-                        tabData: data,
-                        tabActive: active,
                     });
                 },
             }));
