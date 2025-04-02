@@ -20,7 +20,7 @@ import "../commons/view/detail-tabs.js";
 import "../commons/json-viewer.js";
 import "./workflow-scripts-view.js";
 import "./workflow-jobs.js";
-import "./workflow-view.js";
+import "./workflow-summary.js";
 
 export default class WorkflowDetail extends LitElement {
 
@@ -125,14 +125,14 @@ export default class WorkflowDetail extends LitElement {
         return {
             items: [
                 {
-                    id: "workflow-view",
+                    id: "workflow-summary",
                     name: "Overview",
                     active: true,
                     render: (workflow, active, opencgaSession) => html`
-                        <workflow-view
+                        <workflow-summary
                             .workflow="${workflow}"
                             .opencgaSession="${opencgaSession}">
-                        </workflow-view>
+                        </workflow-summary>
                     `,
                 },
                 {
