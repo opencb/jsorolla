@@ -18,9 +18,8 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import Types from "../../commons/types.js";
 import DetailTabs from "../../commons/view/detail-tabs.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
-import "../../variant/interpretation/variant-interpreter-grid.js";
+import "../../variant/interpretation/variant-interpreter-review.js";
 import "../../disease-panel/disease-panel-grid.js";
 import "./clinical-interpretation-summary.js";
 
@@ -221,22 +220,28 @@ export default class ClinicalInterpretationView extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
-                                    return !data.primaryFindings || UtilsNew.isNotEmptyArray(data?.primaryFindings) ?
-                                        html`
-                                            <variant-interpreter-grid
-                                                review
-                                                .clinicalAnalysis=${this.clinicalAnalysis}
-                                                .clinicalVariants="${data?.primaryFindings}"
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .config=${
-                                                    {
-                                                        showExport: true,
-                                                        showSettings: false
-                                                    }
-                                                }>
-                                            </variant-interpreter-grid>
-                                        `:"No variants data to display";
-                                }
+                                    if (data?.primaryFindings?.length === 0) {
+                                        return html`
+                                            <div class="alert alert-warning">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                <span>This interpretation does not have any variant marked as <b>Primary Findings</b>.</span>
+                                            </div>
+                                        `;
+                                    }
+                                    return html`
+                                        <variant-interpreter-review
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                            .variants="${data.primaryFindings}"
+                                            .gridConfig="${{
+                                                showSettings: false,
+                                                showActions: true,
+                                                showEditReview: true,
+                                                showSelectCheckbox: false,
+                                            }}">
+                                        </variant-interpreter-review>
+                                    `;
+                                },
                             }
                         }
                     ]
