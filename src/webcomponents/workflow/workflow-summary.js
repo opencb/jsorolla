@@ -22,7 +22,7 @@ import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../loading-spinner.js";
 
-export default class WorkflowView extends LitElement {
+export default class WorkflowSummary extends LitElement {
 
     constructor() {
         super();
@@ -347,4 +347,4 @@ export default class WorkflowView extends LitElement {
 
 }
 
-customElements.define("workflow-view", WorkflowView);
+customElements.define("workflow-summary", WorkflowSummary);
