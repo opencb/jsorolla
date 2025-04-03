@@ -160,7 +160,7 @@ export default class VariantInterpreterReview extends LitElement {
                                 ${variants.length > 0 ? html`
                                     <h3>Somatic CNV Variants</h3>
                                     <variant-interpreter-grid
-                                        .toolId="${"variant-interpreter-cancer-snv"}"
+                                        .toolId="${"variant-interpreter-cancer-cnv"}"
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .clinicalVariants="${variants}"
