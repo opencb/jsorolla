@@ -17,9 +17,9 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils.js";
 import ExtensionsManager from "../extensions-manager.js";
-import "./../commons/view/detail-tabs.js";
+import "../commons/view/detail-tabs.js";
 
-export default class ClinicalAnalysisDetail extends LitElement {
+export default class ClinicalAnalysisView extends LitElement {
 
     constructor() {
         super();
@@ -125,4 +125,4 @@ export default class ClinicalAnalysisDetail extends LitElement {
 
 }
 
-customElements.define("clinical-analysis-detail", ClinicalAnalysisDetail);
+customElements.define("clinical-analysis-view", ClinicalAnalysisView);
