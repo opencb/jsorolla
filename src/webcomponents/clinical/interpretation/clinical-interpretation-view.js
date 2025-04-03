@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import "../../commons/view/detail-tabs.js";
+import DetailTabs from "../../commons/view/detail-tabs.js";
 import "../../commons/forms/data-form.js";
 import "../../variant/interpretation/variant-interpreter-review.js";
 import "../../disease-panel/disease-panel-grid.js";
@@ -92,7 +92,7 @@ export default class ClinicalInterpretationView extends LitElement {
             <detail-tabs
                 .opencgaSession="${this.opencgaSession}"
                 .data="${this.clinicalAnalysis}"
-                .mode="${"pills"}"
+                .mode="${DetailTabs.PILLS_MODE}"
                 .config="${this.getTabsConfiguration()}">
             </detail-tabs>
         `;
