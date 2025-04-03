@@ -68,14 +68,8 @@ export default class VariantInterpreterReview extends LitElement {
         super.update(changedProperties);
     }
 
-    onClinicalInterpretationUpdate() {
-        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-            clinicalAnalysis: this.clinicalAnalysis,
-        });
-    }
-
     render() {
-        // Check if session has not been created or project does not exist
+        // check if session has not been created or project does not exist
         if (!this.opencgaSession || !this.opencgaSession.project) {
             return nothing;
         }
@@ -92,22 +86,19 @@ export default class VariantInterpreterReview extends LitElement {
             pageSize: 10,
             pageList: [10, 25, 50],
             showExport: false,
-            // exportFilename: exportFilename,
             detailView: true,
             showReview: true,
             showActions: true,
-
-            showSelectCheckbox: true,
+            showSelectCheckbox: false,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
-
             quality: {
                 qual: 30,
                 dp: 20
             },
             evidences: {
-                showSelectCheckbox: true
+                showSelectCheckbox: true,
             },
         };
 
@@ -128,10 +119,7 @@ export default class VariantInterpreterReview extends LitElement {
 
                 items.push({
                     id: "somatic-small-variants",
-                    name: "Somatic Small Variants",
                     render: (clinicalAnalysis, allVariants, active, opencgaSession) => {
-                        // const variants = clinicalAnalysis?.interpretation?.primaryFindings
-                        // const variants = (interpretation?.primaryFindings || [])
                         const variants = (allVariants || [])
                             ?.filter(v => v.studies[0]?.samples[0]?.sampleId === somaticSample?.id)
                             ?.filter(v => (v.type !== "COPY_NUMBER" && v.type !== "CNV"))
@@ -153,10 +141,7 @@ export default class VariantInterpreterReview extends LitElement {
                                     .clinicalVariants="${variants}"
                                     .review="${true}"
                                     .active="${active}"
-                                    .config="${gridConfig}"
-                                    @updaterow="${this.onUpdateVariant}"
-                                    @checkrow="${this.onCheckVariant}"
-                                    @settingsUpdate="${this.onSettingsUpdate}">
+                                    .config="${gridConfig}">
                                 </variant-interpreter-grid>
                             ` : nothing}
                         `;
@@ -166,9 +151,7 @@ export default class VariantInterpreterReview extends LitElement {
                 if (variantCallerTypes.has("COPY_NUMBER") || variantCallerTypes.has("CNV")) {
                     items.push({
                         id: "somatic-cnv-variants",
-                        name: "Somatic CNV Variants",
                         render: (clinicalAnalysis, allVariants, active, opencgaSession) => {
-                            // const variants = clinicalAnalysis?.interpretation?.primaryFindings
                             const variants = (allVariants || [])
                                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === somaticSample?.id)
                                 ?.filter(v => v.type === "COPY_NUMBER" || v.type === "CNV");
@@ -201,9 +184,7 @@ export default class VariantInterpreterReview extends LitElement {
                 if (variantCallerTypes.has("BREAKEND")) {
                     items.push({
                         id: "somatic-rearrangements",
-                        name: "Somatic Rearrangements",
                         render: (clinicalAnalysis, allVariants, active, opencgaSession) => {
-                            // const variants = clinicalAnalysis?.interpretation?.primaryFindings
                             const variants = (allVariants || [])
                                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === somaticSample?.id)
                                 ?.filter(v => v.type === "BREAKEND");
@@ -225,8 +206,7 @@ export default class VariantInterpreterReview extends LitElement {
                                         .clinicalVariants="${variants}"
                                         .review="${true}"
                                         .active="${active}"
-                                        .config="${gridConfig}"
-                                        @updaterow="${this.onUpdateVariant}">
+                                        .config="${gridConfig}">
                                     </variant-interpreter-rearrangement-grid>
                                 ` : nothing}
                             `;
@@ -235,10 +215,8 @@ export default class VariantInterpreterReview extends LitElement {
                 }
 
                 if (germlineSample) {
-                    // Add Germline Small Variants tab
                     items.push({
                         id: "germline-small-variants",
-                        name: "Germline Small Variants",
                         render: (clinicalAnalysis, allVariants, active, opencgaSession) => {
                             const variants = (allVariants || [])
                                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === germlineSample?.id)
@@ -260,22 +238,15 @@ export default class VariantInterpreterReview extends LitElement {
                                         .clinicalVariants="${variants}"
                                         .review="${true}"
                                         .active="${active}"
-                                        .config="${gridConfig}"
-                                        @selectrow="${this.onSelectVariant}"
-                                        @updaterow="${this.onUpdateVariant}"
-                                        @checkrow="${this.onCheckVariant}"
-                                        @settingsUpdate="${this.onSettingsUpdate}">
+                                        .config="${gridConfig}">
                                     </variant-interpreter-grid>
                                 ` : nothing}
                             `;
                         },
                     });
-                    // Add Germline Rearrangements tab
                     items.push({
                         id: "germline-rearrangements",
-                        name: "Germline Rearrangements",
                         render: (clinicalAnalysis, allVariants, active, opencgaSession) => {
-                            // const variants = clinicalAnalysis?.interpretation?.primaryFindings
                             const variants = (allVariants || [])
                                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === germlineSample?.id)
                                 ?.filter(v => v.type === "BREAKEND");
@@ -297,8 +268,7 @@ export default class VariantInterpreterReview extends LitElement {
                                         .clinicalVariants="${variants}"
                                         .review="${true}"
                                         .active="${active}"
-                                        .config="${gridConfig}"
-                                        @updaterow="${this.onUpdateVariant}">
+                                        .config="${gridConfig}">
                                     </variant-interpreter-rearrangement-grid>
                                 ` : nothing}
                             `;
@@ -309,7 +279,6 @@ export default class VariantInterpreterReview extends LitElement {
                 // SINGLE or FAMILY case types
                 items.push({
                     id: "primary-findings",
-                    name: "Primary Findings",
                     render: (clinicalAnalysis, allVariants, active, opencgaSession) => {
                         const gridConfig = {
                             ...defaultGridConfig,
@@ -327,8 +296,7 @@ export default class VariantInterpreterReview extends LitElement {
                                     .clinicalVariants="${allVariants}"
                                     .review="${true}"
                                     .active="${active}"
-                                    .config="${gridConfig}"
-                                    @updaterow="${this.onUpdateVariant}">
+                                    .config="${gridConfig}">
                                 </variant-interpreter-grid>
                             ` : html`
                                 <div class="alert alert-info">
