@@ -17,11 +17,9 @@
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
-import "./clinical-analysis-view.js";
 import "./clinical-analysis-grid.js";
-import "./clinical-analysis-detail.js";
+import "./clinical-analysis-view.js";
 import "./clinical-analysis-group.js";
-
 
 export default class ClinicalAnalysisBrowser extends LitElement {
 
@@ -142,11 +140,10 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </clinical-analysis-grid>
                         ${params?.detail ? html`
-                            <clinical-analysis-detail
+                            <clinical-analysis-view
                                 .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}"
                                 .clinicalAnalysisId="${params.detail?.id}">
-                            </clinical-analysis-detail>
+                            </clinical-analysis-view>
                         ` : nothing}
                     `,
                 },
@@ -256,27 +253,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                         showCreate: false,
                     }
                 },
-                detail: {
-                    title: "Clinical Analysis",
-                    showTitle: true,
-                    display: {
-                        titleClass: "mt-4",
-                        contentClass: "p-3"
-                    },
-                    items: [
-                        {
-                            id: "clinical-analysis-view",
-                            name: "Overview",
-                            active: true,
-                            render: (clinicalAnalysis, active, opencgaSession) => html`
-                                <clinical-analysis-view
-                                    .opencgaSession="${opencgaSession}"
-                                    .clinicalAnalysis="${clinicalAnalysis}">
-                                </clinical-analysis-view>
-                            `,
-                        }
-                    ]
-                }
             },
             aggregation: {
                 default: ["disorders"],
