@@ -81,11 +81,7 @@ export default class VariantInterpreterReview extends LitElement {
         }
 
         return this._config.items.map(item => {
-            return html`
-                <div class="">
-                    ${item.render(this.clinicalAnalysis, this.variants, true, this.opencgaSession)}
-                </div>
-            `;
+            return item.render(this.clinicalAnalysis, this.variants, true, this.opencgaSession);
         });
     }
 
@@ -255,7 +251,6 @@ export default class VariantInterpreterReview extends LitElement {
                         id: "germline-small-variants",
                         name: "Germline Small Variants",
                         render: (clinicalAnalysis, allVariants, active, opencgaSession) => {
-                            // const variants = clinicalAnalysis?.interpretation?.primaryFindings
                             const variants = (allVariants || [])
                                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === germlineSample?.id)
                                 ?.filter(v => v.type !== "BREAKEND");
@@ -268,6 +263,7 @@ export default class VariantInterpreterReview extends LitElement {
                             };
                             return html`
                                 ${variants.length > 0 ? html`
+                                    <h3>Germline Small Variants</h3>
                                     <variant-interpreter-grid
                                         .toolId="${"variant-interpreter-rd"}"
                                         .opencgaSession="${opencgaSession}"
@@ -281,11 +277,7 @@ export default class VariantInterpreterReview extends LitElement {
                                         @checkrow="${this.onCheckVariant}"
                                         @settingsUpdate="${this.onSettingsUpdate}">
                                     </variant-interpreter-grid>
-                                ` : html`
-                                    <div class="alert alert-info">
-                                        No <b>Germline Small Variants</b> to display.
-                                    </div>
-                                `}
+                                ` : nothing}
                             `;
                         },
                     });
