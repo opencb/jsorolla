@@ -113,10 +113,6 @@ export default class ClinicalAnalysisSummary extends LitElement {
                 buttonsVisible: false,
                 layout: [
                     {
-                        id: "search",
-                        className: ""
-                    },
-                    {
                         id: "",
                         className: "row mb-5",
                         sections: [
