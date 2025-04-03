@@ -292,11 +292,7 @@ export default class VariantInterpreterReview extends LitElement {
                                     .active="${active}"
                                     .config="${gridConfig}">
                                 </variant-interpreter-grid>
-                            ` : html`
-                                <div class="alert alert-info">
-                                    No <b>Primary Findings</b> to display.
-                                </div>
-                            `}
+                            ` : nothing}
                         `;
                     },
                 });
