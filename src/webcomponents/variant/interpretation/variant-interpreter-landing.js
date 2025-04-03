@@ -226,6 +226,7 @@ class VariantInterpreterLanding extends LitElement {
                                 <tool-header title="Case Summary - ${clinicalAnalysis?.id || ""}"></tool-header>
                                 <clinical-analysis-summary
                                     .clinicalAnalysis="${clinicalAnalysis}"
+                                    .active="${active}"
                                     .opencgaSession="${opencgaSession}">
                                 </clinical-analysis-summary>
                             </div>
