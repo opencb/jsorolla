@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utils.js";
+import {LitElement, html, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
-import "../commons/view/detail-tabs.js";
+import "../commons/forms/data-form.js";
+import "./clinical-analysis-summary.js";
 
 export default class ClinicalAnalysisView extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -41,18 +41,16 @@ export default class ClinicalAnalysisView extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            config: {
-                type: Object
-            }
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
-    _init() {
-        this.COMPONENT_ID = "clinical-analysis-detail";
-        this._prefix = UtilsNew.randomString(8);
+    #init() {
+        this.COMPONENT_ID = "clinical-analysis-view";
         this._clinicalAnalysis = null;
         this._config = this.getDefaultConfig();
-        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
@@ -64,18 +62,15 @@ export default class ClinicalAnalysisView extends LitElement {
             this.clinicalAnalysisObserver();
         }
 
-        if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.#updateDetailTabs();
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
     }
 
     clinicalAnalysisIdObserver() {
+        this._clinicalAnalysis = null;
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical()
                 .info(this.clinicalAnalysisId, {
@@ -93,33 +88,43 @@ export default class ClinicalAnalysisView extends LitElement {
 
     clinicalAnalysisObserver() {
         this._clinicalAnalysis = {...this.clinicalAnalysis};
-        this.requestUpdate();
-    }
-
-    #updateDetailTabs() {
-        this._config.items = [
-            ...this._config.items,
-            ...ExtensionsManager.getViews(this.COMPONENT_ID),
-        ];
     }
 
     render() {
-        if (!this.opencgaSession) {
-            return "";
+        if (!this.opencgaSession || !this._clinicalAnalysis) {
+            return nothing;
         }
 
         return html`
-            <detail-tabs
+            <data-form
                 .data="${this._clinicalAnalysis}"
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}">
-            </detail-tabs>
+                .config="${this._config || {}}">
+            </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            items: [],
+            display: {
+                type: "tabs",
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
+            sections: [
+                {
+                    id: "clinical-analysis-summary",
+                    name: "Overview",
+                    active: true,
+                    render: (clinicalAnalysis, active) => html`
+                        <clinical-analysis-summary
+                            .opencgaSession="${this.opencgaSession}"
+                            .active="${active}"
+                            .clinicalAnalysis="${clinicalAnalysis}">
+                        </clinical-analysis-summary>
+                    `,
+                },
+                ...ExtensionsManager.getViews(this.COMPONENT_ID),
+            ],
         };
     }
 
