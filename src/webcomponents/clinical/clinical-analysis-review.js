@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
 import LitUtils from "../commons/utils/lit-utils.js";
@@ -225,7 +225,7 @@ export default class ClinicalAnalysisReview extends LitElement {
         console.error("An error occurred updating clinicalAnalysis: ", response);
     }
 
-    postUpdate(response) {
+    postUpdate() {
         // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
             message: "Updated successfully",
@@ -317,7 +317,6 @@ export default class ClinicalAnalysisReview extends LitElement {
     }
 
     onSubmit(e) {
-        // By Sections
         switch (e.detail?.value) {
             case "caseInfo":
                 this.submitCaseComments();
@@ -344,26 +343,18 @@ export default class ClinicalAnalysisReview extends LitElement {
     }
 
     render() {
-        if (!this.clinicalAnalysis) {
-            return "";
+        if (!this.opencgaSession || !this.clinicalAnalysis) {
+            return nothing;
         }
 
         return html`
-
-            <!--
-            Fixme 20240220: enable this button through pdf: true/false in config
-            <button class="btn btn-primary" style="margin-bottom:14px"
-                @click="$this.onDownloadPdf}">
-                <i class="fas fa-file-pdf"></i>
-                Export PDF (Beta)
-            </button>
-            -->
             <data-form
                 .data="${this.clinicalAnalysis}"
-                .config="${this._config}"
+                .config="${this._config || {}}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @submit=${e => this.onSubmit(e)}>
-            </data-form>`;
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
@@ -547,7 +538,6 @@ export default class ClinicalAnalysisReview extends LitElement {
                             display: {
                                 rows: 10,
                                 helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
-
                             },
                         },
                         {
