@@ -16,14 +16,14 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import LitUtils from "../commons/utils/lit-utils";
+import LitUtils from "../commons/utils/lit-utils.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/image-viewer.js";
 
-export default class ClinicalAnalysisView extends LitElement {
+export default class ClinicalAnalysisSummary extends LitElement {
 
     constructor() {
         super();
@@ -586,4 +586,4 @@ export default class ClinicalAnalysisView extends LitElement {
 
 }
 
-customElements.define("clinical-analysis-view", ClinicalAnalysisView);
+customElements.define("clinical-analysis-summary", ClinicalAnalysisSummary);
