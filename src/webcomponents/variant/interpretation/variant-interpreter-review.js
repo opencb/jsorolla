@@ -15,21 +15,15 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import LitUtils from "../../commons/utils/lit-utils.js";
-import "./variant-interpreter-review-primary.js";
 import "./variant-interpreter-grid.js";
-import "../../clinical/interpretation/clinical-interpretation-editor.js";
-import "../../clinical/interpretation/clinical-interpretation-summary.js";
-import "../../clinical/interpretation/clinical-interpretation-update.js";
-import "../../commons/view/detail-tabs.js";
-import "../../commons/forms/data-form.js";
+import "./variant-interpreter-rearrangement-grid.js";
 
 export default class VariantInterpreterReview extends LitElement {
 
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -56,7 +50,7 @@ export default class VariantInterpreterReview extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._config = this.getDefaultConfig();
     }
 
