@@ -154,7 +154,6 @@ export default class VariantInterpreterReview extends LitElement {
                                     .review="${true}"
                                     .active="${active}"
                                     .config="${gridConfig}"
-                                    @selectrow="${this.onSelectVariant}"
                                     @updaterow="${this.onUpdateVariant}"
                                     @checkrow="${this.onCheckVariant}"
                                     @settingsUpdate="${this.onSettingsUpdate}">
@@ -164,86 +163,76 @@ export default class VariantInterpreterReview extends LitElement {
                     },
                 });
 
-                // if (variantCallerTypes.has("COPY_NUMBER") || variantCallerTypes.has("CNV")) {
-                //     items.push({
-                //         id: "somatic-cnv-variants",
-                //         name: "Somatic CNV Variants",
-                //         render: (clinicalAnalysis, active, opencgaSession) => {
-                //             const variants = clinicalAnalysis?.interpretation?.primaryFindings
-                //                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === somaticSample?.id)
-                //                 ?.filter(v => v.type === "COPY_NUMBER" || v.type === "CNV");
-                //             const gridConfig = {
-                //                 somatic: true,
-                //                 variantTypes: ["COPY_NUMBER", "CNV"],
-                //             };
+                if (variantCallerTypes.has("COPY_NUMBER") || variantCallerTypes.has("CNV")) {
+                    items.push({
+                        id: "somatic-cnv-variants",
+                        name: "Somatic CNV Variants",
+                        render: (clinicalAnalysis, allVariants, active, opencgaSession) => {
+                            // const variants = clinicalAnalysis?.interpretation?.primaryFindings
+                            const variants = (allVariants || [])
+                                ?.filter(v => v.studies[0]?.samples[0]?.sampleId === somaticSample?.id)
+                                ?.filter(v => v.type === "COPY_NUMBER" || v.type === "CNV");
+                            const gridConfig = {
+                                ...defaultGridConfig,
+                                ...(this.settings?.browsers?.["CANCER_CNV"]?.table || {}),
+                                ...(this.gridConfig || {}),
+                                somatic: true,
+                                variantTypes: ["COPY_NUMBER", "CNV"],
+                            };
+                            return html`
+                                ${variants.length > 0 ? html`
+                                    <h3>Somatic CNV Variants</h3>
+                                    <variant-interpreter-grid
+                                        .toolId="${"variant-interpreter-cancer-snv"}"
+                                        .opencgaSession="${opencgaSession}"
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .clinicalVariants="${variants}"
+                                        .review="${true}"
+                                        .active="${active}"
+                                        .config="${gridConfig}"
+                                        @updaterow="${this.onUpdateVariant}">
+                                    </variant-interpreter-grid>
+                                ` : nothing}
+                            `;
+                        },
+                    });
+                }
 
-                //             return html`
-                //                 <div class="col-md-10 offset-md-1">
-                //                     <tool-header
-                //                         class="bg-white"
-                //                         title="Somatic CNV Variants - ${clinicalAnalysis?.interpretation?.id}">
-                //                     </tool-header>
-                //                     ${variants.length > 0 ? html`
-                //                         <variant-interpreter-review-primary
-                //                             .opencgaSession="${opencgaSession}"
-                //                             .clinicalAnalysis="${clinicalAnalysis}"
-                //                             .clinicalVariants="${variants || []}"
-                //                             .active="${active}"
-                //                             .toolId="${"variant-interpreter-cancer-cnv"}"
-                //                             .gridConfig="${gridConfig}"
-                //                             .settings="${this.settings.browsers["CANCER_CNV"]}">
-                //                         </variant-interpreter-review-primary>
-                //                     ` : html`
-                //                         <div class="alert alert-info">
-                //                             No <b>Somatic CNV Variants</b> to display.
-                //                         </div>
-                //                     `}
-                //                 </div>
-                //             `;
-                //         },
-                //     });
-                // }
-
-                // if (variantCallerTypes.has("BREAKEND")) {
-                //     items.push({
-                //         id: "somatic-rearrangements",
-                //         name: "Somatic Rearrangements",
-                //         render: (clinicalAnalysis, active, opencgaSession) => {
-                //             const variants = clinicalAnalysis?.interpretation?.primaryFindings
-                //                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === somaticSample?.id)
-                //                 ?.filter(v => v.type === "BREAKEND");
-                //             const gridConfig = {
-                //                 somatic: true,
-                //                 isRearrangement: true,
-                //                 variantTypes: ["BREAKEND"],
-                //             };
-
-                //             return html`
-                //                 <div class="col-md-10 offset-md-1">
-                //                     <tool-header
-                //                         class="bg-white"
-                //                         title="Somatic Rearrangements - ${clinicalAnalysis?.interpretation?.id}">
-                //                     </tool-header>
-                //                     ${variants?.length > 0 ? html`
-                //                         <variant-interpreter-review-primary
-                //                             .opencgaSession="${opencgaSession}"
-                //                             .clinicalAnalysis="${clinicalAnalysis}"
-                //                             .clinicalVariants="${variants || []}"
-                //                             .active="${active}"
-                //                             .toolId="${"variant-interpreter-rearrangement"}"
-                //                             .gridConfig="${gridConfig}"
-                //                             .settings="${this.settings.browsers["REARRANGEMENT"]}">
-                //                         </variant-interpreter-review-primary>
-                //                     ` : html`
-                //                         <div class="alert alert-info">
-                //                             No <b>Somatic Rearrangements</b> to display.
-                //                         </div>
-                //                     `}
-                //                 </div>
-                //             `;
-                //         },
-                //     });
-                // }
+                if (variantCallerTypes.has("BREAKEND")) {
+                    items.push({
+                        id: "somatic-rearrangements",
+                        name: "Somatic Rearrangements",
+                        render: (clinicalAnalysis, allVariants, active, opencgaSession) => {
+                            // const variants = clinicalAnalysis?.interpretation?.primaryFindings
+                            const variants = (allVariants || [])
+                                ?.filter(v => v.studies[0]?.samples[0]?.sampleId === somaticSample?.id)
+                                ?.filter(v => v.type === "BREAKEND");
+                            const gridConfig = {
+                                ...defaultGridConfig,
+                                ...(this.settings?.browsers?.["REARRANGEMENT"]?.table || {}),
+                                ...(this.gridConfig || {}),
+                                somatic: true,
+                                isRearrangement: true,
+                                variantTypes: ["BREAKEND"],
+                            };
+                            return html`
+                                ${variants.length > 0 ? html`
+                                    <h3>Somatic Rearrangements</h3>
+                                    <variant-interpreter-rearrangement-grid
+                                        .toolId="${"variant-interpreter-rearrangement"}"
+                                        .opencgaSession="${opencgaSession}"
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .clinicalVariants="${variants}"
+                                        .review="${true}"
+                                        .active="${active}"
+                                        .config="${gridConfig}"
+                                        @updaterow="${this.onUpdateVariant}">
+                                    </variant-interpreter-rearrangement-grid>
+                                ` : nothing}
+                            `;
+                        },
+                    });
+                }
 
                 if (germlineSample) {
                     // Add Germline Small Variants tab
@@ -281,84 +270,78 @@ export default class VariantInterpreterReview extends LitElement {
                             `;
                         },
                     });
-
-                //     // Add Germline Rearrangements tab
-                //     items.push({
-                //         id: "germline-rearrangements",
-                //         name: "Germline Rearrangements",
-                //         render: (clinicalAnalysis, active, opencgaSession) => {
-                //             const variants = clinicalAnalysis?.interpretation?.primaryFindings
-                //                 ?.filter(v => v.studies[0]?.samples[0]?.sampleId === germlineSample?.id)
-                //                 ?.filter(v => v.type === "BREAKEND");
-                //             const gridConfig = {
-                //                 somatic: false,
-                //                 isRearrangement: true,
-                //                 variantTypes: ["BREAKEND"],
-                //             };
-
-                //             return html`
-                //                 <div class="col-md-10 offset-md-1">
-                //                     <tool-header
-                //                         class="bg-white"
-                //                         title="Germline Rearrangements - ${clinicalAnalysis?.interpretation?.id}">
-                //                     </tool-header>
-                //                     ${variants?.length > 0 ? html`
-                //                         <variant-interpreter-review-primary
-                //                             .opencgaSession="${opencgaSession}"
-                //                             .clinicalAnalysis="${clinicalAnalysis}"
-                //                             .clinicalVariants="${variants || []}"
-                //                             .active="${active}"
-                //                             .toolId="${"variant-interpreter-rearrangement"}"
-                //                             .gridConfig="${gridConfig}"
-                //                             .settings="${this.settings.browsers["REARRANGEMENT"]}">
-                //                         </variant-interpreter-review-primary>
-                //                     ` : html`
-                //                         <div class="alert alert-info">
-                //                             No <b>Germline Rearrangements</b> to display.
-                //                         </div>
-                //                     `}
-                //                 </div>
-                //             `;
-                //         },
-                //     });
+                    // Add Germline Rearrangements tab
+                    items.push({
+                        id: "germline-rearrangements",
+                        name: "Germline Rearrangements",
+                        render: (clinicalAnalysis, allVariants, active, opencgaSession) => {
+                            // const variants = clinicalAnalysis?.interpretation?.primaryFindings
+                            const variants = (allVariants || [])
+                                ?.filter(v => v.studies[0]?.samples[0]?.sampleId === germlineSample?.id)
+                                ?.filter(v => v.type === "BREAKEND");
+                            const gridConfig = {
+                                ...defaultGridConfig,
+                                ...(this.settings?.browsers?.["REARRANGEMENT"]?.table || {}),
+                                ...(this.gridConfig || {}),
+                                somatic: false,
+                                isRearrangement: true,
+                                variantTypes: ["BREAKEND"],
+                            };
+                            return html`
+                                ${variants.length > 0 ? html`
+                                    <h3>Germline Rearrangements</h3>
+                                    <variant-interpreter-rearrangement-grid
+                                        .toolId="${"variant-interpreter-rearrangement"}"
+                                        .opencgaSession="${opencgaSession}"
+                                        .clinicalAnalysis="${clinicalAnalysis}"
+                                        .clinicalVariants="${variants}"
+                                        .review="${true}"
+                                        .active="${active}"
+                                        .config="${gridConfig}"
+                                        @updaterow="${this.onUpdateVariant}">
+                                    </variant-interpreter-rearrangement-grid>
+                                ` : nothing}
+                            `;
+                        },
+                    });
                 }
-
             } else {
-                // items.push({
-                //     id: "primary-findings",
-                //     name: "Primary Findings",
-                //     render: (clinicalAnalysis, active, opencgaSession) => {
-                //         // TODO: fix this line to get correct variants to display
-                //         const variants = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
-                //         const gridConfig = {
-                //             somatic: false,
-                //             variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
-                //         };
-
-                //         return html`
-                //             <div class="col-md-10 offset-md-1">
-                //                 <tool-header
-                //                     class="bg-white"
-                //                     title="Primary Findings - ${clinicalAnalysis?.interpretation?.id}">
-                //                 </tool-header>
-                //                 <variant-interpreter-review-primary
-                //                     .opencgaSession="${opencgaSession}"
-                //                     .clinicalAnalysis="${clinicalAnalysis}"
-                //                     .clinicalVariants="${variants}"
-                //                     .active="${active}"
-                //                     .toolId="${"variant-interpreter-rd"}"
-                //                     .gridConfig="${gridConfig}"
-                //                     .settings="${this.settings.browsers["RD"]}">
-                //                 </variant-interpreter-review-primary>
-                //             </div>
-                //         `;
-                //     },
-                // });
+                // SINGLE or FAMILY case types
+                items.push({
+                    id: "primary-findings",
+                    name: "Primary Findings",
+                    render: (clinicalAnalysis, allVariants, active, opencgaSession) => {
+                        const gridConfig = {
+                            ...defaultGridConfig,
+                            ...(this.settings?.browsers?.["RD"]?.table || {}),
+                            ...(this.gridConfig || {}),
+                            somatic: false,
+                            variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                        };
+                        return html`
+                            ${allVariants.length > 0 ? html`
+                                <variant-interpreter-grid
+                                    .toolId="${"variant-interpreter-rd"}"
+                                    .opencgaSession="${opencgaSession}"
+                                    .clinicalAnalysis="${clinicalAnalysis}"
+                                    .clinicalVariants="${allVariants}"
+                                    .review="${true}"
+                                    .active="${active}"
+                                    .config="${gridConfig}"
+                                    @updaterow="${this.onUpdateVariant}">
+                                </variant-interpreter-grid>
+                            ` : html`
+                                <div class="alert alert-info">
+                                    No <b>Primary Findings</b> to display.
+                                </div>
+                            `}
+                        `;
+                    },
+                });
             }
         }
 
         return {
-            // title: "Interpretation review",
             items: items,
         };
     }
