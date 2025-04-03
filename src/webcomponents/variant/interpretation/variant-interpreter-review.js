@@ -166,8 +166,7 @@ export default class VariantInterpreterReview extends LitElement {
                                         .clinicalVariants="${variants}"
                                         .review="${true}"
                                         .active="${active}"
-                                        .config="${gridConfig}"
-                                        @updaterow="${this.onUpdateVariant}">
+                                        .config="${gridConfig}">
                                     </variant-interpreter-grid>
                                 ` : nothing}
                             `;
