@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utils-new.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 
-export default class ClinicalAnalysisSummary extends LitElement {
+export default class ClinicalAnalysisReviewSummary extends LitElement {
 
     constructor() {
         super();
@@ -193,4 +193,4 @@ export default class ClinicalAnalysisSummary extends LitElement {
 
 }
 
-customElements.define("clinical-analysis-summary", ClinicalAnalysisSummary);
+customElements.define("clinical-analysis-review-summary", ClinicalAnalysisReviewSummary);
