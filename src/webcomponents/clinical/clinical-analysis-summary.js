@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/forms/data-form.js";
-import "../commons/image-viewer.js";
+import "../individual/individual-grid.js";
 
 export default class ClinicalAnalysisSummary extends LitElement {
 
@@ -43,13 +42,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
             clinicalAnalysisId: {
                 type: String
             },
-            search: {
-                type: Boolean,
-            },
             opencgaSession: {
-                type: Object
-            },
-            settings: {
                 type: Object
             },
             displayConfig: {
@@ -59,46 +52,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
     }
 
     #init() {
-        this.clinicalAnalysis = {};
-        this.search = false;
-        this.isLoading = false;
-
-        this.displayConfigDefault = {
-            collapsable: true,
-            titleVisible: false,
-            defaultValue: "-",
-            // defaultLayout: "horizontal",
-            buttonsVisible: false,
-            layout: [
-                {
-                    id: "search",
-                    className: ""
-                },
-                {
-                    id: "",
-                    className: "row mb-5",
-                    sections: [
-                        {
-                            id: "detail",
-                            className: "col-md-6"
-                        },
-                        {
-                            id: "proband",
-                            className: "col-md-6"
-                        }
-                    ]
-                },
-                {
-                    id: "family",
-                    className: ""
-                },
-                {
-                    id: "files",
-                    className: ""
-                }
-            ],
-            pdf: false,
-        };
+        this._clinicalAnalysis = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -106,128 +60,93 @@ export default class ClinicalAnalysisSummary extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-        if (changedProperties.has("settings")) {
-            this.settingsObserver();
+
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
         }
-        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig
-            };
+
+        if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
-    settingsObserver() {
-        this._config = {...this.getDefaultConfig()};
-        if (this.settings?.fields?.length) {
-            this._config.hiddenFields = null;
-            this._config = UtilsNew.mergeDataFormConfig(this._config, this.settings.fields);
-        } else if (this.settings?.hiddenFields?.length) {
-            this._config.hiddenFields = this.settings.hiddenFields;
-            this._config = {...this._config, ...this.getDefaultConfig()}; // this is needed as we need to relauch getDefaultConfig() with the updated `hiddenFields` array
-        }
-        this.requestUpdate();
-    }
-
     clinicalAnalysisIdObserver() {
+        this._clinicalAnalysis = null;
         if (this.clinicalAnalysisId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn
-            };
-            let error;
-            this.#setLoading(true);
             this.opencgaSession.opencgaClient.clinical()
-                .info(this.clinicalAnalysisId, params)
+                .info(this.clinicalAnalysisId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
+                    this._clinicalAnalysis = response.responses[0].results[0];
+                    this.requestUpdate();
                 })
                 .catch(reason => {
-                    this.clinicalAnalysis = {};
-                    error = reason;
                     console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "clinicalAnalysisSearch", this.clinicalAnalysis, {}, error);
-                    this.#setLoading(false);
                 });
-        } else {
-            this.clinicalAnalysis = {};
         }
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
-    onFilterChange(e) {
-        this.clinicalAnalysisId = e.detail.value;
+    clinicalAnalysisObserver() {
+        this._clinicalAnalysis = {...this.clinicalAnalysis};
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
-
-        if (!this.clinicalAnalysis?.id && this.search === false) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle pe-2"></i>
-                    No clinical Analysis ID found.
-                </div>
-            `;
+        if (!this.opencgaSession || !this._clinicalAnalysis) {
+            return nothing;
         }
 
         return html`
             <data-form
-                .data=${this.clinicalAnalysis}
-                .config="${this._config}">
+                .data=${this._clinicalAnalysis}
+                .config="${this._config || {}}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            title: "Summary",
-            icon: "",
-            // comes from external settings
-            // hiddenFields: [],
-            display: this.displayConfig || this.displayConfigDefault,
-            sections: [
-                {
-                    id: "search",
-                    title: "Search",
-                    display: {
-                        visible: job => !job?.id && this.search === true,
+            display: {
+                titleVisible: false,
+                buttonsVisible: false,
+                layout: [
+                    {
+                        id: "search",
+                        className: ""
                     },
-                    elements: [
-                        {
-                            title: "Clinical Analysis ID",
-                            // field: "clinicalAnalysisId",
-                            type: "custom",
-                            display: {
-                                render: () => html `
-                                    <catalog-search-autocomplete
-                                        .value="${this.clinicalAnalysis?.id}"
-                                        .resource="${"CLINICAL_ANALYSIS"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>`,
+                    {
+                        id: "",
+                        className: "row mb-5",
+                        sections: [
+                            {
+                                id: "detail",
+                                className: "col-md-6"
                             },
-                        },
-                    ],
-                },
+                            {
+                                id: "proband",
+                                className: "col-md-6"
+                            }
+                        ]
+                    },
+                    {
+                        id: "family",
+                        className: ""
+                    },
+                    {
+                        id: "files",
+                        className: ""
+                    }
+                ],
+                ...this.displayConfig,
+            },
+            sections: [
                 {
                     id: "detail",
                     title: "Details",
                     display: {
-                        collapsed: false,
                         titleWidth: 3,
-                        visible: clinicalAnalysis => clinicalAnalysis?.id
                     },
                     elements: [
                         {
@@ -322,7 +241,6 @@ export default class ClinicalAnalysisSummary extends LitElement {
                     title: "Proband",
                     display: {
                         titleWidth: 3,
-                        visible: clinicalAnalysis => clinicalAnalysis?.id
                     },
                     elements: [
                         {
@@ -496,36 +414,18 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: family => {
-                                    if (family && family.members) {
-                                        const individualGridConfig = {
+                                render: family => html`
+                                    <individual-grid
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .individuals="${family?.members || []}"
+                                        .config="${{
                                             showSelectCheckbox: false,
                                             showToolbar: false
-                                        };
-                                        return html`
-                                            <individual-grid
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .individuals="${family.members}"
-                                                .config="${individualGridConfig}"
-                                                @filterChange="${e => this.onFamilyChange(e)}">
-                                            </individual-grid>
-                                        `;
-                                    }
-                                },
-                                errorMessage: "No family selected",
+                                        }}">
+                                    </individual-grid>
+                                `,
                             },
                         },
-                        // {
-                        //     title: "Pedigree",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: clinicalAnalysis => html`
-                        //             <image-viewer
-                        //                 .data="${clinicalAnalysis?.family?.pedigreeGraph?.base64}">
-                        //             </image-viewer>
-                        //         `,
-                        //     },
-                        // },
                         {
                             title: "Pedigree",
                             type: "image",
@@ -537,9 +437,6 @@ export default class ClinicalAnalysisSummary extends LitElement {
                 {
                     id: "files",
                     title: "Files",
-                    display: {
-                        visible: clinicalAnalysis => clinicalAnalysis?.id,
-                    },
                     elements: [
                         {
                             type: "table",
