@@ -163,6 +163,35 @@ export default class SampleGrid extends LitElement {
                     </sample-view>
                 `,
             }),
+            "create-cohort": {
+                display: {
+                    modalTitle: "Create Cohort",
+                    modalSize: "modal-md",
+                    modalbtnsVisible: true,
+                    okButtonText: "Create Cohort",
+                    cancelButtonText: "Cancel",
+                },
+                render: () => html`
+                    <div class="mb-2">
+                        Create a new cohort with <span class="fw-bold">${this.createCohortSampleIds?.length} samples</span>.
+                        This can take few seconds depending on the number of samples.
+                    </div>
+                    ${this.createCohortSampleIds?.length === 5000 ? html`
+                        <div class="alert alert-warning mb-2">No more than 5,000 samples allowed</div>
+                    ` : nothing}
+                    <form>
+                        <div class="mb-2">
+                            <label for="${this._prefix}CohortId" class="form-label">Cohort ID</label>
+                            <input type="text" class="form-control" id="${this._prefix}CohortId" placeholder="">
+                        </div>
+                        <div class="mb-0">
+                            <label for="${this._prefix}CohortName" class="form-label">Cohort Name</label>
+                            <input type="text" class="form-control" id="${this._prefix}CohortName" placeholder="">
+                        </div>
+                    </form>
+                `,
+                onOk: event => this.onCreateCohortSave(event),
+            }
         });
 
         this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
@@ -582,65 +611,59 @@ export default class SampleGrid extends LitElement {
     }
 
     onCreateCohortShow() {
-        const filters = {
-            ...this.filters,
-            include: "id",
-            limit: 5000,
-        };
         this.opencgaSession.opencgaClient.samples()
-            .search(filters)
+            .search({
+                ...this.filters,
+                include: "id",
+                limit: 5000,
+            })
             .then(response => {
-                const results = response.getResults();
-                if (results) {
-                    this.createCohortSampleIds = results.map(s => {
-                        return {"id": s.id};
+                const results = response?.responses?.[0]?.results || [];
+                if (results?.length > 0) {
+                    this.createCohortSampleIds = results.map(sample => {
+                        return {id: sample.id};
                     });
-                    this.requestUpdate();
-                    ModalUtils.show(`${this._prefix}CreateCohortModal`);
-                } else {
-                    console.error("Error in result format");
+                    this.gridCommons.changeActiveModal("create-cohort");
                 }
             })
             .catch(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                console.error(response);
             });
     }
 
     onCreateCohortSave() {
         const cohortId = document.querySelector(`#${this._prefix}CohortId`).value;
         const cohortName = document.querySelector(`#${this._prefix}CohortName`).value;
-
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            includeResult: false
+        const data = {
+            id: cohortId,
+            name: cohortName ?? "",
+            samples: this.createCohortSampleIds,
         };
         this.opencgaSession.opencgaClient.cohorts()
-            .create({
-                id: cohortId,
-                name: cohortName ?? "",
-                samples: this.createCohortSampleIds,
-            }, params)
+            .create(data, {
+                study: this.opencgaSession.study.fqn,
+            })
             .then(() => {
                 this.createCohortSampleIds = [];
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    // title: "Cohort Create",
-                    message: "Cohort created correctly"
+                    message: "Cohort created correctly",
                 });
             })
             .catch(reason => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            })
+            .finally(() => {
+                this.gridCommons.clearActiveModal();
             });
     }
 
     getRightToolbar() {
         return [
             {
-                render: () => html`
-                    <button type="button" class="btn btn-light" @click="${e => this.onCreateCohortShow(e)}">
-                        <i class="fas fa-users pe-1"></i> Create Cohort
-                    </button>
-                `,
-            }
+                icon: "fa-users",
+                title: "Create Cohort",
+                onClick: () => this.onCreateCohortShow(),
+            },
         ];
     }
 
@@ -660,39 +683,6 @@ export default class SampleGrid extends LitElement {
                     .opencgaSession="${this.opencgaSession}">
                 </sample-update>
             `,
-        });
-    }
-
-    renderModalCohortCreate() {
-        return ModalUtils.create(this, `${this._prefix}CreateCohortModal`, {
-            display: {
-                modalTitle: "Create Cohort",
-                modalDraggable: true,
-                modalbtnsVisible: true,
-                modalSize: "modal-md",
-            },
-            render: () => {
-                return html`
-                    <div class="mb-2">
-                        Create a new cohort with <span class="fw-bold">${this.createCohortSampleIds?.length} samples</span>.
-                        This can take few seconds depending on the number of samples.
-                    </div>
-                    ${this.createCohortSampleIds?.length === 5000 ? html`
-                        <div class="alert alert-warning mb-2">No more than 5,000 samples allowed</div>
-                    ` : nothing}
-                    <form>
-                        <div class="mb-2">
-                            <label for="${this._prefix}CohortId" class="form-label">Cohort ID</label>
-                            <input type="text" class="form-control" id="${this._prefix}CohortId" placeholder="">
-                        </div>
-                        <div class="mb-0">
-                            <label for="${this._prefix}CohortName" class="form-label">Cohort Name</label>
-                            <input type="text" class="form-control" id="${this._prefix}CohortName" placeholder="">
-                        </div>
-                    </form>
-                `;
-            },
-            onOk: e => this.onCreateCohortSave(e)
         });
     }
 
@@ -726,7 +716,6 @@ export default class SampleGrid extends LitElement {
 
             ${this.gridCommons.renderModals()}
 
-            ${this.renderModalCohortCreate()}
             ${this.renderModalUpdate()}
         `;
     }
