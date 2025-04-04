@@ -112,7 +112,7 @@ export default class SampleGrid extends LitElement {
             "view-sample": () => ({
                 display: {
                     modalTitle: `Sample ${this._selectedSample?.id}`,
-                    modalSize: "modal-lg",
+                    modalSize: "modal-xl",
                 },
                 render: () => html`
                     <sample-view
