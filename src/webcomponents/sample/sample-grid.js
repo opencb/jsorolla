@@ -19,12 +19,13 @@ import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import "../commons/opencb-grid-toolbar.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import "./sample-update.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
+import "../commons/opencb-grid-toolbar.js";
+import "./sample-update.js";
+import "./sample-view.js";
 
 export default class SampleGrid extends LitElement {
 
@@ -63,9 +64,10 @@ export default class SampleGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "sample-grid";
+        this.active = true;
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
-        this.active = true;
+        this._selectedSample = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -146,6 +148,22 @@ export default class SampleGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
+
+        // initialize modals
+        this.gridCommons.registerModals({
+            "view": () => ({
+                display: {
+                    modalTitle: `Sample ${this._selectedSample?.id}`,
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <sample-view
+                        .sampleId="${this._selectedSample.id}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </sample-view>
+                `,
+            }),
+        });
 
         this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
@@ -353,20 +371,24 @@ export default class SampleGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
+    async onActionClick(event, sample) {
+        const action = (event.target?.dataset?.action || "").toLowerCase();
         switch (action) {
+            case "view":
+                this._selectedSample = sample;
+                this.gridCommons.changeActiveModal("view");
+                break;
             case "edit":
-                this.sampleUpdateId = row.id;
+                this.sampleUpdateId = sample.id;
                 this.requestUpdate();
                 await this.updateComplete;
                 ModalUtils.show(`${this._prefix}UpdateModal`);
                 break;
             case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                UtilsNew.copyToClipboard(JSON.stringify(sample, null, "\t"));
                 break;
             case "download-json":
-                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                UtilsNew.downloadData([JSON.stringify(sample, null, "\t")], sample.id + ".json");
                 break;
             case "quality-control":
                 alert("Not implemented yet");
@@ -468,6 +490,11 @@ export default class SampleGrid extends LitElement {
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
+                                    <a data-action="view" class="dropdown-item" href="javascript: void 0">
+                                        <i class="fas fa-eye me-1"></i> View
+                                    </a>
+                                </li>
+                                <li>
                                     <a data-action="copy-json" class="dropdown-item" href="javascript: void 0">
                                         <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
                                     </a>
@@ -527,7 +554,7 @@ export default class SampleGrid extends LitElement {
                     `;
                 },
                 events: {
-                    "click a": this.onActionClick.bind(this)
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("actions")
             });
@@ -717,6 +744,8 @@ export default class SampleGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
                 <table id="${this.gridId}"></table>
             </div>
+
+            ${this.gridCommons.renderModals()}
 
             ${this.renderModalCohortCreate()}
             ${this.renderModalUpdate()}
