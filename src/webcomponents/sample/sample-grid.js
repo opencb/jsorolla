@@ -488,68 +488,47 @@ export default class SampleGrid extends LitElement {
                                 <i class="fas fa-toolbox me-1"></i>
                                 <span>Actions</span>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a data-action="view" class="dropdown-item" href="javascript: void 0">
-                                        <i class="fas fa-eye me-1"></i> View
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a data-action="view" class="dropdown-item cursor-pointer">
+                                    <i class="fas fa-eye me-1"></i> View
+                                </a>
+                                <a data-action="copy-json" class="dropdown-item cursor-pointer">
+                                    <i class="fas fa-copy me-1"></i> Copy JSON
+                                </a>
+                                <a data-action="download-json" class="dropdown-item cursor-pointer">
+                                    <i class="fas fa-download me-1"></i> Download JSON
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a class="dropdown-item" href="#sampleVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+                                    <i class="fas fa-user me-1"></i> Variant Stats Browser
+                                </a>
+                                <a class="dropdown-item ${row.somatic ? "" : "disabled"}" href="#sampleCancerVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+                                    <i class="fas fa-user me-1"></i> Cancer Variant Plots
+                                </a>
+                                <a
+                                    data-action="quality-control"
+                                    class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
+                                    title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ?"Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
+                                    <i class="fas fa-rocket me-1"></i> Calculate Quality Control
+                                </a>
+                                <hr class="dropdown-divider">
+                                ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
+                                    <a class="dropdown-item ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
+                                        <i class="fas fa-user-md me-1"></i> Case Interpreter - ${clinicalAnalysis.id}
                                     </a>
-                                </li>
-                                <li>
-                                    <a data-action="copy-json" class="dropdown-item" href="javascript: void 0">
-                                        <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
+                                `).join("") : `
+                                    <a class="dropdown-item disabled">
+                                        <i class="fas fa-user-md me-1"></i> No cases found
                                     </a>
-                                </li>
-                                <li>
-                                    <a data-action="download-json" class="dropdown-item" href="javascript: void 0">
-                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a data-action="variantStats" class="dropdown-item"
-                                       href="#sampleVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                                         <i class="fas fa-user me-1" aria-hidden="true"></i> Variant Stats Browser
-                                    </a>
-                                </li>
-                                <li>
-                                    <a data-action="cancerVariantStats" class="dropdown-item ${row.somatic ? "" : "disabled"}"
-                                       href="#sampleCancerVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                                        <i class="fas fa-user me-1" aria-hidden="true"></i> Cancer Variant Plots
-                                    </a>
-                                </li>
-                                <li>
-                                    <a data-action="quality-control"
-                                       class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
-                                       title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ?"Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                           <i class="fas fa-rocket me-1" aria-hidden="true"></i> Calculate Quality Control
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
-                                        <a data-action="interpreter"
-                                           class="dropdown-item ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
-                                           href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
-                                                <i class="fas fa-user-md me-1" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
-                                        </a>
-                                        `).join("") : `
-                                            <a data-action="interpreter" class="dropdown-item disabled" href="#">
-                                                <i class="fas fa-user-md me-1" aria-hidden="true"></i> No cases found
-                                            </a>
-                                        `}
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "" : "disabled"}" href="javascript: void 0">
-                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                                    </a>
-                                </li>
-                                <li>
-                                    <a data-action="delete" class="dropdown-item disabled" href="javascript: void 0" >
-                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                                    </a>
-                                </li>
-                            </ul>
+                                `}
+                                <hr class="dropdown-divider">
+                                <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                                    <i class="fas fa-edit me-1"></i> Edit ...
+                                </a>
+                                <a data-action="delete" class="dropdown-item disabled">
+                                    <i class="fas fa-trash me-1"></i> Delete
+                                </a>
+                            </div>
                         </div>
                     `;
                 },
