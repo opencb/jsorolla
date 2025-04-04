@@ -21,7 +21,6 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import ModalUtils from "../commons/modal/modal-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "./sample-create.js";
@@ -140,6 +139,26 @@ export default class SampleGrid extends LitElement {
                     </sample-create>
                 `,
             },
+            "update-sample": () => ({
+                display: {
+                    modalTitle: `Update Sample: ${this._selectedSample?.id}`,
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <sample-update
+                        .opencgaSession="${this.opencgaSession}"
+                        .sampleId="${this._selectedSample.id}"
+                        .active="${true}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        @sampleUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                        }}">
+                    </sample-update>
+                `,
+            }),
             "create-cohort": {
                 display: {
                     modalTitle: "Create Cohort",
@@ -380,15 +399,13 @@ export default class SampleGrid extends LitElement {
     async onActionClick(event, sample) {
         const action = (event.target?.dataset?.action || "").toLowerCase();
         switch (action) {
-            case "view-sample":
+            case "view":
                 this._selectedSample = sample;
-                this.gridCommons.changeActiveModal("view");
+                this.gridCommons.changeActiveModal("view-sample");
                 break;
             case "edit":
-                this.sampleUpdateId = sample.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
+                this._selectedSample = sample;
+                this.gridCommons.changeActiveModal("update-sample");
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(sample, null, "\t"));
@@ -656,25 +673,6 @@ export default class SampleGrid extends LitElement {
         ];
     }
 
-    renderModalUpdate() {
-        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-            display: {
-                modalTitle: `Update Sample: ${this.sampleUpdateId}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-update",
-                modalSize: "modal-lg",
-            },
-            render: active => html`
-                <sample-update
-                    .sampleId="${this.sampleUpdateId}"
-                    .active="${active}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}">
-                </sample-update>
-            `,
-        });
-    }
-
     renderToolbarLeftContent() {
         return html`
             <span id="${this.gridId + "PaginationInfo"}"></span>
@@ -704,8 +702,6 @@ export default class SampleGrid extends LitElement {
             </div>
 
             ${this.gridCommons.renderModals()}
-
-            ${this.renderModalUpdate()}
         `;
     }
 
