@@ -22,7 +22,6 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
-import ModalUtils from "../commons/modal/modal-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import "./file-folder-create.js";
@@ -72,7 +71,6 @@ export default class OpencgaFileGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
-        this.activeActionModal = "";
         this.lastFilters = null;
         this._selectedFile = null;
         this._config = this.getDefaultConfig();
@@ -112,24 +110,112 @@ export default class OpencgaFileGrid extends LitElement {
             columns: this._getDefaultColumns(),
         };
 
-        // this.permissionID = WebUtils.getPermissionID("FILE", "WRITE");
-    }
-
-    changeActiveActionModal(actionModal) {
-        // 1. check if there is a modal rendered
-        if (this.activeActionModal) {
-            ModalUtils.close(`${this._prefix}Modal${this.activeActionModal}`);
-        }
-
-        // 2. set the new active action modal
-        this.activeActionModal = actionModal;
-        this.requestUpdate();
-
-        // 3. show the new active action modal (if provided)
-        this.updateComplete.then(() => {
-            if (this.activeActionModal) {
-                ModalUtils.show(`${this._prefix}Modal${this.activeActionModal}`);
-            }
+        // register the available modals
+        this.gridCommons.registerModals({
+            "view": () => ({
+                display: {
+                    modalTitle: `File ${this._selectedFile?.name}`,
+                    modalCyDataName: `modal-file-view`,
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <file-view
+                        .fileId="${this._selectedFile.id}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </file-view>
+                `,
+            }),
+            "create-folder": {
+                display: {
+                    modalTitle: "Create Folder",
+                    modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
+                },
+                render: () => html`
+                    <file-folder-create
+                        .opencgaSession="${this.opencgaSession}"
+                        .path="${this.getCurrentPath()}"
+                        .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                        @folderCreate="${event => {
+                            this.gridCommons.clearActiveModal();
+                            this.forceTableRefresh();
+                            this.onPathCreate(event.detail.path);
+                        }}">
+                    </file-folder-create>
+                `,
+            },
+            "create-file": {
+                display: {
+                    modalTitle: "Create File",
+                    modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
+                },
+                render: () => html`
+                    <file-create
+                        .opencgaSession="${this.opencgaSession}"
+                        .path="${this.getCurrentPath()}"
+                        .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                        @fileCreate="${event => {
+                            this.gridCommons.clearActiveModal();
+                            this.forceTableRefresh();
+                            this.onPathCreate(event.detail.path);
+                        }}">
+                    </file-create>
+                `,
+            },
+            "upload-file": {
+                display: {
+                    modalTitle: "Upload File",
+                    modalCyDataName: "modal-upload",
+                    modalSize: "modal-lg"
+                },
+                render: () => html`
+                    <file-upload
+                        .opencgaSession="${this.opencgaSession}"
+                        .path="${this.getCurrentPath()}"
+                        .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                        @fileUpload="${event => {
+                            this.gridCommons.clearActiveModal();
+                            this.forceTableRefresh();
+                            this.onPathCreate(event.detail.relativeFilePath + event.detail.fileName);
+                        }}">
+                    </file-upload>
+                `,
+            },
+            "fetch-file": {
+                display: {
+                    modalTitle: "Fetch File",
+                    modalCyDataName: "modal-fectch",
+                    modalSize: "modal-lg"
+                },
+                render: () => html`
+                    <file-fetch
+                        .opencgaSession="${this.opencgaSession}"
+                        .path="${this.getCurrentPath()}"
+                        .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                        @fileUpload="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.forceTableRefresh();
+                        }}">
+                    </file-fetch>
+                `,
+            },
+            "variant-index": {
+                display: {
+                    modalTitle: "Run Variant Index",
+                    modalCyDataName: "modal-variant-index",
+                    modalSize: "modal-lg"
+                },
+                render: () => html`
+                    <variant-index-operation
+                        .opencgaSession="${this.opencgaSession}"
+                        .toolParams="${{
+                            file: this._selectedFile.id,
+                            study: this.opencgaSession.study.fqn,
+                        }}">
+                    </variant-index-operation>
+                `,
+            },
         });
     }
 
@@ -232,7 +318,7 @@ export default class OpencgaFileGrid extends LitElement {
                         this.onPathChange(row.path);
                     } else {
                         this._selectedFile = row;
-                        this.changeActiveActionModal("view");
+                        this.gridCommons.changeActiveModal("view");
                     }
                 },
                 onCheck: row => {
@@ -507,7 +593,7 @@ export default class OpencgaFileGrid extends LitElement {
         switch (action) {
             case "view":
                 this._selectedFile = file;
-                this.changeActiveActionModal("view");
+                this.gridCommons.changeActiveModal("view");
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(file, null, "\t"));
@@ -517,7 +603,7 @@ export default class OpencgaFileGrid extends LitElement {
                 break;
             case "variant-index":
                 this._selectedFile = file;
-                this.changeActiveActionModal("variant-index");
+                this.gridCommons.changeActiveModal("variant-index");
                 break;
             case "delete":
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
@@ -638,151 +724,27 @@ export default class OpencgaFileGrid extends LitElement {
                 icon: "fa-folder-plus",
                 title: "Create Folder",
                 disabled: !hasWritePermission,
-                onClick: () => this.changeActiveActionModal("create-folder"),
+                onClick: () => this.gridCommons.changeActiveModal("create-folder"),
             },
             {
                 icon: "fa-file-medical",
                 title: "Create File",
                 disabled: !hasWritePermission,
-                onClick: () => this.changeActiveActionModal("create-file"),
+                onClick: () => this.gridCommons.changeActiveModal("create-file"),
             },
             {
                 icon: "fa-file-upload",
                 title: "Upload File",
                 disabled: !hasWritePermission || !hasUploadPermission,
-                onClick: () => this.changeActiveActionModal("upload-file"),
+                onClick: () => this.gridCommons.changeActiveModal("upload-file"),
             },
             {
                 icon: "fas fa-cloud-download-alt",
                 title: "Fetch File",
                 disabled: !hasWritePermission || !hasJobExecutionPermission,
-                onClick: () => this.changeActiveActionModal("fetch-file"),
+                onClick: () => this.gridCommons.changeActiveModal("fetch-file"),
             },
         ];
-    }
-
-    renderActionModal() {
-        let config = null;
-
-        switch (this.activeActionModal) {
-            case "view":
-                config = {
-                    display: {
-                        modalTitle: `File ${this._selectedFile?.name}`,
-                        modalCyDataName: `modal-file-view`,
-                        modalSize: "modal-lg",
-                    },
-                    render: () => html`
-                        <file-view
-                            .fileId="${this._selectedFile.id}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </file-view>
-                    `,
-                };
-                break;
-            case "create-folder":
-                config = {
-                    display: {
-                        modalTitle: "Create Folder",
-                        modalCyDataName: "modal-create",
-                        modalSize: "modal-lg"
-                    },
-                    render: () => html`
-                        <file-folder-create
-                            .opencgaSession="${this.opencgaSession}"
-                            .path="${this.getCurrentPath()}"
-                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                            @folderCreate="${event => {
-                                this.changeActiveActionModal("");
-                                this.forceTableRefresh();
-                                this.onPathCreate(event.detail.path);
-                            }}">
-                        </file-folder-create>
-                    `,
-                };
-                break;
-            case "create-file":
-                config = {
-                    display: {
-                        modalTitle: "Create File",
-                        modalCyDataName: "modal-create",
-                        modalSize: "modal-lg"
-                    },
-                    render: () => html`
-                        <file-create
-                            .opencgaSession="${this.opencgaSession}"
-                            .path="${this.getCurrentPath()}"
-                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                            @fileCreate="${event => {
-                                this.changeActiveActionModal("");
-                                this.forceTableRefresh();
-                                this.onPathCreate(event.detail.path);
-                            }}">
-                        </file-create>
-                    `,
-                };
-                break;
-            case "upload-file":
-                config = {
-                    display: {
-                        modalTitle: "Upload File",
-                        modalCyDataName: "modal-upload",
-                        modalSize: "modal-lg"
-                    },
-                    render: () => html`
-                        <file-upload
-                            .opencgaSession="${this.opencgaSession}"
-                            .path="${this.getCurrentPath()}"
-                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                            @fileUpload="${event => {
-                                this.changeActiveActionModal("");
-                                this.forceTableRefresh();
-                                this.onPathCreate(event.detail.relativeFilePath + event.detail.fileName);
-                            }}">
-                        </file-upload>
-                    `,
-                };
-                break;
-            case "fetch-file":
-                config = {
-                    display: {
-                        modalTitle: "Fetch File",
-                        modalCyDataName: "modal-fectch",
-                        modalSize: "modal-lg"
-                    },
-                    render: () => html`
-                        <file-fetch
-                            .opencgaSession="${this.opencgaSession}"
-                            .path="${this.getCurrentPath()}"
-                            .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                            @fileUpload="${() => {
-                                this.changeActiveActionModal("");
-                                this.forceTableRefresh();
-                            }}">
-                        </file-fetch>
-                    `,
-                };
-                break;
-            case "variant-index":
-                config = {
-                    display: {
-                        modalTitle: "Run Variant Index",
-                        modalCyDataName: "modal-variant-index",
-                        modalSize: "modal-lg"
-                    },
-                    render: () => html`
-                        <variant-index-operation
-                            .opencgaSession="${this.opencgaSession}"
-                            .toolParams="${{
-                                file: this._selectedFile.id,
-                                study: this.opencgaSession.study.fqn,
-                            }}">
-                        </variant-index-operation>
-                    `,
-                };
-                break;
-        }
-        return config ? ModalUtils.create(this, `${this._prefix}Modal${this.activeActionModal}`, config) : nothing;
     }
 
     render() {
@@ -810,7 +772,7 @@ export default class OpencgaFileGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${this.renderActionModal()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
