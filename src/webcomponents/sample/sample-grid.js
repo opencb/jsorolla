@@ -24,6 +24,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "./sample-create.js";
 import "./sample-update.js";
 import "./sample-view.js";
 
@@ -105,53 +106,11 @@ export default class SampleGrid extends LitElement {
             toolId: this.toolId,
             resource: "SAMPLE",
             columns: this._getDefaultColumns(),
-            create: {
-                display: {
-                    modalTitle: "Create Sample",
-                    modalDraggable: true,
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
-                    // disabled: true,
-                    // disabledTooltip: "...",
-                },
-                render: () => html `
-                    <sample-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </sample-create>
-                `,
-            },
-            // Uncomment in case we need to change defaults
-            // export: {
-            //     display: {
-            //         modalTitle: "Sample Export",
-            //     },
-            //     render: () => html`
-            //         <opencga-export
-            //             .config="${this._config}"
-            //             .query=${this.query}
-            //             .opencgaSession="${this.opencgaSession}"
-            //             @export="${this.onExport}"
-            //             @changeExportField="${this.onChangeExportField}">
-            //         </opencga-export>`
-            // },
-            // settings: {
-            //     display: {
-            //         modalTitle: "Sample Settings",
-            //     },
-            //     render: () => html `
-            //         <catalog-browser-grid-config
-            //             .opencgaSession="${this.opencgaSession}"
-            //             .gridColumns="${this._columns}"
-            //             .config="${this._config}"
-            //             @configChange="${this.onGridConfigChange}">
-            //         </catalog-browser-grid-config>`
-            // }
         };
 
         // initialize modals
         this.gridCommons.registerModals({
-            "view": () => ({
+            "view-sample": () => ({
                 display: {
                     modalTitle: `Sample ${this._selectedSample?.id}`,
                     modalSize: "modal-lg",
@@ -163,6 +122,24 @@ export default class SampleGrid extends LitElement {
                     </sample-view>
                 `,
             }),
+            "create-sample": {
+                display: {
+                    modalTitle: "Create Sample",
+                    modalSize: "modal-lg"
+                },
+                render: () => html`
+                    <sample-create
+                        .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "down",
+                        }}"
+                        @sampleCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                        }}">
+                    </sample-create>
+                `,
+            },
             "create-cohort": {
                 display: {
                     modalTitle: "Create Cohort",
@@ -403,7 +380,7 @@ export default class SampleGrid extends LitElement {
     async onActionClick(event, sample) {
         const action = (event.target?.dataset?.action || "").toLowerCase();
         switch (action) {
-            case "view":
+            case "view-sample":
                 this._selectedSample = sample;
                 this.gridCommons.changeActiveModal("view");
                 break;
@@ -658,7 +635,19 @@ export default class SampleGrid extends LitElement {
     }
 
     getRightToolbar() {
+        const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
+            this.opencgaSession.study,
+            this.opencgaSession.user.id,
+            this.permissionID,
+            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions,
+        );
         return [
+            {
+                icon: "fa-plus",
+                title: "Create Sample",
+                disabled: !hasWritePermission,
+                onClick: () => this.gridCommons.changeActiveModal("create-sample"),
+            },
             {
                 icon: "fa-users",
                 title: "Create Cohort",
