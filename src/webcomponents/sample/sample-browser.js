@@ -19,7 +19,6 @@ import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "../commons/aggregation-stats.js";
 import "./sample-grid.js";
-import "./sample-view.js";
 
 export default class SampleBrowser extends LitElement {
 
@@ -128,16 +127,9 @@ export default class SampleBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .active="${true}"
                             @queryComplete="${e => params.onQueryComplete(e)}"
-                            @selectrow="${e => params.onClickRow(e)}"
                             @sampleUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </sample-grid>
-                        ${params?.detail ? html`
-                            <sample-view
-                                .sampleId="${params.detail?.id}"
-                                .opencgaSession="${params.opencgaSession}">
-                            </sample-view>
-                        ` : nothing}
                     `,
                 },
                 {
