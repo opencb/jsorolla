@@ -168,6 +168,7 @@ export default class SampleView extends LitElement {
                             .active="${active}"
                             .config="${{
                                 showToolbar: false,
+                                showActions: false,
                             }}"
                             .opencgaSession="${this.opencgaSession}">
                         </file-grid>
