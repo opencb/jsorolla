@@ -513,7 +513,7 @@ export default class SampleGrid extends LitElement {
                                 </a>
                                 <hr class="dropdown-divider">
                                 ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
-                                    <a class="dropdown-item ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
+                                    <a class="dropdown-item ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}" href="#clinical/interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
                                         <i class="fas fa-user-md me-1"></i> Case Interpreter - ${clinicalAnalysis.id}
                                     </a>
                                 `).join("") : `
