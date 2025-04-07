@@ -22,6 +22,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "../cohort/cohort-create-samples.js";
 import "./individual-view.js";
 import "./individual-create.js";
 import "./individual-update.js";
@@ -162,6 +163,23 @@ export default class IndividualGrid extends LitElement {
                     </individual-update>
                 `,
             }),
+            "create-cohort": {
+                display: {
+                    modalTitle: "Create Cohort",
+                    modalSize: "modal-md",
+                    modalbtnsVisible: false,
+                },
+                render: () => html`
+                    <cohort-create-samples
+                        .opencgaSession="${this.opencgaSession}"
+                        .resource="${this.RESOURCE}"
+                        .query="${this.filters}"
+                        @cohortCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                        }}">
+                    </cohort-create-samples>
+                `,
+            },
         });
     }
 
@@ -655,93 +673,6 @@ export default class IndividualGrid extends LitElement {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
                 this.requestUpdate();
             });
-    }
-
-    onCreateCohortShow() {
-        const filters = {
-            ...this.filters,
-            include: "id,samples.id,samples.internal",
-            limit: 5000,
-        };
-        this.opencgaSession.opencgaClient.individuals()
-            .search(filters)
-            .then(response => {
-                const results = response.getResults();
-                if (results) {
-                    this.createCohortSampleIds = [];
-                    for (const result of results) {
-                        for (const sample of result.samples) {
-                            this.createCohortSampleIds.push({"id": sample.id});
-                        }
-                    }
-                    this.requestUpdate();
-                    ModalUtils.show(`${this._prefix}CreateCohortModal`);
-                } else {
-                    console.error("Error in result format");
-                }
-            })
-            .catch(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-            });
-    }
-
-    onCreateCohortSave() {
-        const cohortId = document.querySelector(`#${this._prefix}CohortId`).value;
-        const cohortName = document.querySelector(`#${this._prefix}CohortName`).value;
-
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            includeResult: false
-        };
-        this.opencgaSession.opencgaClient.cohorts()
-            .create({
-                id: cohortId,
-                name: cohortName ?? "",
-                samples: this.createCohortSampleIds,
-            }, params)
-            .then(() => {
-                this.createCohortSampleIds = [];
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Cohort Create",
-                    message: "Cohort created correctly"
-                });
-            })
-            .catch(reason => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-            });
-    }
-
-    renderModalCohortCreate() {
-        return ModalUtils.create(this, `${this._prefix}CreateCohortModal`, {
-            display: {
-                modalTitle: "Create Cohort",
-                modalDraggable: true,
-                modalbtnsVisible: true,
-                modalSize: "modal-md"
-            },
-            render: () => {
-                return html`
-                    <div class="mb-2">
-                        Create a new cohort with <span class="fw-bold">${this.createCohortSampleIds?.length} samples</span>.
-                        This can take few seconds depending on the number of samples.
-                    </div>
-                    ${this.createCohortSampleIds?.length === 5000 ? html`
-                        <div class="alert alert-warning mb-2">No more than 5,000 samples allowed.</div>
-                    ` : nothing}
-                    <form>
-                        <div class="mb-2">
-                            <label for="${this._prefix}CohortId" class="form-label">Cohort ID</label>
-                            <input type="text" class="form-control" id="${this._prefix}CohortId" placeholder="">
-                        </div>
-                        <div class="mb-0">
-                            <label for="${this._prefix}CohortName" class="form-label">Cohort Name</label>
-                            <input type="text" class="form-control" id="${this._prefix}CohortName" placeholder="">
-                        </div>
-                    </form>
-                `;
-            },
-            onOk: e => this.onCreateCohortSave(e)
-        });
     }
 
     getRightToolbar() {
