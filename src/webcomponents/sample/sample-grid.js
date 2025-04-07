@@ -19,9 +19,7 @@ import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../cohort/cohort-create-samples.js";
 import "./sample-create.js";
@@ -64,6 +62,7 @@ export default class SampleGrid extends LitElement {
     }
 
     #init() {
+        this.RESOURCE = "SAMPLE";
         this.COMPONENT_ID = "sample-grid";
         this.active = true;
         this._prefix = UtilsNew.randomString(8);
@@ -178,8 +177,6 @@ export default class SampleGrid extends LitElement {
                 `,
             },
         });
-
-        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
     fetchClinicalAnalysis(rows, individuals, casesLimit) {
@@ -474,11 +471,7 @@ export default class SampleGrid extends LitElement {
                 id: "actions",
                 align: "right",
                 formatter: (value, row) => {
-                    const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
-                        this.opencgaSession.study,
-                        this.opencgaSession.user.id,
-                        this.permissionID,
-                        this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+                    const hasWritePermission = this.gridCommons.hasPermission(this.RESOURCE, "WRITE");
                     return `
                         <div class="d-inline-block dropdown">
                             <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
@@ -519,7 +512,7 @@ export default class SampleGrid extends LitElement {
                                 `}
                                 <hr class="dropdown-divider">
                                 <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
-                                    <i class="fas fa-edit me-1"></i> Edit ...
+                                    <i class="fas fa-edit me-1"></i> Edit
                                 </a>
                                 <a data-action="delete" class="dropdown-item disabled">
                                     <i class="fas fa-trash me-1"></i> Delete
@@ -578,17 +571,11 @@ export default class SampleGrid extends LitElement {
     }
 
     getRightToolbar() {
-        const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
-            this.opencgaSession.study,
-            this.opencgaSession.user.id,
-            this.permissionID,
-            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions,
-        );
         return [
             {
                 icon: "fa-plus",
                 title: "Create Sample",
-                disabled: !hasWritePermission,
+                disabled: !this.gridCommons.hasPermission(this.RESOURCE, "WRITE"),
                 onClick: () => this.gridCommons.changeActiveModal("create-sample"),
             },
             {
