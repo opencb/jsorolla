@@ -72,6 +72,28 @@ export default class CohortCreateSamples extends LitElement {
                     .catch(response => {
                         console.error(response);
                     });
+            } else if (this.resource === "INDIVIDUAL") {
+                this.opencgaSession.opencgaClient.individuals()
+                    .search({
+                        ...this.query,
+                        include: "id,samples.id,samples.internal",
+                        limit: 5000,
+                    })
+                    .then(response => {
+                        const results = response?.responses?.[0]?.results || [];
+                        if (results?.length > 0) {
+                            this._samples = [];
+                            results.forEach(individual => {
+                                (individual.samples || []).forEach(sample => {
+                                    this._samples.push({id: sample.id});
+                                });
+                            });
+                            this.requestUpdate();
+                        }
+                    })
+                    .catch(response => {
+                        console.error(response);
+                    });
             }
         }
     }
@@ -107,7 +129,7 @@ export default class CohortCreateSamples extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: "Cohort created correctly",
                 });
-                LitUtils.dispatchCustomEvent(this, "cohortCreate", data, {}, error);
+                LitUtils.dispatchCustomEvent(this, "cohortCreate", data);
             })
             .catch(reason => {
                 console.log(reason);
