@@ -19,11 +19,10 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
-import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "./individual-create.js";
 
 export default class IndividualGrid extends LitElement {
 
@@ -61,6 +60,7 @@ export default class IndividualGrid extends LitElement {
     }
 
     #init() {
+        this.RESOURCE = "INDIVIDUAL";
         this.COMPONENT_ID = "individual-grid";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
@@ -101,52 +101,30 @@ export default class IndividualGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            toolId: this.toolId,
-            resource: "INDIVIDUAL",
             columns: this._getDefaultColumns(),
-            create: {
-                display: {
-                    modalTitle: "Create Individual",
-                    modalDraggable: true,
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
-                },
-                render: () => html `
-                    <individual-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </individual-create>
-                `
-            },
-            // Uncomment in case we need to change defaults
-            // export: {
-            //     display: {
-            //         modalTitle: "Individual Export",
-            //     },
-            //     render: () => html`
-            //         <opencga-export
-            //             .config="${this._config}"
-            //             .query=${this.query}
-            //             .opencgaSession="${this.opencgaSession}"
-            //             @export="${this.onExport}"
-            //             @changeExportField="${this.onChangeExportField}">
-            //         </opencga-export>`
-            // },
-            // settings: {
-            //     display: {
-            //         modalTitle: "Individual Settings",
-            //     },
-            //     render: () => html `
-            //         <catalog-browser-grid-config
-            //             .opencgaSession="${this.opencgaSession}"
-            //             .gridColumns="${this._columns}"
-            //             .config="${this._config}"
-            //             @configChange="${this.onGridConfigChange}">
-            //         </catalog-browser-grid-config>`
-            // }
         };
 
-        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
+        // register modals for individual grid
+        this.gridCommons.registerModals({
+            "create-individual": {
+                display: {
+                    modalTitle: "Create Individual",
+                    modalSize: "modal-lg"
+                },
+                render: () => html`
+                    <individual-create
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "down",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @individualCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                        }}">
+                    </individual-create>
+                `,
+            },
+        });
     }
 
     fetchClinicalAnalysis(rows, casesLimit) {
@@ -574,11 +552,7 @@ export default class IndividualGrid extends LitElement {
                 field: "actions",
                 align: "center",
                 formatter: (value, row) => {
-                    const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
-                        this.opencgaSession.study,
-                        this.opencgaSession.user.id,
-                        this.permissionID,
-                        this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+                    const hasWritePermission = this.gridCommons.hasPermission(this.RESOURCE, "WRITE");
                     return `
                         <div class="d-inline-block dropdown">
                             <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -738,18 +712,6 @@ export default class IndividualGrid extends LitElement {
             });
     }
 
-    getRightToolbar() {
-        return [
-            {
-                render: () => html`
-                    <button type="button" class="btn btn-light" @click="${e => this.onCreateCohortShow(e)}">
-                        <i class="fas fa-users pe-1"></i> Create Cohort
-                    </button>
-                `,
-            }
-        ];
-    }
-
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
@@ -802,6 +764,22 @@ export default class IndividualGrid extends LitElement {
         });
     }
 
+    getRightToolbar() {
+        return [
+            {
+                icon: "fa-plus",
+                title: "Create Individual",
+                disabled: !this.gridCommons.hasPermission(this.RESOURCE, "WRITE"),
+                onClick: () => this.gridCommons.changeActiveModal("create-individual"),
+            },
+            {
+                icon: "fa-users",
+                title: "Create Cohort",
+                onClick: () => this.gridCommons.changeActiveModal("create-cohort"),
+            },
+        ];
+    }
+
     renderToolbarLeftContent() {
         return html`
             <span id="${this.gridId + "PaginationInfo"}"></span>
@@ -820,9 +798,7 @@ export default class IndividualGrid extends LitElement {
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @individualCreate="${this.renderTable}">
+                    @export="${this.onDownload}">
                 </opencb-grid-toolbar>
             ` : nothing}
 
@@ -830,8 +806,7 @@ export default class IndividualGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${this.renderModalUpdate()}
-            ${this.renderModalCohortCreate()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
