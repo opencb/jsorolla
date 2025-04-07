@@ -22,6 +22,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "./individual-view.js";
 import "./individual-create.js";
 import "./individual-update.js";
 
@@ -108,10 +109,23 @@ export default class IndividualGrid extends LitElement {
 
         // register modals for individual grid
         this.gridCommons.registerModals({
+            "view-individual": () => ({
+                display: {
+                    modalTitle: `Individual ${this._selectedIndividual?.id}`,
+                    modalSize: "modal-xl",
+                },
+                render: () => html`
+                    <individual-view
+                        .individualId="${this._selectedIndividual?.id}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </individual-view>
+                `,
+            }),
             "create-individual": {
                 display: {
                     modalTitle: "Create Individual",
-                    modalSize: "modal-lg"
+                    modalSize: "modal-lg",
                 },
                 render: () => html`
                     <individual-create
@@ -130,7 +144,7 @@ export default class IndividualGrid extends LitElement {
             "update-individual": () => ({
                 display: {
                     modalTitle: `Update Individual ${this._selectedIndividual?.id}`,
-                    modalSize: "modal-lg"
+                    modalSize: "modal-lg",
                 },
                 render: () => html`
                     <individual-update
@@ -434,6 +448,10 @@ export default class IndividualGrid extends LitElement {
     async onActionClick(event, individual) {
         const action = event.target.dataset.action?.toLowerCase() || event.detail.action;
         switch (action) {
+            case "view":
+                this._selectedIndividual = individual;
+                this.gridCommons.changeActiveModal("view-individual");
+                break;
             case "edit":
                 this._selectedIndividual = individual;
                 this.gridCommons.changeActiveModal("update-individual");
@@ -583,6 +601,9 @@ export default class IndividualGrid extends LitElement {
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
+                                <a data-action="view" class="dropdown-item cursor-pointer">
+                                    <i class="fas fa-eye me-1"></i> View
+                                </a>
                                 <a data-action="copy-json" class="dropdown-item cursor-pointer">
                                     <i class="fas fa-copy me-1"></i> Copy JSON
                                 </a>
