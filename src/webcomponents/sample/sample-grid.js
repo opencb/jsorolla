@@ -168,7 +168,7 @@ export default class SampleGrid extends LitElement {
                 render: () => html`
                     <cohort-create-samples
                         .opencgaSession="${this.opencgaSession}"
-                        .resource="${"SAMPLE"}"
+                        .resource="${this.RESOURCE}"
                         .query="${this.filters}"
                         @cohortCreate="${() => {
                             this.gridCommons.clearActiveModal();
