@@ -23,6 +23,7 @@ import ModalUtils from "../commons/modal/modal-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "./individual-create.js";
+import "./individual-update.js";
 
 export default class IndividualGrid extends LitElement {
 
@@ -62,9 +63,10 @@ export default class IndividualGrid extends LitElement {
     #init() {
         this.RESOURCE = "INDIVIDUAL";
         this.COMPONENT_ID = "individual-grid";
+        this.active = true;
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
-        this.active = true;
+        this._selectedIndividual = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -115,15 +117,37 @@ export default class IndividualGrid extends LitElement {
                     <individual-create
                         .displayConfig="${{
                             type: "tabs",
-                            buttonsLayout: "down",
+                            buttonsLayout: "upper",
                         }}"
                         .opencgaSession="${this.opencgaSession}"
                         @individualCreate="${() => {
                             this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
                         }}">
                     </individual-create>
                 `,
             },
+            "update-individual": () => ({
+                display: {
+                    modalTitle: `Update Individual ${this._selectedIndividual?.id}`,
+                    modalSize: "modal-lg"
+                },
+                render: () => html`
+                    <individual-update
+                        .individualId="${this._selectedIndividual?.id}"
+                        .active="${true}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @individualUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </individual-update>
+                `,
+            }),
         });
     }
 
@@ -407,20 +431,18 @@ export default class IndividualGrid extends LitElement {
         return result;
     }
 
-    async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
+    async onActionClick(event, individual) {
+        const action = event.target.dataset.action?.toLowerCase() || event.detail.action;
         switch (action) {
             case "edit":
-                this.individualUpdateId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
+                this._selectedIndividual = individual;
+                this.gridCommons.changeActiveModal("update-individual");
                 break;
             case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                UtilsNew.copyToClipboard(JSON.stringify(individual, null, "\t"));
                 break;
             case "download-json":
-                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                UtilsNew.downloadData([JSON.stringify(individual, null, "\t")], individual.id + ".json");
                 break;
             case "quality-control":
                 alert("Not implemented yet");
@@ -608,7 +630,7 @@ export default class IndividualGrid extends LitElement {
                     `;
                 },
                 events: {
-                    "click a": this.onActionClick.bind(this),
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("actions"),
             });
@@ -710,25 +732,6 @@ export default class IndividualGrid extends LitElement {
             .catch(reason => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             });
-    }
-
-    renderModalUpdate() {
-        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-            display: {
-                modalTitle: `Update Individual: ${this.individualUpdateId}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-update",
-                modalSize: "modal-lg"
-            },
-            render: active => html`
-                <individual-update
-                    .individualId="${this.individualUpdateId}"
-                    .active="${active}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}">
-                </individual-update>
-            `,
-        });
     }
 
     renderModalCohortCreate() {
