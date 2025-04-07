@@ -413,7 +413,7 @@ export default class GridCommons {
         return OpencgaCatalogUtils.getStudyEffectivePermission(
             this.context?.opencgaSession?.study,
             this.context?.opencgaSession?.user?.id,
-            WebUtils.getPermissionID(resource, mode),
+            WebUtils.getPermissionID(resource.toUpperCase(), mode.toUpperCase()),
             this.context?.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions
         );
     }
