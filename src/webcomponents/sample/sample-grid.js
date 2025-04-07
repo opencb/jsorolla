@@ -23,6 +23,7 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "../cohort/cohort-create-samples.js";
 import "./sample-create.js";
 import "./sample-update.js";
 import "./sample-view.js";
@@ -163,31 +164,19 @@ export default class SampleGrid extends LitElement {
                 display: {
                     modalTitle: "Create Cohort",
                     modalSize: "modal-md",
-                    modalbtnsVisible: true,
-                    okButtonText: "Create Cohort",
-                    cancelButtonText: "Cancel",
+                    modalbtnsVisible: false,
                 },
                 render: () => html`
-                    <div class="mb-2">
-                        Create a new cohort with <span class="fw-bold">${this.createCohortSampleIds?.length} samples</span>.
-                        This can take few seconds depending on the number of samples.
-                    </div>
-                    ${this.createCohortSampleIds?.length === 5000 ? html`
-                        <div class="alert alert-warning mb-2">No more than 5,000 samples allowed</div>
-                    ` : nothing}
-                    <form>
-                        <div class="mb-2">
-                            <label for="${this._prefix}CohortId" class="form-label">Cohort ID</label>
-                            <input type="text" class="form-control" id="${this._prefix}CohortId" placeholder="">
-                        </div>
-                        <div class="mb-0">
-                            <label for="${this._prefix}CohortName" class="form-label">Cohort Name</label>
-                            <input type="text" class="form-control" id="${this._prefix}CohortName" placeholder="">
-                        </div>
-                    </form>
+                    <cohort-create-samples
+                        .opencgaSession="${this.opencgaSession}"
+                        .resource="${"SAMPLE"}"
+                        .query="${this.filters}"
+                        @cohortCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                        }}">
+                    </cohort-create-samples>
                 `,
-                onOk: event => this.onCreateCohortSave(event),
-            }
+            },
         });
 
         this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
@@ -349,7 +338,6 @@ export default class SampleGrid extends LitElement {
             theadClasses: "table-light",
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
-            // data: this.samples,
             sidePagination: "server",
             // Josemi Note 2024-01-18: we have added the ajax function for local variants also to support executing async calls
             // when getting additional data from columns extensions.
@@ -603,53 +591,6 @@ export default class SampleGrid extends LitElement {
             });
     }
 
-    onCreateCohortShow() {
-        this.opencgaSession.opencgaClient.samples()
-            .search({
-                ...this.filters,
-                include: "id",
-                limit: 5000,
-            })
-            .then(response => {
-                const results = response?.responses?.[0]?.results || [];
-                if (results?.length > 0) {
-                    this.createCohortSampleIds = results.map(sample => {
-                        return {id: sample.id};
-                    });
-                    this.gridCommons.changeActiveModal("create-cohort");
-                }
-            })
-            .catch(response => {
-                console.error(response);
-            });
-    }
-
-    onCreateCohortSave() {
-        const cohortId = document.querySelector(`#${this._prefix}CohortId`).value;
-        const cohortName = document.querySelector(`#${this._prefix}CohortName`).value;
-        const data = {
-            id: cohortId,
-            name: cohortName ?? "",
-            samples: this.createCohortSampleIds,
-        };
-        this.opencgaSession.opencgaClient.cohorts()
-            .create(data, {
-                study: this.opencgaSession.study.fqn,
-            })
-            .then(() => {
-                this.createCohortSampleIds = [];
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: "Cohort created correctly",
-                });
-            })
-            .catch(reason => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-            })
-            .finally(() => {
-                this.gridCommons.clearActiveModal();
-            });
-    }
-
     getRightToolbar() {
         const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
             this.opencgaSession.study,
@@ -667,7 +608,7 @@ export default class SampleGrid extends LitElement {
             {
                 icon: "fa-users",
                 title: "Create Cohort",
-                onClick: () => this.onCreateCohortShow(),
+                onClick: () => this.gridCommons.changeActiveModal("create-cohort"),
             },
         ];
     }
