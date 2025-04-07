@@ -631,9 +631,7 @@ export default class SampleGrid extends LitElement {
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @sampleCreate="${this.renderTable}">
+                    @export="${this.onDownload}">
                 </opencb-grid-toolbar>
             ` : nothing}
 
