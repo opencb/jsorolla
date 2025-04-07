@@ -15,6 +15,8 @@
  */
 
 import UtilsNew from "../../core/utils-new.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import WebUtils from "./utils/web-utils.js";
 import ModalUtils from "./modal/modal-utils.js";
 import CustomActions from "./custom-actions.js";
 import ExtensionsManager from "../extensions-manager.js";
@@ -404,6 +406,16 @@ export default class GridCommons {
             }
         }
         return null;
+    }
+
+    // checks if the current has the provided permission on the specified resource
+    hasPermission(resource, mode = "VIEW") {
+        return OpencgaCatalogUtils.getStudyEffectivePermission(
+            this.context?.opencgaSession?.study,
+            this.context?.opencgaSession?.user?.id,
+            WebUtils.getPermissionID(resource, mode),
+            this.context?.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions
+        );
     }
 
 }
