@@ -19,7 +19,6 @@ import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "../commons/aggregation-stats.js";
 import "./individual-grid.js";
-import "./individual-view.js";
 
 export default class IndividualBrowser extends LitElement {
 
@@ -128,16 +127,9 @@ export default class IndividualBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .active="${true}"
                             @queryComplete="${e => params.onQueryComplete(e)}"
-                            @selectrow="${e => params.onClickRow(e)}"
                             @individualUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </individual-grid>
-                        ${params?.detail ? html`
-                            <individual-view
-                                .opencgaSession="${params.opencgaSession}"
-                                .individualId="${params.detail?.id}">
-                            </individual-view>
-                        ` : nothing}
                     `,
                 },
                 {
