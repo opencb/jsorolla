@@ -212,7 +212,7 @@ export default class IndividualGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "table-light",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
@@ -274,7 +274,7 @@ export default class IndividualGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onDblClickRow: (row, element) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
@@ -286,21 +286,9 @@ export default class IndividualGrid extends LitElement {
                         }
                     }
                 },
-                onCheck: row => {
-                    this.gridCommons.onCheck(row.id, row);
-                },
-                onCheckAll: rows => {
-                    this.gridCommons.onCheckAll(rows);
-                },
-                onUncheck: row => {
-                    this.gridCommons.onUncheck(row.id, row);
-                },
-                onUncheckAll: rows => {
-                    this.gridCommons.onUncheckAll(rows);
-                },
-                onLoadSuccess: data => {
-                    this.gridCommons.onLoadSuccess(data, 1);
-                },
+                // onLoadSuccess: data => {
+                //     this.gridCommons.onLoadSuccess(data, 1);
+                // },
                 onLoadError: (e, restResponse) => {
                     this.gridCommons.onLoadError(e, restResponse);
                 },
@@ -312,7 +300,7 @@ export default class IndividualGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            theadClasses: "table-light",
+            classes: "table table-borderless table-hover table-grid",
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
             // data: this.individuals,
@@ -351,13 +339,12 @@ export default class IndividualGrid extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             gridContext: this,
-            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            }
+            // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            // onPostBody: data => {
+            //     // We call onLoadSuccess to select first row
+            //     this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+            // }
         });
     }
 
@@ -475,13 +462,13 @@ export default class IndividualGrid extends LitElement {
                 title: "Individual",
                 field: "id",
                 formatter: (individualId, individual) => {
-                    // Get sex info
                     const sexHtml = CatalogGridFormatter.sexFormatter(individual.sex, individual);
                     return `
                         <div>
                             <span style="font-weight: bold; margin: 5px 0">${individualId}</span>
                             <span class="d-block text-secondary" style="margin: 5px 0">${sexHtml}</span>
-                        </div>`;
+                        </div>
+                    `;
                 },
                 halign: "center",
                 visible: this.gridCommons.isColumnVisible("id")
@@ -567,20 +554,6 @@ export default class IndividualGrid extends LitElement {
             },
         ];
 
-        // Example of custom annotation configuration:
-        // this._config.annotations = [
-        //     {
-        //         title: "Cardiology Tests",
-        //         position: 6,
-        //         variableSetId: "cardiology_tests_checklist",
-        //         variables: ["ecg_test", "echo_test"]
-        //     },
-        //     {
-        //         title: "Risk Assessment",
-        //         position: 7,
-        //         variableSetId: "risk_assessment",
-        //     }
-        // ];
         if (this._config.annotations?.length > 0) {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
@@ -588,9 +561,7 @@ export default class IndividualGrid extends LitElement {
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
                 id: "actions",
-                title: "Actions",
-                field: "actions",
-                align: "center",
+                align: "right",
                 formatter: (value, row) => {
                     const hasWritePermission = this.gridCommons.hasPermission(this.RESOURCE, "WRITE");
                     // const hasQualityControl = row?.qualityControl?.metrics?.length > 0;
