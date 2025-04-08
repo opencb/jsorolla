@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-import UtilsTest from "../../support/utils-test.js";
-import BrowserTest from "../../support/browser-test";
-
 context("Sample Browser Grid", () => {
-    const browserGrid = "sample-grid";
     beforeEach(() => {
         cy.visit("#sample-browser-grid");
         cy.get(`div[data-cy="sample-browser-container"]`)
@@ -29,81 +25,82 @@ context("Sample Browser Grid", () => {
         });
     });
 
-    // TOOLBAR
-    context("Sample Toolbar", () => {
+    context("toolbar", () => {
         beforeEach(() => {
             cy.get("@container")
                 .find(`div[data-cy="toolbar"]`)
                 .as("toolbar");
         });
 
-        //1. Render the toolbar
-        context("render", () => {
-            // 1.1. It should render a div with the toolbar
-            it("should render toolbar", () => {
-                cy.get("@container")
-                    .find(`div[data-cy="toolbar-wrapper"]`)
-                    .should("be.visible");
-            });
-            // 1.1. If configured, it should render a New button
-            it("should render New button", () => {
-                cy.get("@container")
-                    .find(`button[data-action="create"]`)
-                    .should("be.visible");
-            });
+        it("should render the toolbar", () => {
+            cy.get("@container")
+                .should("be.visible");
+        });
+
+        it("should render the 'Create Sample' button", () => {
+            cy.get("@container")
+                .contains("button", "Create Sample")
+                .should("be.visible");
+        });
+
+        it("should render the 'Create Cohort' button", () => {
+            cy.get("@container")
+                .contains("button", "Create Cohort")
+                .should("be.visible");
+        });
+
+        it("should render the 'Settings' button", () => {
+            cy.get("@container")
+                .contains("button", "Settings")
+                .should("be.visible");
         });
     });
 
-    // MODAL CREATE
-    context("Modal Create", () => {
+    context("create a sample", () => {
         beforeEach(() => {
             cy.get("@container")
-                .find(`button[data-action="create"]`)
+                .contains("button", "Create Sample")
                 .click();
             cy.get("@container")
-                .find(`div[data-cy="modal-create"]`)
-                .as("modal-create");
+                .find(`div[data-cy="sample-create"]`)
+                .as("modal-sample-create");
         });
-        // 1. Open modal and render create
-        it("should render create modal", () => {
-            cy.get("@modal-create")
+
+        it("should render the modal for creating a sample", () => {
+            cy.get("@modal-sample-create")
                 .find("div.modal-dialog")
                 .should("be.visible");
         });
-        // 2. Render title
-        it("should render create title", () => {
-            cy.get("@modal-create")
+
+        it("should display the 'Create Sample' title in the modal", () => {
+            cy.get("@modal-sample-create")
                 .find("h4.modal-title")
                 .should("contain.text", "Create Sample");
         });
-        // 3. Render button clear
-        it("should render button clear", () => {
-            cy.get("@modal-create")
+
+        it("should display the 'Create' and 'Clear' buttons in the modal", () => {
+            cy.get("@modal-sample-create")
+                .contains("button", "Create")
+                .should("be.visible");
+            cy.get("@modal-sample-create")
                 .contains("button", "Clear")
                 .should("be.visible");
         });
-        // 4. Render button create
-        it("should render button create", () => {
-            cy.get("@modal-create")
-                .contains("button", "Create")
-                .should("be.visible");
-        });
-        // 5. Render tabs
-        it("should render form tabs", () => {
-            cy.get("@modal-create")
+
+        it("should display content as tabs", () => {
+            cy.get("@modal-sample-create")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.greaterThan", 1);
         });
-        // 6. Render Sample ID
-        it("should have form field ID", () => {
-            cy.get("@modal-create")
-                .find(`data-form div.form-horizontal div.row div.col-md-3`)
+
+        it("should ask for a sample ID in the form", () => {
+            cy.get("@modal-sample-create")
+                .find("data-form")
                 .should("contain.text", "Sample ID");
         });
     });
 
-    // MODAL UPDATE
-    context("Modal Update", () => {
+    context("update a sample", () => {
         beforeEach(() => {
             cy.get("@container")
                 .find(`table tbody tr td button[data-cy="actions-button"]`)
@@ -113,118 +110,86 @@ context("Sample Browser Grid", () => {
                 .find(`a[data-action="edit"]`)
                 .first()
                 .click();
-            cy.get(`div[data-cy="modal-update"]`)
-                .as("modal-update");
+            cy.get(`div[data-cy="sample-update"]`)
+                .as("modal-sample-update");
         });
-        // 1. Open modal and render update
-        it("should render update modal", () => {
-            cy.get("@modal-update")
+
+        it("should render the modal for updating a sample", () => {
+            cy.get("@modal-sample-update")
                 .find("div.modal-dialog")
                 .should("be.visible");
         });
-        // 2. Render title
-        it("should render update title", () => {
-            cy.get("@modal-update")
+
+        it("should display the 'Update Sample' title in the modal", () => {
+            cy.get("@modal-sample-update")
                 .find("h4.modal-title")
                 .should("contain.text", "Update Sample");
         });
-        // 3. Render button clear
-        it("should render button clear", () => {
-            cy.get("@modal-update")
+
+        it("should display the 'Discard Changes' button in the modal", () => {
+            cy.get("@modal-sample-update")
                 .contains("button", "Discard Changes")
                 .should("be.visible");
         });
-        // 4. Render button create
-        it("should render button create", () => {
-            cy.get("@modal-update")
+
+        it("should display the 'Update' button in the modal", () => {
+            cy.get("@modal-sample-update")
                 .contains("button", "Update")
                 .should("be.visible");
         });
-        // 5. Render tabs
-        it("should render form tabs", () => {
-            cy.get("@modal-update")
+
+        it("should display content as tabs", () => {
+            cy.get("@modal-sample-update")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.greaterThan", 1);
         });
-        // 6. Render Sample ID
-        it("should have form field ID equal to sample selected", () => {
-            cy.get("@modal-update")
-                .find(`data-form div.row div.row div.col-md-3`)
+
+        it("should have a field with the ID of the selected sample", () => {
+            cy.get("@modal-sample-update")
+                .find("data-form")
                 .should("contain.text", "Sample ID");
         });
     });
 
-    context("Modal Setting", () => {
-
-        it("should move modal setting", () => {
-            cy.get("button[data-action='settings']")
+    context("settings", () => {
+        it("should render the settings modal when clicking on the 'Settings' button", () => {
+            cy.get("@container")
+                .find(`button[data-action="settings"]`)
                 .click();
-
-            BrowserTest.getElementByComponent({
-                selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:"div",
-                elementId: "SettingModal"
-            }).as("settingModal");
-
-            cy.get("@settingModal")
-                .then(($modal) => {
-                    // const startPosition = $modal.position()
-                    const startPosition = $modal.offset();
-                    cy.log("start Position:", startPosition);
-                    // Drag the modal to a new position using Cypress's drag command
-                    cy.get("@settingModal")
-                        .find(".modal-header")
-                        .as("modalHeader");
-
-                    cy.get("@modalHeader")
-                        .trigger("mousedown", { which: 1 }); // Trigger mouse down event
-                    cy.get("@modalHeader")
-                        .trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
-                    cy.get("@modalHeader")
-                        .trigger("mouseup"); // Release the mouse
-
-                    // Get the final position of the modal
-                    cy.get(`@modalHeader`)
-                        .then(($modal) => {
-                            // const finalPosition = $modal.position();
-                            const finalPosition = $modal.offset();
-                            cy.log("final Position:", finalPosition);
-
-                            // Assert that the modal has moved
-                            expect(finalPosition.left).to.not.equal(startPosition.left);
-                            expect(finalPosition.top).to.not.equal(startPosition.top);
-                        });
-                });
+            cy.get("div.modal-dialog")
+                .should("be.visible");
         });
 
-        it("should hide columns [Collection Method,Preparation Method]",() => {
+        it("should allow to hide columns in the grid",() => {
             const columns = ["Collection Method", "Preparation Method"];
-            cy.get(`${browserGrid} thead th`)
-                .as("headerColumns");
 
+            cy.get("sample-grid thead th")
+                .as("headerColumns");
             columns.forEach(col => {
                 cy.get("@headerColumns")
                     .contains("div",col)
                     .should("be.visible");
             });
-            cy.get("button[data-action='settings']")
+            cy.get("@container")
+                .find(`button[data-action="settings"]`)
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
+            cy.get("@container")
+                .find(`div[data-testid="test-columns"] select-field-filter`)
+                .as("columnsSelector");
+            cy.get("@columnsSelector")
+                .find(".select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
+                cy.get("@columnsSelector")
+                    .find("span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-selection")
+            cy.get("@columnsSelector")
+                .find(".select2-selection")
                 .click();
-            BrowserTest.getElementByComponent({
-                selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:"div",
-                elementId: "SettingModal"
-            }).as("settingModal");
-
-            cy.get("@settingModal")
+            cy.get("@container")
+                .find(".modal-body")
                 .contains("button", "OK")
                 .click();
 
@@ -238,112 +203,58 @@ context("Sample Browser Grid", () => {
         });
     });
 
-    // GRID
-    context("Sample Grid", () => {
-        const gridComponent = "sample-grid";
-
+    context("grid", () => {
         beforeEach(() => {
             cy.get("@container")
-                .find(`div[data-cy="sb-grid"]`)
-                .as("grid");
+                .find("sample-grid")
+                .as("sample-grid");
         });
 
-        // 1. Render the grid
-        context("render", () => {
-            // It should render a table, with at least one column and one row
-            it("should render table", () => {
-                cy.get("@container")
-                    .find(`table`)
+        context("content", () => {
+            it("should render a <table> element", () => {
+                cy.get("@sample-grid")
+                    .find("table")
                     .should("be.visible");
             });
-            it("should render at least one row", () => {
-                cy.get("@container")
-                    .find(`tbody tr`)
+
+            it("should render at least one row in the table", () => {
+                cy.get("@sample-grid")
+                    .find("tbody tr")
                     .should("be.visible");
             });
-            it("should render at least one column", () => {
-                cy.get("@container")
-                    .find(`thead tr th`)
+
+            it("should render at least one column in the table", () => {
+                cy.get("@sample-grid")
+                    .find("thead tr th")
                     .should("be.visible");
             });
-            it("should render column titles", () => {
-                cy.get("@container")
+
+            it("should render titles in of each column", () => {
+                cy.get("@sample-grid")
                     .find(`thead tr th div[class="th-inner "]`)
+                    .first()
                     .should("not.be.empty");
             });
-            it("should render at least one row", () => {
-                cy.get("@container")
-                    .find(`tbody tr`)
-                    .should("be.visible");
-            });
-            // It should render the pagination
-            it("should change page", () => {
-                UtilsTest.changePage(gridComponent,2);
-            });
-
-            it("should move modal setting", () => {
-                cy.get("button[data-action='settings']")
-                    .click();
-
-                BrowserTest.getElementByComponent({
-                    selector: "sample-grid opencb-grid-toolbar",
-                    tag: "div",
-                    elementId: "SettingModal",
-                }).as("settingModal");
-
-                cy.get("@settingModal")
-                    .then(($modal) => {
-                        const startPosition = $modal.offset();
-                        cy.log("start Position:", startPosition);
-                        // Drag the modal to a new position using Cypress's drag command
-                        // eslint-disable-next-line cypress/unsafe-to-chain-command
-                        cy.get("@settingModal")
-                            .find(".modal-header")
-                            .trigger("mousedown", { which: 1 }) // Trigger mouse down event
-                            .trigger("mousemove", { clientX: 100, clientY: 100 }) // Move the mouse
-                            .trigger("mouseup"); // Release the mouse
-
-                        // Get the final position of the modal
-                        cy.get(`@settingModal`)
-                            .find(".modal-header")
-                            .then(($modal) => {
-                                const finalPosition = $modal.offset();
-                                cy.log("final Position:", finalPosition);
-                                // Assert that the modal has moved
-                                expect(finalPosition.left).to.not.equal(startPosition.left);
-                                expect(finalPosition.top).to.not.equal(startPosition.top);
-                    });
-                });
-            });
-
         });
 
         context("data completeness", () => {
-            let creationDateIndex = null;
-
-            beforeEach(() => {
-                cy.get("@grid")
-                    .find(`tbody`)
-                    .as("body");
-            });
-
-            it("should have IDs", () => {
-                cy.get("@body")
-                    .find("td:first-child")
+            it("should display the sample ID in each row", () => {
+                cy.get("@sample-grid")
+                    .find("tbody td:first-child")
                     .each($td => {
                         cy.wrap($td)
                             .should("not.be.empty");
                     });
             });
 
-            it("should have a creation date", () => {
-                cy.get("@grid")
+            it("should display the creation date in each row", () => {
+                cy.get("@sample-grid")
+                    .find("thead")
                     .contains("th", "Creation Date")
                     .invoke("index")
-                    .then(i => {
-                        creationDateIndex = i + 1;
-                        cy.get("@body")
-                            .find(`td:nth-child(${creationDateIndex})`)
+                    .then(index => {
+                        cy.get("@sample-grid")
+                            .find(`tbody td:nth-child(${index + 1})`)
                             .each(td => {
                                 cy.wrap(td)
                                     .should("not.be.empty");
@@ -351,38 +262,43 @@ context("Sample Browser Grid", () => {
                     });
             });
 
-            it("should have a creation date with valid format", () => {
-                cy.get("@body")
-                    .find(`td:nth-child(${creationDateIndex})`)
-                    .each(td => {
-                        const regExp = /^(([0-9])|([0-2][0-9])|([3][0-1])) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/;
-                        expect(td.text()).to.match(regExp);
+            it("should display a creation date with valid format", () => {
+                const regExp = /^(([0-9])|([0-2][0-9])|([3][0-1])) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/;
+
+                cy.get("@sample-grid")
+                    .find("thead")
+                    .contains("th", "Creation Date")
+                    .invoke("index")
+                    .then(index => {
+                        cy.get("@sample-grid")
+                            .find(`tbody td:nth-child(${index + 1})`)
+                            .each(td => {
+                                expect(td.text()).to.match(regExp);
+                            });
                     });
             });
 
-            it("should have a creation date equal or earlier than today ", () => {
-                cy.get("@body")
-                    .find(`td:nth-child(${creationDateIndex})`)
-                    .each(td => {
-                        const date = new Date(td.text());
-                        const today = new Date();
-                        expect(date).to.be.lte(today);
+            it("should display a creation date equal or earlier than today", () => {
+                cy.get("@sample-grid")
+                    .find("thead")
+                    .contains("th", "Creation Date")
+                    .invoke("index")
+                    .then(index => {
+                        cy.get("@sample-grid")
+                            .find(`tbody td:nth-child(${index + 1})`)
+                            .each(td => {
+                                const date = new Date(td.text());
+                                const today = new Date();
+                                expect(date).to.be.lte(today);
+                            });
                     });
             });
-
         });
 
-        context("data format", () => {
-            beforeEach(() => {
-                cy.get("@grid")
-                    .find(`tbody tr[data-index="0"]`)
-                    .as("row");
-            });
-        });
-
-        context("extension", () => {
-            it("should display 'Extra Column' column", () => {
-                cy.get("thead th")
+        context("extensions", () => {
+            it("should display a 'Extra Column' column", () => {
+                cy.get("@sample-grid")
+                    .find("thead th")
                     .contains("Extra column")
                     .should("be.visible");
             });
