@@ -105,6 +105,8 @@ export default class IndividualGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
+            toolId: this.toolId,
+            resource: this.RESOURCE,
             columns: this._getDefaultColumns(),
         };
 
@@ -114,6 +116,8 @@ export default class IndividualGrid extends LitElement {
                 display: {
                     modalTitle: `Individual ${this._selectedIndividual?.id}`,
                     modalSize: "modal-xl",
+                    modalCyDataName: "individual-view",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <individual-view
@@ -127,6 +131,8 @@ export default class IndividualGrid extends LitElement {
                 display: {
                     modalTitle: "Create Individual",
                     modalSize: "modal-lg",
+                    modalCyDataName: "individual-create",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <individual-create
@@ -146,6 +152,8 @@ export default class IndividualGrid extends LitElement {
                 display: {
                     modalTitle: `Update Individual ${this._selectedIndividual?.id}`,
                     modalSize: "modal-lg",
+                    modalCyDataName: "individual-update",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <individual-update
@@ -168,6 +176,8 @@ export default class IndividualGrid extends LitElement {
                     modalTitle: "Create Cohort",
                     modalSize: "modal-md",
                     modalbtnsVisible: false,
+                    modalCyDataName: "cohort-create",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <cohort-create-samples
@@ -586,7 +596,7 @@ export default class IndividualGrid extends LitElement {
                     const hasClinicalAnalysis = row?.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length > 0;
                     return `
                         <div class="d-inline-block dropdown">
-                            <button class="btn" type="button" data-bs-toggle="dropdown">
+                            <button class="btn" type="button" data-bs-toggle="dropdown" data-cy="actions-button">
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
