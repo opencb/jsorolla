@@ -28,29 +28,29 @@ context("Sample Browser Grid", () => {
     context("toolbar", () => {
         beforeEach(() => {
             cy.get("@container")
-                .find(`div[data-cy="toolbar"]`)
+                .find("opencb-grid-toolbar")
                 .as("toolbar");
         });
 
-        it("should render the toolbar", () => {
-            cy.get("@container")
+        it("should be visible", () => {
+            cy.get("@toolbar")
                 .should("be.visible");
         });
 
-        it("should render the 'Create Sample' button", () => {
-            cy.get("@container")
+        it("should display the 'Create Sample' button", () => {
+            cy.get("@toolbar")
                 .contains("button", "Create Sample")
                 .should("be.visible");
         });
 
-        it("should render the 'Create Cohort' button", () => {
-            cy.get("@container")
+        it("should display the 'Create Cohort' button", () => {
+            cy.get("@toolbar")
                 .contains("button", "Create Cohort")
                 .should("be.visible");
         });
 
-        it("should render the 'Settings' button", () => {
-            cy.get("@container")
+        it("should display the 'Settings' button", () => {
+            cy.get("@toolbar")
                 .contains("button", "Settings")
                 .should("be.visible");
         });
