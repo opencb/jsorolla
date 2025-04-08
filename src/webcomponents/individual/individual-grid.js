@@ -398,13 +398,10 @@ export default class IndividualGrid extends LitElement {
                 formatter: (individualId, individual) => {
                     const sexHtml = CatalogGridFormatter.sexFormatter(individual.sex, individual);
                     return `
-                        <div>
-                            <span style="font-weight: bold; margin: 5px 0">${individualId}</span>
-                            <span class="d-block text-secondary" style="margin: 5px 0">${sexHtml}</span>
-                        </div>
+                        <div class="fw-bold">${individualId}</div>
+                        <div class="text-secondary">${sexHtml}</div>
                     `;
                 },
-                halign: "center",
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
@@ -412,22 +409,16 @@ export default class IndividualGrid extends LitElement {
                 title: "Samples",
                 field: "samples",
                 formatter: samples => {
-                    let html = "-";
-                    if (samples?.length) {
-                        html = "<div>";
-                        for (const sample of samples) {
-                            html += `
-                                <div style="white-space: nowrap">
-                                    <span style="font-weight: bold">${sample.id}</span>
-                                    <span title="${sample.somatic ? "Somatic sample" : "Germline sample"}"> (${sample.somatic ? "S" : "G"})</span>
-                                </div>
-                            `;
-                        }
-                        html += `</div>`;
-                    }
-                    return html;
+                    const content = (samples || []).map(sample => {
+                        return `
+                            <div style="white-space: nowrap">
+                                <span class="fw-bold">${sample.id}</span>
+                                <span title="${sample.somatic ? "Somatic sample" : "Germline sample"}"> (${sample.somatic ? "S" : "G"})</span>
+                            </div>
+                        `;
+                    });
+                    return content.length > 0 ? content.join("") : "-";
                 },
-                halign: "center",
                 visible: this.gridCommons.isColumnVisible("samples")
             },
             {
@@ -435,7 +426,6 @@ export default class IndividualGrid extends LitElement {
                 title: "Father",
                 field: "father.id",
                 formatter: fatherId => fatherId || "-",
-                halign: "center",
                 visible: this.gridCommons.isColumnVisible("father")
             },
             {
@@ -443,7 +433,6 @@ export default class IndividualGrid extends LitElement {
                 title: "Mother",
                 field: "mother.id",
                 formatter: motherId => motherId || "-",
-                halign: "center",
                 visible: this.gridCommons.isColumnVisible("mother")
             },
             {
@@ -451,7 +440,6 @@ export default class IndividualGrid extends LitElement {
                 title: "Disorders",
                 field: "disorders",
                 formatter: CatalogGridFormatter.disorderFormatter,
-                halign: "center",
                 visible: this.gridCommons.isColumnVisible("disorders")
             },
             {
@@ -459,7 +447,6 @@ export default class IndividualGrid extends LitElement {
                 title: "Phenotypes",
                 field: "phenotypes",
                 formatter: CatalogGridFormatter.phenotypesFormatter,
-                halign: "center",
                 visible: this.gridCommons.isColumnVisible("phenotypes")
             },
             {
@@ -467,7 +454,6 @@ export default class IndividualGrid extends LitElement {
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
-                halign: "center",
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
@@ -475,7 +461,6 @@ export default class IndividualGrid extends LitElement {
                 title: "Ethnicity",
                 field: "ethnicity",
                 formatter: (ethnicity, row) => ethnicity?.id || row.population?.name || "-",
-                halign: "center",
                 visible: this.gridCommons.isColumnVisible("ethnicity")
             },
             {
@@ -483,7 +468,6 @@ export default class IndividualGrid extends LitElement {
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
-                halign: "center",
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
