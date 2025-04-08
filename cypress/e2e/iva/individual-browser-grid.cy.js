@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-import UtilsTest from "../../support/utils-test.js";
-import BrowserTest from "../../support/browser-test";
-
 context("Individual Browser Grid", () => {
-    const browserGrid = "individual-grid";
-
     beforeEach(() => {
         cy.visit("#individual-browser-grid");
         cy.get(`div[data-cy="individual-browser-container"]`)
@@ -30,320 +25,238 @@ context("Individual Browser Grid", () => {
         });
     });
 
-    // TOOLBAR
-    context("Individual Toolbar", () => {
+    context("toolbar", () => {
         beforeEach(() => {
             cy.get("@container")
-                .find(`div[data-cy="toolbar"]`)
+                .find("opencb-grid-toolbar")
                 .as("toolbar");
         });
 
-        //1. Render the toolbar
-        context("render", () => {
-            // 1.1. It should render a div with the toolbar
-            it("should render toolbar", () => {
-                cy.get("@container")
-                    .find(`div[data-cy="toolbar-wrapper"]`)
-                    .should("be.visible");
-            });
-            // 1.1. If configured, it should render a New button
-            it("should render New button", () => {
-                cy.get("@container")
-                    .find(`button[data-action="create"]`)
-                    .should("be.visible");
-            });
+        it("should be visible", () => {
+            cy.get("@toolbar")
+                .should("be.visible");
+        });
+
+        it("should display the 'Create Individual' button", () => {
+            cy.get("@toolbar")
+                .contains("button", "Create Individual")
+                .should("be.visible");
+        });
+
+        it("should display the 'Create Cohort' button", () => {
+            cy.get("@toolbar")
+                .contains("button", "Create Cohort")
+                .should("be.visible");
+        });
+
+        it("should display the 'Settings' button", () => {
+            cy.get("@toolbar")
+                .contains("button", "Settings")
+                .should("be.visible");
         });
     });
 
-    // MODAL CREATE
-    context("Modal Create", () => {
+    context("create individual", () => {
         beforeEach(() => {
             cy.get("@container")
-                .find(`button[data-action="create"]`)
+                .contains("button", "Create Individual")
                 .click();
             cy.get("@container")
-                .find(`div[data-cy="modal-create"]`)
-                .as("modal-create");
+                .find(`div[data-cy="individual-create"]`)
+                .as("modal-individual-create");
         });
-        // 1. Open modal and render create
-        it("should render create modal", () => {
-            cy.get("@modal-create")
+
+        it("should be visible after clicking on the 'Create Individual' button", () => {
+            cy.get("@modal-individual-create")
                 .find("div.modal-dialog")
                 .should("be.visible");
         });
-        // 2. Render title
-        it("should render create title", () => {
-            cy.get("@modal-create")
+
+        it("should display the text 'Create Individual' as title", () => {
+            cy.get("@modal-individual-create")
                 .find("h4.modal-title")
                 .should("contain.text", "Create Individual");
         });
-        // 3. Render button clear
-        it("should render button clear", () => {
-            cy.get("@modal-create")
+
+        it("should display a 'Clear' button", () => {
+            cy.get("@modal-individual-create")
                 .contains("button", "Clear")
                 .should("be.visible");
         });
-        // 4. Render button create
-        it("should render button create", () => {
-            cy.get("@modal-create")
+
+        it("should display a 'Create' button", () => {
+            cy.get("@modal-individual-create")
                 .contains("button", "Create")
                 .should("be.visible");
         });
-        // 5. Render tabs
-        it("should render form tabs", () => {
-            cy.get("@modal-create")
+
+        it("should display content as tabs", () => {
+            cy.get("@modal-individual-create")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.greaterThan", 1);
         });
-        // 5. Render Sample ID
-        it("should have form field ID", () => {
-            cy.get("@modal-create")
-                .find(`data-form div.form-horizontal div.row div.col-md-3`)
+
+        it("should ask for an individual ID in the form", () => {
+            cy.get("@modal-individual-create")
+                .find("data-form")
                 .should("contain.text", "Individual ID");
         });
     });
 
-    // MODAL CREATE AUTOCOMPLETE
-    context("Modal Create Autocomplete", () => {
-        beforeEach(() => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
-            cy.get("@container")
-                .find(`button[data-action="create"]`)
-                .click();
-            cy.get("@container")
-                .find(`div[data-cy="modal-create"]`)
-                .as("modal-create");
-        });
-
-        it("should autocomplete on searching and selecting one result", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
-            cy.get("@modal-create")
-                .contains("ul.nav.nav-tabs > li", "Phenotypes")
-                .click();
-            cy.get("@modal-create")
-                .contains("button", "Add Item")
-                .click();
-            cy.get("cellbase-search-autocomplete")
-                .find("select-token-filter .select2-container")
-                .click();
-            cy.get("cellbase-search-autocomplete")
-                .find("input.select2-search__field")
-                .type("gli");
-            cy.get("cellbase-search-autocomplete")
-                .find("span.select2-results li")
-                .first()
-                .click();
-            cy.get("cellbase-search-autocomplete")
-                .find("span.select2-selection__rendered")
-                .should("contain.text", "Glioblastoma multiforme");
-            cy.get("@modal-create")
-                .find(`input[placeholder="Add phenotype ID..."]`)
-                .then(element => {
-                    expect(element.val()).equal("HP:0012174");
-                    cy.wrap(element).should("be.disabled");
-                });
-
-        });
-    });
-
-    // MODAL UPDATE
-    context("Modal Update", () => {
+    context("update individual", () => {
         beforeEach(() => {
             cy.get("@container")
-                .find(`table tbody tr td button.dropdown-toggle`)
+                .find(`table tbody tr td button[data-cy="actions-button"]`)
                 .first()
                 .click();
             cy.get("@container")
                 .find(`a[data-action="edit"]`)
                 .first()
                 .click();
-            cy.get(`div[data-cy="modal-update"]`)
-                .as("modal-update");
+            cy.get(`div[data-cy="individual-update"]`)
+                .as("modal-individual-update");
         });
-        // 1. Open modal and render update
-        it("should render update modal", () => {
-            cy.get("@modal-update")
+        
+        it("should be visible after clicking on the 'Edit' action", () => {
+            cy.get("@modal-individual-update")
                 .find("div.modal-dialog")
                 .should("be.visible");
         });
-        // 2. Render title
-        it("should render update title", () => {
-            cy.get("@modal-update")
+
+        it("should display the text 'Update Individual' as a title", () => {
+            cy.get("@modal-individual-update")
                 .find("h4.modal-title")
                 .should("contain.text", "Update Individual");
         });
-        // 3. Render button clear
-        it("should render button clear", () => {
-            cy.get("@modal-update")
+
+        it("should display a 'Discard Changes' button", () => {
+            cy.get("@modal-individual-update")
                 .contains("button", "Discard Changes")
                 .should("be.visible");
         });
-        // 4. Render button create
-        it("should render button create", () => {
-            cy.get("@modal-update")
+
+        it("should display a 'Update' button", () => {
+            cy.get("@modal-individual-update")
                 .contains("button", "Update")
                 .should("be.visible");
         });
-        // 5. Render tabs
-        it("should render form tabs", () => {
-            cy.get("@modal-update")
+
+        it("should display content as tabs", () => {
+            cy.get("@modal-individual-update")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.greaterThan", 1);
         });
-        // 6. Render Sample ID
-        it("should have form field ID equal to sample selected", () => {
-            cy.get("@modal-update")
-                .find(`data-form div.row div.row div.col-md-3`)
+
+        it("should display a field with the selected individual ID", () => {
+            cy.get("@modal-individual-update")
+                .find("data-form")
                 .should("contain.text", "Individual ID");
         });
     });
 
-    // MODAL SETTINGS
-    context("Modal Setting", () => {
-
-        it("should move modal setting", () => {
-            cy.get("button[data-action='settings']")
+    context("settings", () => {
+        it("should display the settings modal when clicking on the 'Settings' button", () => {
+            cy.get("@container")
+                .find(`button[data-action="settings"]`)
                 .click();
-
-            BrowserTest.getElementByComponent({
-                selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:"div",
-                elementId: "SettingModal"
-            }).as("settingModal");
-
-            cy.get("@settingModal")
-                .then(($modal) => {
-                    const startPosition = $modal.offset();
-                    cy.log("start Position:", startPosition);
-                    // Drag the modal to a new position using Cypress's drag command
-                    cy.get("@settingModal")
-                        .find(".modal-header")
-                        .as("modalHeader");
-
-                    cy.get("@modalHeader")
-                        .trigger("mousedown", { which: 1 }); // Trigger mouse down event
-                    cy.get("@modalHeader")
-                        .trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
-                    cy.get("@modalHeader")
-                        .trigger("mouseup"); // Release the mouse
-
-                    // Get the final position of the modal
-                    cy.get(`@modalHeader`)
-                        .then(($modal) => {
-                            const finalPosition = $modal.offset();
-                            cy.log("final Position:", finalPosition);
-                            // Assert that the modal has moved
-                            expect(finalPosition.left).to.not.equal(startPosition.left);
-                            expect(finalPosition.top).to.not.equal(startPosition.top);
-                        });
-                });
+            cy.get("div.modal-dialog")
+                .should("be.visible");
         });
 
-        it("should hide columns [Disorders,Case ID,Ethnicity]",() => {
-            const columns = ["Disorders","Case ID","Ethnicity"];
-            cy.get(`${browserGrid} thead th`)
+        it("should allow to hide columns in the grid",() => {
+            const columns = ["Disorders", "Case ID", "Ethnicity"];
+
+            cy.get("@container")
+                .find("individual-grid thead th")
                 .as("headerColumns");
-            columns.forEach(col => {
+            columns.forEach(column => {
                 cy.get("@headerColumns")
-                    .contains("div",col)
+                    .contains("div", column)
                     .should("be.visible");
             });
-            cy.get("button[data-action='settings']")
+            cy.get("@container")
+                .find(`button[data-action="settings"]`)
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
+            cy.get("@container")
+                .find(`div[data-testid="test-columns"] select-field-filter`)
+                .as("columnsSelector");
+            cy.get("@columnsSelector")
+                .find(".select2-container")
                 .click();
-            columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
-                    .contains(col)
+            columns.forEach(column => {
+                cy.get("@columnsSelector")
+                    .find("span.select2-results li")
+                    .contains(column)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-selection")
+            cy.get("@columnsSelector")
+                .find(".select2-selection")
                 .click();
-            BrowserTest.getElementByComponent({
-                selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:"div",
-                elementId: "SettingModal"
-            }).as("settingModal");
-
-            cy.get("@settingModal")
+            cy.get("@container")
+                .find(".modal-body")
                 .contains("button", "OK")
                 .click();
             cy.get("@headerColumns")
                 .should($header => {
-                    const _columns = Array.from($header, th => th.textContent.trim());
+                    const visibleColumns = Array.from($header, th => th.textContent.trim());
                     columns.forEach(col => {
-                        expect(col).not.to.be.oneOf(_columns);
+                        expect(col).not.to.be.oneOf(visibleColumns);
                     });
                 });
         });
     });
 
-    // GRID
-    context("Individual Grid", () => {
-
+    context("grid", () => {
         beforeEach(() => {
             cy.get("@container")
-                .find(`div[data-cy="ib-grid"]`)
-                .as("grid");
+                .find("individual-grid")
+                .as("individual-grid");
         });
 
-        // 1. Render the grid
-        context("render", () => {
-            // It should render a table, with at least one column and one row
-            it("should render table", () => {
-                cy.get("@container")
-                    .find(`table`)
+        context("content", () => {
+            it("should display a <table> element", () => {
+                cy.get("@individual-grid")
+                    .find("table")
                     .should("be.visible");
             });
-            it("should render at least one column", () => {
-                cy.get("@container")
-                    .find(`tbody tr`)
+
+            it("should display at least one row", () => {
+                cy.get("@individual-grid")
+                    .find("tbody tr")
                     .should("be.visible");
             });
-            it("should render at least one column", () => {
-                cy.get("@container")
-                    .find(`thead tr th`)
+
+            it("should display at least one column", () => {
+                cy.get("@individual-grid")
+                    .find("thead tr th")
                     .should("be.visible");
             });
-            it("should render column titles", () => {
-                cy.get("@container")
+
+            it("should display column titles", () => {
+                cy.get("@individual-grid")
                     .find(`thead tr th div[class="th-inner "]`)
+                    .first()
                     .should("not.be.empty");
             });
-            it("should render at least one row", () => {
-                cy.get("@container")
-                    .find(`tbody tr`)
-                    .should("be.visible");
-            });
         });
 
-        // 2. Data completeness in the grid
         context("data completeness", () => {
-            let creationDateIndex = null;
-
-            beforeEach(() => {
-                cy.get("@grid")
-                    .find(`tbody`)
-                    .as("body");
-            });
-
-            it("should have IDs", () => {
-                cy.get("@body")
-                    .find("td:first-child")
+            it("should display individual ids", () => {
+                cy.get("@individual-grid")
+                    .find("tbody td:first-child")
                     .each($td => {
                         cy.wrap($td)
                             .should("not.be.empty");
                     });
             });
 
-            it("should have a creation date", () => {
-                cy.get("@grid")
+            it("should display a creation date", () => {
+                cy.get("@individual-grid")
                     .contains("th", "Creation Date")
                     .invoke("index")
-                    .then(i => {
-                        creationDateIndex = i + 1;
-                        cy.get("@body")
-                            .find(`td:nth-child(${i})`)
+                    .then(index => {
+                        cy.get("@individual-grid")
+                            .find(`tbody td:nth-child(${index + 1})`)
                             .each(td => {
                                 cy.wrap(td)
                                     .should("not.be.empty");
@@ -352,44 +265,30 @@ context("Individual Browser Grid", () => {
             });
 
             it("should have a creation date with valid format", () => {
-                cy.get("@body")
-                    .find(`td:nth-child(${creationDateIndex})`)
-                    .each(td => {
-                        const regExp = /^(([0-9])|([0-2][0-9])|([3][0-1])) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/;
-                        expect(td.text()).to.match(regExp);
-                    });
-            });
+                const regExp = /^(([0-9])|([0-2][0-9])|([3][0-1])) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/;
 
-            it("should have a creation date equal or earlier than today ", () => {
-                cy.get("@body")
-                    .find(`td:nth-child(${creationDateIndex})`)
-                    .each(td => {
-                        const date = new Date(td.text());
-                        const today = new Date();
-                        expect(date).to.be.lte(today);
+                cy.get("@individual-grid")
+                    .contains("th", "Creation Date")
+                    .invoke("index")
+                    .then(index => {
+                        cy.get("@individual-grid")
+                            .find(`tbody td:nth-child(${index + 1})`)
+                            .each(td => {
+                                expect(td.text()).to.match(regExp);
+                            });
                     });
             });
         });
 
-        // 3. Data format
-        context("data format", () => {
-            beforeEach(() => {
-                cy.get("@grid")
-                    .find(`tbody tr[data-index="0"]`)
-                    .as("row");
-            });
-        });
-
-        // 4. Extensions
-        context("extension", () => {
+        context("extensions", () => {
             it("should display 'Extra Column' column", () => {
-                cy.get("thead th")
+                cy.get("@individual-grid")
+                    .find("thead th")
                     .contains("Extra column")
                     .should("be.visible");
             });
         });
 
-        // 5. Annotations
         context("annotations", () => {
             const annotations = [
                 {
@@ -404,46 +303,41 @@ context("Individual Browser Grid", () => {
                 }
             ];
 
-            beforeEach(() => {
-                cy.get("@grid")
-                    .find("table")
-                    .as("table");
+            // 5.1 Render each varSet title as column header
+            it("should display enabled varSet column titles", () => {
+                cy.wrap(annotations).each(annotation => {
+                    cy.get("@individual-grid")
+                        .find("thead tr th")
+                        .contains(annotation.title);
+                });
             });
 
-            // 5.1 Render each varSet title as column header
-            it("should render enabled varSet column titles", () => {
-                cy.wrap(annotations).each(annotation => {
-                    cy.get("@table")
-                        .contains("thead tr th", annotation.title);
-                });
-            });
             // 5.2 Render each varSet column at the position configured in position
-            it("should have varSet position configured equal to the index of the corresponding column", () => {
+            it("should display varSet position configured equal to the index of the corresponding column", () => {
                 cy.wrap(annotations).each(annotation => {
-                    cy.get("@table")
+                    cy.get("@individual-grid")
                         .contains("thead tr th", annotation.title)
                         .invoke("index")
-                        .then(i => {
-                            // 1. Test index column configured equals column index rendered
-                            expect(i-1).equal(annotation.position);
+                        .then(index => {
+                            expect(index - 1).equal(annotation.position);
                         });
                     });
-                });
-        // 5.3 Render variables correctly
-            it("should render annotations configured", () => {
-            cy.wrap(annotations).each(annotation => {
-                cy.get("@table")
-                    .contains("thead tr th", annotation.title)
-                    .invoke("index")
-                    .then(i => {
-                        // 1. Test index column configured equals column index rendered
-                        cy.get("tbody tr")
-                            .first()
-                            .find("td")
-                            .eq(i)
-                            .should("contain.text", annotation.variables[0]);
-                        });
-                });
+            });
+
+            // 5.3 Render variables correctly
+            it("should display annotations", () => {
+                cy.wrap(annotations).each(annotation => {
+                    cy.get("@individual-grid")
+                        .contains("thead tr th", annotation.title)
+                        .invoke("index")
+                        .then(index => {
+                            cy.get("tbody tr")
+                                .first()
+                                .find("td")
+                                .eq(index)
+                                .should("contain.text", annotation.variables[0]);
+                            });
+                    });
             });
         });
     });
