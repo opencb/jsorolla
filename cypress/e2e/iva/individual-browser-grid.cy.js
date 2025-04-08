@@ -293,12 +293,12 @@ context("Individual Browser Grid", () => {
             const annotations = [
                 {
                     title: "Cardiology Tests",
-                    position: 6,
+                    position: 5,
                     variables: ["ecg_test", "echo_test"]
                 },
                 {
                     title: "Risk Assessment",
-                    position: 7,
+                    position: 6,
                     variables: ["date_risk_assessment"]
                 }
             ];
