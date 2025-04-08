@@ -243,7 +243,6 @@ export default class IndividualGrid extends LitElement {
                 classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
-                method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
@@ -256,10 +255,6 @@ export default class IndividualGrid extends LitElement {
                 formatShowingRows: (pageFrom, pageTo, totalRows) => {
                     return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
                 },
-                showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                detailFormatter: this.detailFormatter,
-                gridContext: this,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let individualResponse = null;
@@ -331,7 +326,6 @@ export default class IndividualGrid extends LitElement {
             classes: "table table-borderless table-hover table-grid",
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
-            // data: this.individuals,
             sidePagination: "server",
             // Josemi Note 2024-01-18: we have added the ajax function for local individuals also to support executing async calls
             // when getting additional data from columns extensions.
@@ -363,10 +357,6 @@ export default class IndividualGrid extends LitElement {
             formatShowingRows: (pageFrom, pageTo, totalRows) => {
                 return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
             },
-            showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
-            gridContext: this,
             loadingTemplate: () => GridCommons.loadingFormatter(),
             // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             // onPostBody: data => {
@@ -374,90 +364,6 @@ export default class IndividualGrid extends LitElement {
             //     this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
             // }
         });
-    }
-
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
-    detailFormatter(value, row) {
-        let result = `
-            <div class='row' style="padding: 5px 10px 20px 10px">
-                <div class='col-md-12'>
-                    <h5 style="font-weight: bold">Samples</h5>
-        `;
-
-        if (UtilsNew.isNotEmptyArray(row.samples)) {
-            let tableCheckboxHeader = "";
-
-            if (this.gridContext._config && this.gridContext._config.multiSelection) {
-                tableCheckboxHeader = "<th>Select</th>";
-            }
-
-            result += `
-                <div style="width: 90%;padding-left: 20px">
-                    <table class="table table-hover table-no-bordered">
-                        <thead class="table-light">
-                            <tr class="table-header">
-                                ${tableCheckboxHeader}
-                                <th>Sample ID</th>
-                                <th>Source</th>
-                                <th>Collection Method</th>
-                                <th>Preparation Method</th>
-                                <th>Somatic</th>
-                                <th>Creation Date</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            for (const sample of row.samples) {
-                let tableCheckboxRow = "";
-                // If parent row is checked and there is only one sample then it must be selected
-                if (this.gridContext._config.multiSelection) {
-                    let checkedStr = "";
-                    for (const individual of this.gridContext.individuals) {
-                        if (individual.id === row.id && row.samples.length === 1) {
-                            // TODO check sample has been checked before, we need to store them
-                            checkedStr = "checked";
-                            break;
-                        }
-                    }
-
-                    tableCheckboxRow = `
-                        <td>
-                            <input id='${this.gridContext.prefix}${sample.id}Checkbox' type='checkbox' ${checkedStr}>
-                        </td>
-                    `;
-                }
-
-                const source = sample.source?.name || sample.source?.id || "-";
-                const collectionMethod = sample.collection?.method || "-";
-                const preparationMethod = sample.processing?.preparationMethod || "-";
-                const cellLine = sample.somatic ? "Somatic" : "Germline";
-                const creationDate = moment(sample.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY");
-
-                result += `
-                    <tr class="detail-view-row">
-                        ${tableCheckboxRow}
-                        <td>${sample.id}</td>
-                        <td>${source}</td>
-                        <td>${collectionMethod}</td>
-                        <td>${preparationMethod}</td>
-                        <td>${cellLine}</td>
-                        <td>${creationDate}</td>
-                        <td>${sample?.status?.id || ""}</td>
-                    </tr>
-                `;
-            }
-            result += "</tbody></table></diV>";
-        } else {
-            result += "No samples found";
-        }
-
-        result += "</div></div>";
-        return result;
     }
 
     async onActionClick(event, individual) {
@@ -717,7 +623,6 @@ export default class IndividualGrid extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
                 </opencb-grid-toolbar>
@@ -736,13 +641,10 @@ export default class IndividualGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            multiSelection: false,
-            showSelectCheckbox: false,
-            detailView: true,
+
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],
