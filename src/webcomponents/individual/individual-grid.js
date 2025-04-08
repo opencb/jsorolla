@@ -366,7 +366,7 @@ export default class IndividualGrid extends LitElement {
         });
     }
 
-    async onActionClick(event, individual) {
+    onActionClick(event, individual) {
         const action = event.target.dataset.action?.toLowerCase() || event.detail.action;
         switch (action) {
             case "view":

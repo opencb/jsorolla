@@ -369,7 +369,7 @@ export default class SampleGrid extends LitElement {
         });
     }
 
-    async onActionClick(event, sample) {
+    onActionClick(event, sample) {
         const action = (event.target?.dataset?.action || "").toLowerCase();
         switch (action) {
             case "view":
