@@ -241,8 +241,6 @@ export default class SampleGrid extends LitElement {
                 formatShowingRows: (pageFrom, pageTo, totalRows) => {
                     return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
                 },
-                detailView: !!this.detailFormatter,
-                gridContext: this,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let sampleResponse = null;
@@ -354,8 +352,6 @@ export default class SampleGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            detailView: this._config.detailView,
-            gridContext: this,
             loadingTemplate: () => GridCommons.loadingFormatter(),
             // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             // onPostBody: data => {
@@ -404,10 +400,8 @@ export default class SampleGrid extends LitElement {
                         somaticHtml = sample.somatic ? "Somatic" : "Germline";
                     }
                     return `
-                        <div>
-                            <span style="font-weight: bold; margin: 5px 0">${sampleId}</span>
-                            ${somaticHtml ? `<span class="d-block text-secondary" style="margin: 5px 0">${somaticHtml}</span>` : ""}
-                        </div>
+                        <div class="fw-bold">${sampleId}</div>
+                        ${somaticHtml ? `<div class="text-secondary">${somaticHtml}</div>` : ""}
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("id")
@@ -417,11 +411,7 @@ export default class SampleGrid extends LitElement {
                 title: "Individual ID",
                 field: "individualId",
                 formatter: individualId => {
-                    if (individualId) {
-                        return `<div><span style="font-weight: bold">${individualId}</span></div>`;
-                    } else {
-                        return "-";
-                    }
+                    return individualId ? `<div class="fw-bold">${individualId}</div>` : "-";
                 },
                 visible: this.gridCommons.isColumnVisible("individualId")
             },
@@ -621,14 +611,10 @@ export default class SampleGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            multiSelection: false,
-            showSelectCheckbox: false,
-            // detailView: true,
 
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],
