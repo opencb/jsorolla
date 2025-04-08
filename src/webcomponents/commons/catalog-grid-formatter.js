@@ -208,18 +208,15 @@ export default class CatalogGridFormatter {
 
     static caseFormatter(clinicalAnalysisArray, row, individualId, opencgaSession) {
         if (clinicalAnalysisArray?.length > 0) {
-            let result = "";
-            for (const clinicalAnalysis of clinicalAnalysisArray) {
+            const items = clinicalAnalysisArray.map(clinicalAnalysis => {
                 const caseUrl = WebUtils.getInterpreterLink(opencgaSession, clinicalAnalysis.id);
-                result += `
-                    <div class="my-1 mx-0">
-                        <a title="Go to Case Interpreter" class="text-nowrap text-decoration-none" href="${caseUrl}">
-                            <i aria-hidden="true" class="fas fa-user-md"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
-                        </a>
-                    </div>
+                return `
+                    <a title="Go to Case Interpreter" class="text-nowrap text-decoration-none" href="${caseUrl}">
+                        <i aria-hidden="true" class="fas fa-user-md"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
+                    </a>
                 `;
-            }
-            return `<div class="d-grid gap-2 d-md-flex flex-column">${result}</div>`;
+            });
+            return `<div class="d-flex flex-column gap-2">${items.join("")}</div>`;
         } else {
             return "-";
         }
