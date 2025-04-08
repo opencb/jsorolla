@@ -19,11 +19,10 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import ModalUtils from "../commons/modal/modal-utils.js";
-import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "./family-create.js";
+import "./family-update.js";
 import "./family-view.js";
 
 export default class FamilyGrid extends LitElement {
@@ -103,50 +102,31 @@ export default class FamilyGrid extends LitElement {
             toolId: this.toolId,
             resource: "FAMILY",
             columns: this._getDefaultColumns(),
-            create: {
+        };
+
+        // register available modals for this grid
+        this.gridCommons.registerModals({
+            "create-family": {
                 display: {
                     modalTitle: "Create Family",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
                 },
-                render: () => html `
+                render: () => html`
                     <family-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @familyCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
                     </family-create>
-                `
+                `,
             },
-            // Uncomment in case we need to change defaults
-            // export: {
-            //     display: {
-            //         modalTitle: "Family Export",
-            //     },
-            //     render: () => html`
-            //         <opencga-export
-            //             .config="${this._config}"
-            //             .query=${this.query}
-            //             .opencgaSession="${this.opencgaSession}"
-            //             @export="${this.onExport}"
-            //             @changeExportField="${this.onChangeExportField}">
-            //         </opencga-export>`
-            // },
-            // settings: {
-            //     display: {
-            //         modalTitle: "Family Settings",
-            //     },
-            //     render: () => html `
-            //         <catalog-browser-grid-config
-            //             .opencgaSession="${this.opencgaSession}"
-            //             .gridColumns="${this._columns}"
-            //             .config="${this._config}"
-            //             @configChange="${this.onGridConfigChange}">
-            //         </catalog-browser-grid-config>`
-            // }
-        };
-
-        // register available modals for this grid
-        this.gridCommons.registerModals({
             "view-family": () => ({
                 display: {
                     modalTitle: `Family ${this._selectedFamily?.id}`,
@@ -162,9 +142,30 @@ export default class FamilyGrid extends LitElement {
                     </family-view>
                 `,
             }),
+            "update-family": () => ({
+                display: {
+                    modalTitle: `Update Family ${this._selectedFamily?.id}`,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "family-update",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <family-update
+                        .familyId="${this._selectedFamily?.id}"
+                        .active="${true}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "down",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @familyUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </family-update>
+                `,
+            }),
         });
-
-        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
     fetchClinicalAnalysis(rows, casesLimit) {
@@ -461,6 +462,7 @@ export default class FamilyGrid extends LitElement {
                 break;
             case "edit":
                 this._selectedFamily = family;
+                this.gridCommons.changeActiveModal("update-family");
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(family, null, "\t"));
@@ -650,23 +652,15 @@ export default class FamilyGrid extends LitElement {
             });
     }
 
-    renderModalUpdate() {
-        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-            display: {
-                modalTitle: `Update Family: ${this.familyUpdateId}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-update",
-                modalSize: "modal-lg"
+    getRightToolbar() {
+        return [
+            {
+                icon: "fa-plus",
+                title: "Create Family",
+                disabled: !this.gridCommons.hasPermission("WRITE"),
+                onClick: () => this.gridCommons.changeActiveModal("create-family"),
             },
-            render: active => html`
-                <family-update
-                    .familyId="${this.familyUpdateId}"
-                    .active="${active}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}">
-                </family-update>
-            `,
-        });
+        ];
     }
 
     renderToolbarLeftContent() {
@@ -682,6 +676,7 @@ export default class FamilyGrid extends LitElement {
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
                     .leftContent="${this.renderToolbarLeftContent()}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
@@ -696,7 +691,6 @@ export default class FamilyGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${this.renderModalUpdate()}
             ${this.gridCommons.renderModals()}
         `;
     }
@@ -714,7 +708,6 @@ export default class FamilyGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],
