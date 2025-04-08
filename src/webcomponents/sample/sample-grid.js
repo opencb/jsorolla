@@ -103,7 +103,7 @@ export default class SampleGrid extends LitElement {
 
         this.toolbarConfig = {
             toolId: this.toolId,
-            resource: "SAMPLE",
+            resource: this.RESOURCE,
             columns: this._getDefaultColumns(),
         };
 
@@ -469,7 +469,7 @@ export default class SampleGrid extends LitElement {
                 id: "actions",
                 align: "right",
                 formatter: (value, row) => {
-                    const hasWritePermission = this.gridCommons.hasPermission(this.RESOURCE, "WRITE");
+                    const hasWritePermission = this.gridCommons.hasPermission("WRITE");
                     return `
                         <div class="d-inline-block dropdown">
                             <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
@@ -573,7 +573,7 @@ export default class SampleGrid extends LitElement {
             {
                 icon: "fa-plus",
                 title: "Create Sample",
-                disabled: !this.gridCommons.hasPermission(this.RESOURCE, "WRITE"),
+                disabled: !this.gridCommons.hasPermission("WRITE"),
                 onClick: () => this.gridCommons.changeActiveModal("create-sample"),
             },
             {
