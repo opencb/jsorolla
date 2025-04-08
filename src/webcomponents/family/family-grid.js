@@ -566,10 +566,6 @@ export default class FamilyGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showSelectCheckbox: false,
-            multiSelection: false,
-            detailFormatter: this.detailFormatter, // function with the detail formatter
-            detailView: true,
 
             showToolbar: true,
             showActions: true,
