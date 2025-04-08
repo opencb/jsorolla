@@ -369,10 +369,6 @@ export default class SampleGrid extends LitElement {
         });
     }
 
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
     async onActionClick(event, sample) {
         const action = (event.target?.dataset?.action || "").toLowerCase();
         switch (action) {
@@ -600,7 +596,6 @@ export default class SampleGrid extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
                 </opencb-grid-toolbar>
