@@ -452,20 +452,21 @@ export default class FamilyGrid extends LitElement {
         return result;
     }
 
-    async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase();
+    onActionClick(event, family) {
+        const action = event.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "view":
+                this._selectedFamily = family;
+                this.gridCommons.changeActiveModal("view-family");
+                break;
             case "edit":
-                this.familyUpdateId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
+                this._selectedFamily = family;
                 break;
             case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                UtilsNew.copyToClipboard(JSON.stringify(family, null, "\t"));
                 break;
             case "download-json":
-                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                UtilsNew.downloadData([JSON.stringify(family, null, "\t")], family.id + ".json");
                 break;
             case "quality-control":
                 alert("Not implemented yet");
@@ -566,6 +567,9 @@ export default class FamilyGrid extends LitElement {
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
+                                <a data-action="view" class="dropdown-item cursor-pointer">
+                                    <i class="fas fa-eye me-1"></i> View
+                                </a>
                                 <a data-action="copy-json" class="dropdown-item cursor-pointer">
                                     <i class="fas fa-copy me-1"></i> Copy JSON
                                 </a>
@@ -598,7 +602,7 @@ export default class FamilyGrid extends LitElement {
                     `;
                 },
                 events: {
-                    "click a": (event, value, row) => this.onActionClick(event, value, row),
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("actions")
             });
