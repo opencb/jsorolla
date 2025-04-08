@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
-
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-
 import "../../../webcomponents/sample/sample-grid.js";
-import "../../../webcomponents/sample/sample-update.js";
-import "../../../webcomponents/sample/sample-create.js";
-
 
 class SampleBrowserGridTest extends LitElement {
 
@@ -51,16 +46,8 @@ class SampleBrowserGridTest extends LitElement {
             "samples-platinum.json",
         ];
         this._data = null;
-        this._selectedRow = {};
-
         this._config = this.getDefaultConfig();
     }
-
-    // TODO: The Sample Browser Test needs to test two things:
-    //   1. The view:
-    //      - The sample browser: table grid and details
-    //      - The sample browser facet
-    //  2. The filters
 
     update(changedProperties) {
         if (changedProperties.has("testDataVersion") || changedProperties.has("opencgaSession")) {
@@ -75,13 +62,9 @@ class SampleBrowserGridTest extends LitElement {
             const promises = this.FILES.map(file => {
                 return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
             });
-
-            // Import all files
             Promise.all(promises)
                 .then(data => {
                     this._data = data[0];
-                    this._selectedRow = this._data[0];
-                    // Mutate data and update
                     this.mutate();
                     this.requestUpdate();
                 })
@@ -92,14 +75,8 @@ class SampleBrowserGridTest extends LitElement {
     }
 
     mutate() {
-        // 1. Mutations related to date
-        // this._data[3].id = "";
-        // this._data[1].creationDate = "";
         this._data[2].creationDate = "20540101"; // No valid format
         this._data[2].creationDate = "20210527101416"; // Valid format
-
-        // Finally, we update samples mem address to force a rendering
-        this._data = [...this._data];
     }
 
     onSettingsUpdate() {
@@ -110,14 +87,9 @@ class SampleBrowserGridTest extends LitElement {
         this.requestUpdate();
     }
 
-    onSelectRow(e) {
-        this._selectedRow = e.detail.row;
-        this.requestUpdate();
-    }
-
     render() {
         if (!this._data) {
-            return html`Processing...`;
+            return nothing;
         }
 
         return html`
@@ -130,8 +102,7 @@ class SampleBrowserGridTest extends LitElement {
                     .samples="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config?.grid}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}"
-                    @selectrow="${e => this.onSelectRow(e)}">
+                    @settingsUpdate="${() => this.onSettingsUpdate()}">
                 </sample-grid>
             </div>
         `;
