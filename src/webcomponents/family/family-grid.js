@@ -356,15 +356,14 @@ export default class FamilyGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        // Check column visibility
         this._columns = [
             {
                 id: "id",
-                title: "Family",
+                title: "Family ID",
                 field: "id",
-                formatter: familyId => `<div><span style="font-weight: bold">${familyId}</span></div>`,
-                sortable: true,
-                halign: "center",
+                formatter: familyId => {
+                    return `<div class="fw-bold">${familyId}</div>`;
+                },
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
@@ -372,43 +371,37 @@ export default class FamilyGrid extends LitElement {
                 title: "Members",
                 field: "members",
                 formatter: members => {
-                    let html = "-";
-                    if (members?.length > 0) {
-                        html = `<div style="white-space: nowrap">`;
-                        for (let i = 0; i < members.length; i++) {
-                            // Display first 5 members
-                            if (i < 5) {
-                                html += `
-                                    <div style="margin: 2px 0">
-                                        <span style="font-weight: bold">${members[i].id}</span><span> (${members[i].sex.id})</span>
-                                    </div>
-                                `;
-                            } else {
-                                html += `<a tooltip-title="Files" tooltip-text='${members.join("")}'>... view all members (${members.length})</a>`;
-                                break;
-                            }
+                    const content = (members || []).map(member => {
+                        return `
+                            <div style="white-space: nowrap">
+                                <span class="fw-bold">${member.id}</span> (${member.sex.id})
+                            </div>
+                        `;
+                    });
+                    // Note: we only display the first 5 members of the family
+                    if (content.length > 0) {
+                        let html = content.slice(0, 5).join("");
+                        if (content.length > 5) {
+                            html = html + `<a class='link' tooltip-title='Family' tooltip-text='${content.join("")}'>... view all members (${members.length})</a>`;
                         }
-                        html += "</div>";
+                        return html;
                     }
-                    return html;
+                    return "-";
                 },
-                halign: "center",
-                visible: this.gridCommons.isColumnVisible("members")
+                visible: this.gridCommons.isColumnVisible("members"),
             },
             {
                 id: "disorders",
                 title: "Disorders",
                 field: "disorders",
                 formatter: disorders => CatalogGridFormatter.disorderFormatter(disorders),
-                halign: "center",
-                visible: this.gridCommons.isColumnVisible("disorders")
+                visible: this.gridCommons.isColumnVisible("disorders"),
             },
             {
                 id: "phenotypes",
                 title: "Phenotypes",
                 field: "phenotypes",
-                formatter: CatalogGridFormatter.phenotypesFormatter,
-                halign: "center",
+                formatter: phenotypes => CatalogGridFormatter.phenotypesFormatter(phenotypes),
                 visible: this.gridCommons.isColumnVisible("phenotypes")
             },
             {
@@ -416,7 +409,6 @@ export default class FamilyGrid extends LitElement {
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
-                halign: "center",
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
@@ -424,8 +416,6 @@ export default class FamilyGrid extends LitElement {
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
-                sortable: true,
-                halign: "center",
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
         ];
