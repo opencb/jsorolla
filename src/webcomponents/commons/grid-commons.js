@@ -409,11 +409,11 @@ export default class GridCommons {
     }
 
     // checks if the current has the provided permission on the specified resource
-    hasPermission(resource, mode = "VIEW") {
+    hasPermission(mode = "VIEW", resource = "") {
         return OpencgaCatalogUtils.getStudyEffectivePermission(
             this.context?.opencgaSession?.study,
             this.context?.opencgaSession?.user?.id,
-            WebUtils.getPermissionID(resource.toUpperCase(), mode.toUpperCase()),
+            WebUtils.getPermissionID((resource || this.context?.RESOURCE || "").toUpperCase(), mode.toUpperCase()),
             this.context?.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions
         );
     }
