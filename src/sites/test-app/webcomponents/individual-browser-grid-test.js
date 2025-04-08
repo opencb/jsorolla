@@ -15,11 +15,9 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/individual/individual-grid.js";
-import "../../../webcomponents/individual/individual-update.js";
-import "../../../webcomponents/individual/individual-create.js";
 
 class IndividualBrowserGridTest extends LitElement {
 
@@ -49,8 +47,6 @@ class IndividualBrowserGridTest extends LitElement {
             "individuals-platinum.json",
         ];
         this._data = null;
-        this._selectedRow = {};
-
         this._config = this.getDefaultConfig();
     }
 
@@ -67,13 +63,9 @@ class IndividualBrowserGridTest extends LitElement {
             const promises = this.FILES.map(file => {
                 return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
             });
-
-            // Import all files
             Promise.all(promises)
                 .then(data => {
                     this._data = data[0];
-                    this._selectedRow = this._data[0];
-                    // Mutate data and update
                     this.mutate();
                     this.requestUpdate();
                 })
@@ -84,8 +76,6 @@ class IndividualBrowserGridTest extends LitElement {
     }
 
     mutate() {
-        // return null;
-        // Mutation 1: The first individual has annotations with the variable sets defined for the study
         this._data[0].annotationSets = [
             {
                 id: "cardiology_tests_checklist_annotationset",
@@ -276,14 +266,9 @@ class IndividualBrowserGridTest extends LitElement {
         this.requestUpdate();
     }
 
-    onSelectRow(e) {
-        this._selectedRow = e.detail.row;
-        this.requestUpdate();
-    }
-
     render() {
         if (!this._data) {
-            return html`Processing`;
+            return nothing;
         }
 
         return html`
@@ -296,8 +281,7 @@ class IndividualBrowserGridTest extends LitElement {
                     .individuals="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config.grid}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}"
-                    @selectrow="${e => this.onSelectRow(e)}">
+                    @settingsUpdate="${() => this.onSettingsUpdate()}">
                 </individual-grid>
             </div>
         `;
