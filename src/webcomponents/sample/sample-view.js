@@ -79,7 +79,6 @@ export default class SampleView extends LitElement {
             this.opencgaSession.opencgaClient.samples()
                 .info(this.sampleId, {
                     study: this.opencgaSession.study.fqn,
-                    includeIndividual: true
                 })
                 .then(response => {
                     this._sample = response.getResult(0);
