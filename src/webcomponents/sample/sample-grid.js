@@ -170,6 +170,8 @@ export default class SampleGrid extends LitElement {
                     modalTitle: "Create Cohort",
                     modalSize: "modal-md",
                     modalbtnsVisible: false,
+                    modalCyDataName: "cohort-create",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <cohort-create-samples
