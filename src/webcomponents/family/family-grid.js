@@ -218,7 +218,6 @@ export default class FamilyGrid extends LitElement {
                 theadClasses: "table-light",
                 buttonsClass: "light",
                 columns: this._columns,
-                method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
@@ -231,10 +230,6 @@ export default class FamilyGrid extends LitElement {
                 formatShowingRows: (pageFrom, pageTo, totalRows) => {
                     return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
                 },
-                showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                detailFormatter: this.detailFormatter,
-                gridContext: this,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let familyResponse = null;
@@ -277,33 +272,10 @@ export default class FamilyGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
-                },
-                onCheck: row => {
-                    this.gridCommons.onCheck(row.id, row);
-                },
-                onCheckAll: rows => {
-                    this.gridCommons.onCheckAll(rows);
-                },
-                onUncheck: row => {
-                    this.gridCommons.onUncheck(row.id, row);
-                },
-                onUncheckAll: rows => {
-                    this.gridCommons.onUncheckAll(rows);
-                },
-                onLoadSuccess: data => {
-                    this.gridCommons.onLoadSuccess(data, 1);
-                },
+                // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                // onLoadSuccess: data => {
+                //     this.gridCommons.onLoadSuccess(data, 1);
+                // },
                 onLoadError: (e, restResponse) => {
                     this.gridCommons.onLoadError(e, restResponse);
                 },
@@ -351,106 +323,13 @@ export default class FamilyGrid extends LitElement {
             formatShowingRows: (pageFrom, pageTo, totalRows) => {
                 return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
             },
-            showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
-            gridContext: this,
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            },
+            // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            // onPostBody: data => {
+            //     // We call onLoadSuccess to select first row
+            //     this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+            // },
         });
-    }
-
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
-    detailFormatter(value, row) {
-        let result = `
-            <div class='row' style="padding: 5px 10px 20px 10px">
-                <div class='col-md-12'>
-                    <h5 style="font-weight: bold">Members</h5>
-        `;
-
-        if (UtilsNew.isNotEmptyArray(row.members)) {
-            let tableCheckboxHeader = "";
-
-            if (this.gridContext._config.multiSelection) {
-                tableCheckboxHeader = "<th>Select</th>";
-            }
-
-            result += `
-                <div style="width: 90%;padding-left: 20px">
-                    <table class="table table-hover table-no-bordered">
-                        <thead class="table-light">
-                            <tr class="table-header">
-                                ${tableCheckboxHeader}
-                                <th>ID</th>
-                                <th>Sex</th>
-                                <th>Father</th>
-                                <th>Mother</th>
-                                <th>Affectation Status</th>
-                                <th>Life Status</th>
-                                <th>Year of Birth</th>
-                                <th>Creation Date</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            for (const member of row.members) {
-                let tableCheckboxRow = "";
-                // If parent row is checked and there is only one samlpe then it must be selected
-                if (this.gridContext._config.multiSelection) {
-                    let checkedStr = "";
-                    for (const family of this.gridContext.families) {
-                        if (family.id === row.id && row.members.length === 1) {
-                            // TODO check member has been checked before, we need to store them
-                            checkedStr = "checked";
-                            break;
-                        }
-                    }
-
-                    tableCheckboxRow = `
-                        <td>
-                            <input id='${this.gridContext.prefix}${member.id}Checkbox' type='checkbox' ${checkedStr}>
-                        </td>
-                    `;
-                }
-
-                const father = (UtilsNew.isNotEmpty(member.father.id)) ? member.father.id : "-";
-                const mother = (UtilsNew.isNotEmpty(member.mother.id)) ? member.mother.id : "-";
-                const affectation = (UtilsNew.isNotEmpty(member.affectationStatus)) ? member.affectationStatus : "-";
-                const lifeStatus = (UtilsNew.isNotEmpty(member.lifeStatus)) ? member.lifeStatus : "-";
-                const dateOfBirth = UtilsNew.isNotEmpty(member.dateOfBirth) ? moment(member.dateOfBirth, "YYYYMMDD").format("YYYY") : "-";
-                const creationDate = moment(member.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY");
-
-                result += `
-                    <tr class="detail-view-row">
-                        ${tableCheckboxRow}
-                        <td>${member.id}</td>
-                        <td>${member.sex?.id || member.sex || "Not specified"}</td>
-                        <td>${father}</td>
-                        <td>${mother}</td>
-                        <td>${affectation}</td>
-                        <td>${lifeStatus}</td>
-                        <td>${dateOfBirth}</td>
-                        <td>${creationDate}</td>
-                        <td>${member?.status?.name || "-"}</td>
-                    </tr>
-                `;
-            }
-            result += "</tbody></table></diV>";
-        } else {
-            result += "No members found";
-        }
-
-        result += "</div></div>";
-        return result;
     }
 
     onActionClick(event, family) {
@@ -679,11 +558,8 @@ export default class FamilyGrid extends LitElement {
                     .rightToolbar="${this.getRightToolbar()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @familyCreate="${this.renderTable}">
+                    @export="${this.onDownload}">
                 </opencb-grid-toolbar>
             ` : nothing}
 
