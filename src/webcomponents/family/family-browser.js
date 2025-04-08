@@ -19,7 +19,6 @@ import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "../commons/facet-filter.js";
 import "./family-grid.js";
-import "./family-view.js";
 
 export default class FamilyBrowser extends LitElement {
 
@@ -128,16 +127,9 @@ export default class FamilyBrowser extends LitElement {
                             .active="${true}"
                             .eventNotifyName="${params.eventNotifyName}"
                             @queryComplete="${e => params.onQueryComplete(e)}"
-                            @selectrow="${e => params.onClickRow(e)}"
                             @familyUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </family-grid>
-                        ${params?.detail ? html`
-                            <family-view
-                                .opencgaSession="${params.opencgaSession}"
-                                .familyId="${params.detail?.id}">
-                            </family-view>
-                        ` : nothing}
                     `,
                 },
                 {

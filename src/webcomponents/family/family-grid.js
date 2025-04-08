@@ -24,6 +24,7 @@ import ModalUtils from "../commons/modal/modal-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "./family-view.js";
 
 export default class FamilyGrid extends LitElement {
 
@@ -59,9 +60,11 @@ export default class FamilyGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "family-grid";
+        this.RESOURCE = "FAMILY";
+        this.active = true;
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
-        this.active = true;
+        this._selectedFamily = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -141,6 +144,25 @@ export default class FamilyGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
+
+        // register available modals for this grid
+        this.gridCommons.registerModals({
+            "view-family": () => ({
+                display: {
+                    modalTitle: `Family ${this._selectedFamily?.id}`,
+                    modalSize: "modal-xl",
+                    modalCyDataName: "family-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <family-view
+                        .familyId="${this._selectedFamily?.id}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </family-view>
+                `,
+            }),
+        });
 
         this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
@@ -692,6 +714,7 @@ export default class FamilyGrid extends LitElement {
             </div>
 
             ${this.renderModalUpdate()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
