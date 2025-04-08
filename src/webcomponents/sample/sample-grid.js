@@ -113,6 +113,8 @@ export default class SampleGrid extends LitElement {
                 display: {
                     modalTitle: `Sample ${this._selectedSample?.id}`,
                     modalSize: "modal-xl",
+                    modalCyDataName: "sample-view",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <sample-view
@@ -124,7 +126,9 @@ export default class SampleGrid extends LitElement {
             "create-sample": {
                 display: {
                     modalTitle: "Create Sample",
-                    modalSize: "modal-lg"
+                    modalSize: "modal-lg",
+                    modalCyDataName: "sample-create",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <sample-create
@@ -143,6 +147,8 @@ export default class SampleGrid extends LitElement {
                 display: {
                     modalTitle: `Update Sample: ${this._selectedSample?.id}`,
                     modalSize: "modal-lg",
+                    modalCyDataName: "sample-update",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <sample-update
