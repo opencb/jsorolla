@@ -591,7 +591,7 @@ export default class IndividualGrid extends LitElement {
                 id: "actions",
                 align: "right",
                 formatter: (value, row) => {
-                    const hasWritePermission = this.gridCommons.hasPermission(this.RESOURCE, "WRITE");
+                    const hasWritePermission = this.gridCommons.hasPermission("WRITE");
                     // const hasQualityControl = row?.qualityControl?.metrics?.length > 0;
                     const hasClinicalAnalysis = row?.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length > 0;
                     return `
@@ -690,7 +690,7 @@ export default class IndividualGrid extends LitElement {
             {
                 icon: "fa-plus",
                 title: "Create Individual",
-                disabled: !this.gridCommons.hasPermission(this.RESOURCE, "WRITE"),
+                disabled: !this.gridCommons.hasPermission("WRITE"),
                 onClick: () => this.gridCommons.changeActiveModal("create-individual"),
             },
             {
