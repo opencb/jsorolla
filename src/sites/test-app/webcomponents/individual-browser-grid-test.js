@@ -272,18 +272,16 @@ class IndividualBrowserGridTest extends LitElement {
         }
 
         return html`
-            <div data-cy="individual-browser-container">
-                <h2 style="font-weight: bold;">
-                    Individual Browser Grid (${this.FILES[0]})
-                </h2>
-                <individual-grid
-                    .toolId="${this.COMPONENT_ID}"
-                    .individuals="${this._data}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.grid}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}">
-                </individual-grid>
-            </div>
+            <h2 class="fw-bold">
+                Individual Browser Grid (${this.FILES[0]})
+            </h2>
+            <individual-grid
+                .toolId="${this.COMPONENT_ID}"
+                .individuals="${this._data}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config.grid}"
+                @settingsUpdate="${() => this.onSettingsUpdate()}">
+            </individual-grid>
         `;
     }
 
