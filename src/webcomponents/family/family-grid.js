@@ -110,7 +110,7 @@ export default class FamilyGrid extends LitElement {
                 display: {
                     modalTitle: "Create Family",
                     modalDraggable: true,
-                    modalCyDataName: "modal-create",
+                    modalCyDataName: "family-create",
                     modalSize: "modal-lg"
                 },
                 render: () => html`
