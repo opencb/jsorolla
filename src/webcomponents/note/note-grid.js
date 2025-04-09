@@ -446,9 +446,6 @@ export default class NoteGrid extends LitElement {
             </div>
         `;
     }
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
 
     onDeleteNote(note) {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
@@ -542,10 +539,7 @@ export default class NoteGrid extends LitElement {
                     .leftContent="${this.renderToolbarLeftContent()}"
                     .rightToolbar="${this.getRightToolbar()}"
                     .settings="${this.toolbarSetting}"
-                    .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @noteCreate="${this.renderTable}">
+                    .config="${this.toolbarConfig}">
                 </opencb-grid-toolbar>
             ` : nothing}
 
