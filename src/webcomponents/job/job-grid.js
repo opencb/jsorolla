@@ -120,7 +120,7 @@ export default class JobGrid extends LitElement {
                     modalTitle: `Job ${this._selectedJob?.id}`,
                     modalDraggable: true,
                     modalCyDataName: "job-view",
-                    modalSize: "modal-lg"
+                    modalSize: "modal-xl"
                 },
                 render: active => html`
                     <job-view
@@ -391,6 +391,10 @@ export default class JobGrid extends LitElement {
     onActionClick(event, job) {
         const action = event.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "view":
+                this._selectedJob = job;
+                this.gridCommons.changeActiveModal("view-job");
+                break;
             case "retry":
                 this.jobRetryObj = row;
                 break;
@@ -540,7 +544,7 @@ export default class JobGrid extends LitElement {
                     if (execution?.start) {
                         const duration = moment.duration((execution.end ? execution.end : moment().valueOf()) - execution.start);
                         const f = moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
-                        return `<a tooltip-title="Runtime"  tooltip-text="${f}"> ${duration.humanize()} </a>`;
+                        return `<a tooltip-title="Runtime" tooltip-text="${f}"> ${duration.humanize()} </a>`;
                     }
                     return "-";
                 },
@@ -582,6 +586,9 @@ export default class JobGrid extends LitElement {
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
+                                <a data-action="view" class="dropdown-item cursor-pointer">
+                                    <i class="fas fa-eye me-1"></i> View
+                                </a>
                                 <a data-action="copy-json" class="dropdown-item cursor-pointer">
                                     <i class="fas fa-copy me-1"></i> Copy JSON
                                 </a>
