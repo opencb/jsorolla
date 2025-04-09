@@ -185,10 +185,9 @@ export default class NoteGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "table-light",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
-                method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
@@ -201,8 +200,6 @@ export default class NoteGrid extends LitElement {
                 formatShowingRows: (pageFrom, pageTo, totalRows) => {
                     return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
                 },
-                detailView: !!this.detailFormatter,
-                gridContext: this,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let notesResponse = null;
@@ -240,33 +237,9 @@ export default class NoteGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
-                },
-                onCheck: row => {
-                    this.gridCommons.onCheck(row.id, row);
-                },
-                onCheckAll: rows => {
-                    this.gridCommons.onCheckAll(rows);
-                },
-                onUncheck: row => {
-                    this.gridCommons.onUncheck(row.id, row);
-                },
-                onUncheckAll: rows => {
-                    this.gridCommons.onUncheckAll(rows);
-                },
-                onLoadSuccess: data => {
-                    this.gridCommons.onLoadSuccess(data, 1);
-                },
+                // onLoadSuccess: data => {
+                //     this.gridCommons.onLoadSuccess(data, 1);
+                // },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
             });
         }
@@ -276,10 +249,9 @@ export default class NoteGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            theadClasses: "table-light",
+            classes: "table table-borderless table-hover table-grid",
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
-            // data: this.notes,
             sidePagination: "server",
             // Josemi Note 2024-01-18: we have added the ajax function for local variants also to support executing async calls
             // when getting additional data from columns extensions.
@@ -302,7 +274,6 @@ export default class NoteGrid extends LitElement {
             },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
-
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
@@ -312,14 +283,11 @@ export default class NoteGrid extends LitElement {
             formatShowingRows: (pageFrom, pageTo, totalRows) => {
                 return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
             },
-            detailView: this._config.detailView,
-            gridContext: this,
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            }
+            // onPostBody: data => {
+            //     // We call onLoadSuccess to select first row
+            //     this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+            // }
         });
     }
 
@@ -368,7 +336,6 @@ export default class NoteGrid extends LitElement {
                 id: "visibility",
                 title: "Visibility",
                 field: "visibility",
-                align: "center",
                 width: "5",
                 widthUnit: "%",
                 formatter: field => {
