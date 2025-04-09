@@ -68,6 +68,7 @@ export default class OpencgaFileGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "file-grid";
+        this.RESOURCE = "FILE";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
@@ -107,6 +108,8 @@ export default class OpencgaFileGrid extends LitElement {
         };
 
         this.toolbarConfig = {
+            toolId: this.toolId,
+            resource: this.RESOURCE,
             columns: this._getDefaultColumns(),
         };
 
@@ -138,7 +141,7 @@ export default class OpencgaFileGrid extends LitElement {
                         .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
                         @folderCreate="${event => {
                             this.gridCommons.clearActiveModal();
-                            this.forceTableRefresh();
+                            this.table.bootstrapTable("refresh");
                             this.onPathCreate(event.detail.path);
                         }}">
                     </file-folder-create>
@@ -157,7 +160,7 @@ export default class OpencgaFileGrid extends LitElement {
                         .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
                         @fileCreate="${event => {
                             this.gridCommons.clearActiveModal();
-                            this.forceTableRefresh();
+                            this.table.bootstrapTable("refresh");
                             this.onPathCreate(event.detail.path);
                         }}">
                     </file-create>
@@ -176,7 +179,7 @@ export default class OpencgaFileGrid extends LitElement {
                         .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
                         @fileUpload="${event => {
                             this.gridCommons.clearActiveModal();
-                            this.forceTableRefresh();
+                            this.table.bootstrapTable("refresh");
                             this.onPathCreate(event.detail.relativeFilePath + event.detail.fileName);
                         }}">
                     </file-upload>
@@ -195,7 +198,7 @@ export default class OpencgaFileGrid extends LitElement {
                         .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
                         @fileUpload="${() => {
                             this.gridCommons.clearActiveModal();
-                            this.forceTableRefresh();
+                            this.table.bootstrapTable("refresh");
                         }}">
                     </file-fetch>
                 `,
@@ -217,19 +220,6 @@ export default class OpencgaFileGrid extends LitElement {
                 `,
             },
         });
-    }
-
-    hasPermission(resource = "FILE", mode = "VIEW") {
-        return OpencgaCatalogUtils.getStudyEffectivePermission(
-            this.opencgaSession.study,
-            this.opencgaSession.user.id,
-            WebUtils.getPermissionID(resource, mode),
-            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
-    }
-
-    forceTableRefresh() {
-        this.lastFilters = null; // reset last filters to force a refresh of the table
-        this.renderTable();
     }
 
     renderTable() {
@@ -526,8 +516,8 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "actions",
                 field: "actions",
                 formatter: (value, row) => {
-                    const hasDownloadPermission = this.hasPermission("FILE", "DOWNLOAD");
-                    const hasDeletePermission = this.hasPermission("FILE", "DELETE");
+                    const hasDownloadPermission = this.gridCommons.hasPermission("DOWNLOAD");
+                    const hasDeletePermission = this.gridCommons.hasPermission("DELETE");
                     const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
                     const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
 
@@ -715,9 +705,9 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     getRightToolbar() {
-        const hasWritePermission = this.hasPermission("FILE", "WRITE");
-        const hasUploadPermission = this.hasPermission("FILE", "UPLOAD");
-        const hasJobExecutionPermission = this.hasPermission("JOB", "EXECUTE");
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        const hasUploadPermission = this.gridCommons.hasPermission("UPLOAD");
+        const hasJobExecutionPermission = this.gridCommons.hasPermission("EXECUTE", "JOB");
 
         return [
             {
