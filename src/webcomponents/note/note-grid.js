@@ -24,6 +24,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "./note-create.js";
 import "./note-update.js";
+import "./note-view.js";
 
 export default class NoteGrid extends LitElement {
 
@@ -148,6 +149,22 @@ export default class NoteGrid extends LitElement {
                             this.table.bootstrapTable("refresh");
                         }}">
                     </note-update>
+                `,
+            }),
+            "view-note": () => ({
+                display: {
+                    modalTitle: `Note ${this._selectedNote?.id}`,
+                    modalDraggable: true,
+                    modalCyDataName: "note-view",
+                    modalSize: "modal-lg"
+                },
+                render: active => html`
+                    <note-view
+                        .noteId="${this._selectedNote?.id}"
+                        .noteScope="${this._selectedNote?.scope}"
+                        .active="${active}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </note-view>
                 `,
             }),
         });
@@ -393,6 +410,9 @@ export default class NoteGrid extends LitElement {
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
+                    <a data-action="view" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-eye me-1"></i> View
+                    </a>
                     <a data-action="copy-json" class="dropdown-item cursor-pointer">
                         <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
                     </a>
@@ -442,6 +462,10 @@ export default class NoteGrid extends LitElement {
     onActionClick(event, note) {
         const action = event.target?.dataset?.action?.toLowerCase() || event.detail.action;
         switch (action) {
+            case "view":
+                this._selectedNote = note;
+                this.gridCommons.changeActiveModal("view-note");
+                break;
             case "edit":
                 this._selectedNote = note;
                 this.gridCommons.changeActiveModal("update-note");

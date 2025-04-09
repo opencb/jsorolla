@@ -21,7 +21,6 @@ import "../commons/opencga-browser.js";
 import "../commons/forms/toggle-radio.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "./note-grid.js";
-import "./note-view.js";
 
 export default class NoteBrowser extends LitElement {
 
@@ -140,17 +139,9 @@ export default class NoteBrowser extends LitElement {
                                 .eventNotifyName="${params.eventNotifyName}"
                                 .active="${true}"
                                 @queryComplete="${e => params.onQueryComplete(e)}"
-                                @selectrow="${e => params.onClickRow(e, "note")}"
                                 @noteUpdate="${e => params.onComponentUpdate(e, "note")}"
                                 @settingsUpdate="${() => this.onSettingsUpdate()}">
                             </note-grid>
-                            ${params?.detail ? html`
-                                <note-view
-                                    .noteId="${params.detail?.id}"
-                                    .noteScope="${params?.detail?.scope}"
-                                    .opencgaSession="${params.opencgaSession}">
-                                </note-view>
-                            ` : nothing}
                         `;
                     }
                 },
