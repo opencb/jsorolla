@@ -93,18 +93,16 @@ class SampleBrowserGridTest extends LitElement {
         }
 
         return html`
-            <div data-cy="sample-browser-container">
-                <h2 style="font-weight: bold;">
-                    Sample Browser Grid (${this.FILES[0]})
-                </h2>
-                <sample-grid
-                    .toolId="${this.COMPONENT_ID}"
-                    .samples="${this._data}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config?.grid}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}">
-                </sample-grid>
-            </div>
+            <h2 class="fw-bold">
+                Sample Browser Grid (${this.FILES[0]})
+            </h2>
+            <sample-grid
+                .toolId="${this.COMPONENT_ID}"
+                .samples="${this._data}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config?.grid}"
+                @settingsUpdate="${() => this.onSettingsUpdate()}">
+            </sample-grid>
         `;
     }
 
