@@ -172,6 +172,8 @@ export default class JobGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            classes: "table table-borderless table-hover table-grid",
+            buttonsClass: "light",
             columns: this._getDefaultColumns(),
             sidePagination: "server",
             // Josemi Note 2024-01-18: we have added the ajax function for local jobs also to support executing async calls
@@ -224,7 +226,7 @@ export default class JobGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "table-light",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
                 sidePagination: "server",
@@ -504,8 +506,7 @@ export default class JobGrid extends LitElement {
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
                 id: "actions",
-                title: "Actions",
-                align: "center",
+                align: "right",
                 formatter: (value, row) => {
                     // const hasWritePermission = this.gridCommons.hasPermission("WRITE");
                     return `
