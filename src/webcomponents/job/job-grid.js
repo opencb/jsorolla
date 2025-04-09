@@ -567,7 +567,6 @@ export default class JobGrid extends LitElement {
             {
                 id: "executionD",
                 title: "Start/End Date",
-                field: "execution",
                 formatter: (_, row) => {
                     const execution = row.execution;
                     const values = [];
