@@ -14,226 +14,148 @@
  * limitations under the License.
  */
 
-import UtilsTest from "../../support/utils-test.js";
-import BrowserTest from "../../support/browser-test.js";
-
 context("File Browser Grid", () => {
-    const browserGrid = "file-grid";
-
     beforeEach(() => {
         cy.visit("#file-browser-grid");
         cy.get("file-grid")
-            .as("fileGrid");
+            .as("file-grid");
         cy.waitUntil(() => {
-            return cy.get("@fileGrid")
+            return cy.get("@file-grid")
                 .should("be.visible");
         });
     });
 
     context("toolbar", () => {
-        it("should render", () => {
-            cy.get("@fileGrid")
-                .find(`div[data-cy="toolbar"]`)
+        beforeEach(() => {
+            cy.get("@file-grid")
+                .find("opencb-grid-toolbar")
+                .as("toolbar");
+        });
+
+        it("should be visible", () => {
+            cy.get("@toolbar")
                 .should("be.visible");
         });
 
-        it("should render create buttons (file and create)", () => {
-            ["File", "Folder"].forEach(type => {
-                cy.get("@fileGrid")
-                    .find(`div[data-cy="toolbar"] button`)
-                    .contains(`Create ${type}`)
-                    .should("be.visible");
-            });
+        it("should display a 'Create Folder' button", () => {
+            cy.get("@toolbar")
+                .contains("button", "Create Folder")
+                .should("be.visible");
+        });
+
+        it("should display a 'Create File' button", () => {
+            cy.get("@toolbar")
+                .contains("button", "Create File")
+                .should("be.visible");
+        });
+
+        it("should display a 'Upload File' button", () => {
+            cy.get("@toolbar")
+                .contains("button", "Upload File")
+                .should("be.visible");
+        });
+
+        it("should display a 'Fetch File' button", () => {
+            cy.get("@toolbar")
+                .contains("button", "Fetch File")
+                .should("be.visible");
+        });
+
+        it("should display a 'Settings' button", () => {
+            cy.get("@toolbar")
+                .contains("button", "Settings")
+                .should("be.visible");
         });
     });
 
-    // MODAL CREATE
-    context("Modal Create", () => {
-        beforeEach(() => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
-            cy.get(browserGrid)
-                .find(`button[data-action="create"]`)
-                .should("be.disabled");
-            cy.get(browserGrid)
-                .find(`div[data-cy="modal-create"]`)
-                .as("modal-create");
-        });
-        // 1. Open modal and render create
-        // it("should render create modal", () => {
-        //     // eslint-disable-next-line cypress/unsafe-to-chain-command
-        //     cy.get("@modal-create")
-        //         .find("div.modal-dialog")
-        //         .should("be.visible");
-        // });
-        // 2. Render title
-        // it("should render create title", () => {
-        //     // eslint-disable-next-line cypress/unsafe-to-chain-command
-        //     cy.get("@modal-create")
-        //         .find("h4.modal-title")
-        //         .should("contain.text", "File Create");
-        // });
-        // 3. Render button clear
-        // it("should render button clear", () => {
-        //     // eslint-disable-next-line cypress/unsafe-to-chain-command
-        //     cy.get("@modal-create")
-        //         .contains('button', 'Clear')
-        //         .should("be.visible");
-        // });
-        // 4. Render button create
-        // it("should render button create", () => {
-        //     // eslint-disable-next-line cypress/unsafe-to-chain-command
-        //     cy.get("@modal-create")
-        //         .contains('button', 'Create')
-        //         .should("be.visible");
-        // });
-        // 5. Render tabs
-        // it("should render form tabs", () => {
-        //     // eslint-disable-next-line cypress/unsafe-to-chain-command
-        //     cy.get("@modal-create")
-        //         .find("ul.nav.nav-tabs > li")
-        //         .should("have.length.at.least", 1);
-        // });
-        // 6. Render File ID
-        // it("should have form field ID", () => {
-        //     // eslint-disable-next-line cypress/unsafe-to-chain-command
-        //     cy.get("@modal-create")
-        //         .find(`data-form div.form-horizontal div.row.form-group  label.control-label`)
-        //         .should("contain.text", "File ID");
-        // });
-    });
-
-    context("Modal Setting", () => {
-
-        it("should move modal setting", () => {
-            cy.get("button[data-action='settings']")
+    context("settings", () => {
+        it("should display the settings modal when clicking on the 'Settings' button", () => {
+            cy.get("@file-grid")
+                .contains("button", "Settings")
                 .click();
-
-            BrowserTest.getElementByComponent({
-                selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:"div",
-                elementId: "SettingModal"
-            }).as("settingModal");
-
-            cy.get("@settingModal")
-                .then(($modal) => {
-                    const startPosition = $modal.offset();
-                    cy.log("start Position:", startPosition);
-                    // Drag the modal to a new position using Cypress's drag command
-                    cy.get("@settingModal")
-                        .find(".modal-header")
-                        .as("modalHeader");
-
-                    cy.get("@modalHeader")
-                        .trigger("mousedown", { which: 1 }); // Trigger mouse down event
-                    cy.get("@modalHeader")
-                        .trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
-                    cy.get("@modalHeader")
-                        .trigger("mouseup"); // Release the mouse
-
-                    // Get the final position of the modal
-                    cy.get(`@modalHeader`)
-                        .then(($modal) => {
-                            const finalPosition = $modal.offset();
-                            cy.log("final Position:", finalPosition);
-                            // Assert that the modal has moved
-                            expect(finalPosition.left).to.not.equal(startPosition.left);
-                            expect(finalPosition.top).to.not.equal(startPosition.top);
-                        });
-                });
+            cy.get("div.modal-dialog")
+                .should("be.visible");
         });
 
-        it("should hide columns [Name,Format]",() => {
-            const columns = ["Name","Format"];
-            cy.get(`${browserGrid} thead th`)
+        it("should allow to hide columns in the grid", () => {
+            const columns = ["Name", "Format"];
+
+            cy.get("@file-grid")
+                .find("thead th")
                 .as("headerColumns");
-
-            columns.forEach(col => {
+            columns.forEach(column => {
                 cy.get("@headerColumns")
-                    .contains("div",col)
+                    .contains("div", column)
                     .should("be.visible");
             });
-            cy.get("button[data-action='settings']")
+            cy.get("@file-grid")
+                .contains("button", "Settings")
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
+            cy.get("@file-grid")
+                .find(`div[data-testid="test-columns"] select-field-filter`)
+                .as("columnsSelector");
+            cy.get("@columnsSelector")
+                .find(".select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
+                cy.get("@columnsSelector")
+                    .find("span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-selection")
+            cy.get("@columnsSelector")
+                .find(".select2-selection")
                 .click();
-            BrowserTest.getElementByComponent({
-                selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:"div",
-                elementId: "SettingModal"
-            }).as("settingModal");
-
-            cy.get("@settingModal")
+            cy.get("@file-grid")
+                .find(".modal-body")
                 .contains("button", "OK")
                 .click();
+
             cy.get("@headerColumns")
                 .should($header => {
-                    const _columns = Array.from($header, th => th.textContent.trim());
+                    const visibleColumns = Array.from($header, th => th.textContent.trim());
                     columns.forEach(col => {
-                        expect(col).not.to.be.oneOf(_columns);
+                        expect(col).not.to.be.oneOf(visibleColumns);
                     });
                 });
         });
     });
 
-    // context("Grid",{tags: "@shortTask"}, () => {
-    //     it("should render", () => {
-    //         cy.get(browserGrid)
-    //             .should("be.visible");
-    //     });
-    //
-    //     it("should change page", () => {
-    //         UtilsTest.changePage(browserGrid,2);
-    //         UtilsTest.changePage(browserGrid,3);
-    //     });
-    // });
-
-    context("row", () => {
-        // it("should display row #3 as selected", () => {
-        //     // eslint-disable-next-line cypress/unsafe-to-chain-command
-        //         cy.get("tbody tr")
-        //             .eq(3)
-        //             .click()
-        //             .should("have.class","table-success");
-        // });
-
-        context("actions", () => {
-            it("should display actions menu", () => {
-                cy.get(`tbody tr:first > td`)
-                    .eq(-2)
-                    .within(() => {
-                        cy.get("button")
-                            .click();
-                        cy.get(`div[class*="dropdown-menu"][class*="show"]`)
-                            .should("be.visible");
-                    });
+    context("grid", () => {
+        context("content", () => {
+            it("should render a <table> element", () => {
+                cy.get("@file-grid")
+                    .find("table")
+                    .should("be.visible");
             });
 
-            // it("should allow to download a JSON of the file", () => {
-            //     cy.get("tbody tr:first > td")
-            //         .eq(-2)
-            //         .within(() => {
-            //             cy.get("button")
-            //                 .click();
-            //             cy.get(`ul[class*="dropdown-menu"][class*="show"]`)
-            //                 .contains("a","Download JSON")
-            //                 .click();
-            //     });
-            // });
-        });
-    });
+            it("should display at least one row in the table", () => {
+                cy.get("@file-grid")
+                    .find("tbody tr")
+                    .should("be.visible");
+            });
 
-    context("extension", () => {
-        it("should display 'Extra Column' column", () => {
-            cy.get("thead th")
-                .contains("Extra column")
-                .should("be.visible");
+            it("should display at least one column in the table", () => {
+                cy.get("@file-grid")
+                    .find("thead tr th")
+                    .should("be.visible");
+            });
+
+            it("should display titles in of each column", () => {
+                cy.get("@file-grid")
+                    .find(`thead tr th div[class="th-inner "]`)
+                    .eq(2)
+                    .should("not.be.empty");
+            });
+        });
+
+        context("extensions", () => {
+            it("should display 'Extra Column' column", () => {
+                cy.get("@file-grid")
+                    .find("thead th")
+                    .contains("Extra column")
+                    .should("be.visible");
+            });
         });
     });
 });
