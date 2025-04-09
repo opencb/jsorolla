@@ -62,9 +62,11 @@ export default class NoteGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "note-grid";
+        this.RESOURCE = "NOTE";
+        this.active = true;
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
-        this.active = true;
+        this._selectedNode = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -101,21 +103,31 @@ export default class NoteGrid extends LitElement {
             toolId: this.toolId,
             resource: "NOTE",
             columns: this._getDefaultColumns(),
-            create: {
+        };
+
+        this.gridCommons.registerModals({
+            "create-note": {
                 display: {
                     modalTitle: "Create Note",
                     modalDraggable: true,
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
+                    modalCyDataName: "note-create",
+                    modalSize: "modal-lg",
                 },
                 render: () => html`
                     <note-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @noteCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
                     </note-create>
                 `,
             },
-        };
+        });
     }
 
     fetchNote(query) {
@@ -511,6 +523,17 @@ export default class NoteGrid extends LitElement {
         });
     }
 
+    getRightToolbar() {
+        return [
+            {
+                icon: "fa-plus",
+                title: "Create Note",
+                disabled: !this.gridCommons.hasPermission("WRITE"),
+                onClick: () => this.gridCommons.changeActiveModal("create-note"),
+            },
+        ];
+    }
+
     renderToolbarLeftContent() {
         return html`
             <span id="${this.gridId + "PaginationInfo"}"></span>
@@ -524,6 +547,7 @@ export default class NoteGrid extends LitElement {
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
                     .leftContent="${this.renderToolbarLeftContent()}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
@@ -532,10 +556,11 @@ export default class NoteGrid extends LitElement {
                 </opencb-grid-toolbar>
             ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${ifDefined(this.gridId)}"></table>
             </div>
 
+            ${this.gridCommons.renderModals()}
             ${this.renderModalUpdate()}
         `;
     }
