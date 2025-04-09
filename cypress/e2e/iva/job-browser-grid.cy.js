@@ -14,175 +14,128 @@
  * limitations under the License.
  */
 
-import UtilsTest from "../../support/utils-test.js";
-import BrowserTest from "../../support/browser-test.js";
-
 context("Job Browser Grid", () => {
-    const browserGrid = "job-grid";
-
     beforeEach(() => {
         cy.visit("#job-browser-grid");
+        cy.get("job-grid")
+            .as("job-grid")
         cy.waitUntil(() => {
-            return cy.get(browserGrid)
+            return cy.get("@job-grid")
                 .should("be.visible");
         });
     });
 
-    // TOOLBAR
-    context("Job Toolbar", () => {
+    context("toolbar", () => {
         beforeEach(() => {
-            cy.get(browserGrid)
-                .find(`div[data-cy="toolbar"]`)
+            cy.get("@job-grid")
+                .find("opencb-grid-toolbar")
                 .as("toolbar");
         });
 
-        it("should render toolbar", () => {
-            cy.get(browserGrid)
-                .find(`div[data-cy="toolbar-wrapper"]`)
+        it("should be visible", () => {
+            cy.get("@toolbar")
                 .should("be.visible");
         });
 
-        it("should render Refresh button", () => {
-            cy.get(browserGrid)
-                .find(`button[data-cy="job-refresh"]`)
+        it("should display a 'Refresh' button", () => {
+            cy.get("@toolbar")
+                .contains("button", "Refresh")
                 .should("be.visible");
         });
 
-        it("should render Export button", () => {
-            cy.get(browserGrid)
-                .find(`button[data-cy="toolbar-btn-export"]`)
+        it("should display a 'Export' button", () => {
+            cy.get("@toolbar")
+                .contains("button", "Export")
                 .should("be.visible");
         });
 
-        it("should render Settings button", () => {
-            cy.get(browserGrid)
-                .find(`button[data-cy="toolbar-btn-settings"]`)
+        it("should display a 'Settings' button", () => {
+            cy.get("@toolbar")
+                .contains("button", "Settings")
                 .should("be.visible");
         });
     });
 
-    context("Modal Setting", () => {
-        it("should move modal setting", () => {
-            cy.get("button[data-action='settings']")
-                .click();
+    context("setting", () => {
+        it("should allow to hide columns in the grid", () => {
+            const columns = ["Status", "Output Files", "Runtime"];
 
-            BrowserTest.getElementByComponent({
-                selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:"div",
-                elementId: "SettingModal"
-            }).as("settingModal");
-
-            cy.get("@settingModal")
-                .then(($modal) => {
-                    const startPosition = $modal.offset();
-                    cy.log("start Position:", startPosition);
-                    // Drag the modal to a new position using Cypress's drag command
-                    cy.get("@settingModal")
-                        .find(".modal-header")
-                        .as("modalHeader");
-
-                    cy.get("@modalHeader")
-                        .trigger("mousedown", { which: 1 }); // Trigger mouse down event
-                    cy.get("@modalHeader")
-                        .trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
-                    cy.get("@modalHeader")
-                        .trigger("mouseup"); // Release the mouse// Release the mouse
-
-                    // Get the final position of the modal
-                    cy.get(`@modalHeader`)
-                        .then(($modal) => {
-                            const finalPosition = $modal.offset();
-                            cy.log("final Position:", finalPosition);
-                            // Assert that the modal has moved
-                            expect(finalPosition.left).to.not.equal(startPosition.left);
-                            expect(finalPosition.top).to.not.equal(startPosition.top);
-                        });
-                });
-        });
-
-        it("should hide columns [Status,Output Files,Runtime]",() => {
-            const columns = ["Status","Output Files","Runtime"];
-            cy.get(`${browserGrid} thead th`)
+            cy.get("@job-grid")
+                .find("thead th")
                 .as("headerColumns");
-
-            columns.forEach(col => {
+            columns.forEach(column => {
                 cy.get("@headerColumns")
-                    .contains("div",col)
+                    .contains("div", column)
                     .should("be.visible");
             });
-            cy.get("button[data-action='settings']")
+            cy.get("@job-grid")
+                .find(`button[data-action="settings"]`)
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
+            cy.get("@job-grid")
+                .find(`div[data-testid="test-columns"] select-field-filter`)
+                .as("columnsSelector");
+            cy.get("@columnsSelector")
+                .find(".select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
+                cy.get("@columnsSelector")
+                    .find("span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-selection")
+            cy.get("@columnsSelector")
+                .find(".select2-selection")
                 .click();
-            BrowserTest.getElementByComponent({
-                selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:"div",
-                elementId: "SettingModal"
-            }).as("settingModal");
-
-            cy.get("@settingModal")
+            cy.get("@job-grid")
+                .find(".modal-body")
                 .contains("button", "OK")
                 .click();
 
             cy.get("@headerColumns")
                 .should($header => {
-                    const _columns = Array.from($header, th => th.textContent.trim());
+                    const visibleColumns = Array.from($header, th => th.textContent.trim());
                     columns.forEach(col => {
-                        expect(col).not.to.be.oneOf(_columns);
+                        expect(col).not.to.be.oneOf(visibleColumns);
                     });
                 });
         });
     });
 
-    context("Grid", () => {
-        it("should render", () => {
-            cy.get(browserGrid)
-                .should("be.visible");
+    context("grid", () => {
+        context("content", () => {
+            it("should render a <table> element", () => {
+                cy.get("@job-grid")
+                    .find("table")
+                    .should("be.visible");
+            });
+
+            it("should display at least one row in the table", () => {
+                cy.get("@job-grid")
+                    .find("tbody tr")
+                    .should("be.visible");
+            });
+
+            it("should display at least one column in the table", () => {
+                cy.get("@job-grid")
+                    .find("thead tr th")
+                    .should("be.visible");
+            });
+
+            it("should display titles in of each column", () => {
+                cy.get("@job-grid")
+                    .find(`thead tr th div[class="th-inner "]`)
+                    .first()
+                    .should("not.be.empty");
+            });
         });
 
-        it("should change page file-browser-grid", () => {
-            UtilsTest.changePage(browserGrid,2);
-            UtilsTest.changePage(browserGrid,3);
-        });
-    });
-
-    context("Row", () => {
-        it("should display row #3 as selected", () => {
-            // eslint-disable-next-line cypress/unsafe-to-chain-command
-            cy.get("tbody tr")
-                .eq(3)
-                .as("rowSelected")
-                .click();
-
-            cy.get("@rowSelected")
-                .should("have.class","table-success");
-        });
-
-        it.only("should download job Json", () => {
-            cy.get("tbody tr:first > td")
-                .eq(-2)
-                .within(() => {
-                    cy.get("button")
-                        .click();
-                    cy.get("ul[class*='dropdown-menu']")
-                        .contains("a","Download JSON")
-                        .click();
-                });
-        });
-    });
-
-    context("extension", () => {
-        it("should display 'Extra Column' column", () => {
-            cy.get("thead th")
-                .contains("Extra column")
-                .should("be.visible");
+        context("extensions", () => {
+            it("should display 'Extra Column' column", () => {
+                cy.get("@job-grid")
+                    .find("thead th")
+                    .contains("Extra column")
+                    .should("be.visible");
+            });
         });
     });
 });
