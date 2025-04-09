@@ -158,8 +158,6 @@ export default class JobGrid extends LitElement {
                 onOk: event => this.onJobRetry(event),
             }),
         });
-
-        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
     renderTable() {
@@ -175,7 +173,6 @@ export default class JobGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             columns: this._getDefaultColumns(),
-            // data: this.jobs,
             sidePagination: "server",
             // Josemi Note 2024-01-18: we have added the ajax function for local jobs also to support executing async calls
             // when getting additional data from columns extensions.
@@ -199,7 +196,6 @@ export default class JobGrid extends LitElement {
             },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
-            // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
@@ -208,16 +204,12 @@ export default class JobGrid extends LitElement {
             formatShowingRows: (pageFrom, pageTo, totalRows) => {
                 return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
             },
-            showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
-            gridContext: this,
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            }
+            // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            // onPostBody: data => {
+            //     // We call onLoadSuccess to select first row
+            //     this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+            // }
         });
     }
 
@@ -235,7 +227,6 @@ export default class JobGrid extends LitElement {
                 theadClasses: "table-light",
                 buttonsClass: "light",
                 columns: this._columns,
-                method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
@@ -247,12 +238,6 @@ export default class JobGrid extends LitElement {
                 formatShowingRows: (pageFrom, pageTo, totalRows) => {
                     return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows) + this.autoRefreshMsg();
                 },
-                showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                detailFormatter: this.detailFormatter,
-                sortName: "Creation",
-                sortOrder: "asc",
-                gridContext: this,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     document.getElementById(this._prefix + "refreshIcon").style.visibility = "visible";
@@ -295,32 +280,9 @@ export default class JobGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, this.table.bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element, field) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
-                },
-                onCheck: row => {
-                    this.gridCommons.onCheck(row.id, row);
-                },
-                onCheckAll: rows => {
-                    this.gridCommons.onCheckAll(rows);
-                },
-                onUncheck: row => {
-                    this.gridCommons.onUncheck(row.id, row);
-                },
-                onUncheckAll: rows => {
-                    this.gridCommons.onUncheckAll(rows);
-                },
+                // onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onLoadSuccess: data => {
-                    this.gridCommons.onLoadSuccess(data, 1);
+                    // this.gridCommons.onLoadSuccess(data, 1);
                     this.enableAutoRefresh();
                 },
                 onLoadError: (e, restResponse) => {
@@ -353,66 +315,6 @@ export default class JobGrid extends LitElement {
                 }
             }, this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming);
         }
-    }
-
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
-    detailFormatter(value, row) {
-        let result = "<div class='row' style='padding-bottom: 20px'>";
-        let detailHtml = "";
-
-        if (row) {
-            // Job Dependencies section
-            detailHtml = "<div style='padding: 10px 0px 10px 25px'><h4>Job Dependencies</h4></div>";
-            detailHtml += "<div style='padding: 5px 40px'>";
-            if (row.dependsOn && row.dependsOn.length > 0) {
-                detailHtml += `
-                    <div class='row' style="padding: 5px 10px 20px 10px">
-                        <div class='col-md-12'>
-                            <div>
-                                <table class="table table-hover table-no-bordered">
-                                    <thead class="table-light">
-                                        <tr class="table-header">
-                                            <th>ID</th>
-                                            <th>Tool</th>
-                                            <th>Status</th>
-                                            <th>Priority</th>
-                                            <th>Creation Date</th>
-                                            <th>Visited</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${row.dependsOn.map(job => `
-                                            <tr class="detail-view-row">
-                                                <td>${job.id}</td>
-                                                <td>${job.tool.id}</td>
-                                                <td>${WebUtils.jobStatusFormatter(job.internal.status)}</td>
-                                                <td>${job.priority}</td>
-                                                <td>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</td>
-                                                <td>${job.visited}</td>
-                                           </tr>
-                                        `).join("")}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>`;
-            } else {
-                detailHtml += "No dependencies";
-            }
-            detailHtml += "</div>";
-
-            // Input Files section
-            detailHtml += "<div style='padding: 10px 0px 10px 25px'><h4>Input Files</h4></div>";
-            detailHtml += "<div style='padding: 5px 50px'>";
-            detailHtml += "To be implemented";
-            detailHtml += "</div>";
-        }
-
-        result += detailHtml + "</div>";
-        return result;
     }
 
     onActionClick(event, job) {
@@ -724,12 +626,10 @@ export default class JobGrid extends LitElement {
     getRightToolbar() {
         return [
             {
-                render: () => html`
-                    <button type="button" data-cy="job-refresh" class="btn btn-light" @click="${() => this.table.bootstrapTable("refresh")}">
-                        <i class="fas fa-sync-alt me-1"></i> Refresh
-                    </button>
-                `,
-            }
+                icon: "fa-sync-alt",
+                title: "Refresh",
+                onClick: () => this.table.bootstrapTable("refresh"),
+            },
         ];
     }
 
@@ -749,11 +649,8 @@ export default class JobGrid extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @jobCreate="${this.renderRemoteTable}">
+                    @export="${this.onDownload}">
                 </opencb-grid-toolbar>
             ` : nothing}
 
@@ -770,21 +667,14 @@ export default class JobGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showSelectCheckbox: false,
-            multiSelection: false,
-            detailView: true,
 
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
             showExport: true,
             showSettings: true,
-            showRefresh: true,
             exportTabs: ["download", "link", "code"],
 
-            nucleotideGenotype: true,
-            alleleStringLengthMax: 15,
             autorefreshTiming: 60000,
         };
     }
