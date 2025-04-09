@@ -19,7 +19,6 @@ import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "../commons/aggregation-stats.js";
 import "./job-grid.js";
-import "./job-view.js";
 
 export default class JobBrowser extends LitElement {
 
@@ -130,16 +129,9 @@ export default class JobBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .files="${params.files}"
                             @queryComplete="${e => params.onQueryComplete(e)}"
-                            @selectrow="${e => params.onClickRow(e)}"
                             @jobUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </job-grid>
-                        ${params?.detail ? html`
-                            <job-view
-                                .opencgaSession="${params.opencgaSession}"
-                                .jobId="${params.detail?.id}">
-                            </job-view>
-                        ` : nothing}
                     `,
                 },
                 {
