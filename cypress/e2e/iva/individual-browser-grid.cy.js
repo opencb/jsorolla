@@ -17,17 +17,17 @@
 context("Individual Browser Grid", () => {
     beforeEach(() => {
         cy.visit("#individual-browser-grid");
-        cy.get(`div[data-cy="individual-browser-container"]`)
-            .as("container");
+        cy.get("individual-grid")
+            .as("individual-grid");
         cy.waitUntil(() => {
-            return cy.get("@container")
+            return cy.get("@individual-grid")
                 .should("be.visible");
         });
     });
 
     context("toolbar", () => {
         beforeEach(() => {
-            cy.get("@container")
+            cy.get("@individual-grid")
                 .find("opencb-grid-toolbar")
                 .as("toolbar");
         });
@@ -58,10 +58,10 @@ context("Individual Browser Grid", () => {
 
     context("create individual", () => {
         beforeEach(() => {
-            cy.get("@container")
+            cy.get("@individual-grid")
                 .contains("button", "Create Individual")
                 .click();
-            cy.get("@container")
+            cy.get("@individual-grid")
                 .find(`div[data-cy="individual-create"]`)
                 .as("modal-individual-create");
         });
@@ -105,11 +105,11 @@ context("Individual Browser Grid", () => {
 
     context("update individual", () => {
         beforeEach(() => {
-            cy.get("@container")
+            cy.get("@individual-grid")
                 .find(`table tbody tr td button[data-cy="actions-button"]`)
                 .first()
                 .click();
-            cy.get("@container")
+            cy.get("@individual-grid")
                 .find(`a[data-action="edit"]`)
                 .first()
                 .click();
@@ -156,28 +156,28 @@ context("Individual Browser Grid", () => {
 
     context("settings", () => {
         it("should display the settings modal when clicking on the 'Settings' button", () => {
-            cy.get("@container")
+            cy.get("@individual-grid")
                 .find(`button[data-action="settings"]`)
                 .click();
             cy.get("div.modal-dialog")
                 .should("be.visible");
         });
 
-        it("should allow to hide columns in the grid",() => {
+        it("should allow to hide columns in the grid", () => {
             const columns = ["Disorders", "Case ID", "Ethnicity"];
 
-            cy.get("@container")
-                .find("individual-grid thead th")
+            cy.get("@individual-grid")
+                .find("thead th")
                 .as("headerColumns");
             columns.forEach(column => {
                 cy.get("@headerColumns")
                     .contains("div", column)
                     .should("be.visible");
             });
-            cy.get("@container")
+            cy.get("@individual-grid")
                 .find(`button[data-action="settings"]`)
                 .click();
-            cy.get("@container")
+            cy.get("@individual-grid")
                 .find(`div[data-testid="test-columns"] select-field-filter`)
                 .as("columnsSelector");
             cy.get("@columnsSelector")
@@ -192,7 +192,7 @@ context("Individual Browser Grid", () => {
             cy.get("@columnsSelector")
                 .find(".select2-selection")
                 .click();
-            cy.get("@container")
+            cy.get("@individual-grid")
                 .find(".modal-body")
                 .contains("button", "OK")
                 .click();
@@ -207,12 +207,6 @@ context("Individual Browser Grid", () => {
     });
 
     context("grid", () => {
-        beforeEach(() => {
-            cy.get("@container")
-                .find("individual-grid")
-                .as("individual-grid");
-        });
-
         context("content", () => {
             it("should display a <table> element", () => {
                 cy.get("@individual-grid")
