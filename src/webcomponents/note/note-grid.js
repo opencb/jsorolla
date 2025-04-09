@@ -514,11 +514,13 @@ export default class NoteGrid extends LitElement {
     }
 
     getRightToolbar() {
+        const isOrganizationAdmin = CatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, this.opencgaSession?.user?.id);
+        const isStudyAdmin = CatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
         return [
             {
                 icon: "fa-plus",
                 title: "Create Note",
-                disabled: !this.gridCommons.hasPermission("WRITE"),
+                disabled: !isOrganizationAdmin && !isStudyAdmin,
                 onClick: () => this.gridCommons.changeActiveModal("create-note"),
             },
         ];
