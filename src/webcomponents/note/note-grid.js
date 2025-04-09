@@ -400,36 +400,26 @@ export default class NoteGrid extends LitElement {
                 hasAdminPermissions = true;
             }
         }
-
         return `
             <div class="d-inline-block dropdown">
-                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-toolbox" aria-hidden="true"></i>
-                    <span>Actions</span>
+                <button class="btn" type="button" data-bs-toggle="dropdown" data-cy="actions-button">
+                    <i class="fas fa-ellipsis-v"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
-                            <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
-                        </a>
-                    </li>
-                    <li>
-                        <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
-                            <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a data-action="edit" href="javascript: void 0" class="dropdown-item ${hasAdminPermissions ? "" : "disabled"}">
-                            <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                        </a>
-                    </li>
-                    <li>
-                        <a data-action="delete" href="javascript: void 0" class="dropdown-item ${hasAdminPermissions ? "" : "disabled"}">
-                            <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                        </a>
-                    </li>
-                </ul>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a data-action="copy-json" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
+                    </a>
+                    <a data-action="download-json" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-download"></i> Download JSON
+                    </a>
+                    <hr class="dropdown-divider">
+                    <a data-action="edit" class="dropdown-item ${hasAdminPermissions ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </a>
+                    <a data-action="delete" class="dropdown-item ${hasAdminPermissions ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </a>
+                </div>
             </div>
         `;
     }
