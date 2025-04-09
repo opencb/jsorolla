@@ -57,6 +57,14 @@ context("Job Browser Grid", () => {
     });
 
     context("setting", () => {
+        it("should display the settings modal when clicking on the 'Settings' button", () => {
+            cy.get("@job-grid")
+                .contains("button", "Settings")
+                .click();
+            cy.get("div.modal-dialog")
+                .should("be.visible");
+        });
+
         it("should allow to hide columns in the grid", () => {
             const columns = ["Status", "Output Files", "Runtime"];
 
@@ -69,7 +77,7 @@ context("Job Browser Grid", () => {
                     .should("be.visible");
             });
             cy.get("@job-grid")
-                .find(`button[data-action="settings"]`)
+                .contains("button", "Settings")
                 .click();
             cy.get("@job-grid")
                 .find(`div[data-testid="test-columns"] select-field-filter`)
