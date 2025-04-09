@@ -25,6 +25,7 @@ import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
+import "./job-view.js";
 
 export default class JobGrid extends LitElement {
 
@@ -67,11 +68,13 @@ export default class JobGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "job-grid";
+        this.RESOURCE = "JOB";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this.autoRefresh = false;
         this.eventNotifyName = "messageevent";
+        this._selectedJob = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -109,47 +112,25 @@ export default class JobGrid extends LitElement {
             toolId: this.toolId,
             resource: "JOB",
             columns: this._getDefaultColumns(),
-            // Uncomment in case we need to change defaults
-            // create: {
-            //     display: {
-            //         modalTitle: "Job Create",
-            //         modalDraggable: true,
-            //         disabled: true,
-            //         disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
-            //         modalCyDataName: "modal-create",
-            //     },
-            //     render: () => html `
-            //         <job-create
-            //             .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-            //             .opencgaSession="${this.opencgaSession}">
-            //         </job-create>`
-            // },
-            // export: {
-            //     display: {
-            //         modalTitle: "Job Export",
-            //     },
-            //     render: () => html`
-            //         <opencga-export
-            //             .config="${this._config}"
-            //             .query=${this.query}
-            //             .opencgaSession="${this.opencgaSession}"
-            //             @export="${this.onExport}"
-            //             @changeExportField="${this.onChangeExportField}">
-            //         </opencga-export>`
-            // },
-            // settings: {
-            //     display: {
-            //         modalTitle: "Job Settings",
-            //     },
-            //     render: () => html `
-            //         <catalog-browser-grid-config
-            //             .opencgaSession="${this.opencgaSession}"
-            //             .gridColumns="${this._columns}"
-            //             .config="${this._config}"
-            //             @configChange="${this.onGridConfigChange}">
-            //         </catalog-browser-grid-config>`
-            // }
         };
+
+        this.gridCommons.registerModals({
+            "view-job": () => ({
+                display: {
+                    modalTitle: `Job ${this._selectedJob?.id}`,
+                    modalDraggable: true,
+                    modalCyDataName: "job-view",
+                    modalSize: "modal-lg"
+                },
+                render: active => html`
+                    <job-view
+                        .jobId="${this._selectedJob?.id}"
+                        .active="${active}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </job-view>
+                `,
+            }),
+        });
 
         this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
@@ -833,6 +814,7 @@ export default class JobGrid extends LitElement {
             ${this.renderModalRetry()}
             ${this.renderModalKill()}
             ${this.renderModalUpdate()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
