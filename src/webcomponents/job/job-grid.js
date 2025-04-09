@@ -388,32 +388,23 @@ export default class JobGrid extends LitElement {
         return result;
     }
 
-    async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase();
+    onActionClick(event, job) {
+        const action = event.target.dataset.action?.toLowerCase();
         switch (action) {
             case "retry":
                 this.jobRetryObj = row;
-                this.requestUpdate();
-                // await this.updateComplete;
-                ModalUtils.show(`${this._prefix}RetryModal`);
                 break;
             case "kill":
                 this.jobKillObj = row;
-                this.requestUpdate();
-                // await this.updateComplete;
-                ModalUtils.show(`${this._prefix}KillModal`);
                 break;
             case "edit":
                 this.jobUpdateId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
                 break;
             case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                UtilsNew.copyToClipboard(JSON.stringify(job, null, "\t"));
                 break;
             case "download-json":
-                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                UtilsNew.downloadData([JSON.stringify(job, null, "\t")], job.id + ".json");
                 break;
         }
     }
@@ -584,56 +575,39 @@ export default class JobGrid extends LitElement {
                 title: "Actions",
                 align: "center",
                 formatter: (value, row) => {
-                    const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
-                        this.opencgaSession.study,
-                        this.opencgaSession.user.id,
-                        this.permissionID,
-                        this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+                    // const hasWritePermission = this.gridCommons.hasPermission("WRITE");
                     return `
                         <div class="d-inline-block dropdown">
-                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
-                                <span>Actions</span>
+                            <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
+                                <i class="fas fa-ellipsis-v"></i>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a data-action="copy-json" class="dropdown-item" href="javascript: void 0">
-                                        <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
-                                    </a>
-                                </li>
-                                <li>
-                                    <a data-action="download-json" class="dropdown-item" href="javascript: void 0" >
-                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a data-action="retry" class="dropdown-item" href="javascript: void 0">
-                                        <i class="fas fa-sync me-1" aria-hidden="true"></i> Retry ...
-                                    </a>
-                                </li>
-                                <li>
-                                    <a data-action="kill" class="dropdown-item" href="javascript: void 0">
-                                        <i class="fas fa-skull me-1" aria-hidden="true"></i> Kill ...
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a data-action="edit" class="dropdown-item disabled ${hasWritePermission ? "" : "disabled"}" href="javascript: void 0">
-                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                                    </a>
-                                </li>
-                                <li>
-                                    <a data-action="delete" class="dropdown-item disabled" href="javascript: void 0">
-                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                                    </a>
-                                </li>
-                            </ul>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a data-action="copy-json" class="dropdown-item cursor-pointer">
+                                    <i class="fas fa-copy me-1"></i> Copy JSON
+                                </a>
+                                <a data-action="download-json" class="dropdown-item cursor-pointer">
+                                    <i class="fas fa-download me-1"></i> Download JSON
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a data-action="retry" class="dropdown-item cursor-pointer">
+                                    <i class="fas fa-sync me-1"></i> Retry
+                                </a>
+                                <a data-action="kill" class="dropdown-item cursor-pointer">
+                                    <i class="fas fa-skull me-1"></i> Kill
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a data-action="edit" class="dropdown-item disabled">
+                                    <i class="fas fa-edit me-1"></i> Edit
+                                </a>
+                                <a data-action="delete" class="dropdown-item disabled">
+                                    <i class="fas fa-trash me-1"></i> Delete
+                                </a>
+                            </div>
                         </div>
                     `;
                 },
                 events: {
-                    "click a": (event, value, job) => this.onActionClick(event, value, job),
+                    "click a": (event, value, job) => this.onActionClick(event, job),
                 },
                 visible: this.gridCommons.isColumnVisible("actions"),
             });
