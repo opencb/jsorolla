@@ -20,7 +20,6 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import ModalUtils from "../commons/modal/modal-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "./note-create.js";
@@ -127,6 +126,30 @@ export default class NoteGrid extends LitElement {
                     </note-create>
                 `,
             },
+            "update-note": () => ({
+                display: {
+                    modalTitle: `Update Note ${this._selectedNote?.id}`,
+                    modalDraggable: true,
+                    modalCyDataName: "note-update",
+                    modalSize: "modal-lg"
+                },
+                render: active => html`
+                    <note-update
+                        .noteId="${this._selectedNote?.id}"
+                        .noteScope="${this._selectedNote?.scope}"
+                        .active="${active}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @noteUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </note-update>
+                `,
+            }),
         });
     }
 
@@ -455,14 +478,12 @@ export default class NoteGrid extends LitElement {
         });
     }
 
-    async onActionClick(e, _, row) {
+    onActionClick(e, _, row) {
         const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
         switch (action) {
             case "edit":
-                this.noteUpdate = row;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
+                this._selectedNote = row;
+                this.gridCommons.changeActiveModal("update-note");
                 break;
             case "copy-json":
                 this.fetchNote({id: row.id, scope: row.scope})
@@ -491,26 +512,6 @@ export default class NoteGrid extends LitElement {
                 this.onDeleteNote(row);
                 break;
         }
-    }
-
-    renderModalUpdate() {
-        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-            display: {
-                modalTitle: `Update Note: ${this.noteUpdate?.id}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-update",
-                modalSize: "modal-lg"
-            },
-            render: active => html`
-                <note-update
-                    .noteId="${this.noteUpdate?.id}"
-                    .noteScope="${this.noteUpdate?.scope}"
-                    .active="${active}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}">
-                </note-update>
-            `,
-        });
     }
 
     getRightToolbar() {
@@ -553,7 +554,6 @@ export default class NoteGrid extends LitElement {
             </div>
 
             ${this.gridCommons.renderModals()}
-            ${this.renderModalUpdate()}
         `;
     }
 
