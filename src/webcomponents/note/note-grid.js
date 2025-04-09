@@ -544,12 +544,10 @@ export default class NoteGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            multiSelection: false,
-            showSelectCheckbox: false,
+
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
             showExport: false,
             showSettings: true,
             exportTabs: ["download", "link", "code"],
