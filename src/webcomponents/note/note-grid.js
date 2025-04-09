@@ -395,21 +395,18 @@ export default class NoteGrid extends LitElement {
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
                 id: "actions",
-                title: "Actions",
-                field: "actions",
-                align: "center",
-                formatter: (value, row) => this.actionsFormatter(value, row),
+                align: "right",
+                formatter: (value, row) => this.actionsFormatter(row),
                 events: {
-                    "click a": this.onActionClick.bind(this),
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
-                // visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
         this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
     }
 
-    actionsFormatter(value, row) {
+    actionsFormatter(row) {
         const user = this.opencgaSession?.user?.id;
         let hasAdminPermissions = false;
         // Case 1: user is an admin organization or owner. In this case, he has permission to perform any action
@@ -475,15 +472,15 @@ export default class NoteGrid extends LitElement {
         });
     }
 
-    onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
+    onActionClick(event, note) {
+        const action = event.target?.dataset?.action?.toLowerCase() || event.detail.action;
         switch (action) {
             case "edit":
-                this._selectedNote = row;
+                this._selectedNote = note;
                 this.gridCommons.changeActiveModal("update-note");
                 break;
             case "copy-json":
-                this.fetchNote({id: row.id, scope: row.scope})
+                this.fetchNote({id: note.id, scope: note.scope})
                     .then(response => {
                         UtilsNew.copyToClipboard(JSON.stringify(response.responses[0].results[0], null, "\t"));
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -496,9 +493,9 @@ export default class NoteGrid extends LitElement {
                     });
                 break;
             case "download-json":
-                this.fetchNote({id: row.id, scope: row.scope})
+                this.fetchNote({id: note.id, scope: note.scope})
                     .then(response => {
-                        UtilsNew.downloadData([JSON.stringify(response.responses[0].results[0], null, "\t")], row.id + ".json");
+                        UtilsNew.downloadData([JSON.stringify(response.responses[0].results[0], null, "\t")], note.id + ".json");
                     })
                     .catch(error => {
                         console.error(error);
@@ -506,7 +503,7 @@ export default class NoteGrid extends LitElement {
                     });
                 break;
             case "delete":
-                this.onDeleteNote(row);
+                this.onDeleteNote(note);
                 break;
         }
     }
