@@ -17,17 +17,17 @@
 context("Sample Browser Grid", () => {
     beforeEach(() => {
         cy.visit("#sample-browser-grid");
-        cy.get(`div[data-cy="sample-browser-container"]`)
-            .as("container");
+        cy.get("sample-grid")
+            .as("sample-grid");
         cy.waitUntil(() => {
-            return cy.get("@container")
+            return cy.get("@sample-grid")
                 .should("be.visible");
         });
     });
 
     context("toolbar", () => {
         beforeEach(() => {
-            cy.get("@container")
+            cy.get("@sample-grid")
                 .find("opencb-grid-toolbar")
                 .as("toolbar");
         });
@@ -58,15 +58,15 @@ context("Sample Browser Grid", () => {
 
     context("create a sample", () => {
         beforeEach(() => {
-            cy.get("@container")
+            cy.get("@sample-grid")
                 .contains("button", "Create Sample")
                 .click();
-            cy.get("@container")
+            cy.get("@sample-grid")
                 .find(`div[data-cy="sample-create"]`)
                 .as("modal-sample-create");
         });
 
-        it("should render the modal for creating a sample", () => {
+        it("should display the modal for creating a sample when clicking the 'Create Sample' button", () => {
             cy.get("@modal-sample-create")
                 .find("div.modal-dialog")
                 .should("be.visible");
@@ -102,11 +102,11 @@ context("Sample Browser Grid", () => {
 
     context("update a sample", () => {
         beforeEach(() => {
-            cy.get("@container")
+            cy.get("@sample-grid")
                 .find(`table tbody tr td button[data-cy="actions-button"]`)
                 .first()
                 .click();
-            cy.get("@container")
+            cy.get("@sample-grid")
                 .find(`a[data-action="edit"]`)
                 .first()
                 .click();
@@ -114,7 +114,7 @@ context("Sample Browser Grid", () => {
                 .as("modal-sample-update");
         });
 
-        it("should render the modal for updating a sample", () => {
+        it("should display the modal for updating a sample when clicking the 'Edit' action", () => {
             cy.get("@modal-sample-update")
                 .find("div.modal-dialog")
                 .should("be.visible");
@@ -152,28 +152,29 @@ context("Sample Browser Grid", () => {
     });
 
     context("settings", () => {
-        it("should render the settings modal when clicking on the 'Settings' button", () => {
-            cy.get("@container")
+        it("should display the settings modal when clicking on the 'Settings' button", () => {
+            cy.get("@sample-grid")
                 .find(`button[data-action="settings"]`)
                 .click();
             cy.get("div.modal-dialog")
                 .should("be.visible");
         });
 
-        it("should allow to hide columns in the grid",() => {
+        it("should allow to hide columns in the grid", () => {
             const columns = ["Collection Method", "Preparation Method"];
 
-            cy.get("sample-grid thead th")
+            cy.get("@sample-grid")
+                .find("thead th")
                 .as("headerColumns");
-            columns.forEach(col => {
+            columns.forEach(column => {
                 cy.get("@headerColumns")
-                    .contains("div",col)
+                    .contains("div", column)
                     .should("be.visible");
             });
-            cy.get("@container")
+            cy.get("@sample-grid")
                 .find(`button[data-action="settings"]`)
                 .click();
-            cy.get("@container")
+            cy.get("@sample-grid")
                 .find(`div[data-testid="test-columns"] select-field-filter`)
                 .as("columnsSelector");
             cy.get("@columnsSelector")
@@ -188,28 +189,22 @@ context("Sample Browser Grid", () => {
             cy.get("@columnsSelector")
                 .find(".select2-selection")
                 .click();
-            cy.get("@container")
+            cy.get("@sample-grid")
                 .find(".modal-body")
                 .contains("button", "OK")
                 .click();
 
             cy.get("@headerColumns")
                 .should($header => {
-                    const _columns = Array.from($header, th => th.textContent.trim());
+                    const visibleColumns = Array.from($header, th => th.textContent.trim());
                     columns.forEach(col => {
-                        expect(col).not.to.be.oneOf(_columns);
+                        expect(col).not.to.be.oneOf(visibleColumns);
                     });
                 });
         });
     });
 
     context("grid", () => {
-        beforeEach(() => {
-            cy.get("@container")
-                .find("sample-grid")
-                .as("sample-grid");
-        });
-
         context("content", () => {
             it("should render a <table> element", () => {
                 cy.get("@sample-grid")
@@ -217,19 +212,19 @@ context("Sample Browser Grid", () => {
                     .should("be.visible");
             });
 
-            it("should render at least one row in the table", () => {
+            it("should display at least one row in the table", () => {
                 cy.get("@sample-grid")
                     .find("tbody tr")
                     .should("be.visible");
             });
 
-            it("should render at least one column in the table", () => {
+            it("should display at least one column in the table", () => {
                 cy.get("@sample-grid")
                     .find("thead tr th")
                     .should("be.visible");
             });
 
-            it("should render titles in of each column", () => {
+            it("should display titles in of each column", () => {
                 cy.get("@sample-grid")
                     .find(`thead tr th div[class="th-inner "]`)
                     .first()
