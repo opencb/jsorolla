@@ -19,8 +19,6 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import ModalUtils from "../commons/modal/modal-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -129,6 +127,35 @@ export default class JobGrid extends LitElement {
                         .opencgaSession="${this.opencgaSession}">
                     </job-view>
                 `,
+            }),
+            "kill-job": () => ({
+                display: {
+                    modalTitle: "Kill Job",
+                    modalDraggable: true,
+                    modalbtnsVisible: true,
+                    modalSize: "modal-md",
+                    okButtonText: "Kill Job",
+                },
+                render: () => html`
+                    <div>This will kill a queued or running Job. Are you sure do you want to kill <b>${this._selectedJob?.id}</b>?</div>
+                `,
+                onOk: event => this.onJobKill(event),
+            }),
+            "retry-job": () => ({
+                display: {
+                    modalTitle: "Retry Job",
+                    modalDraggable: true,
+                    modalbtnsVisible: true,
+                    modalSize: "modal-md",
+                    okButtonText: "Retry Job",
+                },
+                render: () => html`
+                    <div>
+                        <span>This will execute a new Job with the same parameters as the original job. </span>
+                        <span>Are you sure do you want to execute again <b>${this.jobRetryObj?.id}</b>?</span>
+                    </div>
+                `,
+                onOk: event => this.onJobRetry(event),
             }),
         });
 
@@ -396,13 +423,12 @@ export default class JobGrid extends LitElement {
                 this.gridCommons.changeActiveModal("view-job");
                 break;
             case "retry":
-                this.jobRetryObj = row;
+                this._selectedJob = job;
+                this.gridCommons.changeActiveModal("retry-job");
                 break;
             case "kill":
-                this.jobKillObj = row;
-                break;
-            case "edit":
-                this.jobUpdateId = row.id;
+                this._selectedJob = job;
+                this.gridCommons.changeActiveModal("kill-job");
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(job, null, "\t"));
@@ -663,14 +689,15 @@ export default class JobGrid extends LitElement {
     }
 
     onJobRetry() {
-        const params = {
-            study: this.opencgaSession.study.fqn
+        const data = {
+            job: this._selectedJob.id,
         };
         this.opencgaSession.opencgaClient.jobs()
-            .retry({job: this.jobRetryObj?.id}, params)
+            .retry(data, {
+                study: this.opencgaSession.study.fqn,
+            })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    // title: "Job Retry",
                     message: "Job executed correctly"
                 });
             })
@@ -680,14 +707,12 @@ export default class JobGrid extends LitElement {
     }
 
     onJobKill() {
-        const params = {
-            study: this.opencgaSession.study.fqn
-        };
         this.opencgaSession.opencgaClient.jobs()
-            .kill(this.jobKillObj?.id, params)
+            .kill(this._selectedJob.id, {
+                study: this.opencgaSession.study.fqn,
+            })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    // title: "Kill Job",
                     message: "Job killed correctly"
                 });
             })
@@ -706,62 +731,6 @@ export default class JobGrid extends LitElement {
                 `,
             }
         ];
-    }
-
-    renderModalRetry() {
-        return ModalUtils.create(this, `${this._prefix}RetryModal`, {
-            display: {
-                modalTitle: "Retry Job",
-                modalDraggable: true,
-                modalbtnsVisible: true,
-                modalSize: "modal-lg",
-                okButtonText: "Retry Job",
-            },
-            render: () => {
-                return html`
-                    <div>This will execute a new Job with the same parameters as the original job.
-                        Are you sure do you want to execute again <b>${this.jobRetryObj?.id}</b>?
-                    </div>
-                `;
-            },
-            onOk: e => this.onJobRetry(e)
-        });
-    }
-
-    renderModalKill() {
-        return ModalUtils.create(this, `${this._prefix}KillModal`, {
-            display: {
-                modalTitle: "Kill Job",
-                modalDraggable: true,
-                modalbtnsVisible: true,
-                modalSize: "modal-lg",
-                okButtonText: "Kill Job",
-            },
-            render: () => {
-                return html`
-                    <div>This will kill a queued or running Job. Are you sure do you want to kill <b>${this.jobRetryObj?.id}</b>?</div>
-                `;
-            },
-            onOk: e => this.onJobKill(e)
-        });
-    }
-
-    renderModalUpdate() {
-        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-            display: {
-                modalTitle: "Update Job",
-                modalDraggable: true,
-                modalSize: "modal-lg",
-            },
-            render: active => html`
-                <job-update
-                    .jobId="${this.jobUpdateId}"
-                    .active="${active}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}">
-                </job-update>
-            `,
-        });
     }
 
     renderToolbarLeftContent() {
@@ -792,9 +761,6 @@ export default class JobGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${this.renderModalRetry()}
-            ${this.renderModalKill()}
-            ${this.renderModalUpdate()}
             ${this.gridCommons.renderModals()}
         `;
     }
