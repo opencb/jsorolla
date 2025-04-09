@@ -570,9 +570,12 @@ export default class JobGrid extends LitElement {
                 field: "execution",
                 formatter: (_, row) => {
                     const execution = row.execution;
-                    return execution?.start ?
-                    moment(execution.start).format("D MMM YYYY, h:mm:ss a") + " / " + (execution?.end ? moment(execution.end).format("D MMM YYYY, h:mm:ss a") : "-") :
-                    "-";
+                    const values = [];
+                    if (execution?.start) {
+                        values.push(moment(execution.start).format("D MMM YYYY, h:mm:ss a"));
+                        values.push(execution?.end ? moment(execution.end).format("D MMM YYYY, h:mm:ss a") : "-");
+                    }
+                    return values.join(" / ") || "-";
                 },
                 visible: this.gridCommons.isColumnVisible("executionD")
             },
