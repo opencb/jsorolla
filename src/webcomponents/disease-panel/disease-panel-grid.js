@@ -26,6 +26,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/catalog-browser-grid-config.js";
 import "../commons/opencb-grid-toolbar.js";
+import "./disease-panel-view.js";
 import "./disease-panel-update.js";
 import "./disease-panel-create.js";
 
@@ -66,9 +67,11 @@ export default class DiseasePanelGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "disease-panel-grid";
+        this.RESOURCE = "DISEASE_PANEL";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
+        this._selectedDiseasePanel = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -103,7 +106,7 @@ export default class DiseasePanelGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             toolId: this.toolId,
-            resource: "DISEASE_PANEL",
+            resource: this.RESOURCE,
             columns: this._getDefaultColumns(),
             create: {
                 display: {
@@ -146,6 +149,24 @@ export default class DiseasePanelGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
+
+        this.gridCommons.registerModals({
+            "view-disease-panel": () => ({
+                display: {
+                    modalTitle: `Disease Panel ${this._selectedDiseasePanel?.id}`,
+                    modalDraggable: true,
+                    modalCyDataName: "modal-disease-panel-view",
+                    modalSize: "modal-xlg"
+                },
+                render: () => html`
+                    <disease-panel-view
+                        .diseasePanelId="${this._selectedDiseasePanel?.id}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </disease-panel-view>
+                `,
+            }),
+        });
 
         this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
@@ -623,7 +644,7 @@ export default class DiseasePanelGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${this.renderModalUpdate()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 

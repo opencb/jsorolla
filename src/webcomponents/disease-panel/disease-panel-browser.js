@@ -17,11 +17,7 @@
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
-import "./disease-panel-gene-view.js";
-import "./disease-panel-region-view.js";
-import "./disease-panel-summary.js";
 import "./disease-panel-grid.js";
-import "./disease-panel-view.js";
 
 export default class DiseasePanelBrowser extends LitElement {
 
@@ -127,16 +123,9 @@ export default class DiseasePanelBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
                             @queryComplete="${e => params.onQueryComplete(e)}"
-                            @selectrow="${e => params.onClickRow(e)}"
                             @diseasePanelUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </disease-panel-grid>
-                        ${params?.detail ? html`
-                            <disease-panel-view
-                                .opencgaSession="${params.opencgaSession}"
-                                .diseasePanelId="${params.detail?.id}">
-                            </disease-panel-view>
-                        ` : nothing}
                     `,
                 },
                 {
