@@ -24,6 +24,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "./clinical-analysis-view.js";
 
 export default class ClinicalAnalysisGrid extends LitElement {
 
@@ -59,9 +60,11 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "clinical-analysis-grid";
+        this.RESOURCE = "CLINICAL_ANALYSIS";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
+        this._selectedClinicalAnalysis = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -93,14 +96,12 @@ export default class ClinicalAnalysisGrid extends LitElement {
         // Settings for the grid toolbar
         this.toolbarSetting = {
             ...this._config,
-            newButtonLink: "#clinical-analysis-create/",
-            // columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
         };
 
         // Config for the grid toolbar
         this.toolbarConfig = {
             toolId: this.toolId,
-            resource: "CLINICAL_ANALYSIS",
+            resource: this.RESOURCE,
             columns: this._getDefaultColumns(),
             create: {
                 display: {
@@ -117,6 +118,24 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 `,
             }
         };
+
+        this.gridCommons.registerModals({
+            "view-clinical-analysis": () => ({
+                display: {
+                    modalTitle: `ClinicalAnalysis ${this._selectedClinicalAnalysis?.id}`,
+                    modalDraggable: true,
+                    modalCyDataName: "moda-clinical-analysis-view",
+                    modalSize: "modal-xl"
+                },
+                render: () => html`
+                    <clinical-analysis-view
+                        .clinicalAnalysisId="${this._selectedClinicalAnalysis?.id}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-analysis-view>
+                `,
+            }),
+        });
     }
 
     renderRemoteTable() {
@@ -792,6 +811,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
+
+            ${this.gridCommons.renderModals()}
 
             ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
                 display: {

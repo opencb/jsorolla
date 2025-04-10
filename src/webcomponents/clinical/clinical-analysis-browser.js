@@ -18,7 +18,6 @@ import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "./clinical-analysis-grid.js";
-import "./clinical-analysis-view.js";
 import "./clinical-analysis-group.js";
 
 export default class ClinicalAnalysisBrowser extends LitElement {
@@ -134,17 +133,10 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .active="${params.active}"
                             @queryComplete="${e => params.onQueryComplete(e)}"
-                            @selectrow="${e => params.onClickRow(e)}"
                             @rowUpdate="${e => params.onComponentUpdate(e)}"
                             @clinicalAnalysisUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </clinical-analysis-grid>
-                        ${params?.detail ? html`
-                            <clinical-analysis-view
-                                .opencgaSession="${params.opencgaSession}"
-                                .clinicalAnalysisId="${params.detail?.id}">
-                            </clinical-analysis-view>
-                        ` : nothing}
                     `,
                 },
                 {
