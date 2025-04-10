@@ -169,6 +169,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
         });
     }
 
+    fetchData(query) {
+        return this.opencgaSession.opencgaClient.clinical().search(query);
+    }
+
     renderRemoteTable() {
         if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
             if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
@@ -258,14 +262,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 onPostBody: () => {}
             });
         }
-    }
-
-    fetchData(query) {
-        return this.opencgaSession.opencgaClient.clinical().search(query);
-    }
-
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
     }
 
     caseFormatter(value, row) {
@@ -808,19 +804,29 @@ export default class ClinicalAnalysisGrid extends LitElement {
         `;
     }
 
+    getRightToolbar() {
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        return [
+            {
+                icon: "fa-plus",
+                title: "Create Clinical Analysis",
+                disabled: !hasWritePermission,
+                onClick: () => this.gridCommons.changeActiveModal("create-clinical-analysis"),
+            },
+        ];
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
                     .opencgaSession="${this.opencgaSession}"
                     .leftContent="${this.renderToolbarLeftContent()}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @clinicalAnalysisCreate="${this.renderRemoteTable}">
+                    @export="${this.onDownload}">
                 </opencb-grid-toolbar>
             ` : nothing}
 
