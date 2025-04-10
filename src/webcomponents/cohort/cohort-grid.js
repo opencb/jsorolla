@@ -291,20 +291,6 @@ export default class CohortGrid extends LitElement {
         }
     }
 
-    onActionClick(event, cohort) {
-        const action = event.target.dataset.action?.toLowerCase();
-        switch (action) {
-            case "view":
-                this._selectedCohort = cohort;
-                this.gridCommons.changeActiveModal("view-cohort");
-                break;
-            case "edit":
-                this._selectedCohort = cohort;
-                this.gridCommons.changeActiveModal("update-cohort");
-                break;
-        }
-    }
-
     _getDefaultColumns() {
         this._columns = [
             {
@@ -332,47 +318,60 @@ export default class CohortGrid extends LitElement {
                 formatter: CatalogGridFormatter.dateFormatter,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
+            {
+                id: "actions",
+                align: "right",
+                formatter: () => this.actionsFormatter(),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                visible: this._config.showActions && this.gridCommons.isColumnVisible("actions"),
+            },
         ];
 
         if (this._config.annotations?.length > 0) {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
 
-        if (this.opencgaSession && this._config.showActions) {
-            this._columns.push({
-                id: "actions",
-                align: "right",
-                formatter: () => {
-                    const hasWritePermission = this.gridCommons.hasPermission("WRITE");
-                    return `
-                        <div class="d-inline-block dropdown">
-                            <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a data-action="view" class="dropdown-item cursor-pointer">
-                                    <i class="fas fa-eye me-1"></i> View
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
-                                    <i class="fas fa-edit me-1"></i> Edit
-                                </a>
-                                <a data-action="delete" class="dropdown-item disabled">
-                                    <i class="fas fa-trash me-1"></i> Delete
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                },
-                events: {
-                    "click a": (event, value, row) => this.onActionClick(event, row),
-                },
-                visible: this.gridCommons.isColumnVisible("actions"),
-            });
-        }
-
         this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
+    }
+
+    actionsFormatter() {
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        return `
+            <div class="d-inline-block dropdown">
+                <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a data-action="view" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-eye me-1"></i> View
+                    </a>
+                    <hr class="dropdown-divider">
+                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </a>
+                    <a data-action="delete" class="dropdown-item disabled">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </a>
+                </div>
+            </div>
+        `;
+    }
+
+    onActionClick(event, cohort) {
+        const action = event.target.dataset.action?.toLowerCase();
+        switch (action) {
+            case "view":
+                this._selectedCohort = cohort;
+                this.gridCommons.changeActiveModal("view-cohort");
+                break;
+            case "edit":
+                this._selectedCohort = cohort;
+                this.gridCommons.changeActiveModal("update-cohort");
+                break;
+        }
     }
 
     async onDownload(e) {
