@@ -245,19 +245,132 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
     }
 
+    removeRowTable(clinicalAnalysisId) {
+        const data = this.table.bootstrapTable("getData");
+        this.table.bootstrapTable("remove", {
+            field: "id",
+            values: [clinicalAnalysisId]
+        });
+        if (data?.length === 0) {
+            this.table.bootstrapTable("prevPage");
+            this.table.bootstrapTable("refresh");
+        }
+    }
+
+    _getDefaultColumns() {
+        this._columns = [
+            {
+                id: "caseId",
+                title: "Case",
+                field: "id",
+                valign: "middle",
+                formatter: (value, row) => this.caseFormatter(value, row),
+                visible: this.gridCommons.isColumnVisible("caseId")
+            },
+            {
+                id: "probandId",
+                title: "Proband (Sample) and Family",
+                field: "proband",
+                valign: "middle",
+                formatter: (value, row) => this.probandFormatter(value, row),
+                visible: this.gridCommons.isColumnVisible("probandId")
+            },
+            {
+                id: "disorderId",
+                title: "Clinical Condition / Panel",
+                field: "disorder",
+                valign: "middle",
+                formatter: (value, row) => {
+                    const panelHtml = row.panels?.length > 0 ? CatalogGridFormatter.panelFormatter(row.panels) : "-";
+                    return `
+                        <div class="mb-1">${CatalogGridFormatter.disorderFormatter([value], row)}</div>
+                        <div class="mb-1">${panelHtml}</div>
+                    `;
+                },
+                visible: this.gridCommons.isColumnVisible("disorderId")
+            },
+            {
+                id: "interpretation",
+                title: "Interpretation",
+                field: "interpretation",
+                valign: "middle",
+                formatter: (value, row) => this.interpretationFormatter(value, row),
+                visible: this.gridCommons.isColumnVisible("interpretation")
+            },
+            {
+                id: "status",
+                title: "Status",
+                field: "status",
+                valign: "middle",
+                formatter: (value, row) => this.statusFormatter(value, row),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                visible: this.gridCommons.isColumnVisible("status"),
+            },
+            {
+                id: "priority",
+                title: "Priority",
+                field: "priority",
+                valign: "middle",
+                formatter: (value, row) => this.priorityFormatter(value, row),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                visible: this.gridCommons.isColumnVisible("priority"),
+            },
+            {
+                id: "analysts",
+                title: "Analysts",
+                field: "analysts",
+                valign: "middle",
+                formatter: value => this.analystsFormatter(value),
+                visible: this.gridCommons.isColumnVisible("analysts"),
+            },
+
+            {
+                id: "dates",
+                title: "Due / Creation Date",
+                field: "Dates",
+                valign: "middle",
+                formatter: (field, clinicalAnalysis) => {
+                    const dueDateString = UtilsNew.dateFormatter(clinicalAnalysis.dueDate);
+                    const dueDate = new Date(dueDateString);
+                    const currentDate = new Date();
+                    let dueDateClass = null;
+                    if (currentDate > dueDate) {
+                        dueDateClass = "text-danger";
+                    }
+                    return `
+                        <div class="${dueDateClass}">${dueDateString}</div>
+                        <div class="text-body-secondary">${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}</div>
+                    `;
+                },
+                visible: this.gridCommons.isColumnVisible("dates"),
+            },
+            {
+                id: "actions",
+                align: "right",
+                formatter: (value, row) => this.actionsFormatter(value, row),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                visible: this._config.showActions && this.gridCommons.isColumnVisible("actions"),
+            },
+        ];
+
+        this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
+        return this._columns;
+    }
+
     caseFormatter(value, row) {
         if (row?.id) {
             const url = WebUtils.getInterpreterLink(this.opencgaSession, row.id);
             return `
-                <div class="mt-1 me-0">
-                    <a class="text-decoration-none" title="Go to Case Interpreter" href="${url}" data-cy="case-id">
-                        ${row.id}
-                        ${row.locked ? "<i class=\"fas fa-lock\" aria-hidden=\"true\" style=\"padding-left:4px;\"></i>" : ""}
-                    </a>
-                </div>
-                <div class="mt-1 me-0"  data-cy="case-type">
-                    <span class="form-text">${row.type}</span>
-                </div>
+                <a class="d-block text-decoration-none" title="Go to Case Interpreter" href="${url}" data-cy="case-id">
+                    ${row.id} ${row.locked ? `<i class="fas fa-lock ms-1"></i>` : ""}
+                </a>
+                <div class="text-secondary" data-cy="case-type">${row.type}</div>
             `;
         }
         return "-";
@@ -267,14 +380,14 @@ export default class ClinicalAnalysisGrid extends LitElement {
         if (row.proband) {
             const samplesHtml = row.proband?.samples?.map(sample => `<span data-cy="proband-sample-id">${sample.id}</span>`)?.join("");
             return `
-                <div class="mt-1 me-0">
-                    <span data-cy="proband-id" class="fw-bold mt-1 me-0">${row.proband?.id || "-"}</span>
-                    <span data-cy="proband-id" class="text-body-secondary d-inline m-1">(${samplesHtml})</span>
+                <div class="">
+                    <span data-cy="proband-id" class="fw-bold">${row.proband?.id || "-"}</span>
+                    <span data-cy="proband-id" class="text-secondary ms-1">(${samplesHtml})</span>
                 </div>
                 ${row.family?.id ? `
-                    <div>
-                        <span data-cy="family-id" class="mt-1 me-0">${row.family.id}</span>
-                        <span data-cy="proband-id" class="text-body-secondary d-inline m-1">(${row.family.members?.length || 0} members)</span>
+                    <div class="">
+                        <span data-cy="family-id">${row.family.id}</span>
+                        <span data-cy="proband-id" class="text-secondary ms-1">(${row.family.members?.length || 0} members)</span>
                     </div>
                 ` : ""}
             `;
@@ -334,47 +447,28 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     priorityFormatter(value, row) {
         // TODO remove this code as soon as new OpenCGA configuration is in place
-        const _priorities = this.opencgaSession?.study?.internal?.configuration?.clinical?.priorities || [];
-
-        const hasWriteAccess = OpencgaCatalogUtils.getStudyEffectivePermission(
-            this.opencgaSession.study,
-            this.opencgaSession.user.id,
-            "WRITE_CLINICAL_ANALYSIS",
-            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+        const priorities = this.opencgaSession?.study?.internal?.configuration?.clinical?.priorities || [];
+        const hasWriteAccess = this.gridCommons.hasPermission("WRITE");
         const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // priority is editable
-        // Dropdown button styles and classes
-        const btnClassName = "btn btn-light btn-block dropdown-toggle";
-        const btnStyle = "display:inline-flex;align-items:center;";
-
-        // Current priority
-        const currentPriorityText = value?.id ?? value ?? "-";
-        const currentPriorityColor = WebUtils.getClinicalAnalysisPriorityColour(value?.rank);
-
         return `
             <div class="dropdown">
-                <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" style="${btnStyle}" ${isEditable ? "" : "disabled"}>
-                    <span class="badge ${currentPriorityColor} me-2 top-0">
-                        ${currentPriorityText}
+                <button class="btn btn-light dropdown-toggle ${isEditable ? "cursor-pointer" : "disabled"}" data-bs-toggle="dropdown">
+                    <span class="d-inline-flex badge ${WebUtils.getClinicalAnalysisPriorityColour(value?.rank)}">
+                        ${value?.id || "-"}
                     </span>
                 </button>
                 ${isEditable ? `
-                    <ul class="dropdown-menu">
-                        ${_priorities.map(priority => `
-                            <li>
-                                <a class="d-flex dropdown-item py-2" data-action="priorityChange" data-priority="${priority.id}" style="cursor:pointer;">
-                                    <div class="flex-grow-1">
-                                        <div>
-                                            <span class="badge ${WebUtils.getClinicalAnalysisPriorityColour(priority?.rank)}">
-                                                ${priority.id}
-                                            </span>
-                                        </div>
-                                        <div class="small text-secondary">${priority.description}</div>
-                                    </div>
-                                    ${priority.id === value?.id ? `<i class="fas fa-check"></i>` : ""}
-                                </a>
-                            </li>
+                    <div class="dropdown-menu">
+                        ${priorities.map(priority => `
+                            <a class="d-flex dropdown-item py-2 cursor-pointer align-items-center" data-action="priorityChange" data-priority="${priority.id}">
+                                <div class="flex-grow-1">
+                                    <div class="badge ${WebUtils.getClinicalAnalysisPriorityColour(priority?.rank)}">${priority.id}</div>
+                                    <div class="small text-secondary">${priority.description}</div>
+                                </div>
+                                ${priority.id === value?.id ? `<i class="fas fa-check ps-3"></i>` : ""}
+                            </a>
                         `).join("")}
-                    </ul>
+                    </div>
                 ` : ""}
             </div>
         `;
@@ -382,196 +476,46 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     statusFormatter(value, row) {
         const status = this.opencgaSession.study?.internal?.configuration?.clinical?.status || [];
-        const hasWriteAccess = OpencgaCatalogUtils.getStudyEffectivePermission(
-            this.opencgaSession.study,
-            this.opencgaSession.user.id,
-            "WRITE_CLINICAL_ANALYSIS",
-            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+        const hasWriteAccess = this.gridCommons.hasPermission("WRITE");
         const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // status is editable
-
-        const currentStatus = value.id || value.name || "-"; // Get current status
-
-        // Dropdown button styles and classes
-        // const btnClassName = "d-inline-flex align-items-center btn btn-light dropdown-toggle";
-        const btnClassName = "d-flex justify-content-between align-items-center btn btn-light dropdown-toggle w-100";
-        // const btnStyle = "display:inline-flex;align-items:center;";
-
         return `
             <div class="dropdown">
-                <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" ${isEditable ? "" : "disabled"}>
-                    <span class='me-auto'">${currentStatus}</span>
+                <button class="btn btn-light dropdown-toggle ${isEditable ? "cursor-pointer" : "disabled"}" data-bs-toggle="dropdown">
+                    ${value?.id || "-"}
                 </button>
                 ${isEditable ? `
-                    <ul class="dropdown-menu">
-                        ${status.map(({id, description}) => `
-                            <li>
-                                <a class="d-flex dropdown-item py-2" data-action="statusChange" data-status="${id}" style="cursor:pointer;">
-                                    <div class="flex-grow-1">
-                                        <div class="${id === currentStatus ? "fw-bold" : ""}">${id}</div>
-                                        <div class="small text-secondary">${description}</div>
-                                    </div>
-                                    ${id === currentStatus ? `<i class="fas fa-check"></i>` : ""}
-                                </a>
-                            </li>
+                    <div class="dropdown-menu">
+                        ${status.map(status => `
+                            <a class="d-flex dropdown-item py-2 cursor-pointer align-items-center" data-action="statusChange" data-status="${status.id}">
+                                <div class="flex-grow-1">
+                                    <div class="${status.id === value?.id ? "fw-bold" : ""}">${status.id}</div>
+                                    <div class="small text-secondary">${status.description}</div>
+                                </div>
+                                ${status.id === value?.id ? `<i class="fas fa-check ps-3"></i>` : ""}
+                            </a>
                         `).join("")}
-                    </ul>
+                    </div>
                 `: ""}
             </div>
         `;
     }
 
     analystsFormatter(analysts) {
-        let html = "-";
-        if (!analysts?.length) {
-            return html;
-        }
-
-        if (analysts?.length > 0) {
-            html = "<div>";
-            analysts.forEach(analyst => {
-                if (analyst?.id) {
-                    html += `
-                        <div style="margin: 2px 0; white-space: nowrap">
-                            <span data-cy="analyst-id">${analyst.id}</span>
-                        </div>
-                    `;
-                }
-            });
-            html += "</div>";
-        }
-        return html;
-    }
-
-    removeRowTable(clinicalAnalysisId) {
-        const data = this.table.bootstrapTable("getData");
-        this.table.bootstrapTable("remove", {
-            field: "id",
-            values: [clinicalAnalysisId]
+        const items = (analysts || []).map(analyst => {
+            if (analyst?.id) {
+                return `
+                    <div style="white-space: nowrap">
+                        <span data-cy="analyst-id">${analyst.id}</span>
+                    </div>
+                `;
+            }
+            return "";
         });
-        if (data?.length === 0) {
-            this.table.bootstrapTable("prevPage");
-            this.table.bootstrapTable("refresh");
-        }
-    }
-
-    _getDefaultColumns() {
-        this._columns = [
-            {
-                id: "caseId",
-                title: "Case",
-                field: "id",
-                halign: "center",
-                valign: "middle",
-                formatter: (value, row) => this.caseFormatter(value, row),
-                visible: this.gridCommons.isColumnVisible("caseId")
-            },
-            {
-                id: "probandId",
-                title: "Proband (Sample) and Family",
-                field: "proband",
-                halign: "center",
-                valign: "middle",
-                formatter: (value, row) => this.probandFormatter(value, row),
-                visible: this.gridCommons.isColumnVisible("probandId")
-            },
-            {
-                id: "disorderId",
-                title: "Clinical Condition / Panel",
-                field: "disorder",
-                halign: "center",
-                valign: "middle",
-                formatter: (value, row) => {
-                    const panelHtml = row.panels?.length > 0 ? CatalogGridFormatter.panelFormatter(row.panels) : "-";
-                    return `
-                        <div class="mb-1">${CatalogGridFormatter.disorderFormatter([value], row)}</div>
-                        <div class="mb-1">${panelHtml}</div>
-                    `;
-                },
-                visible: this.gridCommons.isColumnVisible("disorderId")
-            },
-            {
-                id: "interpretation",
-                title: "Interpretation",
-                field: "interpretation",
-                halign: "center",
-                valign: "middle",
-                formatter: (value, row) => this.interpretationFormatter(value, row),
-                visible: this.gridCommons.isColumnVisible("interpretation")
-            },
-            {
-                id: "status",
-                title: "Status",
-                field: "status",
-                halign: "center",
-                valign: "middle",
-                formatter: this.statusFormatter.bind(this),
-                events: {
-                    "click a": this.onActionClick.bind(this)
-                },
-                visible: this.gridCommons.isColumnVisible("status")
-            },
-            {
-                id: "priority",
-                title: "Priority",
-                field: "priority",
-                align: "center",
-                halign: "center",
-                valign: "middle",
-                formatter: this.priorityFormatter.bind(this),
-                events: {
-                    "click a": this.onActionClick.bind(this)
-                },
-                visible: this.gridCommons.isColumnVisible("priority")
-            },
-            {
-                id: "analysts",
-                title: "Analysts",
-                field: "analysts",
-                formatter: value => this.analystsFormatter(value),
-                halign: "center",
-                valign: "middle",
-                visible: this.gridCommons.isColumnVisible("analysts")
-            },
-
-            {
-                id: "dates",
-                title: "Due / Creation Date",
-                field: "Dates",
-                halign: "center",
-                valign: "middle",
-                formatter: (field, clinicalAnalysis) => {
-                    const dueDateString = UtilsNew.dateFormatter(clinicalAnalysis.dueDate);
-                    const dueDate = new Date(dueDateString);
-                    const currentDate = new Date();
-                    let dueDateClass = null;
-                    if (currentDate > dueDate) {
-                        dueDateClass = "text-danger";
-                    }
-                    return `
-                        <div class="${dueDateClass}">${dueDateString}</div>
-                        <div class="text-body-secondary">${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}</div>
-                    `;
-                },
-                visible: this.gridCommons.isColumnVisible("dates")
-            },
-            {
-                id: "actions",
-                align: "right",
-                formatter: (value, row) => this.actionsFormatter(value, row),
-                events: {
-                    "click a": (event, value, row) => this.onActionClick(event, row),
-                },
-                visible: this._config.showActions && this.gridCommons.isColumnVisible("actions"),
-            },
-        ];
-
-        this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
-        return this._columns;
+        return items.join("") || "-"
     }
 
     actionsFormatter(value, row) {
         const session = this.opencgaSession;
-        const url = `#interpreter/${session.project.id}/${session.study.id}/${row.id}`;
         const hasWritePermission = this.gridCommons.hasPermission("WRITE");
         const hasDeletePermission = this.gridCommons.hasPermission("DELETE") && !row.locked && row.analysts?.some(analyst => analyst.id === session.user.id);
         return `
@@ -580,7 +524,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a data-action="interpreter" class="dropdown-item" href="${url}">
+                    <a data-action="interpreter" class="dropdown-item" href="${WebUtils.getInterpreterLink(session, row.id)}">
                         <i class="fas fa-user-md me-1"></i> Case Interpreter
                     </a>
                     <a data-action="download" class="dropdown-item cursor-pointer">
