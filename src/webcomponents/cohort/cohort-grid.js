@@ -378,9 +378,7 @@ export default class CohortGrid extends LitElement {
         if (this.opencgaSession && this._config.showActions) {
             this._columns.push({
                 id: "actions",
-                title: "Actions",
-                field: "actions",
-                align: "center",
+                align: "right",
                 formatter: () => {
                     const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
                         this.opencgaSession.study,
@@ -389,27 +387,22 @@ export default class CohortGrid extends LitElement {
                         this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
                     return `
                         <div class="d-inline-block dropdown">
-                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
-                                <span>Actions</span>
+                            <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
+                                <i class="fas fa-ellipsis-v"></i>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "" : "disabled"}" href="javascript: void 0">
-                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                                    </a>
-                                </li>
-                                <li>
-                                    <a data-action="delete" class="dropdown-item btn force-text-left disabled" href="javascript: void 0">
-                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                                    </a>
-                                </li>
-                            </ul>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                                    <i class="fas fa-edit me-1"></i> Edit
+                                </a>
+                                <a data-action="delete" class="dropdown-item disabled">
+                                    <i class="fas fa-trash me-1"></i> Delete
+                                </a>
+                            </div>
                         </div>
                     `;
                 },
                 events: {
-                    "click a": this.onActionClick.bind(this),
+                    "click a": (event, value, row) => this.onActionClick(event, value, row),
                 },
                 visible: this.gridCommons.isColumnVisible("actions"),
             });
