@@ -15,11 +15,9 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/cohort/cohort-grid.js";
-import "../../../webcomponents/cohort/cohort-update.js";
-import "../../../webcomponents/cohort/cohort-create.js";
 
 class CohortBrowserGridTest extends LitElement {
 
@@ -49,7 +47,6 @@ class CohortBrowserGridTest extends LitElement {
             "cohorts-1000G.json",
         ];
         this._data = null;
-        this._selectedRow = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -70,7 +67,6 @@ class CohortBrowserGridTest extends LitElement {
             Promise.all(allPromises)
                 .then(data => {
                     this._data = data[0];
-                    this._selectedRow = this._data[0];
                     this.mutate();
                     this.requestUpdate();
                 })
@@ -92,30 +88,22 @@ class CohortBrowserGridTest extends LitElement {
         this.requestUpdate();
     }
 
-    onSelectRow(e) {
-        this._selectedRow = e.detail.row;
-        this.requestUpdate();
-    }
-
     render() {
         if (!this._data) {
-            return "Loading...";
+            return nothing;
         }
 
         return html`
-            <div data-cy="cohort-browser">
-                <h2 style="font-weight: bold;">
-                    Cohort Browser Grid (${this.FILES[0]})
-                </h2>
-                <cohort-grid
-                    .toolId="${this.COMPONENT_ID}"
-                    .cohorts="${this._data}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.grid}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}"
-                    @selectrow="${e => this.onSelectRow(e)}">
-                </cohort-grid>
-            </div>
+            <h2 class="fw-bold">
+                Cohort Browser Grid (${this.FILES[0]})
+            </h2>
+            <cohort-grid
+                .toolId="${this.COMPONENT_ID}"
+                .cohorts="${this._data}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config.grid}"
+                @settingsUpdate="${() => this.onSettingsUpdate()}">
+            </cohort-grid>
         `;
     }
 
