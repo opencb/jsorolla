@@ -108,46 +108,6 @@ export default class DiseasePanelGrid extends LitElement {
             toolId: this.toolId,
             resource: this.RESOURCE,
             columns: this._getDefaultColumns(),
-            create: {
-                display: {
-                    modalTitle: "Create Disease Panel",
-                    modalDraggable: true,
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
-                },
-                render: () => html`
-                    <disease-panel-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </disease-panel-create>
-                `,
-            }
-            // Uncomment in case we need to change defaults
-            // export: {
-            //     display: {
-            //         modalTitle: "Disease Panel Export",
-            //     },
-            //     render: () => html`
-            //         <opencga-export
-            //             .config="${this._config}"
-            //             .query=${this.query}
-            //             .opencgaSession="${this.opencgaSession}"
-            //             @export="${this.onExport}"
-            //             @changeExportField="${this.onChangeExportField}">
-            //         </opencga-export>`
-            // },
-            // settings: {
-            //     display: {
-            //         modalTitle: "Disease Panel Settings",
-            //     },
-            //     render: () => html `
-            //         <catalog-browser-grid-config
-            //             .opencgaSession="${this.opencgaSession}"
-            //             .gridColumns="${this._columns}"
-            //             .config="${this._config}"
-            //             @configChange="${this.onGridConfigChange}">
-            //         </catalog-browser-grid-config>`
-            // }
         };
 
         this.gridCommons.registerModals({
@@ -164,6 +124,51 @@ export default class DiseasePanelGrid extends LitElement {
                         .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
                     </disease-panel-view>
+                `,
+            }),
+            "create-disease-panel": {
+                display: {
+                    modalTitle: "Create Disease Panel",
+                    modalDraggable: true,
+                    modalCyDataName: "modal-disease-panel-create",
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <disease-panel-create
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .active="${true}"
+                        @diseasePanelCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </disease-panel-create>
+                `,
+            },
+            "update-disease-panel": () => ({
+                display: {
+                    modalTitle: `Update Disease Panel ${this._selectedDiseasePanel?.id}`,
+                    modalDraggable: true,
+                    modalCyDataName: "modal-disease-panel-update",
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <disease-panel-update
+                        .diseasePanelId="${this._selectedDiseasePanel?.id}"
+                        .active="${true}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @diseasePanelUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </disease-panel-update>
                 `,
             }),
         });
@@ -597,25 +602,6 @@ export default class DiseasePanelGrid extends LitElement {
             });
     }
 
-    renderModalUpdate() {
-        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-            display: {
-                modalTitle: `Update Disease Panel: ${this.diseasePanelUpdateId}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-update",
-                modalSize: "modal-lg"
-            },
-            render: active => html`
-                <disease-panel-update
-                    .diseasePanelId="${this.diseasePanelUpdateId}"
-                    .active="${active}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}">
-                </disease-panel-update>
-            `,
-        });
-    }
-
     renderToolbarLeftContent() {
         return html`
             <span id="${this.gridId + "PaginationInfo"}"></span>
@@ -623,7 +609,6 @@ export default class DiseasePanelGrid extends LitElement {
     }
 
     render() {
-        // CAUTION 20230517 Vero: the event dispatched from disease-panel-create.js is called sessionPanelUpdate.
         return html`
             ${this._config.showToolbar ? html`
                 <opencb-grid-toolbar
