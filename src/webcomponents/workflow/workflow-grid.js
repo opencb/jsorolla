@@ -466,10 +466,6 @@ export default class WorkflowGrid extends LitElement {
         `;
     }
 
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
     onActionClick(event, workflow) {
         const action = (event.currentTarget?.dataset?.action || "").toLowerCase();
         switch (action) {
@@ -583,22 +579,18 @@ export default class WorkflowGrid extends LitElement {
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <div class="mx-1 my-2">
-                    <opencb-grid-toolbar
-                        .resource="${"WORKFLOW"}"
-                        .toolId="${this.toolId}"
-                        .query="${this.query}"
-                        .leftContent="${this.renderToolbarLeftContent()}"
-                        .rightToolbar="${this.getRightToolbar()}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .settings="${this.toolbarSetting}"
-                        .config="${this.toolbarConfig}"
-                        @columnChange="${this.onColumnChange}"
-                        @download="${this.onDownload}"
-                        @export="${this.onDownload}"
-                        @actionClick="${e => this.onActionClick(e)}">
-                    </opencb-grid-toolbar>
-                </div>
+                <opencb-grid-toolbar
+                    .resource="${"WORKFLOW"}"
+                    .toolId="${this.toolId}"
+                    .query="${this.query}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
+                    .rightToolbar="${this.getRightToolbar()}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
+                </opencb-grid-toolbar>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
