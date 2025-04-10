@@ -333,10 +333,6 @@ export default class DiseasePanelGrid extends LitElement {
         });
     }
 
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
     _getDefaultColumns() {
         this._columns = [
             {
@@ -586,6 +582,18 @@ export default class DiseasePanelGrid extends LitElement {
         `;
     }
 
+    getRightToolbar() {
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        return [
+            {
+                icon: "fa-plus",
+                title: "Create Disease Panel",
+                disabled: !hasWritePermission,
+                onClick: () => this.gridCommons.changeActiveModal("create-disease-panel"),
+            },
+        ];
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
@@ -593,13 +601,11 @@ export default class DiseasePanelGrid extends LitElement {
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
                     .leftContent="${this.renderToolbarLeftContent()}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @sessionPanelUpdate="${this.renderTable}">
+                    @export="${this.onDownload}">
                 </opencb-grid-toolbar>
             ` : nothing}
 
@@ -623,7 +629,6 @@ export default class DiseasePanelGrid extends LitElement {
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],
