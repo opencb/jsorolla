@@ -401,7 +401,7 @@ export default class DiseasePanelGrid extends LitElement {
                     </a>
                     <hr class="dropdown-divider">
                     <a data-action="copy" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled" }">
-                        <i class="fas fa-user me-1"></i> Make a Copy
+                        <i class="fas fa-clone me-1"></i> Make a Copy
                     </a>
                     <hr class="dropdown-divider">
                     <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled" }">
