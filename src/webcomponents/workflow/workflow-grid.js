@@ -154,7 +154,7 @@ export default class WorkflowGrid extends LitElement {
                 display: {
                     modalTitle: `Workflow ${this._selectedWorkflow?.id}`,
                     modalCyDataName: `modal-workflow-view`,
-                    modalSize: "modal-lg",
+                    modalSize: "modal-xl",
                 },
                 render: () => html`
                     <workflow-view
@@ -354,10 +354,8 @@ export default class WorkflowGrid extends LitElement {
                 field: "id",
                 formatter: (workflowId, workflow) => {
                     return`
-                        <div class="m-1">
-                            <span style="font-weight: bold; margin: 5px 0">${workflowId}</span>
-                            <span class="d-block text-secondary" style="margin: 5px 0">Version ${workflow.version}</span>
-                        </div>
+                        <div class="fw-bold">${workflowId}</div>
+                        <div class="text-secondary">Version ${workflow.version}</div>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("id")
@@ -368,10 +366,8 @@ export default class WorkflowGrid extends LitElement {
                 field: "name",
                 formatter: (name, workflow) => {
                     return `
-                        <div class="m-1">
-                            <span style="font-weight: bold; margin: 5px 0">${name}</span>
-                            <span class="d-block text-secondary" style="margin: 5px 0">${workflow.description}</span>
-                        </div>
+                        <div class="fw-bold">${name}</div>
+                        <div class="text-secondary">${workflow.description}</div>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("name")
@@ -394,7 +390,7 @@ export default class WorkflowGrid extends LitElement {
                 id: "tags",
                 title: "Tags",
                 field: "tags",
-                formatter: tags => tags?.join(",") || "-",
+                formatter: tags => tags?.join(", ") || "-",
                 visible: this.gridCommons.isColumnVisible("tags")
             },
             {
@@ -402,11 +398,7 @@ export default class WorkflowGrid extends LitElement {
                 title: "Scripts",
                 field: "scripts",
                 formatter: scripts => {
-                    return `
-                        <div>
-                            ${scripts?.map(script => `<span class="">${script.fileName}</span>`).join("<br>")}
-                        </div>
-                    `;
+                    return (scripts || []).map(script => `<div>${script.fileName}</div>`).join("") || "-";
                 },
                 visible: this.gridCommons.isColumnVisible("scripts")
             },
@@ -416,14 +408,8 @@ export default class WorkflowGrid extends LitElement {
                 field: "minimumRequirements",
                 formatter: minimumRequirements => {
                     return `
-                        <div class="m-1">
-                            <div style="margin: 5px 0">
-                                <span class="px-1">CPU:</span><span>${minimumRequirements?.cpu || "-"} core(s)</span>
-                            </div>
-                            <div style="margin: 5px 0">
-                                <span class="px-1">Memory:</span><span>${minimumRequirements?.memory?.split(".")[0] || "-"} GB</span>
-                            </div>
-                        </div>
+                        <div><b>CPU</b>: ${minimumRequirements?.cpu || "-"} core(s)</div>
+                        <div><b>Memory</b>: ${minimumRequirements?.memory?.split(".")[0] || "-"} GB</div>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("minimumRequirements")
@@ -444,49 +430,7 @@ export default class WorkflowGrid extends LitElement {
             },
             {
                 id: "actions",
-                title: "",
-                field: "actions",
-                formatter: () => `
-                    <div class="d-flex justify-content-end align-items-center">
-                        <a class="btn" data-action="view">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <div class="dropdown d-flex justify-content-end">
-                            <button class="btn" data-bs-toggle="dropdown">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item cursor-pointer" data-action="view">
-                                    <i class="fas fa-eye me-1"></i>
-                                    <span>View</span>
-                                </a>
-                                <a class="dropdown-item cursor-pointer" data-action="copy-json">
-                                    <i class="fas fa-copy me-1"></i>
-                                    <span>Copy JSON</span>
-                                </a>
-                                <a class="dropdown-item cursor-pointer" data-action="download-json">
-                                    <i class="fas fa-download me-1"></i>
-                                    <span>Download JSON</span>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a class="dropdown-item ${this.permissions.EXECUTE ? "cursor-pointer" : "disabled"}" data-action="execute">
-                                    <i class="fas fa-play me-1"></i>
-                                    <span>Execute...</span>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a class="dropdown-item ${this.permissions.WRITE ? "cursor-pointer" : "disabled"}" data-action="update">
-                                    <i class="fas fa-edit me-1"></i>
-                                    <span>Edit...</span>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a class="dropdown-item ${this.permissions.DELETE ? "cursor-pointer" : "disabled"}" data-action="delete">
-                                    <i class="fas fa-trash me-1"></i>
-                                    <span>Delete...</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                `,
+                formatter: () => this.actionsFormatter(),
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
@@ -497,6 +441,53 @@ export default class WorkflowGrid extends LitElement {
 
         this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
+    }
+
+    actionsFormatter() {
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        const hasDeletePermission = this.gridCommons.hasPermission("DELETE");
+        const hasExecutePermission = this.gridCommons.hasPermission("EXECUTE");
+        return `
+            <div class="d-flex justify-content-end align-items-center">
+                <a class="btn" data-action="view">
+                    <i class="fas fa-eye"></i>
+                </a>
+                <div class="dropdown d-flex justify-content-end">
+                    <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item cursor-pointer" data-action="view">
+                            <i class="fas fa-eye me-1"></i>
+                            <span>View</span>
+                        </a>
+                        <a class="dropdown-item cursor-pointer" data-action="copy-json">
+                            <i class="fas fa-copy me-1"></i>
+                            <span>Copy JSON</span>
+                        </a>
+                        <a class="dropdown-item cursor-pointer" data-action="download-json">
+                            <i class="fas fa-download me-1"></i>
+                            <span>Download JSON</span>
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a class="dropdown-item ${hasExecutePermission ? "cursor-pointer" : "disabled"}" data-action="execute">
+                            <i class="fas fa-play me-1"></i>
+                            <span>Execute</span>
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}" data-action="update">
+                            <i class="fas fa-edit me-1"></i>
+                            <span>Edit</span>
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a class="dropdown-item ${hasDeletePermission ? "cursor-pointer" : "disabled"}" data-action="delete">
+                            <i class="fas fa-trash me-1"></i>
+                            <span>Delete</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     onColumnChange(e) {
