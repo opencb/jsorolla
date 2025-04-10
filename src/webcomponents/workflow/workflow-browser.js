@@ -126,7 +126,6 @@ export default class WorkflowBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             @queryComplete="${e => params.onQueryComplete(e)}"
-                            @selectrow="${e => params.onClickRow(e, "workflow")}"
                             @workflowUpdate="${e => params.onComponentUpdate(e, "workflow")}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </workflow-grid>
