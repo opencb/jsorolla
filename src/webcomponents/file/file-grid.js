@@ -399,7 +399,6 @@ export default class OpencgaFileGrid extends LitElement {
         this._columns = [
             {
                 id: "icon",
-                title: "",
                 field: "type",
                 formatter: value => {
                     return `
@@ -514,50 +513,7 @@ export default class OpencgaFileGrid extends LitElement {
             },
             {
                 id: "actions",
-                field: "actions",
-                formatter: (value, row) => {
-                    const hasDownloadPermission = this.gridCommons.hasPermission("DOWNLOAD");
-                    const hasDeletePermission = this.gridCommons.hasPermission("DELETE");
-                    const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
-                    const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
-
-                    return `
-                        <div class="d-flex justify-content-end align-items-center gap-1">
-                            <a class="btn border-0 ${row.type === "DIRECTORY" ? "disabled" : "cursor-pointer"}" data-action="view">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <div class="d-inline-block dropdown">
-                                <button class="btn" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-end">
-                                    <a class="dropdown-item ${row.type === "DIRECTORY" ? "disabled" : "cursor-pointer"}" data-action="view">
-                                        <i class="fas fa-eye me-1"></i>
-                                        <span>View</span>
-                                    </a>
-                                    <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" || !hasDownloadPermission ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
-                                        <i class="fas fa-download me-1"></i> Download
-                                    </a>
-                                    <hr class="dropdown-divider">
-                                    <a data-action="copy-json" class="dropdown-item cursor-pointer">
-                                        <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
-                                    </a>
-                                    <a data-action="download-json" class="dropdown-item cursor-pointer">
-                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
-                                    </a>
-                                    <hr class="dropdown-divider">
-                                    <a data-action="variant-index" class="dropdown-item ${row.format === "VCF" && isStudyAdmin ? "cursor-pointer" : "disabled"}">
-                                        <i class="fas fa-rocket me-1"></i> Run Variant Index
-                                    </a>
-                                    <hr class="dropdown-divider">
-                                    <a data-action="delete" class="dropdown-item ${hasDeletePermission ? "cursor-pointer" : "disabled"}">
-                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                },
+                formatter: (value, row) => this.actionsFormatter(value, row),
                 events: {
                     "click a": (e, value, file) => this.onActionClick(e, value, file),
                 },
@@ -574,8 +530,47 @@ export default class OpencgaFileGrid extends LitElement {
         return this._columns;
     }
 
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
+    actionsFormatter(value, row) {
+        const hasDownloadPermission = this.gridCommons.hasPermission("DOWNLOAD");
+        const hasDeletePermission = this.gridCommons.hasPermission("DELETE");
+        const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
+        const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
+        return `
+            <div class="d-flex justify-content-end align-items-center gap-1">
+                <a class="btn border-0 ${row.type === "DIRECTORY" ? "disabled" : "cursor-pointer"}" data-action="view">
+                    <i class="fas fa-eye"></i>
+                </a>
+                <div class="d-inline-block dropdown">
+                    <button class="btn" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item ${row.type === "DIRECTORY" ? "disabled" : "cursor-pointer"}" data-action="view">
+                            <i class="fas fa-eye me-1"></i>
+                            <span>View</span>
+                        </a>
+                        <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" || !hasDownloadPermission ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
+                            <i class="fas fa-download me-1"></i> Download
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a data-action="copy-json" class="dropdown-item cursor-pointer">
+                            <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
+                        </a>
+                        <a data-action="download-json" class="dropdown-item cursor-pointer">
+                            <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a data-action="variant-index" class="dropdown-item ${row.format === "VCF" && isStudyAdmin ? "cursor-pointer" : "disabled"}">
+                            <i class="fas fa-rocket me-1"></i> Run Variant Index
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a data-action="delete" class="dropdown-item ${hasDeletePermission ? "cursor-pointer" : "disabled"}">
+                            <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     onActionClick(event, value, file) {
@@ -740,22 +735,18 @@ export default class OpencgaFileGrid extends LitElement {
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <div class="my-2">
-                    <opencb-grid-toolbar
-                        .resource="${"FILE"}"
-                        .toolId="${this.toolId}"
-                        .query="${this.query}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .leftContent="${this.renderToolbarLeftContent()}"
-                        .rightToolbar="${this.getRightToolbar()}"
-                        .settings="${this.toolbarSetting}"
-                        .config="${this.toolbarConfig}"
-                        @columnChange="${this.onColumnChange}"
-                        @download="${this.onDownload}"
-                        @export="${this.onDownload}"
-                        @actionClick="${e => this.onActionClick(e)}">
-                    </opencb-grid-toolbar>
-                </div>
+                <opencb-grid-toolbar
+                    .resource="${"FILE"}"
+                    .toolId="${this.toolId}"
+                    .query="${this.query}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
+                    .rightToolbar="${this.getRightToolbar()}"
+                    .settings="${this.toolbarSetting}"
+                    .config="${this.toolbarConfig}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
+                </opencb-grid-toolbar>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
@@ -771,19 +762,13 @@ export default class OpencgaFileGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showSelectCheckbox: false,
-            multiSelection: false,
-            detailView: false,
 
             showToolbar: true,
             showActions: true,
 
-            showCreate: false,
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],
-
-            skipExtensions: false,
         };
     }
 
