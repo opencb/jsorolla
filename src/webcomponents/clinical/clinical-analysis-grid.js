@@ -355,7 +355,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
-                visible: this._config.showActions && this.gridCommons.isColumnVisible("actions"),
+                excludeFromSettings: true,
+                visible: this._config.showActions,
             },
         ];
 
