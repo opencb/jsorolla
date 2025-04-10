@@ -93,6 +93,10 @@ export default class DiseasePanelBrowser extends LitElement {
     }
 
     render() {
+        if (!this.opencgaSession) {
+            return nothing;
+        }
+
         return html`
             <opencga-browser
                 resource="DISEASE_PANEL"
