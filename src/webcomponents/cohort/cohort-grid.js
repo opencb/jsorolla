@@ -26,6 +26,7 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "./cohort-view.js";
 
 export default class CohortGrid extends LitElement {
 
@@ -63,9 +64,11 @@ export default class CohortGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "cohort-grid";
+        this.RESOURCE = "COHORT";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
+        this._selectedCohort = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -96,7 +99,8 @@ export default class CohortGrid extends LitElement {
 
         // Settings for the grid toolbar
         this.toolbarSetting = {
-            // buttons: ["columns", "download"],
+            toolId: this.toolId,
+            resource: this.RESOURCE,
             ...this._config,
         };
 
@@ -146,6 +150,24 @@ export default class CohortGrid extends LitElement {
             //         </catalog-browser-grid-config>`
             // }
         };
+
+        this.gridCommons.registerModals({
+            "view-cohort": () => ({
+                display: {
+                    modalTitle: `Cohort ${this._selectedCohort?.id}`,
+                    modalDraggable: true,
+                    modalCyDataName: "cohort-view",
+                    modalSize: "modal-xl"
+                },
+                render: active => html`
+                    <cohort-view
+                        .cohortId="${this._selectedCohort?.id}"
+                        .active="${active}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </cohort-view>
+                `,
+            }),
+        });
 
         this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
@@ -503,6 +525,7 @@ export default class CohortGrid extends LitElement {
             </div>
 
             ${this.renderModalUpdate()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
