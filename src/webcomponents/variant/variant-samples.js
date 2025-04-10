@@ -116,13 +116,15 @@ export default class VariantSamples extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             pagination: true,
             sidePagination: "server",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
             columns: this._getDefaultColumns(),
             formatShowingRows: this.gridCommons.formatShowingRows,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             ajax: params => {
                 const tableOptions = this.table.bootstrapTable("getOptions");
                 this.filters = {
@@ -404,6 +406,11 @@ export default class VariantSamples extends LitElement {
 
     render() {
         return html`
+            <style>
+                variant-samples .select2-dropdown {
+                    width: 250px !important;
+                }
+            </style>
             <div>
                 ${this.numSamples !== this.numUserTotalSamples ? html`
                     <div class="alert alert-warning">
@@ -417,17 +424,16 @@ export default class VariantSamples extends LitElement {
 
                 <div class="row" style="margin-top: 20px">
                     <div class="col-md-12">
-                        <div class="col-md-4"><label>Select genotypes:</label></div>
+                        <div class="col-md-4"><label>Select Genotypes:</label></div>
                     </div>
                     <div class="col-md-12">
                         <div class="col-md-4">
                             <div class="input-group">
                                 <select-field-filter
-                                    multiple
                                     .data="${this.config.genotypes}"
-                                    .value=${this.selectedGenotypes}
-                                    .multiple=${"true"}
-                                    .selectedTextFormat=${"count > 3"}
+                                    .value="${this.selectedGenotypes}"
+                                    .selectedTextFormat="${"count > 3"}"
+                                    .config="${{multiple: true}}"
                                     @filterChange="${this.onSelectFilterChange}">
                                 </select-field-filter>
                                 <span class="input-group-btn">
@@ -495,6 +501,9 @@ export default class VariantSamples extends LitElement {
                         },
                         {
                             id: "./.", name: "Missing (./0, ./1, ./.)"
+                        },
+                        {
+                            id: "NA", name: "NA (No genotype call provided)"
                         },
                     ]
                 },

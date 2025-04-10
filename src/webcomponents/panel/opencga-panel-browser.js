@@ -21,7 +21,7 @@ import "./opencga-panel-grid.js";
 import "./opencga-panel-summary.js";
 import "./opencga-panel-filter.js";
 
-//TODO check functionalities!
+// TODO check functionalities!
 
 export default class OpencgaPanelBrowser extends LitElement {
 
@@ -55,7 +55,7 @@ export default class OpencgaPanelBrowser extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
@@ -65,7 +65,7 @@ export default class OpencgaPanelBrowser extends LitElement {
         this.search = Object.assign({}, this.panelDefaultQuery);
         this._config = this.getDefaultConfig();
         this.eventNotifyName = "messageevent";
-        this.panelEditor = false
+        this.panelEditor = false;
     }
 
     updated(changedProperties) {
@@ -137,43 +137,47 @@ export default class OpencgaPanelBrowser extends LitElement {
                     ${this.panelEditor ? html`
                         <h3>Preview</h3>
                         <div class="col-md-2 div-margin">
-                            <opencga-panel-filter .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .query="${this.query}"
-                                                @search="${this.onSearch}">
+                            <opencga-panel-filter
+                                .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .query="${this.query}"
+                                @search="${this.onSearch}">
                             </opencga-panel-filter>
                         </div>
                         <div class="col-md-10">
-
                             <br>
-                            <opencga-active-filters .opencgaSession="${this.opencgaSession}"
-                                                    .query="${this.query}"
-                                                    .filters="${this._config.filters}"
-                                                    .defaultStudy="${this.opencgaSession.study.fqn}"
-                                                    .refresh="${this.search}"
-                                                    @activeFilterClear="${this.onClear}"
-                                                    @activeFilterChange="${this.onActiveFilterChange}">
+                            <opencga-active-filters
+                                .opencgaSession="${this.opencgaSession}"
+                                .query="${this.query}"
+                                .filters="${this._config.filters}"
+                                .defaultStudy="${this.opencgaSession.study.fqn}"
+                                .refresh="${this.search}"
+                                @activeFilterClear="${this.onClear}"
+                                @activeFilterChange="${this.onActiveFilterChange}">
                             </opencga-active-filters>
-                            <opencga-panel-grid .opencgaSession="${this.opencgaSession}}"
-                                                .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                @panelselected="${this.onPanelSelected}"
-                                                @importpanel="${this.onImportPanel}"
-                                                .query="${this.search}"
-                                                .config="${this._config}">
+                            <opencga-panel-grid
+                                .opencgaSession="${this.opencgaSession}}"
+                                .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                @panelselected="${this.onPanelSelected}"
+                                @importpanel="${this.onImportPanel}"
+                                .query="${this.search}"
+                                .config="${this._config}">
                             </opencga-panel-grid>
                         </div>
                     ` : html`
-                         <opencga-panel-editor .opencgaSession="${this.opencgaSession}}"
-                                                .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                cellbaseClient="${this.cellbaseClient}"
-                                                .panel="${this.installationPanel}"
-                                                eventNotifyName="${this.eventNotifyName}">
+                        <opencga-panel-editor
+                            .opencgaSession="${this.opencgaSession}}"
+                            .opencgaClient="${this.opencgaSession.opencgaClient}"
+                            cellbaseClient="${this.cellbaseClient}"
+                            .panel="${this.installationPanel}"
+                            eventNotifyName="${this.eventNotifyName}">
                         </opencga-panel-editor>
                     `}
                 </div>
             </div>
         `;
     }
+
 }
 
 customElements.define("opencga-panel-browser", OpencgaPanelBrowser);

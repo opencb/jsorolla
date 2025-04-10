@@ -259,9 +259,11 @@ export default class HRDetectAnalysis extends LitElement {
                             render: (snvFittingId, onFieldChange) => html`
                                 <select-field-filter
                                     .data="${this.generateSignaturesDropdonw("SNV")}"
-                                    .value=${snvFittingId}
-                                    ?multiple="${false}"
-                                    ?liveSearch=${false}
+                                    .value="${snvFittingId}"
+                                    .config="${{
+                                        multiple: false,
+                                        liveSearch: false
+                                    }}"
                                     @filterChange="${e => onFieldChange(e.detail.value)}">
                                 </select-field-filter>
                             `,
@@ -276,8 +278,10 @@ export default class HRDetectAnalysis extends LitElement {
                                 <select-field-filter
                                     .data="${this.generateSignaturesDropdonw("SV")}"
                                     .value=${svFittingId}
-                                    ?multiple="${false}"
-                                    ?liveSearch=${false}
+                                    .config="${{
+                                        multiple: false,
+                                        liveSearch: false
+                                    }}"
                                     @filterChange="${e => onFieldChange(e.detail.value)}">
                                 </select-field-filter>
                             `,

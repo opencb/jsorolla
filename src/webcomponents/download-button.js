@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import UtilsNew from "../core/utils-new.js";
+import {html, LitElement} from "lit";
 
 export default class DownloadButton extends LitElement {
 
@@ -38,7 +37,7 @@ export default class DownloadButton extends LitElement {
             json: {
                 type: Object
             },
-            class: {
+            classes: {
                 type: String
             }
         };
@@ -60,9 +59,10 @@ export default class DownloadButton extends LitElement {
 
     render() {
         return html`
-            <button
-                class="btn btn-default ${this.class ?? ""}" title="${this.title || ""}"
-                @click="${this.download}"><i class="fa fa-download icon-padding" aria-hidden="true"></i> ${this.name || "Download"}
+            <button title="${this.title || ""}"
+                    class="${this.classes ?? "btn btn-light mt-3"}"
+                    @click="${this.download}">
+                <i class="fa fa-download p-1" aria-hidden="true"></i> ${this.name || "Download"}
             </button>
         `;
     }

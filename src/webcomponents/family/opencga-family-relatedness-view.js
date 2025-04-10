@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
 
-
 export default class OpencgaFamilyRelatednessView extends LitElement {
 
     constructor() {
@@ -114,7 +113,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
         if (this.family?.qualityControl?.relatedness?.length > 0) {
             const relatedness = this.family.qualityControl.relatedness[0];
             return html`
-                <table class="table table-hover table-no-bordered">
+                <table class="table table-hover">
                     <thead>
                     <tr>
                         <th>Sample ID 1</th>
@@ -182,14 +181,14 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
 
         return html`
             <div>
-                <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
+                <div class="btn-group float-end">
+                    <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-download pad5" aria-hidden="true"></i> Download <span class="caret"></span>
+                        <i class="fa fa-download pe-1" aria-hidden="true"></i> Download
                     </button>
-                    <ul class="dropdown-menu btn-sm">
+                    <ul class="dropdown-menu">
                         ${this._config?.download && this._config?.download?.length ? this._config.download.map(item => html`
-                            <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
+                            <li><a class="dropdown-item" href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>
                         `) : null}
                     </ul>
                 </div>
@@ -201,7 +200,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                             <label>Method:</label>
                         </div>
                         <div class="col-md-10">
-                            <span>${this.family.qualityControl.relatedness[0].method}</span>
+                            <span>${this.family.qualityControl.relatedness[0]?.method}</span>
                         </div>
                     </div>
                     <div class="col-md-12">
@@ -209,7 +208,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                             <label>MAF:</label>
                         </div>
                         <div class="col-md-10">
-                            <span>${this.family.qualityControl.relatedness[0].maf || "-"}</span>
+                            <span>${this.family.qualityControl.relatedness[0]?.maf || "-"}</span>
                         </div>
                     </div>
                     <div class="col-md-12">

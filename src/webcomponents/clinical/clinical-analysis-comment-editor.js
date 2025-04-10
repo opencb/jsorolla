@@ -390,7 +390,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                                 <span style="color: darkgrey; margin: 0px 10px">
                                     ${UtilsNew.dateFormatter(comment.date)}
                                 </span>
-                                ${this.commentStatus[comment.date] === "DELETED" ? html`<span class="label label-danger">Remove</span>`: null}
+                                ${this.commentStatus[comment.date] === "DELETED" ? html`<span class="badge text-bg-danger">Remove</span>`: null}
                                 ${isOwnComment(comment)? renderActions(comment):renderDisabledActions(comment)}
                             </div>
                         </div>
@@ -411,7 +411,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                                     </text-field-filter>
                                 </div>
                                 <div style="display:flex; justify-content:flex-end;">
-                                    <button type="button" style="margin:2px" class="btn btn-default btn-xs" @click="${e => this.onActionClick(comment, "NONE", true, e)}">Cancel</button>
+                                    <button type="button" style="margin:2px" class="btn btn-light btn-sm" @click="${e => this.onActionClick(comment, "NONE", true, e)}">Cancel</button>
                                     <!-- <button type="button" style="margin:2px" class="btn btn-primary btn-xs" @click="${e => this.onUpdateComment(comment)}">Update Comment</button> -->
                                 </div>`:
                                 html `
@@ -419,7 +419,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                                     <div>
                                         <br/>
                                         ${comment.tags?.filter(t => t !== "STARRED").map(tag => html`
-                                            <span class="label label-info" style="font-size: 95%">${tag}</span>
+                                            <span class="badge text-bg-info" style="font-size: 95%">${tag}</span>
                                         `)}
                                     </div>`}
                         </div>
@@ -449,7 +449,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                     </div>
                     ${this.commentStatus["ADD"] === "ADD" ? html`
                         <div style="display:flex; justify-content:flex-end;">
-                            <button type="button" style="margin:2px" class="btn btn-default btn-xs" @click="${e => this.onClearNewComment(e)}">Cancel</button>
+                            <button type="button" style="margin:2px" class="btn btn-light btn-sm" @click="${e => this.onClearNewComment(e)}">Cancel</button>
                         </div>
                     ` : null}
                 </div>

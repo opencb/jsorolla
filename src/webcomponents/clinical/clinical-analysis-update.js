@@ -69,7 +69,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
             defaultLayout: "horizontal",
             buttonsVisible: true,
             buttonsWidth: 8,
-            buttonsAlign: "right",
+            buttonsAlign: "end",
         };
         this._config = this.getDefaultConfig();
     }
@@ -175,17 +175,21 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 render: clinicalAnalysis => html`
-                                    <label>
-                                        ${clinicalAnalysis.id}
-                                    </label>
-                                    <span style="padding-left: 50px">
-                                        <i class="far fa-calendar-alt"></i>
-                                        <label>Creation Date:</label> ${UtilsNew.dateFormatter(clinicalAnalysis?.creationDate)}
-                                    </span>
-                                    <span style="margin: 0 20px">
-                                        <i class="far fa-calendar-alt"></i>
-                                        <label>Due date:</label> ${UtilsNew.dateFormatter(clinicalAnalysis?.dueDate)}
-                                    </span>
+                                    <div class="d-flex gap-5">
+                                        <label class="fw-bold">
+                                            ${clinicalAnalysis.id}
+                                        </label>
+                                        <div class="d-flex gap-3">
+                                            <span>
+                                                <i class="far fa-calendar-alt"></i>
+                                                <label class="fw-bold">Creation Date:</label> ${UtilsNew.dateFormatter(clinicalAnalysis?.creationDate)}
+                                            </span>
+                                            <span>
+                                                <i class="far fa-calendar-alt"></i>
+                                                <label class="fw-bold">Due date:</label> ${UtilsNew.dateFormatter(clinicalAnalysis?.dueDate)}
+                                            </span>
+                                        </div>
+                                    </div>
                                 `,
                             }
                         },
@@ -198,10 +202,10 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                     const sex = (proband?.sex?.id !== "UNKNOWN") ? `(${proband.sex.id || proband.sex})` : "(Sex not reported)";
                                     const sampleIds = proband.samples.map(sample => sample.id).join(", ");
                                     return html`
-                                        <span style="padding-right: 25px">
+                                        <span class="pe-3">
                                             ${proband.id} ${sex}
                                         </span>
-                                        <span style="font-weight: bold; padding-right: 10px">
+                                        <span class="fw-bold pe-2">
                                             Sample(s):
                                         </span>
                                         <span>${sampleIds}</span>
@@ -227,7 +231,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                     if (panels?.length > 0) {
                                         panelHtml = panels.map(panel =>
                                             (panel.source?.project?.toUpperCase() === "PANELAPP") ? html`
-                                                <div style="margin: 5px 0">
+                                                <div class="mt-1 me-0">
                                                     <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
                                                         ${panel.name} (${panel.source.project} v${panel.source.version})
                                                     </a>
@@ -251,10 +255,10 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             type: "custom",
                             display: {
                                 render: interpretation => html`
-                                    <span style="font-weight: bold; margin-right: 10px">
+                                    <span class="fw-bold me-2">
                                         ${interpretation?.id}
                                     </span>
-                                    <span style="color: grey; padding-right: 40px">
+                                    <span class="form-text me-3">
                                         version ${interpretation?.version}
                                     </span>
                                 `,
@@ -281,7 +285,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                     return html `
                                         <clinical-status-filter
                                             .status="${statusId}"
-                                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status[clinicalAnalysis?.type?.toUpperCase()]}"
+                                            .statuses="${this.opencgaSession.study.internal?.configuration?.clinical?.status || []}"
                                             .multiple=${false}
                                             .forceSelection=${true}
                                             .classes="${updateParams?.["status.id"] ? "selection-updated" : ""}"
@@ -319,18 +323,16 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                 render: (analysts, dataFormFilterChange, updateParams, clinicalAnalysis) => {
                                     const handleAnalystsFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
-                                        const analystList = e.detail.value
-                                            ?.split(",")
+                                        const analystList = (e.detail?.value?.split(",") || [])
                                             .filter(analystId => analystId)
                                             .map(analystId => ({id: analystId}));
                                         dataFormFilterChange(analystList);
                                     };
-
                                     return html `
                                         <clinical-analyst-filter
                                             .analyst="${analysts?.map(f => f.id).join(",")}"
                                             .analysts="${this._users}"
-                                            .multiple=${true}
+                                            .multiple="${true}"
                                             .classes="${updateParams?.analysts ? "selection-updated" : ""}"
                                             .disabled="${!!clinicalAnalysis?.locked}"
                                             @filterChange="${e => handleAnalystsFilterChange(e)}">
@@ -370,7 +372,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             display: {
                                 render: (panels, dataFormFilterChange, updateParams, clinicalAnalysis) => {
                                     const handlePanelsFilterChange = e => {
-                                        const panels = (e.detail.value?.split(",") || [])
+                                        const panels = (e.detail?.value?.split(",") || [])
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
                                         dataFormFilterChange(panels);
@@ -382,7 +384,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                             .panel="${panels?.map(panel => panel.id).join(",")}"
                                             .showExtendedFilters="${false}"
                                             .classes="${updateParams?.panels ? "selection-updated" : ""}"
-                                            .disabled="${(!!clinicalAnalysis?.locked || !!clinicalAnalysis?.panelLock)}"
+                                            .disabled="${(!!clinicalAnalysis?.locked || !!clinicalAnalysis?.panelLocked)}"
                                             @filterChange="${e => handlePanelsFilterChange(e)}">
                                         </disease-panel-filter>
                                     `;
@@ -391,7 +393,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                         },
                         {
                             title: "Disease Panel Lock",
-                            field: "panelLock",
+                            field: "panelLocked",
                             type: "toggle-switch",
                             display: {
                                 helpMessage: "All existing interpretations must contain at least one of the Clinical Analysis panels to enable Disease Panel Lock.",
@@ -429,19 +431,16 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                 render: (flags, dataFormFilterChange, updateParams, clinicalAnalysis) => {
                                     const handleFlagsFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
-                                        // eslint-disable-next-line no-param-reassign
-                                        const flagList = e.detail.value
-                                            ?.split(",")
+                                        const flagList = (e.detail?.value?.split(",") || [])
                                             .filter(flagId => flagId)
                                             .map(flagId => ({id: flagId}));
                                         dataFormFilterChange(flagList);
                                     };
-
                                     return html `
                                         <clinical-flag-filter
                                             .flag="${flags?.map(f => f.id).join(",")}"
-                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[clinicalAnalysis?.type?.toUpperCase()]}"
-                                            .multiple=${true}
+                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags || []}"
+                                            .multiple="${true}"
                                             .classes="${updateParams?.flags ? "selection-updated" : ""}"
                                             .disabled="${!!clinicalAnalysis?.locked}"
                                             @filterChange="${e => handleFlagsFilterChange(e)}">
@@ -478,18 +477,18 @@ export default class ClinicalAnalysisUpdate extends LitElement {
 
                                     return html `
                                         <div style="margin-bottom:1rem;">
-                                            <div style="display:flex;margin-bottom:0.5rem;">
-                                                <div style="padding-right:1rem;">
+                                            <div class="d-flex mb-1">
+                                                <div class="pe-2">
                                                     <i class="fas fa-comment-dots"></i>
                                                 </div>
-                                                <div style="font-weight:bold">
+                                                <div class="fw-bold">
                                                     ${comment.author || this.opencgaSession?.user?.id || "-"} -
                                                     ${UtilsNew.dateFormatter(comment.date || UtilsNew.getDatetime())}
                                                 </div>
                                             </div>
-                                            <div style="width:100%;">
-                                                <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
-                                                <div class="text-muted">Tags: ${tags}</div>
+                                            <div class="w-100">
+                                                <div class="mb-2">${comment.message || "-"}</div>
+                                                <div class="text-body-secondary">Tags: ${tags}</div>
                                             </div>
                                         </div>
                                     `;

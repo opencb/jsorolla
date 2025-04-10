@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import Region from "../../../core/bioinfo/region.js";
+import {guardPage} from "../../commons/html-utils.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-browser-cnv.js";
@@ -110,12 +111,7 @@ class VariantInterpreterBrowser extends LitElement {
     render() {
         // Check if project exists
         if (!this.opencgaSession?.project) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         if (!this.clinicalAnalysis) {
@@ -338,6 +334,7 @@ class VariantInterpreterBrowser extends LitElement {
             // title: "Variant Interperter Browser",
             display: {
                 align: "center",
+                classes: "justify-content-center",
             },
             items: items,
         };

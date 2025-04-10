@@ -262,7 +262,7 @@ export default class BioinfoUtils {
                 case "GO":
                     return this.getGeneOntologyLink(ontologyTermId);
                 case "OMIM":
-                    return this.getOmimLink(id);
+                    return this.getOmimOntologyLink(id);
                 case "ORPHA":
                     return this.getOrphanetLink(id);
                 case "MONDO":
@@ -293,16 +293,24 @@ export default class BioinfoUtils {
         return `https://hpo.jax.org/app/browse/term/${hpoTerm}`;
     }
 
+    // static getOmimLink(omimEntry) {
+    //     return `https://www.omim.org/entry/${omimEntry}`;
+    // }
+
     static getSequenceOntologyLink(soTerm) {
         return `http://www.sequenceontology.org/browser/current_svn/term/${soTerm}`;
     }
 
-    static getOmimLink(soTerm) {
-        return `https://omim.org/entry/${soTerm}"`;
+    static getOmimOntologyLink(soTerm) {
+        return `https://www.omim.org/entry/${soTerm}"`;
     }
 
     static getOrphanetLink(orphaId) {
         return `https://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=${orphaId}`;
+    }
+
+    static getPharmGKBLink(pharmGKBId) {
+        return `https://www.pharmgkb.org/chemical/${pharmGKBId}`;
     }
 
 }

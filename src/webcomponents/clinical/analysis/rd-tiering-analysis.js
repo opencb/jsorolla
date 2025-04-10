@@ -20,7 +20,6 @@ import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 
-
 export default class RdTieringAnalysis extends LitElement {
 
     constructor() {
@@ -161,7 +160,7 @@ export default class RdTieringAnalysis extends LitElement {
                         display: {
                             render: (panels, dataFormFilterChange) => {
                                 // Get whether disease panels can be modified or are fixed
-                                const casePanelLock = !!this.clinicalAnalysis;
+                                const casePanelLock = !!this.clinicalAnalysis?.panelLocked;
                                 // Get the list of disease panels for the dropdown
                                 let diseasePanels = [];
                                 if (casePanelLock) {
@@ -178,10 +177,12 @@ export default class RdTieringAnalysis extends LitElement {
                                     <select-field-filter
                                         .data="${diseasePanels}"
                                         .value=${panels || ""}
-                                        .liveSearch=${diseasePanels?.length > 5}
-                                        .multiple="${true}"
-                                        .disabled="${casePanelLock}"
-                                        separator="\n"
+                                        .config="${{
+                                            multiple: true,
+                                            liveSearch: diseasePanels?.length > 5,
+                                            disabled: casePanelLock,
+                                            separator: "\n"
+                                        }}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </select-field-filter>
                                 `;

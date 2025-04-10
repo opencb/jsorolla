@@ -30,7 +30,6 @@ import "../../../variant/operation/variant-secondary-sample-index-operation.js";
 import "../../../variant/operation/variant-secondary-sample-index-configure-operation.js";
 import "../../../commons/layouts/custom-vertical-navbar.js";
 
-
 export default class StudyVariantAdmin extends LitElement {
 
     constructor() {

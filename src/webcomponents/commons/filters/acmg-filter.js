@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-import UtilsNew from "../../../core/utils-new.js";
 import "../forms/select-field-filter.js";
 
 export default class AcmgFilter extends LitElement {
@@ -57,8 +56,10 @@ export default class AcmgFilter extends LitElement {
             <select-field-filter
                 .data="${this.config.data}"
                 .value=${this.acmg || []}
-                ?multiple="${this.multiple ?? this.config.multiple}"
-                ?liveSearch=${this.config.liveSearch}
+                .config="${{
+                    multiple: this.multiple ?? this.config.multiple,
+                    liveSearch: this.config.liveSearch
+                }}"
                 @filterChange="${this.filterChange}">
             </select-field-filter>
         `;

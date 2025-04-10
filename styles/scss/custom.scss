@@ -1,0 +1,17 @@
+// Include any default variable overrides here (though functions won't be available)
+
+$font-family-base: 'Lato', Helvetica, Arial, sans-serif;
+//$font-size-base: 0.875rem; // 14px
+$font-size-base: 0.8125rem; // 14px
+$main-bg-color: #17224D;
+$enable-negative-margins: true;
+$enable-shadows: true;
+$btn-box-shadow: none; // enable-shadow add shadows to btn by default.
+
+
+// migrate global.css to global.scss (temporal)
+@import "./global.scss";
+
+// Include all of Bootstrap (temporal)
+// @import "../node_modules/bootstrap/scss/bootstrap";
+@import "~bootstrap/scss/bootstrap";

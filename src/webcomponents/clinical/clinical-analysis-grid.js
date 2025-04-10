@@ -106,6 +106,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     modalTitle: "Clinical Analysis Create",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html `
                     <clinical-analysis-create
@@ -127,6 +128,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -142,7 +145,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 gridContext: this,
-                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                // formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let response = null;
                     this.filters = {
@@ -160,7 +164,12 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     this.fetchData(this.filters)
                         .then(res => {
                             response = res;
-                            params.success(res);
+                            // Prepare data for columns extensions
+                            const rows = response.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => {
+                            params.success(response);
                         })
                         .catch(error => {
                             response = error;
@@ -208,14 +217,14 @@ export default class ClinicalAnalysisGrid extends LitElement {
         if (row?.id) {
             const url = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`;
             return `
-                <div style="margin: 5px 0">
-                    <a title="Go to Case Interpreter" href="${url}" data-cy="case-id">
+                <div class="mt-1 me-0">
+                    <a class="text-decoration-none" title="Go to Case Interpreter" href="${url}" data-cy="case-id">
                         ${row.id}
                         ${row.locked ? "<i class=\"fas fa-lock\" aria-hidden=\"true\" style=\"padding-left:4px;\"></i>" : ""}
                     </a>
                 </div>
-                <div style="margin: 5px 0" data-cy="case-type">
-                    <span class="help-block">${row.type}</span>
+                <div class="mt-1 me-0"  data-cy="case-type">
+                    <span class="form-text">${row.type}</span>
                 </div>
             `;
         }
@@ -226,14 +235,14 @@ export default class ClinicalAnalysisGrid extends LitElement {
         if (row.proband) {
             const samplesHtml = row.proband?.samples?.map(sample => `<span data-cy="proband-sample-id">${sample.id}</span>`)?.join("");
             return `
-                <div style="margin: 5px 0">
-                    <span data-cy="proband-id" style="font-weight: bold; margin: 5px 0">${row.proband?.id || "-"}</span>
-                    <span data-cy="proband-id" class="help-block" style="display: inline;margin: 5px">(${samplesHtml})</span>
+                <div class="mt-1 me-0">
+                    <span data-cy="proband-id" class="fw-bold mt-1 me-0">${row.proband?.id || "-"}</span>
+                    <span data-cy="proband-id" class="text-body-secondary d-inline m-1">(${samplesHtml})</span>
                 </div>
                 ${row.family?.id ? `
                     <div>
-                        <span data-cy="family-id" style="margin: 5px 0">${row.family.id}</span>
-                        <span data-cy="proband-id" class="help-block" style="display: inline;margin: 5px">(${row.family.members?.length || 0} members)</span>
+                        <span data-cy="family-id" class="mt-1 me-0">${row.family.id}</span>
+                        <span data-cy="proband-id" class="text-body-secondary d-inline m-1">(${row.family.members?.length || 0} members)</span>
                     </div>
                 ` : ""}
             `;
@@ -251,18 +260,18 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 .join(", ");
             html = `
                 <div>
-                    <span style="margin: 5px 0">${value.stats.primaryFindings.numVariants} variants</span>
+                    <span>${value.stats.primaryFindings.numVariants} variants</span>
                 </div>
                 <div>
-                    <span class="help-block" style="margin: 5px 0">${value.stats.primaryFindings.statusCount?.REVIEWED} reviewed</span>
+                    <span class="text-body-secondary">${value.stats.primaryFindings.statusCount?.REVIEWED} reviewed</span>
                 </div>
                 <div>
-                    <span class="help-block" style="margin: 5px 0">
+                    <span class="text-body-secondary">
                         ${tierStats}
                     </span>
                 </div>
                 <div>
-                    <span class="help-block" style="margin: 5px 0">
+                    <span class="text-body-secondary">
                         ${Object.keys(value.stats.primaryFindings.geneCount).length} genes
                     </span>
                 </div>
@@ -272,10 +281,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 const reviewedVariants = row.interpretation.primaryFindings.filter(v => v.status === "REVIEWED");
                 html = `
                     <div>
-                        <span style="margin: 5px 0">${row.interpretation.primaryFindings.length} variants</span>
+                        <span">${row.interpretation.primaryFindings.length} variants</span>
                     </div>
                     <div>
-                        <span class="help-block" style="margin: 5px 0">${reviewedVariants.length} reviewed</span>
+                        <span class="text-body-secondary" style="margin: 5px 0">${reviewedVariants.length} reviewed</span>
                     </div>
                 `;
             } else {
@@ -285,7 +294,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         const interpretationUrl = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`;
         return `
-            <a class="btn force-text-left" data-action="interpreter" title="Go to Case Interpreter" href="${interpretationUrl}">
+            <a class="text-decoration-none" data-action="interpreter" title="Go to Case Interpreter" href="${interpretationUrl}">
                 ${html}
             </a>
         `;
@@ -297,25 +306,25 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         // Priorities classes
         const priorityMap = {
-            URGENT: "label-danger",
-            HIGH: "label-warning",
-            MEDIUM: "label-primary",
-            LOW: "label-info"
+            URGENT: "text-bg-danger",
+            HIGH: "text-bg-warning",
+            MEDIUM: "text-bg-primary",
+            LOW: "text-bg-info"
         };
         const priorityRankToColor = [
-            "label-danger",
-            "label-warning",
-            "label-primary",
-            "label-info",
-            "label-success",
-            "label-default"
+            "text-bg-danger",
+            "text-bg-warning",
+            "text-bg-primary",
+            "text-bg-info",
+            "text-bg-success",
+            "text-bg-light"
         ];
 
         const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
         const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // priority is editable
 
         // Dropdown button styles and classes
-        const btnClassName = "btn btn-default btn-sm btn-block dropdown-toggle";
+        const btnClassName = "btn btn-light btn-block dropdown-toggle";
         const btnStyle = "display:inline-flex;align-items:center;";
 
         // Current priority
@@ -324,24 +333,25 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
         return `
             <div class="dropdown">
-                <button class="${btnClassName}" type="button" data-toggle="dropdown" style="${btnStyle}" ${!isEditable ? "disabled=\"disabled\"" : ""}>
-                    <span class="label ${currentPriorityLabel}" style="margin-right:auto;top:0;">
+                <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" style="${btnStyle}" ${!isEditable ? "disabled=\"disabled\"" : ""}>
+                    <span class="badge ${currentPriorityLabel} me-auto top-0">
                         ${currentPriorityText}
                     </span>
-                    <span class="caret"></span>
                 </button>
                 ${isEditable ? `
                     <ul class="dropdown-menu">
                         ${_priorities.map(priority => `
                             <li>
-                                <a class="btn force-text-left right-icon" data-action="priorityChange" data-priority="${priority.id}">
-                                    <span class="label ${priorityRankToColor[priority?.rank ?? ""] ?? ""}">
-                                        ${priority.id}
-                                    </span>
-                                    <p class="text-muted">
-                                        <small>${priority.description}</small>
-                                    </p>
-                                    ${priority.id === value?.id ? "<i class=\"fas fa-check\"></i>" : ""}
+                                <a class="d-flex dropdown-item py-2" data-action="priorityChange" data-priority="${priority.id}" style="cursor:pointer;">
+                                    <div class="flex-grow-1">
+                                        <div class="">
+                                            <span class="badge ${priorityRankToColor[priority?.rank ?? ""] ?? ""}">
+                                                ${priority.id}
+                                            </span>
+                                        </div>
+                                        <div class="small text-secondary">${priority.description}</div>
+                                    </div>
+                                    ${priority.id === value?.id ? `<i class="fas fa-check"></i>` : ""}
                                 </a>
                             </li>
                         `).join("")}
@@ -352,32 +362,32 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     statusFormatter(value, row) {
-        // TODO remove this code as soon as new OpenCGA configuration is in place
-        const _status = this.opencgaSession.study?.internal?.configuration?.clinical?.status || [];
-
+        const status = this.opencgaSession.study?.internal?.configuration?.clinical?.status || [];
         const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
         const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // status is editable
 
         const currentStatus = value.id || value.name || "-"; // Get current status
 
         // Dropdown button styles and classes
-        const btnClassName = "btn btn-default btn-sm btn-block dropdown-toggle";
-        const btnStyle = "display:inline-flex;align-items:center;";
-
+        // const btnClassName = "d-inline-flex align-items-center btn btn-light dropdown-toggle";
+        const btnClassName = "d-flex justify-content-between align-items-center btn btn-light dropdown-toggle w-100";
+        // const btnStyle = "display:inline-flex;align-items:center;";
+debugger
         return `
             <div class="dropdown">
-                <button class="${btnClassName}" type="button" data-toggle="dropdown" style="${btnStyle}" ${!isEditable ? "disabled=\"disabled\"" : ""}>
-                    <span style="margin-right:auto;">${currentStatus}</span>
-                    <span class="caret"></span>
+                <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" ${!isEditable ? "disabled=\"disabled\"" : ""}>
+                    <span class='me-auto'">${currentStatus}</span>
                 </button>
                 ${isEditable ? `
-                    <ul class="dropdown-menu dropdown-menu-right">
-                        ${_status[row.type].map(({id, description}) => `
+                    <ul class="dropdown-menu">
+                        ${status.map(({id, description}) => `
                             <li>
-                                <a class="btn force-text-left right-icon" data-action="statusChange" data-status="${id}">
-                                    ${id === currentStatus ? `<strong>${id}</strong>` : id}
-                                    <p class="text-muted"><small>${description}</small></p>
-                                    ${id === currentStatus ? "<i class=\"fas fa-check\"></i>" : ""}
+                                <a class="d-flex dropdown-item py-2" data-action="statusChange" data-status="${id}" style="cursor:pointer;">
+                                    <div class="flex-grow-1">
+                                        <div class="${id === currentStatus ? "fw-bold" : ""}">${id}</div>
+                                        <div class="small text-secondary">${description}</div>
+                                    </div>
+                                    ${id === currentStatus ? `<i class="fas fa-check"></i>` : ""}
                                 </a>
                             </li>
                         `).join("")}
@@ -422,7 +432,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
+        const action = e.currentTarget?.dataset?.action?.toLowerCase() || e.detail?.action;
         switch (action) {
             case "edit":
                 this.clinicalAnalysisUpdateId = row.id;
@@ -557,8 +567,8 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 formatter: (value, row) => {
                     const panelHtml = row.panels?.length > 0 ? CatalogGridFormatter.panelFormatter(row.panels) : "-";
                     return `
-                        <div>${CatalogGridFormatter.disorderFormatter([value], row)}</div>
-                        <div style="margin: 5px 0">${panelHtml}</div>
+                        <div class="mb-1">${CatalogGridFormatter.disorderFormatter([value], row)}</div>
+                        <div class="mb-1">${panelHtml}</div>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("disorderId")
@@ -617,13 +627,13 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const dueDateString = UtilsNew.dateFormatter(clinicalAnalysis.dueDate);
                     const dueDate = new Date(dueDateString);
                     const currentDate = new Date();
-                    let dueDateStyle = null;
+                    let dueDateClass = null;
                     if (currentDate > dueDate) {
-                        dueDateStyle = "color: darkred";
+                        dueDateClass = "text-danger";
                     }
                     return `
-                        <div style="${dueDateStyle}">${dueDateString}</div>
-                        <div class="help-block">${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}</div>
+                        <div class="${dueDateClass}">${dueDateString}</div>
+                        <div class="text-body-secondary">${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}</div>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("dates")
@@ -641,50 +651,49 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     const session = this.opencgaSession;
                     const url = `#interpreter/${session.project.id}/${session.study.id}/${row.id}`;
                     const hasWriteAccess = OpencgaCatalogUtils.checkPermissions(session.study, session.user.id, "WRITE_CLINICAL_ANALYSIS");
-                    const hasAdminAccess = hasWriteAccess || "disabled";
+                    const hasAdminAccess = hasWriteAccess ? "" : "disabled";
                     const lockActionIcon = row.locked ? "fa-unlock" : "fa-lock";
                     const lockActionText = row.locked ? "Unlock" : "Lock";
                     const isOwnOrIsLocked = row.locked || !row.analysts?.some(analyst => analyst.id === this.opencgaSession?.user?.id) ? "disabled" : "";
 
                     return `
-                        <div class="inline-block dropdown">
-                            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
+                        <div class="dropdown d-inline-block">
+                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
                                 <span>Actions</span>
-                                <span class="caret" style="margin-left: 5px"></span>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-right">
+                            <ul class="dropdown-menu dropdown-menu-end">
                                 <!-- Open the case in the case interpreter -->
                                 <li>
-                                    <a class="btn force-text-left" data-action="interpreter" href="${url}">
-                                        <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter
+                                    <a class="dropdown-item" data-action="interpreter" href="${url}">
+                                        <i class="fas fa-user-md me-1" aria-hidden="true"></i> Case Interpreter
                                     </a>
                                 </li>
                                 <!-- Download the case -->
                                 <li>
-                                    <a href="javascript: void 0" class="btn force-text-left" data-action="download">
-                                        <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
+                                    <a href="javascript: void 0" class="dropdown-item" data-action="download">
+                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download
                                     </a>
                                 </li>
                                 <!-- Perfom write operations to the case -->
                                 ${hasWriteAccess ? `
-                                    <li role="separator" class="divider"></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <!-- Lock or unlock the case -->
                                     <li>
-                                        <a class="btn force-text-left" data-action="lock">
-                                            <i class="fas ${lockActionIcon} icon-padding" aria-hidden="true"></i> ${lockActionText}
+                                        <a class="dropdown-item" data-action="lock">
+                                            <i class="fas ${lockActionIcon} me-1" aria-hidden="true"></i> ${lockActionText}
                                         </a>
                                     </li>
                                     <!-- Edit the case -->
                                     <li>
                                         <a data-action="edit" class="btn force-text-left ${hasAdminAccess}">
-                                            <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
+                                            <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
                                         </a>
                                     </li>
                                     <!-- Delete the case -->
                                     <li>
-                                        <a href="javascript: void 0" class="${isOwnOrIsLocked} btn force-text-left" data-action="delete">
-                                            <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                        <a href="javascript: void 0" class="${isOwnOrIsLocked} dropdown-item" data-action="delete">
+                                            <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
                                         </a>
                                     </li>
                                 ` : ""}
@@ -781,6 +790,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 display: {
                     modalTitle: `Clinical Analysis Update: ${this.clinicalAnalysisUpdateId}`,
                     modalDraggable: true,
+                    modalSize: "modal-lg"
                 },
                 render: active => {
                     return html `

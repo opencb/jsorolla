@@ -95,6 +95,8 @@ export default class OpencgaPanelGrid extends LitElement {
         const _table = $("#" + this._prefix + "PanelsGrid");
         $(_table).bootstrapTable("destroy");
         $(_table).bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             url: urlQueryParams.host,
             columns: _this._createPanels(),
             method: "get",
@@ -169,6 +171,8 @@ export default class OpencgaPanelGrid extends LitElement {
         const _table = $("#" + this._prefix + "InstallationPanelsGrid");
         $(_table).bootstrapTable("destroy");
         $(_table).bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             url: urlQueryParams.host,
             columns: _this._createPanels(),
             method: "get",

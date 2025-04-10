@@ -67,15 +67,15 @@ export default class GenomeBrowser {
     #initDom() {
         // Generate GB template
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" data-cy="gb-parent" class="panel panel-default">
-                <div id="${this.prefix}Navigation" data-cy="gb-navigation" class="panel-heading"></div>
-                <ul class="list-group">
+            <div id="${this.prefix}" data-cy="gb-parent" class="card text-bg-light mb-3">
+                <div id="${this.prefix}Navigation" data-cy="gb-navigation" class="card-header"></div>
+                <ul class="list-group rounded-0">
                     <li id="${this.prefix}Karyotype" data-cy="gb-karyotype" class="list-group-item" style="display:none;"></li>
                     <li id="${this.prefix}Chromosome" data-cy="gb-chromosome" class="list-group-item" style="display:none;"></li>
                     <li id="${this.prefix}Region" data-cy="gb-region" class="list-group-item" style="display:none;"></li>
                     <li id="${this.prefix}Tracks" data-cy="gb-tracks" class="list-group-item"></li>
                 </ul>
-                <div id="${this.prefix}Status" data-cy="gb-status" class="panel-footer" style="display:none;"></div>
+                <div id="${this.prefix}Status" data-cy="gb-status" class="card-footer text-bg-light" style="display:none;"></div>
             </div>
         `);
 

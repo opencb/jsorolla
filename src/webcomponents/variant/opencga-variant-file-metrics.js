@@ -91,6 +91,8 @@ export default class OpencgaVariantFileMetrics extends LitElement {
 
         $('#' + this._prefix + 'FileMetrics').bootstrapTable('destroy');
         $('#' + this._prefix + 'FileMetrics').bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             data: data,
             pagination: false,
             columns: this._getColumns()

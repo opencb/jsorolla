@@ -108,21 +108,21 @@ export default class OpencgaRestEndpoint extends LitElement {
             return;
         }
         return html`
-            <div class="panel panel-default">
-                <div class="panel-body">
+            <div class="card">
+                <div class="card-body">
                     <!-- Header Section-->
                     <h4>
-                        <span style="margin-right: 10px; font-weight: bold; color:${this.methodColor[this.endpoint.method]}">
+                        <span class="fw-bold me-1" style="color:${this.methodColor[this.endpoint.method]}">
                             ${this.endpoint.method}
                         </span>
                         ${this.endpoint.path}
                     </h4>
-                    <div class="help-block" style="margin: 0 10px">
+                    <div class="text-secondary my-0 mx-3">
                         ${this.endpoint.description}
                     </div>
 
                     <!-- Response Section-->
-                    <div style="padding: 5px 10px">
+                    <div class="py-2 px-3">
                         <h3>Response Type</h3>
                         <div>
                             <div>Type: ${this.endpoint.response} (Source code:
@@ -132,7 +132,7 @@ export default class OpencgaRestEndpoint extends LitElement {
                     </div>
 
                     <!-- Parameters Section-->
-                    <div style="padding: 5px 10px">
+                    <div class="py-2 px-3">
                         <opencga-rest-input
                             .endpoint="${this.endpoint}"
                             .opencgaSession="${this.opencgaSession}"
@@ -142,7 +142,7 @@ export default class OpencgaRestEndpoint extends LitElement {
                     </div>
 
                     <!-- Results Section -->
-                    <div style="padding: 5px 10px">
+                    <div class="py-2 px-3">
                         <rest-result
                             .result="${this.result}">
                         </rest-result>

@@ -148,9 +148,9 @@ export default class RestApi extends LitElement {
                         <!-- List wrapper: TODO when we add cellbase -->
                     </div>
                     <!-- MAIN-MANAGER -->
-                    <div class="rest-manager col-md-10">
+                    <div class="d-flex flex-grow-1 gap-3">
                         <!-- SIDE-BAR -->
-                        <div class="col-md-4">
+                        <div class="col-3">
                             <rest-menu
                                 .apiInfo="${this.selectedAPI}"
                                 .api="${this.api}"
@@ -159,7 +159,7 @@ export default class RestApi extends LitElement {
                             </rest-menu>
                         </div>
                         <!-- DASHBOARD -->
-                        <div id="rest-endpoint-panel" class="col-md-8">
+                        <div id="rest-endpoint-panel" class="col-8">
                             <rest-endpoint
                                 .apiInfo="${this.selectedAPI}"
                                 .endpoint="${this.endpoint}"

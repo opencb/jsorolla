@@ -281,8 +281,10 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                 <select-field-filter
                                     .data="${this.generateSignaturesDropdown()}"
                                     .value=${signature}
-                                    ?multiple="${false}"
-                                    ?liveSearch=${false}
+                                    .config="${{
+                                        multiple: false,
+                                        liveSearch: false
+                                    }}"
                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </select-field-filter>
                             `,
@@ -299,7 +301,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                 const signature = signatures.find(item => item.id === signatureId);
                                 if (signature?.query) {
                                     return Object.keys(signature.query).map(key => html`
-                                        <span class="badge">
+                                        <span class="badge text-bg-primary">
                                             ${key}: ${signature.query[key]}
                                         </span>
                                     `);
