@@ -524,6 +524,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
+                    <a data-action="view" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-eye me-1"></i> View
+                    </a>
                     <a data-action="interpreter" class="dropdown-item" href="${WebUtils.getInterpreterLink(session, row.id)}">
                         <i class="fas fa-user-md me-1"></i> Case Interpreter
                     </a>
