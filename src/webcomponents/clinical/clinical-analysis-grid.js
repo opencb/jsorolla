@@ -21,10 +21,11 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import ModalUtils from "../commons/modal/modal-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "./clinical-analysis-view.js";
+import "./clinical-analysis-create.js";
+import "./clinical-analysis-update.js";
 
 export default class ClinicalAnalysisGrid extends LitElement {
 
@@ -103,20 +104,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
             toolId: this.toolId,
             resource: this.RESOURCE,
             columns: this._getDefaultColumns(),
-            create: {
-                display: {
-                    modalTitle: "Create Clinical Analysis",
-                    modalDraggable: true,
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
-                },
-                render: () => html `
-                    <clinical-analysis-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </clinical-analysis-create>
-                `,
-            }
         };
 
         this.gridCommons.registerModals({
@@ -133,6 +120,50 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
                     </clinical-analysis-view>
+                `,
+            }),
+            "create-clinical-analysis": {
+                display: {
+                    modalTitle: "Create Clinical Analysis",
+                    modalDraggable: true,
+                    modalCyDataName: "modal-clinical-analysis-create",
+                    modalSize: "modal-lg"
+                },
+                render: () => html`
+                    <clinical-analysis-create
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @clinicalAnalysisCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </clinical-analysis-create>
+                `,
+            },
+            "update-clinical-analysis": () => ({
+                display: {
+                    modalTitle: `Update Clinical Analysis ${this._selectedClinicalAnalysis?.id}`,
+                    modalDraggable: true,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "modal-clinical-analysis-update",
+                },
+                render: () => html`
+                    <clinical-analysis-update
+                        .clinicalAnalysisId="${this._selectedClinicalAnalysis?.id}"
+                        .active="${true}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @clinicalAnalysisUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </clinical-analysis-update>
                 `,
             }),
         });
@@ -596,9 +627,13 @@ export default class ClinicalAnalysisGrid extends LitElement {
     onActionClick(event, clinicalAnalysis) {
         const action = event.currentTarget?.dataset?.action?.toLowerCase();
         switch (action) {
+            case "view":
+                this._selectedClinicalAnalysis = clinicalAnalysis;
+                this.gridCommons.changeActiveModal("view-clinical-analysis");
+                break;
             case "edit":
-                this.clinicalAnalysisUpdateId = row.id;
-                // TODO
+                this._selectedClinicalAnalysis = clinicalAnalysis;
+                this.gridCommons.changeActiveModal("update-clinical-analysis");
                 break;
             case "delete":
                 this.onDelete(clinicalAnalysis);
@@ -794,24 +829,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
             </div>
 
             ${this.gridCommons.renderModals()}
-
-            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-                display: {
-                    modalTitle: `Clinical Analysis Update: ${this.clinicalAnalysisUpdateId}`,
-                    modalDraggable: true,
-                    modalSize: "modal-lg"
-                },
-                render: active => {
-                    return html `
-                        <clinical-analysis-update
-                            .clinicalAnalysisId="${this.clinicalAnalysisUpdateId}"
-                            .active="${active}"
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </clinical-analysis-update>
-                    `;
-                }
-            })}
         `;
     }
 
