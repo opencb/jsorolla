@@ -20,7 +20,6 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import ModalUtils from "../commons/modal/modal-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -67,12 +66,12 @@ export default class WorkflowGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "workflow-grid";
+        this.RESOURCE = "WORKFLOW";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
-        this.activeActionModal = "";
         this.lastFilters = null;
-
+        this._selectedWorkflow = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -108,8 +107,101 @@ export default class WorkflowGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
+            toolId: this.toolId,
+            resource: this.RESOURCE,
             columns: this._getDefaultColumns(),
         };
+
+        this.gridCommons.registerModals({
+            "create-workflow": {
+                display: {
+                    modalTitle: "Create Workflow",
+                    modalCyDataName: "modal-workflow-create",
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <workflow-create
+                        .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonClearText: "Cancel",
+                            buttonsLayout: "upper"
+                        }}"
+                        @workflowCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </workflow-create>
+                `,
+            },
+            "import-workflow": {
+                display: {
+                    modalTitle: "Import Workflow",
+                    modalCyDataName: "modal-workflow-import",
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <workflow-import
+                        .opencgaSession="${this.opencgaSession}"
+                        @workflowImport="${() => {
+                            // this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </workflow-import>
+                `,
+            },
+            "view-workflow": () => ({
+                display: {
+                    modalTitle: `Workflow ${this._selectedWorkflow?.id}`,
+                    modalCyDataName: `modal-workflow-view`,
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <workflow-view
+                        .workflowId="${this._selectedWorkflow?.id}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </workflow-view>
+                `,
+            }),
+            "execute-workflow": () => ({
+                display: {
+                    modalTitle: "Execute Workflow",
+                    modalCyDataName: "modal-workflow-execute",
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <workflow-analysis
+                        .toolParams="${{
+                            id: this._selectedWorkflow?.id,
+                        }}"
+                        .search="${false}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </workflow-analysis>
+                `,
+            }),
+            "update-workflow": () => ({
+                display: {
+                    modalTitle: `Update Workflow ${this._selectedWorkflow?.id}`,
+                    modalCyDataName: "modal-workflow-update",
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <workflow-update
+                        .workflowId="${this._selectedWorkflow?.id}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonClearText: "Cancel",
+                            buttonsLayout: "upper"
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @workflowUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </workflow-update>
+                `,
+            }),
+        });
 
         // Create a map with the allowed permissions for the authenticated user
         this.permissions = Object.fromEntries(["WRITE", "DELETE", "EXECUTE"].map(operation => {
@@ -121,29 +213,6 @@ export default class WorkflowGrid extends LitElement {
             );
             return [operation, hasPermission];
         }));
-    }
-
-    changeActiveActionModal(actionModal) {
-        // 1. check if there is a modal rendered
-        if (this.activeActionModal) {
-            ModalUtils.close(`${this._prefix}Modal${this.activeActionModal}`);
-        }
-
-        // 2. set the new active action modal
-        this.activeActionModal = actionModal;
-        this.requestUpdate();
-
-        // 3. show the new active action modal (if provided)
-        this.updateComplete.then(() => {
-            if (this.activeActionModal) {
-                ModalUtils.show(`${this._prefix}Modal${this.activeActionModal}`);
-            }
-        });
-    }
-
-    forceTableRefresh() {
-        this.lastFilters = null; // reset last filters to force a refresh of the table
-        this.renderTable();
     }
 
     renderTable() {
@@ -419,7 +488,7 @@ export default class WorkflowGrid extends LitElement {
                     </div>
                 `,
                 events: {
-                    "click a": (e, value, workflow) => this.onActionClick(e, value, workflow),
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 excludeFromSettings: true,
                 visible: this._config.showActions, // this.gridCommons.isColumnVisible("actions"),
@@ -434,12 +503,12 @@ export default class WorkflowGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    onActionClick(event, value, workflow) {
+    onActionClick(event, workflow) {
         const action = (event.currentTarget?.dataset?.action || "").toLowerCase();
         switch (action) {
             case "view":
-                this.workflowId = workflow.id;
-                this.changeActiveActionModal("view");
+                this._selectedWorkflow = workflow;
+                this.gridCommons.changeActiveModal("view-workflow");
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(workflow, null, "\t"));
@@ -448,34 +517,37 @@ export default class WorkflowGrid extends LitElement {
                 UtilsNew.downloadData([JSON.stringify(workflow, null, "\t")], workflow.id + ".json");
                 break;
             case "execute":
-                this.workflowId = workflow.id;
-                this.changeActiveActionModal("execute");
+                this._selectedWorkflow = workflow;
+                this.gridCommons.changeActiveModal("execute-workflow");
                 break;
             case "update":
-                this.workflowId = workflow.id;
-                this.changeActiveActionModal("update");
+                this._selectedWorkflow = workflow;
+                this.gridCommons.changeActiveModal("update-workflow");
                 break;
             case "delete":
-                this.workflowId = workflow.id;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-                    title: `Delete Workflow: Workflow <b>${this.workflowId}</b> in organization ${this.opencgaSession.organization.id}`,
-                    message: `Are you sure you want to delete this workflow ${this.workflowId}?`,
-                    ok: () => {
-                        this.opencgaSession.opencgaClient.workflows()
-                            .delete(this.workflowId, {
-                                study: this.opencgaSession.study.fqn,
-                                jobId: `workflow-delete-${UtilsNew.getDatetime()}`,
-                            })
-                            .then(() => {
-                                this.forceTableRefresh();
-                            })
-                            .catch(error => {
-                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-                            });
-                    },
-                });
+                this.onDelete(workflow);
                 break;
         }
+    }
+
+    onDelete(workflow) {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: `Delete Workflow`,
+            message: `Are you sure you want to delete the workflow ${workflow.id}?`,
+            ok: () => {
+                this.opencgaSession.opencgaClient.workflows()
+                    .delete(workflow.id, {
+                        study: this.opencgaSession.study.fqn,
+                        jobId: `workflow-delete-${UtilsNew.getDatetime()}`,
+                    })
+                    .then(() => {
+                        this.table.bootstrapTable("refresh");
+                    })
+                    .catch(error => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                    });
+            },
+        });
     }
 
     async onDownload(e) {
@@ -530,121 +602,15 @@ export default class WorkflowGrid extends LitElement {
                 className: this.permissions.WRITE ? "" : "disabled",
                 icon: "fas fa-plus",
                 title: "Create Workflow",
-                onClick: () => this.changeActiveActionModal("create"),
+                onClick: () => this.gridCommons.changeActiveModal("create-workflow"),
             },
             {
                 className: this.permissions.WRITE ? "" : "disabled",
                 icon: "fas fa-file-import",
                 title: "Import Workflow",
-                onClick: () => this.changeActiveActionModal("import"),
+                onClick: () => this.gridCommons.changeActiveModal("import-workflow"),
             },
         ];
-    }
-
-    renderActionModal() {
-        let config = null;
-
-        switch (this.activeActionModal) {
-            case "create":
-                config = {
-                    display: {
-                        modalTitle: "Create Workflow",
-                        modalCyDataName: "modal-workflow-create",
-                        modalSize: "modal-lg",
-                    },
-                    render: () => html`
-                        <workflow-create
-                            .opencgaSession="${this.opencgaSession}"
-                            .displayConfig="${{
-                                buttonClearText: "Cancel",
-                                type: "tabs",
-                                buttonsLayout: "upper"
-                            }}"
-                            @workflowCreate="${() => {
-                                this.changeActiveActionModal("");
-                                this.forceTableRefresh();
-                            }}">
-                        </workflow-create>
-                    `,
-                };
-                break;
-            case "import":
-                config = {
-                    display: {
-                        modalTitle: "Import Workflow",
-                        modalCyDataName: "modal-workflow-import",
-                        modalSize: "modal-lg",
-                    },
-                    render: () => html`
-                        <workflow-import
-                            .opencgaSession="${this.opencgaSession}"
-                            @workflowImport="${() => {
-                                // this.changeActiveActionModal("");
-                                this.forceTableRefresh();
-                            }}">
-                        </workflow-import>
-                    `,
-                };
-                break;
-            case "view":
-                config = {
-                    display: {
-                        modalTitle: `Workflow ${this.workflowId}`,
-                        modalCyDataName: `modal-workflow-view`,
-                        modalSize: "modal-lg",
-                    },
-                    render: () => html`
-                        <workflow-view
-                            .workflowId="${this.workflowId}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </workflow-view>
-                    `,
-                };
-                break;
-            case "execute":
-                config = {
-                    display: {
-                        modalTitle: "Execute Workflow",
-                        modalCyDataName: "modal-workflow-execute",
-                        modalSize: "modal-lg",
-                    },
-                    render: () => html`
-                        <workflow-analysis
-                            .toolParams="${{id: this.workflowId}}"
-                            .search="${false}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </workflow-analysis>
-                    `,
-                };
-                break;
-            case "update":
-                config = {
-                    display: {
-                        modalTitle: `Update Workflow ${this.workflowId}`,
-                        modalCyDataName: "modal-workflow-update",
-                        modalSize: "modal-lg",
-                    },
-                    render: () => html`
-                        <workflow-update
-                            .workflowId="${this.workflowId}"
-                            .displayConfig="${{
-                                buttonClearText: "Cancel",
-                                type: "tabs",
-                                buttonsLayout: "upper"
-                            }}"
-                            .opencgaSession="${this.opencgaSession}"
-                            @workflowUpdate="${() => {
-                                this.changeActiveActionModal("");
-                                this.forceTableRefresh();
-                            }}">
-                        </workflow-update>
-                    `,
-                };
-                break;
-        }
-
-        // render a modal with the provided configuration
-        return config ? ModalUtils.create(this, `${this._prefix}Modal${this.activeActionModal}`, config) : nothing;
     }
 
     render() {
@@ -672,7 +638,7 @@ export default class WorkflowGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${this.renderActionModal()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
