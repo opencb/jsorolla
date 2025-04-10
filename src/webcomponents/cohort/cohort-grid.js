@@ -26,6 +26,8 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "./cohort-create.js";
+import "./cohort-update.js";
 import "./cohort-view.js";
 
 export default class CohortGrid extends LitElement {
@@ -99,56 +101,14 @@ export default class CohortGrid extends LitElement {
 
         // Settings for the grid toolbar
         this.toolbarSetting = {
-            toolId: this.toolId,
-            resource: this.RESOURCE,
             ...this._config,
         };
 
         // Config for the grid toolbar
         this.toolbarConfig = {
             toolId: this.toolId,
-            resource: "COHORT",
+            resource: this.RESOURCE,
             columns: this._getDefaultColumns(),
-            create: {
-                display: {
-                    modalTitle: "Create Cohort",
-                    modalDraggable: true,
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
-                },
-                render: () => html `
-                    <cohort-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </cohort-create>
-                `
-            },
-            // Uncomment in case we need to change defaults
-            // export: {
-            //     display: {
-            //         modalTitle: "Cohort Export",
-            //     },
-            //     render: () => html`
-            //         <opencga-export
-            //             .config="${this._config}"
-            //             .query=${this.query}
-            //             .opencgaSession="${this.opencgaSession}"
-            //             @export="${this.onExport}"
-            //             @changeExportField="${this.onChangeExportField}">
-            //         </opencga-export>`
-            // },
-            // settings: {
-            //     display: {
-            //         modalTitle: "Cohort Settings",
-            //     },
-            //     render: () => html `
-            //         <catalog-browser-grid-config
-            //             .opencgaSession="${this.opencgaSession}"
-            //             .gridColumns="${this._columns}"
-            //             .config="${this._config}"
-            //             @configChange="${this.onGridConfigChange}">
-            //         </catalog-browser-grid-config>`
-            // }
         };
 
         this.gridCommons.registerModals({
@@ -159,14 +119,31 @@ export default class CohortGrid extends LitElement {
                     modalCyDataName: "cohort-view",
                     modalSize: "modal-xl"
                 },
-                render: active => html`
+                render: () => html`
                     <cohort-view
                         .cohortId="${this._selectedCohort?.id}"
-                        .active="${active}"
+                        .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
                     </cohort-view>
                 `,
             }),
+            "create-cohort": {
+                display: {
+                    modalTitle: "Create Cohort",
+                    modalDraggable: true,
+                    modalCyDataName: "cohort-create",
+                    modalSize: "modal-lg"
+                },
+                render: () => html`
+                    <cohort-create
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </cohort-create>
+                `,
+            },
         });
 
         this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
@@ -501,6 +478,18 @@ export default class CohortGrid extends LitElement {
         `;
     }
 
+    getRightToolbar() {
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        return [
+            {
+                icon: "fa-folder-plus",
+                title: "Create Cohort",
+                disabled: !hasWritePermission,
+                onClick: () => this.gridCommons.changeActiveModal("create-cohort"),
+            },
+        ];
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
@@ -508,6 +497,7 @@ export default class CohortGrid extends LitElement {
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
                     .leftContent="${this.renderToolbarLeftContent()}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
