@@ -21,9 +21,6 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import PolymerUtils from "../PolymerUtils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import ModalUtils from "../commons/modal/modal-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "./cohort-create.js";
@@ -144,9 +141,26 @@ export default class CohortGrid extends LitElement {
                     </cohort-create>
                 `,
             },
+            "update-cohort": () => ({
+                display: {
+                    modalTitle: `Update Cohort ${this._selectedCohort?.id}`,
+                    modalDraggable: true,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "cohort-update",
+                },
+                render: () => html`
+                    <cohort-update
+                        .cohortId="${this._selectedCohort?.id}"
+                        .active="${true}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </cohort-update>
+                `,
+            }),
         });
-
-        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
     }
 
     renderTable() {
@@ -359,11 +373,7 @@ export default class CohortGrid extends LitElement {
                 id: "actions",
                 align: "right",
                 formatter: () => {
-                    const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
-                        this.opencgaSession.study,
-                        this.opencgaSession.user.id,
-                        this.permissionID,
-                        this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+                    const hasWritePermission = this.gridCommons.hasPermission("WRITE");
                     return `
                         <div class="d-inline-block dropdown">
                             <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
@@ -454,24 +464,6 @@ export default class CohortGrid extends LitElement {
             });
     }
 
-    renderModalUpdate() {
-        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-            display: {
-                modalTitle: `Cohort Update: ${this.cohortUpdateId}`,
-                modalDraggable: true,
-                modalSize: "modal-lg",
-            },
-            render: active => html`
-                <cohort-update
-                    .cohortId="${this.cohortUpdateId}"
-                    .active="${active}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}">
-                </cohort-update>
-            `,
-        });
-    }
-
     renderToolbarLeftContent() {
         return html`
             <span id="${this.gridId + "PaginationInfo"}"></span>
@@ -512,7 +504,6 @@ export default class CohortGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${this.renderModalUpdate()}
             ${this.gridCommons.renderModals()}
         `;
     }
