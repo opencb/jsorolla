@@ -326,14 +326,16 @@ export default class CohortGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
+    onActionClick(event, cohort) {
+        const action = event.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "view":
+                this._selectedCohort = cohort;
+                this.gridCommons.changeActiveModal("view-cohort");
+                break;
             case "edit":
-                this.cohortUpdateId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
+                this._selectedCohort = cohort;
+                this.gridCommons.changeActiveModal("update-cohort");
                 break;
         }
     }
@@ -391,6 +393,9 @@ export default class CohortGrid extends LitElement {
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
+                                <a data-action="view" class="dropdown-item cursor-pointer">
+                                    <i class="fas fa-eye me-1"></i> View
+                                </a>
                                 <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
                                     <i class="fas fa-edit me-1"></i> Edit
                                 </a>
@@ -402,7 +407,7 @@ export default class CohortGrid extends LitElement {
                     `;
                 },
                 events: {
-                    "click a": (event, value, row) => this.onActionClick(event, value, row),
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("actions"),
             });
