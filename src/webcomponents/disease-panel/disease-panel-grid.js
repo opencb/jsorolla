@@ -116,7 +116,7 @@ export default class DiseasePanelGrid extends LitElement {
                     modalTitle: `Disease Panel ${this._selectedDiseasePanel?.id}`,
                     modalDraggable: true,
                     modalCyDataName: "modal-disease-panel-view",
-                    modalSize: "modal-xlg"
+                    modalSize: "modal-xl"
                 },
                 render: () => html`
                     <disease-panel-view
@@ -430,6 +430,9 @@ export default class DiseasePanelGrid extends LitElement {
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
+                    <a data-action="view" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-eye me-1"></i> View
+                    </a>
                     <a data-action="copy-json" class="dropdown-item cursor-pointer">
                         <i class="fas fa-copy me-1"></i> Copy JSON
                     </a>
@@ -455,6 +458,10 @@ export default class DiseasePanelGrid extends LitElement {
     onActionClick(event, diseasePanel) {
         const action = event.target.dataset.action?.toLowerCase();
         switch (action) {
+            case "view":
+                this._selectedDiseasePanel = diseasePanel;
+                this.gridCommons.changeActiveModal("view-disease-panel");
+                break;
             case "edit":
                 this._selectedDiseasePanel = diseasePanel;
                 this.gridCommons.changeActiveModal("update-disease-panel");
