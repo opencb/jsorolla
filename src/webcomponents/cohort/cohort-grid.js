@@ -136,7 +136,11 @@ export default class CohortGrid extends LitElement {
                             type: "tabs",
                             buttonsLayout: "upper",
                         }}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .opencgaSession="${this.opencgaSession}"
+                        @cohortCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
                     </cohort-create>
                 `,
             },
@@ -155,7 +159,11 @@ export default class CohortGrid extends LitElement {
                             type: "tabs",
                             buttonsLayout: "upper",
                         }}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .opencgaSession="${this.opencgaSession}"
+                        @cohortUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
                     </cohort-update>
                 `,
             }),
