@@ -19,8 +19,6 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "./workflow-create.js";
@@ -202,17 +200,6 @@ export default class WorkflowGrid extends LitElement {
                 `,
             }),
         });
-
-        // Create a map with the allowed permissions for the authenticated user
-        this.permissions = Object.fromEntries(["WRITE", "DELETE", "EXECUTE"].map(operation => {
-            const hasPermission =  OpencgaCatalogUtils.getStudyEffectivePermission(
-                this.opencgaSession.study,
-                this.opencgaSession.user.id,
-                WebUtils.getPermissionID(operation === "EXECUTE" ? "JOB" : "WORKFLOW", operation),
-                this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions
-            );
-            return [operation, hasPermission];
-        }));
     }
 
     renderTable() {
@@ -241,7 +228,6 @@ export default class WorkflowGrid extends LitElement {
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
-                silentSort: false,
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
@@ -249,8 +235,6 @@ export default class WorkflowGrid extends LitElement {
                 formatShowingRows: (pageFrom, pageTo, totalRows) => {
                     return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
                 },
-                detailView: !!this.detailFormatter,
-                gridContext: this,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let workflowResponse = null;
@@ -287,11 +271,6 @@ export default class WorkflowGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onCheck: row => this.gridCommons.onCheck(row.id, row),
-                onCheckAll: rows => this.gridCommons.onCheckAll(rows),
-                onUncheck: row => this.gridCommons.onUncheck(row.id, row),
-                onUncheckAll: rows => this.gridCommons.onUncheckAll(rows),
-                // Vero 20250202: Do not display a pre-selected row
                 // onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
             });
@@ -305,7 +284,6 @@ export default class WorkflowGrid extends LitElement {
             theadClasses: "table-light",
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
-            // data: this.workflows,
             sidePagination: "server",
             // Josemi Note 2024-01-18: we have added the ajax function for local workflows also to support executing async calls
             // when getting additional data from columns extensions.
@@ -334,15 +312,13 @@ export default class WorkflowGrid extends LitElement {
             paginationVAlign: "bottom",
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            detailView: this._config.detailView && this.detailFormatter,
-            gridContext: this,
             // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            //onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 // this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            }
+            },
         });
     }
 
@@ -590,15 +566,15 @@ export default class WorkflowGrid extends LitElement {
     getRightToolbar() {
         return [
             {
-                className: this.permissions.WRITE ? "" : "disabled",
                 icon: "fas fa-plus",
                 title: "Create Workflow",
+                disabled: !this.gridCommons.hasPermission("WRITE"),
                 onClick: () => this.gridCommons.changeActiveModal("create-workflow"),
             },
             {
-                className: this.permissions.WRITE ? "" : "disabled",
                 icon: "fas fa-file-import",
                 title: "Import Workflow",
+                disabled: !this.gridCommons.hasPermission("WRITE"),
                 onClick: () => this.gridCommons.changeActiveModal("import-workflow"),
             },
         ];
