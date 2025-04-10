@@ -108,9 +108,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
         this.gridCommons.registerModals({
             "view-clinical-analysis": () => ({
                 display: {
-                    modalTitle: `ClinicalAnalysis ${this._selectedClinicalAnalysis?.id}`,
+                    modalTitle: `Clinical Analysis ${this._selectedClinicalAnalysis?.id}`,
                     modalDraggable: true,
-                    modalCyDataName: "moda-clinical-analysis-view",
+                    modalCyDataName: "modal-clinical-analysis-view",
                     modalSize: "modal-xl"
                 },
                 render: () => html`
