@@ -17,6 +17,16 @@
 import {html, LitElement, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
 import "../commons/forms/data-form.js";
+import "../commons/json-viewer.js";
+import "./variant-cohort-stats.js";
+import "./variant-samples.js";
+import "./variant-notes.js";
+import "./annotation/variant-annotation-pharmacogenomics-view.js";
+import "./annotation/variant-annotation-clinical-view.js";
+import "./annotation/cellbase-population-frequency-grid.js";
+import "./annotation/variant-consequence-type-view.js";
+import "./annotation/cellbase-variant-annotation-summary.js";
+import "./variant-beacon-network.js";
 
 export default class VariantView extends LitElement {
 
