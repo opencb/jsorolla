@@ -62,7 +62,7 @@ export default class ClinicalAnalysisView extends LitElement {
             this.clinicalAnalysisObserver();
         }
 
-        if (changedProperties.has("displayConfig")) {
+        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
         }
 
@@ -123,7 +123,7 @@ export default class ClinicalAnalysisView extends LitElement {
                         </clinical-analysis-summary>
                     `,
                 },
-                ...ExtensionsManager.getViews(this.COMPONENT_ID),
+                ...ExtensionsManager.getViews(this.COMPONENT_ID, this.opencgaSession),
             ],
         };
     }

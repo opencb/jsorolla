@@ -66,7 +66,7 @@ export default class IndividualView extends LitElement {
             this.individualObserver();
         }
 
-        if (changedProperties.has("displayConfig")) {
+        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
         }
 
@@ -180,7 +180,7 @@ export default class IndividualView extends LitElement {
                     `,
                 },
             ],
-            ...ExtensionsManager.getViews(this.COMPONENT_ID),
+            ...ExtensionsManager.getViews(this.COMPONENT_ID, this.opencgaSession),
         };
     }
 

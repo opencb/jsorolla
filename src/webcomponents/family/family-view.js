@@ -64,7 +64,7 @@ export default class FamilyView extends LitElement {
             this.familyObserver();
         }
 
-        if (changedProperties.has("displayConfig")) {
+        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
         }
 
@@ -145,7 +145,7 @@ export default class FamilyView extends LitElement {
                         </json-viewer>
                     `,
                 },
-                ...ExtensionsManager.getViews(this.COMPONENT_ID),
+                ...ExtensionsManager.getViews(this.COMPONENT_ID, this.opencgaSession),
             ],
         };
     }

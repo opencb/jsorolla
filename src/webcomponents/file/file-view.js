@@ -64,7 +64,7 @@ export default class FileView extends LitElement {
             this.fileObserver();
         }
 
-        if (changedProperties.has("defaultConfig")) {
+        if (changedProperties.has("defaultConfig") || changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
         }
 
@@ -144,7 +144,7 @@ export default class FileView extends LitElement {
                         </json-viewer>
                     `,
                 },
-                ...ExtensionsManager.getViews(this.COMPONENT_ID),
+                ...ExtensionsManager.getViews(this.COMPONENT_ID, this.opencgaSession),
             ],
         };
     }

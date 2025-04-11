@@ -61,12 +61,15 @@ export default class SampleView extends LitElement {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
+
         if (changedProperties.has("sample")) {
             this.sampleObserver();
         }
-        if (changedProperties.has("displayConfig")) {
+
+        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -183,7 +186,7 @@ export default class SampleView extends LitElement {
                         </json-viewer>
                     `,
                 },
-                ...ExtensionsManager.getViews(this.COMPONENT_ID),
+                ...ExtensionsManager.getViews(this.COMPONENT_ID, this.opencgaSession),
             ],
         };
     }

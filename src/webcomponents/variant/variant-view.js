@@ -64,16 +64,16 @@ export default class VariantView extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
-            this._config = this.getDefaultConfig();
-        }
-
         if (changedProperties.has("variantId")) {
             this.variantIdObserver();
         }
 
         if (changedProperties.has("variant")) {
             this.variantObserver();
+        }
+
+        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
+            this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
