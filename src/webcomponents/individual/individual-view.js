@@ -140,10 +140,8 @@ export default class IndividualView extends LitElement {
                             }}"
                             .config=${{
                                 readOnlyMode: true,
-                                showExport: false,
+                                showToolbar: false,
                                 showActions: false,
-                                showSettings: false,
-                                showCreate: false,
                             }}
                             .opencgaSession="${this.opencgaSession}">
                         </clinical-analysis-grid>
