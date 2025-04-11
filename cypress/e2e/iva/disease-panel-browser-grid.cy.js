@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-import UtilsTest from "../../support/utils-test.js";
-import BrowserTest from "../../support/browser-test";
-
 context("Disease Panel Browser Grid", () => {
-    const browserGrid = "disease-panel-grid";
-
     beforeEach(() => {
         cy.visit("#disease-panel-browser-grid");
         cy.get("disease-panel-grid")
