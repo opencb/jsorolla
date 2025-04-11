@@ -20,14 +20,14 @@ import VariantGridFormatter from "./variant-grid-formatter.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter.js";
 import GridCommons from "../commons/grid-commons.js";
 import VariantUtils from "./variant-utils.js";
-import "../commons/opencb-grid-toolbar.js";
-import "../loading-spinner.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 import WebUtils from "../commons/utils/web-utils.js";
 import ModalUtils from "../commons/modal/modal-utils";
+import "../commons/opencb-grid-toolbar.js";
+import "../loading-spinner.js";
+import "./variant-view.js";
 
 export default class VariantBrowserGrid extends LitElement {
 
@@ -72,6 +72,7 @@ export default class VariantBrowserGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "variant-browser-grid";
+        this.RESOURCE = "VARIANT";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.checkedVariants = new Map();
@@ -88,16 +89,12 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config") || changedProperties.has("toolId")) {
+            this.configObserver();
         }
 
         if (changedProperties.has("query")) {
             this.queryObserver();
-        }
-
-        if (changedProperties.has("config") || changedProperties.has("toolId")) {
-            this.configObserver();
         }
 
         super.update(changedProperties);
@@ -107,16 +104,6 @@ export default class VariantBrowserGrid extends LitElement {
         if (changedProperties.size > 0) {
             this.renderVariants();
         }
-    }
-
-    opencgaSessionObserver() {
-        // With each property change we must be updated config and create the columns again. No extra checks are needed.
-        this._config = {
-            ...this.getDefaultConfig(),
-            ...this.config
-        };
-
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     queryObserver() {
@@ -155,6 +142,23 @@ export default class VariantBrowserGrid extends LitElement {
             showInterpreterConfig: true,
             columns: this._getDefaultColumns(),
         };
+
+        this.gridCommons.registerModals({
+            "view-variant": () => ({
+                display: {
+                    modalTitle: `Variant: ${this.selectedVariantId}`,
+                    modalDraggable: true,
+                    modalCyDataName: "modal-variant-view",
+                    modalSize: "modal-xl",
+                },
+                render: () => html`
+                    <variant-view
+                        .variantId="${this.selectedVariantId}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </variant-view>
+                `,
+            }),
+        });
     }
 
     onColumnChange(e) {
@@ -173,7 +177,6 @@ export default class VariantBrowserGrid extends LitElement {
     renderRemoteVariants() {
         if (this.opencgaSession?.study) {
             this._columns = this._getDefaultColumns();
-            // debugger
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
@@ -717,94 +720,16 @@ export default class VariantBrowserGrid extends LitElement {
                 },
                 {
                     id: "actions",
-                    title: "Actions",
                     rowspan: 2,
                     colspan: 1,
-                    eligible: false,
-                    formatter: (value, row) => {
-                        return `
-                            <div class="dropdown">
-                                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-toolbox" aria-hidden="true"></i>
-                                    <span>Actions</span>
-                                    <span class="caret" style="margin-left: 5px"></span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="btn force-text-left" data-action="view">
-                                            <i class="fas fa-eye me-1"></i> Variant View
-                                        </a>
-                                    </li>
-                                    <li class="dropdown-header">External Links</li>
-                                    <li>
-                                        <a target="_blank" class="dropdown-item" ${row.type !== "SNV" ? "disabled" : ""} title="${row.type !== "SNV" ? "Only SNV are accepted" : ""}"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "decipher")}">
-                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Decipher
-                                        </a>
-                                    </li>
-                                    <li data-cy="varsome-variant-link">
-                                        <a target="_blank" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""}
-                                            href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
-                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Varsome
-                                        </a>
-                                    </li>
-
-                                    <li class="dropdown-header">CellBase Links</li>
-                                    ${["v5.2", "v5.8"].map(v => `
-                                        <li>
-                                            <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`)}">
-                                                <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i>
-                                                CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}
-                                            </a>
-                                        </li>
-                                    `).join("")}
-                                    <li class="dropdown-header">External Genome Browsers</li>
-                                    <li>
-                                        <a target="_blank" class="dropdown-item"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.assembly)}">
-                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Ensembl Genome Browser
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a target="_blank" class="dropdown-item"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ucsc_genome_browser")}">
-                                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> UCSC Genome Browser
-                                        </a>
-                                    </li>
-                                    <li role="separator" class="divider"></li>
-                                    <li class="dropdown-header">Copy Variant Info</li>
-                                    <li data-cy="copy-link">
-                                        <a class="btn force-text-left" data-action="copy-link">
-                                            <i class="fas fa-copy me-1"></i> Copy IVA Link
-                                        </a>
-                                    </li>
-                                    <li data-cy="varsome-copy">
-                                        <a href="javascript: void 0" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
-                                            <i class="fas fa-download me-1" aria-hidden="true"></i> Copy Varsome ID
-                                        </a>
-                                    </li>
-                                    <li role="separator" class="divider"></li>
-                                    <li class="dropdown-header">Fetch Variant</li>
-                                    <li>
-                                        <a href="javascript: void 0" class="dropdown-item" data-action="copy-json">
-                                            <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript: void 0" class="dropdown-item" data-action="download">
-                                            <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>`;
-                    },
-                    align: "center",
+                    formatter: (value, row) => this.actionsFormatter(value, row),
+                    align: "right",
                     events: {
                         "click a": (e, value, row) => this.onActionClick(e, value, row)
                     },
                     visible: this._config?.showActions,
                     excludeFromSettings: true,
-                    excludeFromExport: true, // this is used in opencga-export
+                    excludeFromExport: true,
                 },
             ],
             [
@@ -967,14 +892,67 @@ export default class VariantBrowserGrid extends LitElement {
         return this._columns;
     }
 
-    async onActionClick(e, value, row) {
-        const action = e.target.dataset.action?.toLowerCase();
+    actionsFormatter(value, row) {
+        const assembly = this.opencgaSession?.project?.organism?.assembly;
+        const variantPosition = `${row.chromosome}:${row.start}-${row.end}`;
+        const cellbaseVersions = ["v5.2", "v5.8"];
+        return `
+            <div class="dropdown">
+                <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item cursor-pointer" data-action="view">
+                        <i class="fas fa-eye me-1"></i> Variant View
+                    </a>
+                    <div class="dropdown-header">External Links</div>
+                    <a target="_blank" class="dropdown-item ${row.type !== "SNV" ? "disabled" : ""}" href="${BioinfoUtils.getVariantLink(row.id, variantPosition, "decipher")}">
+                        <i class="fas fa-external-link-alt me-1"></i> Decipher
+                    </a>
+                    <a target="_blank" class="dropdown-item ${row.type === "COPY_NUMBER" ? "disabled" : ""}" href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", assembly)}">
+                        <i class="fas fa-external-link-alt me-1"></i> Varsome
+                    </a>
+                    <div class="dropdown-header">CellBase Links</div>
+                    ${cellbaseVersions.map(v => `
+                        <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, variantPosition, `CELLBASE_${v}`)}">
+                            <i class="fas fa-external-link-alt me-1"></i>
+                            <span>CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}</span>
+                        </a>
+                    `).join("")}
+                    <div class="dropdown-header">External Genome Browsers</div>
+                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, variantPosition, "ensembl_genome_browser", assembly)}">
+                        <i class="fas fa-external-link-alt me-1"></i> Ensembl Genome Browser
+                    </a>
+                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, variantPosition, "ucsc_genome_browser")}">
+                        <i class="fas fa-external-link-alt me-1"></i> UCSC Genome Browser
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-header">Copy Variant Info</div>
+                    <a class="dropdown-item" data-action="copy-link">
+                        <i class="fas fa-copy me-1"></i> Copy IVA Link
+                    </a>
+                    <a class="dropdown-item ${row.type === "COPY_NUMBER" ? "disabled" : "cursor-pointer"}" data-action="copy-varsome-id">
+                        <i class="fas fa-download me-1"></i> Copy Varsome ID
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-header">Fetch Variant</div>
+                    <a class="dropdown-item cursor-pointer" data-action="copy-json">
+                        <i class="fas fa-copy me-1"></i> Copy JSON
+                    </a>
+                    <a class="dropdown-item cursor-pointer" data-action="download">
+                        <i class="fas fa-download me-1"></i> Download JSON
+                    </a>
+                </div>
+            </div>
+        `;
+    }
+
+    onActionClick(event, value, row) {
+        const action = event.target?.dataset?.action?.toLowerCase();
         switch (action) {
             case "view":
                 this.selectedVariantId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}ViewModal`);
+                this.gridCommons.changeActiveModal("view-variant");
                 break;
             case "copy-link":
                 // 1. Generate the URL to this variant
@@ -1051,23 +1029,6 @@ export default class VariantBrowserGrid extends LitElement {
         `;
     }
 
-    renderViewModal() {
-        return ModalUtils.create(this, `${this._prefix}ViewModal`, {
-            display: {
-                modalTitle: `Variant: ${this.selectedVariantId}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-update",
-                modalSize: "modal-xl",
-            },
-            render: () => html`
-                <variant-view
-                    .variantId="${this.selectedVariantId}"
-                    .opencgaSession="${this.opencgaSession}">
-                </variant-view>
-            `,
-        });
-    }
-
     render() {
         return html`
             ${this._config?.showToolbar ? html`
@@ -1088,7 +1049,7 @@ export default class VariantBrowserGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${this.renderViewModal()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
