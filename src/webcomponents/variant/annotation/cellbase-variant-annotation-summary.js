@@ -202,7 +202,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
 
     getDefaultConfig() {
         return {
-            displayConfig: {
+            display: {
                 buttonsVisible: false,
                 ...this.displayConfig,
             },
