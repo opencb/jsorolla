@@ -41,8 +41,8 @@ export default class VariantView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
+            displayConfig: {
+                type: Object,
             },
         };
     }
@@ -51,32 +51,30 @@ export default class VariantView extends LitElement {
         this.COMPONENT_ID = "variant-view";
         this._variant = null;
         this._config = this.getDefaultConfig();
-        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
+            this._config = this.getDefaultConfig();
+        }
+
         if (changedProperties.has("variantId")) {
             this.variantIdObserver();
         }
+
         if (changedProperties.has("variant")) {
             this.variantObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.#updateDetailTabs();
-        }
+
         super.update(changedProperties);
     }
 
     variantObserver() {
         this._variant = {...this.variant};
-        this.requestUpdate();
     }
 
     variantIdObserver() {
+        this._variant = null;
         if (this.opencgaSession && this.variantId) {
             this.opencgaSession.opencgaClient.variants()
                 .query({
@@ -91,13 +89,6 @@ export default class VariantView extends LitElement {
                     console.error(response);
                 });
         }
-    }
-
-    #updateDetailTabs() {
-        this._config.sections = [
-            ...this._config.sections,
-            ...ExtensionsManager.getViews(this.COMPONENT_ID),
-        ];
     }
 
     render() {
@@ -115,12 +106,10 @@ export default class VariantView extends LitElement {
 
     getDefaultConfig() {
         return {
-            // title: "Variant",
             display: {
-                // titleClass: "mt-4",
-                // contentClass: "p-3"
                 type: "tabs",
                 buttonsVisible: false,
+                ...this.displayConfig,
             },
             sections: [
                 {
@@ -128,6 +117,7 @@ export default class VariantView extends LitElement {
                     name: "Summary",
                     render: (variant, active) => html`
                         <cellbase-variant-annotation-summary
+                            .active="${active}"
                             .variantAnnotation="${variant.annotation}"
                             .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
                             .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
@@ -229,7 +219,8 @@ export default class VariantView extends LitElement {
                             .active="${active}">
                         </json-viewer>
                     `,
-                }
+                },
+                ...ExtensionsManager.getViews(this.COMPONENT_ID, this.opencgaSession),
             ],
         };
     }
