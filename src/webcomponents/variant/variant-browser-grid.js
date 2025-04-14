@@ -273,22 +273,16 @@ export default class VariantBrowserGrid extends LitElement {
                     }
                 },
                 onLoadSuccess: data => {
-                    // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
-                    this.gridCommons.onLoadSuccess(data, 2);
+                    this.gridCommons.onLoadSuccess(data);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onExpandRow: (index, row) => {
-                    this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
-
-                    // Listen to Show/Hide link in the detail formatter consequence type table
-                    // TODO Remove this
                     document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
                     document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
 
                     UtilsNew.initTooltip(this);
                 },
-                // onPostBody: data => {},
                 rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
             });
         }
@@ -336,19 +330,12 @@ export default class VariantBrowserGrid extends LitElement {
             // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
             variantGrid: this,
             onExpandRow: (index, row) => {
-                this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
-
-                // Listen to Show/Hide link in the detail formatter consequence type table
-                // TODO Remove this
                 document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
                 document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
 
                 UtilsNew.initTooltip(this);
             },
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row, this is only needed when rendering from local
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-            },
+            onPostBody: data => this.gridCommons.onLoadSuccess({rows: data, total: data.length}),
             rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
         });
     }

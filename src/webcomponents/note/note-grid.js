@@ -254,10 +254,8 @@ export default class NoteGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                // onLoadSuccess: data => {
-                //     this.gridCommons.onLoadSuccess(data, 1);
-                // },
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data),
+                onLoadError: (event, response) => this.gridCommons.onLoadError(event, response),
             });
         }
     }
@@ -301,10 +299,7 @@ export default class NoteGrid extends LitElement {
                 return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
             },
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            // onPostBody: data => {
-            //     // We call onLoadSuccess to select first row
-            //     this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            // }
+            onPostBody: data => this.gridCommons.onLoadSuccess({rows: data, total: data.length}),
         });
     }
 

@@ -272,13 +272,8 @@ export default class FamilyGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                // onLoadSuccess: data => {
-                //     this.gridCommons.onLoadSuccess(data, 1);
-                // },
-                onLoadError: (e, restResponse) => {
-                    this.gridCommons.onLoadError(e, restResponse);
-                },
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data),
+                onLoadError: (event, response) => this.gridCommons.onLoadError(event, response),
             });
         }
     }

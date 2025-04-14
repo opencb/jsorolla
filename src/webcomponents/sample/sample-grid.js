@@ -300,13 +300,8 @@ export default class SampleGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                // onLoadSuccess: data => {
-                //     this.gridCommons.onLoadSuccess(data, 1);
-                // },
-                onLoadError: (e, restResponse) => {
-                    this.gridCommons.onLoadError(e, restResponse);
-                },
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data),
+                onLoadError: (event, response) => this.gridCommons.onLoadError(event, response),
             });
         }
     }
@@ -350,11 +345,7 @@ export default class SampleGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            // onPostBody: data => {
-            //     // We call onLoadSuccess to select first row
-            //     this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            // },
+            onPostBody: data => this.gridCommons.onLoadSuccess({rows: data, total: data.length}),
         });
     }
 

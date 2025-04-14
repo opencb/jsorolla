@@ -302,7 +302,6 @@ export default class OpencgaFileGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onDblClickRow: row => {
                     if (row.type === "DIRECTORY") {
                         this.onPathChange(row.path);
@@ -311,22 +310,8 @@ export default class OpencgaFileGrid extends LitElement {
                         this.gridCommons.changeActiveModal("view");
                     }
                 },
-                onCheck: row => {
-                    this.gridCommons.onCheck(row.id, row);
-                },
-                onCheckAll: rows => {
-                    this.gridCommons.onCheckAll(rows);
-                },
-                onUncheck: row => {
-                    this.gridCommons.onUncheck(row.id, row);
-                },
-                onUncheckAll: rows => {
-                    this.gridCommons.onUncheckAll(rows);
-                },
-                // onLoadSuccess: data => {
-                //     this.gridCommons.onLoadSuccess(data, 1);
-                // },
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data),
+                onLoadError: (event, response) => this.gridCommons.onLoadError(event, response),
             });
         }
     }
@@ -378,16 +363,7 @@ export default class OpencgaFileGrid extends LitElement {
             detailView: this._config.detailView,
             gridContext: this,
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            onPageChange: (page, size) => {
-                const result = this.gridCommons.onPageChange(page, size);
-                this.from = result.from || this.from;
-                this.to = result.to || this.to;
-            },
-            // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            // onPostBody: data => {
-            //     // We call onLoadSuccess to select first row
-            //     this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-            // },
+            onPostBody: data => this.gridCommons.onLoadSuccess({rows: data, total: data.length}),
         });
     }
 

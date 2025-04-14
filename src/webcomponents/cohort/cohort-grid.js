@@ -217,11 +217,7 @@ export default class CohortGrid extends LitElement {
                 return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
             },
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            // onPostBody: data => {
-            //     // We call onLoadSuccess to select first row
-            //     this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            // }
+            onPostBody: data => this.gridCommons.onLoadSuccess({rows: data, total: data.length}),
         });
     }
 
@@ -282,11 +278,8 @@ export default class CohortGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                // onLoadSuccess: data => {
-                //     this.gridCommons.onLoadSuccess(data, 1);
-                // },
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data),
+                onLoadError: (event, response) => this.gridCommons.onLoadError(event, response)
             });
         }
     }
