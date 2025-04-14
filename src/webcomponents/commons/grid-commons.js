@@ -174,22 +174,6 @@ export default class GridCommons {
                 }
             }
 
-            if (table[0]) {
-                const selectedDataId = this.selectedRow?.[0]?.attributes["data-uniqueid"]?.["nodeValue"];
-                const selectedData = selectedDataId ? data.rows.find(row => row?.id === selectedDataId) : null;
-                if (selectedData) {
-                    table.find(`tr[data-uniqueid="${selectedDataId}"]`).addClass("table-success");
-                } else {
-                    table.find("tr[data-index=0]").addClass("table-success");
-                }
-                this.context.dispatchEvent(new CustomEvent("selectrow", {
-                    detail: {
-                        id: selectedData ? selectedData[idField] : data.rows[0][idField],
-                        row: selectedData ? selectedData : data.rows[0]
-                    }
-                }));
-            }
-
             // Add events for displaying genes and roles list
             ["genes", "roles", "gene-feature-overlaps"].forEach(key => {
                 Array.from(document.querySelectorAll(`#${this.gridId} div[data-role="${key}-list"]`)).forEach(el => {
@@ -210,13 +194,6 @@ export default class GridCommons {
                     });
                 });
             });
-        } else {
-            this.context.dispatchEvent(new CustomEvent("selectrow", {
-                detail: {
-                    id: null,
-                    row: null
-                }
-            }));
         }
 
         // This init all grid tooltips
