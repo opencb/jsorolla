@@ -160,10 +160,8 @@ export default class GridCommons {
         }));
     }
 
-    // TODO rename in onPostBody??
-    onLoadSuccess(data, firstRowIndex = 2, idField = "id") {
-        // TODO the event `selectrow` with null values is fired in case of empty result and in case of error both. Create a common method.
-        if (data.rows && data.rows.length > 0) {
+    onLoadSuccess(data) {
+        if (data?.rows?.length > 0) {
             const table = $("#" + this.gridId);
 
             if (this.checkedRows && this.checkedRows.size > 0) {
