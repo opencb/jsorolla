@@ -6,9 +6,7 @@ on:
       test_profile:
         type: string
         required: true
-    secrets:
-      SONAR_TOKEN:
-        required: true
+
 
 jobs:
   test:
