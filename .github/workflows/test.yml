@@ -2,10 +2,6 @@ name: "Build and Run tests"
 
 on:
   workflow_call:
-    inputs:
-      test_profile:
-        type: string
-        required: true
 
 
 jobs:
