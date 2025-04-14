@@ -161,11 +161,6 @@ export default class VariantBrowserGrid extends LitElement {
         });
     }
 
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-        this.renderVariants();
-    }
-
     renderVariants() {
         if (this.variants?.length > 0) {
             this.renderFromLocal();
@@ -1027,10 +1022,8 @@ export default class VariantBrowserGrid extends LitElement {
                     .leftContent="${this.renderToolbarLeftContent()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @changeExportField="${this.onChangeExportField}">
+                    @export="${this.onDownload}">
                 </opencb-grid-toolbar>
             ` : nothing}
 
