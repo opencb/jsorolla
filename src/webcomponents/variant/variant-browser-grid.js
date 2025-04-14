@@ -180,10 +180,9 @@ export default class VariantBrowserGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "table-light",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
-                method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
@@ -307,7 +306,7 @@ export default class VariantBrowserGrid extends LitElement {
     renderFromLocal() {
         $("#" + this.gridId).bootstrapTable("destroy");
         $("#" + this.gridId).bootstrapTable({
-            theadClasses: "table-light",
+            classes: "table table-borderless table-hover table-grid",
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
             sidePagination: "server",
