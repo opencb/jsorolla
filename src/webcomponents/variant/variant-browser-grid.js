@@ -24,7 +24,6 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 import WebUtils from "../commons/utils/web-utils.js";
-import ModalUtils from "../commons/modal/modal-utils";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import "./variant-view.js";
@@ -566,6 +565,9 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: (value, row, index) => {
                         return VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config);
                     },
+                    events: {
+                        "click a": (event, value, row) => this.onActionClick(event, row)
+                    },
                     visible: this.gridCommons.isColumnVisible("id"),
                 },
                 {
@@ -701,7 +703,7 @@ export default class VariantBrowserGrid extends LitElement {
                     formatter: (value, row) => this.actionsFormatter(value, row),
                     align: "right",
                     events: {
-                        "click a": (e, value, row) => this.onActionClick(e, value, row)
+                        "click a": (event, value, row) => this.onActionClick(event, row)
                     },
                     visible: this._config?.showActions,
                     excludeFromSettings: true,
@@ -931,39 +933,36 @@ export default class VariantBrowserGrid extends LitElement {
         `;
     }
 
-    onActionClick(event, value, row) {
+    onActionClick(event, variant) {
         const action = event.target?.dataset?.action?.toLowerCase();
         switch (action) {
             case "view":
-                this.selectedVariantId = row.id;
+                this.selectedVariantId = variant.id;
                 this.gridCommons.changeActiveModal("view-variant");
                 break;
             case "copy-link":
                 // 1. Generate the URL to this variant
-                const link = WebUtils.getIVALink(this.opencgaSession, this.toolId, {id: row.id});
+                const link = WebUtils.getIVALink(this.opencgaSession, this.toolId, {id: variant.id});
                 // 2. Copy this link to the clipboard
                 UtilsNew.copyToClipboard(link);
                 // 3. Notify user that link has been copied to the clipboard
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: `Link to variant '${row.id}' copied to clipboard.`,
+                    message: `Link to variant '${variant.id}' copied to clipboard.`,
                 });
                 break;
             case "copy-json":
-                navigator.clipboard.writeText(JSON.stringify(row, null, "\t"));
+                navigator.clipboard.writeText(JSON.stringify(variant, null, "\t"));
                 break;
             case "download":
-                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                UtilsNew.downloadData([JSON.stringify(variant, null, "\t")], variant.id + ".json");
                 break;
             case "copy-varsome-id":
                 // Note: varsome format is disabled for copy_number variants
                 // See https://app.clickup.com/t/36631768/TASK-3902
-                if (row.type !== "COPY_NUMBER") {
-                    const varsomeId = BioinfoUtils.getVariantInVarsomeFormat(row.id);
+                if (variant.type !== "COPY_NUMBER") {
+                    const varsomeId = BioinfoUtils.getVariantInVarsomeFormat(variant.id);
                     UtilsNew.copyToClipboard(varsomeId);
                 }
-                break;
-            default:
-                console.warn("Option not recognize: " + action);
                 break;
         }
     }

@@ -137,13 +137,13 @@ export default class VariantGridFormatter {
         }
 
         return `
-            <div class="my-1 mx-0 text-nowrap">
-                <a tooltip-title='Links' tooltip-text='${tooltipText}'>
+            <div class="text-nowrap">
+                <a class='link cursor-pointer' data-action='view' tooltip-title='Links' tooltip-text='${tooltipText}'>
                     ${variantId}
                 </a>
                 ${iconHighlights.join("")}
             </div>
-            ${snpHtml ? `<div style="margin: 5px 0">${snpHtml}</div>` : ""}
+            ${snpHtml ? `<div class="mt-1">${snpHtml}</div>` : ""}
         `;
     }
 
