@@ -349,29 +349,6 @@ export default class SampleGrid extends LitElement {
         });
     }
 
-    onActionClick(event, sample) {
-        const action = (event.target?.dataset?.action || "").toLowerCase();
-        switch (action) {
-            case "view":
-                this._selectedSample = sample;
-                this.gridCommons.changeActiveModal("view-sample");
-                break;
-            case "edit":
-                this._selectedSample = sample;
-                this.gridCommons.changeActiveModal("update-sample");
-                break;
-            case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(sample, null, "\t"));
-                break;
-            case "download-json":
-                UtilsNew.downloadData([JSON.stringify(sample, null, "\t")], sample.id + ".json");
-                break;
-            case "quality-control":
-                alert("Not implemented yet");
-                break;
-        }
-    }
-
     _getDefaultColumns() {
         this._columns = [
             {
@@ -492,6 +469,26 @@ export default class SampleGrid extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    onActionClick(event, sample) {
+        const action = (event.target?.dataset?.action || "").toLowerCase();
+        switch (action) {
+            case "view":
+                this._selectedSample = sample;
+                this.gridCommons.changeActiveModal("view-sample");
+                break;
+            case "edit":
+                this._selectedSample = sample;
+                this.gridCommons.changeActiveModal("update-sample");
+                break;
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(sample, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(sample, null, "\t")], sample.id + ".json");
+                break;
+        }
     }
 
     async onDownload(e) {
