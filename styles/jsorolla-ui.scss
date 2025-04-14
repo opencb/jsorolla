@@ -133,11 +133,19 @@ body {
     border-collapse: separate;
     border-spacing: 0 0.5rem;
     // overwrite the default styles of thead cells
-    & thead .th-inner {
-        color: $gray-600;
-        font-size: $font-size-sm;
-        font-weight: $font-weight-medium;
-        padding: 0 0.75rem!important;
+    & thead {
+        & .th-inner {
+            color: $gray-600;
+            font-size: $font-size-sm;
+            font-weight: $font-weight-medium;
+            padding: 0 0.75rem!important;
+        }
+        & tr:first-child th[rowspan="1"]::after {
+            content: "";
+            display: block;
+            border-bottom: #{$border-width} solid #{$border-color};
+            margin: 4px 2px 0 2px;
+        }
     }
     // overwrite the default styles of tbody cells
     & tbody tr {
