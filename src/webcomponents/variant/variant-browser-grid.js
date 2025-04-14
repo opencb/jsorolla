@@ -261,9 +261,6 @@ export default class VariantBrowserGrid extends LitElement {
 
                     return result.response;
                 },
-                onClickRow: (row, selectedElement) => {
-                    this.gridCommons.onClickRow(row.id, row, selectedElement);
-                },
                 onDblClickRow: (row, element) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
@@ -338,11 +335,6 @@ export default class VariantBrowserGrid extends LitElement {
             loadingTemplate: () => GridCommons.loadingFormatter(),
             // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
             variantGrid: this,
-            onClickRow: (row, $element) => {
-                this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
-                $(".success").removeClass("success");
-                $($element).addClass("success");
-            },
             onExpandRow: (index, row) => {
                 this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
 
