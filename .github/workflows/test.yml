@@ -3,7 +3,6 @@ name: "Build and Run tests"
 on:
   workflow_call:
 
-
 jobs:
   test:
     name: "Test and push Sonar analysis"
