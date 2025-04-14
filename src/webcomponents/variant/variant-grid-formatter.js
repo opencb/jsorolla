@@ -1636,4 +1636,41 @@ export default class VariantGridFormatter {
         return "-";
     }
 
+    static deleteriousnessInfoTooltipContent() {
+        return `
+            SIFT scores are classified into tolerated and deleterious.
+            Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly &amp; probably damaging.
+            Please, leave the cursor over each tag to visualize the actual score value.
+            SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction.
+            Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction.
+            CADD is a tool for scoring the deleteriousness of single nucleotide variants in the human genome.
+            C-scores strongly correlate with allelic diversity, pathogenicity of both coding and non-coding variants,
+            and experimentally measured regulatory effects, and also highly rank causal variants within individual genome sequences.
+            SpliceAI: a deep learning-based tool to identify splice variants. 
+        `;
+    }
+
+    static conservationInfoTooltipContent() {
+        return `
+            Positive PhyloP scores measure conservation which is slower 
+            evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is 
+            faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent 
+            -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and 
+            range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. 
+            Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while 
+            still strongly enriching for truly constrained sites.        
+        `;
+    }
+
+    static clinicalInfoTooltipContent() {
+        return `
+            <div class='mb-1'>
+                <b>ClinVar</b> is a freely accessible, public archive of reports of the relationships among human variations and phenotypes, with supporting evidence.
+            </div>
+            <div class=''>
+                <b>COSMIC</b> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
+            </div> 
+        `;
+    }
+
 }
