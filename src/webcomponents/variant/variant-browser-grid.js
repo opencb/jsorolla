@@ -568,10 +568,10 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) =>
-                        VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("id")
+                    formatter: (value, row, index) => {
+                        return VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config);
+                    },
+                    visible: this.gridCommons.isColumnVisible("id"),
                 },
                 {
                     id: "type",
@@ -580,8 +580,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => VariantGridFormatter.typeFormatter(value, row),
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("type")
+                    visible: this.gridCommons.isColumnVisible("type"),
                 },
                 {
                     id: "gene",
@@ -589,9 +588,9 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) =>
-                        VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession, this._config),
-                    halign: "center",
+                    formatter: (value, row, index) => {
+                        return VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession, this._config);
+                    },
                     visible: this.gridCommons.isColumnVisible("gene")
                 },
                 {
@@ -600,7 +599,6 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => VariantGridFormatter.hgvsFormatter(row, this._config),
-                    halign: "center",
                     visible: this.gridCommons.isColumnVisible("hgvs"),
                 },
                 {
@@ -610,43 +608,33 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => VariantGridFormatter.consequenceTypeFormatter(value, row, this.query?.ct, this._config),
-                    halign: "center",
-                    visible: this.gridCommons.isColumnVisible("consequenceType")
+                    visible: this.gridCommons.isColumnVisible("consequenceType"),
                 },
                 {
                     id: "deleteriousness",
-                    title: `Deleteriousness <a tooltip-title="Deleteriousness" tooltip-text="SIFT scores are classified into tolerated and deleterious.
-                        Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly & probably damaging.
-                        Please, leave the cursor over each tag to visualize the actual score value.
-                        SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction.
-                        Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction.
-                        CADD is a tool for scoring the deleteriousness of single nucleotide variants in the human genome.
-                        C-scores strongly correlate with allelic diversity, pathogenicity of both coding and non-coding variants,
-                        and experimentally measured regulatory effects, and also highly rank causal variants within individual genome sequences.
-                        SpliceAI: a deep learning-based tool to identify splice variants.">
-                        <i class="fa fa-info-circle text-primary" aria-hidden="true"></i></a>`,
+                    title: `
+                        <span>Deleteriousness</span>
+                        <a tooltip-title="Deleteriousness" tooltip-text="${VariantGridFormatter.deleteriousnessInfoTooltipContent()}">
+                            <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
+                        </a>
+                    `,
                     field: "deleteriousness",
                     rowspan: 1,
                     colspan: 5,
-                    align: "center"
+                    align: "center",
                 },
                 {
                     id: "conservation",
-                    title: `Conservation
-                        <a  tooltip-title='Conservation'
-                            tooltip-text="Positive PhyloP scores measure conservation which is slower evolution than expected,
-                                at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is
-                                faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent
-                                -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and
-                                range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint.
-                                Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while
-                                still strongly enriching for truly constrained sites">
-                                <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
-                        </a>`,
+                    title: `
+                        <span>Conservation</span>
+                        <a tooltip-title="Conservation" tooltip-text="${VariantGridFormatter.conservationInfoTooltipContent()}"> 
+                            <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
+                        </a>
+                    `,
                     field: "conservation",
                     rowspan: 1,
                     colspan: 3,
-                    align: "center"
+                    align: "center",
                 },
                 {
                     id: "samples",
@@ -655,68 +643,62 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     colspan: sampleColumns.length,
                     align: "center",
-                    visible: sampleColumns.length > 0 && sampleColumns[0].visible === undefined
+                    visible: sampleColumns.length > 0 && typeof sampleColumns[0].visible === "undefined",
                 },
                 {
                     id: "cohorts",
-                    title: `Cohort Stats
-                        <a id="cohortStatsInfoIcon"
-                            tooltip-title="Cohort Stats"
-                            tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}">
-                            <i class="fa fa-info-circle text-primary" aria-hidden="true">
-                            </i>
-                        </a>`,
+                    title: `
+                        <span>Cohort Stats</span>
+                        <a tooltip-title="Cohort Stats" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}">
+                            <i class="fa fa-info-circle text-primary"></i>
+                        </a>
+                    `,
                     field: "cohorts",
                     rowspan: 1,
                     colspan: cohortColumns.length,
                     align: "center",
-                    visible: cohortColumns.length > 0 && cohortColumns[0].visible === undefined
+                    visible: cohortColumns.length > 0 && typeof cohortColumns[0].visible === "undefined",
                 },
                 {
                     id: "popfreq",
-                    title: `Population Frequencies
-                        <a class="popFreqInfoIcon"
-                            tooltip-title="Population Frequencies"
-                            tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}"
-                            tooltip-position-at="left bottom" tooltip-position-my="right top">
-                            <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
-                        </a>`,
+                    title: `
+                        <span>Population Frequencies</span>
+                        <a tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}">
+                            <i class="fa fa-info-circle text-primary"></i>
+                        </a>
+                    `,
                     field: "popfreq",
                     rowspan: 1,
                     colspan: populationFrequencyColumns.length,
                     align: "center",
-                    visible: populationFrequencyColumns.length > 0 && populationFrequencyColumns[0].visible === undefined
+                    visible: populationFrequencyColumns.length > 0 && typeof populationFrequencyColumns[0].visible === "undefined",
                 },
                 {
                     id: "clinicalInfo",
-                    title: `Clinical Info <a id="phenotypesInfoIcon" tooltip-title="Phenotypes" tooltip-text="
-                                <div>
-                                    <span style='font-weight: bold'>ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations
-                                    and phenotypes, with supporting evidence.
-                                </div>
-                                <div style='padding-top: 10px'>
-                                    <span style='font-weight: bold'>COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
-                                </div>"
-                            tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle text-primary" aria-hidden="true"></i></a>`,
-                    field: "clinicalInfo",
+                    title: `
+                        <span>Clinical Info</span>
+                        <a tooltip-title="Clinical Info" tooltip-text="${VariantGridFormatter.clinicalInfoTooltipContent()}" tooltip-position-my="right top">
+                            <i class="fa fa-info-circle text-primary"></i>
+                        </a>
+                    `,
                     rowspan: 1,
                     colspan: 6,
                     align: "center"
                 },
-                // ...ExtensionsManager.getColumns("variant-browser-grid"),
-                {
-                    id: "select",
-                    title: "Select",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => this.checkFormatter(value, row),
-                    align: "center",
-                    events: {
-                        "click input": this.onCheck.bind(this)
-                    },
-                    visible: this._config.showSelectCheckbox,
-                    excludeFromSettings: true, // If true, this column will not be visible in Settings column
-                },
+                // {
+                //     id: "select",
+                //     title: "Select",
+                //     rowspan: 2,
+                //     colspan: 1,
+                //     formatter: (value, row) => this.checkFormatter(value, row),
+                //     align: "center",
+                //     events: {
+                //         "click input": event => this.onCheck(event),
+                //     },
+                //     visible: this._config.showSelectCheckbox,
+                //     excludeFromSettings: true,
+                //     excludeFromExport: true,
+                // },
                 {
                     id: "actions",
                     rowspan: 2,
@@ -740,7 +722,8 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: (value, row) => VariantGridFormatter.siftPproteinScoreFormatter(value, row, this.consequenceTypeColors),
                     halign: "center",
-                    visible: this.gridCommons.isColumnVisible("SIFT", "deleteriousness")
+                    align: "center",
+                    visible: this.gridCommons.isColumnVisible("SIFT", "deleteriousness"),
                 },
                 {
                     id: "polyphen",
@@ -750,6 +733,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: (value, row) => VariantGridFormatter.polyphenProteinScoreFormatter(value, row, this.consequenceTypeColors),
                     halign: "center",
+                    align: "center",
                     visible: this.gridCommons.isColumnVisible("polyphen", "deleteriousness")
                 },
                 {
@@ -760,6 +744,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: (value, row) => VariantGridFormatter.revelProteinScoreFormatter(value, row),
                     halign: "center",
+                    align: "center",
                     visible: this.gridCommons.isColumnVisible("revel", "deleteriousness")
                 },
                 {
@@ -769,7 +754,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: (value, row) => VariantGridFormatter.caddScaledFormatter(value, row),
-                    align: "right",
+                    align: "center",
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("cadd", "deleteriousness")
                 },
@@ -780,7 +765,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: (value, row) => VariantGridFormatter.spliceAIFormatter(value, row),
-                    align: "right",
+                    align: "center",
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("spliceai", "deleteriousness")
                 },
@@ -791,7 +776,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: this.conservationFormatter,
-                    align: "right",
+                    align: "center",
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("phylop", "conservation")
                 },
@@ -802,7 +787,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: this.conservationFormatter,
-                    align: "right",
+                    align: "center",
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("phastCons", "conservation")
                 },
@@ -813,10 +798,9 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: this.conservationFormatter,
-                    align: "right",
+                    align: "center",
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("gerp", "conservation")
-                    // visible: this.opencgaSession.project.organism.assembly.toUpperCase() === "GRCH37"
                 },
                 ...sampleColumns,
                 ...cohortColumns,
@@ -828,6 +812,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
+                    halign: "center",
                     align: "center",
                     visible: this.gridCommons.isColumnVisible("clinvar", "clinicalInfo")
                 },
@@ -838,6 +823,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
+                    halign: "center",
                     align: "center",
                     visible: this.gridCommons.isColumnVisible("cosmic", "clinicalInfo")
                 },
@@ -848,6 +834,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalTraitAssociationFormatter,
+                    halign: "center",
                     align: "center",
                     visible: this.gridCommons.isColumnVisible("hgmd", "clinicalInfo")
                 },
@@ -859,6 +846,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalOmimFormatter,
                     align: "center",
+                    halign: "center",
                     visible: this.gridCommons.isColumnVisible("omim"),
                 },
                 {
@@ -868,6 +856,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalPharmGKBFormatter,
+                    halign: "center",
                     align: "center",
                     visible: this.gridCommons.isColumnVisible("pharmgkb"),
                 },
@@ -878,10 +867,11 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalCancerHotspotsFormatter,
+                    halign: "center",
                     align: "center",
                     visible: this.gridCommons.isColumnVisible("hotspots"),
                 },
-            ]
+            ],
         ];
 
         // Inject columns for extensions
