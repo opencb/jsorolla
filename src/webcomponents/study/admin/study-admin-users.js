@@ -352,20 +352,19 @@ export default class StudyAdminUsers extends LitElement {
         this.requestUpdate();
     }
 
-    onUserAdd(e) {
+    onUserAdd() {
         if (this.groupsMap.get("@members").includes(this.addUserId)) {
             console.log("User already exists in the study");
             return;
         }
-        const params = {
-            study: this.study.fqn,
-            template: "",
-            permissions: "",
+        const data = {
+            users: [this.addUserId],
         };
-
-        this.opencgaSession.opencgaClient.studies()
-            // .updateUsers(this.study.fqn, "@members", {users: [this.addUserId]}, {action: "ADD"})
-            .updateAcl(this.addUserId, {action: "ADD"}, params)
+        return this.opencgaSession.opencgaClient.studies()
+            .updateGroupsUsers(this.study.fqn, "@members", data, {
+                includeResult: true,
+                action: "ADD",
+            })
             .then(() => {
                 this.addUserId = "";
                 LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
