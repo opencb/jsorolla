@@ -171,6 +171,13 @@ body {
     overflow: visible !important;
 }
 
+// fix the position of the table loading
+.fixed-table-loading {
+    border-radius: #{$border-radius};
+    top: auto !important;
+    bottom: auto !important;
+}
+
 // additional color utilities
 // Note: the $grays map is a Sass map that contains all the gray colors
 @each $shade,$color in $grays {
