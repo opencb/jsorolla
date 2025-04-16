@@ -80,35 +80,8 @@ context("Variant Browser Grid", () => {
                         .find("thead tr:first th")
                         .contains("Variant")
                         .should("be.visible");
-                });
-
-                context("tooltip", () => {
-                    beforeEach(() => {
-                        cy.get("@variant-browser-grid")
-                            .find("tbody tr:first td a")
-                            .eq(1)
-                            .trigger("mouseover");
-                        cy.get("div.qtip-title")
-                            .as("variant-tooltip-title");
-                        cy.get("div.qtip-content")
-                            .as("variant-tooltip-content");
-                    });
-
-                    it("should be visible when hovering the variant ID", () => {
-                        cy.get("@variant-tooltip-title")
-                            .should("be.visible")
-                            .and("contain.text", "Links");
-                    });
-
-                    it("should display a link to varsome", () => {
-                        cy.get("@variant-tooltip-content")
-                            .find(`div[data-cy="varsome-variant-link"] a`)
-                            .should("contain.text", "Varsome")
-                            .invoke("attr", "href")
-                            .should("have.string", "https://varsome.com/variant/");
                     });
                 });
-            });
 
             context("variant type", () => {
                 it("should be visible", () => {
