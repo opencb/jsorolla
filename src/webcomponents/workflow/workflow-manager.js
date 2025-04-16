@@ -86,10 +86,11 @@ export default class WorkflowManager extends LitElement {
             },
             {
                 id: "workflow-import",
-                tooltip: "Import Workflow",
+                tooltip: "Import Nextflow Workflow",
                 icon: "fas fa-file-import",
-                title: "Import workflow",
+                title: "Import Nextflow Workflow",
                 modalId: `${this._prefix}WorkflowImportModal`,
+                modalSize: "modal-xl",
                 render: () => this.renderWorkflowImport(),
                 // permission: this.permissions["organization"](),
             },
@@ -271,7 +272,7 @@ export default class WorkflowManager extends LitElement {
                 modalTitle: this.currentAction["modalTitle"],
                 modalDraggable: true,
                 modalCyDataName: `modal-${this.currentAction["id"]}`,
-                modalSize: "modal-lg",
+                modalSize: "modal-xl",
             },
             render: () => html`
                 <workflow-import
@@ -408,7 +409,7 @@ export default class WorkflowManager extends LitElement {
                 </div>
             </div>
             <!-- 3. On entity action click, render the respective modal -->
-            ${UtilsNew.isNotEmpty(this.currentAction) ? this.currentAction["render"](): nothing}
+            ${UtilsNew.isNotEmpty(this.currentAction) ? this.currentAction["render"]() : nothing}
         `;
     }
 
