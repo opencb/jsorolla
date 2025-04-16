@@ -65,85 +65,38 @@ export default class VariantGridFormatter {
 
     static variantIdFormatter(id, variant, index, assembly, config = {}) {
         if (!variant) {
-            return;
+            return "";
         }
 
+        // 1. Get the variant ID and snpId
         const variantId = VariantFormatter.variantIdFormatter(id, variant, config?.alleleStringLengthMax || 20);
-
-        // 1. Create links for tooltip
-        let tooltipText = "";
-        const variantRegion = variant.chromosome + ":" + variant.start + "-" + variant.end;
-        // 1.1. Add Decipher only if variant is a SNV or we have the original call. INDELS cannot be linked in the Variant Browser
-        if (variant.id || variant.studies[0]?.files[0]?.call?.variantId) {
-            const variantId = variant.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || variant.id;
-            tooltipText += `
-                <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Links</div>
-                <div style="padding: 5px">
-                    <a class="text-decoration-none" target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "decipher")}">
-                        Decipher
-                    </a>
-                </div>
-                <div style="padding: 5px" data-cy="varsome-variant-link">
-                    <a target="_blank" ${variant.type === "COPY_NUMBER" ? `class="text-decoration-none disabled"` : `class="text-decoration-none" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "varsome", assembly)}"`}>
-                        Varsome ${variant.type === "COPY_NUMBER" ? "<small>(Disabled)</small>" : ""}
-                    </a>
-                </div>
-            `;
-        }
-
-        // 1. 2. Add links to external browsers
-        tooltipText += `
-            <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Genome Browsers</div>
-            <div style="padding: 5px">
-                <a class="text-decoration-none" target="_blank" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "ensembl_genome_browser", assembly)}">
-                    Ensembl Genome Browser
-                </a>
-            </div>
-            <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "ucsc_genome_browser")}">
-                    UCSC Genome Browser
-                </a>
-            </div>
-        `;
-
-        // 3. Display the dbSNP ID link if exist
         const snpId = VariantFormatter.snpFormatter(id, variant, index, assembly);
-        let snpHtml;
-        if (snpId) {
-            if (assembly.toUpperCase() === "GRCH37") {
-                snpHtml = "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
-            } else {
-                snpHtml = "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
-            }
-        }
 
-        // 4.
-        // const typeHtml = VariantGridFormatter.typeFormatter(id, variant);
+        // 2. get highlight icons
+        const iconHighlights = (config?.highlights || [])
+            .filter(h => h.active && CustomActions.get(h).execute(variant, h) && h.style?.icon)
+            .map(highlight => {
+                const description = highlight.description || highlight.name || "";
+                const icon = highlight.style.icon;
+                const color = highlight.style.iconColor || "";
 
-        // 5. Add highlight icons
-        let iconHighlights = [];
-        if (config?.highlights?.length > 0) {
-            iconHighlights = config.highlights
-                .filter(h => h.active)
-                .map(highlight => {
-                    if (CustomActions.get(highlight).execute(variant, highlight) && highlight.style?.icon) {
-                        const description = highlight.description || highlight.name || "";
-                        const icon = highlight.style.icon;
-                        const color = highlight.style.iconColor || "";
+                return `<i title="${description}" class="fas fa-${icon}" style="color:${color};margin-left:4px;"></i>`;
+            });
 
-                        return `<i title="${description}" class="fas fa-${icon}" style="color:${color};margin-left:4px;"></i>`;
-                    }
-                });
-        }
-
+        // 3. render the content of the variant ID section
         return `
             <div class="text-nowrap">
-                <a class='link cursor-pointer' data-action='view' tooltip-title='Links' tooltip-text='${tooltipText}'>
-                    ${variantId}
-                </a>
+                <a class="link fw-bold" data-action="view">${variantId}</a>
                 ${iconHighlights.join("")}
             </div>
-            ${snpHtml ? `<div class="mt-1">${snpHtml}</div>` : ""}
+            ${snpId ? `
+                <div class="mt-0">
+                    <a class="link text-secondary d-flex align-items-center gap-1" href="${BioinfoUtils.getEnsemblLink(snpId, "VARIANT", assembly)}" target="_blank">
+                        <span>${snpId}</span>
+                        <i class="fa fa-external-link-alt fs-8"></i>
+                    </a>
+                </div>
+            ` : ""}
         `;
     }
 
