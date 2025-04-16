@@ -178,6 +178,16 @@ body {
     bottom: auto !important;
 }
 
+// custom link style
+.link {
+    color: #{$primary};
+    cursor: pointer;
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
 // additional color utilities
 // Note: the $grays map is a Sass map that contains all the gray colors
 @each $shade,$color in $grays {
