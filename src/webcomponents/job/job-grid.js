@@ -553,8 +553,8 @@ export default class JobGrid extends LitElement {
             {
                 id: "executionR",
                 title: "Runtime",
-                field: "execution",
-                formatter: execution => {
+                formatter: (_, row) => {
+                    const execution = row.execution;
                     if (execution?.start) {
                         const duration = moment.duration((execution.end ? execution.end : moment().valueOf()) - execution.start);
                         const f = moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
@@ -567,10 +567,15 @@ export default class JobGrid extends LitElement {
             {
                 id: "executionD",
                 title: "Start/End Date",
-                field: "execution",
-                formatter: execution => execution?.start ?
-                    moment(execution.start).format("D MMM YYYY, h:mm:ss a") + " / " + (execution?.end ? moment(execution.end).format("D MMM YYYY, h:mm:ss a") : "-") :
-                    "-",
+                formatter: (_, row) => {
+                    const execution = row.execution;
+                    const values = [];
+                    if (execution?.start) {
+                        values.push(moment(execution.start).format("D MMM YYYY, h:mm:ss a"));
+                        values.push(execution?.end ? moment(execution.end).format("D MMM YYYY, h:mm:ss a") : "-");
+                    }
+                    return values.join(" / ") || "-";
+                },
                 visible: this.gridCommons.isColumnVisible("executionD")
             },
             {
