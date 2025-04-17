@@ -123,26 +123,21 @@ export default class CatalogGridFormatter {
     }
 
     static panelFormatter(panels) {
-        let panelHtml = "-";
-        if (panels?.length > 0) {
-            panelHtml = "";
-            for (const panel of panels) {
-                if (panel.source?.project?.toUpperCase() === "PANELAPP") {
-                    panelHtml += `
-                        <div class="my-1 mx-0">
-                            <a class="text-decoration-none" href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
-                                ${panel.name} (${panel.source.project} v${panel.source.version})
-                            </a>
-                        </div>
-                    `;
-                } else {
-                    panelHtml += `
-                        <div class="my-1 mx-0">${panel.id}</div>
-                    `;
-                }
+        const panelsItems = (panels || []).map(panel => {
+            if (panel.source?.project?.toUpperCase() === "PANELAPP") {
+                return `
+                    <a class="link d-flex align-items-center gap-2" href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
+                        <span>${panel.name} (${panel.source.project} v${panel.source.version})</span>
+                        <i class="fa fa-external-link-alt fs-8"></i>
+                    </a>
+                `;
+            } else {
+                return `
+                    <div class="">${panel.id}</div>
+                `;
             }
-        }
-        return panelHtml;
+        });
+        return panelsItems.join("") || "-";
     }
 
     //  Formats the files for the Catalog grids
