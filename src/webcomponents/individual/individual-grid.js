@@ -354,9 +354,12 @@ export default class IndividualGrid extends LitElement {
                 formatter: (individualId, individual) => {
                     const sexHtml = CatalogGridFormatter.sexFormatter(individual.sex, individual);
                     return `
-                        <div class="fw-bold">${individualId}</div>
+                        <a class="d-block link fw-bold" data-action="view">${individualId}</a>
                         <div class="text-secondary">${sexHtml}</div>
                     `;
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("id")
             },
