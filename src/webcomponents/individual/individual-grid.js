@@ -19,10 +19,10 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import ModalUtils from "../commons/modal/modal-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../cohort/cohort-create-samples.js";
+import "../sample/sample-view.js";
 import "./individual-view.js";
 import "./individual-create.js";
 import "./individual-update.js";
@@ -69,6 +69,7 @@ export default class IndividualGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this._selectedIndividual = null;
+        this._selectedSampleId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -190,6 +191,21 @@ export default class IndividualGrid extends LitElement {
                     </cohort-create-samples>
                 `,
             },
+            "view-sample": () => ({
+                display: {
+                    modalTitle: `Sample ${this._selectedSampleId}`,
+                    modalSize: "modal-xl",
+                    modalCyDataName: "sample-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <sample-view
+                        .sampleId="${this._selectedSampleId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </sample-view>
+                `,
+            }),
         });
     }
 
@@ -371,12 +387,15 @@ export default class IndividualGrid extends LitElement {
                     const content = (samples || []).map(sample => {
                         return `
                             <div style="white-space: nowrap">
-                                <span class="fw-bold">${sample.id}</span>
+                                <a class="link fw-bold" data-action="view-sample" data-sample="${sample.id}">${sample.id}</a>
                                 <span title="${sample.somatic ? "Somatic sample" : "Germline sample"}"> (${sample.somatic ? "S" : "G"})</span>
                             </div>
                         `;
                     });
-                    return content.length > 0 ? content.join("") : "-";
+                    return content.join("") || "-";
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("samples")
             },
@@ -492,11 +511,15 @@ export default class IndividualGrid extends LitElement {
     };
 
     onActionClick(event, individual) {
-        const action = event.target.dataset.action?.toLowerCase() || event.detail.action;
+        const action = event.currentTarget?.dataset?.action?.toLowerCase();
         switch (action) {
             case "view":
                 this._selectedIndividual = individual;
                 this.gridCommons.changeActiveModal("view-individual");
+                break;
+            case "view-sample":
+                this._selectedSampleId = event.currentTarget?.dataset?.sample;
+                this.gridCommons.changeActiveModal("view-sample");
                 break;
             case "edit":
                 this._selectedIndividual = individual;
