@@ -330,7 +330,10 @@ export default class FamilyGrid extends LitElement {
                 title: "Family ID",
                 field: "id",
                 formatter: familyId => {
-                    return `<div class="fw-bold">${familyId}</div>`;
+                    return `<a class="link fw-bold" data-action="view">${familyId}</a>`;
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("id")
             },
@@ -338,24 +341,7 @@ export default class FamilyGrid extends LitElement {
                 id: "members",
                 title: "Members",
                 field: "members",
-                formatter: members => {
-                    const content = (members || []).map(member => {
-                        return `
-                            <div style="white-space: nowrap">
-                                <span class="fw-bold">${member.id}</span> (${member.sex.id})
-                            </div>
-                        `;
-                    });
-                    // Note: we only display the first 5 members of the family
-                    if (content.length > 0) {
-                        let html = content.slice(0, 5).join("");
-                        if (content.length > 5) {
-                            html = html + `<a class='link' tooltip-title='Family' tooltip-text='${content.join("")}'>... view all members (${members.length})</a>`;
-                        }
-                        return html;
-                    }
-                    return "-";
-                },
+                formatter: members => this.membersFormatter(members),
                 visible: this.gridCommons.isColumnVisible("members"),
             },
             {
@@ -405,6 +391,18 @@ export default class FamilyGrid extends LitElement {
 
         this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
+    }
+
+    membersFormatter(members) {
+        const memberItems = (members || []).map(member => {
+            return `
+                <div style="white-space: nowrap">
+                    <span class="fw-bold">${member.id}</span> (${member.sex.id})
+                </div>
+            `;
+        });
+        // Note: we only display the first 5 members of the family
+        return GridCommons.generateExpandCollapseContent(memberItems, 5);
     }
 
     actionsFormatter(value, row) {
