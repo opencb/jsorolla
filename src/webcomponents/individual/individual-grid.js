@@ -21,6 +21,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "../clinical/clinical-analysis-view.js";
 import "../cohort/cohort-create-samples.js";
 import "../sample/sample-view.js";
 import "./individual-view.js";
@@ -70,6 +71,7 @@ export default class IndividualGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this._selectedIndividualId = null;
         this._selectedSampleId = null;
+        this._selectedClinicalAnalysisId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -204,6 +206,21 @@ export default class IndividualGrid extends LitElement {
                         .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
                     </sample-view>
+                `,
+            }),
+            "view-clinical-analysis": () => ({
+                display: {
+                    modalTitle: `Clinical Analysis ${this._selectedClinicalAnalysisId}`,
+                    modalSize: "modal-xl",
+                    modalCyDataName: "clinical-analysis-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <clinical-analysis-view
+                        .clinicalAnalysisId="${this._selectedClinicalAnalysisId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-analysis-view>
                 `,
             }),
         });
@@ -442,6 +459,9 @@ export default class IndividualGrid extends LitElement {
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
@@ -530,6 +550,10 @@ export default class IndividualGrid extends LitElement {
             case "view-sample":
                 this._selectedSampleId = event.currentTarget?.dataset?.sample;
                 this.gridCommons.changeActiveModal("view-sample");
+                break;
+            case "view-clinical-analysis":
+                this._selectedClinicalAnalysisId = event.currentTarget?.dataset?.clinicalAnalysis;
+                this.gridCommons.changeActiveModal("view-clinical-analysis");
                 break;
             case "edit":
                 this._selectedIndividualId = individual.id;
