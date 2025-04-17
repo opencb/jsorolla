@@ -220,10 +220,11 @@ export default class VariantSecondarySampleIndexConfigureOperation extends LitEl
                     buttonsLayout: "top"
                 },
                 buttons: {
-                    clearText: "Discard Changes",
                     okText: "Update",
+                    clearText: "Discard Changes",
                 },
             },
+            this.opencgaSession
         );
     }
 

@@ -23,6 +23,7 @@ export default class NoteDetail extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -32,17 +33,17 @@ export default class NoteDetail extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
+            noteId: {
+                type: String,
             },
             note: {
                 type: Object
             },
-            noteId: {
-                type: String,
-            },
             noteScope: {
                 type: String,
+            },
+            opencgaSession: {
+                type: Object
             },
             config: {
                 type: Object
@@ -58,11 +59,11 @@ export default class NoteDetail extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("note")) {
-            this.noteObserver();
-        }
         if (changedProperties.has("noteId") || changedProperties.has("noteScope")) {
             this.noteIdOrScopeObserver();
+        }
+        if (changedProperties.has("note")) {
+            this.noteObserver();
         }
         if (changedProperties.has("config")) {
             this._config = {

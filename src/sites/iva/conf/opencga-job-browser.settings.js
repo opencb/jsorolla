@@ -28,5 +28,5 @@ const OPENCGA_JOB_BROWSER_SETTINGS = {
         columns: ["id", "toolId", "status", "priority", "dependsOn", "output", "execution", "creationDate", "actions"]
     },
     // merge criterium: uses this array as filter for internal 1D array.
-    details: ["job-view", "job-log", "json-view"]
+    details: ["job-view", "job-result", "job-log", "json-view"]
 };

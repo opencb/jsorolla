@@ -55,6 +55,7 @@ export default class WebUtils {
             "STUDY": "STUDIES",
             "USER": "USERS",
             "NOTE": "NOTE",
+            "WORKFLOW": "WORKFLOWS",
         };
         return (resource && mapResourcePermissionId[resource] && mode) ? `${mode.toUpperCase()}_${mapResourcePermissionId[resource]}` : "";
     }
@@ -64,15 +65,21 @@ export default class WebUtils {
         let queryStr = "";
         // Check if query object has been provided
         if (query) {
-            const keys = Object.keys(query);
-            // Special case: only id field is in the query
-            if (keys.length === 1 && keys[0] === "id") {
-                queryStr = query.id;
-            } else {
-                queryStr = (new URLSearchParams(query)).toString();
-            }
+            queryStr = "?" + (new URLSearchParams(query)).toString();
         }
-        return `${baseUrl}#${tool}/${opencgaSession.project.id}/${opencgaSession.study.id}/${queryStr}`;
+        return `${baseUrl}#${tool}/${opencgaSession.project.id}/${opencgaSession.study.id}${queryStr}`;
+    }
+
+    static getInterpreterLink(opencgaSession, caseId = "") {
+        const hashItems = [
+            // ...window.location.hash.replace("#", "").split("/").slice(0, -3), // '#clinical/portal/project/study' --> ['clinical']
+            "clinical",
+            "interpreter",
+            opencgaSession?.project?.id || "",
+            opencgaSession?.study?.id || "",
+        ];
+
+        return `#${hashItems.filter(Boolean).join("/")}${!!caseId ? "?id=" + caseId : ""}`;
     }
 
     static jobStatusFormatter(status, appendDescription = false) {
@@ -108,6 +115,12 @@ export default class WebUtils {
         };
 
         return priorityRankToColor[rank] ?? "";
+    }
+
+    static getResponseEvents(response) {
+        return [...(response?.events || []), ...(response?.responses?.[0]?.events || [])].filter(event => {
+            return event && !!event.message;
+        });
     }
 
 }

@@ -21,11 +21,13 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils";
 import LitUtils from "../commons/utils/lit-utils.js";
-import "../commons/catalog-browser-grid-config.js";
-import "../commons/opencb-grid-toolbar.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import WebUtils from "../commons/utils/web-utils.js";
+import "../commons/catalog-browser-grid-config.js";
+import "../commons/opencb-grid-toolbar.js";
+import "./disease-panel-update.js";
+import "./disease-panel-create.js";
 
 export default class DiseasePanelGrid extends LitElement {
 
@@ -105,7 +107,7 @@ export default class DiseasePanelGrid extends LitElement {
             columns: this._getDefaultColumns(),
             create: {
                 display: {
-                    modalTitle: "Disease Panel Create",
+                    modalTitle: "Create Disease Panel",
                     modalDraggable: true,
                     modalCyDataName: "modal-create",
                     modalSize: "modal-lg"
@@ -178,8 +180,10 @@ export default class DiseasePanelGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
+                paginationVAlign: "bottom",
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+                },
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 gridContext: this,
@@ -208,6 +212,11 @@ export default class DiseasePanelGrid extends LitElement {
                         .catch(error => {
                             console.error(error);
                             params.error(error);
+                        })
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: panelsResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
@@ -281,6 +290,10 @@ export default class DiseasePanelGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
+            paginationVAlign: "bottom",
+            formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+            },
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             gridContext: this,
@@ -522,7 +535,7 @@ export default class DiseasePanelGrid extends LitElement {
             });
         }
 
-        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
     }
 
@@ -566,7 +579,7 @@ export default class DiseasePanelGrid extends LitElement {
     renderModalUpdate() {
         return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
             display: {
-                modalTitle: `Disease Panel Update: ${this.diseasePanelUpdateId}`,
+                modalTitle: `Update Disease Panel: ${this.diseasePanelUpdateId}`,
                 modalDraggable: true,
                 modalCyDataName: "modal-update",
                 modalSize: "modal-lg"
@@ -582,6 +595,12 @@ export default class DiseasePanelGrid extends LitElement {
         });
     }
 
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
+    }
+
     render() {
         // CAUTION 20230517 Vero: the event dispatched from disease-panel-create.js is called sessionPanelUpdate.
         return html`
@@ -589,6 +608,7 @@ export default class DiseasePanelGrid extends LitElement {
                 <opencb-grid-toolbar
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"

@@ -211,7 +211,9 @@ export default class VariantStatsIndexOperation extends LitElement {
             this.title ?? this.TITLE,
             this.DESCRIPTION,
             params,
-            this.check()
+            this.check(),
+            {},
+            this.opencgaSession
         );
     }
 

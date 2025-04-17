@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import VariantUtils from "./variant-utils.js";
 import {guardPage} from "../commons/html-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
-import "../commons/tool-header.js";
+import WebUtils from "../commons/utils/web-utils.js";
 import "./variant-browser-filter.js";
 import "./variant-browser-grid.js";
 import "./variant-browser-detail.js";
-import "../commons/opencb-facet-results.js";
-import "../commons/facet-filter.js";
-import "../commons/opencga-active-filters.js";
+import "../commons/aggregation-stats.js";
+import "../commons/tool-header.js";
+import "../commons/grid-notifications.js";
 import "./annotation/cellbase-variant-annotation-summary.js";
 import "./annotation/variant-consequence-type-view.js";
 import "./annotation/cellbase-population-frequency-grid.js";
@@ -33,7 +32,7 @@ import "./annotation/variant-annotation-clinical-view.js";
 import "./annotation/variant-annotation-pharmacogenomics-view.js";
 import "./variant-cohort-stats.js";
 import "./variant-samples.js";
-
+import "./variant-notes.js";
 import "../visualization/genome-browser.js";
 
 export default class VariantBrowser extends LitElement {
@@ -94,10 +93,11 @@ export default class VariantBrowser extends LitElement {
         this.executedQuery = {};
         this.selectedFacet = {};
         this.preparedFacetQueryFormatted = {};
-        this.errorState = false;
+        // this.errorState = false;
         this.variant = null;
+        this.notifications = [];
 
-        this.activeTab = "table-tab";
+        this.activeView = "table";
         this._config = this.getDefaultConfig();
     }
 
@@ -111,9 +111,9 @@ export default class VariantBrowser extends LitElement {
         if (changedProperties.has("query") || changedProperties.has("opencgaSession")) {
             this.queryObserver();
         }
-        if (changedProperties.has("selectedFacet")) {
-            this.facetQueryBuilder();
-        }
+        // if (changedProperties.has("selectedFacet")) {
+        //     this.facetQueryBuilder();
+        // }
 
         super.update(changedProperties);
     }
@@ -171,117 +171,44 @@ export default class VariantBrowser extends LitElement {
         }
     }
 
-    facetQueryBuilder() {
-        // facetQuery is the query object sent to the client in <opencb-facet-results>
-        if (Object.keys(this.selectedFacet).length) {
-            this.executedFacetQueryFormatted = {...this.preparedFacetQueryFormatted};
-
-            this.facetQuery = {
-                ...this.preparedQuery,
-                study: this.opencgaSession.study.fqn,
-                // FIXME rename fields to field
-                fields: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
-            };
-            this.changeView("facet-tab");
-        } else {
-            this.facetQuery = null;
-        }
-    }
-
     notifySearch(query) {
         LitUtils.dispatchCustomEvent(this, "querySearch", null, {
             query: query
         });
     }
 
-    onRun() {
-        this.executedQuery = {...this.preparedQuery};
-        this.searchActive = false;
-        this.variant = null;
-        this.notifySearch(this.preparedQuery);
-
-        this.facetQueryBuilder();
-        /* if (Object.keys(this.selectedFacet).length) {
-            this.facetQuery = {
-                ...this.preparedQuery,
-                study: this.opencgaSession.study.fqn,
-                timeout: 60000,
-                fields: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
-            };
-            this._changeView("facet-tab");
-        } else {
-            this.facetQuery = null;
-        }*/
-        this.requestUpdate();
-    }
-
     changeView(id) {
-        this.activeTab = id;
+        this.activeView = id;
         this.requestUpdate();
     }
 
     onVariantFilterSearch(e) {
-        this.preparedQuery = e.detail.query;
-        this.executedQuery = e.detail.query;
+        this.preparedQuery = {...e.detail.query};
+        this.executedQuery = {...e.detail.query};
         this.searchActive = false;
         this.variant = null;
         this.notifySearch(this.preparedQuery);
         this.requestUpdate();
     }
 
-    onQueryFilterChange(e) {
-        this.preparedQuery = e.detail.query;
-        this.requestUpdate();
-    }
-
-    onActiveFilterChange(e) {
-        VariantUtils.validateQuery(e.detail);
-        this.preparedQuery = {...e.detail};
-        this.executedQuery = {...e.detail};
-        this.searchActive = false;
-        this.variant = null;
-        this.notifySearch(this.preparedQuery);
-        this.facetQueryBuilder();
-        this.requestUpdate();
-    }
-
-    onActiveFilterClear() {
+    onVariantFilterClear() {
         this.preparedQuery = {};
         this.executedQuery = {};
         this.searchActive = false;
         this.variant = null;
         this.notifySearch(this.preparedQuery);
-        this.facetQueryBuilder();
         this.requestUpdate();
     }
 
-    onFacetQueryChange(e) {
-        this.preparedFacetQueryFormatted = e.detail.value;
+    onVariantFilterChange(e) {
+        this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
 
-    onActiveFacetChange(e) {
-        this.selectedFacet = {...e.detail};
-        this.preparedFacetQueryFormatted = {...e.detail};
-        this.facetQueryBuilder();
-        this.requestUpdate();
-    }
-
-    onActiveFacetClear() {
-        this.selectedFacet = {};
-        this.onRun();
-    }
-
-    onQueryComplete() {
+    onQueryComplete(event) {
+        this.notifications = WebUtils.getResponseEvents(event.detail.response);
         this.searchActive = true;
         this.requestUpdate();
-    }
-
-    onSampleChange(e) {
-        this.samples = e.detail.samples;
-        LitUtils.dispatchCustomEvent(this, "sampleChange", undefined, {
-            samples: this.samples,
-        });
     }
 
     onSelectVariant(e) {
@@ -295,6 +222,40 @@ export default class VariantBrowser extends LitElement {
         this.requestUpdate();
     }
 
+    renderHeaderRightContent() {
+        const viewButtons = [
+            {name: "Table", id: "table", icon: "fa fa-table"},
+            {name: "Aggregation Stats", id: "aggregation", icon: "fas fa-chart-bar"},
+            {name: "Genome Browser", id: "genome", icon: "fas fa-dna"},
+        ];
+        return html`
+            <div class="d-flex gap-1 align-items-stretch">
+                <!-- View buttons -->
+                <div class="d-flex align-items-center border bg-gray-100 rounded-2">
+                    ${viewButtons.map(button => html`
+                        <button
+                            class="${`btn ${this.activeView === button.id ? "active bg-primary text-white" : ""}`}"
+                            @click="${() => this.changeView(button.id)}">
+                            <i class="fa ${button.icon} me-2"></i>
+                            <strong>${button.name}</strong>
+                        </button>
+                    `)}
+                </div>
+                <!-- Separator and buttons -->
+                <div class="w-px bg-gray-200 mx-1"></div>
+                <grid-notifications
+                    class="d-flex align-items-stretch"
+                    .notifications="${this.notifications || []}">
+                </grid-notifications>
+                <!--
+                <button class="btn btn-light">
+                    <i class="fa fa-question-circle"></i>
+                </button>
+                -->
+            </div>
+        `;
+    }
+
     render() {
         // Check if there is any project available
         if (!this.opencgaSession?.study) {
@@ -302,164 +263,81 @@ export default class VariantBrowser extends LitElement {
         }
 
         return html`
-            <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
-            <div class="row">
-                <div class="col-2 mb-3">
-                    <div class="d-grid gap-2 mb-3 cy-search-button-wrapper">
-                        <button type="button" class="btn btn-primary btn-block" ?disabled="${!this.searchActive}" @click="${this.onRun}">
-                            <i class="fa fa-search mx-1" aria-hidden="true"></i>
-                            <span class="fw-bold fs-5">${this._config.searchButtonText || "Search"}</span>
-                        </button>
-                    </div>
-                    <ul class="nav nav-tabs mb-3" role="tablist">
-                        <li class="nav-item" role="presentation" >
-                            <a class="active nav-link fw-bold fs-5" href="#filters_tab" aria-controls="profile" role="tab" data-bs-toggle="tab">${this._config.filter.title}</a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link fw-bold fs-5" href="#facet_tab" aria-controls="home" role="tab" data-bs-toggle="tab">${this._config.aggregation.title}</a>
-                        </li>
-                    </ul>
+            <tool-header
+                .title="${this._config.title || ""}"
+                .rightContent="${this.renderHeaderRightContent()}">
+            </tool-header>
 
-                    <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                            <variant-browser-filter
-                                .opencgaSession=${this.opencgaSession}
-                                .query="${this.preparedQuery}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .config="${this._config.filter}"
-                                @queryChange="${this.onQueryFilterChange}"
-                                @querySearch="${this.onVariantFilterSearch}"
-                                @activeFacetChange="${this.onActiveFacetChange}"
-                                @activeFacetClear="${this.onActiveFacetClear}">
-                            </variant-browser-filter>
-                        </div>
+            <variant-browser-filter
+                .resource="${"VARIANT"}"
+                .toolId="${this.COMPONENT_ID || ""}"
+                .opencgaSession=${this.opencgaSession}
+                .preparedQuery="${this.preparedQuery}"
+                .executedQuery="${this.executedQuery}"
+                .searchActive="${this.searchActive || false}"
+                .config="${this._config.filter}"
+                @queryChange="${this.onVariantFilterChange}"
+                @querySearch="${this.onVariantFilterSearch}"
+                @queryClear="${this.onVariantFilterClear}">
+            </variant-browser-filter>
 
-                        <div role="tabpanel" class="tab-pane" id="facet_tab">
-                            <facet-filter
-                                .selectedFacet="${this.selectedFacet}"
-                                .config="${this._config.aggregation}"
-                                @facetQueryChange="${this.onFacetQueryChange}">
-                            </facet-filter>
-                        </div>
-                    </div>
-                </div>
+            <div class="${this.activeView === "table" ? "d-block" : "d-none"}">
+                <variant-browser-grid
+                    .toolId="${this.COMPONENT_ID}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .query="${this.executedQuery}"
+                    .cohorts="${this.opencgaSession?.project?.studies ?? []}"
+                    .cellbaseClient="${this.cellbaseClient}"
+                    .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
+                    .populationFrequencies="${this.populationFrequencies || POPULATION_FREQUENCIES}"
+                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                    .config="${this._config.filter.result.grid}"
+                    @queryComplete="${this.onQueryComplete}"
+                    @selectrow="${this.onSelectVariant}"
+                    @settingsUpdate="${this.onSettingsUpdate}">
+                </variant-browser-grid>
 
-                <div class="col-md-10">
-                    <!-- TAB buttons -->
-                    <div class="d-flex gap-1 mb-3" role="toolbar" aria-label="toolbar">
-                        <button
-                            type="button"
-                            class="${`btn btn-success ${this.activeTab === "table-tab" ? "active" : ""}`}"
-                            @click="${() => this.changeView("table-tab")}">
-                            <i class="fa fa-table icon-padding" aria-hidden="true"></i>
-                            <strong>Table Result</strong>
-                        </button>
-                        <button
-                            type="button"
-                            class="${`btn btn-success ${this.activeTab === "facet-tab" ? "active" : ""}`}"
-                            @click="${() => this.changeView("facet-tab")}">
-                            <i class="fas fa-chart-bar icon-padding" aria-hidden="true"></i>
-                            <strong>Aggregation Stats</strong>
-                        </button>
-                        <button
-                            type="button"
-                            class="${`btn btn-success ${this.activeTab === "genome-tab" ? "active" : ""}`}"
-                            @click="${() => this.changeView("genome-tab")}">
-                            <i class="fas fa-dna icon-padding" aria-hidden="true"></i>
-                            <strong>Genome Browser</strong>
-                        </button>
-                    </div>
+                ${this.variant ? html`
+                    <variant-browser-detail
+                        .variant="${this.variant}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .cellbaseClient="${this.cellbaseClient}"
+                        .config="${this._config.filter.detail}">
+                    </variant-browser-detail>
+                ` : nothing}
+            </div>
 
-                    <div>
-                        <opencga-active-filters
-                            facetActive
-                            resource="VARIANT"
-                            .toolId="${this.COMPONENT_ID}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .defaultStudy="${this.opencgaSession.study?.fqn}"
-                            .query="${this.preparedQuery}"
-                            .executedQuery="${this.executedQuery}"
-                            .facetQuery="${this.preparedFacetQueryFormatted}"
-                            .executedFacetQuery="${this.executedFacetQueryFormatted}"
-                            .alias="${this._config.filter.activeFilters.alias}"
-                            .filters="${this._config.filter.examples}"
-                            .defaultFilter="${this._config.filter.defaultFilter}"
-                            .config="${this._config.filter.activeFilters}"
-                            @activeFacetChange="${this.onActiveFacetChange}"
-                            @activeFacetClear="${this.onActiveFacetClear}"
-                            @activeFilterChange="${this.onActiveFilterChange}"
-                            @activeFilterClear="${this.onActiveFilterClear}">
-                        </opencga-active-filters>
+            <div class="${this.activeView === "aggregation" ? "d-block" : "d-none"}">
+                <aggregation-stats
+                    resource="VARIANT"
+                    .query="${this.executedQuery}"
+                    .active="${this.activeView === "aggregation"}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config.aggregation}">
+                </aggregation-stats>
+            </div>
 
-                        <div class="main-view">
-                            <div id="table-tab" class="${`content-tab ${this.activeTab === "table-tab" ? "active" : ""}`}">
-                                <variant-browser-grid
-                                    .toolId="${this.COMPONENT_ID}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .query="${this.executedQuery}"
-                                    .cohorts="${this.opencgaSession?.project?.studies ?? []}"
-                                    .cellbaseClient="${this.cellbaseClient}"
-                                    .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
-                                    .populationFrequencies="${this.populationFrequencies || POPULATION_FREQUENCIES}"
-                                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                    .config="${this._config.filter.result.grid}"
-                                    @queryComplete="${this.onQueryComplete}"
-                                    @selectrow="${this.onSelectVariant}"
-                                    @settingsUpdate="${this.onSettingsUpdate}">
-                                </variant-browser-grid>
-
-                                ${this.variant ? html`
-                                    <variant-browser-detail
-                                        .variant="${this.variant}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .cellbaseClient="${this.cellbaseClient}"
-                                        .config="${this._config.filter.detail}">
-                                    </variant-browser-detail>
-                                ` : nothing}
-                            </div>
-
-                            <div id="facet-tab" class="${`content-tab ${this.activeTab === "facet-tab" ? "active" : ""}`}">
-                                <opencb-facet-results
-                                    resource="VARIANT"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .active="${this.activeTab === "facet-tab"}"
-                                    .query="${this.facetQuery}"
-                                    .data="${this.facetResults}"
-                                    .error="${this.errorState}">
-                                </opencb-facet-results>
-                            </div>
-
-                            <div id="genome-tab" class="${`content-tab ${this.activeTab === "genome-tab" ? "active" : ""}`}">
-                                ${this.variant ? html`
-                                    <genome-browser
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${this._config.genomeBrowser.config}"
-                                        .region="${this.variant}"
-                                        .tracks="${this._config.genomeBrowser.tracks}"
-                                        .active="${this.activeTab === "genome-tab"}">
-                                    </genome-browser>
-                                ` : null}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="${this.activeView === "genome" ? "d-block" : "d-none"}">
+                ${this.variant ? html`
+                    <genome-browser
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${this._config.genomeBrowser.config}"
+                        .region="${this.variant}"
+                        .tracks="${this._config.genomeBrowser.tracks}"
+                        .active="${this.activeView === "genome"}">
+                    </genome-browser>
+                ` : nothing}
             </div>
         `;
     }
 
     getDefaultConfig() {
-        // return BrowserConf.config;
         return {
             title: "Variant Browser",
-            icon: "img/tools/icons/variant_browser.svg",
-            active: false,
-            searchButtonText: "Search",
             filter: {
-                title: "Filter",
                 activeFilters: {
-                    alias: {},
-                    complexFields: [],
-                    hiddenFields: []
+                    hiddenFields: [],
+                    lockedFields: [],
                 },
                 sections: [ // sections and subsections, structure and order is respected
                     {
@@ -493,7 +371,9 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "variant",
                                 title: "Variant ID",
-                                tooltip: tooltips.variant
+                                description: "Introduce a comma separated list of variant IDs. Accepted format is chrom:position:ref:alt, eg: 11:66923381:-:A",
+                                tooltip: tooltips.variant,
+                                quick: true,
                             },
                             {
                                 id: "region",
@@ -502,8 +382,10 @@ export default class VariantBrowser extends LitElement {
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs (gene, SNPs...)",
-                                tooltip: tooltips.feature
+                                title: "Feature IDs",
+                                description: "Select a feature from the list (gene, SNP, etc.)",
+                                tooltip: tooltips.feature,
+                                quick: true,
                             },
                             {
                                 id: "biotype",
@@ -517,7 +399,8 @@ export default class VariantBrowser extends LitElement {
                                 tooltip: tooltips.type,
                                 params: {
                                     types: VARIANT_TYPES,
-                                }
+                                },
+                                quick: true,
                             }
                         ]
                     },
@@ -531,7 +414,8 @@ export default class VariantBrowser extends LitElement {
                                 tooltip: tooltips.consequenceTypeSelect,
                                 params: {
                                     consequenceTypes: this.consequenceTypes || CONSEQUENCE_TYPES
-                                }
+                                },
+                                quick: true,
                             }
                         ]
                     },
@@ -557,12 +441,14 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "diseasePanels",
                                 title: "Disease Panels",
-                                tooltip: tooltips.diseasePanels
+                                tooltip: tooltips.diseasePanels,
+                                quick: true,
                             },
                             {
                                 id: "clinical-annotation",
                                 title: "Clinical Annotation",
-                                tooltip: tooltips.clinical
+                                tooltip: tooltips.clinical,
+                                quick: true,
                             },
                             {
                                 id: "role-in-cancer",
@@ -711,6 +597,17 @@ export default class VariantBrowser extends LitElement {
                             `,
                         },
                         {
+                            id: "notes",
+                            name: "Notes",
+                            render: (variant, active, opencgaSession) => html`
+                                <variant-notes
+                                    .opencgaSession="${opencgaSession}"
+                                    .variant="${variant}"
+                                    .active="${active}">
+                                </variant-notes>
+                            `,
+                        },
+                        {
                             id: "beacon",
                             name: "Beacon",
                             render: (variant, active, opencgaSession) => html`
@@ -736,8 +633,10 @@ export default class VariantBrowser extends LitElement {
                 }
             },
             aggregation: {
-                title: "Aggregation",
                 default: ["chromosome", "type"],
+                display: {
+                    showNested: true
+                },
                 sections: [
                     {
                         name: "General",

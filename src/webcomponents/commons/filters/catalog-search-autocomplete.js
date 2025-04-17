@@ -65,14 +65,12 @@ export default class CatalogSearchAutocomplete extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
         }
-
         super.update(changedProperties);
     }
 
@@ -139,7 +137,6 @@ export default class CatalogSearchAutocomplete extends LitElement {
                     include: "id"
                 }
             },
-
             "CLINICAL_ANALYSIS": {
                 searchField: "id",
                 placeholder: "Start typing",
@@ -202,6 +199,19 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 query: {
                     type: "FILE",
                     include: "id,name,format,size,path",
+                }
+            },
+            "WORKFLOW": {
+                searchField: "id",
+                placeholder: "Start typing",
+                // client: this.opencgaSession.opencgaClient.workflows(),
+                fetch: filters => this.opencgaSession.opencgaClient.workflows().search(filters),
+                fields: item => ({
+                    id: item.id,
+                    name: item.name
+                }),
+                query: {
+                    include: "id,name"
                 }
             },
             "DIRECTORY": {
@@ -287,7 +297,12 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 };
 
                 this.RESOURCES[this.resource].fetch(filters)
-                    .then(response => success(response))
+                    .then(response => {
+                        if (this._config.additionalValues?.length > 0) {
+                            this._config.additionalValues.forEach(v => response.responses[0].results.unshift(v));
+                        }
+                        success(response)
+                    })
                     .catch(error => failure(error));
             },
             preprocessResults(results) {

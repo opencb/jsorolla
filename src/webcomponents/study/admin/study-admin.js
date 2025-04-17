@@ -15,16 +15,17 @@
  */
 
 import {LitElement, html} from "lit";
-import LitUtils from "../../commons/utils/lit-utils";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "./study-admin-users.js";
 import "./study-admin-permissions.js";
 import "./study-admin-variable.js";
 import "./study-admin-audit.js";
 import "./study-admin-configuration.js";
+import "../../variant/operation/variant-setup-operation.js";
 import "../../variant/operation/clinical-analysis-configuration-update.js";
 import "../../variant/operation/variant-secondary-sample-index-configure-operation.js";
-import "../../commons/layouts/custom-vertical-navbar.js";
+import "../../commons/view/vertical-menu.js";
+import "../../commons/pages/restricted-access-page.js";
 
 export default class StudyAdmin extends LitElement {
 
@@ -40,126 +41,59 @@ export default class StudyAdmin extends LitElement {
 
     static get properties() {
         return {
-            studyId: {
-                type: String
-            },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
         };
     }
 
     #init() {
-        this.study = {};
         this._config = this.getDefaultConfig();
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
-            this.studyIdObserver();
-        }
-        super.update(changedProperties);
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-    studyIdObserver() {
-        if (this.studyId && this.opencgaSession) {
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.studies()
-                .info(this.studyId)
-                .then(response => {
-                    this.study = response.responses[0].results[0];
-                })
-                .catch(reason => {
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "studySearch", this.study, {}, error);
-                    this.#setLoading(false);
-                });
-        }
-    }
-
     render() {
-        const activeMenuItem = "UsersAndGroups";
-        if (this.opencgaSession.study && this.opencgaSession.organization) {
-            if (!OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id) &&
-                !OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
-                return html`
-                    <tool-header class="page-title-no-margin"  title="${this._config.name}" icon="${this._config.icon}"></tool-header>
-                    <div class="d-flex flex-column align-items-center justify-content-center">
-                        <h1 class="display-1"><i class="fas fa-user-shield me-4"></i>Restricted access</h1>
-                        <h3>The page you are trying to access has restricted access.</h3>
-                        <h3>Please refer to your system administrator.</h3>
-                    </div>
-                `;
-            }
+        const isOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, this.opencgaSession?.user?.id);
+        const isAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
 
-            return html `
-                <tool-header class="page-title-no-margin"  title="${this._config.name}" icon="${this._config.icon}"></tool-header>
-                <custom-vertical-navbar
-                    .study="${this.opencgaSession.study}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config}"
-                    .activeMenuItem="${activeMenuItem}">
-                </custom-vertical-navbar>
+        if (!this.opencgaSession || (!isOrganizationAdmin && !isAdmin)) {
+            return html`
+                <restricted-access-page
+                    message="The page you are trying to access has restricted access. Please refer to your system administrator.">
+                </restricted-access-page>
             `;
         }
+
+        return html `
+            <tool-header title="${this._config.name}"></tool-header>
+            <vertical-menu
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config || {}}">
+            </vertical-menu>
+        `;
     }
 
     getDefaultConfig() {
         return {
-            id: "",
             name: "Study Admin",
-            logo: "",
-            icon: "fas fa-sliders-h",
-            visibility: "private", // public | private | none
+            display: {
+                menuStyle: "width:240px;",
+            },
             menu: [
                 {
-                    id: "general",
-                    name: "General",
+                    id: "manage",
+                    name: "Manage Study",
                     description: "",
-                    icon: "",
-                    featured: "", // true | false
-                    visibility: "private",
-                    submenu: [
-                        {
-                            id: "audit",
-                            name: "Audit",
-                            icon: "fas fa-book",
-                            visibility: "private",
-                            render: (opencgaSession, study) => html`
-                                <study-admin-audit
-                                    .opencgaSession="${opencgaSession}"
-                                    .study="${study}">
-                                </study-admin-audit>`,
-                        },
-                    ],
-                },
-                {
-                    id: "configuration",
-                    name: "Configuration",
-                    description: "",
-                    icon: "",
-                    featured: "", // true | false
-                    visibility: "private",
                     submenu: [
                         {
                             id: "UsersAndGroups",
                             name: "Users and Groups",
                             icon: "fas fa-user-friends",
-                            visibility: "private",
-                            render: (opencgaSession, study) => html`
+                            render: opencgaSession => html`
                                 <study-admin-users
-                                        .opencgaSession="${opencgaSession}"
-                                        .study="${study}">
-                                </study-admin-users>`,
+                                    .opencgaSession="${opencgaSession}"
+                                    .study="${opencgaSession.study}">
+                                </study-admin-users>
+                            `,
                         },
                         /*
                         {
@@ -181,100 +115,84 @@ export default class StudyAdmin extends LitElement {
                             id: "Permissions",
                             name: "Permissions",
                             icon: "fas fa-key",
-                            visibility: "private",
-                            render: (opencgaSession, study) => html`
+                            render: opencgaSession => html`
                                 <study-admin-permissions
-                                        .opencgaSession="${opencgaSession}"
-                                        .study="${study}">
-                                </study-admin-permissions>`,
+                                    .opencgaSession="${opencgaSession}"
+                                    .study="${opencgaSession.study}">
+                                </study-admin-permissions>
+                            `,
                         },
                         {
                             id: "VariableSets",
                             name: "Variable Sets",
                             icon: "fas fa-book",
-                            visibility: "private",
-                            render: (opencgaSession, study) => html`
+                            render: opencgaSession => html`
                                 <study-admin-variable
-                                        .opencgaSession="${opencgaSession}"
-                                        .study="${study}">
-                                </study-admin-variable>`,
+                                    .opencgaSession="${opencgaSession}"
+                                    .study="${opencgaSession.study}">
+                                </study-admin-variable>
+                            `,
                         },
-                        // {
-                        //     id: "Configuration",
-                        //     // label: "Configuration",
-                        //     name: "Configuration",
-                        //     icon: "fas fa-cog",
-                        //     visibility: "private",
-                        //     render: (opencgaSession, study) => html`
-                        //         <study-admin-configuration
-                        //                 .opencgaSession="${opencgaSession}"
-                        //                 .study="${study}">
-                        //         </study-admin-configuration>`,
-                        // },
                     ],
                 },
                 {
                     id: "variant-configuration",
                     name: "Variant Configuration",
                     description: "",
-                    icon: "",
-                    featured: "", // true | false
-                    visibility: "private",
                     submenu: [
+                        {
+                            id: "variant-setup",
+                            name: "Variant Setup",
+                            icon: "fas fa-cog",
+                            render: opencgaSession => html`
+                                <variant-setup-operation
+                                    .toolParams="${{study: opencgaSession.study.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-setup-operation>
+                            `,
+                        },
                         {
                             id: "clinical-analysis-configuration-operation",
                             name: "Clinical Analysis Configuration",
                             icon: "fas fa-key",
-                            visibility: "private",
-                            render: (opencgaSession, study) => {
-                                return html `
-                                    <clinical-analysis-configuration-update
-                                            .toolParams="${{study: study.id}}"
-                                            .opencgaSession="${opencgaSession}">
-                                    </clinical-analysis-configuration-update>
-                                `;
-                            }
+                            render: opencgaSession => html`
+                                <clinical-analysis-configuration-update
+                                    .toolParams="${{study: opencgaSession.study.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </clinical-analysis-configuration-update>
+                            `,
                         },
                         {
                             id: "variant-secondary-sample-configure-index",
                             name: "Sample Index Configuration",
                             icon: "fas fa-key",
-                            visibility: "private",
-                            render: (opencgaSession, study) => {
-                                return html `
-                                    <variant-secondary-sample-index-configure-operation
-                                        .toolParams="${{study: study.id}}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </variant-secondary-sample-index-configure-operation>
-                              `;
-                            }
+                            render: opencgaSession => html`
+                                <variant-secondary-sample-index-configure-operation
+                                    .toolParams="${{study: opencgaSession.study.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </variant-secondary-sample-index-configure-operation>
+                            `,
                         },
                     ],
                 },
-                // {
-                //     id: "Operations",
-                //     name: "Operations",
-                //     category: true, // true | false
-                //     visibility: "private",
-                //     description: "",
-                //     icon: "",
-                //     featured: "", // true | false
-                //     submenu: [
-                //         // {
-                //         //     id: "Solr",
-                //         //     name: "Solr",
-                //         //     // CAUTION: icon vs. img in config.js?
-                //         //     img: "/sites/iva/img/logos/Solr.png",
-                //         //     visibility: "private",
-                //         // },
-                //         // {
-                //         //     id: "Rysnc",
-                //         //     name: "Rysnc",
-                //         //     icon: "",
-                //         //     visibility: "private",
-                //         // },
-                //     ],
-                // },
+                {
+                    id: "general",
+                    name: "General",
+                    description: "",
+                    submenu: [
+                        {
+                            id: "audit",
+                            name: "Audit",
+                            icon: "fas fa-book",
+                            render: opencgaSession => html`
+                                <study-admin-audit
+                                    .opencgaSession="${opencgaSession}"
+                                    .study="${opencgaSession.study}">
+                                </study-admin-audit>
+                            `,
+                        },
+                    ],
+                },
             ],
         };
     }

@@ -20,6 +20,8 @@ import "./user-admin-browser.js";
 import "../../project/projects-admin.js";
 import "./project-admin-browser.js";
 import "./organization-admin-detail.js";
+import "../../commons/pages/restricted-access-page.js";
+import "../../commons/view/vertical-menu.js";
 
 export default class OrganizationAdmin extends LitElement {
 
@@ -43,153 +45,116 @@ export default class OrganizationAdmin extends LitElement {
 
     #init() {
         this._config = this.getDefaultConfig();
-        this._activeMenuItem = "";
     }
 
-    // --- RENDER METHOD  ---
     render() {
-        if (this.opencgaSession?.organization) {
-            if (!OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id)) {
-                return html `
-                    <div class="d-flex flex-column align-items-center justify-content-center">
-                        <h1 class="display-1"><i class="fas fa-user-shield me-4"></i>Restricted access</h1>
-                        <h3>The page you are trying to access has restricted access.</h3>
-                        <h3>Please refer to your system administrator.</h3>
-                    </div>
-                `;
-            }
-            return html `
-                <!-- <tool-header class="page-title-no-margin" title="$this._config.name}" icon="$this._config.icon}"></tool-header>-->
-                <custom-vertical-navbar
-                    .organization="${this.opencgaSession.organization}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config}"
-                    .activeMenuItem="${this._activeMenuItem}">
-                </custom-vertical-navbar>
+        if (!this.opencgaSession?.organization || !OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, this.opencgaSession?.user?.id)) {
+            return html`
+                <restricted-access-page
+                    message="The page you are trying to access has restricted access. Please refer to your system administrator.">
+                </restricted-access-page>
             `;
         }
+
+        return html `
+            <tool-header title="Organization Admin: ${this.opencgaSession?.organization?.id}"></tool-header>
+            <vertical-menu
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config || {}}">
+            </vertical-menu>
+        `;
     }
 
     getDefaultConfig() {
-        const menu = [
-            {
-                id: "general",
-                name: "General",
-                description: "",
-                icon: "",
-                featured: "",
-                visibility: "private",
-                submenu: [
-                    // TODO
-                    {
-                        id: "dashboard",
-                        name: "Dashboard (Coming soon)",
-                        icon: "fas fa-vial",
-                        visibility: "private",
-                        render: () => html``,
-                    },
-                    // TODO
-                    {
-                        id: "audit",
-                        name: "Audit (Coming soon)",
-                        type: "category",
-                        icon: "fas fa-vial",
-                        visibility: "private",
-                        render: () => html``,
-                    },
-                ],
-            },
-            {
-                id: "manage",
-                name: "Manage",
-                description: "",
-                icon: "",
-                featured: "", // true | false
-                visibility: "private",
-                submenu: [
-                    /* Vero Note: Maintained for future use in Organization Admin
-                    {
-                        id: "groups",
-                        name: "Groups",
-                        icon: "fas fa-vial",
-                        visibility: "private",
-                        render: (opencgaSession, organization) => html`
-                            <group-admin-browser
-                                .organization="${organization}"
-                                .opencgaSession="${opencgaSession}">
-                            </group-admin-browser>
-                        `,
-                    },
-                     */
-                    {
-                        id: "users",
-                        name: "Users",
-                        icon: "fas fa-users",
-                        visibility: "private",
-                        render: (opencgaSession, organization) => html`
-                            <user-admin-browser
-                                .organization="${organization}"
-                                .opencgaSession="${opencgaSession}">
-                            </user-admin-browser>
-                        `,
-                    },
-                    {
-                        id: "studies",
-                        name: "Projects/Studies",
-                        icon: "fas fa-project-diagram",
-                        visibility: "private",
-                        render: (opencgaSession, organization) => {
-                            return html`
-                                <project-admin-browser
-                                    .organization="${organization}"
-                                    .opencgaSession="${opencgaSession}">
-                                </project-admin-browser>
-                            `;
-                        },
-                    },
-                ],
-            },
-            {
-                id: "configure",
-                name: "Configure",
-                description: "",
-                icon: "",
-                featured: "",
-                visibility: "private",
-                submenu: [
-                    {
-                        id: "settings",
-                        name: "Organization",
-                        icon: "fas fa-sitemap",
-                        visibility: "private",
-                        render: (opencgaSession, organization) => {
-                            return html`
-                                <organization-admin-detail
-                                    .organization="${organization}"
-                                    .opencgaSession="${opencgaSession}">
-                                </organization-admin-detail>
-                            `;
-                        },
-                    },
-                    /*
-                    {
-                        id: "optimization",
-                        name: "Optimizations",
-                        icon: "fas fa-vial",
-                        visibility: "private",
-                        render: (opencgaSession, study) => html``,
-                    },
-                     */
-                ],
-            },
-        ];
-
         return {
-            name: "Organization Admin",
-            logo: "",
-            icon: "",
-            visibility: "",
-            menu: menu,
+            display: {
+                menuStyle: "width:240px;",
+            },
+            menu: [
+                // {
+                //     id: "general",
+                //     name: "General",
+                //     description: "",
+                //     icon: "",
+                //     featured: "",
+                //     visibility: "private",
+                //     submenu: [
+                //         {
+                //             id: "dashboard",
+                //             name: "Dashboard (Coming soon)",
+                //             icon: "fas fa-vial",
+                //             visibility: "private",
+                //             render: () => html``,
+                //         },
+                //         {
+                //             id: "audit",
+                //             name: "Audit (Coming soon)",
+                //             type: "category",
+                //             icon: "fas fa-vial",
+                //             visibility: "private",
+                //             render: () => html``,
+                //         },
+                //     ],
+                // },
+                {
+                    id: "manage",
+                    name: "Manage Organization",
+                    submenu: [
+                        /* Vero Note: Maintained for future use in Organization Admin
+                        {
+                            id: "groups",
+                            name: "Groups",
+                            icon: "fas fa-vial",
+                            visibility: "private",
+                            render: (opencgaSession, organization) => html`
+                                <group-admin-browser
+                                    .organization="${organization}"
+                                    .opencgaSession="${opencgaSession}">
+                                </group-admin-browser>
+                            `,
+                        },
+                         */
+                        {
+                            id: "users",
+                            name: "Users",
+                            render: opencgaSession => html`
+                                <user-admin-browser
+                                    .opencgaSession="${opencgaSession}">
+                                </user-admin-browser>
+                            `,
+                        },
+                        {
+                            id: "studies",
+                            name: "Projects and Studies",
+                            render: opencgaSession => {
+                                return html`
+                                    <project-admin-browser
+                                        .opencgaSession="${opencgaSession}">
+                                    </project-admin-browser>
+                                `;
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: "configure",
+                    name: "Configure",
+                    submenu: [
+                        {
+                            id: "settings",
+                            name: "Organization",
+                            render: opencgaSession => {
+                                return html`
+                                    <organization-admin-detail
+                                        .organization="${opencgaSession?.organization}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </organization-admin-detail>
+                                `;
+                            },
+                        },
+                    ],
+                },
+            ],
         };
     }
 

@@ -26,13 +26,11 @@ import "../job/job-browser.js";
 import "../variant/variant-browser.js";
 import "../disease-panel/disease-panel-browser.js";
 import "../clinical/clinical-analysis-browser.js";
-import "../clinical/clinical-analysis-portal.js";
 import "../user/user-profile.js";
 import "../commons/view/detail-tabs.js";
 
 export default class ToolSettingsPreview extends LitElement {
 
-    // --- CONSTRUCTOR ---
     constructor() {
         super();
 
@@ -43,7 +41,6 @@ export default class ToolSettingsPreview extends LitElement {
         return this;
     }
 
-    // --- PROPERTIES ---
     static get properties() {
         return {
             opencgaSession: {
@@ -61,7 +58,6 @@ export default class ToolSettingsPreview extends LitElement {
         };
     }
 
-    // --- PRIVATE METHODS ---
     #init() {
         this.param = null;
         this.map = {
@@ -169,30 +165,6 @@ export default class ToolSettingsPreview extends LitElement {
                     `;
                 },
             },
-            "CLINICAL_ANALYSIS_PORTAL_BROWSER": {
-                render: settings => {
-                    return html`
-                        <clinical-analysis-portal
-                            .opencgaSession="${this.opencgaSession}"
-                            .settings="${settings}"
-                            .config="${{componentId: "clinicalAnalysisBrowserPortal", showHeader: false}}">
-                        </clinical-analysis-portal>
-                    `;
-                }
-            },
-            /*
-            "RGA_BROWSER": {
-                render: settings => {
-                    return html `
-                        <rga-browser
-                            .opencgaSession="${this.opencgaSession}"
-                            .settings="${settings}"
-                            .config="${{showHeader: false}}">
-                        </rga-browser>
-                    `;
-                }
-                },
-            */
             "USER_PROFILE_SETTINGS": {
                 render: settings => {
                     return html`
@@ -206,10 +178,8 @@ export default class ToolSettingsPreview extends LitElement {
             "VARIANT_INTERPRETER_SETTINGS": {
                 render: (settings, param) => {
                     if (this.param === null) {
-                        // debugger
                         return html`Retrieving data...`;
                     } else {
-                        // debugger
                         return html`
                             <variant-interpreter
                                 .opencgaSession="${this.opencgaSession}"
@@ -252,9 +222,7 @@ export default class ToolSettingsPreview extends LitElement {
         }
     }
 
-    // --- RENDER ---
     render() {
-        // debugger
         return html`
             <div id="#tool-settings-preview">
                 ${this.map[this.tool].render(this.settings)}
@@ -262,8 +230,8 @@ export default class ToolSettingsPreview extends LitElement {
         `;
     }
 
-    // --- DEFAULT CONFIG ---
     getDefaultConfig() {
+        return {};
     }
 
 }

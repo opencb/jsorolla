@@ -17,7 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
-import "../forms/file-upload.js";
+import "./file-reader.js";
 
 /**
  * Token filter. Select2 version with opencga dynamic datasource
@@ -270,9 +270,9 @@ export default class SelectTokenFilter extends LitElement {
                                 <i class="fas fa-upload"></i>
                             </span>
                         </div>
-                        <file-upload
+                        <file-reader
                             @filterChange="${this.fileUploaded}">
-                        </file-upload>
+                        </file-reader>
                     </div>
                 </form>
             `;

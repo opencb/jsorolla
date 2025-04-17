@@ -62,7 +62,7 @@ export default class ToggleRadio extends LitElement {
                     <input
                         class="form-check-input"
                         type="radio"
-                        name="inlineRadioOptions"
+                        name="${this._prefix}Toggle"
                         id="${this._prefix}Toggle${value}"
                         value="${value}"
                         .checked="${this.value === value}"

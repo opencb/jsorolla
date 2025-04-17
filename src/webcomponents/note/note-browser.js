@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/opencga-browser.js";
@@ -27,7 +27,6 @@ export default class NoteBrowser extends LitElement {
 
     constructor() {
         super();
-        // Set status and init private properties
         this.#init();
     }
 
@@ -37,10 +36,10 @@ export default class NoteBrowser extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            query: {
                 type: Object
             },
-            query: {
+            opencgaSession: {
                 type: Object
             },
             settings: {
@@ -51,14 +50,22 @@ export default class NoteBrowser extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "note-browser";
+        this._query = {scope: "STUDY"};
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("query")) {
+            this.queryObserver();
+        }
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
         super.update(changedProperties);
+    }
+
+    queryObserver() {
+        this._query = {scope: "STUDY", ...this.query};
     }
 
     settingsObserver() {
@@ -85,7 +92,6 @@ export default class NoteBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
-
     }
 
     onSettingsUpdate() {
@@ -100,13 +106,14 @@ export default class NoteBrowser extends LitElement {
 
     render() {
         if (!this.opencgaSession) {
-            return html`<div>Not valid session</div>`;
+            return nothing;
         }
+
         return html`
             <opencga-browser
                 resource="NOTE"
                 .opencgaSession="${this.opencgaSession}"
-                .query="${this.query}"
+                .query="${this._query}"
                 .config="${this._config}"
                 @noteUpdate="${this.onNoteUpdate}">
             </opencga-browser>
@@ -116,11 +123,10 @@ export default class NoteBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Note Browser",
-            icon: "fab fa-searchengin",
             views: [
                 {
                     id: "table-tab",
-                    name: "Table result",
+                    name: "Table",
                     icon: "fa fa-table",
                     active: true,
                     render: params => {
@@ -133,15 +139,16 @@ export default class NoteBrowser extends LitElement {
                                 .config="${params.config.filter.result.grid}"
                                 .eventNotifyName="${params.eventNotifyName}"
                                 .active="${true}"
+                                @queryComplete="${e => params.onQueryComplete(e)}"
                                 @selectrow="${e => params.onClickRow(e, "note")}"
                                 @noteUpdate="${e => params.onComponentUpdate(e, "note")}"
                                 @settingsUpdate="${() => this.onSettingsUpdate()}">
                             </note-grid>
-                            ${params?.detail?.note ? html`
+                            ${params?.detail ? html`
                                 <note-detail
+                                    .noteId="${params.detail?.id}"
+                                    .noteScope="${params?.detail?.scope}"
                                     .opencgaSession="${params.opencgaSession}"
-                                    .noteId="${params.detail?.note?.id}"
-                                    .noteScope="${params?.detail?.note?.scope}"
                                     .config="${params.config.filter.detail}">
                                 </note-detail>
                             ` : nothing}
@@ -158,7 +165,7 @@ export default class NoteBrowser extends LitElement {
                         filters: [
                             {
                                 id: "scope",
-                                name: "Scope",
+                                title: "Scope",
                                 render: (onFilterChange, query, opencgaSession) => {
                                     const value = (query?.scope || "study").toLowerCase();
                                     const allowedValues = [
@@ -174,8 +181,8 @@ export default class NoteBrowser extends LitElement {
                                             ` : nothing}
                                             ${value === "organization" && !CatalogUtils.isOrganizationAdmin(opencgaSession.organization, opencgaSession.user.id) ? html`
                                                 <div class="alert alert-warning">
-                                                    <span>You are allowd to see only <b>PUBLIC</b> notes fron current organization.</span>
-                                                </div>    
+                                                    <span>You are allowed to see only <b>PUBLIC</b> notes from current organization.</span>
+                                                </div>
                                             ` : nothing}
                                             <div class="row">
                                                 <toggle-radio
@@ -187,13 +194,14 @@ export default class NoteBrowser extends LitElement {
                                         </div>
                                     `;
                                 },
+                                quick: true,
                             },
                             {
                                 id: "id",
-                                name: "Note ID",
+                                title: "Note ID",
                                 type: "string",
                                 render: (onFilterChange, query, opencgaSession) => {
-                                    const resource = query?.scope === "ORGANIZATION" ? "NOTE_ORGANIZATION" : "NOTE_STUDY";
+                                    const resource = query?.scope === "ORGANIZATION" || query?.scope === "NOTE_ORGANIZATION" ? "NOTE_ORGANIZATION" : "NOTE_STUDY";
                                     return html`
                                         <catalog-search-autocomplete
                                             .resource="${resource}"
@@ -203,18 +211,72 @@ export default class NoteBrowser extends LitElement {
                                         </catalog-search-autocomplete>
                                     `;
                                 },
+                                quick: true,
+                            },
+                            {
+                                id: "noteType",
+                                title: "Note Type",
+                                allowedValues: [
+                                    "VARIANT",
+                                    "GENE",
+                                    "TRANSCRIPT",
+                                    "PROTEIN",
+                                    "JOB",
+                                    "FILE",
+                                    "SAMPLE",
+                                    "INDIVIDUAL",
+                                    "FAMILY",
+                                    "COHORT",
+                                    "DISEASE_PANEL",
+                                    "CLINICAL_ANALYSIS",
+                                    "WORKFLOW",
+                                    "ORGANIZATION",
+                                    "OTHER",
+                                    "UNKNOWN",
+                                ],
+                                multiple: true,
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "visibility",
-                                name: "Visibility",
+                                title: "Visibility",
                                 allowedValues: ["PUBLIC", "PRIVATE"],
                                 multiple: true,
-                                description: ""
+                                description: "",
+                                quick: true,
+                            },
+                            {
+                                id: "tags",
+                                title: "Tags",
+                                render: (onFilterChange, query, opencgaSession) => {
+                                    const resource = (query?.scope === "ORGANIZATION" || query?.scope === "NOTE_ORGANIZATION") ? "NOTE_ORGANIZATION" : "NOTE_STUDY";
+                                    const tagsFilterConfig = {
+                                        preprocessResults: results => {
+                                            return results.map(result => result.tags)
+                                                .flat()
+                                                .map(tag => ({id: tag}));
+                                        },
+                                    };
+                                    return html`
+                                        <catalog-search-autocomplete
+                                            .resource="${resource}"
+                                            .value="${query?.tags}"
+                                            .searchField="${"tags"}"
+                                            .query="${{include: "tags"}}"
+                                            .opencgaSession="${opencgaSession}"
+                                            .config="${tagsFilterConfig}"
+                                            @filterChange="${e => onFilterChange("tags", e.detail.value)}">
+                                        </catalog-search-autocomplete>
+                                    `;
+                                },
+                                quick: true,
                             },
                             {
                                 id: "date",
-                                name: "Creation Date",
-                                description: ""
+                                title: "Creation Date",
+                                description: "",
+                                quick: true,
                             },
                         ]
                     }

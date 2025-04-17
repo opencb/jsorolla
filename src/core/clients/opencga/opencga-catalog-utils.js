@@ -173,7 +173,7 @@ export default class OpencgaCatalogUtils {
     // Find study object in opencgaSession
     static getStudyInSession(opencgaSession, studyId) {
         let study = {};
-        for (const p of opencgaSession?.projects) {
+        for (const p of (opencgaSession?.projects || [])) {
             for (const s of p.studies) {
                 if (s.id === studyId || s.fqn === studyId) {
                     study = s;
@@ -262,33 +262,48 @@ export default class OpencgaCatalogUtils {
         };
     }
 
-    /** Gets study IVA DEFAULT settings
-     * @param {object} opencgaSession   Session
-     * @param {object} study            Study
-     * @param {string} type             Type of restore, default or backup
-     * @returns {object}                Study attributes with default IVA settings
-     */
+    // @description gets study IVA DEFAULT settings
+    // @param {object} opencgaSession Current session object
+    // @param {object} study Study object
+    // @param {string} type Type of restore: 'default' or 'backup'
+    // @returns {object} Study attributes with default IVA settings
     static getRestoreIVASettings(opencgaSession, study, type) {
-        const getSettings = () => {
-            switch (type) {
-                case "default":
-                    return UtilsNew.objectClone(opencgaSession.ivaDefaultSettings.settings);
-                case "backup":
-                    return UtilsNew.objectClone(study.attributes[SETTINGS_NAME + "_BACKUP"].settings);
-            }
-        };
+        let settings = {};
+        switch (type) {
+            case "default":
+                settings = UtilsNew.objectClone(opencgaSession.ivaDefaultSettings.settings);
+            case "backup":
+                settings = UtilsNew.objectClone(study.attributes[SETTINGS_NAME + "_BACKUP"].settings);
+        }
         return {
             attributes: {
+                // 1. Other attributes that the study might have
                 ...study.attributes,
+                // 2. BACKUP previous settings
+                // eslint-disable-next-line no-undef
+                [SETTINGS_NAME + "_BACKUP"]: UtilsNew.objectClone(study.attributes[SETTINGS_NAME]),
+                // 3. New tool settings
                 // eslint-disable-next-line no-undef
                 [SETTINGS_NAME]: {
                     userId: opencgaSession.user.id,
                     version: opencgaSession.ivaDefaultSettings.version.split("-")[0],
                     date: UtilsNew.getDatetime(),
-                    settings: getSettings(),
+                    settings: settings,
                 },
             }
         };
+    }
+
+    static getDownloadFileUrl(opencgaSession, fileId) {
+        const downloadUrl = [
+            opencgaSession.server.host,
+            "webservices/rest",
+            opencgaSession.server.version,
+            "files",
+            fileId,
+            `download?study=${opencgaSession.study.fqn}&sid=${opencgaSession.token}`,
+        ];
+        return downloadUrl.join("/");
     }
 
 }

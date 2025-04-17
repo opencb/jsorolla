@@ -285,7 +285,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
+                paginationVAlign: "bottom",
                 formatShowingRows: (pageFrom, pageTo, totalRows) =>
                     this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
                 showExport: this._config.showExport,
@@ -297,7 +297,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 variantGrid: this,
 
                 ajax: params => {
-                    this.gridCommons.clearResponseWarningEvents();
                     let rearrangementResponse = null;
 
                     // Make a deep clone object to manipulate the query sent to OpenCGA
@@ -321,12 +320,12 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
                     this.opencgaSession.opencgaClient.clinical()
                         .queryVariant(this.filters)
-                        .then(res => {
-                            this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
-                            rearrangementResponse = res;
+                        .then(response => {
+                            this.isApproximateCount = response.responses[0].attributes?.approximateCount ?? false;
+                            rearrangementResponse = response;
 
                             // Generate map of genes to variants
-                            return this.generateGenesMapFromVariants(res.responses[0].results);
+                            return this.generateGenesMapFromVariants(response.responses[0].results);
                         })
                         .then(() => {
                             // pairs will have the following format: [[v1, v2], [v3, v4], [v5, v6]];
@@ -342,11 +341,12 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                             params.error(error);
                         })
                         .finally(() => {
-                            LitUtils.dispatchCustomEvent(this, "queryComplete", null);
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: rearrangementResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
-                    this.gridCommons.displayResponseWarningEvents(response);
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
@@ -407,7 +407,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            paginationVAlign: "both",
+            paginationVAlign: "bottom",
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
             // detailView: this._config.detailView,
@@ -730,7 +730,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         ];
 
         // Update columns
-        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
 
         return this._columns;
     }
@@ -973,28 +973,20 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.requestUpdate();
     }
 
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
+    }
+
     render() {
         return html`
-            <style>
-                .variant-link-dropdown:hover .dropdown-menu {
-                    display: block;
-                }
-                .qtip-custom-class {
-                    font-size: 13px;
-                    max-width: none;
-                }
-                .check-variant {
-                    transform: scale(1.2);
-                }
-            </style>
-
-            <div id="${this.gridId}WarningEvents"></div>
-
             <opencb-grid-toolbar
                 .config="${this.toolbarConfig}"
                 .settings="${this.toolbarSetting}"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.filters}"
+                .leftContent="${this.renderToolbarLeftContent()}"
                 @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"
                 @export="${this.onDownload}"

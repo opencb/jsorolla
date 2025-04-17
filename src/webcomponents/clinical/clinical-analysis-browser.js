@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/opencga-browser.js";
 import "./clinical-analysis-view.js";
 import "./clinical-analysis-grid.js";
@@ -29,6 +27,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -38,10 +37,10 @@ export default class ClinicalAnalysisBrowser extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            query: {
                 type: Object,
             },
-            query: {
+            opencgaSession: {
                 type: Object,
             },
             settings: {
@@ -55,7 +54,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "clinical-analysis-browser";
-        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
     }
 
@@ -63,7 +61,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
         if (changedProperties.has("settings") || changedProperties.has("config")) {
             this.settingsObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -93,21 +90,21 @@ export default class ClinicalAnalysisBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid,
         });
-
-        this.requestUpdate();
     }
 
     onSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onClinicalAnalysisUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
-        if (!this._config) {
-            return null;
+        if (!this.opencgaSession) {
+            return nothing;
         }
 
         return html`
@@ -123,16 +120,14 @@ export default class ClinicalAnalysisBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Clinical Analysis Browser",
-            icon: "fab fa-searchengin",
-            // searchButtonText: "Search",
+            title: "Case Interpreter Portal",
             views: [
                 {
                     id: "table-tab",
-                    name: "Table result",
+                    name: "Table",
                     icon: "fa fa-table",
                     active: true,
-                    render: params => html `
+                    render: params => html`
                         <clinical-analysis-grid
                             .toolId="${this.COMPONENT_ID}"
                             .opencgaSession="${params.opencgaSession}"
@@ -140,7 +135,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .query="${params.executedQuery}"
                             .active="${params.active}"
-                            @selectanalysis="${params.onSelectClinicalAnalysis}"
+                            @queryComplete="${e => params.onQueryComplete(e)}"
                             @selectrow="${e => params.onClickRow(e)}"
                             @rowUpdate="${e => params.onComponentUpdate(e)}"
                             @clinicalAnalysisUpdate="${e => params.onComponentUpdate(e)}"
@@ -157,7 +152,7 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                 },
                 {
                     id: "group",
-                    name: "Group by",
+                    name: "Group By",
                     icon: "fas fa-layer-group",
                     active: false,
                     render: params => html`
@@ -170,64 +165,81 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                         </clinical-analysis-group>
                     `,
                 },
+                {
+                    id: "aggregate",
+                    name: "Aggregation Stats",
+                    icon: "fas fa-chart-bar",
+                    active: false,
+                    render: params => html`
+                        <aggregation-stats
+                            resource="${params.resource}"
+                            .query="${params.executedQuery}"
+                            .active="${params.active}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.aggregation}">
+                        </aggregation-stats>
+                    `,
+                },
             ],
             filter: {
-                searchButton: false,
                 sections: [
                     {
-                        name: "section title",
                         filters: [
                             {
                                 id: "id",
-                                name: "Clinical Analysis ID",
+                                title: "Clinical Analysis ID",
                                 type: "string",
                                 placeholder: "CA-1234,CA-2345...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "family",
-                                name: "Family ID",
+                                title: "Family ID",
                                 type: "string",
                                 placeholder: "FAM123, FAM124...",
-                                description: ""
+                                description: "",
                             },
                             {
                                 id: "proband",
-                                name: "Proband ID",
+                                title: "Proband ID",
                                 placeholder: "PRO-1234, PRO-2345...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "sample",
-                                name: "Sample ID",
+                                title: "Sample ID",
                                 placeholder: "HG01879, HG01880, HG01881...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "type",
-                                name: "Case Type",
+                                title: "Case Type",
                                 description: "",
                                 multiple: true,
                                 allowedValues: ["SINGLE", "FAMILY", "CANCER"],
+                                quick: true,
                             },
                             {
                                 id: "status",
-                                name: "Status",
+                                title: "Status",
                                 description: ""
                             },
                             {
                                 id: "priority",
-                                name: "Priority",
+                                title: "Priority",
                                 description: ""
                             },
                             {
                                 id: "creationDate",
-                                name: "Creation Date",
+                                title: "Creation Date",
                                 description: ""
                             },
                             {
                                 id: "dueDate",
-                                name: "Due Date",
+                                title: "Due Date",
                                 description: ""
                             }
                         ]
@@ -265,6 +277,83 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                         }
                     ]
                 }
+            },
+            aggregation: {
+                default: ["disorders"],
+                display: {
+                    showNested: false
+                },
+                sections: [
+                    {
+                        name: "Sample Attributes",
+                        // collapsed: false,
+                        fields: [
+                            {
+                                id: "studyId",
+                                name: "Study id",
+                                type: "string",
+                                description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
+                            },
+                            {
+                                id: "creationYear",
+                                name: "Creation Year",
+                                type: "string",
+                                description: "Creation year"
+                            },
+                            {
+                                id: "creationMonth",
+                                name: "Creation Month",
+                                type: "category",
+                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
+                                description: "Creation month (JANUARY, FEBRUARY...)"
+                            },
+                            {
+                                id: "creationDay",
+                                name: "Creation Day",
+                                type: "category",
+                                allowedValues: [
+                                    "1", "2", "3", "4", "5",
+                                    "6", "7", "8", "9", "10",
+                                    "11", "12", "13", "14", "15",
+                                    "16", "17", "18", "19", "20",
+                                    "21", "22", "23", "24", "25",
+                                    "26", "27", "28", "29", "30", "31"],
+                                description: "Creation day"
+                            },
+                            {
+                                id: "creationDayOfWeek",
+                                name: "Creation Day Of Week",
+                                type: "category",
+                                allowedValues: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
+                                description: "Creation day of week (MONDAY, TUESDAY...)"
+                            },
+                            {
+                                id: "disorders",
+                                name: "Disorders",
+                                type: "string",
+                                description: "Disorders"
+                            },
+                            {
+                                id: "status",
+                                name: "Status",
+                                type: "category",
+                                allowedValues: ["READY", "DELETED"],
+                                description: "Status"
+                            },
+                        ]
+                    },
+                    {
+                        name: "Advanced",
+                        fields: [
+                            {
+                                id: "field",
+                                name: "Field",
+                                type: "string",
+                                description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
+                            }
+                        ]
+                    }
+                ]
             },
             // TODO recheck (they come from clinical-analysis-browser and used in opencga-clinical-analysis-filter and opencga-clinical-analysis-grid now they have been moved in config)
             analyses: [],

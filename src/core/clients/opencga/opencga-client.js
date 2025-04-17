@@ -32,9 +32,9 @@ import Study from "./api/Study.js";
 import User from "./api/User.js";
 import Variant from "./api/Variant.js";
 import VariantOperation from "./api/VariantOperation.js";
+import Workflow from "./api/Workflow.js";
 import {CellBaseClient} from "../cellbase/cellbase-client.js";
 import UtilsNew from "../../utils-new.js";
-
 
 export class OpenCGAClient {
 
@@ -202,6 +202,13 @@ export class OpenCGAClient {
         return this.clients.get("variantOperations");
     }
 
+    workflows() {
+        if (!this.clients.has("workflows")) {
+            this.clients.set("workflows", new Workflow(this._config));
+        }
+        return this.clients.get("workflows");
+    }
+
     ga4gh() {
         if (!this.clients.has("ga4gh")) {
             this.clients.set("ga4gh", new GA4GH(this._config));
@@ -228,6 +235,8 @@ export class OpenCGAClient {
      */
     getClient(entity) {
         switch (entity?.toUpperCase()) {
+            case "ORGANIZATION":
+                return this.organization();
             case "USER":
                 return this.users();
             case "PROJECT":
@@ -258,6 +267,8 @@ export class OpenCGAClient {
             case "CLINICAL":
             case "CLINICAL_ANALYSIS":
                 return this.clinical();
+            case "WORKFLOW":
+                return this.workflows();
             case "META":
                 return this.meta();
             case "ADMIN":
@@ -374,13 +385,13 @@ export class OpenCGAClient {
     // opencgaClient object itself.
     // @returns {Promise<any>}
     createSession() {
-        const _this = this;
+        // const _this = this;
         return new Promise((resolve, reject) => {
             // check that a session exists
             // TODO should we check the session has not expired?
-            if (_this._config.token) {
-                _this.users()
-                    .info(_this._config.userId)
+            if (this._config.token) {
+                this.users()
+                    .info(this._config.userId)
                     .then(async response => {
                         console.log("Creating session");
                         const session = {
@@ -388,13 +399,13 @@ export class OpenCGAClient {
                         };
                         try {
                             session.user = response.getResult(0);
-                            session.token = _this._config.token;
+                            session.token = this._config.token;
                             session.date = new Date().toISOString();
                             session.server = {
-                                host: _this._config.host,
-                                version: _this._config.version,
+                                host: this._config.host,
+                                version: this._config.version,
                             };
-                            session.opencgaClient = _this;
+                            session.opencgaClient = this;
                             const userConfig = await this.updateUserConfig("IVA", {
                                 ...session.user.configs.IVA,
                                 lastAccess: new Date().getTime()
@@ -414,9 +425,9 @@ export class OpenCGAClient {
 
                         // Fetch authorised Projects and Studies
                         console.log("Fetching projects and studies");
-                        _this.projects()
+                        this.projects()
                             .search({limit: 100})
-                            .then(async function (response) {
+                            .then(async response => {
                                 try {
                                     for (const project of response.responses[0].results) {
                                         const projectIndex = session.projects.findIndex(proj => proj.fqn === project.fqn);
@@ -432,18 +443,22 @@ export class OpenCGAClient {
                                                     // We need to store the user permission for the all the studies fetched
                                                     console.log("Fetching user permissions");
 
-                                                    let acl = null;
-                                                    const admins = study.groups.find(g => g.id === "@admins");
-                                                    if (admins.userIds?.includes(session.user.id)) {
-                                                        acl = await _this.studies().acl(study.fqn, {});
-                                                    } else {
-                                                        acl = await _this.studies().acl(study.fqn, {member: session.user.id});
+                                                    study.acl = [];
+                                                    if (!study.internal.federated) {
+                                                        let acl = null;
+                                                        const admins = study.groups.find(g => g.id === "@admins");
+                                                        if (admins.userIds?.includes(session.user.id)) {
+                                                            acl = await this.studies().acl(study.fqn, {});
+                                                        } else {
+                                                            acl = await this.studies().acl(study.fqn, {member: session.user.id});
+                                                        }
+                                                        study.acl = acl.getResult(0)?.acl || [];
                                                     }
-                                                    study.acl = acl.getResult(0)?.acl || [];
+
 
                                                     // Fetch all the cohort
                                                     console.log("Fetching cohorts");
-                                                    const cohortsResponse = await _this.cohorts()
+                                                    const cohortsResponse = await this.cohorts()
                                                         .search({study: study.fqn, exclude: "samples", limit: 100});
                                                     study.cohorts = cohortsResponse.responses[0].results
                                                         .filter(cohort => !cohort.attributes?.IVA?.ignore);
@@ -490,7 +505,7 @@ export class OpenCGAClient {
                                         console.log("Fetching disease panels");
                                         const panelPromises = [];
                                         for (const study of studies) {
-                                            const promise = _this.panels()
+                                            const promise = this.panels()
                                                 .search({
                                                     study: study,
                                                     limit: 1000,
@@ -507,8 +522,7 @@ export class OpenCGAClient {
                                     }
                                     resolve(session);
                                 } catch (e) {
-                                    console.error("Error getting study permissions, cohorts or disease panels");
-                                    console.error(e);
+                                    console.error("Error getting study permissions, cohorts or disease panels: ", e);
                                     reject(new Error("Error getting study permissions / study panels"));
                                 }
                             })
@@ -522,8 +536,8 @@ export class OpenCGAClient {
                         reject(new Error("An error getting user information"));
                     });
             } else {
-                console.error("No valid token:" + _this?._config?.token);
-                reject(new Error("No valid token:" + _this?._config?.token));
+                console.error("No valid token:" + this?._config?.token);
+                reject(new Error("No valid token:" + this?._config?.token));
             }
         });
     }

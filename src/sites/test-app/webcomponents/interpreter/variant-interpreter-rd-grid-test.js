@@ -88,7 +88,22 @@ class VariantInterpreterRDGridTest extends LitElement {
     }
 
     mutate() {
-        // Nothing to do (yet...)
+        if (this.variantInterpreterData) {
+            this.variantInterpreterData.forEach(variant => {
+                // inject fake CVDB stats data
+                if (variant.id === "1:10150:C:T") {
+                    variant.stats = [
+                        {
+                            id: "ALL",
+                            numClinicalAnalyses: 100,
+                            evidence: {
+                                reviewTiers: {"TIER1": 10, "TIER2": 20, "TIER3": 30},
+                            },
+                        },
+                    ];
+                }
+            });
+        }
     }
 
     onSettingsUpdate() {

@@ -264,6 +264,12 @@ export default class GridCommons {
                 Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${Number(totalRowsNotTruncated).toLocaleString()}</b> records
                 <span title="Only first 1M pages shown" style="color: darkorange; vertical-align: top; font-size: 1.0rem"><i class="fas fa-asterisk fa-xs"></i></span>`;
         }
+        // Terrible hack to display the top pagination info
+        // Note that this is only executed if there is a pagination container in the grid
+        const paginationContainer = this.context?.querySelector(`#${this.gridId}PaginationInfo`);
+        if (paginationContainer) {
+            paginationContainer.innerHTML = Number(totalRows) > 0 ? message : "";
+        }
         return message;
     }
 
@@ -328,73 +334,26 @@ export default class GridCommons {
         }
     }
 
-    addColumnsFromExtensions(columns, componentId) {
+    addColumnsFromExtensions(componentId, opencgaSession, columns) {
         if (!this.context?._config?.skipExtensions) {
             const id = componentId || this.context?.COMPONENT_ID;
             const isVisible = columnId => this.isColumnVisible(columnId);
             const getData = () => this.extensionsData || {};
-            return ExtensionsManager.injectColumns(columns, id, isVisible, getData);
+            return ExtensionsManager.injectColumns(id, opencgaSession, columns, isVisible, getData);
         }
         // No extensions to inject, just return the original columns list
         return columns;
     }
 
-    displayResponseWarningEvents(response) {
-        const eventsContainer = this.context.querySelector(`div#${this.gridId}WarningEvents`);
-        if (eventsContainer && (response?.events?.length > 0 || response?.responses?.[0]?.events?.length > 0)) {
-            const events = [...(response?.events || []), ...(response?.responses?.[0]?.events || [])]
-                .filter(event => event && event.type === "WARNING" && !!event.message);
-            // If there is only one event message, just display it
-            if (events.length === 1) {
-                const eventsContent = UtilsNew.renderHTML(`
-                    <div class="alert alert-warning mb-2">
-                        <i class="fas fa-exclamation-triangle pe-1"></i>
-                        <span>${events[0].message}</span>
-                    </div>
-                `).querySelector("div");
-                eventsContainer.replaceChildren(eventsContent);
-            } else if (events.length > 1) {
-                const eventsContent = UtilsNew.renderHTML(`
-                    <div>
-                        <div class="alert alert-warning mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="fas fa-exclamation-triangle pe-2"></i>
-                                <span>There are warning events (<b>${events.length}</b>).</span>
-                                <span data-role="show-events" style="cursor:pointer;text-decoration:underline">Show all events.</span>
-                                <span data-role="hide-events" style="display:none;cursor:pointer;text-decoration:underline;">Hide all events.</span>
-                            </div>
-                            <div data-role="events" class="mt-1" style="display:none;">
-                                <ul class="mb-0">
-                                    ${events.map(event => `<li>${event.message}</li>`).join("")}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                `).querySelector("div");
-                eventsContainer.replaceChildren(eventsContent);
-                const eventsElement = eventsContent.querySelector(`div[data-role="events"]`);
-                const showEventsElement = eventsContent.querySelector(`span[data-role="show-events"]`);
-                const hideEventsElement = eventsContent.querySelector(`span[data-role="hide-events"]`);
-                // Show events click
-                showEventsElement.addEventListener("click", () => {
-                    eventsElement.style.display = "";
-                    hideEventsElement.style.display = "";
-                    showEventsElement.style.display = "none";
-                });
-                // Hide events click
-                hideEventsElement.addEventListener("click", () => {
-                    eventsElement.style.display = "none";
-                    hideEventsElement.style.display = "none";
-                    showEventsElement.style.display = "";
-                });
+    hideHeader(hide = false) {
+        const header = this.context.querySelector(`#${this.gridId} thead`);
+        if (header) {
+            if (hide) {
+                header.style.display = "none";
+                // this.context.querySelector(`#${this.gridId} tbody tr:first-child`).style.borderTopWidth = "1px";
+            } else {
+                header.style.display = "";
             }
-        }
-    }
-
-    clearResponseWarningEvents() {
-        const eventsContainer = this.context.querySelector(`div#${this.gridId}WarningEvents`);
-        if (eventsContainer) {
-            eventsContainer.replaceChildren();
         }
     }
 
