@@ -345,29 +345,6 @@ export default class IndividualGrid extends LitElement {
         });
     }
 
-    onActionClick(event, individual) {
-        const action = event.target.dataset.action?.toLowerCase() || event.detail.action;
-        switch (action) {
-            case "view":
-                this._selectedIndividual = individual;
-                this.gridCommons.changeActiveModal("view-individual");
-                break;
-            case "edit":
-                this._selectedIndividual = individual;
-                this.gridCommons.changeActiveModal("update-individual");
-                break;
-            case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(individual, null, "\t"));
-                break;
-            case "download-json":
-                UtilsNew.downloadData([JSON.stringify(individual, null, "\t")], individual.id + ".json");
-                break;
-            case "quality-control":
-                alert("Not implemented yet");
-                break;
-        }
-    }
-
     _getDefaultColumns() {
         this._columns = [
             {
@@ -449,69 +426,86 @@ export default class IndividualGrid extends LitElement {
                 formatter: CatalogGridFormatter.dateFormatter,
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
+            {
+                id: "actions",
+                align: "right",
+                formatter: (value, row) => this.actionsFormatter(value, row),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                visible: this._config.showActions,
+                excludeFromExport: true,
+                excludeFromSettings: true,
+            },
         ];
 
         if (this._config.annotations?.length > 0) {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
 
-        if (this.opencgaSession && this._config.showActions) {
-            this._columns.push({
-                id: "actions",
-                align: "right",
-                formatter: (value, row) => {
-                    const hasWritePermission = this.gridCommons.hasPermission("WRITE");
-                    // const hasQualityControl = row?.qualityControl?.metrics?.length > 0;
-                    const hasClinicalAnalysis = row?.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length > 0;
-                    return `
-                        <div class="d-inline-block dropdown">
-                            <button class="btn" type="button" data-bs-toggle="dropdown" data-cy="actions-button">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a data-action="view" class="dropdown-item cursor-pointer">
-                                    <i class="fas fa-eye me-1"></i> View
-                                </a>
-                                <a data-action="copy-json" class="dropdown-item cursor-pointer">
-                                    <i class="fas fa-copy me-1"></i> Copy JSON
-                                </a>
-                                <a data-action="download-json" class="dropdown-item cursor-pointer">
-                                    <i class="fas fa-download me-1"></i> Download JSON
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a data-action="quality-control" class="dropdown-item disabled">
-                                    <i class="fas fa-rocket me-1"></i> Calculate Quality Control
-                                </a>
-                                <hr class="dropdown-divider">
-                                ${hasClinicalAnalysis ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
-                                    <a class="dropdown-item" href="#clinical/interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
-                                        <i class="fas fa-user-md me-1"></i> Case Interpreter - ${clinicalAnalysis.id}
-                                    </a>
-                                `).join("") : `
-                                    <a class="dropdown-item disabled">
-                                        <i class="fas fa-user-md me-1"></i> No cases found
-                                    </a>
-                                `}
-                                <hr class="dropdown-divider">
-                                <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
-                                    <i class="fas fa-edit me-1"></i> Edit
-                                </a>
-                                <a data-action="delete" class="dropdown-item disabled">
-                                    <i class="fas fa-trash me-1"></i> Delete
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                },
-                events: {
-                    "click a": (event, value, row) => this.onActionClick(event, row),
-                },
-                visible: this.gridCommons.isColumnVisible("actions"),
-            });
-        }
-
         this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
+    }
+
+    actionsFormatter(value, row) {
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        // const hasQualityControl = row?.qualityControl?.metrics?.length > 0;
+        const hasClinicalAnalysis = row?.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length > 0;
+        return `
+            <div class="d-inline-block dropdown">
+                <button class="btn" type="button" data-bs-toggle="dropdown" data-cy="actions-button">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a data-action="view" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-eye me-1"></i> View
+                    </a>
+                    <a data-action="copy-json" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-copy me-1"></i> Copy JSON
+                    </a>
+                    <a data-action="download-json" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-download me-1"></i> Download JSON
+                    </a>
+                    <hr class="dropdown-divider">
+                    ${hasClinicalAnalysis ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
+                        <a class="dropdown-item" href="#clinical/interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
+                            <i class="fas fa-user-md me-1"></i> Case Interpreter - ${clinicalAnalysis.id}
+                        </a>
+                    `).join("") : `
+                        <a class="dropdown-item disabled">
+                            <i class="fas fa-user-md me-1"></i> No cases found
+                        </a>
+                    `}
+                    <hr class="dropdown-divider">
+                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </a>
+                    <a data-action="delete" class="dropdown-item disabled">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </a>
+                </div>
+            </div>
+        `;
+    };
+
+    onActionClick(event, individual) {
+        const action = event.target.dataset.action?.toLowerCase() || event.detail.action;
+        switch (action) {
+            case "view":
+                this._selectedIndividual = individual;
+                this.gridCommons.changeActiveModal("view-individual");
+                break;
+            case "edit":
+                this._selectedIndividual = individual;
+                this.gridCommons.changeActiveModal("update-individual");
+                break;
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(individual, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(individual, null, "\t")], individual.id + ".json");
+                break;
+        }
     }
 
     async onDownload(e) {
