@@ -240,7 +240,6 @@ export default class DiseasePanelGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onLoadSuccess: data => this.gridCommons.onLoadSuccess(data),
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
             });
@@ -286,7 +285,6 @@ export default class DiseasePanelGrid extends LitElement {
                 return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
             },
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => this.gridCommons.onLoadSuccess({rows: data, total: data.length}),
         });
     }

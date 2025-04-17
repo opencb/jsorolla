@@ -319,35 +319,8 @@ export default class FamilyGrid extends LitElement {
                 return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
             },
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            // onPostBody: data => {
-            //     // We call onLoadSuccess to select first row
-            //     this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            // },
+            onPostBody: data => this.gridCommons.onLoadSuccess({rows: data, total: data.length}),
         });
-    }
-
-    onActionClick(event, family) {
-        const action = event.target.dataset.action?.toLowerCase();
-        switch (action) {
-            case "view":
-                this._selectedFamily = family;
-                this.gridCommons.changeActiveModal("view-family");
-                break;
-            case "edit":
-                this._selectedFamily = family;
-                this.gridCommons.changeActiveModal("update-family");
-                break;
-            case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(family, null, "\t"));
-                break;
-            case "download-json":
-                UtilsNew.downloadData([JSON.stringify(family, null, "\t")], family.id + ".json");
-                break;
-            case "quality-control":
-                alert("Not implemented yet");
-                break;
-        }
     }
 
     _getDefaultColumns() {
@@ -476,6 +449,29 @@ export default class FamilyGrid extends LitElement {
 
         this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
+    }
+
+    onActionClick(event, family) {
+        const action = event.target.dataset.action?.toLowerCase();
+        switch (action) {
+            case "view":
+                this._selectedFamily = family;
+                this.gridCommons.changeActiveModal("view-family");
+                break;
+            case "edit":
+                this._selectedFamily = family;
+                this.gridCommons.changeActiveModal("update-family");
+                break;
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(family, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(family, null, "\t")], family.id + ".json");
+                break;
+            case "quality-control":
+                alert("Not implemented yet");
+                break;
+        }
     }
 
     async onDownload(e) {
