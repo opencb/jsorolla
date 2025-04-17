@@ -17,6 +17,7 @@
 import UtilsNew from "../../core/utils-new.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import WebUtils from "./utils/web-utils.js";
+import GridCommons from "./grid-commons.js";
 
 export default class CatalogGridFormatter {
 
@@ -39,11 +40,8 @@ export default class CatalogGridFormatter {
     }
 
     static phenotypesFormatter(phenotypes) {
-        if (!phenotypes || phenotypes.length === 0) {
-            return "-";
-        }
         const status = ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"];
-        const phenotypesHtml = phenotypes
+        const phenotypesItems = (phenotypes || [])
             .sort((a, b) => status.indexOf(a.status) - status.indexOf(b.status))
             .map(phenotype => {
                 const result = [];
@@ -55,36 +53,20 @@ export default class CatalogGridFormatter {
                     const ontologyLink = BioinfoUtils.getOntologyLink(phenotype.id);
                     if (ontologyLink.startsWith("http")) {
                         result.push(`
-                            <a target="_blank" href="${ontologyLink}"> (${phenotype.id})</a>
+                            (<a class="link d-inline-flex align-items-center gap-1" target="_blank" href="${ontologyLink}">
+                                <span>${phenotype.id}</span>
+                                <i class="fa fa-external-link-alt fs-8"></i>
+                            </a>)
                         `);
                     } else {
                         result.push(`(${phenotype.id})`);
                     }
                 }
-                // Add phenotype status if exists
-                // if (phenotype.status) {
-                //     result.push(`(${phenotype.status})`);
-                // }
-                return `<div style="margin: 2px 0; white-space: nowrap">${result.join(" ")}</div>`;
+                return `
+                    <div style="white-space:nowrap;">${result.join(" ")}</div>
+                `;
             });
-
-        if (phenotypesHtml?.length > 0) {
-            let html = "<div>";
-            for (let i = 0; i < phenotypesHtml.length; i++) {
-                // Display first 3 phenotypes
-                if (i < 3) {
-                    html += phenotypesHtml[i];
-                } else {
-                    html += `<a tooltip-title="Phenotypes" tooltip-text='${phenotypesHtml.join("")}'>... view all phenotypes (${phenotypesHtml.length})</a>`;
-                    break;
-                }
-            }
-            html += "</div>";
-            return html;
-        } else {
-            // TODO Think about this
-            return `-`;
-        }
+        return GridCommons.generateExpandCollapseContent(phenotypesItems, 3);
     }
 
     static disorderFormatter(disorders) {
