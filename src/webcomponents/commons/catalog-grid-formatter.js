@@ -88,36 +88,38 @@ export default class CatalogGridFormatter {
     }
 
     static disorderFormatter(disorders) {
-        let html = "-";
-        if (disorders?.length > 0) {
-            html = "<div>";
-            for (const disorder of disorders) {
-                if (disorder?.id) {
-                    // Default value if the disorder ID does not include ':' (source:ID)
-                    let idHtml = disorder.id;
-                    // We try to get a HTTP link
-                    const ontologyLink = BioinfoUtils.getOntologyLink(disorder.id);
-                    if (ontologyLink.startsWith("http")) {
-                        // We have identified the ontology source and created a link
-                        idHtml = `<a class="text-decoration-none" href="${ontologyLink}" target="_blank">${disorder.id}</a>`;
-                    }
-                    if (disorder.name && disorder.name !== disorder.id) {
-                        html += `
-                            <div style="margin: 2px 0; white-space: nowrap">
-                                <span data-cy="disorder-name">${disorder.name}</span> (<span data-cy="disorder-id">${idHtml}</span>)
-                            </div>`;
-                    } else {
-                        html += `
-                            <div style="margin: 2px 0; white-space: nowrap">
-                                <span data-cy="disorder-id">${idHtml}</span>
-                            </div>
-                        `;
-                    }
+        const disordersItems = (disorders || []).map(disorder => {
+            if (disorder?.id) {
+                // Default value if the disorder ID does not include ':' (source:ID)
+                let idHtml = disorder.id;
+                // We try to get a HTTP link
+                const ontologyLink = BioinfoUtils.getOntologyLink(disorder.id);
+                if (ontologyLink.startsWith("http")) {
+                    // We have identified the ontology source and created a link
+                    idHtml = `
+                        <a class="link d-flex align-items-center gap-1" href="${ontologyLink}" target="_blank">
+                            <span>${disorder.id}</span>
+                            <i class="fa fa-external-link-alt fs-8"></i>
+                        </a>
+                    `;
+                }
+                if (disorder.name && disorder.name !== disorder.id) {
+                    return `
+                        <div style="white-space: nowrap">
+                            <span data-cy="disorder-name">${disorder.name}</span> (<span data-cy="disorder-id">${idHtml}</span>)
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div style="white-space: nowrap">
+                            <span data-cy="disorder-id">${idHtml}</span>
+                        </div>
+                    `;
                 }
             }
-            html += "</div>";
-        }
-        return html;
+            return "";
+        });
+        return disordersItems.join("") || "-";
     }
 
     static panelFormatter(panels) {
