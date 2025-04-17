@@ -261,6 +261,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 field: "id",
                 valign: "middle",
                 formatter: (value, row) => this.caseFormatter(value, row),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
@@ -361,16 +364,13 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     caseFormatter(value, row) {
-        if (row?.id) {
-            const url = WebUtils.getInterpreterLink(this.opencgaSession, row.id);
-            return `
-                <a class="d-block text-decoration-none" title="Go to Case Interpreter" href="${url}" data-cy="case-id">
-                    ${row.id} ${row.locked ? `<i class="fas fa-lock ms-1"></i>` : ""}
-                </a>
-                <div class="text-secondary" data-cy="case-type">${row.type}</div>
-            `;
-        }
-        return "-";
+        return `
+            <div class="d-flex align-items-center gap-2">
+                <a class="link fw-bold" data-action="view">${row.id}</a>
+                ${row.locked ? `<i class="fas fa-lock fs-7"></i>` : ""}
+            </div>
+            <div class="text-secondary" data-cy="case-type">${row.type}</div>
+        `;
     }
 
     probandFormatter(value, row) {
