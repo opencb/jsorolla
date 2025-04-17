@@ -21,6 +21,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "../individual/individual-view.js";
 import "./family-create.js";
 import "./family-update.js";
 import "./family-view.js";
@@ -64,6 +65,7 @@ export default class FamilyGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this._selectedFamily = null;
+        this._selectedIndividual = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -163,6 +165,21 @@ export default class FamilyGrid extends LitElement {
                             this.table.bootstrapTable("refresh");
                         }}">
                     </family-update>
+                `,
+            }),
+            "view-individual": () => ({
+                display: {
+                    modalTitle: `Individual ${this._selectedIndividual}`,
+                    modalSize: "modal-xl",
+                    modalCyDataName: "individual-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <individual-view
+                        .individualId="${this._selectedIndividual}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </individual-view>
                 `,
             }),
         });
@@ -342,6 +359,9 @@ export default class FamilyGrid extends LitElement {
                 title: "Members",
                 field: "members",
                 formatter: members => this.membersFormatter(members),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("members"),
             },
             {
@@ -397,7 +417,8 @@ export default class FamilyGrid extends LitElement {
         const memberItems = (members || []).map(member => {
             return `
                 <div style="white-space: nowrap">
-                    <span class="fw-bold">${member.id}</span> (${member.sex.id})
+                    <a class="fw-bold link" data-action="view-individual" data-individual="${member.id}">${member.id}</a> 
+                    ${member?.sex?.id ? `<span>(${member.sex.id})</span>` : ""}
                 </div>
             `;
         });
@@ -452,6 +473,10 @@ export default class FamilyGrid extends LitElement {
             case "view":
                 this._selectedFamily = family;
                 this.gridCommons.changeActiveModal("view-family");
+                break;
+            case "view-individual":
+                this._selectedIndividual = event.currentTarget.dataset.individual;
+                this.gridCommons.changeActiveModal("view-individual");
                 break;
             case "edit":
                 this._selectedFamily = family;
