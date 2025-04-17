@@ -68,7 +68,7 @@ export default class IndividualGrid extends LitElement {
         this.active = true;
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
-        this._selectedIndividual = null;
+        this._selectedIndividualId = null;
         this._selectedSampleId = null;
         this._config = this.getDefaultConfig();
     }
@@ -115,14 +115,14 @@ export default class IndividualGrid extends LitElement {
         this.gridCommons.registerModals({
             "view-individual": () => ({
                 display: {
-                    modalTitle: `Individual ${this._selectedIndividual?.id}`,
+                    modalTitle: `Individual ${this._selectedIndividualId}`,
                     modalSize: "modal-xl",
                     modalCyDataName: "individual-view",
                     modalDraggable: true,
                 },
                 render: () => html`
                     <individual-view
-                        .individualId="${this._selectedIndividual?.id}"
+                        .individualId="${this._selectedIndividualId}"
                         .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
                     </individual-view>
@@ -151,14 +151,14 @@ export default class IndividualGrid extends LitElement {
             },
             "update-individual": () => ({
                 display: {
-                    modalTitle: `Update Individual ${this._selectedIndividual?.id}`,
+                    modalTitle: `Update Individual ${this._selectedIndividualId}`,
                     modalSize: "modal-lg",
                     modalCyDataName: "individual-update",
                     modalDraggable: true,
                 },
                 render: () => html`
                     <individual-update
-                        .individualId="${this._selectedIndividual?.id}"
+                        .individualId="${this._selectedIndividualId}"
                         .active="${true}"
                         .displayConfig="${{
                             type: "tabs",
@@ -403,14 +403,24 @@ export default class IndividualGrid extends LitElement {
                 id: "father",
                 title: "Father",
                 field: "father.id",
-                formatter: fatherId => fatherId || "-",
+                formatter: fatherId => {
+                    return fatherId ? `<a class="link fw-bold" data-action="view" data-individual="${fatherId}">${fatherId}</a>` : "-";
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("father")
             },
             {
                 id: "mother",
                 title: "Mother",
                 field: "mother.id",
-                formatter: motherId => motherId || "-",
+                formatter: motherId => {
+                    return motherId ? `<a class="link fw-bold" data-action="view" data-individual="${motherId}">${motherId}</a>` : "-";
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("mother")
             },
             {
@@ -514,7 +524,7 @@ export default class IndividualGrid extends LitElement {
         const action = event.currentTarget?.dataset?.action?.toLowerCase();
         switch (action) {
             case "view":
-                this._selectedIndividual = individual;
+                this._selectedIndividualId = event?.currentTarget?.dataset?.individual || individual.id;
                 this.gridCommons.changeActiveModal("view-individual");
                 break;
             case "view-sample":
@@ -522,7 +532,7 @@ export default class IndividualGrid extends LitElement {
                 this.gridCommons.changeActiveModal("view-sample");
                 break;
             case "edit":
-                this._selectedIndividual = individual;
+                this._selectedIndividualId = individual.id;
                 this.gridCommons.changeActiveModal("update-individual");
                 break;
             case "copy-json":
