@@ -21,6 +21,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "../clinical/clinical-analysis-view.js";
 import "../individual/individual-view.js";
 import "./family-create.js";
 import "./family-update.js";
@@ -65,7 +66,8 @@ export default class FamilyGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this._selectedFamily = null;
-        this._selectedIndividual = null;
+        this._selectedIndividualId = null;
+        this._selectedClinicalAnalysisId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -169,17 +171,32 @@ export default class FamilyGrid extends LitElement {
             }),
             "view-individual": () => ({
                 display: {
-                    modalTitle: `Individual ${this._selectedIndividual}`,
+                    modalTitle: `Individual ${this._selectedIndividualId}`,
                     modalSize: "modal-xl",
                     modalCyDataName: "individual-view",
                     modalDraggable: true,
                 },
                 render: () => html`
                     <individual-view
-                        .individualId="${this._selectedIndividual}"
+                        .individualId="${this._selectedIndividualId}"
                         .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
                     </individual-view>
+                `,
+            }),
+            "view-clinical-analysis": () => ({
+                display: {
+                    modalTitle: `Clinical Analysis ${this._selectedClinicalAnalysisId}`,
+                    modalSize: "modal-xl",
+                    modalCyDataName: "clinical-analysis-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <clinical-analysis-view
+                        .clinicalAnalysisId="${this._selectedClinicalAnalysisId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-analysis-view>
                 `,
             }),
         });
@@ -383,6 +400,9 @@ export default class FamilyGrid extends LitElement {
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
@@ -468,15 +488,20 @@ export default class FamilyGrid extends LitElement {
     }
 
     onActionClick(event, family) {
-        const action = event.target.dataset.action?.toLowerCase();
+        const action = event.currentTarget?.dataset?.action?.toLowerCase();
         switch (action) {
             case "view":
                 this._selectedFamily = family;
                 this.gridCommons.changeActiveModal("view-family");
                 break;
             case "view-individual":
-                this._selectedIndividual = event.currentTarget.dataset.individual;
+                this._selectedIndividualId = event.currentTarget.dataset.individual;
                 this.gridCommons.changeActiveModal("view-individual");
+                break;
+            case "view-case":
+            case "view-clinical-analysis":
+                this._selectedClinicalAnalysisId = event.currentTarget.dataset.clinicalAnalysis;
+                this.gridCommons.changeActiveModal("view-clinical-analysis");
                 break;
             case "edit":
                 this._selectedFamily = family;
