@@ -376,6 +376,8 @@ export default class DiseasePanelGrid extends LitElement {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this._config.showActions,
+                excludeFromExport: true,
+                excludeFromSettings: true,
             },
         ];
 
