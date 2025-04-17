@@ -21,7 +21,6 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/catalog-browser-grid-config.js";
 import "../commons/opencb-grid-toolbar.js";
 import "./disease-panel-view.js";
@@ -307,15 +306,18 @@ export default class DiseasePanelGrid extends LitElement {
                     let idLinkHtml = "";
                     if (row?.source && row?.source?.project === "PanelApp") {
                         idLinkHtml = `
-                            <a class="link" href="${BioinfoUtils.getPanelAppLink(row?.source?.id)}" title="Panel ID: ${row?.id}" target="_blank">
-                                ${row?.id ?? "-"} <i class="fas fa-external-link-alt ps-1"></i>
+                            <a class="link d-flex align-items-center gap-1" href="${BioinfoUtils.getPanelAppLink(row?.source?.id)}" title="Panel ID: ${row?.id}" target="_blank">
+                                ${row?.id ?? "-"} <i class="fas fa-external-link-alt fs-8"></i>
                             </a>
                         `;
                     }
                     return `
-                        <div class="fw-bold">${name}</div>
-                        <div class="text-secondary">${idLinkHtml}</div>
+                        <a class="link fw-bold d-block" data-action="view">${name}</a>
+                        ${idLinkHtml ? `<div class="text-secondary">${idLinkHtml}</div>` : ""}
                     `;
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("name"),
             },
