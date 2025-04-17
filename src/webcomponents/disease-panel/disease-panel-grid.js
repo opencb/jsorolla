@@ -304,10 +304,10 @@ export default class DiseasePanelGrid extends LitElement {
                 field: "name",
                 formatter: (name, row) => {
                     let idLinkHtml = "";
-                    if (row?.source && row?.source?.project === "PanelApp") {
+                    if (row?.source?.project === "PanelApp") {
                         idLinkHtml = `
-                            <a class="link d-flex align-items-center gap-1" href="${BioinfoUtils.getPanelAppLink(row?.source?.id)}" title="Panel ID: ${row?.id}" target="_blank">
-                                ${row?.id ?? "-"} <i class="fas fa-external-link-alt fs-8"></i>
+                            <a class="link d-flex align-items-center gap-1" href="${BioinfoUtils.getPanelAppLink(row?.source?.id)}" target="_blank">
+                                ${row?.id || "-"} <i class="fas fa-external-link-alt fs-8"></i>
                             </a>
                         `;
                     }
@@ -354,15 +354,17 @@ export default class DiseasePanelGrid extends LitElement {
                         const {id, author, project, version} = row.source;
                         let projectAndVersion = "";
                         if (project?.toUpperCase() === "PANELAPP") {
+                            const projectUrl = `https://panelapp.genomicsengland.co.uk/api/v1/panels/${id}/?version=${version}`;
                             projectAndVersion = `
-                                <a href="https://panelapp.genomicsengland.co.uk/api/v1/panels/${id}/?version=${version}" target="_blank">
-                                    ${project} ${version} <i class="fas fa-external-link-alt" style="padding-left: 5px"></i>
+                                <a class="link d-inline-flex align-items-center gap-1" href="${projectUrl}" target="_blank">
+                                    <span>${project} ${version}</span>
+                                    <i class="fas fa-external-link-alt fs-8"></i>
                                 </a>
                             `;
                         } else {
-                            projectAndVersion = `${project || ""} ${version}`;
+                            projectAndVersion = [project, version].filter(Boolean).join(" ");
                         }
-                        return `${author ? `${author} -` : ""} ${projectAndVersion}`;
+                        return [author, projectAndVersion].filter(Boolean).join(" - ");
                     }
                     return "-";
                 },
