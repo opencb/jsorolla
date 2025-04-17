@@ -186,19 +186,15 @@ export default class CatalogGridFormatter {
     }
 
     static caseFormatter(clinicalAnalysisArray, row, individualId, opencgaSession) {
-        if (clinicalAnalysisArray?.length > 0) {
-            const items = clinicalAnalysisArray.map(clinicalAnalysis => {
-                const caseUrl = WebUtils.getInterpreterLink(opencgaSession, clinicalAnalysis.id);
-                return `
-                    <a title="Go to Case Interpreter" class="text-nowrap text-decoration-none" href="${caseUrl}">
-                        <i aria-hidden="true" class="fas fa-user-md"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
-                    </a>
-                `;
-            });
-            return `<div class="d-flex flex-column gap-2">${items.join("")}</div>`;
-        } else {
-            return "-";
-        }
+        const items = (clinicalAnalysisArray || []).map(clinicalAnalysis => {
+            // const caseUrl = WebUtils.getInterpreterLink(opencgaSession, clinicalAnalysis.id);
+            return `
+                <a class="d-block text-nowrap link fw-bold" data-action="view-clinical-analysis" data-clinical-analysis="${clinicalAnalysis.id}">
+                    <span>${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}</span>
+                </a>
+            `;
+        });
+        return GridCommons.generateExpandCollapseContent(items, 3);
     }
 
     static customAnnotationFormatter(annotationSets, selectedVariableSetId, selectedVariables) {
