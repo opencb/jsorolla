@@ -97,7 +97,7 @@ export default class CatalogGridFormatter {
                 if (ontologyLink.startsWith("http")) {
                     // We have identified the ontology source and created a link
                     idHtml = `
-                        <a class="link d-inline-flex align-items-center gap-2" href="${ontologyLink}" target="_blank">
+                        <a class="link d-inline-flex align-items-center gap-1" href="${ontologyLink}" target="_blank">
                             <span>${disorder.id}</span>
                             <i class="fa fa-external-link-alt fs-8"></i>
                         </a>
@@ -126,7 +126,7 @@ export default class CatalogGridFormatter {
         const panelsItems = (panels || []).map(panel => {
             if (panel.source?.project?.toUpperCase() === "PANELAPP") {
                 return `
-                    <a class="link d-flex align-items-center gap-2" href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
+                    <a class="link d-flex align-items-center gap-1" href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
                         <span>${panel.name} (${panel.source.project} v${panel.source.version})</span>
                         <i class="fa fa-external-link-alt fs-8"></i>
                     </a>
