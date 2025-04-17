@@ -97,7 +97,7 @@ export default class CatalogGridFormatter {
                 if (ontologyLink.startsWith("http")) {
                     // We have identified the ontology source and created a link
                     idHtml = `
-                        <a class="link d-flex align-items-center gap-1" href="${ontologyLink}" target="_blank">
+                        <a class="link d-inline-flex align-items-center gap-2" href="${ontologyLink}" target="_blank">
                             <span>${disorder.id}</span>
                             <i class="fa fa-external-link-alt fs-8"></i>
                         </a>
