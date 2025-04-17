@@ -189,9 +189,12 @@ export default class CatalogGridFormatter {
         const items = (clinicalAnalysisArray || []).map(clinicalAnalysis => {
             // const caseUrl = WebUtils.getInterpreterLink(opencgaSession, clinicalAnalysis.id);
             return `
-                <a class="d-block text-nowrap link fw-bold" data-action="view-clinical-analysis" data-clinical-analysis="${clinicalAnalysis.id}">
-                    <span>${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}</span>
-                </a>
+                <div class="text-nowrap">
+                    <a class="link fw-bold" data-action="view-clinical-analysis" data-clinical-analysis="${clinicalAnalysis.id}">
+                        <span>${clinicalAnalysis.id}</span>
+                    </a> 
+                    <span>${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}</span>
+                </div>
             `;
         });
         return GridCommons.generateExpandCollapseContent(items, 3);
