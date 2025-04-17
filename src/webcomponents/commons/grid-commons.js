@@ -202,12 +202,12 @@ export default class GridCommons {
                 if (expandLink && collapseLink) {
                     expandLink.addEventListener("click", () => {
                         expandLink.style.display = "none";
-                        collapseLink.style.display = "block";
-                        hiddenContent.style.display = "block";
+                        collapseLink.style.display = "";
+                        hiddenContent.style.display = "";
                     });
                     collapseLink.addEventListener("click", () => {
                         collapseLink.style.display = "none";
-                        expandLink.style.display = "block";
+                        expandLink.style.display = "";
                         hiddenContent.style.display = "none";
                     });
                 }
@@ -425,11 +425,17 @@ export default class GridCommons {
                     </div>
                     ${hiddenItemsLength > 0 ? `
                         <div class="mt-1">
-                            <div class="fw-bold cursor-pointer hover:text-decoration-underline" data-role="expand-content" style="display:block;">
-                                ...view all (${items.length})
+                            <div class="cursor-pointer" data-role="expand-content" style="">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fa fa-chevron-down fs-8"></i>
+                                    <span class="fw-bold hover:text-decoration-underline">Show all (${items.length})</span>
+                                </div>
                             </div>
-                            <div class="fw-bold cursor-pointer hover:text-decoration-underline" data-role="collapse-content" style="display:none;">
-                                ...show less
+                            <div class="cursor-pointer" data-role="collapse-content" style="display:none;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fa fa-chevron-up fs-8"></i>
+                                    <span class="fw-bold hover:text-decoration-underline">Show less</span>
+                                </div>
                             </div>
                         </div>
                     ` : ""}
