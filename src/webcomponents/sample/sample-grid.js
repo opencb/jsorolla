@@ -67,7 +67,7 @@ export default class SampleGrid extends LitElement {
         this.active = true;
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
-        this._selectedSample = null;
+        this._selectedSampleId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -111,14 +111,14 @@ export default class SampleGrid extends LitElement {
         this.gridCommons.registerModals({
             "view-sample": () => ({
                 display: {
-                    modalTitle: `Sample ${this._selectedSample?.id}`,
+                    modalTitle: `Sample ${this._selectedSampleId}`,
                     modalSize: "modal-xl",
                     modalCyDataName: "sample-view",
                     modalDraggable: true,
                 },
                 render: () => html`
                     <sample-view
-                        .sampleId="${this._selectedSample.id}"
+                        .sampleId="${this._selectedSampleId}"
                         .opencgaSession="${this.opencgaSession}">
                     </sample-view>
                 `,
@@ -145,7 +145,7 @@ export default class SampleGrid extends LitElement {
             },
             "update-sample": () => ({
                 display: {
-                    modalTitle: `Update Sample: ${this._selectedSample?.id}`,
+                    modalTitle: `Update Sample: ${this._selectedSampleId}`,
                     modalSize: "modal-lg",
                     modalCyDataName: "sample-update",
                     modalDraggable: true,
@@ -153,7 +153,7 @@ export default class SampleGrid extends LitElement {
                 render: () => html`
                     <sample-update
                         .opencgaSession="${this.opencgaSession}"
-                        .sampleId="${this._selectedSample.id}"
+                        .sampleId="${this._selectedSampleId}"
                         .active="${true}"
                         .displayConfig="${{
                             type: "tabs",
@@ -475,11 +475,11 @@ export default class SampleGrid extends LitElement {
         const action = (event.target?.dataset?.action || "").toLowerCase();
         switch (action) {
             case "view":
-                this._selectedSample = sample;
+                this._selectedSampleId = sample.id;
                 this.gridCommons.changeActiveModal("view-sample");
                 break;
             case "edit":
-                this._selectedSample = sample;
+                this._selectedSampleId = sample.id;
                 this.gridCommons.changeActiveModal("update-sample");
                 break;
             case "copy-json":
