@@ -13,7 +13,6 @@ jobs:
   test:
     uses: ./.github/workflows/test.yml
     needs: build
-    secrets: inherit
 
   deploy-docker:
     uses: ./.github/workflows/deploy-docker-jsorolla.yml
