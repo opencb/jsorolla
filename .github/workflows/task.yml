@@ -12,10 +12,7 @@ jobs:
   test:
     uses: ./.github/workflows/test.yml
     needs: build
-    with:
-      test_profile: runShortTests
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    secrets: inherit
 
   deploy-docker:
     uses: ./.github/workflows/deploy-docker-jsorolla.yml
