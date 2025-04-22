@@ -361,9 +361,12 @@ export default class SampleGrid extends LitElement {
                         somaticHtml = sample.somatic ? "Somatic" : "Germline";
                     }
                     return `
-                        <div class="fw-bold">${sampleId}</div>
+                        <a class="link fw-bold d-block" data-action="view">${sampleId}</a>
                         ${somaticHtml ? `<div class="text-secondary">${somaticHtml}</div>` : ""}
                     `;
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("id")
             },
@@ -472,7 +475,7 @@ export default class SampleGrid extends LitElement {
     }
 
     onActionClick(event, sample) {
-        const action = (event.target?.dataset?.action || "").toLowerCase();
+        const action = event.currentTarget?.dataset?.action?.toLowerCase();
         switch (action) {
             case "view":
                 this._selectedSampleId = sample.id;
