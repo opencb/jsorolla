@@ -124,45 +124,18 @@ export default class CatalogGridFormatter {
 
     //  Formats the files for the Catalog grids
     // @param {Array} files Either a list of fileIds or file objects
-    // @param {Array} extensions A list of file extensions. If it is defined, only the file with extensions are returned.
+    // @param {Array} extensions A list of file extensions. Default '*'
     // @param {String} key The property to map onto in case `files` is an array of objects.
     // @returns {string} html code
-    static fileFormatter(files, extensions, key) {
-        let bamAndVcfFiles = [];
-        if (files?.length > 0) {
-            if (extensions?.length > 0) {
-                files.forEach(file => {
-                    const f = key ? file[key] : file;
-                    for (const extension of extensions) {
-                        if (f.endsWith(extension)) {
-                            bamAndVcfFiles.push(f);
-                            break;
-                        }
-                    }
-                });
-            } else {
-                bamAndVcfFiles = key ? files.map(file => file[key]) : files;
-            }
-
-            if (bamAndVcfFiles?.length > 0) {
-                let html = `<div class="text-nowrap">`;
-                for (let i = 0; i < bamAndVcfFiles.length; i++) {
-                    // Display first 3 files
-                    if (i < 3) {
-                        html += `
-                            <div class="text-dark " style="font-size: 13px; margin: 2px 0">${bamAndVcfFiles[i]}</div>
-                        `;
-                    } else {
-                        html += `<a class="text-link" style="cursor:pointer" tooltip-title="Files" tooltip-text='${bamAndVcfFiles.join("<br>")}'>... view all files (${bamAndVcfFiles.length})</a>`;
-                        break;
-                    }
-                }
-                html += "</div>";
-                return html;
-            }
-        } else {
-            return "-";
-        }
+    static fileFormatter(files, extensions = "*", key = "name") {
+        const items = (files || [])
+            .filter(file => extensions === "*" || extensions.some(ext => file.name.endsWith(ext)))
+            .map(file => {
+                return `
+                    <a class="link d-block fw-bold" data-action="view-file" data-file="${file.id}">${file.name || file.id}</a>
+                `;
+            });
+        return GridCommons.generateExpandCollapseContent(items, 3);
     }
 
     static dateFormatter(value, row) {
