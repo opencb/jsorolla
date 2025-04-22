@@ -72,7 +72,7 @@ export default class JobGrid extends LitElement {
         this.active = true;
         this.autoRefresh = false;
         this.eventNotifyName = "messageevent";
-        this._selectedJob = null;
+        this._selectedJobId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -115,14 +115,14 @@ export default class JobGrid extends LitElement {
         this.gridCommons.registerModals({
             "view-job": () => ({
                 display: {
-                    modalTitle: `Job ${this._selectedJob?.id}`,
+                    modalTitle: `Job ${this._selectedJobId}`,
                     modalDraggable: true,
                     modalCyDataName: "job-view",
                     modalSize: "modal-xl"
                 },
                 render: active => html`
                     <job-view
-                        .jobId="${this._selectedJob?.id}"
+                        .jobId="${this._selectedJobId}"
                         .active="${active}"
                         .opencgaSession="${this.opencgaSession}">
                     </job-view>
@@ -137,7 +137,7 @@ export default class JobGrid extends LitElement {
                     okButtonText: "Kill Job",
                 },
                 render: () => html`
-                    <div>This will kill a queued or running Job. Are you sure do you want to kill <b>${this._selectedJob?.id}</b>?</div>
+                    <div>This will kill a queued or running Job. Are you sure do you want to kill <b>${this._selectedJobId}</b>?</div>
                 `,
                 onOk: event => this.onJobKill(event),
             }),
@@ -312,30 +312,6 @@ export default class JobGrid extends LitElement {
         }
     }
 
-    onActionClick(event, job) {
-        const action = event.target.dataset.action?.toLowerCase();
-        switch (action) {
-            case "view":
-                this._selectedJob = job;
-                this.gridCommons.changeActiveModal("view-job");
-                break;
-            case "retry":
-                this._selectedJob = job;
-                this.gridCommons.changeActiveModal("retry-job");
-                break;
-            case "kill":
-                this._selectedJob = job;
-                this.gridCommons.changeActiveModal("kill-job");
-                break;
-            case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(job, null, "\t"));
-                break;
-            case "download-json":
-                UtilsNew.downloadData([JSON.stringify(job, null, "\t")], job.id + ".json");
-                break;
-        }
-    }
-
     _getDefaultColumns() {
         this._columns = [
             {
@@ -494,56 +470,81 @@ export default class JobGrid extends LitElement {
                 formatter: value => CatalogGridFormatter.dateFormatter(value),
                 visible: this.gridCommons.isColumnVisible("creationDate"),
             },
-        ];
-
-        if (this.opencgaSession && this._config.showActions) {
-            this._columns.push({
+            {
                 id: "actions",
                 align: "right",
-                formatter: (value, row) => {
-                    // const hasWritePermission = this.gridCommons.hasPermission("WRITE");
-                    return `
-                        <div class="d-inline-block dropdown">
-                            <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a data-action="view" class="dropdown-item cursor-pointer">
-                                    <i class="fas fa-eye me-1"></i> View
-                                </a>
-                                <a data-action="copy-json" class="dropdown-item cursor-pointer">
-                                    <i class="fas fa-copy me-1"></i> Copy JSON
-                                </a>
-                                <a data-action="download-json" class="dropdown-item cursor-pointer">
-                                    <i class="fas fa-download me-1"></i> Download JSON
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a data-action="retry" class="dropdown-item cursor-pointer">
-                                    <i class="fas fa-sync me-1"></i> Retry
-                                </a>
-                                <a data-action="kill" class="dropdown-item cursor-pointer">
-                                    <i class="fas fa-skull me-1"></i> Kill
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a data-action="edit" class="dropdown-item disabled">
-                                    <i class="fas fa-edit me-1"></i> Edit
-                                </a>
-                                <a data-action="delete" class="dropdown-item disabled">
-                                    <i class="fas fa-trash me-1"></i> Delete
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                },
+                formatter: (value, row) => this.actionsFormatter(value, row),
                 events: {
                     "click a": (event, value, job) => this.onActionClick(event, job),
                 },
-                visible: this.gridCommons.isColumnVisible("actions"),
-            });
-        }
+                visible: this._config.showActions,
+                excludeFromExport: true,
+                excludeFromSettings: true,
+            },
+        ];
 
         this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
+    }
+
+    actionsFormatter(value, row) {
+        // const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        return `
+            <div class="d-inline-block dropdown">
+                <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a data-action="view" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-eye me-1"></i> View
+                    </a>
+                    <a data-action="copy-json" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-copy me-1"></i> Copy JSON
+                    </a>
+                    <a data-action="download-json" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-download me-1"></i> Download JSON
+                    </a>
+                    <hr class="dropdown-divider">
+                    <a data-action="retry" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-sync me-1"></i> Retry
+                    </a>
+                    <a data-action="kill" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-skull me-1"></i> Kill
+                    </a>
+                    <hr class="dropdown-divider">
+                    <a data-action="edit" class="dropdown-item disabled">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </a>
+                    <a data-action="delete" class="dropdown-item disabled">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </a>
+                </div>
+            </div>
+        `;
+    }
+
+    onActionClick(event, job) {
+        const action = event.currentTarget?.dataset?.action?.toLowerCase();
+        switch (action) {
+            case "view":
+                this._selectedJobId = job.id;
+                this.gridCommons.changeActiveModal("view-job");
+                break;
+            case "retry":
+                this._selectedJobId = job.id;
+                this.gridCommons.changeActiveModal("retry-job");
+                break;
+            case "kill":
+                this._selectedJobId = job.id;
+                this.gridCommons.changeActiveModal("kill-job");
+                break;
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(job, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(job, null, "\t")], job.id + ".json");
+                break;
+        }
     }
 
     async onDownload(e) {
@@ -586,7 +587,7 @@ export default class JobGrid extends LitElement {
 
     onJobRetry() {
         const data = {
-            job: this._selectedJob.id,
+            job: this._selectedJobId,
         };
         this.opencgaSession.opencgaClient.jobs()
             .retry(data, {
@@ -604,7 +605,7 @@ export default class JobGrid extends LitElement {
 
     onJobKill() {
         this.opencgaSession.opencgaClient.jobs()
-            .kill(this._selectedJob.id, {
+            .kill(this._selectedJobId, {
                 study: this.opencgaSession.study.fqn,
             })
             .then(() => {
