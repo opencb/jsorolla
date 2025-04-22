@@ -392,9 +392,12 @@ export default class OpencgaFileGrid extends LitElement {
                 formatter: (fileName, row) => {
                     const parentPath = "/" + row.path.split("/").slice(0, -1).join("/").replace(/\/\//g, "/");
                     return `
-                        <div class="fw-bold mb-1">${fileName}</div>
+                        <a class="link fw-bold" data-action="view">${fileName}</a>
                         <div class="text-secondary">${parentPath}</div>
                     `;
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("name")
             },
@@ -490,11 +493,12 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 id: "actions",
                 formatter: (value, row) => this.actionsFormatter(value, row),
+                align: "right",
                 events: {
-                    "click a": (e, value, file) => this.onActionClick(e, value, file),
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 excludeFromSettings: true,
-                visible: this._config.showActions, // this.gridCommons.isColumnVisible("actions")
+                visible: this._config.showActions,
             },
         ];
 
@@ -549,7 +553,7 @@ export default class OpencgaFileGrid extends LitElement {
         `;
     }
 
-    onActionClick(event, value, file) {
+    onActionClick(event, file) {
         const action = (event.currentTarget?.dataset?.action || "").toLowerCase();
         switch (action) {
             case "view":
