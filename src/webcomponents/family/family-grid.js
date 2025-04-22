@@ -65,7 +65,7 @@ export default class FamilyGrid extends LitElement {
         this.active = true;
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
-        this._selectedFamily = null;
+        this._selectedFamilyId = null;
         this._selectedIndividualId = null;
         this._selectedClinicalAnalysisId = null;
         this._config = this.getDefaultConfig();
@@ -133,14 +133,14 @@ export default class FamilyGrid extends LitElement {
             },
             "view-family": () => ({
                 display: {
-                    modalTitle: `Family ${this._selectedFamily?.id}`,
+                    modalTitle: `Family ${this._selectedFamilyId}`,
                     modalSize: "modal-xl",
                     modalCyDataName: "family-view",
                     modalDraggable: true,
                 },
                 render: () => html`
                     <family-view
-                        .familyId="${this._selectedFamily?.id}"
+                        .familyId="${this._selectedFamilyId}"
                         .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
                     </family-view>
@@ -148,14 +148,14 @@ export default class FamilyGrid extends LitElement {
             }),
             "update-family": () => ({
                 display: {
-                    modalTitle: `Update Family ${this._selectedFamily?.id}`,
+                    modalTitle: `Update Family ${this._selectedFamilyId}`,
                     modalSize: "modal-lg",
                     modalCyDataName: "family-update",
                     modalDraggable: true,
                 },
                 render: () => html`
                     <family-update
-                        .familyId="${this._selectedFamily?.id}"
+                        .familyId="${this._selectedFamilyId}"
                         .active="${true}"
                         .displayConfig="${{
                             type: "tabs",
@@ -491,7 +491,7 @@ export default class FamilyGrid extends LitElement {
         const action = event.currentTarget?.dataset?.action?.toLowerCase();
         switch (action) {
             case "view":
-                this._selectedFamily = family;
+                this._selectedFamilyId = family.id;
                 this.gridCommons.changeActiveModal("view-family");
                 break;
             case "view-individual":
@@ -504,7 +504,7 @@ export default class FamilyGrid extends LitElement {
                 this.gridCommons.changeActiveModal("view-clinical-analysis");
                 break;
             case "edit":
-                this._selectedFamily = family;
+                this._selectedFamilyId = family.id;
                 this.gridCommons.changeActiveModal("update-family");
                 break;
             case "copy-json":
