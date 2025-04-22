@@ -23,6 +23,7 @@ import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
+import "../file/file-view.js";
 import "./job-view.js";
 
 export default class JobGrid extends LitElement {
@@ -68,6 +69,7 @@ export default class JobGrid extends LitElement {
         this.active = true;
         this.autoRefresh = false;
         this._selectedJobId = null;
+        this._selectedFile = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -151,6 +153,19 @@ export default class JobGrid extends LitElement {
                     </div>
                 `,
                 onOk: event => this.onJobRetry(event),
+            }),
+            "view-file": () => ({
+                display: {
+                    modalTitle: `File ${this._selectedFile?.name}`,
+                    modalCyDataName: `modal-file-view`,
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <file-view
+                        .fileId="${this._selectedFile?.id}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </file-view>
+                `,
             }),
         });
     }
@@ -344,6 +359,9 @@ export default class JobGrid extends LitElement {
                 title: "Output Files",
                 field: "output",
                 formatter: outputFiles => CatalogGridFormatter.fileFormatter(outputFiles, "*", "name"),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("output")
             },
             {
@@ -527,6 +545,10 @@ export default class JobGrid extends LitElement {
                 break;
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(job, null, "\t")], job.id + ".json");
+                break;
+            case "view-file":
+                this._selectedFile = job?.output?.find(file => file.id === event.currentTarget?.dataset?.file);
+                this.gridCommons.changeActiveModal("view-file");
                 break;
         }
     }
