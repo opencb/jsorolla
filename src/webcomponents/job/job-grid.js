@@ -51,10 +51,6 @@ export default class JobGrid extends LitElement {
             jobs: {
                 type: Array
             },
-            // TODO check do we really need it..
-            eventNotifyName: {
-                type: String
-            },
             active: {
                 type: Boolean
             },
@@ -71,7 +67,6 @@ export default class JobGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this.autoRefresh = false;
-        this.eventNotifyName = "messageevent";
         this._selectedJobId = null;
         this._config = this.getDefaultConfig();
     }
