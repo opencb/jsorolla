@@ -497,6 +497,7 @@ export default class OpencgaFileGrid extends LitElement {
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
+                excludeFromExport: true,
                 excludeFromSettings: true,
                 visible: this._config.showActions,
             },
