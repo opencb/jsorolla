@@ -314,11 +314,12 @@ export default class JobGrid extends LitElement {
                 title: "Job ID",
                 field: "id",
                 formatter: (id, row) => `
-                    <div>
-                        <span style="font-weight: bold; margin: 5px 0">${id}</span>
-                        ${row.outDir?.path ? `<span class="d-block text-secondary" style="margin: 5px 0">/${row.outDir.path.replace(id, "").replace("//", "/")}</span>` : ""}
-                    </div>
+                    <a class="link fw-bold d-block" data-action="view">${id}</a>
+                    ${row.outDir?.path ? `<div class="text-secondary">/${row.outDir.path.replace(id, "").replace("//", "/")}</div>` : ""}
                 `,
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("id"),
             },
             {
@@ -326,10 +327,8 @@ export default class JobGrid extends LitElement {
                 title: "Tool ID",
                 field: "tool.id",
                 formatter: (toolId, row) => `
-                    <div>
-                        <span style="margin: 5px 0">${toolId}</span>
-                        ${row.tool?.type ? `<span class="d-block text-secondary" style="margin: 5px 0">${row.tool.type}</span>` : ""}
-                    </div>
+                    <div>${toolId}</div>
+                    ${row.tool?.type ? `<div class="text-secondary">${row.tool.type}</div>` : ""}
                 `,
                 visible: this.gridCommons.isColumnVisible("toolId"),
             },
@@ -337,89 +336,23 @@ export default class JobGrid extends LitElement {
                 id: "params",
                 title: "Parameters",
                 field: "params",
-                formatter: params => {
-                    let html = "-";
-                    if (UtilsNew.isNotEmpty(params)) {
-                        html = "<div>";
-                        for (const key of Object.keys(params)) {
-                            html += `<div style="margin: 2px 0; white-space: nowrap">`;
-                            // 1. Normal parameter
-                            if (typeof params[key] !== "object") {
-                                if (params[key].length > 100) {
-                                    html += `
-                                        <span title="${params[key]}" style="margin: 2px 0; font-weight: bold">${key}:</span> <span title="${params[key]}">${params[key].substring(0, 100) + "..." || "true"}</span>
-                                    `;
-                                } else {
-                                    html += `
-                                        <span style="margin: 2px 0; font-weight: bold">${key}:</span> ${params[key] || "true"}
-                                    `;
-                                }
-                            } else {
-                                // 2. This parameter is an Object, we need to loop its internal subparams.
-                                let nestedObject = "";
-                                // 2.1 It can contain some subparams, or ...
-                                if (UtilsNew.isNotEmpty(params[key])) {
-                                    for (const subKey of Object.keys(params[key])) {
-                                        nestedObject += `
-                                            <div style="margin: 2px 0">
-                                                <span style="margin: 2px 0; font-weight: bold">${subKey}:</span> ${params[key][subKey]}
-                                            </div>
-                                        `;
-                                    }
-                                    html += `
-                                        <div>
-                                            <span style="margin: 2px 0; font-weight: bold">${key}:</span>
-                                        </div>
-                                        <div style="padding-left: 10px">
-                                            ${nestedObject}
-                                        </div>
-                                    `;
-                                } else {
-                                    // 2.2 ... it can be an empty object.
-                                    html += `
-                                        <span style="margin: 2px 0; font-weight: bold">${key}:</span><spam style="font-style: italic">none</spam>
-                                    `;
-                                }
-                            }
-                            html += "</div>";
-                        }
-                        html += "</div>";
-                    }
-                    return html;
-                },
+                formatter: params => this.parametersFormatter(params),
                 visible: this.gridCommons.isColumnVisible("params")
             },
             {
                 id: "output",
                 title: "Output Files",
                 field: "output",
-                formatter: outputFiles => CatalogGridFormatter.fileFormatter(outputFiles, null, "name"),
+                formatter: outputFiles => CatalogGridFormatter.fileFormatter(outputFiles, "*", "name"),
                 visible: this.gridCommons.isColumnVisible("output")
             },
             {
                 id: "dependsOn",
                 title: "Depends On",
                 field: "dependsOn",
-                formatter: dependsOn => {
-                    let html = "-";
-                    if (dependsOn?.length > 0) {
-                        html = `<div style="white-space: nowrap">`;
-                        for (let i = 0; i < dependsOn.length; i++) {
-                            // Display first 3 files
-                            if (i < 3) {
-                                html += `<div style="margin: 2px 0"><span>${dependsOn[i].id}</span></div>`;
-                            } else {
-                                html += `
-                                    <a tooltip-title="jOBS" tooltip-text='${dependsOn.map(job => `<p>${job.id}</p>`).join("<br>")}'>
-                                        ... view all jobs (${dependsOn.length})
-                                    </a>
-                                `;
-                                break;
-                            }
-                        }
-                        html += "</div>";
-                    }
-                    return html;
+                formatter: dependsOn => this.dependsOnFormatter(dependsOn),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("dependsOn")
             },
@@ -470,7 +403,7 @@ export default class JobGrid extends LitElement {
                 align: "right",
                 formatter: (value, row) => this.actionsFormatter(value, row),
                 events: {
-                    "click a": (event, value, job) => this.onActionClick(event, job),
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this._config.showActions,
                 excludeFromExport: true,
@@ -480,6 +413,61 @@ export default class JobGrid extends LitElement {
 
         this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
+    }
+
+    parametersFormatter(params) {
+        let html = "-";
+        if (UtilsNew.isNotEmpty(params)) {
+            html = "<div>";
+            for (const key of Object.keys(params)) {
+                html += `<div style="margin: 2px 0; white-space: nowrap">`;
+                // 1. Normal parameter
+                if (typeof params[key] !== "object") {
+                    const value = (params[key]?.length > 100 ? params[key].substring(0, 100) + "..." : params[key]) || "true";
+                    html += `
+                        <span style="margin: 2px 0; font-weight: bold">${key}:</span> ${value}
+                    `;
+                } else {
+                    // 2. This parameter is an Object, we need to loop its internal subparams.
+                    let nestedObject = "";
+                    // 2.1 It can contain some subparams, or ...
+                    if (UtilsNew.isNotEmpty(params[key])) {
+                        for (const subKey of Object.keys(params[key])) {
+                            nestedObject += `
+                                <div style="margin: 2px 0">
+                                    <span style="margin: 2px 0; font-weight: bold">${subKey}:</span> ${params[key][subKey]}
+                                </div>
+                            `;
+                        }
+                        html += `
+                            <div>
+                                <span style="margin: 2px 0; font-weight: bold">${key}:</span>
+                            </div>
+                            <div style="padding-left: 10px">
+                                ${nestedObject}
+                            </div>
+                        `;
+                    } else {
+                        // 2.2 ... it can be an empty object.
+                        html += `
+                            <span style="margin: 2px 0; font-weight: bold">${key}:</span><spam style="font-style: italic">none</spam>
+                        `;
+                    }
+                }
+                html += "</div>";
+            }
+            html += "</div>";
+        }
+        return html;
+    }
+
+    dependsOnFormatter(dependsOn) {
+        const items = (dependsOn || []).map(item => {
+            return `
+                <a class="link fw-bold d-block" data-action="view" data-job="${item.id}">${item.id}</a>
+            `;
+        });
+        return GridCommons.generateExpandCollapseContent(items, 3);
     }
 
     actionsFormatter(value, row) {
@@ -522,7 +510,8 @@ export default class JobGrid extends LitElement {
         const action = event.currentTarget?.dataset?.action?.toLowerCase();
         switch (action) {
             case "view":
-                this._selectedJobId = job.id;
+                // Note: the jobId may be passed in the dataset of the target element (for example, in the dependsOn formatter)
+                this._selectedJobId = event.currentTarget?.dataset?.job || job.id;
                 this.gridCommons.changeActiveModal("view-job");
                 break;
             case "retry":
