@@ -396,6 +396,13 @@ export default class JobGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("executionR")
             },
             {
+                id: "creationDate",
+                title: "Submission Date",
+                field: "creationDate",
+                formatter: value => CatalogGridFormatter.dateFormatter(value),
+                visible: this.gridCommons.isColumnVisible("creationDate"),
+            },
+            {
                 id: "executionD",
                 title: "Start/End Date",
                 formatter: (_, row) => {
@@ -408,13 +415,6 @@ export default class JobGrid extends LitElement {
                     return values.join("") || "-";
                 },
                 visible: this.gridCommons.isColumnVisible("executionD")
-            },
-            {
-                id: "creationDate",
-                title: "Creation Date",
-                field: "creationDate",
-                formatter: value => CatalogGridFormatter.dateFormatter(value),
-                visible: this.gridCommons.isColumnVisible("creationDate"),
             },
             {
                 id: "actions",
