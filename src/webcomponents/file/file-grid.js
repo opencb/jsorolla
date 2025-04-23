@@ -392,8 +392,8 @@ export default class OpencgaFileGrid extends LitElement {
                 formatter: (fileName, row) => {
                     const parentPath = "/" + row.path.split("/").slice(0, -1).join("/").replace(/\/\//g, "/");
                     return `
-                        <a class="link fw-bold" data-action="view">${fileName}</a>
-                        <div class="text-secondary">${parentPath}</div>
+                        <a class="link fw-bold my-1" data-action="view">${fileName}</a>
+                        <div class="text-secondary my-1">${parentPath}</div>
                     `;
                 },
                 events: {
@@ -411,7 +411,7 @@ export default class OpencgaFileGrid extends LitElement {
                         switch (file.format) {
                             case "VCF":
                                 result = `
-                                    <div class="mb-1">${format}</div>
+                                    <div class="my-1">${format}</div>
                                     <div class="text-secondary">${file.attributes?.variantFileMetadata?.header?.version?.replace("VCF", "") || ""}</div>
                                 `;
                                 break;
@@ -530,10 +530,6 @@ export default class OpencgaFileGrid extends LitElement {
                             <i class="fas fa-eye me-1"></i>
                             <span>View</span>
                         </a>
-                        <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" || !hasDownloadPermission ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
-                            <i class="fas fa-download me-1"></i> Download
-                        </a>
-                        <hr class="dropdown-divider">
                         <a data-action="copy-json" class="dropdown-item cursor-pointer">
                             <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
                         </a>
@@ -541,6 +537,9 @@ export default class OpencgaFileGrid extends LitElement {
                             <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
                         </a>
                         <hr class="dropdown-divider">
+                        <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" || !hasDownloadPermission ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
+                            <i class="fas fa-download me-1"></i> Download
+                        </a>
                         <a data-action="variant-index" class="dropdown-item ${row.format === "VCF" && isStudyAdmin ? "cursor-pointer" : "disabled"}">
                             <i class="fas fa-rocket me-1"></i> Run Variant Index
                         </a>
