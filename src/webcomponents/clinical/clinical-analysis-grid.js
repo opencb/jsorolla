@@ -313,7 +313,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             },
             {
                 id: "disorderId",
-                title: "Clinical Condition / Panel",
+                title: "Disorder / Panel",
                 field: "disorder",
                 valign: "middle",
                 formatter: (value, row) => {
