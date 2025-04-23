@@ -19,7 +19,6 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
@@ -378,7 +377,7 @@ export default class JobGrid extends LitElement {
                 id: "status",
                 title: "Status",
                 field: "internal.status",
-                formatter: status => WebUtils.jobStatusFormatter(status),
+                formatter: status => CatalogGridFormatter.jobStatusFormatter(status),
                 visible: this.gridCommons.isColumnVisible("status")
             },
             {

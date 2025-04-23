@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import WebUtils from "../commons/utils/web-utils.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 
@@ -199,7 +199,7 @@ export default class JobSummary extends LitElement {
                             display: {
                                 template: "${internal.status}",
                                 format: {
-                                    "internal.status": status => WebUtils.jobStatusFormatter(status, true),
+                                    "internal.status": status => CatalogGridFormatter.jobStatusFormatter(status, true),
                                 },
                             }
                         },
