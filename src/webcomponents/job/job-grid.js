@@ -69,7 +69,7 @@ export default class JobGrid extends LitElement {
         this.active = true;
         this.autoRefresh = false;
         this._selectedJobId = null;
-        this._selectedFile = null;
+        this._selectedFileId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -156,13 +156,13 @@ export default class JobGrid extends LitElement {
             }),
             "view-file": () => ({
                 display: {
-                    modalTitle: `File ${this._selectedFile?.name}`,
+                    modalTitle: `File ${this._selectedFileId.split(":").pop()}`,
                     modalCyDataName: `modal-file-view`,
                     modalSize: "modal-lg",
                 },
                 render: () => html`
                     <file-view
-                        .fileId="${this._selectedFile?.id}"
+                        .fileId="${this._selectedFileId}"
                         .opencgaSession="${this.opencgaSession}">
                     </file-view>
                 `,
@@ -358,7 +358,7 @@ export default class JobGrid extends LitElement {
                 id: "output",
                 title: "Output Files",
                 field: "output",
-                formatter: outputFiles => CatalogGridFormatter.fileFormatter(outputFiles, "*", "name"),
+                formatter: outputFiles => CatalogGridFormatter.fileFormatter(outputFiles, "*"),
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
@@ -547,7 +547,7 @@ export default class JobGrid extends LitElement {
                 UtilsNew.downloadData([JSON.stringify(job, null, "\t")], job.id + ".json");
                 break;
             case "view-file":
-                this._selectedFile = job?.output?.find(file => file.id === event.currentTarget?.dataset?.file);
+                this._selectedFileId = event.currentTarget?.dataset?.file;
                 this.gridCommons.changeActiveModal("view-file");
                 break;
         }
