@@ -22,6 +22,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../cohort/cohort-create-samples.js";
+import "../file/file-view.js";
 import "./sample-create.js";
 import "./sample-update.js";
 import "./sample-view.js";
@@ -68,6 +69,7 @@ export default class SampleGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this._selectedSampleId = null;
+        this._selectedFileId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -184,6 +186,20 @@ export default class SampleGrid extends LitElement {
                     </cohort-create-samples>
                 `,
             },
+            "view-file": () => ({
+                display: {
+                    modalTitle: `File ${this._selectedFileId.split(":").pop()}`,
+                    modalCyDataName: `modal-file-view`,
+                    modalSize: "modal-xl",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <file-view
+                        .fileId="${this._selectedFileId}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </file-view>
+                `,
+            }),
         });
     }
 
@@ -381,9 +397,12 @@ export default class SampleGrid extends LitElement {
             },
             {
                 id: "fileIds",
-                title: "Files (Only BAM and VCF)",
+                title: "Files (BAM and VCF)",
                 field: "fileIds",
                 formatter: fileIds => CatalogGridFormatter.fileFormatter(fileIds, ["vcf", "vcf.gz", "bam"]),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("fileIds")
             },
             {
@@ -496,6 +515,10 @@ export default class SampleGrid extends LitElement {
                 break;
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(sample, null, "\t")], sample.id + ".json");
+                break;
+            case "view-file":
+                this._selectedFileId = event.currentTarget.dataset.file;
+                this.gridCommons.changeActiveModal("view-file");
                 break;
         }
     }
