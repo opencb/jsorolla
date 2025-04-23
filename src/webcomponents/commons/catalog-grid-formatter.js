@@ -125,14 +125,15 @@ export default class CatalogGridFormatter {
     //  Formats the files for the Catalog grids
     // @param {Array} files Either a list of fileIds or file objects
     // @param {Array} extensions A list of file extensions. Default '*'
-    // @param {String} key The property to map onto in case `files` is an array of objects.
     // @returns {string} html code
-    static fileFormatter(files, extensions = "*", key = null) {
+    static fileFormatter(files, extensions = "*") {
         const items = (files || [])
-            .filter(file => extensions === "*" || extensions.some(ext => (key ? file[key] : file).endsWith(ext)))
+            .filter(file => extensions === "*" || extensions.some(ext => (file?.id || file?.name || file).endsWith(ext)))
             .map(file => {
                 return `
-                    <a class="link d-block fw-bold my-1" data-action="view-file" data-file="${file?.id || file}">${file?.name || file?.id || file}</a>
+                    <a class="link d-block fw-bold my-1" data-action="view-file" data-file="${file?.id || file}">
+                        ${file?.name || (file?.id || file).split(":").pop()}
+                    </a>
                 `;
             });
         return GridCommons.generateExpandCollapseContent(items, 3);
