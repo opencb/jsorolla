@@ -310,6 +310,12 @@ export default class NoteGrid extends LitElement {
                 id: "id",
                 title: "Note ID",
                 field: "id",
+                formatter: noteId => {
+                    return `<a class="link fw-bold" data-action="view">${noteId}</a>`;
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
