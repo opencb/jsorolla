@@ -327,7 +327,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             },
             {
                 id: "interpretation",
-                title: "Interpretation",
+                title: "Interpretation Stats",
                 field: "interpretation",
                 valign: "middle",
                 formatter: (value, row) => this.interpretationFormatter(value, row),
