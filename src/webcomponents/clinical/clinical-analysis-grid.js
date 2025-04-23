@@ -302,9 +302,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 field: "status",
                 valign: "middle",
                 formatter: (value, row) => this.statusFormatter(value, row),
-                events: {
-                    "click a": (event, value, row) => this.onActionClick(event, row),
-                },
                 visible: this.gridCommons.isColumnVisible("status"),
             },
             {
@@ -445,7 +442,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         });
         if (priority) {
             return `
-                <a class="badge ${WebUtils.getClinicalAnalysisPriorityColour(priority.rank)} text-decoration-none" tooltip-text="${priority.description}" >
+                <a class="badge ${WebUtils.getClinicalAnalysisPriorityColour(priority.rank)} text-decoration-none" tooltip-title="Priority" tooltip-text="${priority.description}">
                     ${priority.id}
                 </a>
             `;
@@ -454,29 +451,17 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     statusFormatter(value, row) {
-        const status = this.opencgaSession.study?.internal?.configuration?.clinical?.status || [];
-        const hasWriteAccess = this.gridCommons.hasPermission("WRITE");
-        const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // status is editable
-        return `
-            <div class="dropdown">
-                <button class="btn btn-light dropdown-toggle ${isEditable ? "cursor-pointer" : "disabled"}" data-bs-toggle="dropdown">
-                    ${value?.id || "-"}
-                </button>
-                ${isEditable ? `
-                    <div class="dropdown-menu">
-                        ${status.map(status => `
-                            <a class="d-flex dropdown-item py-2 cursor-pointer align-items-center" data-action="statusChange" data-status="${status.id}">
-                                <div class="flex-grow-1">
-                                    <div class="${status.id === value?.id ? "fw-bold" : ""}">${status.id}</div>
-                                    <div class="small text-secondary">${status.description}</div>
-                                </div>
-                                ${status.id === value?.id ? `<i class="fas fa-check ps-3"></i>` : ""}
-                            </a>
-                        `).join("")}
-                    </div>
-                `: ""}
-            </div>
-        `;
+        const status = (this.opencgaSession.study?.internal?.configuration?.clinical?.status || []).find(status => {
+            return status.id === value?.id;
+        });
+        if (status) {
+            return `
+                <a class="text-decoration-none text-body fw-bold" tooltip-title="Status" tooltip-text="${status.description}">
+                    ${status.id}
+                </a>
+            `;
+        }
+        return "-";
     }
 
     analystsFormatter(analysts) {
@@ -552,9 +537,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     .then(restResponse => this.download(restResponse))
                     .catch(error => console.error(error));
                 break;
-            case "statuschange":
-                this.onChangeStatus(clinicalAnalysis, event.currentTarget.dataset.status);
-                break;
         }
     }
 
@@ -596,28 +578,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: `Case '${clinicalAnalysis.id}' has been ${clinicalAnalysis.locked ? "unlocked" : "locked"}.`,
-                });
-                // LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                this.table.bootstrapTable("refresh");
-            })
-            .catch(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-            });
-    }
-
-    onChangeStatus(clinicalAnalysis, status) {
-        const data = {
-            status: {
-                id: status,
-            },
-        };
-        this.opencgaSession.opencgaClient.clinical()
-            .update(clinicalAnalysis.id, data, {
-                study: this.opencgaSession.study.fqn,
-            })
-            .then(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: `Status of case '${clinicalAnalysis.id}' has been changed to '${status}'.`,
                 });
                 // LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                 this.table.bootstrapTable("refresh");
