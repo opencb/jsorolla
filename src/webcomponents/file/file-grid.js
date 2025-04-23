@@ -24,6 +24,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 import "../sample/sample-view.js";
+import "../job/job-view.js";
 import "./file-folder-create.js";
 import "./file-create.js";
 import "./file-upload.js";
@@ -75,6 +76,7 @@ export default class OpencgaFileGrid extends LitElement {
         this.lastFilters = null;
         this._selectedFile = null;
         this._selectedSampleId = null;
+        this._selectedJobId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -232,6 +234,21 @@ export default class OpencgaFileGrid extends LitElement {
                         .sampleId="${this._selectedSampleId}"
                         .opencgaSession="${this.opencgaSession}">
                     </sample-view>
+                `,
+            }),
+            "view-job": () => ({
+                display: {
+                    modalTitle: `Job ${this._selectedJobId}`,
+                    modalDraggable: true,
+                    modalCyDataName: "job-view",
+                    modalSize: "modal-xl"
+                },
+                render: active => html`
+                    <job-view
+                        .jobId="${this._selectedJobId}"
+                        .active="${active}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </job-view>
                 `,
             }),
         });
@@ -464,7 +481,12 @@ export default class OpencgaFileGrid extends LitElement {
                 id: "jobId",
                 title: "Job ID",
                 field: "jobId",
-                formatter: jobId => jobId || "-",
+                formatter: jobId => {
+                    return jobId ? `<a class="link fw-bold" data-action="view-job" data-job="${jobId}">${jobId}</a>` : "-";
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("jobId")
             },
             {
@@ -581,6 +603,10 @@ export default class OpencgaFileGrid extends LitElement {
             case "view-sample":
                 this._selectedSampleId = event.currentTarget.dataset.sample;
                 this.gridCommons.changeActiveModal("view-sample");
+                break;
+            case "view-job":
+                this._selectedJobId = event.currentTarget.dataset.job;
+                this.gridCommons.changeActiveModal("view-job");
                 break;
         }
     }
