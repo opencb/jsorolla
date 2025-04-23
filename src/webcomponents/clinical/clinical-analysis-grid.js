@@ -313,18 +313,21 @@ export default class ClinicalAnalysisGrid extends LitElement {
             },
             {
                 id: "disorderId",
-                title: "Disorder / Panel",
+                title: "Disorder",
                 field: "disorder",
                 valign: "middle",
-                formatter: (value, row) => {
-                    const panelHtml = row.panels?.length > 0 ? CatalogGridFormatter.panelFormatter(row.panels) : "-";
-                    return `
-                        <div class="mb-1">${CatalogGridFormatter.disorderFormatter([value], row)}</div>
-                        <div class="mb-1">${panelHtml}</div>
-                    `;
-                },
+                formatter: (value, row) => CatalogGridFormatter.disorderFormatter([value], row),
                 visible: this.gridCommons.isColumnVisible("disorderId")
             },
+            {
+                id: "panels",
+                title: "Panels",
+                field: "panels",
+                valign: "middle",
+                formatter: (value, row) => CatalogGridFormatter.panelFormatter(value),
+                visible: this.gridCommons.isColumnVisible("panels")
+            },
+
             {
                 id: "interpretation",
                 title: "Interpretation Stats",
