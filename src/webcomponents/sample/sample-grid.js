@@ -22,6 +22,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../cohort/cohort-create-samples.js";
+import "../individual/individual-view.js";
 import "../file/file-view.js";
 import "./sample-create.js";
 import "./sample-update.js";
@@ -69,6 +70,7 @@ export default class SampleGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this._selectedSampleId = null;
+        this._selectedIndividualId = null;
         this._selectedFileId = null;
         this._config = this.getDefaultConfig();
     }
@@ -198,6 +200,21 @@ export default class SampleGrid extends LitElement {
                         .fileId="${this._selectedFileId}"
                         .opencgaSession="${this.opencgaSession}">
                     </file-view>
+                `,
+            }),
+            "view-individual": () => ({
+                display: {
+                    modalTitle: `Individual ${this._selectedIndividualId}`,
+                    modalSize: "modal-xl",
+                    modalCyDataName: "individual-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <individual-view
+                        .individualId="${this._selectedIndividualId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </individual-view>
                 `,
             }),
         });
@@ -391,7 +408,10 @@ export default class SampleGrid extends LitElement {
                 title: "Individual ID",
                 field: "individualId",
                 formatter: individualId => {
-                    return individualId ? `<div class="fw-bold">${individualId}</div>` : "-";
+                    return individualId ? `<a class="link fw-bold" data-action="view-individual" data-individual="${individualId}">${individualId}</a>` : "-";
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("individualId")
             },
@@ -519,6 +539,10 @@ export default class SampleGrid extends LitElement {
             case "view-file":
                 this._selectedFileId = event.currentTarget.dataset.file;
                 this.gridCommons.changeActiveModal("view-file");
+                break;
+            case "view-individual":
+                this._selectedIndividualId = event.currentTarget.dataset.individual;
+                this.gridCommons.changeActiveModal("view-individual");
                 break;
         }
     }
