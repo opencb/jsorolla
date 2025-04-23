@@ -132,7 +132,7 @@ export default class CatalogGridFormatter {
             .filter(file => extensions === "*" || extensions.some(ext => (key ? file[key] : file).endsWith(ext)))
             .map(file => {
                 return `
-                    <a class="link d-block fw-bold" data-action="view-file" data-file="${file?.id || file}">${file?.name || file?.id || file}</a>
+                    <a class="link d-block fw-bold my-1" data-action="view-file" data-file="${file?.id || file}">${file?.name || file?.id || file}</a>
                 `;
             });
         return GridCommons.generateExpandCollapseContent(items, 3);
@@ -149,9 +149,9 @@ export default class CatalogGridFormatter {
         let result = "-";
         if (row) {
             result = `
-                <div class="m-1">
-                    <span style="margin: 5px 0">${UtilsNew.dateFormatter(row.modificationDate)}</span>
-                    <span class="d-block text-secondary" style="margin: 5px 0">${UtilsNew.dateFormatter(row.creationDate)}</span>
+                <div class="" title="Version ${row.version}">
+                    <span class="my-1">${UtilsNew.dateFormatter(row.modificationDate)}</span>
+                    <span class="d-block text-secondary my-1">${UtilsNew.dateFormatter(row.creationDate)}</span>
                 </div>
             `;
         }
@@ -163,10 +163,10 @@ export default class CatalogGridFormatter {
             // const caseUrl = WebUtils.getInterpreterLink(opencgaSession, clinicalAnalysis.id);
             return `
                 <div class="text-nowrap">
-                    <a class="link fw-bold" data-action="view-clinical-analysis" data-clinical-analysis="${clinicalAnalysis.id}">
+                    <a class="link fw-bold my-1" data-action="view-clinical-analysis" data-clinical-analysis="${clinicalAnalysis.id}">
                         <span>${clinicalAnalysis.id}</span>
-                    </a> 
-                    <span>${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}</span>
+                    </a>
+                    <span class="text-secondary m-1">${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}</span>
                 </div>
             `;
         });

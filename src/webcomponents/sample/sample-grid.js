@@ -361,8 +361,8 @@ export default class SampleGrid extends LitElement {
                         somaticHtml = sample.somatic ? "Somatic" : "Germline";
                     }
                     return `
-                        <a class="link fw-bold d-block" data-action="view">${sampleId}</a>
-                        ${somaticHtml ? `<div class="text-secondary">${somaticHtml}</div>` : ""}
+                        <a class="link fw-bold d-block my-1" data-action="view">${sampleId}</a>
+                        ${somaticHtml ? `<div class="text-secondary my-1">${somaticHtml}</div>` : ""}
                     `;
                 },
                 events: {
@@ -399,19 +399,25 @@ export default class SampleGrid extends LitElement {
                 id: "collection.method",
                 title: "Collection Method",
                 field: "collection.method",
-                visible: this.gridCommons.isColumnVisible("collection.method")
+                formatter: method => {
+                    return method || "-";
+                },
+                visible: this.gridCommons.isColumnVisible("collection.method"),
             },
             {
                 id: "processing.preparationMethod",
                 title: "Preparation Method",
                 field: "processing.preparationMethod",
+                formatter: method => {
+                    return method || "-";
+                },
                 visible: this.gridCommons.isColumnVisible("processing.preparationMethod")
             },
             {
                 id: "creationDate",
-                title: "Creation Date",
+                title: "Modification/Creation Date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
+                formatter: (value, row) => CatalogGridFormatter.modifiedAndCreateDateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
             {

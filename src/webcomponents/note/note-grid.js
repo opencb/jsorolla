@@ -25,6 +25,7 @@ import "../commons/opencb-grid-toolbar.js";
 import "./note-create.js";
 import "./note-update.js";
 import "./note-view.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 
 export default class NoteGrid extends LitElement {
 
@@ -361,12 +362,7 @@ export default class NoteGrid extends LitElement {
                 field: "Dates",
                 halign: this.displayConfigDefault?.header?.horizontalAlign,
                 valign: "middle",
-                formatter: (field, note) => {
-                    return `
-                        <div class="fw-bold">${UtilsNew.dateFormatter(note.modificationDate)}</div>
-                        <div class="text-body-secondary">${UtilsNew.dateFormatter(note.creationDate)}</div>
-                    `;
-                },
+                formatter: (value, row) => CatalogGridFormatter.modifiedAndCreateDateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("dates")
             },
         ];
