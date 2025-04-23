@@ -302,7 +302,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             },
             {
                 id: "probandId",
-                title: "Proband (Sample) and Family",
+                title: "Proband (Sample) / Family",
                 field: "proband",
                 valign: "middle",
                 formatter: (value, row) => this.probandFormatter(value, row),
