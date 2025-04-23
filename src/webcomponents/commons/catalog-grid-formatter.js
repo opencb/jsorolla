@@ -21,6 +21,41 @@ import GridCommons from "./grid-commons.js";
 
 export default class CatalogGridFormatter {
 
+    static JOB_STATUS = {
+        PENDING: {
+            className: "text-primary",
+            icon: "far fa-clock",
+        },
+        QUEUED: {
+            className: "text-primary",
+            icon: "far fa-clock",
+        },
+        RUNNING: {
+            className: "text-primary",
+            icon: "fas fa-sync-alt anim-rotate",
+        },
+        DONE: {
+            className: "text-success",
+            icon: "fas fa-check-circle",
+        },
+        ERROR: {
+            className: "text-danger",
+            icon: "fas fa-exclamation-circle",
+        },
+        UNKNOWN: {
+            className: "text-danger",
+            icon: "fas fa-exclamation-circle",
+        },
+        ABORTED: {
+            className: "text-warning",
+            icon: "fas fa-ban",
+        },
+        DELETED: {
+            className: "text-primary",
+            icon: "fas fa-trash-alt",
+        },
+    }
+
     static userStatusFormatter(status, config) {
         const _config = config || [];
         const currentStatus = status.id || status.name || "UNDEFINED"; // Get current status
@@ -216,24 +251,24 @@ export default class CatalogGridFormatter {
     }
 
     static jobStatusFormatter(status, appendDescription = false) {
-        const description = appendDescription && status?.description ? `<br>${status.description}` : "";
-        const statusId = status.id;
-        switch (statusId) {
-            case "PENDING":
-            case "QUEUED":
-                return `<span class="text-primary"><i class="far fa-clock me-1"></i> ${statusId}${description}</span>`;
-            case "RUNNING":
-                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate me-1"></i> ${statusId}${description}</span>`;
-            case "DONE":
-                return `<span class="text-success"><i class="fas fa-check-circle me-1"></i> ${statusId}${description}</span>`;
-            case "ERROR":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i> ${statusId}${description}</span>`;
-            case "UNKNOWN":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i> ${statusId}${description}</span>`;
-            case "ABORTED":
-                return `<span class="text-warning"><i class="fas fa-ban me-1"></i> ${statusId}${description}</span>`;
-            case "DELETED":
-                return `<span class="text-primary"><i class="fas fa-trash-alt me-1"></i> ${statusId}${description}</span>`;
+        const statusConfig = CatalogGridFormatter.JOB_STATUS[status.id] || null;
+        if (statusConfig) {
+            const content = `
+                <span class="fw-bold" style="text-wrap:nowrap;">
+                    <i class="${statusConfig.icon}"></i> ${status.id}
+                </span>
+                ${status?.description && appendDescription ? `<span class="">: ${status?.description}</span>` : ""}
+            `;
+            // if not appendDescription, we return the status with the description as a tooltip
+            if (!appendDescription && status?.description) {
+                return `
+                    <a class="${statusConfig.className} text-decoration-none" tooltip-title="${status.id}" tooltip-text="${status.description}">
+                        ${content}
+                    </a>
+                `;
+            } else {
+                return `<div class="${statusConfig.className}">${content}</div>`;
+            }
         }
         return "-";
     }
