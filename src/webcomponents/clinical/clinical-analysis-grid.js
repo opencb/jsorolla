@@ -313,9 +313,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 field: "priority",
                 valign: "middle",
                 formatter: (value, row) => this.priorityFormatter(value, row),
-                events: {
-                    "click a": (event, value, row) => this.onActionClick(event, row),
-                },
                 visible: this.gridCommons.isColumnVisible("priority"),
             },
             {
@@ -443,32 +440,17 @@ export default class ClinicalAnalysisGrid extends LitElement {
     }
 
     priorityFormatter(value, row) {
-        // TODO remove this code as soon as new OpenCGA configuration is in place
-        const priorities = this.opencgaSession?.study?.internal?.configuration?.clinical?.priorities || [];
-        const hasWriteAccess = this.gridCommons.hasPermission("WRITE");
-        const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // priority is editable
-        return `
-            <div class="dropdown">
-                <button class="btn btn-light dropdown-toggle ${isEditable ? "cursor-pointer" : "disabled"}" data-bs-toggle="dropdown">
-                    <span class="d-inline-flex badge ${WebUtils.getClinicalAnalysisPriorityColour(value?.rank)}">
-                        ${value?.id || "-"}
-                    </span>
-                </button>
-                ${isEditable ? `
-                    <div class="dropdown-menu">
-                        ${priorities.map(priority => `
-                            <a class="d-flex dropdown-item py-2 cursor-pointer align-items-center" data-action="priorityChange" data-priority="${priority.id}">
-                                <div class="flex-grow-1">
-                                    <div class="badge ${WebUtils.getClinicalAnalysisPriorityColour(priority?.rank)}">${priority.id}</div>
-                                    <div class="small text-secondary">${priority.description}</div>
-                                </div>
-                                ${priority.id === value?.id ? `<i class="fas fa-check ps-3"></i>` : ""}
-                            </a>
-                        `).join("")}
-                    </div>
-                ` : ""}
-            </div>
-        `;
+        const priority = (this.opencgaSession?.study?.internal?.configuration?.clinical?.priorities || []).find(priority => {
+            return priority.id === value?.id;
+        });
+        if (priority) {
+            return `
+                <a class="badge ${WebUtils.getClinicalAnalysisPriorityColour(priority.rank)} text-decoration-none" tooltip-text="${priority.description}" >
+                    ${priority.id}
+                </a>
+            `;
+        }
+        return "-";
     }
 
     statusFormatter(value, row) {
@@ -573,9 +555,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
             case "statuschange":
                 this.onChangeStatus(clinicalAnalysis, event.currentTarget.dataset.status);
                 break;
-            case "prioritychange":
-                this.onChangePriority(clinicalAnalysis, event.currentTarget.dataset.priority);
-                break;
         }
     }
 
@@ -639,26 +618,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
             .then(response => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: `Status of case '${clinicalAnalysis.id}' has been changed to '${status}'.`,
-                });
-                // LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                this.table.bootstrapTable("refresh");
-            })
-            .catch(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-            });
-    }
-
-    onChangePriority(clinicalAnalysis, priority) {
-        const data = {
-            priority: priority,
-        };
-        this.opencgaSession.opencgaClient.clinical()
-            .update(clinicalAnalysis.id, data, {
-                study: this.opencgaSession.study.fqn,
-            })
-            .then(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: `Priority of case '${clinicalAnalysis.id}' has been changed to '${priority}'.`,
                 });
                 // LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                 this.table.bootstrapTable("refresh");
