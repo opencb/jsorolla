@@ -22,6 +22,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
+import "../individual/individual-view.js"
 import "./clinical-analysis-view.js";
 import "./clinical-analysis-create.js";
 import "./clinical-analysis-update.js";
@@ -65,6 +66,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._selectedClinicalAnalysis = null;
+        this._selectedIndividualId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -163,6 +165,21 @@ export default class ClinicalAnalysisGrid extends LitElement {
                             this.table.bootstrapTable("refresh");
                         }}">
                     </clinical-analysis-update>
+                `,
+            }),
+            "view-individual": () => ({
+                display: {
+                    modalTitle: `Individual ${this._selectedIndividualId}`,
+                    modalDraggable: true,
+                    modalSize: "modal-xl",
+                    modalCyDataName: "modal-individual-view",
+                },
+                render: () => html`
+                    <individual-view
+                        .individualId="${this._selectedIndividualId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </individual-view>
                 `,
             }),
         });
@@ -272,6 +289,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 field: "proband",
                 valign: "middle",
                 formatter: (value, row) => this.probandFormatter(value, row),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("probandId")
             },
             {
@@ -369,10 +389,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     probandFormatter(value, row) {
         if (row.proband) {
-            const samplesHtml = row.proband?.samples?.map(sample => `<span data-cy="proband-sample-id">${sample.id}</span>`)?.join("");
+            const samplesHtml = row.proband?.samples?.map(sample => `<span>${sample.id}</span>`)?.join(", ");
             return `
-                <div class="">
-                    <span data-cy="proband-id" class="fw-bold">${row.proband?.id || "-"}</span>
+                <div class="my-1">
+                    <a class="link fw-bold" data-action="view-individual" data-individual="${row.proband.id}">${row.proband?.id}</a>
                     <span data-cy="proband-id" class="text-secondary ms-1">(${samplesHtml})</span>
                 </div>
                 ${row.family?.id ? `
@@ -536,6 +556,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 })
                     .then(restResponse => this.download(restResponse))
                     .catch(error => console.error(error));
+                break;
+            case "view-individual":
+                this._selectedIndividualId = clinicalAnalysis.proband.id;
+                this.gridCommons.changeActiveModal("view-individual");
                 break;
         }
     }
