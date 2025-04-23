@@ -405,7 +405,7 @@ export default class IndividualGrid extends LitElement {
                         return `
                             <div style="white-space: nowrap">
                                 <a class="link fw-bold" data-action="view-sample" data-sample="${sample.id}">${sample.id}</a>
-                                <span title="${sample.somatic ? "Somatic sample" : "Germline sample"}"> (${sample.somatic ? "S" : "G"})</span>
+                                <span class="text-secondary" title="${sample.somatic ? "Somatic sample" : "Germline sample"}"> (${sample.somatic ? "S" : "G"})</span>
                             </div>
                         `;
                     });
