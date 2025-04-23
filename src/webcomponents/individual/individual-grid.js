@@ -24,6 +24,7 @@ import "../commons/opencb-grid-toolbar.js";
 import "../clinical/clinical-analysis-view.js";
 import "../cohort/cohort-create-samples.js";
 import "../sample/sample-view.js";
+import "../family/family-view.js";
 import "./individual-view.js";
 import "./individual-create.js";
 import "./individual-update.js";
@@ -72,6 +73,7 @@ export default class IndividualGrid extends LitElement {
         this._selectedIndividualId = null;
         this._selectedSampleId = null;
         this._selectedClinicalAnalysisId = null;
+        this._selectedFamilyId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -221,6 +223,21 @@ export default class IndividualGrid extends LitElement {
                         .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
                     </clinical-analysis-view>
+                `,
+            }),
+            "view-family": () => ({
+                display: {
+                    modalTitle: `Family ${this._selectedFamilyId}`,
+                    modalSize: "modal-xl",
+                    modalCyDataName: "family-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <family-view
+                        .familyId="${this._selectedFamilyId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </family-view>
                 `,
             }),
         });
@@ -441,6 +458,21 @@ export default class IndividualGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("mother")
             },
             {
+                id: "family",
+                title: "Family",
+                field: "familyIds",
+                formatter: familyIds => {
+                    const familyItems = (familyIds || []).map(familyId => {
+                        return `<a class="link fw-bold" data-action="view" data-family="${familyId}">${familyId}</a>`;
+                    });
+                    return GridCommons.generateExpandCollapseContent(familyItems, 5);
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                visible: this.gridCommons.isColumnVisible("family"),
+            },
+            {
                 id: "disorders",
                 title: "Disorders",
                 field: "disorders",
@@ -554,6 +586,10 @@ export default class IndividualGrid extends LitElement {
             case "view-clinical-analysis":
                 this._selectedClinicalAnalysisId = event.currentTarget?.dataset?.clinicalAnalysis;
                 this.gridCommons.changeActiveModal("view-clinical-analysis");
+                break;
+            case "view-family":
+                this._selectedFamilyId = event.currentTarget?.dataset?.family;
+                this.gridCommons.changeActiveModal("view-family");
                 break;
             case "edit":
                 this._selectedIndividualId = individual.id;
