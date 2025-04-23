@@ -23,6 +23,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../individual/individual-view.js"
+import "../family/family-view.js";
 import "./clinical-analysis-view.js";
 import "./clinical-analysis-create.js";
 import "./clinical-analysis-update.js";
@@ -67,6 +68,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
         this.active = true;
         this._selectedClinicalAnalysis = null;
         this._selectedIndividualId = null;
+        this._selectedFamilyId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -180,6 +182,21 @@ export default class ClinicalAnalysisGrid extends LitElement {
                         .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
                     </individual-view>
+                `,
+            }),
+            "view-family": () => ({
+                display: {
+                    modalTitle: `Family ${this._selectedFamilyId}`,
+                    modalDraggable: true,
+                    modalSize: "modal-xl",
+                    modalCyDataName: "modal-family-view",
+                },
+                render: () => html`
+                    <family-view
+                        .familyId="${this._selectedFamilyId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </family-view>
                 `,
             }),
         });
@@ -393,12 +410,12 @@ export default class ClinicalAnalysisGrid extends LitElement {
             return `
                 <div class="my-1">
                     <a class="link fw-bold" data-action="view-individual" data-individual="${row.proband.id}">${row.proband?.id}</a>
-                    <span data-cy="proband-id" class="text-secondary ms-1">(${samplesHtml})</span>
+                    <span class="text-secondary ms-1">(${samplesHtml})</span>
                 </div>
                 ${row.family?.id ? `
-                    <div class="">
-                        <span data-cy="family-id">${row.family.id}</span>
-                        <span data-cy="proband-id" class="text-secondary ms-1">(${row.family.members?.length || 0} members)</span>
+                    <div class="my-1">
+                        <a class="link fw-bold" data-action="view-family" data-family="${row.family.id}">${row.family.id}</a>
+                        <span class="text-secondary ms-1">(${row.family.members?.length || 0} members)</span>
                     </div>
                 ` : ""}
             `;
@@ -560,6 +577,10 @@ export default class ClinicalAnalysisGrid extends LitElement {
             case "view-individual":
                 this._selectedIndividualId = clinicalAnalysis.proband.id;
                 this.gridCommons.changeActiveModal("view-individual");
+                break;
+            case "view-family":
+                this._selectedFamilyId = clinicalAnalysis.family.id;
+                this.gridCommons.changeActiveModal("view-family");
                 break;
         }
     }
