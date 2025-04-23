@@ -87,13 +87,13 @@ export default class CatalogGridFormatter {
                 }
                 if (disorder.name && disorder.name !== disorder.id) {
                     return `
-                        <div style="white-space: nowrap">
+                        <div class="" style="white-space: nowrap">
                             <span data-cy="disorder-name">${disorder.name}</span> (<span data-cy="disorder-id">${idHtml}</span>)
                         </div>
                     `;
                 } else {
                     return `
-                        <div style="white-space: nowrap">
+                        <div class="" style="white-space: nowrap">
                             <span data-cy="disorder-id">${idHtml}</span>
                         </div>
                     `;
@@ -101,7 +101,7 @@ export default class CatalogGridFormatter {
             }
             return "";
         });
-        return disordersItems.join("") || "-";
+        return GridCommons.generateExpandCollapseContent(disordersItems, 3);
     }
 
     static panelFormatter(panels) {
@@ -119,7 +119,7 @@ export default class CatalogGridFormatter {
                 `;
             }
         });
-        return panelsItems.join("") || "-";
+        return GridCommons.generateExpandCollapseContent(panelsItems, 3);
     }
 
     //  Formats the files for the Catalog grids
