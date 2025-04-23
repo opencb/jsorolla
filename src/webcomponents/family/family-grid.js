@@ -438,7 +438,7 @@ export default class FamilyGrid extends LitElement {
             return `
                 <div style="white-space: nowrap">
                     <a class="fw-bold link" data-action="view-individual" data-individual="${member.id}">${member.id}</a> 
-                    ${member?.sex?.id ? `<span>(${member.sex.id})</span>` : ""}
+                    ${member?.sex?.id ? `<span class="text-secondary">(${member.sex.id})</span>` : ""}
                 </div>
             `;
         });
