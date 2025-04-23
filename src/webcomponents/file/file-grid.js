@@ -519,9 +519,6 @@ export default class OpencgaFileGrid extends LitElement {
                     <i class="fas fa-eye"></i>
                 </a>
                 <div class="d-inline-block dropdown">
-                    <button class="btn" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item ${row.type === "DIRECTORY" ? "disabled" : "cursor-pointer"}" data-action="view">
                             <i class="fas fa-eye me-1"></i>
