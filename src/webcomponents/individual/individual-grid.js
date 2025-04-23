@@ -401,15 +401,15 @@ export default class IndividualGrid extends LitElement {
                 title: "Samples",
                 field: "samples",
                 formatter: samples => {
-                    const content = (samples || []).map(sample => {
+                    const samplesItems = (samples || []).map(sample => {
                         return `
                             <div style="white-space: nowrap">
                                 <a class="link fw-bold" data-action="view-sample" data-sample="${sample.id}">${sample.id}</a>
-                                <span class="text-secondary" title="${sample.somatic ? "Somatic sample" : "Germline sample"}"> (${sample.somatic ? "S" : "G"})</span>
+                                <span class="text-secondary"> (${sample.somatic ? "Somatic" : "Germline"})</span>
                             </div>
                         `;
                     });
-                    return content.join("") || "-";
+                    return GridCommons.generateExpandCollapseContent(samplesItems, 5);
                 },
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
