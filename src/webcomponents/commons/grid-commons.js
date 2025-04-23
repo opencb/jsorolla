@@ -419,9 +419,13 @@ export default class GridCommons {
             const hiddenItemsLength = items.length - maxItems;
             resultHtml = `
                 <div data-role="expand-collapse-content">
-                    ${items.slice(0, maxItems).join("")}
+                    <div class="d-flex flex-column gap-1 mb-1">
+                        ${items.slice(0, maxItems).join("")}
+                    </div>
                     <div data-role="hidden-content" style="display:none">
-                        ${items.slice(maxItems).join("")}
+                        <div class="d-flex flex-column gap-1 mb-1">
+                            ${items.slice(maxItems).join("")}
+                        </div>
                     </div>
                     ${hiddenItemsLength > 0 ? `
                         <div class="mt-1">
