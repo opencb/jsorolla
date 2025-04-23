@@ -20,10 +20,10 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import WebUtils from "../commons/utils/web-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
+import "../sample/sample-view.js";
 import "./file-folder-create.js";
 import "./file-create.js";
 import "./file-upload.js";
@@ -74,6 +74,7 @@ export default class OpencgaFileGrid extends LitElement {
         this.active = true;
         this.lastFilters = null;
         this._selectedFile = null;
+        this._selectedSampleId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -219,6 +220,20 @@ export default class OpencgaFileGrid extends LitElement {
                     </variant-index-operation>
                 `,
             },
+            "view-sample": () => ({
+                display: {
+                    modalTitle: `Sample ${this._selectedSampleId}`,
+                    modalSize: "modal-xl",
+                    modalCyDataName: "sample-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <sample-view
+                        .sampleId="${this._selectedSampleId}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </sample-view>
+                `,
+            }),
         });
     }
 
@@ -435,21 +450,13 @@ export default class OpencgaFileGrid extends LitElement {
                 title: "Samples",
                 field: "sampleIds",
                 formatter: sampleIds => {
-                    let html = "-";
-                    if (sampleIds?.length > 0) {
-                        html = `<div class="text-nowrap">`;
-                        for (let i = 0; i < sampleIds.length; i++) {
-                            // Display first 3 samples
-                            if (i < 3) {
-                                html += `<div style="margin: 2px 0"><span class="">${sampleIds[i]}</span></div>`;
-                            } else {
-                                html += `<a tooltip-title="Samples" tooltip-text='${sampleIds.join("<br>")}'>... view all samples (${sampleIds.length})</a>`;
-                                break;
-                            }
-                        }
-                        html += "</div>";
-                    }
-                    return html;
+                    const samples = (sampleIds || []).map(sampleId => {
+                        return `<a class="link fw-bold" data-action="view-sample" data-sample="${sampleId}">${sampleId}</a>`;
+                    });
+                    return GridCommons.generateExpandCollapseContent(samples, 3);
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("sampleIds")
             },
@@ -570,6 +577,10 @@ export default class OpencgaFileGrid extends LitElement {
                     message: `Do you want to delete the ${file.type === "DIRECTORY" ? "directory" : "file"} <b>${file.name}</b>? This action can not be undone.`,
                     ok: () => this.onDelete(file),
                 });
+                break;
+            case "view-sample":
+                this._selectedSampleId = event.currentTarget.dataset.sample;
+                this.gridCommons.changeActiveModal("view-sample");
                 break;
         }
     }
