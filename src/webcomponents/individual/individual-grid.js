@@ -404,8 +404,8 @@ export default class IndividualGrid extends LitElement {
                 formatter: (individualId, individual) => {
                     const sexHtml = CatalogGridFormatter.sexFormatter(individual.sex, individual);
                     return `
-                        <a class="d-block link fw-bold" data-action="view">${individualId}</a>
-                        <div class="text-secondary">${sexHtml}</div>
+                        <a class="d-block link fw-bold my-1" data-action="view">${individualId}</a>
+                        <div class="text-secondary my-1">${sexHtml}</div>
                     `;
                 },
                 events: {
@@ -421,8 +421,8 @@ export default class IndividualGrid extends LitElement {
                     const samplesItems = (samples || []).map(sample => {
                         return `
                             <div style="white-space: nowrap">
-                                <a class="link fw-bold" data-action="view-sample" data-sample="${sample.id}">${sample.id}</a>
-                                <span class="text-secondary"> (${sample.somatic ? "Somatic" : "Germline"})</span>
+                                <a class="link fw-bold my-1" data-action="view-sample" data-sample="${sample.id}">${sample.id}</a>
+                                <span class="text-secondary my-1"> (${sample.somatic ? "Somatic" : "Germline"})</span>
                             </div>
                         `;
                     });
@@ -432,6 +432,21 @@ export default class IndividualGrid extends LitElement {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("samples")
+            },
+            {
+                id: "family",
+                title: "Family",
+                field: "familyIds",
+                formatter: familyIds => {
+                    const familyItems = (familyIds || []).map(familyId => {
+                        return `<a class="link fw-bold" data-action="view-family" data-family="${familyId}">${familyId}</a>`;
+                    });
+                    return GridCommons.generateExpandCollapseContent(familyItems, 5);
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                visible: this.gridCommons.isColumnVisible("family"),
             },
             {
                 id: "father",
@@ -456,21 +471,6 @@ export default class IndividualGrid extends LitElement {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("mother")
-            },
-            {
-                id: "family",
-                title: "Family",
-                field: "familyIds",
-                formatter: familyIds => {
-                    const familyItems = (familyIds || []).map(familyId => {
-                        return `<a class="link fw-bold" data-action="view" data-family="${familyId}">${familyId}</a>`;
-                    });
-                    return GridCommons.generateExpandCollapseContent(familyItems, 5);
-                },
-                events: {
-                    "click a": (event, value, row) => this.onActionClick(event, row),
-                },
-                visible: this.gridCommons.isColumnVisible("family"),
             },
             {
                 id: "disorders",
@@ -505,9 +505,9 @@ export default class IndividualGrid extends LitElement {
             },
             {
                 id: "creationDate",
-                title: "Creation Date",
+                title: "Modification/Creation Date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
+                formatter: (value, row) => CatalogGridFormatter.modifiedAndCreateDateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
             {

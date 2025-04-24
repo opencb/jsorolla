@@ -51,8 +51,8 @@ export default class JsonViewer extends LitElement {
     #init() {
         this._prefix = UtilsNew.randomString(8);
         this.active = true;
-        this.jsonView = null;
         this.simple = false;
+        this.jsonView = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -101,7 +101,7 @@ export default class JsonViewer extends LitElement {
             ${this.simple ? html`
                 <pre>${JSON.stringify(this.data || {}, null, "    ")}</pre>
             ` : html`
-                ${this.showDownloadButton ? html`
+                ${this._config?.showDownloadButton ? html`
                     <div class="d-flex justify-content-end">
                         <download-button .json="${this.data}"></download-button>
                     </div>
@@ -113,9 +113,9 @@ export default class JsonViewer extends LitElement {
 
     getDefaultConfig() {
         return {
-            showDownloadButton: true,
-            indentation: 4,
             mode: "tree",
+            indentation: 4,
+            showDownloadButton: true,
         };
     }
 

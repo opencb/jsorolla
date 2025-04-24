@@ -182,16 +182,15 @@ export default class CatalogGridFormatter {
     }
 
     static modifiedAndCreateDateFormatter(value, row) {
-        let result = "-";
         if (row) {
-            result = `
+            return `
                 <div class="" title="Version ${row.version}">
                     <span class="my-1">${UtilsNew.dateFormatter(row.modificationDate)}</span>
                     <span class="d-block text-secondary my-1">${UtilsNew.dateFormatter(row.creationDate)}</span>
                 </div>
             `;
         }
-        return result;
+        return "-";
     }
 
     static caseFormatter(clinicalAnalysisArray, row, individualId, opencgaSession) {

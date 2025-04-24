@@ -407,9 +407,9 @@ export default class FamilyGrid extends LitElement {
             },
             {
                 id: "creationDate",
-                title: "Creation Date",
+                title: "Modification/Creation Date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
+                formatter: (value, row) => CatalogGridFormatter.modifiedAndCreateDateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
             {
@@ -437,7 +437,7 @@ export default class FamilyGrid extends LitElement {
         const memberItems = (members || []).map(member => {
             return `
                 <div style="white-space: nowrap">
-                    <a class="fw-bold link" data-action="view-individual" data-individual="${member.id}">${member.id}</a> 
+                    <a class="fw-bold link" data-action="view-individual" data-individual="${member.id}">${member.id}</a>
                     ${member?.sex?.id ? `<span class="text-secondary">(${member.sex.id})</span>` : ""}
                 </div>
             `;

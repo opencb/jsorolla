@@ -603,7 +603,7 @@ export default class VariantBrowserGrid extends LitElement {
                     id: "conservation",
                     title: `
                         <span>Conservation</span>
-                        <a tooltip-title="Conservation" tooltip-text="${VariantGridFormatter.conservationInfoTooltipContent()}"> 
+                        <a tooltip-title="Conservation" tooltip-text="${VariantGridFormatter.conservationInfoTooltipContent()}">
                             <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                         </a>
                     `,
@@ -868,7 +868,7 @@ export default class VariantBrowserGrid extends LitElement {
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item cursor-pointer" data-action="view">
-                        <i class="fas fa-eye me-1"></i> Variant View
+                        <i class="fas fa-eye me-1"></i> View
                     </a>
                     <div class="dropdown-header">External Links</div>
                     <a target="_blank" class="dropdown-item ${row.type !== "SNV" ? "disabled" : ""}" href="${BioinfoUtils.getVariantLink(row.id, variantPosition, "decipher")}">

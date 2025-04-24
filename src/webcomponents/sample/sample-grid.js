@@ -217,6 +217,21 @@ export default class SampleGrid extends LitElement {
                     </individual-view>
                 `,
             }),
+            "view-clinical-analysis": () => ({
+                display: {
+                    modalTitle: `Clinical Analysis ${this._selectedClinicalAnalysisId}`,
+                    modalSize: "modal-xl",
+                    modalCyDataName: "clinical-analysis-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <clinical-analysis-view
+                        .clinicalAnalysisId="${this._selectedClinicalAnalysisId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-analysis-view>
+                `,
+            }),
         });
     }
 
@@ -386,7 +401,7 @@ export default class SampleGrid extends LitElement {
         this._columns = [
             {
                 id: "id",
-                title: "Sample ID",
+                title: "Sample",
                 field: "id",
                 formatter: (sampleId, sample) => {
                     let somaticHtml = "";
@@ -417,9 +432,9 @@ export default class SampleGrid extends LitElement {
             },
             {
                 id: "fileIds",
-                title: "Files (BAM and VCF)",
+                title: "BAM/VCF Files",
                 field: "fileIds",
-                formatter: fileIds => CatalogGridFormatter.fileFormatter(fileIds, ["vcf", "vcf.gz", "bam"]),
+                formatter: fileIds => CatalogGridFormatter.fileFormatter(fileIds, ["bam", "cram", "vcf", "vcf.gz", "gvcf", "gvcf.gz"]),
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
@@ -429,9 +444,10 @@ export default class SampleGrid extends LitElement {
                 id: "caseId",
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
-                width: "10",
-                widthUnit: "%",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
@@ -543,6 +559,10 @@ export default class SampleGrid extends LitElement {
             case "view-individual":
                 this._selectedIndividualId = event.currentTarget.dataset.individual;
                 this.gridCommons.changeActiveModal("view-individual");
+                break;
+            case "view-clinical-analysis":
+                this._selectedClinicalAnalysisId = event.currentTarget?.dataset?.clinicalAnalysis;
+                this.gridCommons.changeActiveModal("view-clinical-analysis");
                 break;
         }
     }
