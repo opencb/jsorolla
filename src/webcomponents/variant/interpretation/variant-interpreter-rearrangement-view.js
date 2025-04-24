@@ -127,9 +127,9 @@ export default class VariantInterpreterRearrangementView extends LitElement {
                 {
                     id: "notes-variant1",
                     name: "Variant 1 Notes",
-                    render: (variants, active, opencgaSession) => html`
+                    render: (variants, active) => html`
                         <variant-notes
-                            .opencgaSession="${opencgaSession}"
+                            .opencgaSession="${this.opencgaSession}"
                             .variant="${variants?.[0]}"
                             .active="${active}">
                         </variant-notes>
