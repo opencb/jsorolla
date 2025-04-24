@@ -661,20 +661,6 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 6,
                     align: "center"
                 },
-                // {
-                //     id: "select",
-                //     title: "Select",
-                //     rowspan: 2,
-                //     colspan: 1,
-                //     formatter: (value, row) => this.checkFormatter(value, row),
-                //     align: "center",
-                //     events: {
-                //         "click input": event => this.onCheck(event),
-                //     },
-                //     visible: this._config.showSelectCheckbox,
-                //     excludeFromSettings: true,
-                //     excludeFromExport: true,
-                // },
                 {
                     id: "actions",
                     rowspan: 2,
