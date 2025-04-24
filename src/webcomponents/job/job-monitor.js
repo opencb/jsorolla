@@ -162,7 +162,7 @@ export class JobMonitor extends LitElement {
     }
 
     getJobUrl(jobId) {
-        return `#job/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${jobId}`;
+        return `#catalog/job-browser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${jobId}`;
     }
 
     onRefresh(event) {
