@@ -1132,11 +1132,9 @@ export default class VariantInterpreterGrid extends LitElement {
                 // CustomActions.get(copy).execute(variant, showConsequenceTypes)
                 if (copy.execute || CustomActions.exists(copy)) {
                     copiesHtml = `
-                        <li>
-                            <a href="javascript: void 0" class="dropdown-item" data-action="${copy.id}">
-                                <i class="fas fa-copy" aria-hidden="true" alt="${copy.description}"></i> ${copy.name}
-                            </a>
-                        </li>
+                        <a class="dropdown-item cursor-pointer" data-action="${copy.id}">
+                            <i class="fas fa-copy" aria-hidden="true" alt="${copy.description}"></i> ${copy.name}
+                        </a>
                     `;
                 }
             }
@@ -1144,77 +1142,56 @@ export default class VariantInterpreterGrid extends LitElement {
 
         const reviewId = `${this._prefix}${row.id}VariantReviewActionButton`;
         const reviewDisabled = (!this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+        const position = row.chromosome + ":" + row.start + "-" + row.end;
 
         return `
             <div class="dropdown">
                 <button class="btn" data-bs-toggle="dropdown">
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a id="${reviewId}" href="javascript: void 0" class="dropdown-item reviewButton ${reviewDisabled}" data-action="edit">
-                            <i class="fas fa-edit me-1 reviewButton" aria-hidden="true"></i> Edit ...
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li class="dropdown-header">External Links</li>
-                    <li>
-                        <a target="_blank" class="dropdown-item"
-                                href="${BioinfoUtils.getVariantLink(row.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || row.id, row.chromosome + ":" + row.start + "-" + row.end, "decipher")}">
-                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Decipher
-                        </a>
-                    </li>
-                    <li data-cy="varsome-variant-link">
-                        <a target="_blank" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""}
-                            href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
-                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Varsome
-                        </a>
-                    </li>
-                    <li class="dropdown-header">CellBase Links</li>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a id="${reviewId}" class="dropdown-item reviewButton ${reviewDisabled} cursor-pointer" data-action="edit">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </a>
+                    <hr class="dropdown-divider">
+                    <div class="dropdown-header">External Links</div>
+                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || row.id, position, "decipher")}">
+                        <i class="fas fa-external-link-alt me-1"></i> Decipher
+                    </a>
+                    <a target="_blank" class="dropdown-item" ${row.type === "COPY_NUMBER" ? "disabled" : ""} href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
+                        <i class="fas fa-external-link-alt me-1"></i> Varsome
+                    </a>
+                    <div class="dropdown-header">CellBase Links</div>
                     ${["v5.2", "v5.8"].map(v => `
-                    <li>
-                        <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`)}">
-                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i>
-                            CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}
+                        <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, position, `CELLBASE_${v}`)}">
+                            <i class="fas fa-external-link-alt me-1"></i>
+                            <span>CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}</span>
                         </a>
-                    </li>
                     `).join("")}
-                    <li class="dropdown-header">External Genome Browsers</li>
-                    <li>
-                        <a target="_blank" class="dropdown-item"
-                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.assembly)}">
-                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Ensembl Genome Browser
-                        </a>
-                    </li>
-                    <li>
-                        <a target="_blank" class="dropdown-item"
-                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ucsc_genome_browser")}">
-                            <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> UCSC Genome Browser
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li class="dropdown-header">Fetch Variant</li>
-                    <li>
-                        <a href="javascript: void 0" class="dropdown-item" data-action="copy-json">
-                            <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
-                        </a>
-                    </li>
-                    <li>
-                        <a href="javascript: void 0" class="dropdown-item" data-action="download">
-                            <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
-                        </a>
-                    </li>
-                    <li data-cy="varsome-copy">
-                        <a href="javascript: void 0" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
-                            <i class="fas fa-download me-1" aria-hidden="true"></i> Copy Varsome ID
-                        </a>
-                    </li>
+                    <div class="dropdown-header">External Genome Browsers</div>
+                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, position, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.assembly)}">
+                        <i class="fas fa-external-link-alt me-1"></i> Ensembl Genome Browser
+                    </a>
+                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, position, "ucsc_genome_browser")}">
+                        <i class="fas fa-external-link-alt me-1"></i> UCSC Genome Browser
+                    </a>
+                    <hr class="dropdown-divider">
+                    <div class="dropdown-header">Fetch Variant</div>
+                    <a class="dropdown-item cursor-pointer" data-action="copy-json">
+                        <i class="fas fa-copy me-1"></i> Copy JSON
+                    </a>
+                    <a class="dropdown-item cursor-pointer" data-action="download">
+                        <i class="fas fa-download me-1"></i> Download JSON
+                    </a>
+                    <a class="dropdown-item cursor-pointer" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
+                        <i class="fas fa-download me-1"></i> Copy Varsome ID
+                    </a>
                     ${copiesHtml ? `
-                        <li><hr class="dropdown-divider"></li>
-                        <li class="dropdown-header">Custom Copy</li>
+                        <hr class="dropdown-divider">
+                        <div class="dropdown-header">Custom Copy</div>
                         ${copiesHtml}
                     ` : ""}
-                </ul>
+                </div>
             </div>
         `;
     }
