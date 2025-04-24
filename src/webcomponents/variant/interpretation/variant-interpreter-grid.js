@@ -93,13 +93,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // Keep the status of selected variants
         this.queriedVariants = {};
-
-        this.displayConfigDefault = {
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom",
-            },
-        };
     }
 
     update(changedProperties) {
@@ -586,7 +579,8 @@ export default class VariantInterpreterGrid extends LitElement {
                                     rowspan: 1,
                                     colspan: 1,
                                     formatter: this.vcfDataFormatter,
-                                    halign: this.displayConfigDefault.header.horizontalAlign,
+                                    align: "center",
+                                    halign: "center",
                                     excludeFromSettings: true,
                                     visible: !this._config.hideVcfFileData,
                                 });
@@ -617,8 +611,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
-                    halign: this.displayConfigDefault.header.horizontalAlign,
-                    // sortable: true
                     visible: this.gridCommons.isColumnVisible("id"),
                 },
                 {
@@ -628,7 +620,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: VariantGridFormatter.typeFormatter.bind(this),
-                    halign: this.displayConfigDefault.header.horizontalAlign,
                     visible: !this._config.hideType && this.gridCommons.isColumnVisible("type"),
                 },
                 {
@@ -638,7 +629,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession, this._config),
-                    halign: this.displayConfigDefault.header.horizontalAlign,
                     visible: this.gridCommons.isColumnVisible("gene"),
                 },
                 {
@@ -647,7 +637,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => VariantGridFormatter.hgvsFormatter(row, this._config),
-                    halign: this.displayConfigDefault.header.horizontalAlign,
                     visible: this.gridCommons.isColumnVisible("hgvs"),
                 },
                 {
@@ -657,25 +646,21 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, this?.query?.ct, this._config),
-                    halign: this.displayConfigDefault.header.horizontalAlign,
                     visible: this.gridCommons.isColumnVisible("consequenceType"),
                 },
                 {
                     id: "deleteriousness",
-                    title: `Deleteriousness <a tooltip-title="Deleteriousness" tooltip-text="SIFT scores are classified into tolerated and deleterious.
-                        Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly & probably damaging.
-                        Please, leave the cursor over each tag to visualize the actual score value.
-                        SIFT score takes values in the range [0, infinite[, the lower the values, the more damaging the prediction.
-                        Polyphen score takes values in the range [0, 1[, the closer to 2, the more damaging the prediction.
-                        CADD is a tool for scoring the deleteriousness of single nucleotide variants in the human genome.
-                        C-scores strongly correlate with allelic diversity, pathogenicity of both coding and non-coding variants,
-                        and experimentally measured regulatory effects, and also highly rank causal variants within individual genome sequences.
-                        SpliceAI: a deep learning-based tool to identify splice variants.">
-                        <i class="fa fa-info-circle text-primary" aria-hidden="true"></i></a>`,
+                    title: `
+                        <span>Deleteriousness</span>
+                        <a tooltip-title="Deleteriousness" tooltip-text="${VariantGridFormatter.deleteriousnessInfoTooltipContent()}">
+                            <i class="fa fa-info-circle text-primary"></i>
+                        </a>
+                    `,
                     field: "deleteriousness",
                     rowspan: 1,
                     colspan: 5,
-                    align: "center"
+                    align: "center",
+                    halign: "center",
                 },
                 {
                     id: "evidences",
@@ -684,7 +669,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: VariantInterpreterGridFormatter.roleInCancerFormatter.bind(this),
-                    halign: this.displayConfigDefault.header.horizontalAlign,
                     visible: this.clinicalAnalysis.type?.toUpperCase() === "CANCER" && this.gridCommons.isColumnVisible("evidences"),
                     excludeFromSettings: !(this.clinicalAnalysis.type?.toUpperCase() === "CANCER"),
                 },
@@ -693,7 +677,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     title: "VCF File Data: " + vcfDataColumnNames.join(", "),
                     rowspan: 1,
                     colspan: vcfDataColumns?.length,
-                    halign: this.displayConfigDefault.header.horizontalAlign,
+                    halign: "center",
                 },
                 {
                     id: "cohort",
@@ -703,19 +687,17 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     align: "center",
                     formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
-                    // visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY",
                     visible: this.gridCommons.isColumnVisible("cohort"),
                 },
                 {
                     id: "populationFrequencies",
                     columnTitle: "Reference Population Frequencies",
-                    title: `Reference <br> Population <br> Frequencies
-                        <a class="pop-preq-info-icon"
-                            tooltip-title="Reference Population Frequencies"
-                            tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(POPULATION_FREQUENCIES)}"
-                            tooltip-position-at="left bottom" tooltip-position-my="right top">
-                            <i class="fa fa-info-circle" aria-hidden="true"></i>
-                        </a>`,
+                    title: `
+                        <span>Reference<br>Population Frequencies</span>
+                        <a tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(POPULATION_FREQUENCIES)}">
+                            <i class="fa fa-info-circle text-primary"></i>
+                        </a>
+                    `,
                     field: "populationFrequencies",
                     rowspan: 2,
                     colspan: 1,
@@ -727,15 +709,12 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "clinicalInfo",
-                    title: `Clinical Info <a id="phenotypesInfoIcon" tooltip-title="Phenotypes" tooltip-text="
-                                <div>
-                                    <span class='fw-bold'>ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations
-                                    and phenotypes, with supporting evidence.
-                                </div>
-                                <div style='padding-top: 10px'>
-                                    <span class='fw-bold'>COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
-                                </div>"
-                            tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    title: `
+                        <span>Clinical Info</span>
+                        <a tooltip-title="Clinical Info" tooltip-text="${VariantGridFormatter.clinicalInfoTooltipContent()}" tooltip-position-my="right top">
+                            <i class="fa fa-info-circle text-primary"></i>
+                        </a>
+                    `,
                     rowspan: 1,
                     colspan: 6,
                     align: "center"
@@ -745,22 +724,18 @@ export default class VariantInterpreterGrid extends LitElement {
                     title: "Methods",
                     rowspan: 1,
                     colspan: 1,
-                    halign: this.displayConfigDefault.header.horizontalAlign,
                 },
                 {
                     id: "interpretation",
-                    title: `Interpretation
-                        <a class='interpretation-info-icon'
-                            tooltip-title='Interpretation'
-                            tooltip-text="<span class='fw-bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations"
-                            tooltip-position-at="left bottom"
-                            tooltip-position-my="right top">
-                            <i class='fa fa-info-circle' aria-hidden='true'></i>
-                        </a>`,
+                    title: `
+                        <span>Interpretation</span>
+                        <a tooltip-title="Interpretation" tooltip-text="${VariantGridFormatter.interpretationInfoTooltipContent()}" tooltip-position-my="right top">
+                            <i class="fa fa-info-circle text-primary"></i>
+                        </a>
+                    `,
                     field: "interpretation",
                     rowspan: 1,
                     colspan: 4,
-                    halign: this.displayConfigDefault.header.horizontalAlign,
                 },
                 {
                     id: "actions",
@@ -874,8 +849,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     },
                     visible: this._config?.showActions,
                     excludeFromSettings: true,
-                    excludeFromExport: true // this is used in opencga-export
-                    // visible: this._config.showActions && !this._config?.columns?.hidden?.includes("actions")
+                    excludeFromExport: true,
                 },
             ],
             [
@@ -906,7 +880,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: (value, row) => VariantGridFormatter.revelProteinScoreFormatter(value, row),
-                    halign: "center",
+                    align: "center",
                     visible: this.gridCommons.isColumnVisible("revel", "deleteriousness")
                 },
                 {
@@ -916,8 +890,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: (value, row) => VariantGridFormatter.caddScaledFormatter(value, row),
-                    align: "right",
-                    halign: this.displayConfigDefault.header.horizontalAlign,
+                    align: "center",
                     visible: !this._config.hideDeleteriousness && this.gridCommons.isColumnVisible("cadd", "deleteriousness"),
                     excludeFromSettings: this._config.hideDeleteriousness,
                     excludeFromExport: this._config.hideDeleteriousness,
@@ -929,8 +902,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: (value, row) => VariantGridFormatter.spliceAIFormatter(value, row),
-                    align: "right",
-                    halign: this.displayConfigDefault.header.horizontalAlign,
+                    align: "center",
                     visible: !this._config.hideDeleteriousness && this.gridCommons.isColumnVisible("spliceai", "deleteriousness"),
                     excludeFromSettings: this._config.hideDeleteriousness,
                     excludeFromExport: this._config.hideDeleteriousness,

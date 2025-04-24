@@ -1627,4 +1627,10 @@ export default class VariantGridFormatter {
         `;
     }
 
+    static interpretationInfoTooltipContent() {
+        return `
+            <span class='fw-bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations.
+        `;
+    }
+
 }
