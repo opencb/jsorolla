@@ -203,10 +203,9 @@ export default class VariantInterpreterGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "table-light",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._getDefaultColumns(),
-                method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
@@ -389,9 +388,8 @@ export default class VariantInterpreterGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            theadClasses: "table-light",
+            classes: "table table-borderless table-hover table-grid",
             buttonsClass: "light",
-            // data: this.clinicalVariants,
             columns: this._getDefaultColumns(),
             sidePagination: "server",
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
