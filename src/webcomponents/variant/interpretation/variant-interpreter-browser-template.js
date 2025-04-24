@@ -416,19 +416,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 </variant-browser-filter>
 
                 <div id="table-view" class="${this.activeView === "table" ? "d-block" : "d-none"}">
-                    <!-- Interpreter browser toolbar -->
-                    <!--
-                    <variant-interpreter-browser-toolbar
-                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                        .state="${this.clinicalAnalysisManager.state}"
-                        .variantInclusionState="${this.variantInclusionState || []}"
-                        .write="${OpencgaCatalogUtils.getStudyEffectivePermission(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS", this.opencgaSession.organization?.configuration?.optimizations?.simplifyPermissions)}"
-                        @filterVariants="${this.onFilterVariants}"
-                        @resetVariants="${this.onResetVariants}"
-                        @saveInterpretation="${this.onSaveVariants}">
-                    </variant-interpreter-browser-toolbar>
-                    -->
-
                     ${!this._config.filter.result.grid.isRearrangement ? html`
                         <variant-interpreter-grid
                             .toolId="${this.toolId}"
@@ -461,14 +448,14 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     }
                     <!-- Bottom tabs with detailed variant information -->
                     ${this.variant ? html`
-                        <variant-interpreter-detail
+                        <variant-interpreter-view
                             .opencgaSession="${this.opencgaSession}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .toolId="${this.toolId}"
                             .variant="${this.variant}"
                             .cellbaseClient="${this.cellbaseClient}"
                             .config="${this._config.filter.detail}">
-                        </variant-interpreter-detail>
+                        </variant-interpreter-view>
                     ` : nothing}
                 </div>
                 <!-- Genome browser view -->
