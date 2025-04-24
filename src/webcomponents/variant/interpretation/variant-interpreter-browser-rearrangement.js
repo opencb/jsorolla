@@ -400,56 +400,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         variantTypes: ["BREAKEND"],
                     }
                 },
-                detail: {
-                    title: variants => {
-                        return `Selected Variants: ${variants?.[0]?.id} - ${variants?.[1]?.id}`;
-                    },
-                    showTitle: true,
-                    items: [
-                        {
-                            id: "notes-variant1",
-                            name: "Variant 1 Notes",
-                            render: (variants, active, opencgaSession) => html`
-                                <variant-notes
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variants?.[0]}"
-                                    .active="${active}">
-                                </variant-notes>
-                            `,
-                        },
-                        {
-                            id: "notes-variant2",
-                            name: "Variant 2 Notes",
-                            render: (variants, active, opencgaSession) => html`
-                                <variant-notes
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variants?.[1]}"
-                                    .active="${active}">
-                                </variant-notes>
-                            `,
-                        },
-                        {
-                            id: "json-view-variant1",
-                            name: "Variant 1 JSON Data",
-                            render: (variants, active) => html`
-                                <json-viewer
-                                    .data="${variants?.[0]}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        },
-                        {
-                            id: "json-view-variant2",
-                            name: "Variant 2 JSON Data",
-                            render: (variants, active) => html`
-                                <json-viewer
-                                    .data="${variants?.[1]}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        },
-                    ]
-                }
             },
             aggregation: {},
             genomeBrowser: {
