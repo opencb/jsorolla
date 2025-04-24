@@ -23,7 +23,7 @@ import WebUtils from "../../commons/utils/web-utils.js";
 import Region from "../../../core/bioinfo/region.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
-import "./variant-interpreter-detail.js";
+import "./variant-interpreter-view.js";
 import "../variant-browser-filter.js";
 import "../../commons/tool-header.js";
 import "../../commons/interpreter-ai.js";

@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-rearrangement-grid.js";
-import "./variant-interpreter-detail.js";
+import "./variant-interpreter-view.js";
 import "../../clinical/interpretation/clinical-interpretation-view.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
 import NotificationUtils from "../../commons/utils/notification-utils";
