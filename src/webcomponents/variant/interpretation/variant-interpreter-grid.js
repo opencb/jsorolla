@@ -20,15 +20,16 @@ import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatte
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
 import VariantUtils from "../variant-utils.js";
-import "./variant-interpreter-grid-config.js";
-import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
-import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
-import "../../commons/opencb-grid-toolbar.js";
-import "../../loading-spinner.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import CustomActions from "../../commons/custom-actions";
+import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
+import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
+import "../../commons/opencb-grid-toolbar.js";
+import "../../loading-spinner.js";
+import "./variant-interpreter-grid-config.js";
+import "./variant-interpreter-view.js";
 
 export default class VariantInterpreterGrid extends LitElement {
 
@@ -73,9 +74,11 @@ export default class VariantInterpreterGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "";
+        this.RESOURCE = "CLINICAL_VARIANT";
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
         this._rows = [];
+        this._selectedVariant = null;
 
         this.toolbarConfig = {};
         this.toolbarSetting = {};
@@ -162,10 +165,29 @@ export default class VariantInterpreterGrid extends LitElement {
         // 4. Set toolbar config
         this.toolbarConfig = {
             toolId: this.toolId,
-            resource: "CLINICAL_VARIANT",
+            resource: this.RESOURCE,
             showInterpreterConfig: true,
             columns: this._getDefaultColumns()
         };
+
+        // Register modals
+        this.gridCommons.registerModals({
+            "view-variant": () => ({
+                display: {
+                    modalTitle: `Variant ${this._selectedVariant.id}`,
+                    modalCyDataName: `modal-file-view`,
+                    modalSize: "modal-2xl",
+                },
+                render: () => html`
+                    <variant-interpreter-view
+                        .opencgaSession="${this.opencgaSession}"
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                        .toolId="${this.toolId}"
+                        .variant="${this._selectedVariant}">
+                    </variant-interpreter-view>
+                `,
+            }),
+        });
     }
 
     onColumnChange(e) {
@@ -309,7 +331,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onDblClickRow: (row, element) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
@@ -419,7 +441,7 @@ export default class VariantInterpreterGrid extends LitElement {
             loadingTemplate: () => GridCommons.loadingFormatter(),
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: this,
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onDblClickRow: (row, element) => {
                 // We detail view is active we expand the row automatically.
                 // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
@@ -610,7 +632,12 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
+                    formatter: (value, row, index) => {
+                        return VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config);
+                    },
+                    events: {
+                        "click a": (event, value, row) => this.onActionClick(event, row),
+                    },
                     visible: this.gridCommons.isColumnVisible("id"),
                 },
                 {
@@ -746,7 +773,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: (value, row) => this.actionsFormatter(value, row),
                     align: "center",
                     events: {
-                        "click a": (e, value, row) => this.onActionClick(e, value, row)
+                        "click a": (event, value, row) => this.onActionClick(event, row)
                     },
                     visible: this._config?.showActions,
                     excludeFromSettings: true,
@@ -1093,7 +1120,7 @@ export default class VariantInterpreterGrid extends LitElement {
         return _columns;
     }
 
-    actionFormatter(value, row) {
+    actionsFormatter(value, row) {
         let copiesHtml = "";
         if (this._config.copies) {
             for (const copy of this._config.copies) {
@@ -1195,13 +1222,17 @@ export default class VariantInterpreterGrid extends LitElement {
         `;
     }
 
-    onActionClick(e, value, row) {
-        const action = e.target.dataset.action?.toLowerCase();
+    onActionClick(event, variant) {
+        const action = event.currentTarget?.dataset?.action?.toLowerCase();
         switch (action) {
+            case "view":
+                this._selectedVariant = variant;
+                this.gridCommons.changeActiveModal("view-variant");
+                break;
             case "edit":
                 if (this.checkedVariants) {
                     // Generate a clone of the variant review to prevent changing original values
-                    this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(row.id));
+                    this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(variant.id));
                     this.requestUpdate();
                     const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
                     UtilsNew.draggableModal(document, modalElm);
@@ -1211,16 +1242,16 @@ export default class VariantInterpreterGrid extends LitElement {
                 }
                 break;
             case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
+                UtilsNew.copyToClipboard(JSON.stringify(variant, null, "\t"));
                 break;
             case "download":
-                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                UtilsNew.downloadData([JSON.stringify(variant, null, "\t")], variant.id + ".json");
                 break;
             case "copy-varsome-id":
                 // Note: varsome format is disabled for copy_number variants
                 // See https://app.clickup.com/t/36631768/TASK-3902
-                if (row.type !== "COPY_NUMBER") {
-                    const varsomeId = BioinfoUtils.getVariantInVarsomeFormat(row.id);
+                if (variant.type !== "COPY_NUMBER") {
+                    const varsomeId = BioinfoUtils.getVariantInVarsomeFormat(variant.id);
                     UtilsNew.copyToClipboard(varsomeId);
                 }
                 break;
@@ -1228,15 +1259,15 @@ export default class VariantInterpreterGrid extends LitElement {
                 const copy = this._config.copies.find(copy => copy.id.toLowerCase() === action);
                 if (copy) {
                     // Sort and group CTs by Gene name
-                    BioinfoUtils.sort(row.evidences, v => v.genomicFeature?.geneName);
+                    BioinfoUtils.sort(variant.evidences, v => v.genomicFeature?.geneName);
 
                     // we need to prepare evidences to be filtered properly,
                     // the easiest way is to recycle the existing function 'consequenceTypeDetailFormatterFilter',
                     // so we need to add consequenceType information
                     const transcriptMap = new Map();
-                    row.annotation.consequenceTypes.forEach(ct => transcriptMap.set(ct.transcriptId, ct));
+                    variant.annotation.consequenceTypes.forEach(ct => transcriptMap.set(ct.transcriptId, ct));
                     const newEvidences = [];
-                    row.evidences.forEach((evidence, index) => {
+                    variant.evidences.forEach((evidence, index) => {
                         // we are missing regulatory variants
                         if (evidence.genomicFeature?.transcriptId) {
                             const newEvidence = {
@@ -1248,7 +1279,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         }
                     });
                     const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(newEvidences, this._config).indexes;
-                    UtilsNew.copyToClipboard(CustomActions.get(copy).execute(row, showArrayIndexes));
+                    UtilsNew.copyToClipboard(CustomActions.get(copy).execute(variant, showArrayIndexes));
                 }
                 break;
         }
@@ -1562,6 +1593,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     </div>
                 </div>
             </div>
+
+            ${this.gridCommons.renderModals()}
         `;
     }
 
