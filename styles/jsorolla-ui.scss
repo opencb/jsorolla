@@ -128,6 +128,11 @@ body {
     border-radius: 0;
 }
 
+// additional modal sizes
+.modal-2xl {
+    --bs-modal-width: 1400px;
+}
+
 // table for grids styles
 .table-grid {
     border-collapse: separate;
