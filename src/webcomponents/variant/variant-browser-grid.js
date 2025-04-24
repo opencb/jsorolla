@@ -867,9 +867,16 @@ export default class VariantBrowserGrid extends LitElement {
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item cursor-pointer" data-action="view">
+                    <a data-action="view" class="dropdown-item cursor-pointer">
                         <i class="fas fa-eye me-1"></i> View
                     </a>
+                    <a data-action="copy-json" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-copy me-1"></i> Copy JSON
+                    </a>
+                    <a data-action="download-json" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-download me-1"></i> Download JSON
+                    </a>
+                    <div class="dropdown-divider"></div>
                     <div class="dropdown-header">External Links</div>
                     <a target="_blank" class="dropdown-item ${row.type !== "SNV" ? "disabled" : ""}" href="${BioinfoUtils.getVariantLink(row.id, variantPosition, "decipher")}">
                         <i class="fas fa-external-link-alt me-1"></i> Decipher
@@ -899,14 +906,6 @@ export default class VariantBrowserGrid extends LitElement {
                     <a class="dropdown-item ${row.type === "COPY_NUMBER" ? "disabled" : "cursor-pointer"}" data-action="copy-varsome-id">
                         <i class="fas fa-download me-1"></i> Copy Varsome ID
                     </a>
-                    <div class="dropdown-divider"></div>
-                    <div class="dropdown-header">Fetch Variant</div>
-                    <a class="dropdown-item cursor-pointer" data-action="copy-json">
-                        <i class="fas fa-copy me-1"></i> Copy JSON
-                    </a>
-                    <a class="dropdown-item cursor-pointer" data-action="download">
-                        <i class="fas fa-download me-1"></i> Download JSON
-                    </a>
                 </div>
             </div>
         `;
@@ -932,7 +931,7 @@ export default class VariantBrowserGrid extends LitElement {
             case "copy-json":
                 navigator.clipboard.writeText(JSON.stringify(variant, null, "\t"));
                 break;
-            case "download":
+            case "download-json":
                 UtilsNew.downloadData([JSON.stringify(variant, null, "\t")], variant.id + ".json");
                 break;
             case "copy-varsome-id":
