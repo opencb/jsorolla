@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import ExtensionsManager from "../../extensions-manager.js";
-import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
-import "../annotation/cellbase-variantannotation-view.js";
+import "../../commons/forms/data-form.js";
+import "../../commons/json-viewer.js";
+import "../../visualization/protein-lollipop-variant-view.js";
+import "../annotation/cellbase-variant-annotation-summary.js";
+import "../annotation/cellbase-population-frequency-grid.js";
 import "../annotation/variant-consequence-type-view.js";
 import "../annotation/variant-annotation-clinical-view.js";
+import "../annotation/variant-annotation-pharmacogenomics-view.js";
 import "../opencga-variant-file-metrics.js";
 import "../variant-beacon-network.js";
+import "../variant-cohort-stats.js";
 import "../variant-samples.js";
+import "../variant-notes.js";
 import "./exomiser/variant-interpreter-exomiser-view.js";
-import "../../commons/view/detail-tabs.js";
-import "../../visualization/protein-lollipop-variant-view.js";
 
 export default class VariantInterpreterView extends LitElement {
 
@@ -56,7 +60,7 @@ export default class VariantInterpreterView extends LitElement {
             variantId: {
                 type: String
             },
-            config: {
+            displayConfig: {
                 type: Object
             }
         };
@@ -66,7 +70,6 @@ export default class VariantInterpreterView extends LitElement {
         this.COMPONENT_ID = "";
         this._variant = null;
         this._config = this.getDefaultConfig();
-        this.#updateDetailTabs();
     }
 
     update(changedProperties) {
@@ -82,12 +85,8 @@ export default class VariantInterpreterView extends LitElement {
             this.variantObserver();
         }
 
-        if (changedProperties.has("config") || changedProperties.has("toolId")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
-            this.#updateDetailTabs();
+        if (changedProperties.has("displayConfig") || changedProperties.has("toolId")) {
+            this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
@@ -113,39 +112,32 @@ export default class VariantInterpreterView extends LitElement {
 
     variantObserver() {
         this._variant = UtilsNew.objectClone(this.variant);
-        this.requestUpdate();
-    }
-
-    #updateDetailTabs() {
-        this._config.items = [
-            ...this._config.items,
-            ...ExtensionsManager.getViews(this.COMPONENT_ID),
-        ];
     }
 
     render() {
-        if (!this.opencgaSession) {
-            return "";
+        if (!this.opencgaSession || !this._variant) {
+            return nothing;
         }
 
         return html`
-            <detail-tabs
+            <data-form
                 .data="${this._variant}"
                 .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>
+            </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            title: "Selected Variant: ",
-            showTitle: true,
-            items: [
+            display: {
+                type: "tabs",
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
+            sections: [
                 {
                     id: "annotationSummary",
                     name: "Summary",
-                    active: true,
                     render: variant => html`
                         <cellbase-variant-annotation-summary
                             .variantAnnotation="${variant?.annotation}"
@@ -178,30 +170,41 @@ export default class VariantInterpreterView extends LitElement {
                 {
                     id: "annotationClinical",
                     name: "Clinical",
-                    render: variant => html`
+                    render: (variant, active) => html`
                         <variant-annotation-clinical-view
                             .traitAssociation="${variant?.annotation?.traitAssociation}"
-                            .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}">
+                            .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}"
+                            .active="${active}">
                         </variant-annotation-clinical-view>
+                    `,
+                },
+                {
+                    id: "annotationPharmacogenomics",
+                    name: "Pharmacogenomics",
+                    render: variant => html`
+                        <variant-annotation-pharmacogenomics-view
+                            .pharmacogenomics="${variant?.annotation?.pharmacogenomics}">
+                        </variant-annotation-pharmacogenomics-view>
                     `,
                 },
                 {
                     id: "fileMetrics",
                     name: "File Metrics",
-                    render: (variant, _active, opencgaSession) => html`
+                    render: (variant, active) => html`
                         <opencga-variant-file-metrics
-                            .opencgaSession="${opencgaSession}"
+                            .opencgaSession="${this.opencgaSession}"
                             .variant="${variant}"
-                            .files="${this.clinicalAnalysis}">
+                            .files="${this.clinicalAnalysis}"
+                            .active="${active}">
                         </opencga-variant-file-metrics>
                     `,
                 },
                 {
                     id: "cohortStats",
                     name: "Cohort Stats",
-                    render: (variant, active, opencgaSession) => html`
+                    render: (variant, active) => html`
                         <variant-cohort-stats
-                            .opencgaSession="${opencgaSession}"
+                            .opencgaSession="${this.opencgaSession}"
                             .variantId="${variant?.id}"
                             .active="${active}">
                         </variant-cohort-stats>
@@ -210,20 +213,31 @@ export default class VariantInterpreterView extends LitElement {
                 {
                     id: "samples",
                     name: "Samples",
-                    render: (variant, active, opencgaSession) => html`
+                    render: (variant, active) => html`
                         <variant-samples
-                            .opencgaSession="${opencgaSession}"
+                            .opencgaSession="${this.opencgaSession}"
                             .variantId="${variant?.id}"
                             .active="${active}">
                         </variant-samples>
                     `,
                 },
                 {
+                    id: "notes",
+                    name: "Notes",
+                    render: (variant, active) => html`
+                        <variant-notes
+                            .opencgaSession="${this.opencgaSession}"
+                            .variant="${variant}"
+                            .active="${active}">
+                        </variant-notes>
+                    `,
+                },
+                {
                     id: "protein",
                     name: "Protein",
-                    render: (variant, active, opencgaSession) => html`
+                    render: (variant, active) => html`
                         <protein-lollipop-variant-view
-                            .opencgaSession="${opencgaSession}"
+                            .opencgaSession="${this.opencgaSession}"
                             .variant="${variant}"
                             .active="${active}">
                         </protein-lollipop-variant-view>
@@ -232,10 +246,10 @@ export default class VariantInterpreterView extends LitElement {
                 {
                     id: "beacon",
                     name: "Beacon",
-                    render: (variant, active, opencgaSession) => html`
+                    render: (variant, active) => html`
                         <variant-beacon-network
                             .variant="${variant?.id}"
-                            .assembly="${opencgaSession.project.organism.assembly}"
+                            .assembly="${this.opencgaSession.project.organism.assembly}"
                             .config="${this.beaconConfig}"
                             .active="${active}">
                         </variant-beacon-network>
@@ -258,9 +272,13 @@ export default class VariantInterpreterView extends LitElement {
                     id: "json-view",
                     name: "JSON Data",
                     render: (variant, active) => html`
-                        <json-viewer .data="${variant}" .active="${active}"></json-viewer>
+                        <json-viewer
+                            .data="${variant}"
+                            .active="${active}">
+                        </json-viewer>
                     `,
                 },
+                ...ExtensionsManager.getViews(this.COMPONENT_ID),
             ],
         };
     }
