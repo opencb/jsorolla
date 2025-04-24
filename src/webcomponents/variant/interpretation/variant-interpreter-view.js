@@ -28,7 +28,7 @@ import "./exomiser/variant-interpreter-exomiser-view.js";
 import "../../commons/view/detail-tabs.js";
 import "../../visualization/protein-lollipop-variant-view.js";
 
-export default class VariantInterpreterDetail extends LitElement {
+export default class VariantInterpreterView extends LitElement {
 
     constructor() {
         super();
@@ -71,7 +71,7 @@ export default class VariantInterpreterDetail extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("toolId") && this.toolId) {
-            this.COMPONENT_ID = this.toolId + "-detail";
+            this.COMPONENT_ID = this.toolId + "-view";
         }
 
         if (changedProperties.has("variantId")) {
@@ -267,4 +267,4 @@ export default class VariantInterpreterDetail extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-detail", VariantInterpreterDetail);
+customElements.define("variant-interpreter-view", VariantInterpreterView);
