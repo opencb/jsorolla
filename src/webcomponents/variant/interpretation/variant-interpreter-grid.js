@@ -766,12 +766,10 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "actions",
-                    title: "Actions",
                     rowspan: 2,
                     colspan: 1,
-                    eligible: false,
                     formatter: (value, row) => this.actionsFormatter(value, row),
-                    align: "center",
+                    align: "right",
                     events: {
                         "click a": (event, value, row) => this.onActionClick(event, row)
                     },
@@ -1149,9 +1147,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
         return `
             <div class="dropdown">
-                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
-                    Actions
+                <button class="btn" data-bs-toggle="dropdown">
+                    <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li>
