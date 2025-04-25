@@ -804,6 +804,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         </a>
                     `,
                     field: "interpretation",
+                    align: "center",
                     rowspan: 1,
                     colspan: 4,
                 },
