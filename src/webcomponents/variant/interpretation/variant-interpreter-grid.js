@@ -1248,12 +1248,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     // Generate a clone of the variant review to prevent changing original values
                     this._selectedVariant = UtilsNew.objectClone(this.checkedVariants.get(variant.id));
                     this.gridCommons.changeActiveModal("review-variant");
-                    // this.requestUpdate();
-                    // const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
-                    // UtilsNew.draggableModal(document, modalElm);
-                    // // $(`#${this._prefix}ReviewSampleModal`).modal("show");
-                    // const variantModal = new bootstrap.Modal(modalElm);
-                    // variantModal.show();
                 }
                 break;
             case "copy-json":
@@ -1450,15 +1444,13 @@ export default class VariantInterpreterGrid extends LitElement {
         });
 
         // Clear selected variant to review
+        this._selectedVariant = null;
         this.gridCommons.clearActiveModal();
-        // this._selectedVariant = null;
-        // this.requestUpdate();
     }
 
     onVariantReviewCancel() {
+        this._selectedVariant = null;
         this.gridCommons.clearActiveModal();
-        // this._selectedVariant = null;
-        // this.requestUpdate();
     }
 
     onEvidenceCheck(event) {
@@ -1498,12 +1490,6 @@ export default class VariantInterpreterGrid extends LitElement {
             // Generate a clone of the evidence review to prevent changing original values
             this._selectedEvidence = UtilsNew.objectClone(this._selectedVariant.evidences[this._selectedEvidenceIndex]?.review || {});
             this.gridCommons.changeActiveModal("review-evidence");
-            // this.requestUpdate();
-            // const modalElm = document.querySelector(`#${this._prefix}EvidenceReviewModal`);
-            // UtilsNew.draggableModal(document, modalElm);
-            // // $(`#${this._prefix}EvidenceReviewModal`).modal("show");
-            // const _selectedEvidenceModal = new bootstrap.Modal(modalElm);
-            // _selectedEvidenceModal.show();
         }
     }
 
