@@ -79,6 +79,8 @@ export default class VariantInterpreterGrid extends LitElement {
         this._config = this.getDefaultConfig();
         this._rows = [];
         this._selectedVariant = null;
+        this._selectedEvidence = null;
+        this._selectedEvidenceIndex = null;
 
         this.toolbarConfig = {};
         this.toolbarSetting = {};
@@ -206,6 +208,27 @@ export default class VariantInterpreterGrid extends LitElement {
                 `,
                 onCancel: () => this.onVariantReviewCancel(),
                 onOk: () => this.onVariantReviewOk(),
+            }),
+            "review-evidence": () => ({
+                display: {
+                    modalTitle: `Review Variant Evidence`,
+                    modalCyDataName: `modal-evidence-review`,
+                    modalSize: "modal-lg",
+                    modalBtnsVisible: true,
+                    btnCancelText: "Cancel",
+                    btnSaveText: "Save",
+                },
+                render: () => html`
+                    <clinical-interpretation-variant-evidence-review
+                        .opencgaSession="${this.opencgaSession}"
+                        .review="${this._selectedEvidence}"
+                        .mode="${"page"}"
+                        .somatic="${this.clinicalAnalysis.type === "CANCER"}"
+                        @_selectedEvidenceChange="${e => this.onEvidenceReviewChange(e)}">
+                    </clinical-interpretation-variant-evidence-review>
+                `,
+                onCancel: () => this.onEvidenceReviewCancel(),
+                onOk: () => this.onEvidenceReviewOk(),
             }),
         });
     }
@@ -1438,9 +1461,9 @@ export default class VariantInterpreterGrid extends LitElement {
         // this.requestUpdate();
     }
 
-    onEvidenceCheck(e) {
-        const variantId = e.currentTarget.dataset.variantId;
-        const evidenceIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
+    onEvidenceCheck(event) {
+        const variantId = event.currentTarget.dataset.variantId;
+        const evidenceIndex = parseInt(event.currentTarget.dataset.clinicalEvidenceIndex);
 
         // Update clinical evidence review data
         const evidence = this.checkedVariants.get(variantId).evidences[evidenceIndex];
@@ -1448,7 +1471,7 @@ export default class VariantInterpreterGrid extends LitElement {
         if (typeof evidence.review === "undefined") {
             evidence.review = {};
         }
-        evidence.review.select = e.currentTarget.checked;
+        evidence.review.select = event.currentTarget.checked;
 
         // Enable or disable evidence review edit
         Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
@@ -1466,30 +1489,31 @@ export default class VariantInterpreterGrid extends LitElement {
         });
     }
 
-    onVariantEvidenceReview(e) {
-        if (this.checkedVariants) {
-            this._selectedVariant = this.checkedVariants.get(e.currentTarget.dataset.variantId);
-            this.evidenceReviewIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
+    onVariantEvidenceReview(event) {
+        const variantId = event.currentTarget?.dataset?.variantId;
+        if (this.checkedVariants && this.checkedVariants.has(variantId)) {
+            this._selectedVariant = this.checkedVariants.get(variantId);
+            this._selectedEvidenceIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
 
             // Generate a clone of the evidence review to prevent changing original values
-            this.evidenceReview = UtilsNew.objectClone(this._selectedVariant.evidences[this.evidenceReviewIndex]?.review || {});
-            this.requestUpdate();
-            const modalElm = document.querySelector(`#${this._prefix}EvidenceReviewModal`);
-            UtilsNew.draggableModal(document, modalElm);
-            // $(`#${this._prefix}EvidenceReviewModal`).modal("show");
-            const evidenceReviewModal = new bootstrap.Modal(modalElm);
-            evidenceReviewModal.show();
+            this._selectedEvidence = UtilsNew.objectClone(this._selectedVariant.evidences[this._selectedEvidenceIndex]?.review || {});
+            this.gridCommons.changeActiveModal("review-evidence");
+            // this.requestUpdate();
+            // const modalElm = document.querySelector(`#${this._prefix}EvidenceReviewModal`);
+            // UtilsNew.draggableModal(document, modalElm);
+            // // $(`#${this._prefix}EvidenceReviewModal`).modal("show");
+            // const _selectedEvidenceModal = new bootstrap.Modal(modalElm);
+            // _selectedEvidenceModal.show();
         }
     }
 
-    onEvidenceReviewChange(e) {
-        // Update evidence review object
-        this.evidenceReview = e.detail.value;
+    onEvidenceReviewChange(event) {
+        this._selectedEvidence = event.detail.value;
     }
 
     onEvidenceReviewOk() {
         // Update review object of the current variant
-        this._selectedVariant.evidences[this.evidenceReviewIndex].review = this.evidenceReview;
+        this._selectedVariant.evidences[this._selectedEvidenceIndex].review = this._selectedEvidence;
 
         // Dispatch variant update
         LitUtils.dispatchCustomEvent(this, "updaterow", null, {
@@ -1500,7 +1524,14 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // Clear evidence and variant review
         this._selectedVariant = null;
-        this.evidenceReview = null;
+        this._selectedEvidence = null;
+        this.gridCommons.clearActiveModal();
+    }
+
+    onEvidenceReviewCancel() {
+        this._selectedVariant = null;
+        this._selectedEvidence = null;
+        this.gridCommons.clearActiveModal();
     }
 
     renderToolbarLeftContent() {
@@ -1524,31 +1555,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
-            </div>
-
-            <div class="modal fade pt-0" id="${this._prefix}EvidenceReviewModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="overflow-y: visible">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3>Review Variant Evidence</h3>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        ${this.evidenceReview ? html`
-                            <clinical-interpretation-variant-evidence-review
-                                .opencgaSession="${this.opencgaSession}"
-                                .review="${this.evidenceReview}"
-                                .mode="${"page"}"
-                                .somatic="${this.clinicalAnalysis.type === "CANCER"}"
-                                @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
-                            </clinical-interpretation-variant-evidence-review>
-                        ` : null}
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${() => this.onEvidenceReviewOk()}">Ok</button>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             ${this.gridCommons.renderModals()}
