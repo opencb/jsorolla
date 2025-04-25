@@ -653,11 +653,11 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    title: "Actions",
+                    id: "actions",
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => this.actionsFormatter(value, row),
-                    align: "center",
+                    align: "right",
                     events: {
                         "click a": (event, value, row) => this.onActionClick(event, value, row),
                     },
@@ -736,28 +736,23 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
     actionsFormatter(value, row) {
         const reviewId = `${this._prefix}${row[0].id}VariantReviewActionButton`;
-        const reviewDisabled = (!this.checkedVariants.has(row[0].id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+        const reviewDisabled = (!this.checkedVariants.has(row[0].id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "cursor-pointer";
 
         return `
             <div class="dropdown">
-                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
-                    <span>Actions</span>
+                <button class="btn" data-bs-toggle="dropdown">
+                    <i class="fas fa-ellipsis-v"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a id="${reviewId}" href="javascript:void 0;" class="dropdown-item reviewButton ${reviewDisabled}" data-action="edit">
-                            <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit ...
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li class="dropdown-header">Fetch Variant</li>
-                    <li>
-                        <a href="javascript: void 0" class="dropdown-item" data-action="download">
-                            <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
-                        </a>
-                    </li>
-                </ul>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a id="${reviewId}" class="dropdown-item reviewButton ${reviewDisabled}" data-action="edit">
+                        <i class="fas fa-edit icon-padding"></i> Edit
+                    </a>
+                    <hr class="dropdown-divider">
+                    <div class="dropdown-header">Fetch Variant</div>
+                    <a class="dropdown-item cursor-pointer" data-action="download">
+                        <i class="fas fa-download"></i> Download
+                    </a>
+                </div>
             </div>
         `;
     }
