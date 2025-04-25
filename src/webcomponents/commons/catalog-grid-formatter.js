@@ -166,7 +166,7 @@ export default class CatalogGridFormatter {
             .filter(file => extensions === "*" || extensions.some(ext => (file?.id || file?.name || file).endsWith(ext)))
             .map(file => {
                 return `
-                    <a class="link d-block fw-bold my-1" data-action="view-file" data-file="${file?.id || file}">
+                    <a class="link d-block fw-bold" data-action="view-file" data-file="${file?.id || file}">
                         ${file?.name || (file?.id || file).split(":").pop()}
                     </a>
                 `;
@@ -198,10 +198,10 @@ export default class CatalogGridFormatter {
             // const caseUrl = WebUtils.getInterpreterLink(opencgaSession, clinicalAnalysis.id);
             return `
                 <div class="text-nowrap">
-                    <a class="link fw-bold my-1" data-action="view-clinical-analysis" data-clinical-analysis="${clinicalAnalysis.id}">
+                    <a class="link fw-bold" data-action="view-clinical-analysis" data-clinical-analysis="${clinicalAnalysis.id}">
                         <span>${clinicalAnalysis.id}</span>
                     </a>
-                    <span class="text-secondary m-1">${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}</span>
+                    <span class="text-secondary ms-1">${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}</span>
                 </div>
             `;
         });

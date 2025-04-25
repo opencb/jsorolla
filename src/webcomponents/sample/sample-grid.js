@@ -420,7 +420,7 @@ export default class SampleGrid extends LitElement {
             },
             {
                 id: "individualId",
-                title: "Individual ID",
+                title: "Individual",
                 field: "individualId",
                 formatter: individualId => {
                     return individualId ? `<a class="link fw-bold" data-action="view-individual" data-individual="${individualId}">${individualId}</a>` : "-";
@@ -429,6 +429,27 @@ export default class SampleGrid extends LitElement {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("individualId")
+            },
+            {
+                id: "cohorts",
+                title: "Cohorts",
+                field: "cohortIds",
+                formatter: cohortIds => {
+                    const items = (cohortIds || [])
+                        .map(cohortId => {
+                            return `
+                                <div class="">
+                                    <span>${cohortId}</span>
+                                </div>
+                            `;
+                        });
+                    return `
+                        <div class="d-flex flex-column gap-1">
+                            ${items.length > 0 ? items.join("") : "-"}
+                        </div>
+                    `;
+                },
+                visible: this.gridCommons.isColumnVisible("cohorts")
             },
             {
                 id: "fileIds",
@@ -467,6 +488,22 @@ export default class SampleGrid extends LitElement {
                     return method || "-";
                 },
                 visible: this.gridCommons.isColumnVisible("processing.preparationMethod")
+            },
+            {
+                id: "status",
+                title: "Variant Index Status",
+                field: "internal.variant.index.status.id",
+                formatter: (variantIndexStatusId, sample) => {
+                    let result = "-";
+                    result = `
+                        <div class="d-flex flex-column gap-1">
+                            <label>${variantIndexStatusId}</label>
+                            <label>${sample.internal.variant.annotationIndex.status.id === "READY" ? "Annotated" : "Annotation Pending"}</label>
+                        </div>
+                    `;
+                    return result;
+                },
+                visible: this.gridCommons.isColumnVisible("status"),
             },
             {
                 id: "creationDate",
