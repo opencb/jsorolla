@@ -1173,7 +1173,7 @@ export default class VariantInterpreterGrid extends LitElement {
             .filter(copy => copy.execute || CustomActions.exists(copy))
             .map(copy => {
                 return `
-                    <a class="dropdown-item cursor-pointer" data-action="${copy.id}">
+                    <a class="dropdown-item cursor-pointer" data-action="custom-copy" data-copy="${copy.id}">
                         <i class="fas fa-copy" alt="${copy.description}"></i> ${copy.name}
                     </a>
                 `;
@@ -1264,8 +1264,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     UtilsNew.copyToClipboard(varsomeId);
                 }
                 break;
-            default:
-                const copy = this._config.copies.find(copy => copy.id.toLowerCase() === action);
+            case "custom-copy":
+                const copyId = event.currentTarget?.dataset?.copy;
+                const copy = this._config.copies.find(copy => copy.id.toLowerCase() === copyId);
                 if (copy) {
                     // Sort and group CTs by Gene name
                     BioinfoUtils.sort(variant.evidences, v => v.genomicFeature?.geneName);
