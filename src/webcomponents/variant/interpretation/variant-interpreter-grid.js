@@ -1119,26 +1119,18 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     actionsFormatter(value, row) {
-        let copiesHtml = "";
-        if (this._config.copies) {
-            for (const copy of this._config.copies) {
-                // Check if the copy object has an execute function, this prevents two possible scenarios:
-                // 1. a 'copy' stored in OpenCGA config that has been removed from IVA config
-                // 2. an incorrect copy configuration
-
-                // Ideas:
-                // CustomActions.check(copy)
-                // CustomActions.checkVersion(copy)
-                // CustomActions.get(copy).execute(variant, showConsequenceTypes)
-                if (copy.execute || CustomActions.exists(copy)) {
-                    copiesHtml = `
-                        <a class="dropdown-item cursor-pointer" data-action="${copy.id}">
-                            <i class="fas fa-copy" aria-hidden="true" alt="${copy.description}"></i> ${copy.name}
-                        </a>
-                    `;
-                }
-            }
-        }
+        // Check if the copy object has an execute function, this prevents two possible scenarios:
+        // 1. a 'copy' stored in OpenCGA config that has been removed from IVA config
+        // 2. an incorrect copy configuration
+        const copiesItems = (this._config?.copies || [])
+            .filter(copy => copy.execute || CustomActions.exists(copy))
+            .map(copy => {
+                return `
+                    <a class="dropdown-item cursor-pointer" data-action="${copy.id}">
+                        <i class="fas fa-copy" alt="${copy.description}"></i> ${copy.name}
+                    </a>
+                `;
+            });
 
         const reviewId = `${this._prefix}${row.id}VariantReviewActionButton`;
         const reviewDisabled = (!this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
@@ -1186,10 +1178,10 @@ export default class VariantInterpreterGrid extends LitElement {
                     <a class="dropdown-item cursor-pointer" ${row.type === "COPY_NUMBER" ? "disabled" : ""} data-action="copy-varsome-id">
                         <i class="fas fa-download me-1"></i> Copy Varsome ID
                     </a>
-                    ${copiesHtml ? `
+                    ${copiesItems.length > 0 ? `
                         <hr class="dropdown-divider">
                         <div class="dropdown-header">Custom Copy</div>
-                        ${copiesHtml}
+                        ${copiesItems.join("")}
                     ` : ""}
                 </div>
             </div>
