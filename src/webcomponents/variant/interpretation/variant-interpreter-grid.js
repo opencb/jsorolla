@@ -175,7 +175,7 @@ export default class VariantInterpreterGrid extends LitElement {
             "view-variant": () => ({
                 display: {
                     modalTitle: `Variant ${this._selectedVariant.id}`,
-                    modalCyDataName: `modal-file-view`,
+                    modalCyDataName: `modal-variant-view`,
                     modalSize: "modal-2xl",
                 },
                 render: () => html`
@@ -186,6 +186,26 @@ export default class VariantInterpreterGrid extends LitElement {
                         .variant="${this._selectedVariant}">
                     </variant-interpreter-view>
                 `,
+            }),
+            "review-variant": () => ({
+                display: {
+                    modalTitle: `Review Variant ${this._selectedVariant.id}`,
+                    modalCyDataName: `modal-variant-reivew`,
+                    modalSize: "modal-lg",
+                    modalBtnsVisible: true,
+                    btnCancelText: "Cancel",
+                    btnSaveText: "Save",
+                },
+                render: () => html`
+                    <clinical-interpretation-variant-review
+                        .opencgaSession="${this.opencgaSession}"
+                        .variant="${this._selectedVariant}"
+                        .mode="${"form"}"
+                        @variantChange="${e => this.onVariantReviewChange(e)}">
+                    </clinical-interpretation-variant-review>
+                `,
+                onCancel: () => this.onVariantReviewCancel(),
+                onOk: () => this.onVariantReviewOk(),
             }),
         });
     }
@@ -943,7 +963,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: (value, row) => {
                         const checked = this.checkedVariants?.has(row.id) ? "checked" : "";
                         const disabled = (this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
-                        return `<input class="check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked} ${disabled}>`;
+                        return `
+                            <input class="check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked} ${disabled}>
+                        `;
                     },
                     align: "center",
                     events: {
@@ -966,7 +988,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     },
                     align: "center",
                     events: {
-                        "click button": e => this.onVariantReview(e)
+                        "click button": (event, value, row) => this.onActionClick(event, row),
                     },
                     excludeFromSettings: true,
                     visible: this.review || this._config?.showReview,
@@ -1046,9 +1068,11 @@ export default class VariantInterpreterGrid extends LitElement {
 
                     _columns[1].splice(i + 5, 0, {
                         id: samples[i].id,
-                        title: `<span style="color: ${color}">${samples[i].id}</span>
-                                <br>
-                                <span style="font-style: italic">${sampleInfo[samples[i].id].role}, ${affected}</span>`,
+                        title: `
+                            <span style="color: ${color}">${samples[i].id}</span>
+                            <br>
+                            <span style="font-style: italic">${sampleInfo[samples[i].id].role}, ${affected}</span>
+                        `,
                         rowspan: 1,
                         colspan: 1,
                         formatter: (value, row, index) => {
@@ -1142,7 +1166,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a id="${reviewId}" class="dropdown-item reviewButton ${reviewDisabled} cursor-pointer" data-action="edit">
+                    <a id="${reviewId}" class="dropdown-item reviewButton ${reviewDisabled} cursor-pointer" data-action="review">
                         <i class="fas fa-edit me-1"></i> Edit
                     </a>
                     <hr class="dropdown-divider">
@@ -1195,16 +1219,18 @@ export default class VariantInterpreterGrid extends LitElement {
                 this._selectedVariant = variant;
                 this.gridCommons.changeActiveModal("view-variant");
                 break;
+            case "review":
             case "edit":
-                if (this.checkedVariants) {
+                if (this.checkedVariants && this.checkedVariants.has(variant.id)) {
                     // Generate a clone of the variant review to prevent changing original values
-                    this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(variant.id));
-                    this.requestUpdate();
-                    const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
-                    UtilsNew.draggableModal(document, modalElm);
-                    // $(`#${this._prefix}ReviewSampleModal`).modal("show");
-                    const variantModal = new bootstrap.Modal(modalElm);
-                    variantModal.show();
+                    this._selectedVariant = UtilsNew.objectClone(this.checkedVariants.get(variant.id));
+                    this.gridCommons.changeActiveModal("review-variant");
+                    // this.requestUpdate();
+                    // const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
+                    // UtilsNew.draggableModal(document, modalElm);
+                    // // $(`#${this._prefix}ReviewSampleModal`).modal("show");
+                    // const variantModal = new bootstrap.Modal(modalElm);
+                    // variantModal.show();
                 }
                 break;
             case "copy-json":
@@ -1386,41 +1412,30 @@ export default class VariantInterpreterGrid extends LitElement {
         }));
     }
 
-    onVariantReview(e) {
-        if (this.checkedVariants) {
-            // Generate a clone of the variant review to prevent changing original values
-            this.variantReview = UtilsNew.objectClone(this.checkedVariants.get(e.currentTarget.dataset.variantId));
-            this.requestUpdate();
-            const modalElm = document.querySelector(`#${this._prefix}ReviewSampleModal`);
-            UtilsNew.draggableModal(document, modalElm);
-            // $(`#${this._prefix}ReviewSampleModal`).modal("show");
-            const reviewSampleModal = new bootstrap.Modal(modalElm);
-            reviewSampleModal.show();
-        }
-    }
-
     onVariantReviewChange(e) {
-        this.variantReview = e.detail.value;
+        this._selectedVariant = e.detail.value;
     }
 
     onVariantReviewOk() {
-        this.checkedVariants?.set(this.variantReview.id, this.variantReview);
+        this.checkedVariants?.set(this._selectedVariant.id, this._selectedVariant);
 
         // Dispatch variant update
         LitUtils.dispatchCustomEvent(this, "updaterow", null, {
-            id: this.variantReview.id,
-            row: this.variantReview,
+            id: this._selectedVariant.id,
+            row: this._selectedVariant,
             rows: Array.from(this.checkedVariants.values()),
         });
 
         // Clear selected variant to review
-        this.variantReview = null;
-        this.requestUpdate();
+        this.gridCommons.clearActiveModal();
+        // this._selectedVariant = null;
+        // this.requestUpdate();
     }
 
     onVariantReviewCancel() {
-        this.variantReview = null;
-        this.requestUpdate();
+        this.gridCommons.clearActiveModal();
+        // this._selectedVariant = null;
+        // this.requestUpdate();
     }
 
     onEvidenceCheck(e) {
@@ -1453,11 +1468,11 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onVariantEvidenceReview(e) {
         if (this.checkedVariants) {
-            this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
+            this._selectedVariant = this.checkedVariants.get(e.currentTarget.dataset.variantId);
             this.evidenceReviewIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
 
             // Generate a clone of the evidence review to prevent changing original values
-            this.evidenceReview = UtilsNew.objectClone(this.variantReview.evidences[this.evidenceReviewIndex]?.review || {});
+            this.evidenceReview = UtilsNew.objectClone(this._selectedVariant.evidences[this.evidenceReviewIndex]?.review || {});
             this.requestUpdate();
             const modalElm = document.querySelector(`#${this._prefix}EvidenceReviewModal`);
             UtilsNew.draggableModal(document, modalElm);
@@ -1474,17 +1489,17 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onEvidenceReviewOk() {
         // Update review object of the current variant
-        this.variantReview.evidences[this.evidenceReviewIndex].review = this.evidenceReview;
+        this._selectedVariant.evidences[this.evidenceReviewIndex].review = this.evidenceReview;
 
         // Dispatch variant update
         LitUtils.dispatchCustomEvent(this, "updaterow", null, {
-            id: this.variantReview.id,
-            row: this.variantReview,
+            id: this._selectedVariant.id,
+            row: this._selectedVariant,
             rows: Array.from(this.checkedVariants.values()),
         });
 
         // Clear evidence and variant review
-        this.variantReview = null;
+        this._selectedVariant = null;
         this.evidenceReview = null;
     }
 
@@ -1509,30 +1524,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
-            </div>
-
-            <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
-                role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog modal-lg" style="width: 768px">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3>Review Variant</h3>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        ${this.variantReview ? html`
-                            <clinical-interpretation-variant-review
-                                .opencgaSession="${this.opencgaSession}"
-                                .variant="${this.variantReview}"
-                                .mode="${"form"}"
-                                @variantChange="${e => this.onVariantReviewChange(e)}">
-                            </clinical-interpretation-variant-review>
-                        ` : null}
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal" @click="${() => this.onVariantReviewCancel()}">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${() => this.onVariantReviewOk()}">Ok</button>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div class="modal fade pt-0" id="${this._prefix}EvidenceReviewModal" tabindex="-1"
