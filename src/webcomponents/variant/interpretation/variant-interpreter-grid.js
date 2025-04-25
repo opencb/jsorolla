@@ -224,7 +224,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         .review="${this._selectedEvidence}"
                         .mode="${"page"}"
                         .somatic="${this.clinicalAnalysis.type === "CANCER"}"
-                        @_selectedEvidenceChange="${e => this.onEvidenceReviewChange(e)}">
+                        @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
                     </clinical-interpretation-variant-evidence-review>
                 `,
                 onCancel: () => this.onEvidenceReviewCancel(),
@@ -1435,8 +1435,8 @@ export default class VariantInterpreterGrid extends LitElement {
         }));
     }
 
-    onVariantReviewChange(e) {
-        this._selectedVariant = e.detail.value;
+    onVariantReviewChange(event) {
+        this._selectedVariant = event.detail.value;
     }
 
     onVariantReviewOk() {
@@ -1493,7 +1493,7 @@ export default class VariantInterpreterGrid extends LitElement {
         const variantId = event.currentTarget?.dataset?.variantId;
         if (this.checkedVariants && this.checkedVariants.has(variantId)) {
             this._selectedVariant = this.checkedVariants.get(variantId);
-            this._selectedEvidenceIndex = parseInt(e.currentTarget.dataset.clinicalEvidenceIndex);
+            this._selectedEvidenceIndex = parseInt(event.currentTarget.dataset.clinicalEvidenceIndex);
 
             // Generate a clone of the evidence review to prevent changing original values
             this._selectedEvidence = UtilsNew.objectClone(this._selectedVariant.evidences[this._selectedEvidenceIndex]?.review || {});
