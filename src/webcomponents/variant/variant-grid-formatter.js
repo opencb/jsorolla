@@ -86,7 +86,7 @@ export default class VariantGridFormatter {
         // 3. render the content of the variant ID section
         return `
             <div class="text-nowrap">
-                <a class="link fw-bold" data-action="view">${variantId}</a>
+                <a class="link fw-bold" data-action="view" data-variant="${variant.id}">${variantId}</a>
                 ${iconHighlights.join("")}
             </div>
             ${snpId ? `
