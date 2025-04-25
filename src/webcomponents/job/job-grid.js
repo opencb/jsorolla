@@ -328,8 +328,8 @@ export default class JobGrid extends LitElement {
                 title: "Job ID",
                 field: "id",
                 formatter: (id, row) => `
-                    <a class="link fw-bold d-block" data-action="view">${id}</a>
-                    ${row.outDir?.path ? `<div class="text-secondary">/${row.outDir.path.replace(id, "").replace("//", "/")}</div>` : ""}
+                    <a class="link fw-bold d-block my-1" data-action="view">${id}</a>
+                    ${row.outDir?.path ? `<div class="text-secondary my-1">/${row.outDir.path.replace(id, "").replace("//", "/")}</div>` : ""}
                 `,
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
@@ -341,8 +341,8 @@ export default class JobGrid extends LitElement {
                 title: "Tool ID",
                 field: "tool.id",
                 formatter: (toolId, row) => `
-                    <div>${toolId}</div>
-                    ${row.tool?.type ? `<div class="text-secondary">${row.tool.type}</div>` : ""}
+                    <div class="my-1">${toolId}</div>
+                    ${row.tool?.type ? `<div class="text-secondary my-1">${row.tool.type}</div>` : ""}
                 `,
                 visible: this.gridCommons.isColumnVisible("toolId"),
             },

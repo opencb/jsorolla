@@ -1363,7 +1363,7 @@ class IvaApp extends LitElement {
                     <div class="content">
                         <sample-variant-stats-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .sampleId="${this.sampleId}"
+                            .sampleId="${this.queries[this.tool].id}"
                             .active="${true}"
                             .settings="${{...VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS, showTitle: true}}">
                         </sample-variant-stats-browser>

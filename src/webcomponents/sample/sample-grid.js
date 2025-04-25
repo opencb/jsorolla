@@ -552,8 +552,8 @@ export default class SampleGrid extends LitElement {
                     </a>
                     <hr class="dropdown-divider">
                     <div class="dropdown-header">Analysis</div>
-                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
-                        <i class="fas fa-edit me-1"></i> Variant Stats
+                    <a class="dropdown-item" href="#research/sample-variant-stats-browser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}?id=${row.id}">
+                            <i class="fas fa-user-md me-1"></i> Variant Stats
                     </a>
                     <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
                         <i class="fas fa-edit me-1"></i> Quality Control
