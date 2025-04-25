@@ -24,7 +24,7 @@ export default class ModalUtils {
         const modalTitle = config.display?.modalTitle || "";
         const modalTitleClassName = config.display?.modalTitleClassName || "";
         const modalTitleStyle = config.display?.modalTitleStyle || "";
-        const btnsVisible = config.display?.modalbtnsVisible;
+        const btnsVisible = config.display?.modalBtnsVisible ?? config.display?.modalbtnsVisible;
         const btnCancelVisible = config.display?.btnCancelVisible ?? true;
         const btnSaveVisible = config.display?.btnSaveVisible ?? true;
         const modalDraggable = config.display?.modalDraggable ?? false;
@@ -57,12 +57,12 @@ export default class ModalUtils {
                             <div class="modal-footer">
                                 ${btnCancelVisible ? html`
                                     <button type="button" class="btn btn-light" data-bs-dismiss="modal" @click="${handleCancel}">
-                                        ${config?.display?.cancelButtonText || "Cancel"}
+                                        ${config?.display?.btnCancelText || config?.display?.cancelButtonText || "Cancel"}
                                     </button>
                                 ` : nothing}
                                 ${btnSaveVisible ? html`
                                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${handleOk}">
-                                        ${config?.display?.okButtonText || "Save"}
+                                        ${config?.display?.btnSaveText || config?.display?.btnOkText || config?.display?.okButtonText || "Save"}
                                     </button>
                                 ` : nothing}
                             </div>
