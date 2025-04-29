@@ -204,7 +204,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     </clinical-interpretation-variant-review>
                 `,
                 onCancel: () => this.onVariantReviewCancel(),
-                onOk: () => this.onVariantReviewOk(),
+                onOk: () => this.onVariantReviewSave(),
             }),
 
         });
@@ -971,7 +971,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     onVariantReviewChange(event) {
-        debugger;
         this._selectedVariant[0] = event.detail.value;
     }
 
