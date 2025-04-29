@@ -148,7 +148,7 @@ export default class VariantBrowserGrid extends LitElement {
                     modalTitle: `Variant: ${this.selectedVariantId}`,
                     modalDraggable: true,
                     modalCyDataName: "modal-variant-view",
-                    modalSize: "modal-xl",
+                    modalSize: "modal-2xl",
                 },
                 render: () => html`
                     <variant-view

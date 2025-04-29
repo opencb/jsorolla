@@ -120,7 +120,7 @@ export default class IndividualGrid extends LitElement {
             "view-individual": () => ({
                 display: {
                     modalTitle: `Individual ${this._selectedIndividualId}`,
-                    modalSize: "modal-xl",
+                    modalSize: "modal-2xl",
                     modalCyDataName: "individual-view",
                     modalDraggable: true,
                 },
@@ -198,7 +198,7 @@ export default class IndividualGrid extends LitElement {
             "view-sample": () => ({
                 display: {
                     modalTitle: `Sample ${this._selectedSampleId}`,
-                    modalSize: "modal-xl",
+                    modalSize: "modal-3xl",
                     modalCyDataName: "sample-view",
                     modalDraggable: true,
                 },
@@ -213,7 +213,7 @@ export default class IndividualGrid extends LitElement {
             "view-clinical-analysis": () => ({
                 display: {
                     modalTitle: `Clinical Analysis ${this._selectedClinicalAnalysisId}`,
-                    modalSize: "modal-xl",
+                    modalSize: "modal-2xl",
                     modalCyDataName: "clinical-analysis-view",
                     modalDraggable: true,
                 },
@@ -228,7 +228,7 @@ export default class IndividualGrid extends LitElement {
             "view-family": () => ({
                 display: {
                     modalTitle: `Family ${this._selectedFamilyId}`,
-                    modalSize: "modal-xl",
+                    modalSize: "modal-2xl",
                     modalCyDataName: "family-view",
                     modalDraggable: true,
                 },
@@ -449,29 +449,47 @@ export default class IndividualGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("family"),
             },
             {
-                id: "father",
-                title: "Father",
+                id: "parents",
+                title: "Father / Mother",
                 field: "father.id",
-                formatter: fatherId => {
-                    return fatherId ? `<a class="link fw-bold" data-action="view" data-individual="${fatherId}">${fatherId}</a>` : "-";
+                formatter: (_, individual) => {
+                    const fatherId = individual?.father?.id;
+                    const motherId = individual?.mother?.id;
+                    let resultHtml = `<div class="d-flex flex-column gap-1">`;
+                    resultHtml += fatherId ? `<a class="link d-block fw-bold" data-action="view" data-individual="${fatherId}" title="Father">${fatherId}</a>` : "<div>-</div>";
+                    resultHtml += motherId ? `<a class="link d-block fw-bold" data-action="view" data-individual="${motherId}" title="Mother">${motherId}</a>` : "<div>-</div>";
+                    resultHtml += `</div>`;
+                    return resultHtml;
                 },
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("father")
             },
-            {
-                id: "mother",
-                title: "Mother",
-                field: "mother.id",
-                formatter: motherId => {
-                    return motherId ? `<a class="link fw-bold" data-action="view" data-individual="${motherId}">${motherId}</a>` : "-";
-                },
-                events: {
-                    "click a": (event, value, row) => this.onActionClick(event, row),
-                },
-                visible: this.gridCommons.isColumnVisible("mother")
-            },
+            // {
+            //     id: "father",
+            //     title: "Father",
+            //     field: "father.id",
+            //     formatter: fatherId => {
+            //         return fatherId ? `<a class="link fw-bold" data-action="view" data-individual="${fatherId}">${fatherId}</a>` : "-";
+            //     },
+            //     events: {
+            //         "click a": (event, value, row) => this.onActionClick(event, row),
+            //     },
+            //     visible: this.gridCommons.isColumnVisible("father")
+            // },
+            // {
+            //     id: "mother",
+            //     title: "Mother",
+            //     field: "mother.id",
+            //     formatter: motherId => {
+            //         return motherId ? `<a class="link fw-bold" data-action="view" data-individual="${motherId}">${motherId}</a>` : "-";
+            //     },
+            //     events: {
+            //         "click a": (event, value, row) => this.onActionClick(event, row),
+            //     },
+            //     visible: this.gridCommons.isColumnVisible("mother")
+            // },
             {
                 id: "disorders",
                 title: "Disorders",
@@ -488,7 +506,7 @@ export default class IndividualGrid extends LitElement {
             },
             {
                 id: "caseId",
-                title: "Case ID",
+                title: "Clinical Interpretation",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
                 events: {
@@ -556,7 +574,7 @@ export default class IndividualGrid extends LitElement {
                         <i class="fas fa-edit me-1"></i> Quality Control
                     </a>
                     <hr class="dropdown-divider">
-                    <div class="dropdown-header">Case Interpreter</div>
+                    <div class="dropdown-header">Clinical Interpreter</div>
                     ${hasClinicalAnalysis ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
                         <a class="dropdown-item" href="#clinical/interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
                             <i class="fas fa-user-md me-1"></i> ${clinicalAnalysis.id}

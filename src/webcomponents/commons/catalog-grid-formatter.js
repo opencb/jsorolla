@@ -249,7 +249,7 @@ export default class CatalogGridFormatter {
         return html;
     }
 
-    static jobStatusFormatter(status, appendDescription = false) {
+    static jobStatusFormatter(status, job, appendDescription = false) {
         const statusConfig = CatalogGridFormatter.JOB_STATUS[status.id] || null;
         if (statusConfig) {
             const content = `
@@ -260,8 +260,10 @@ export default class CatalogGridFormatter {
             `;
             // if not appendDescription, we return the status with the description as a tooltip
             if (!appendDescription && status?.description) {
+                const errorEvent = job?.execution?.events.find(event => event.type === "ERROR");
+                const tooltipText = errorEvent ? `${status.description}<br><br>${errorEvent.message}` : status.description;
                 return `
-                    <a class="${statusConfig.className} text-decoration-none" tooltip-title="${status.id}" tooltip-text="${status.description}">
+                    <a class="${statusConfig.className} text-decoration-none" tooltip-title="${status.id}" tooltip-text="${tooltipText}">
                         ${content}
                     </a>
                 `;

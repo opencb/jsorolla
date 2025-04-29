@@ -361,7 +361,7 @@ export default class FamilyGrid extends LitElement {
         this._columns = [
             {
                 id: "id",
-                title: "Family ID",
+                title: "Family",
                 field: "id",
                 formatter: familyId => {
                     return `<a class="link fw-bold" data-action="view">${familyId}</a>`;
@@ -397,7 +397,7 @@ export default class FamilyGrid extends LitElement {
             },
             {
                 id: "caseId",
-                title: "Case ID",
+                title: "Clinical Interpretation",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
                 events: {
@@ -471,7 +471,7 @@ export default class FamilyGrid extends LitElement {
                         <i class="fas fa-edit me-1"></i> Quality Control
                     </a>
                     <hr class="dropdown-divider">
-                    <div class="dropdown-header">Case Interpreter</div>
+                    <div class="dropdown-header">Clinical Interpreter</div>
                     ${hasClinicalAnalysis ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
                         <a class="dropdown-item" href="#clinical/interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
                             <i class="fas fa-user-md me-1"></i> ${clinicalAnalysis.id}

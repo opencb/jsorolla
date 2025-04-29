@@ -114,7 +114,7 @@ export default class JobGrid extends LitElement {
                     modalTitle: `Job ${this._selectedJobId}`,
                     modalDraggable: true,
                     modalCyDataName: "job-view",
-                    modalSize: "modal-xl"
+                    modalSize: "modal-3xl"
                 },
                 render: active => html`
                     <job-view
@@ -377,7 +377,7 @@ export default class JobGrid extends LitElement {
                 id: "status",
                 title: "Status",
                 field: "internal.status",
-                formatter: status => CatalogGridFormatter.jobStatusFormatter(status),
+                formatter: (status, job) => CatalogGridFormatter.jobStatusFormatter(status, job),
                 visible: this.gridCommons.isColumnVisible("status")
             },
             {

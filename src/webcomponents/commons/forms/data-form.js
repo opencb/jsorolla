@@ -2400,7 +2400,7 @@ export default class DataForm extends LitElement {
                                 return html`
                                     <li class="nav-item" role="presentation">
                                         <a class="nav-link fw-bold ${active ? "active" : ""}" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                            ${section.title || ""}
+                                            ${section.title || section.name || ""}
                                         </a>
                                     </li>
                                 `;
@@ -2408,7 +2408,7 @@ export default class DataForm extends LitElement {
                         }
                     </ul>
                 </div>
-                <div class="col-md-9">
+                <div class="${this.config?.display?.pillsRightColumnClass || "col-md-9"}">
                     ${this.renderData()}
                 </div>
             </div>

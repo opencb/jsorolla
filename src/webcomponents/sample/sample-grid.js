@@ -116,7 +116,7 @@ export default class SampleGrid extends LitElement {
             "view-sample": () => ({
                 display: {
                     modalTitle: `Sample ${this._selectedSampleId}`,
-                    modalSize: "modal-xl",
+                    modalSize: "modal-3xl",
                     modalCyDataName: "sample-view",
                     modalDraggable: true,
                 },
@@ -192,7 +192,7 @@ export default class SampleGrid extends LitElement {
                 display: {
                     modalTitle: `File ${this._selectedFileId.split(":").pop()}`,
                     modalCyDataName: `modal-file-view`,
-                    modalSize: "modal-xl",
+                    modalSize: "modal-2xl",
                     modalDraggable: true,
                 },
                 render: () => html`
@@ -205,7 +205,7 @@ export default class SampleGrid extends LitElement {
             "view-individual": () => ({
                 display: {
                     modalTitle: `Individual ${this._selectedIndividualId}`,
-                    modalSize: "modal-xl",
+                    modalSize: "modal-2xl",
                     modalCyDataName: "individual-view",
                     modalDraggable: true,
                 },
@@ -220,7 +220,7 @@ export default class SampleGrid extends LitElement {
             "view-clinical-analysis": () => ({
                 display: {
                     modalTitle: `Clinical Analysis ${this._selectedClinicalAnalysisId}`,
-                    modalSize: "modal-xl",
+                    modalSize: "modal-2xl",
                     modalCyDataName: "clinical-analysis-view",
                     modalDraggable: true,
                 },
@@ -463,7 +463,7 @@ export default class SampleGrid extends LitElement {
             },
             {
                 id: "caseId",
-                title: "Case ID",
+                title: "Clinical Interpretation",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
                 events: {
@@ -562,7 +562,7 @@ export default class SampleGrid extends LitElement {
                         <i class="fas fa-edit me-1"></i> Knockout Analysis
                     </a>
                     <hr class="dropdown-divider">
-                    <div class="dropdown-header">Case Interpreter</div>
+                    <div class="dropdown-header">Clinical Interpreter</div>
                     ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
                         <a class="dropdown-item" href="#clinical/interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
                             <i class="fas fa-user-md me-1"></i> ${clinicalAnalysis.id}
