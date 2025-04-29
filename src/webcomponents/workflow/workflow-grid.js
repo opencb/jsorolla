@@ -271,7 +271,9 @@ export default class WorkflowGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                // onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+                onLoadSuccess: data => {
+                    this.gridCommons.onLoadSuccess(data);
+                },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
             });
         }
@@ -312,12 +314,9 @@ export default class WorkflowGrid extends LitElement {
             paginationVAlign: "bottom",
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            //onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                // this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length});
             },
         });
     }
