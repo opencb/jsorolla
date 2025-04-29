@@ -164,7 +164,7 @@ context("Individual Browser Grid", () => {
         });
 
         it("should allow to hide columns in the grid", () => {
-            const columns = ["Disorders", "Case ID", "Ethnicity"];
+            const columns = ["Disorders", "Clinical Interpretation", "Ethnicity"];
 
             cy.get("@individual-grid")
                 .find("thead th")
@@ -268,7 +268,12 @@ context("Individual Browser Grid", () => {
                         cy.get("@individual-grid")
                             .find(`tbody td:nth-child(${index + 1})`)
                             .each(td => {
-                                expect(td.text()).to.match(regExp);
+                                td.text()
+                                    .split("\n")
+                                    .filter(text => text.trim() !== "")
+                                    .forEach(text => {
+                                        expect(text.trim()).to.match(regExp);
+                                    });
                             });
                     });
             });
