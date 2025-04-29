@@ -23,9 +23,7 @@ import WebUtils from "../../commons/utils/web-utils.js";
 import Region from "../../../core/bioinfo/region.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
-import "./variant-interpreter-view.js";
 import "./variant-interpreter-rearrangement-grid.js";
-import "./variant-interpreter-rearrangement-view.js";
 import "../variant-browser-filter.js";
 import "../../commons/tool-header.js";
 import "../../commons/interpreter-ai.js";
@@ -448,24 +446,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             @settingsUpdate="${this.onSettingsUpdate}">
                         </variant-interpreter-rearrangement-grid>`
                     }
-                    <!-- Bottom tabs with detailed variant information -->
-                    ${this.variant ? html`
-                        ${!this._config.filter.result.grid.isRearrangement ? html`
-                            <variant-interpreter-view
-                                .opencgaSession="${this.opencgaSession}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .toolId="${this.toolId}"
-                                .variant="${this.variant}">
-                            </variant-interpreter-view>
-                        ` : html`
-                            <variant-interpreter-rearrangement-view
-                                .opencgaSession="${this.opencgaSession}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .toolId="${this.toolId}"
-                                .variants="${this.variant}">
-                            </variant-interpreter-rearrangement-view>
-                        `}
-                    ` : nothing}
                 </div>
                 <!-- Genome browser view -->
                 ${!this.settings?.hideGenomeBrowser ? html`
