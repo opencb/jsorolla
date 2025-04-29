@@ -83,7 +83,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.checkedVariants = new Map();
         this.review = false;
         this.active = true;
-        this.variantsReview = null;
+        this._selectedVariant = null;
 
         this.gridCommons = null;
         this.clinicalAnalysisManager = null;
@@ -186,6 +186,27 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     </variant-interpreter-view>
                 `,
             }),
+            "review-variant": () => ({
+                display: {
+                    modalTitle: `Review Variant ${this._selectedVariant[0].id}`,
+                    modalCyDataName: `modal-variant-reivew`,
+                    modalSize: "modal-lg",
+                    modalBtnsVisible: true,
+                    btnCancelText: "Cancel",
+                    btnSaveText: "Save",
+                },
+                render: () => html`
+                    <clinical-interpretation-variant-review
+                        .opencgaSession="${this.opencgaSession}"
+                        .variant="${this._selectedVariant[0]}"
+                        .mode="${"form"}"
+                        @variantChange="${e => this.onVariantReviewChange(e)}">
+                    </clinical-interpretation-variant-review>
+                `,
+                onCancel: () => this.onVariantReviewCancel(),
+                onOk: () => this.onVariantReviewOk(),
+            }),
+
         });
     }
 
@@ -705,7 +726,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     },
                     align: "center",
                     events: {
-                        "click input": event => this.onRowCheck(event),
+                        "click input": event => this.onVariantCheck(event),
                     },
                     visible: this._config.showSelectCheckbox,
                     excludeFromExport: true // this is used in opencga-export
@@ -722,7 +743,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     },
                     align: "center",
                     events: {
-                        "click button": e => this.onReviewClick(e),
+                        "click button": (event, value, row) => this.onActionClick(event, row),
                     },
                     visible: this.review || this._config.showReview,
                     excludeFromExport: true // this is used in opencga-export
@@ -768,16 +789,17 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 break;
             case "edit":
             case "review":
-                this.variantsReview = null;
+                this._selectedVariant = null;
                 if (this.checkedVariants && this.checkedVariants.has(variants[0].id)) {
-                    this.variantsReview = [
+                    this._selectedVariant = [
                         UtilsNew.objectClone(this.checkedVariants.get(variants[0].id)),
                         UtilsNew.objectClone(this.checkedVariants.get(variants[1].id)),
                     ];
-                    this.requestUpdate();
+                    this.gridCommons.changeActiveModal("review-variant");
+                    // this.requestUpdate();
                     // eslint-disable-next-line no-undef
-                    const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
-                    reviewSampleModal.show();
+                    // const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
+                    // reviewSampleModal.show();
                 }
                 break;
             case "download":
@@ -910,7 +932,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         $("#" + this.gridId).bootstrapTable("showLoading");
     }
 
-    onRowCheck(event) {
+    onVariantCheck(event) {
         const index = parseInt(event.target.dataset.rowIndex);
 
         // Add or remove this pair of variants from checkedVariants list
@@ -948,58 +970,41 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         });
     }
 
-    onReviewClick(e) {
-        const index = parseInt(e.currentTarget.dataset.index);
-        const variants = this._rows[index];
-        this.variantsReview = null;
-
-        if (this.checkedVariants && this.checkedVariants.has(variants[0].id)) {
-            this.variantsReview = [
-                this.checkedVariants.get(variants[0].id),
-                this.checkedVariants.get(variants[1].id)
-            ];
-            this.requestUpdate();
-
-            // eslint-disable-next-line no-undef
-            const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
-            reviewSampleModal.show();
-        }
+    onVariantReviewChange(event) {
+        debugger;
+        this._selectedVariant[0] = event.detail.value;
     }
 
-    onVariantChange(e) {
-        this.variantsReview[0] = e.detail.value;
-    }
-
-    onSaveVariant() {
+    onVariantReviewSave() {
         // Update second variant info
-        this.variantsReview[1] = {
-            ...this.variantsReview[1],
-            discussion: this.variantsReview[0].discussion,
-            status: this.variantsReview[0].status,
-            comments: this.variantsReview[0].comments,
-            confidence: this.variantsReview[0].confidence,
+        this._selectedVariant[1] = {
+            ...this._selectedVariant[1],
+            discussion: this._selectedVariant[0].discussion,
+            status: this._selectedVariant[0].status,
+            comments: this._selectedVariant[0].comments,
+            confidence: this._selectedVariant[0].confidence,
         };
 
         // Update checked variants
-        this.variantsReview.forEach(variant => {
+        this._selectedVariant.forEach(variant => {
             this.checkedVariants?.set(variant.id, variant);
         });
 
         // Dispatch variant update
         LitUtils.dispatchCustomEvent(this, "updaterow", null, {
-            id: this.variantsReview[0].id,
-            row: this.variantsReview,
+            id: this._selectedVariant[0].id,
+            row: this._selectedVariant,
             rows: Array.from(this.checkedVariants.values()),
         });
 
         // Reset variants review
-        this.variantsReview = null;
-        this.requestUpdate();
+        this._selectedVariant = null;
+        this.gridCommons.clearActiveModal();
     }
 
-    onCancelVariant() {
-        this.variantsReview = null;
-        this.requestUpdate();
+    onVariantReviewCancel() {
+        this._selectedVariant = null;
+        this.gridCommons.clearActiveModal();
     }
 
     renderToolbarLeftContent() {
@@ -1025,31 +1030,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
-
-            <div class="modal fade pt-0" id="${this._prefix}ReviewSampleModal" tabindex="-1"
-                 role="dialog" aria-hidden="true" style="overflow-y: visible">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3>Review Variant</h3>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        ${this.variantsReview ? html`
-                            <clinical-interpretation-variant-review
-                                .opencgaSession="${this.opencgaSession}"
-                                .variant="${this.variantsReview[0]}"
-                                mode=${"form"}
-                                @variantChange="${e => this.onVariantChange(e)}">
-                            </clinical-interpretation-variant-review>
-                        ` : null}
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal" @click="${() => this.onCancelVariant()}">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${e => this.onSaveVariant(e)}">OK</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
+           
             ${this.gridCommons.renderModals()}
         `;
     }
