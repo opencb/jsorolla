@@ -175,7 +175,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 display: {
                     modalTitle: `Variant ${this._selectedVariant.id}`,
                     modalCyDataName: `modal-variant-view`,
-                    modalSize: "modal-2xl",
+                    modalSize: "modal-3xl",
                 },
                 render: () => html`
                     <variant-interpreter-view
