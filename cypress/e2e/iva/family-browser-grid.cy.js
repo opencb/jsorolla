@@ -159,7 +159,7 @@ context("Family Browser Grid", () => {
         });
 
         it("should allow to hide columns in the grid", () => {
-            const columns = ["Case ID", "Phenotypes"];
+            const columns = ["Clinical Interpretation", "Phenotypes"];
 
             cy.get("@family-grid")
                 .find("thead th")
