@@ -374,7 +374,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onDblClickRow: (row, element) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
@@ -484,7 +483,6 @@ export default class VariantInterpreterGrid extends LitElement {
             loadingTemplate: () => GridCommons.loadingFormatter(),
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: this,
-            // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onDblClickRow: (row, element) => {
                 // We detail view is active we expand the row automatically.
                 // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
