@@ -207,7 +207,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     </clinical-interpretation-variant-review>
                 `,
                 onCancel: () => this.onVariantReviewCancel(),
-                onOk: () => this.onVariantReviewOk(),
+                onOk: () => this.onVariantReviewSave(),
             }),
             "review-evidence": () => ({
                 display: {
@@ -228,7 +228,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     </clinical-interpretation-variant-evidence-review>
                 `,
                 onCancel: () => this.onEvidenceReviewCancel(),
-                onOk: () => this.onEvidenceReviewOk(),
+                onOk: () => this.onEvidenceReviewSave(),
             }),
         });
     }
@@ -988,7 +988,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         const checked = this.checkedVariants?.has(row.id) ? "checked" : "";
                         const disabled = (this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
                         return `
-                            <input class="check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked} ${disabled}>
+                            <input class="check check-variant" type="checkbox" data-variant="${row.id}" ${checked} ${disabled}>
                         `;
                     },
                     align: "center",
@@ -1368,7 +1368,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     onVariantCheck(e) {
-        const variantId = e.currentTarget.dataset.variantId;
+        const variantId = e.currentTarget.dataset.variant;
 
         // NOTE Josemi 20221121: we will check first if this variant is in the primaryFindings list
         // If not, we will get the variant from the rows list
@@ -1405,7 +1405,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // Enable or disable evidences select
         Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
-            if (variant.id === element.dataset.variantId) {
+            if (variant.id === element.dataset.variant) {
                 // eslint-disable-next-line no-param-reassign
                 element.disabled = !this.checkedVariants.has(variant.id);
             }
@@ -1413,7 +1413,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // Set 'Edit' button of evidences review as enabled/disabled
         Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
-            if (variant.id === element.dataset.variantId) {
+            if (variant.id === element.dataset.variant) {
                 const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
                 const isEvidenceSelected = variant.evidences[evidenceIndex]?.review?.select || false;
                 // eslint-disable-next-line no-param-reassign
@@ -1435,7 +1435,7 @@ export default class VariantInterpreterGrid extends LitElement {
         this._selectedVariant = event.detail.value;
     }
 
-    onVariantReviewOk() {
+    onVariantReviewSave() {
         this.checkedVariants?.set(this._selectedVariant.id, this._selectedVariant);
 
         // Dispatch variant update
@@ -1499,7 +1499,7 @@ export default class VariantInterpreterGrid extends LitElement {
         this._selectedEvidence = event.detail.value;
     }
 
-    onEvidenceReviewOk() {
+    onEvidenceReviewSave() {
         // Update review object of the current variant
         this._selectedVariant.evidences[this._selectedEvidenceIndex].review = this._selectedEvidence;
 

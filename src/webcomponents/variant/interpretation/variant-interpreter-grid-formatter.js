@@ -997,7 +997,7 @@ export default class VariantInterpreterGridFormatter {
         return `
             <div>
                 ${config?.showEditReview ? `
-                    <button id="${prefix}${row.id}VariantReviewButton" class="btn btn-link text-decoration-none" style="width:80px" data-action="review" data-index="${index}" data-variant-id="${row.id}" ${disabled}>
+                    <button id="${prefix}${row.id}VariantReviewButton" class="btn btn-link text-decoration-none" style="width:80px" data-action="review" data-index="${index}" data-variant="${row.id}" ${disabled}>
                         <i class="fa fa-edit pe-1"></i> Edit ...
                     </button>
                 `: ""}
