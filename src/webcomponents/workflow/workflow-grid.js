@@ -329,8 +329,8 @@ export default class WorkflowGrid extends LitElement {
                 field: "id",
                 formatter: (workflowId, workflow) => {
                     return`
-                        <div class="fw-bold">${workflowId}</div>
-                        <div class="text-secondary">Version ${workflow.version}</div>
+                        <a class="fw-bold link my-1" data-action="view">${workflowId}</div>
+                        <div class="text-secondary my-1">Version ${workflow.version}</div>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("id")
@@ -341,8 +341,8 @@ export default class WorkflowGrid extends LitElement {
                 field: "name",
                 formatter: (name, workflow) => {
                     return `
-                        <div class="fw-bold">${name}</div>
-                        <div class="text-secondary">${workflow.description}</div>
+                        <div class="fw-bold my-1">${name}</div>
+                        <div class="text-secondary my-1">${workflow.description}</div>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("name")
@@ -383,8 +383,8 @@ export default class WorkflowGrid extends LitElement {
                 field: "minimumRequirements",
                 formatter: minimumRequirements => {
                     return `
-                        <div><b>CPU</b>: ${minimumRequirements?.cpu || "-"} core(s)</div>
-                        <div><b>Memory</b>: ${minimumRequirements?.memory?.split(".")[0] || "-"} GB</div>
+                        <div class="my-1"><b>CPU</b>: ${minimumRequirements?.cpu || "-"} core(s)</div>
+                        <div class="my-1"><b>Memory</b>: ${minimumRequirements?.memory?.split(".")[0] || "-"} GB</div>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("minimumRequirements")
@@ -410,7 +410,7 @@ export default class WorkflowGrid extends LitElement {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 excludeFromSettings: true,
-                visible: this._config.showActions, // this.gridCommons.isColumnVisible("actions"),
+                visible: this._config.showActions,
             },
         ];
 
