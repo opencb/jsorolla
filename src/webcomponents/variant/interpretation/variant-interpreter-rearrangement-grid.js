@@ -315,30 +315,24 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "table-light",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._getDefaultColumns(),
-                method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
-
                 // Set table properties, these are read from config property
                 uniqueId: "id",
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
                 paginationVAlign: "bottom",
-                formatShowingRows: (pageFrom, pageTo, totalRows) =>
-                    this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
-                showExport: this._config.showExport,
-                // detailView: this._config.detailView,
-                // detailFormatter: this.detailFormatter,
-                // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount);
+                },
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: this,
-
                 ajax: params => {
                     let rearrangementResponse = null;
 
@@ -417,7 +411,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            theadClasses: "table-light",
+            classes: "table table-borderless table-hover table-grid",
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
             sidePagination: "server",
@@ -441,10 +435,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     rows: response,
                 };
             },
-
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
-
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
@@ -453,13 +445,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             paginationVAlign: "bottom",
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
-            // detailView: this._config.detailView,
-            // detailFormatter: this.detailFormatter,
-            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             loadingTemplate: () => GridCommons.loadingFormatter(),
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: this,
-
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 this._rows = data;
