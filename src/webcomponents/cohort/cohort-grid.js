@@ -293,7 +293,7 @@ export default class CohortGrid extends LitElement {
                 formatter: (cohortId, cohort) => {
                     return `
                         <a class="link fw-bold my-1" data-action="view">${cohortId}</div>
-                        ${cohort.name ? `<div class="d-block text-secondary">${cohort.name}</div>` : ""}
+                        ${cohort.name ? `<div class="text-secondary my-1">${cohort.name}</div>` : ""}
                     `;
                 },
                 events: {
