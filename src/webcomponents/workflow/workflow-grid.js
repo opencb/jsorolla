@@ -329,9 +329,12 @@ export default class WorkflowGrid extends LitElement {
                 field: "id",
                 formatter: (workflowId, workflow) => {
                     return`
-                        <a class="fw-bold link my-1" data-action="view">${workflowId}</div>
+                        <a class="fw-bold link my-1" data-action="view">${workflowId}</a>
                         <div class="text-secondary my-1">Version ${workflow.version}</div>
                     `;
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("id")
             },
