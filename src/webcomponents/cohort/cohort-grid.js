@@ -292,9 +292,12 @@ export default class CohortGrid extends LitElement {
                 field: "id",
                 formatter: (cohortId, cohort) => {
                     return `
-                        <div class="fw-bold">${cohortId}</div>
+                        <a class="link fw-bold my-1" data-action="view">${cohortId}</div>
                         ${cohort.name ? `<div class="d-block text-secondary">${cohort.name}</div>` : ""}
                     `;
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("id")
             },
