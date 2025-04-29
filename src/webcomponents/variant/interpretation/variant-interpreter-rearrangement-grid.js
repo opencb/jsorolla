@@ -571,27 +571,29 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 {
                     id: "variant1",
                     title: "Variant 1",
-                    field: "id",
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => {
                         return VariantGridFormatter.variantIdFormatter(value, row[0], index, this.opencgaSession.project.organism.assembly, this._config);
                     },
+                    events: {
+                        "click a": (event, value, row) => this.onActionClick(event, row),
+                    },
                     halign: "center",
-                    sortable: true,
                     visible: this.gridCommons.isColumnVisible("variant1"),
                 },
                 {
                     id: "variant2",
                     title: "Variant 2",
-                    field: "id",
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => {
                         return VariantGridFormatter.variantIdFormatter(value, row[1], index, this.opencgaSession.project.organism.assembly, this._config);
                     },
+                    events: {
+                        "click a": (event, value, row) => this.onActionClick(event, row),
+                    },
                     halign: "center",
-                    sortable: true,
                     visible: this.gridCommons.isColumnVisible("variant2"),
                 },
                 {
@@ -659,7 +661,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     formatter: (value, row) => this.actionsFormatter(value, row),
                     align: "right",
                     events: {
-                        "click a": (event, value, row) => this.onActionClick(event, value, row),
+                        "click a": (event, value, row) => this.onActionClick(event, row),
                     },
                     visible: this._config?.showActions,
                     excludeFromExport: true,
@@ -757,15 +759,20 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         `;
     }
 
-    onActionClick(e, value, row) {
-        const action = (e.target.dataset.action || "").toLowerCase();
+    onActionClick(event, variants) {
+        const action = (event?.currentTarget?.dataset?.action || "").toLowerCase();
         switch (action) {
+            case "view":
+                this._selectedVariant = variants.find(variant => variant.id === event.currentTarget.dataset.variant);
+                this.gridCommons.changeActiveModal("view-variant");
+                break;
             case "edit":
+            case "review":
                 this.variantsReview = null;
-                if (this.checkedVariants && this.checkedVariants.has(row[0].id)) {
+                if (this.checkedVariants && this.checkedVariants.has(variants[0].id)) {
                     this.variantsReview = [
-                        UtilsNew.objectClone(this.checkedVariants.get(row[0].id)),
-                        UtilsNew.objectClone(this.checkedVariants.get(row[1].id)),
+                        UtilsNew.objectClone(this.checkedVariants.get(variants[0].id)),
+                        UtilsNew.objectClone(this.checkedVariants.get(variants[1].id)),
                     ];
                     this.requestUpdate();
                     // eslint-disable-next-line no-undef
@@ -774,7 +781,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 }
                 break;
             case "download":
-                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+                UtilsNew.downloadData([JSON.stringify(variants, null, "\t")], variants.map(v => v.id).join("-") + ".json");
                 break;
         }
     }
@@ -1042,6 +1049,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     </div>
                 </div>
             </div>
+            
+            ${this.gridCommons.renderModals()}
         `;
     }
 
