@@ -424,9 +424,6 @@ export default class WorkflowGrid extends LitElement {
         const hasExecutePermission = this.gridCommons.hasPermission("EXECUTE");
         return `
             <div class="d-flex justify-content-end align-items-center">
-                <a class="btn" data-action="view">
-                    <i class="fas fa-eye"></i>
-                </a>
                 <div class="dropdown d-flex justify-content-end">
                     <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
                         <i class="fas fa-ellipsis-v"></i>
