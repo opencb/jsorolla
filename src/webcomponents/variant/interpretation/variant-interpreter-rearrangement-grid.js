@@ -588,7 +588,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     events: {
                         "click a": (event, value, row) => this.onActionClick(event, row),
                     },
-                    halign: "center",
                     visible: this.gridCommons.isColumnVisible("variant1"),
                 },
                 {
@@ -602,7 +601,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     events: {
                         "click a": (event, value, row) => this.onActionClick(event, row),
                     },
-                    halign: "center",
                     visible: this.gridCommons.isColumnVisible("variant2"),
                 },
                 {
@@ -614,7 +612,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     formatter: (value, row) => {
                         return VariantInterpreterGridFormatter.rearrangementGeneFormatter(row, this.genesByVariant, this.opencgaSession);
                     },
-                    halign: "center",
                     visible: this.gridCommons.isColumnVisible("gene"),
                 },
                 {
@@ -624,7 +621,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => VariantInterpreterGridFormatter.roleInCancerFormatter(row[0]?.evidences, index),
-                    halign: "center",
                     visible: this.clinicalAnalysis.type?.toUpperCase() === "CANCER" && this.gridCommons.isColumnVisible("evidences"),
                 },
                 {
@@ -683,11 +679,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     title: "Variant 1",
                     colspan: 1,
                     rowspan: 1,
+                    halign: "center",
                     formatter: (value, rows) => {
                         return VariantInterpreterGridFormatter.rearrangementFeatureOverlapFormatter(rows[0], this.genesByVariant[rows[0].id], this.opencgaSession);
                     },
-                    halign: "center",
-                    valign: "top",
                     visible: this.gridCommons.isColumnVisible("geneFeatureOverlapVariant1"),
                 },
                 {
@@ -695,11 +690,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     title: "Variant 2",
                     colspan: 1,
                     rowspan: 1,
+                    halign: "center",
                     formatter: (value, rows) => {
                         return VariantInterpreterGridFormatter.rearrangementFeatureOverlapFormatter(rows[1], this.genesByVariant[rows[1].id], this.opencgaSession);
                     },
-                    halign: "center",
-                    valign: "top",
                     visible: this.gridCommons.isColumnVisible("geneFeatureOverlapVariant2"),
                 },
                 ...vcfDataColumns.vcf1,
