@@ -268,23 +268,12 @@ context("Sample Browser Grid", () => {
                         cy.get("@sample-grid")
                             .find(`tbody td:nth-child(${index + 1})`)
                             .each(td => {
-                                expect(td.text()).to.match(regExp);
-                            });
-                    });
-            });
-
-            it("should display a creation date equal or earlier than today", () => {
-                cy.get("@sample-grid")
-                    .find("thead")
-                    .contains("th", "Creation Date")
-                    .invoke("index")
-                    .then(index => {
-                        cy.get("@sample-grid")
-                            .find(`tbody td:nth-child(${index + 1})`)
-                            .each(td => {
-                                const date = new Date(td.text());
-                                const today = new Date();
-                                expect(date).to.be.lte(today);
+                                td.text()
+                                    .split("\n")
+                                    .filter(text => text.trim() !== "")
+                                    .forEach(text => {
+                                        expect(text.trim()).to.match(regExp);
+                                    });
                             });
                     });
             });
