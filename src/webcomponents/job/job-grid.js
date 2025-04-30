@@ -440,9 +440,10 @@ export default class JobGrid extends LitElement {
                 html += `<div style="margin: 2px 0; white-space: nowrap">`;
                 // 1. Normal parameter
                 if (typeof params[key] !== "object") {
-                    const value = (params[key]?.length > 100 ? params[key].substring(0, 100) + "..." : params[key]) || "true";
+                    const value = (params[key]?.length > 25 ? params[key].substring(0, 25) + "..." : params[key]) || "true";
+                    const tooltip = (params[key]?.length > 25 ? params[key] : "");
                     html += `
-                        <span style="margin: 2px 0; font-weight: bold">${key}:</span> ${value}
+                        <span style="margin: 2px 0; font-weight: bold" title="${tooltip}">${key}:</span><span title="${tooltip}">${value}</span>
                     `;
                 } else {
                     // 2. This parameter is an Object, we need to loop its internal subparams.

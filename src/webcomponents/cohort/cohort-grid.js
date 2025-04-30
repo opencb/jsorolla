@@ -113,7 +113,7 @@ export default class CohortGrid extends LitElement {
                     modalTitle: `Cohort ${this._selectedCohort?.id}`,
                     modalDraggable: true,
                     modalCyDataName: "cohort-view",
-                    modalSize: "modal-xl"
+                    modalSize: "modal-2xl"
                 },
                 render: () => html`
                     <cohort-view
@@ -309,9 +309,9 @@ export default class CohortGrid extends LitElement {
             },
             {
                 id: "creationDate",
-                title: "Creation Date",
+                title: "Modification/Creation Date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
+                formatter: (value, row) => CatalogGridFormatter.modifiedAndCreateDateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("creationDate")
             },
             {

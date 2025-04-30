@@ -170,6 +170,14 @@ export default class IndividualBrowser extends LitElement {
                                 quick: true,
                             },
                             {
+                                id: "familyIds",
+                                title: "Family ID",
+                                type: "string",
+                                placeholder: "HG01879, HG01880, HG01881...",
+                                description: "",
+                                quick: true,
+                            },
+                            {
                                 id: "father",
                                 title: "Father ID",
                                 type: "string",

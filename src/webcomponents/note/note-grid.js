@@ -308,7 +308,7 @@ export default class NoteGrid extends LitElement {
         this._columns = [
             {
                 id: "id",
-                title: "Note ID",
+                title: "Note",
                 field: "id",
                 formatter: noteId => {
                     return `<a class="link fw-bold" data-action="view">${noteId}</a>`;
@@ -355,8 +355,8 @@ export default class NoteGrid extends LitElement {
                 id: "visibility",
                 title: "Visibility",
                 field: "visibility",
-                width: "5",
-                widthUnit: "%",
+                // width: "5",
+                // widthUnit: "%",
                 formatter: field => {
                     return `<i class="fas ${field === "PUBLIC" ? "fa-globe-americas" : "fa-lock"}"></i>`;
                 },
@@ -366,8 +366,8 @@ export default class NoteGrid extends LitElement {
                 id: "dates",
                 title: "Modification / Creation Date",
                 field: "Dates",
-                halign: this.displayConfigDefault?.header?.horizontalAlign,
-                valign: "middle",
+                // halign: this.displayConfigDefault?.header?.horizontalAlign,
+                // valign: "middle",
                 formatter: (value, row) => CatalogGridFormatter.modifiedAndCreateDateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("dates")
             },

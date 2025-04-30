@@ -325,12 +325,12 @@ export default class WorkflowGrid extends LitElement {
         this._columns = [
             {
                 id: "id",
-                title: "Workflow ID",
+                title: "Workflow",
                 field: "id",
                 formatter: (workflowId, workflow) => {
                     return`
                         <a class="fw-bold link my-1" data-action="view">${workflowId}</a>
-                        <div class="text-secondary my-1">Version ${workflow.version}</div>
+                        <div class="text-secondary my-1">version ${workflow.version}</div>
                     `;
                 },
                 events: {
@@ -372,6 +372,24 @@ export default class WorkflowGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("tags")
             },
             {
+                id: "repository",
+                title: "GitHub Repository",
+                field: "repository",
+                formatter: repository => {
+                    return `
+                        <div class="">
+                            ${repository?.id ? `
+                                <a class="link d-inline-flex align-items-center gap-1" href="https://github.com/${repository.id}" target="_blank">
+                                    <span>${repository.id} v${repository.version}</span>
+                                    <i class="fa fa-external-link-alt fs-8"></i>
+                                </a>
+                            ` : "-"}
+                        </div>
+                    `;
+                },
+                visible: this.gridCommons.isColumnVisible("repository")
+            },
+            {
                 id: "scripts",
                 title: "Scripts",
                 field: "scripts",
@@ -401,10 +419,27 @@ export default class WorkflowGrid extends LitElement {
             },
             {
                 id: "creationDate",
-                title: "Modified / Created",
+                title: "Modification/Creation Date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.modifiedAndCreateDateFormatter,
+                formatter: (value, row) => CatalogGridFormatter.modifiedAndCreateDateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("creationDate")
+            },
+            {
+                id: "execute",
+                title: "Execute",
+                field: "execute",
+                formatter: _ => {
+                    return `
+                        <a class="btn btn-primary cursor-pointer" data-action="execute">
+                            <i class="fas fa-play me-1"></i>
+                            <span>Execute</span>
+                        </a>
+                    `;
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                visible: this.gridCommons.isColumnVisible("execute")
             },
             {
                 id: "actions",
@@ -454,7 +489,6 @@ export default class WorkflowGrid extends LitElement {
                             <i class="fas fa-edit me-1"></i>
                             <span>Edit</span>
                         </a>
-                        <hr class="dropdown-divider">
                         <a class="dropdown-item ${hasDeletePermission ? "cursor-pointer" : "disabled"}" data-action="delete">
                             <i class="fas fa-trash me-1"></i>
                             <span>Delete</span>
