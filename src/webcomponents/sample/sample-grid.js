@@ -266,6 +266,11 @@ export default class SampleGrid extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .toolParams="${{
                             sample: this._selectedSampleId,
+                        }}"
+                        .config="${{
+                            display: {
+                                titleVisible: false,
+                            },
                         }}">
                     </sample-qc-analysis>
                 `,
@@ -282,6 +287,11 @@ export default class SampleGrid extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .toolParams="${{
                             sample: this._selectedSampleId,
+                        }}"
+                        .config="${{
+                            display: {
+                                titleVisible: false,
+                            },
                         }}">
                     </knockout-analysis>
                 `,
