@@ -24,6 +24,7 @@ import "../commons/opencb-grid-toolbar.js";
 import "../cohort/cohort-create-samples.js";
 import "../individual/individual-view.js";
 import "../file/file-view.js";
+import "../variant/analysis/knockout-analysis.js";
 import "../variant/analysis/sample-qc-analysis.js";
 import "./sample-create.js";
 import "./sample-update.js";
@@ -257,7 +258,7 @@ export default class SampleGrid extends LitElement {
                 display: {
                     modalTitle: `Launch Sample QC Analysis ${this._selectedSampleId}`,
                     modalSize: "modal-lg",
-                    modalCyDataName: "sample-qc",
+                    modalCyDataName: "sample-qc-analysis",
                     modalDraggable: true,
                 },
                 render: () => html`
@@ -267,6 +268,22 @@ export default class SampleGrid extends LitElement {
                             sample: this._selectedSampleId,
                         }}">
                     </sample-qc-analysis>
+                `,
+            }),
+            "launch-knockout-analysis": () => ({
+                display: {
+                    modalTitle: `Launch Knockout Analysis ${this._selectedSampleId}`,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "knockout-analysis",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <knockout-analysis
+                        .opencgaSession="${this.opencgaSession}"
+                        .toolParams="${{
+                            sample: this._selectedSampleId,
+                        }}">
+                    </knockout-analysis>
                 `,
             }),
         });
@@ -595,7 +612,7 @@ export default class SampleGrid extends LitElement {
                     <a data-action="sample-qc-analysis" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
                         <i class="fas fa-edit me-1"></i> Quality Control
                     </a>
-                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                    <a data-action="knockout-analysis" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
                         <i class="fas fa-edit me-1"></i> Knockout Analysis
                     </a>
                     <hr class="dropdown-divider">
@@ -657,6 +674,10 @@ export default class SampleGrid extends LitElement {
             case "sample-qc-analysis":
                 this._selectedSampleId = sample.id;
                 this.gridCommons.changeActiveModal("launch-sample-qc-analysis");
+                break;
+            case "knockout-analysis":
+                this._selectedSampleId = sample.id;
+                this.gridCommons.changeActiveModal("launch-knockout-analysis");
                 break;
         }
     }
