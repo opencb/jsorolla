@@ -24,6 +24,7 @@ import "../commons/opencb-grid-toolbar.js";
 import "../cohort/cohort-create-samples.js";
 import "../individual/individual-view.js";
 import "../file/file-view.js";
+import "../variant/analysis/sample-qc-analysis.js";
 import "./sample-create.js";
 import "./sample-update.js";
 import "./sample-view.js";
@@ -250,6 +251,22 @@ export default class SampleGrid extends LitElement {
                             showTitle: false,
                         }}">
                     </sample-variant-stats-browser>
+                `,
+            }),
+            "launch-sample-qc-analysis": () => ({
+                display: {
+                    modalTitle: `Launch Sample QC Analysis ${this._selectedSampleId}`,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "sample-qc",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <sample-qc-analysis
+                        .opencgaSession="${this.opencgaSession}"
+                        .toolParams="${{
+                            sample: this._selectedSampleId,
+                        }}">
+                    </sample-qc-analysis>
                 `,
             }),
         });
@@ -575,7 +592,7 @@ export default class SampleGrid extends LitElement {
                     <a class="dropdown-item cursor-pointer" data-action="view-variant-stats">
                             <i class="fas fa-user-md me-1"></i> Variant Stats
                     </a>
-                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                    <a data-action="sample-qc-analysis" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
                         <i class="fas fa-edit me-1"></i> Quality Control
                     </a>
                     <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
@@ -636,6 +653,10 @@ export default class SampleGrid extends LitElement {
             case "view-variant-stats":
                 this._selectedSampleId = sample.id;
                 this.gridCommons.changeActiveModal("view-sample-variant-stats");
+                break;
+            case "sample-qc-analysis":
+                this._selectedSampleId = sample.id;
+                this.gridCommons.changeActiveModal("launch-sample-qc-analysis");
                 break;
         }
     }
