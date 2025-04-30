@@ -39,11 +39,11 @@ export default class WorkflowImport extends LitElement {
             repositories: {
                 type: Array
             },
-            opencgaSession: {
-                type: Object
-            },
             mode: {
                 type: String
+            },
+            opencgaSession: {
+                type: Object
             },
         };
     }
@@ -164,15 +164,13 @@ export default class WorkflowImport extends LitElement {
                     {
                         title: "Name",
                         field: "full_name",
-                        rowspan: 1,
-                        colspan: 1,
                         formatter: (value, row) => {
                             return `
-                                <div>
-                                    <div class="my-2">${value}
-                                        <a href="${row.homepage}"  target="_blank"><i class="fas fa-external-link-alt ps-2"></i></a>
+                                <div class="d-flex flex-column gap-1">
+                                    <div>
+                                        ${value} <a href="${row.homepage}"  target="_blank"><i class="fas fa-external-link-alt ps-2"></i></a>
                                     </div>
-                                    <div class="d-block text-secondary my-1">${row.description}</div>
+                                    <div class="d-block text-secondary">${row.description}</div>
                                 </div>
                             `;
                         },
@@ -182,15 +180,11 @@ export default class WorkflowImport extends LitElement {
                     {
                         title: "Version",
                         field: "releases",
-                        rowspan: 1,
-                        colspan: 1,
                         formatter: value => {
                             return `
-                                <div>
-                                    <div class="my-2">
-                                        <span>
-                                            ${value[0]?.tag_name}
-                                        </span>
+                                <div class="d-flex flex-column gap-1">
+                                    <div>
+                                        ${value[0]?.tag_name}
                                     </div>
                                     <div class="d-block text-secondary">Published at ${UtilsNew.dateFormatter(value[0].published_at)}</div>
                                 </div>
@@ -200,14 +194,12 @@ export default class WorkflowImport extends LitElement {
                     {
                         title: "Default Branch",
                         field: "default_branch",
-                        rowspan: 1,
-                        colspan: 1,
                         formatter: (value, row) => {
                             return `
-                                <div>
-                                    <div class="my-2">
+                                <div class="d-flex flex-column gap-1">
+                                    <div>
                                         <span>Branch: ${value}</span>
-                                        <a href="${row.html_url}" target="_blank"><i class="fab fa-github fa-lg ps-2"></i></a>
+                                        <a href="${row.html_url}" target="_blank"><i class="fab fa-github fa-lg ps-1"></i></a>
                                     </div>
                                     <div class="d-block text-secondary">Updated at ${UtilsNew.dateFormatter(row.updated_at)}</div>
                                 </div>
@@ -217,16 +209,10 @@ export default class WorkflowImport extends LitElement {
                     {
                         title: "Stars",
                         field: "stargazers_count",
-                        rowspan: 1,
-                        colspan: 1,
                         formatter: value => {
                             return `
-                                <div>
-                                    <a>
-                                        <span>
-                                            <i class="fas fa-star pe-2" aria-hidden="true" style="color: darkgoldenrod"></i>${value}
-                                        </span>
-                                    </a>
+                                <div style="text-wrap:nowrap;">
+                                    <i class="fas fa-star" aria-hidden="true" style="color: darkgoldenrod"></i> ${value}
                                 </div>
                             `;
                         }
@@ -234,8 +220,6 @@ export default class WorkflowImport extends LitElement {
                     {
                         title: "Add",
                         field: "add",
-                        rowspan: 1,
-                        colspan: 1,
                         formatter: () => {
                             return `
                                 <button type="button" class="btn btn-primary">Add</button>
