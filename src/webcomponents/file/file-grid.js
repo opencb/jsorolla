@@ -479,7 +479,7 @@ export default class OpencgaFileGrid extends LitElement {
             },
             {
                 id: "jobId",
-                title: "Job ID",
+                title: "Job",
                 field: "jobId",
                 formatter: jobId => {
                     return jobId ? `<a class="link fw-bold" data-action="view-job" data-job="${jobId}">${jobId}</a>` : "-";

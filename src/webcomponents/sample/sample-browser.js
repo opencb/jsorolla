@@ -174,6 +174,13 @@ export default class SampleBrowser extends LitElement {
                                 quick: true,
                             },
                             {
+                                id: "cohortIds",
+                                title: "Cohort ID",
+                                placeholder: "file.vcf, ...",
+                                description: "",
+                                quick: true,
+                            },
+                            {
                                 id: "phenotypes",
                                 title: "Phenotypes",
                                 placeholder: "Full-text search, e.g. melanoma",

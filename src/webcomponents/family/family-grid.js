@@ -375,7 +375,7 @@ export default class FamilyGrid extends LitElement {
                 id: "members",
                 title: "Members",
                 field: "members",
-                formatter: members => this.membersFormatter(members),
+                formatter: (members, family) => this.membersFormatter(members, family),
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
@@ -433,15 +433,25 @@ export default class FamilyGrid extends LitElement {
         return this._columns;
     }
 
-    membersFormatter(members) {
+    membersFormatter(members, family) {
+        let memberRoles = {};
+        Object.entries(family?.roles || {}).forEach(([_, individuals]) => {
+            memberRoles = {
+                ...individuals,
+                ...memberRoles
+            };
+        });
+
         const memberItems = (members || []).map(member => {
+            // Old version displayed the sex: ${member?.sex?.id ? `<span class="text-secondary">(${member.sex.id})</span>` : ""}
             return `
                 <div style="white-space: nowrap">
                     <a class="fw-bold link" data-action="view-individual" data-individual="${member.id}">${member.id}</a>
-                    ${member?.sex?.id ? `<span class="text-secondary">(${member.sex.id})</span>` : ""}
+                    ${memberRoles[member.id] ? `<span class="text-secondary">(${memberRoles[member.id]})</span>` : ""}
                 </div>
             `;
         });
+
         // Note: we only display the first 5 members of the family
         return GridCommons.generateExpandCollapseContent(memberItems, 5);
     }

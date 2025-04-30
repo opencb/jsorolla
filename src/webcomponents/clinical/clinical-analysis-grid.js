@@ -290,6 +290,20 @@ export default class ClinicalAnalysisGrid extends LitElement {
     _getDefaultColumns() {
         this._columns = [
             {
+                id: "icon",
+                field: "interpreter",
+                formatter: (_, row) => {
+                    return `
+                        <a class="btn btn-lg cursor-pointer" href="${WebUtils.getInterpreterLink(this.opencgaSession, row.id)}">
+                            <i class="fas fa-sign-in-alt me-1"></i>
+                        </a>
+                    `;
+                },
+                align: "center",
+                width: 20,
+                excludeFromSettings: true,
+            },
+            {
                 id: "caseId",
                 title: "Case",
                 field: "id",
@@ -380,6 +394,20 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("dates"),
+            },
+            {
+                id: "interpreter",
+                title: "Interpreter",
+                field: "interpreter",
+                formatter: (_, row) => {
+                    return `
+                        <a class="btn btn-primary cursor-pointer" href="${WebUtils.getInterpreterLink(this.opencgaSession, row.id)}">
+                            <i class="fas fa-sign-in-alt me-1"></i>
+                            <span>Enter</span>
+                        </a>
+                    `;
+                },
+                visible: this.gridCommons.isColumnVisible("interpreter")
             },
             {
                 id: "actions",
