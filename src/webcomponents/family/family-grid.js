@@ -23,6 +23,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../clinical/clinical-analysis-view.js";
 import "../individual/individual-view.js";
+import "../variant/analysis/family-qc-analysis.js";
 import "./family-create.js";
 import "./family-update.js";
 import "./family-view.js";
@@ -197,6 +198,27 @@ export default class FamilyGrid extends LitElement {
                         .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
                     </clinical-analysis-view>
+                `,
+            }),
+            "launch-family-qc-analysis": () => ({
+                display: {
+                    modalTitle: `Launch Family QC Analysis ${this._selectedFamilyId}`,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "family-qc-analysis",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <family-qc-analysis
+                        .opencgaSession="${this.opencgaSession}"
+                        .toolParams="${{
+                            family: this._selectedFamilyId,
+                        }}"
+                        .config="${{
+                            display: {
+                                titleVisible: false,
+                            },
+                        }}">
+                    </family-qc-analysis>
                 `,
             }),
         });
@@ -477,7 +499,7 @@ export default class FamilyGrid extends LitElement {
                     </a>
                     <hr class="dropdown-divider">
                     <div class="dropdown-header">Analysis</div>
-                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                    <a data-action="family-qc-analysis" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
                         <i class="fas fa-edit me-1"></i> Quality Control
                     </a>
                     <hr class="dropdown-divider">
@@ -531,6 +553,10 @@ export default class FamilyGrid extends LitElement {
                 break;
             case "quality-control":
                 alert("Not implemented yet");
+                break;
+            case "family-qc-analysis":
+                this._selectedFamilyId = family.id;
+                this.gridCommons.changeActiveModal("launch-family-qc-analysis");
                 break;
         }
     }
