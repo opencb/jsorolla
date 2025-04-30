@@ -21,52 +21,28 @@ import GridCommons from "../../commons/grid-commons.js";
 
 export default class VariantInterpreterGridFormatter {
 
-    static roleInCancerFormatter(value, row, index) {
-        if (value) {
-            const roles = new Set();
-            for (const evidence of value) {
-                if (evidence?.rolesInCancer?.length > 0) {
-                    for (const roleInCancer of evidence.rolesInCancer) {
-                        if (roleInCancer && evidence.genomicFeature.geneName) {
-                            const roleInCancerText = roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : roleInCancer;
-                            roles.add(`${roleInCancerText} (${evidence.genomicFeature.geneName})`);
-                        }
-                    }
-                } else {
-                    // TODO Remove this legacy code
-                    if (evidence.roleInCancer && evidence.genomicFeature.geneName) {
-                        const roleInCancer = evidence.roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || evidence.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : evidence.roleInCancer;
-                        roles.add(`${roleInCancer} (${evidence.genomicFeature.geneName})`);
+    static roleInCancerFormatter(evidences) {
+        const roles = new Set();
+        (evidences || []).forEach(evidence => {
+            if (evidence?.rolesInCancer?.length > 0) {
+                for (const roleInCancer of evidence.rolesInCancer) {
+                    if (roleInCancer && evidence.genomicFeature.geneName) {
+                        const roleInCancerText = roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : roleInCancer;
+                        roles.add(`${roleInCancerText} (${evidence.genomicFeature.geneName})`);
                     }
                 }
-            }
-            const rolesList = Array.from(roles.keys());
-            if (rolesList.length > 0) {
-                // Do not display more than 'maxDisplayedRoles' roles
-                const maxDisplayedRoles = 8;
-                if (rolesList.length <= maxDisplayedRoles) {
-                    return Array.from(roles.keys()).join("<br>");
-                } else {
-                    return `
-                        <div data-role="roles-list" data-variant-index="${index}">
-                            ${rolesList.slice(0, maxDisplayedRoles).join("<br>")}
-                            <span data-role="roles-list-extra" style="display:none">
-                                ${rolesList.slice(maxDisplayedRoles).join("<br>")}
-                            </span>
-                            <div style="margin-top:8px;">
-                                <a data-role="roles-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
-                                    ... show more (${(rolesList.length - maxDisplayedRoles)})
-                                </a>
-                                <a data-role="roles-list-hide" style="cursor:pointer;font-size:13px;font-weight:bold;display:none;">
-                                    show less
-                                </a>
-                            </div>
-                        </div>
-                    `;
+            } else {
+                // TODO Remove this legacy code
+                if (evidence.roleInCancer && evidence.genomicFeature.geneName) {
+                    const roleInCancer = evidence.roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || evidence.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : evidence.roleInCancer;
+                    roles.add(`${roleInCancer} (${evidence.genomicFeature.geneName})`);
                 }
             }
-        }
-        return "-";
+        });
+        const rolesList = Array.from(roles.keys()).map(role => {
+            return `<div>${role}</div>`;
+        });
+        return GridCommons.generateExpandCollapseContent(rolesList, 8);
     }
 
     static studyCohortsFormatter(value, row) {
@@ -538,7 +514,8 @@ export default class VariantInterpreterGridFormatter {
                     <td style="width: ${refWidth}px; background-color: ${refColor}; border-right: 1px solid white; opacity: ${opacity}%; ${refWidth === 0 ? "display: none" : ""}">&nbsp;</td>
                     <td style="width: ${altWidth}px; background-color: ${altColor}; border-right: 1px solid white; opacity: ${opacity}%; ${altWidth === 0 ? "display: none" : ""}">&nbsp;</td>
                 </tr>
-            </table>`;
+            </table>
+        `;
     }
 
     static alleleGenotypeRenderer(variant, sampleEntry, mode) {
