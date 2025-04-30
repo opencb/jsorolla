@@ -17,6 +17,7 @@
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
+import GridCommons from "../../commons/grid-commons.js";
 
 export default class VariantInterpreterGridFormatter {
 
@@ -1023,80 +1024,79 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static rearrangementFeatureOverlapFormatter(variant, genes, opencgaSession) {
-        if (variant?.annotation?.consequenceTypes) {
-            const overlaps = [];
-            (variant.annotation.consequenceTypes || [])
-                .filter(ct => genes.has(ct.geneName || ct.geneId || ""))
-                .forEach(ct => {
-                    if (Array.isArray(ct.exonOverlap) && ct.exonOverlap?.length > 0) {
-                        ct.exonOverlap.map(exon => {
+        const overlaps = [];
+        (variant?.annotation?.consequenceTypes || [])
+            .filter(ct => genes.has(ct.geneName || ct.geneId || ""))
+            .forEach(ct => {
+                if (Array.isArray(ct.exonOverlap) && ct.exonOverlap?.length > 0) {
+                    ct.exonOverlap.map(exon => {
+                        overlaps.push({
+                            geneName: ct.geneName || ct.geneId || "",
+                            transcript: ct.transcript || ct.ensemblTranscriptId || "",
+                            feature: `exon (${exon.number || "-"})`,
+                        });
+                    });
+                } else if (Array.isArray(ct.sequenceOntologyTerms) && ct.sequenceOntologyTerms?.length > 0) {
+                    ct.sequenceOntologyTerms.forEach(term => {
+                        if (term.name === "intron_variant") {
                             overlaps.push({
                                 geneName: ct.geneName || ct.geneId || "",
                                 transcript: ct.transcript || ct.ensemblTranscriptId || "",
-                                feature: `exon (${exon.number || "-"})`,
+                                feature: "intron",
                             });
-                        });
-                    } else if (Array.isArray(ct.sequenceOntologyTerms) && ct.sequenceOntologyTerms?.length > 0) {
-                        ct.sequenceOntologyTerms.forEach(term => {
-                            if (term.name === "intron_variant") {
-                                overlaps.push({
-                                    geneName: ct.geneName || ct.geneId || "",
-                                    transcript: ct.transcript || ct.ensemblTranscriptId || "",
-                                    feature: "intron",
-                                });
-                            } else if (term.name === "5_prime_UTR_variant" || term.name === "3_prime_UTR_variant") {
-                                overlaps.push({
-                                    geneName: ct.geneName || ct.geneId || "",
-                                    transcript: ct.transcript || ct.ensemblTranscriptId || "",
-                                    feature: `${term.name.charAt(0)}'-UTR`,
-                                });
-                            }
-                        });
-                    }
-                });
-
-            if (overlaps.length > 0) {
-                const maxDisplayedOverlaps = 3;
-                const separator = `<div style="background-color:currentColor;height:1px;margin-top:6px;margin-bottom:6px;opacity:0.2"></div>`;
-                const displayedOverlaps = overlaps.map(overlap => {
-                    let geneHtml = "-";
-                    if (overlap.geneName) {
-                        const tooltip = VariantGridFormatter.getGeneTooltip(overlap.geneName, opencgaSession?.project?.organism?.assembly);
-                        geneHtml = `
-                            <a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltip}" style="margin-left: 2px">
-                                ${overlap.geneName}
-                            </a>
-                        `;
-                    }
-                    return `
-                        <div>
-                            <div><b>Gene</b>: ${geneHtml}</div>
-                            <div><b>Transcript</b>: ${overlap.transcript || "-"}</div>
-                            <div><b>Feature</b>: ${overlap.feature || "-"}</div>
-                        </div>
-                    `;
-                });
-                return `
-                    <div data-role="gene-feature-overlaps-list">
-                        ${displayedOverlaps.slice(0, maxDisplayedOverlaps).join(separator)}
-                        <div data-role="gene-feature-overlaps-list-extra" style="display:none">
-                            ${separator}
-                            ${displayedOverlaps.slice(maxDisplayedOverlaps).join(separator)}
-                        </div>
-                        <div style="margin-top:8px;display:${overlaps.length > maxDisplayedOverlaps ? "block" : "none"}">
-                            <a data-role="gene-feature-overlaps-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
-                                ... show more (${(overlaps.length - maxDisplayedOverlaps)})
-                            </a>
-                            <a data-role="gene-feature-overlaps-list-hide" style="cursor:pointer;font-size:13px;font-weight:bold;display:none;">
-                                show less
-                            </a>
-                        </div>
-                    </div>
+                        } else if (term.name === "5_prime_UTR_variant" || term.name === "3_prime_UTR_variant") {
+                            overlaps.push({
+                                geneName: ct.geneName || ct.geneId || "",
+                                transcript: ct.transcript || ct.ensemblTranscriptId || "",
+                                feature: `${term.name.charAt(0)}'-UTR`,
+                            });
+                        }
+                    });
+                }
+            });
+        const maxDisplayedOverlaps = 3;
+        const separator = `<div style="background-color:currentColor;height:1px;margin-top:6px;margin-bottom:6px;opacity:0.2"></div>`;
+        const displayedOverlaps = overlaps.map(overlap => {
+            let geneHtml = "-";
+            if (overlap.geneName) {
+                const tooltip = VariantGridFormatter.getGeneTooltip(overlap.geneName, opencgaSession?.project?.organism?.assembly);
+                geneHtml = `
+                    <a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltip}" style="margin-left: 2px">
+                        ${overlap.geneName}
+                    </a>
                 `;
             }
-        }
-        // Nothing to display
-        return "-";
+            return `
+                <div>
+                    <div><b>Gene</b>: ${geneHtml}</div>
+                    <div><b>Transcript</b>: ${overlap.transcript || "-"}</div>
+                    <div><b>Feature</b>: ${overlap.feature || "-"}</div>
+                </div>
+            `;
+        });
+        // generate the list of overlap features using gridCommons
+        return GridCommons.generateExpandCollapseContent(displayedOverlaps, maxDisplayedOverlaps);
+        //         return `
+        //             <div data-role="gene-feature-overlaps-list">
+        //                 ${displayedOverlaps.slice(0, maxDisplayedOverlaps).join(separator)}
+        //                 <div data-role="gene-feature-overlaps-list-extra" style="display:none">
+        //                     ${separator}
+        //                     ${displayedOverlaps.slice(maxDisplayedOverlaps).join(separator)}
+        //                 </div>
+        //                 <div style="margin-top:8px;display:${overlaps.length > maxDisplayedOverlaps ? "block" : "none"}">
+        //                     <a data-role="gene-feature-overlaps-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
+        //                         ... show more (${(overlaps.length - maxDisplayedOverlaps)})
+        //                     </a>
+        //                     <a data-role="gene-feature-overlaps-list-hide" style="cursor:pointer;font-size:13px;font-weight:bold;display:none;">
+        //                         show less
+        //                     </a>
+        //                 </div>
+        //             </div>
+        //         `;
+        //     }
+        // }
+        // // Nothing to display
+        // return "-";
     }
 
     static rearrangementGeneFormatter(variants, genesByVariant, opencgaSession) {
