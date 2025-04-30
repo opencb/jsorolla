@@ -179,6 +179,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     modalTitle: `Variant ${this._selectedVariant.id}`,
                     modalCyDataName: `modal-variant-view`,
                     modalSize: "modal-3xl",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <variant-interpreter-view
