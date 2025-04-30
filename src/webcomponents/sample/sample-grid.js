@@ -562,7 +562,7 @@ export default class SampleGrid extends LitElement {
                     result = `
                         <div class="d-flex flex-column gap-1">
                             <label>${variantIndexStatusId}</label>
-                            <label>${sample.internal.variant.annotationIndex.status.id === "READY" ? "Annotated" : "Annotation Pending"}</label>
+                            <label>${sample?.internal?.variant?.annotationIndex?.status?.id === "READY" ? "Annotated" : "Annotation Pending"}</label>
                         </div>
                     `;
                     return result;
