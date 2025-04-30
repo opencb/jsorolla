@@ -27,6 +27,7 @@ import "../file/file-view.js";
 import "./sample-create.js";
 import "./sample-update.js";
 import "./sample-view.js";
+import "./sample-variant-stats-browser.js";
 
 export default class SampleGrid extends LitElement {
 
@@ -230,6 +231,25 @@ export default class SampleGrid extends LitElement {
                         .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
                     </clinical-analysis-view>
+                `,
+            }),
+            "view-sample-variant-stats": () => ({
+                display: {
+                    modalTitle: `Sample Variant Stats ${this._selectedSampleId}`,
+                    modalSize: "modal-2xl",
+                    modalCyDataName: "sample-variant-stats",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <sample-variant-stats-browser
+                        .opencgaSession="${this.opencgaSession}"
+                        .sampleId="${this._selectedSampleId}"
+                        .active="${true}"
+                        .settings="${{
+                            ...VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS,
+                            showTitle: false,
+                        }}">
+                    </sample-variant-stats-browser>
                 `,
             }),
         });
@@ -552,7 +572,7 @@ export default class SampleGrid extends LitElement {
                     </a>
                     <hr class="dropdown-divider">
                     <div class="dropdown-header">Analysis</div>
-                    <a class="dropdown-item" href="#research/sample-variant-stats-browser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}?id=${row.id}">
+                    <a class="dropdown-item cursor-pointer" data-action="view-variant-stats">
                             <i class="fas fa-user-md me-1"></i> Variant Stats
                     </a>
                     <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
@@ -612,6 +632,10 @@ export default class SampleGrid extends LitElement {
             case "view-clinical-analysis":
                 this._selectedClinicalAnalysisId = event.currentTarget?.dataset?.clinicalAnalysis;
                 this.gridCommons.changeActiveModal("view-clinical-analysis");
+                break;
+            case "view-variant-stats":
+                this._selectedSampleId = sample.id;
+                this.gridCommons.changeActiveModal("view-sample-variant-stats");
                 break;
         }
     }
