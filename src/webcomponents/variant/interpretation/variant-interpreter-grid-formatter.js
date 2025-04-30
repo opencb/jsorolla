@@ -1055,7 +1055,6 @@ export default class VariantInterpreterGridFormatter {
                 }
             });
         const maxDisplayedOverlaps = 3;
-        const separator = `<div style="background-color:currentColor;height:1px;margin-top:6px;margin-bottom:6px;opacity:0.2"></div>`;
         const displayedOverlaps = overlaps.map(overlap => {
             let geneHtml = "-";
             if (overlap.geneName) {
@@ -1076,27 +1075,6 @@ export default class VariantInterpreterGridFormatter {
         });
         // generate the list of overlap features using gridCommons
         return GridCommons.generateExpandCollapseContent(displayedOverlaps, maxDisplayedOverlaps);
-        //         return `
-        //             <div data-role="gene-feature-overlaps-list">
-        //                 ${displayedOverlaps.slice(0, maxDisplayedOverlaps).join(separator)}
-        //                 <div data-role="gene-feature-overlaps-list-extra" style="display:none">
-        //                     ${separator}
-        //                     ${displayedOverlaps.slice(maxDisplayedOverlaps).join(separator)}
-        //                 </div>
-        //                 <div style="margin-top:8px;display:${overlaps.length > maxDisplayedOverlaps ? "block" : "none"}">
-        //                     <a data-role="gene-feature-overlaps-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
-        //                         ... show more (${(overlaps.length - maxDisplayedOverlaps)})
-        //                     </a>
-        //                     <a data-role="gene-feature-overlaps-list-hide" style="cursor:pointer;font-size:13px;font-weight:bold;display:none;">
-        //                         show less
-        //                     </a>
-        //                 </div>
-        //             </div>
-        //         `;
-        //     }
-        // }
-        // // Nothing to display
-        // return "-";
     }
 
     static rearrangementGeneFormatter(variants, genesByVariant, opencgaSession) {
