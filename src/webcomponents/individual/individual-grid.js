@@ -25,6 +25,7 @@ import "../clinical/clinical-analysis-view.js";
 import "../cohort/cohort-create-samples.js";
 import "../sample/sample-view.js";
 import "../family/family-view.js";
+import "../variant/analysis/individual-qc-analysis.js";
 import "./individual-view.js";
 import "./individual-create.js";
 import "./individual-update.js";
@@ -238,6 +239,27 @@ export default class IndividualGrid extends LitElement {
                         .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
                     </family-view>
+                `,
+            }),
+            "launch-individual-qc-analysis": () => ({
+                display: {
+                    modalTitle: `Launch Individual QC Analysis ${this._selectedIndividualId}`,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "individual-qc-analysis",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <individual-qc-analysis
+                        .opencgaSession="${this.opencgaSession}"
+                        .toolParams="${{
+                            individual: this._selectedIndividualId,
+                        }}"
+                        .config="${{
+                            display: {
+                                titleVisible: false,
+                            },
+                        }}">
+                    </individual-qc-analysis>
                 `,
             }),
         });
@@ -570,7 +592,7 @@ export default class IndividualGrid extends LitElement {
                     </a>
                     <hr class="dropdown-divider">
                     <div class="dropdown-header">Analysis</div>
-                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                    <a data-action="individual-qc-analysis" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
                         <i class="fas fa-edit me-1"></i> Quality Control
                     </a>
                     <hr class="dropdown-divider">
@@ -624,6 +646,10 @@ export default class IndividualGrid extends LitElement {
                 break;
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(individual, null, "\t")], individual.id + ".json");
+                break;
+            case "individual-qc-analysis":
+                this._selectedIndividualId = individual.id;
+                this.gridCommons.changeActiveModal("launch-individual-qc-analysis");
                 break;
         }
     }
