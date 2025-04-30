@@ -432,13 +432,13 @@ export default class GridCommons {
                             <div class="cursor-pointer" data-role="expand-content" style="">
                                 <div class="d-flex align-items-center gap-2">
                                     <i class="fa fa-chevron-down fs-8"></i>
-                                    <span class="fw-bold hover:text-decoration-underline">Show all (${items.length})</span>
+                                    <span class="fw-bold hover:text-decoration-underline text-nowrap">Show all (${items.length})</span>
                                 </div>
                             </div>
                             <div class="cursor-pointer" data-role="collapse-content" style="display:none;">
                                 <div class="d-flex align-items-center gap-2">
                                     <i class="fa fa-chevron-up fs-8"></i>
-                                    <span class="fw-bold hover:text-decoration-underline">Show less</span>
+                                    <span class="fw-bold hover:text-decoration-underline text-nowrap">Show less</span>
                                 </div>
                             </div>
                         </div>
