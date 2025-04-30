@@ -18,6 +18,7 @@ import VariantFormatter from "./variant-formatter.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter";
 import CustomActions from "../commons/custom-actions.js";
+import GridCommons from "../commons/grid-commons.js";
 
 
 export default class VariantGridFormatter {
@@ -174,35 +175,13 @@ export default class VariantGridFormatter {
                 }
             }
 
-            // Do not write more than 4 genes per line, this could be easily configurable
-            let resultHtml = "";
             const maxDisplayedGenes = 5;
-            const allGenes = geneWithCtLinks.concat(geneLinks);
-
-            if (allGenes.length <= maxDisplayedGenes) {
-                resultHtml = allGenes.join("<br>");
-            } else {
-                resultHtml = `
-                    <div data-role="genes-list" data-variant-index="${index}">
-                        ${allGenes.slice(0, maxDisplayedGenes).join("<br>")}
-                        <span data-role="genes-list-extra" style="display:none">
-                            ${allGenes.slice(maxDisplayedGenes).join("<br>")}
-                        </span>
-                        <div style="margin-top:8px;">
-                            <a data-role="genes-list-show" style="cursor:pointer;font-size:13px;font-weight:bold;display:block;">
-                                ... show more genes (${(allGenes.length - maxDisplayedGenes)})
-                            </a>
-                            <a data-role="genes-list-hide" style="cursor:pointer;font-size:13px;font-weight:bold;display:none;">
-                                show less genes
-                            </a>
-                        </div>
-                    </div>
-                `;
-            }
-            return resultHtml || "-";
-        } else {
-            return "-";
+            const allGenes = [...geneWithCtLinks, ...geneLinks].map(gene => {
+                return `<div>${gene}</div>`;
+            });
+            return GridCommons.generateExpandCollapseContent(allGenes, maxDisplayedGenes);
         }
+        return "-";
     }
 
     static getGeneTooltip(geneName, assembly) {
