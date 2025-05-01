@@ -536,13 +536,13 @@ export default class IndividualGrid extends LitElement {
                 },
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
-            {
-                id: "ethnicity",
-                title: "Ethnicity",
-                field: "ethnicity",
-                formatter: (ethnicity, row) => ethnicity?.id || row.population?.name || "-",
-                visible: this.gridCommons.isColumnVisible("ethnicity")
-            },
+            // {
+            //     id: "ethnicity",
+            //     title: "Ethnicity",
+            //     field: "ethnicity",
+            //     formatter: (ethnicity, row) => ethnicity?.id || row.population?.name || "-",
+            //     visible: this.gridCommons.isColumnVisible("ethnicity")
+            // },
             {
                 id: "creationDate",
                 title: "Modification/Creation Date",
