@@ -39,9 +39,6 @@ export default class WorkflowImport extends LitElement {
             repositories: {
                 type: Array
             },
-            mode: {
-                type: String
-            },
             opencgaSession: {
                 type: Object
             },
@@ -49,9 +46,6 @@ export default class WorkflowImport extends LitElement {
     }
 
     #init() {
-        this.workflow = {};
-        this.mode = "";
-
         this._config = this.getDefaultConfig();
     }
 
@@ -60,11 +54,8 @@ export default class WorkflowImport extends LitElement {
         this.requestUpdate();
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.fetchRepositories("nf-core");
-        }
-        super.update(changedProperties);
+    firstUpdated() {
+        this.fetchRepositories("nf-core");
     }
 
     onAdd(e, row) {
