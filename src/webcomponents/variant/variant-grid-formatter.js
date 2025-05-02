@@ -1002,6 +1002,7 @@ export default class VariantGridFormatter {
             }
 
             let tooltipText = "";
+            const tooltipRows = [];
             switch (this.field?.toUpperCase()) {
                 case "CLINVAR":
                     const results = [];
@@ -1068,23 +1069,30 @@ export default class VariantGridFormatter {
 
                         // Prepare the tooltip links
                         if (!trait.id?.startsWith("SCV")) {
-                            // We display the link plus the clinical significance and all the heritable trait descriptions
-                            tooltipText += `
-                            <div style="margin: 10px 5px">
-                                <div>
-                                    <a href="${trait.url}" target="_blank">${trait.id}</a>
-                                    <span style="font-style: italic; color: ${color}; margin-left: 10px">
-                                        ${clinicalSignificance} ${drugResponseClassification ? "(" + drugResponseClassification + ")" : ""}
-                                    </span>
-                                </div>
-                                <div>
-                                    ${trait?.heritableTraits?.length > 0 && trait.heritableTraits
-                                .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
-                                .map(t => `<span class="d-block text-secondary" style="margin: 5px 1px">${t.trait}</span>`)
-                                .join("")
-                            }
-                                </div>
-                            </div>`;
+                            const heritableTraits = trait.heritableTraits
+                                .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided");
+                            const row = `
+                                <tr style="border-top:1px solid #ededed;">
+                                    <td class="p-2">
+                                        <a href="${trait.url}" target="_blank">${trait.id}</a>
+                                    </td>
+                                    <td class="p-2">
+                                        ${trait.genomicFeatures?.find(gf => gf.featureType === "gene")?.xrefs?.symbol || ""}
+                                    </td>
+                                    <td class="p-2">
+                                        <span style="color: ${color}">${clinicalSignificance} ${drugResponseClassification ? "(" + drugResponseClassification + ")" : ""}</span>
+                                    </td>
+                                    <td class="p-2">
+                                        <span>${trait?.additionalProperties.find(p => p.name === "ReviewStatus_in_source_file")?.value || ""}</span>
+                                    </td>
+                                    <td class="p-2">
+                                        ${heritableTraits?.length > 0 ? `
+                                            ${heritableTraits.map(t => `<span>${t.trait}</span>`).join("")}
+                                        ` : "-"}
+                                    </td>
+                                </tr>
+                            `;
+                            tooltipRows.push(row);
                         }
                     }
 
@@ -1093,7 +1101,22 @@ export default class VariantGridFormatter {
                         return "<span style=\"color: grey\" title=\"ClinVar submissions without an interpretation of clinical significance\">NP</span>";
                     }
 
-                    return `<a class="clinvar-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${results.join("<br>")}</a>`;
+                    tooltipText = `
+                        <table class="tooltip-2xl">
+                            <thead>
+                                <tr>
+                                    <th class="p-2">ClinVar ID</th>
+                                    <th class="p-2">Gene</th>
+                                    <th class="p-2">Clinical Significance</th>
+                                    <th class="p-2">Status</th>
+                                    <th class="p-2">Heritable Trait</th>
+                                </tr>
+                            </thead>
+                            <tbody>${tooltipRows.join("")}</tbody>
+                        </table>
+                     `;
+
+                    return `<a class="clinvar-tooltip" tooltip-title='ClinVar' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${results.join("<br>")}</a>`;
                 case "COSMIC":
                     // Prepare the tooltip links
                     const cosmicMap = new Map();
@@ -1106,26 +1129,79 @@ export default class VariantGridFormatter {
                         }
                     });
 
-                    Array.from(cosmicMap.entries()).forEach(([traitId, histologies]) => {
-                        const histologiesItems = Array.from(histologies.values())
-                            .filter(histology => histology && histology !== "null")
-                            .map(histology => `<span class="d-block text-secondary" style="margin: 5px 1px">${histology}</span>`)
-                            .join("");
+                    // Array.from(cosmicMap.entries()).forEach(([traitId, histologies]) => {
+                    //     const histologiesItems = Array.from(histologies.values())
+                    //         .filter(histology => histology && histology !== "null")
+                    //         .map(histology => `<span class="d-block text-secondary" style="margin: 5px 1px">${histology}</span>`)
+                    //         .join("");
+                    //
+                    //     const row = `
+                    //          <tr style="border-top:1px solid #ededed;">
+                    //             <td class="p-2">
+                    //                 <a href="${BioinfoUtils.getCosmicVariantLink(traitId)}" target="_blank">${traitId}</a>
+                    //             </td>
+                    //             <td class="p-2">
+                    //
+                    //             </td>
+                    //             <td class="p-2">
+                    //                 ${histologiesItems}
+                    //             </td>
+                    //             <td class="p-2">
+                    //                 ${histologiesItems}
+                    //             </td>
+                    //             <td class="p-2">
+                    //                 ${histologiesItems}
+                    //             </td>
+                    //         </tr>
+                    //     `;
+                    //     tooltipRows.push(row);
+                    // });
 
-                        tooltipText += `
-                            <div style="margin: 10px 5px">
-                                <div>
-                                    <a href="${BioinfoUtils.getCosmicVariantLink(traitId)}" target="_blank">${traitId}</a>
-                                </div>
-                                <div>
-                                    ${histologiesItems}
-                                </div>
-                            </div>
+                    for (const trait of traits) {
+                        // const histologiesItems = Array.from(cosmicMap.get(trait.id).values())
+                        //     .filter(histology => histology && histology !== "null")
+                        //     .map(histology => `<span style="margin: 5px 1px">${histology}</span>`)
+                        //     .join("");
+
+                        const row = `
+                             <tr style="border-top:1px solid #ededed;">
+                                <td class="p-2">
+                                    <a href="${BioinfoUtils.getCosmicVariantLink(trait.id)}" target="_blank">${trait.id}</a>
+                                </td>
+                                <td class="p-2">
+                                     ${trait.genomicFeatures?.find(gf => gf.featureType === "gene")?.xrefs?.symbol || ""}
+                                </td>
+                                <td class="p-2">
+                                    ${trait.somaticInformation?.primarySite}
+                                </td>
+                                <td class="p-2">
+                                    ${trait.somaticInformation?.primaryHistology}
+                                </td>
+                                 <td class="p-2">
+                                    ${trait.somaticInformation?.histologySubtype || "-"}
+                                </td>
+                            </tr>
                         `;
-                    });
+                        tooltipRows.push(row);
+                    }
+
+                    tooltipText = `
+                        <table class="tooltip-2xl">
+                            <thead>
+                                <tr>
+                                    <th class="p-2">Cosmic ID</th>
+                                    <th class="p-2">Gene</th>
+                                    <th class="p-2">Primary Site</th>
+                                    <th class="p-2">Primary Histology</th>
+                                    <th class="p-2">Histology Subtype</th>
+                                </tr>
+                            </thead>
+                            <tbody>${tooltipRows.join("")}</tbody>
+                        </table>
+                     `;
 
                     return `
-                        <a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                        <a class="cosmic-tooltip" tooltip-title='Cosmic' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
                             <span style="color: green">${cosmicMap.size} ${cosmicMap.size > 1 ? "entries" : "entry"} (${traits.length})</span>
                         </a>
                     `;
@@ -1579,19 +1655,19 @@ export default class VariantGridFormatter {
             CADD is a tool for scoring the deleteriousness of single nucleotide variants in the human genome.
             C-scores strongly correlate with allelic diversity, pathogenicity of both coding and non-coding variants,
             and experimentally measured regulatory effects, and also highly rank causal variants within individual genome sequences.
-            SpliceAI: a deep learning-based tool to identify splice variants. 
+            SpliceAI: a deep learning-based tool to identify splice variants.
         `;
     }
 
     static conservationInfoTooltipContent() {
         return `
-            Positive PhyloP scores measure conservation which is slower 
-            evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is 
-            faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent 
-            -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and 
-            range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. 
-            Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while 
-            still strongly enriching for truly constrained sites.        
+            Positive PhyloP scores measure conservation which is slower
+            evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is
+            faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent
+            -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and
+            range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint.
+            Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while
+            still strongly enriching for truly constrained sites.
         `;
     }
 
@@ -1602,7 +1678,7 @@ export default class VariantGridFormatter {
             </div>
             <div class=''>
                 <b>COSMIC</b> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
-            </div> 
+            </div>
         `;
     }
 

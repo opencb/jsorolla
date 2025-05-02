@@ -339,3 +339,15 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
         max-width: 500px !important;
     }
 }
+
+@supports selector(:has(*)) {
+  .qtip:has(.tooltip-xl) {
+    max-width: 600px !important;
+  }
+}
+
+@supports selector(:has(*)) {
+  .qtip:has(.tooltip-2xl) {
+    max-width: 800px !important;
+  }
+}
