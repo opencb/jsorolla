@@ -107,7 +107,9 @@ export default class FamilyView extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                type: "tabs",
+                type: "pills",
+                pillsLeftColumnClass: "col-md-2",
+                pillsRightColumnClass: "col-md-10",
                 buttonsVisible: false,
                 ...this.displayConfig,
             },

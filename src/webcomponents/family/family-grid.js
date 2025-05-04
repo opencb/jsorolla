@@ -114,9 +114,9 @@ export default class FamilyGrid extends LitElement {
             "create-family": {
                 display: {
                     modalTitle: "Create Family",
-                    modalDraggable: true,
+                    modalSize: "modal-lg",
                     modalCyDataName: "family-create",
-                    modalSize: "modal-lg"
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <family-create
@@ -135,7 +135,7 @@ export default class FamilyGrid extends LitElement {
             "view-family": () => ({
                 display: {
                     modalTitle: `Family ${this._selectedFamilyId}`,
-                    modalSize: "modal-xl",
+                    modalSize: "modal-3xl",
                     modalCyDataName: "family-view",
                     modalDraggable: true,
                 },
@@ -173,7 +173,7 @@ export default class FamilyGrid extends LitElement {
             "view-individual": () => ({
                 display: {
                     modalTitle: `Individual ${this._selectedIndividualId}`,
-                    modalSize: "modal-xl",
+                    modalSize: "modal-3xl",
                     modalCyDataName: "individual-view",
                     modalDraggable: true,
                 },
@@ -188,7 +188,7 @@ export default class FamilyGrid extends LitElement {
             "view-clinical-analysis": () => ({
                 display: {
                     modalTitle: `Clinical Analysis ${this._selectedClinicalAnalysisId}`,
-                    modalSize: "modal-xl",
+                    modalSize: "modal-3xl",
                     modalCyDataName: "clinical-analysis-view",
                     modalDraggable: true,
                 },

@@ -121,8 +121,9 @@ export default class OpencgaFileGrid extends LitElement {
             "view": () => ({
                 display: {
                     modalTitle: `File ${this._selectedFile?.name}`,
+                    modalSize: "modal-3xl",
                     modalCyDataName: `modal-file-view`,
-                    modalSize: "modal-lg",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <file-view
@@ -134,8 +135,9 @@ export default class OpencgaFileGrid extends LitElement {
             "create-folder": {
                 display: {
                     modalTitle: "Create Folder",
+                    modalSize: "modal-lg",
                     modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <file-folder-create
@@ -153,8 +155,9 @@ export default class OpencgaFileGrid extends LitElement {
             "create-file": {
                 display: {
                     modalTitle: "Create File",
+                    modalSize: "modal-lg",
                     modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <file-create
@@ -172,8 +175,9 @@ export default class OpencgaFileGrid extends LitElement {
             "upload-file": {
                 display: {
                     modalTitle: "Upload File",
+                    modalSize: "modal-lg",
                     modalCyDataName: "modal-upload",
-                    modalSize: "modal-lg"
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <file-upload
@@ -191,8 +195,9 @@ export default class OpencgaFileGrid extends LitElement {
             "fetch-file": {
                 display: {
                     modalTitle: "Fetch File",
-                    modalCyDataName: "modal-fectch",
-                    modalSize: "modal-lg"
+                    modalSize: "modal-lg",
+                    modalCyDataName: "modal-fetch",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <file-fetch
@@ -209,8 +214,9 @@ export default class OpencgaFileGrid extends LitElement {
             "variant-index": {
                 display: {
                     modalTitle: "Run Variant Index",
+                    modalSize: "modal-lg",
                     modalCyDataName: "modal-variant-index",
-                    modalSize: "modal-lg"
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <variant-index-operation
@@ -225,7 +231,7 @@ export default class OpencgaFileGrid extends LitElement {
             "view-sample": () => ({
                 display: {
                     modalTitle: `Sample ${this._selectedSampleId}`,
-                    modalSize: "modal-xl",
+                    modalSize: "modal-3xl",
                     modalCyDataName: "sample-view",
                     modalDraggable: true,
                 },
@@ -239,9 +245,9 @@ export default class OpencgaFileGrid extends LitElement {
             "view-job": () => ({
                 display: {
                     modalTitle: `Job ${this._selectedJobId}`,
-                    modalDraggable: true,
+                    modalSize: "modal-3xl",
                     modalCyDataName: "job-view",
-                    modalSize: "modal-xl"
+                    modalDraggable: true,
                 },
                 render: active => html`
                     <job-view

@@ -175,7 +175,7 @@ export default class SampleGrid extends LitElement {
             "create-cohort": {
                 display: {
                     modalTitle: "Create Cohort",
-                    modalSize: "modal-md",
+                    modalSize: "modal-lg",
                     modalbtnsVisible: false,
                     modalCyDataName: "cohort-create",
                     modalDraggable: true,
@@ -195,7 +195,7 @@ export default class SampleGrid extends LitElement {
                 display: {
                     modalTitle: `File ${this._selectedFileId.split(":").pop()}`,
                     modalCyDataName: `modal-file-view`,
-                    modalSize: "modal-2xl",
+                    modalSize: "modal-3xl",
                     modalDraggable: true,
                 },
                 render: () => html`
@@ -208,7 +208,7 @@ export default class SampleGrid extends LitElement {
             "view-individual": () => ({
                 display: {
                     modalTitle: `Individual ${this._selectedIndividualId}`,
-                    modalSize: "modal-2xl",
+                    modalSize: "modal-3xl",
                     modalCyDataName: "individual-view",
                     modalDraggable: true,
                 },
@@ -223,7 +223,7 @@ export default class SampleGrid extends LitElement {
             "view-clinical-analysis": () => ({
                 display: {
                     modalTitle: `Clinical Analysis ${this._selectedClinicalAnalysisId}`,
-                    modalSize: "modal-2xl",
+                    modalSize: "modal-3xl",
                     modalCyDataName: "clinical-analysis-view",
                     modalDraggable: true,
                 },
@@ -238,7 +238,7 @@ export default class SampleGrid extends LitElement {
             "view-sample-variant-stats": () => ({
                 display: {
                     modalTitle: `Sample Variant Stats ${this._selectedSampleId}`,
-                    modalSize: "modal-2xl",
+                    modalSize: "modal-3xl",
                     modalCyDataName: "sample-variant-stats",
                     modalDraggable: true,
                 },

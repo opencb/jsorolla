@@ -113,9 +113,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
             "view-clinical-analysis": () => ({
                 display: {
                     modalTitle: `Clinical Analysis ${this._selectedClinicalAnalysis?.id}`,
-                    modalDraggable: true,
+                    modalSize: "modal-3xl",
                     modalCyDataName: "modal-clinical-analysis-view",
-                    modalSize: "modal-xl"
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <clinical-analysis-view
@@ -128,9 +128,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
             "create-clinical-analysis": {
                 display: {
                     modalTitle: "Create Clinical Analysis",
-                    modalDraggable: true,
+                    modalSize: "modal-lg",
                     modalCyDataName: "modal-clinical-analysis-create",
-                    modalSize: "modal-lg"
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <clinical-analysis-create
@@ -149,9 +149,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
             "update-clinical-analysis": () => ({
                 display: {
                     modalTitle: `Update Clinical Analysis ${this._selectedClinicalAnalysis?.id}`,
-                    modalDraggable: true,
                     modalSize: "modal-lg",
                     modalCyDataName: "modal-clinical-analysis-update",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <clinical-analysis-update
@@ -172,9 +172,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
             "view-individual": () => ({
                 display: {
                     modalTitle: `Individual ${this._selectedIndividualId}`,
-                    modalDraggable: true,
-                    modalSize: "modal-xl",
+                    modalSize: "modal-3xl",
                     modalCyDataName: "modal-individual-view",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <individual-view
@@ -187,9 +187,9 @@ export default class ClinicalAnalysisGrid extends LitElement {
             "view-family": () => ({
                 display: {
                     modalTitle: `Family ${this._selectedFamilyId}`,
-                    modalDraggable: true,
-                    modalSize: "modal-xl",
+                    modalSize: "modal-3xl",
                     modalCyDataName: "modal-family-view",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <family-view

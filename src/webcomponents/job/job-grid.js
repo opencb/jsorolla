@@ -112,9 +112,9 @@ export default class JobGrid extends LitElement {
             "view-job": () => ({
                 display: {
                     modalTitle: `Job ${this._selectedJobId}`,
-                    modalDraggable: true,
+                    modalSize: "modal-3xl",
                     modalCyDataName: "job-view",
-                    modalSize: "modal-3xl"
+                    modalDraggable: true,
                 },
                 render: active => html`
                     <job-view
@@ -127,9 +127,9 @@ export default class JobGrid extends LitElement {
             "kill-job": () => ({
                 display: {
                     modalTitle: "Kill Job",
+                    modalSize: "modal-lg",
                     modalDraggable: true,
                     modalbtnsVisible: true,
-                    modalSize: "modal-md",
                     okButtonText: "Kill Job",
                 },
                 render: () => html`
@@ -140,9 +140,9 @@ export default class JobGrid extends LitElement {
             "retry-job": () => ({
                 display: {
                     modalTitle: "Retry Job",
+                    modalSize: "modal-lg",
                     modalDraggable: true,
                     modalbtnsVisible: true,
-                    modalSize: "modal-md",
                     okButtonText: "Retry Job",
                 },
                 render: () => html`
@@ -157,7 +157,7 @@ export default class JobGrid extends LitElement {
                 display: {
                     modalTitle: `File ${this._selectedFileId.split(":").pop()}`,
                     modalCyDataName: `modal-file-view`,
-                    modalSize: "modal-lg",
+                    modalSize: "modal-3xl",
                 },
                 render: () => html`
                     <file-view

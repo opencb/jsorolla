@@ -111,9 +111,9 @@ export default class CohortGrid extends LitElement {
             "view-cohort": () => ({
                 display: {
                     modalTitle: `Cohort ${this._selectedCohort?.id}`,
-                    modalDraggable: true,
+                    modalSize: "modal-2xl",
                     modalCyDataName: "cohort-view",
-                    modalSize: "modal-2xl"
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <cohort-view
@@ -126,9 +126,9 @@ export default class CohortGrid extends LitElement {
             "create-cohort": {
                 display: {
                     modalTitle: "Create Cohort",
-                    modalDraggable: true,
+                    modalSize: "modal-lg",
                     modalCyDataName: "cohort-create",
-                    modalSize: "modal-lg"
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <cohort-create
@@ -147,9 +147,9 @@ export default class CohortGrid extends LitElement {
             "update-cohort": () => ({
                 display: {
                     modalTitle: `Update Cohort ${this._selectedCohort?.id}`,
-                    modalDraggable: true,
                     modalSize: "modal-lg",
                     modalCyDataName: "cohort-update",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <cohort-update

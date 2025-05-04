@@ -111,11 +111,26 @@ export default class WorkflowGrid extends LitElement {
         };
 
         this.gridCommons.registerModals({
+            "view-workflow": () => ({
+                display: {
+                    modalTitle: `Workflow ${this._selectedWorkflow?.id}`,
+                    modalCyDataName: `modal-workflow-view`,
+                    modalSize: "modal-3xl",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <workflow-view
+                        .workflowId="${this._selectedWorkflow?.id}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </workflow-view>
+                `,
+            }),
             "create-workflow": {
                 display: {
                     modalTitle: "Create Workflow",
-                    modalCyDataName: "modal-workflow-create",
                     modalSize: "modal-lg",
+                    modalCyDataName: "modal-workflow-create",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <workflow-create
@@ -137,6 +152,7 @@ export default class WorkflowGrid extends LitElement {
                     modalTitle: "Import Workflow",
                     modalCyDataName: "modal-workflow-import",
                     modalSize: "modal-lg",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <workflow-import
@@ -148,19 +164,6 @@ export default class WorkflowGrid extends LitElement {
                     </workflow-import>
                 `,
             },
-            "view-workflow": () => ({
-                display: {
-                    modalTitle: `Workflow ${this._selectedWorkflow?.id}`,
-                    modalCyDataName: `modal-workflow-view`,
-                    modalSize: "modal-xl",
-                },
-                render: () => html`
-                    <workflow-view
-                        .workflowId="${this._selectedWorkflow?.id}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </workflow-view>
-                `,
-            }),
             "execute-workflow": () => ({
                 display: {
                     modalTitle: "Execute Workflow",

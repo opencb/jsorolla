@@ -111,9 +111,9 @@ export default class DiseasePanelGrid extends LitElement {
             "view-disease-panel": () => ({
                 display: {
                     modalTitle: `Disease Panel ${this._selectedDiseasePanel?.id}`,
-                    modalDraggable: true,
+                    modalSize: "modal-3xl",
                     modalCyDataName: "modal-disease-panel-view",
-                    modalSize: "modal-xl"
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <disease-panel-view
@@ -126,9 +126,9 @@ export default class DiseasePanelGrid extends LitElement {
             "create-disease-panel": {
                 display: {
                     modalTitle: "Create Disease Panel",
-                    modalDraggable: true,
-                    modalCyDataName: "modal-disease-panel-create",
                     modalSize: "modal-lg",
+                    modalCyDataName: "modal-disease-panel-create",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <disease-panel-create

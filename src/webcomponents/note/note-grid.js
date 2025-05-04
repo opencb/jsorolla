@@ -110,9 +110,9 @@ export default class NoteGrid extends LitElement {
             "create-note": {
                 display: {
                     modalTitle: "Create Note",
-                    modalDraggable: true,
-                    modalCyDataName: "note-create",
                     modalSize: "modal-lg",
+                    modalCyDataName: "note-create",
+                    modalDraggable: true,
                 },
                 render: () => html`
                     <note-create
@@ -131,9 +131,9 @@ export default class NoteGrid extends LitElement {
             "update-note": () => ({
                 display: {
                     modalTitle: `Update Note ${this._selectedNote?.id}`,
-                    modalDraggable: true,
+                    modalSize: "modal-lg",
                     modalCyDataName: "note-update",
-                    modalSize: "modal-lg"
+                    modalDraggable: true,
                 },
                 render: active => html`
                     <note-update
@@ -155,9 +155,9 @@ export default class NoteGrid extends LitElement {
             "view-note": () => ({
                 display: {
                     modalTitle: `Note ${this._selectedNote?.id}`,
-                    modalDraggable: true,
+                    modalSize: "modal-xl",
                     modalCyDataName: "note-view",
-                    modalSize: "modal-lg"
+                    modalDraggable: true,
                 },
                 render: active => html`
                     <note-view

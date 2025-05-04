@@ -121,7 +121,7 @@ export default class IndividualGrid extends LitElement {
             "view-individual": () => ({
                 display: {
                     modalTitle: `Individual ${this._selectedIndividualId}`,
-                    modalSize: "modal-2xl",
+                    modalSize: "modal-3xl",
                     modalCyDataName: "individual-view",
                     modalDraggable: true,
                 },
@@ -180,7 +180,7 @@ export default class IndividualGrid extends LitElement {
             "create-cohort": {
                 display: {
                     modalTitle: "Create Cohort",
-                    modalSize: "modal-md",
+                    modalSize: "modal-lg",
                     modalbtnsVisible: false,
                     modalCyDataName: "cohort-create",
                     modalDraggable: true,
@@ -211,25 +211,10 @@ export default class IndividualGrid extends LitElement {
                     </sample-view>
                 `,
             }),
-            "view-clinical-analysis": () => ({
-                display: {
-                    modalTitle: `Clinical Analysis ${this._selectedClinicalAnalysisId}`,
-                    modalSize: "modal-2xl",
-                    modalCyDataName: "clinical-analysis-view",
-                    modalDraggable: true,
-                },
-                render: () => html`
-                    <clinical-analysis-view
-                        .clinicalAnalysisId="${this._selectedClinicalAnalysisId}"
-                        .active="${true}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </clinical-analysis-view>
-                `,
-            }),
             "view-family": () => ({
                 display: {
                     modalTitle: `Family ${this._selectedFamilyId}`,
-                    modalSize: "modal-2xl",
+                    modalSize: "modal-3xl",
                     modalCyDataName: "family-view",
                     modalDraggable: true,
                 },
@@ -239,6 +224,21 @@ export default class IndividualGrid extends LitElement {
                         .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
                     </family-view>
+                `,
+            }),
+            "view-clinical-analysis": () => ({
+                display: {
+                    modalTitle: `Clinical Analysis ${this._selectedClinicalAnalysisId}`,
+                    modalSize: "modal-3xl",
+                    modalCyDataName: "clinical-analysis-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <clinical-analysis-view
+                        .clinicalAnalysisId="${this._selectedClinicalAnalysisId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-analysis-view>
                 `,
             }),
             "launch-individual-qc-analysis": () => ({

@@ -109,7 +109,9 @@ export default class DiseasePanelView extends LitElement {
         return {
             title: "Disease Panel",
             display: {
-                type: "tabs",
+                type: "pills",
+                pillsLeftColumnClass: "col-md-2",
+                pillsRightColumnClass: "col-md-10",
                 buttonsVisible: false,
                 ...this.displayConfig,
             },

@@ -110,9 +110,9 @@ export default class SampleView extends LitElement {
         return {
             display: {
                 type: "pills",
-                buttonsVisible: false,
                 pillsLeftColumnClass: "col-md-2",
                 pillsRightColumnClass: "col-md-10",
+                buttonsVisible: false,
                 ...this.displayConfig,
             },
             sections: [
