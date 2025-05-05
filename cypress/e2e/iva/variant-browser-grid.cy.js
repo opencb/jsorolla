@@ -225,7 +225,7 @@ context("Variant Browser Grid", () => {
                     it("should be visible when hovering the cosmic ID", () => {
                         cy.get("@cosmic-tooltip-title")
                             .should("be.visible")
-                            .and("contain.text", "Links");
+                            .and("contain.text", "Cosmic");
                     });
 
                     it("should display a link to cosmic", () => {
