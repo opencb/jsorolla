@@ -500,9 +500,10 @@ export default class SampleGrid extends LitElement {
                 field: "cohortIds",
                 formatter: cohortIds => {
                     const items = (cohortIds || [])
+                        .filter(cohortId => cohortId !== "ALL")
                         .map(cohortId => {
                             return `
-                                <div class="">
+                                <div>
                                     <span>${cohortId}</span>
                                 </div>
                             `;
@@ -519,7 +520,7 @@ export default class SampleGrid extends LitElement {
                 id: "fileIds",
                 title: "BAM/VCF Files",
                 field: "fileIds",
-                formatter: fileIds => CatalogGridFormatter.fileFormatter(fileIds, ["bam", "cram", "vcf", "vcf.gz", "gvcf", "gvcf.gz"]),
+                formatter: fileIds => CatalogGridFormatter.fileFormatter(fileIds, ["fastq", "fastq.gz", "bam", "cram", "vcf", "vcf.gz", "gvcf", "gvcf.gz"]),
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
@@ -561,8 +562,8 @@ export default class SampleGrid extends LitElement {
                     let result = "-";
                     result = `
                         <div class="d-flex flex-column gap-1">
-                            <label>${variantIndexStatusId}</label>
-                            <label>${sample?.internal?.variant?.annotationIndex?.status?.id === "READY" ? "Annotated" : "Annotation Pending"}</label>
+                            <label>Index: ${variantIndexStatusId}</label>
+                            <label>Annotation: ${sample?.internal?.variant?.annotationIndex?.status?.id}</label>
                         </div>
                     `;
                     return result;

@@ -103,6 +103,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             "sex": "sex.id",
             "karyotypicSex": "karyotypicSex",
             "type": "type",
+            "internalStatus": "internal.status.id",
         };
     }
 
@@ -162,6 +163,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             case "sex":
             case "karyotypicSex":
             case "type":
+            case "internalStatus":
                 content = html`
                     <catalog-distinct-autocomplete
                         .value="${preparedQuery[subsection.id]}"
@@ -178,7 +180,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             case "lifeStatus":
             case "bioformat":
             case "internalVariantIndexStatus":
-            case "internalStatus":
+            // case "internalStatus":
             case "visited":
             case "job_priority":
             case "visibility":

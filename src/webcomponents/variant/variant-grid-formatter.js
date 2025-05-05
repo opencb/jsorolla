@@ -993,6 +993,7 @@ export default class VariantGridFormatter {
 
     static clinicalTraitAssociationFormatter(value, row, index) {
         const phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
+
         // Check for ClinVar, Cosmic and HGMD annotations
         if (row?.annotation?.traitAssociation) {
             // Filter the traits for this column and check the number of existing traits
@@ -1005,6 +1006,15 @@ export default class VariantGridFormatter {
             const tooltipRows = [];
             switch (this.field?.toUpperCase()) {
                 case "CLINVAR":
+                    const germlineStarRating = {
+                        "practice guideline": 4,
+                        "reviewed by expert panel": 3,
+                        "criteria provided, multiple submitters, no conflicts": 2,
+                        "criteria provided, conflicting classifications": 1,
+                        "criteria provided, single submitter": 1,
+                        "CRITERIA_PROVIDED_SINGLE_SUBMITTER": 1,
+                    };
+
                     const results = [];
                     const clinicalSignificanceVisited = new Set();
                     for (const trait of traits) {
@@ -1067,6 +1077,17 @@ export default class VariantGridFormatter {
                             clinicalSignificanceVisited.add(code);
                         }
 
+                        // Calculate the star rating from status
+                        const starRating = trait?.additionalProperties?.find(p => p.name === "ReviewStatus_in_source_file")?.value || "";
+                        const starRatingHtml = [];
+                        for (let i = 0; i < 4; i++) {
+                            if (i < germlineStarRating[starRating]) {
+                                starRatingHtml.push(`<i class="fas fa-star" style="color: darkgoldenrod"></i>`);
+                            } else {
+                                starRatingHtml.push(`<i class="far fa-star" style="color: darkgoldenrod"></i>`);
+                            }
+                        }
+
                         // Prepare the tooltip links
                         if (!trait.id?.startsWith("SCV")) {
                             const heritableTraits = trait.heritableTraits
@@ -1083,7 +1104,9 @@ export default class VariantGridFormatter {
                                         <span style="color: ${color}">${clinicalSignificance} ${drugResponseClassification ? "(" + drugResponseClassification + ")" : ""}</span>
                                     </td>
                                     <td class="p-2">
-                                        <span>${trait?.additionalProperties.find(p => p.name === "ReviewStatus_in_source_file")?.value || ""}</span>
+                                        <div class="text-nowrap" title="${starRating}">
+                                            ${starRatingHtml?.length > 0 ? starRatingHtml.join("") : ""}
+                                        </div>
                                     </td>
                                     <td class="p-2">
                                         ${heritableTraits?.length > 0 ? `
@@ -1098,7 +1121,7 @@ export default class VariantGridFormatter {
 
                     // This can only be shown if nothing else exists
                     if (results.length === 0) {
-                        return "<span style=\"color: grey\" title=\"ClinVar submissions without an interpretation of clinical significance\">NP</span>";
+                        return `<span style="color: grey" title="ClinVar submissions without an interpretation of clinical significance">NP</span>`;
                     }
 
                     tooltipText = `
@@ -1129,40 +1152,7 @@ export default class VariantGridFormatter {
                         }
                     });
 
-                    // Array.from(cosmicMap.entries()).forEach(([traitId, histologies]) => {
-                    //     const histologiesItems = Array.from(histologies.values())
-                    //         .filter(histology => histology && histology !== "null")
-                    //         .map(histology => `<span class="d-block text-secondary" style="margin: 5px 1px">${histology}</span>`)
-                    //         .join("");
-                    //
-                    //     const row = `
-                    //          <tr style="border-top:1px solid #ededed;">
-                    //             <td class="p-2">
-                    //                 <a href="${BioinfoUtils.getCosmicVariantLink(traitId)}" target="_blank">${traitId}</a>
-                    //             </td>
-                    //             <td class="p-2">
-                    //
-                    //             </td>
-                    //             <td class="p-2">
-                    //                 ${histologiesItems}
-                    //             </td>
-                    //             <td class="p-2">
-                    //                 ${histologiesItems}
-                    //             </td>
-                    //             <td class="p-2">
-                    //                 ${histologiesItems}
-                    //             </td>
-                    //         </tr>
-                    //     `;
-                    //     tooltipRows.push(row);
-                    // });
-
                     for (const trait of traits) {
-                        // const histologiesItems = Array.from(cosmicMap.get(trait.id).values())
-                        //     .filter(histology => histology && histology !== "null")
-                        //     .map(histology => `<span style="margin: 5px 1px">${histology}</span>`)
-                        //     .join("");
-
                         const row = `
                              <tr style="border-top:1px solid #ededed;">
                                 <td class="p-2">
