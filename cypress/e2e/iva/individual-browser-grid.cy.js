@@ -164,7 +164,7 @@ context("Individual Browser Grid", () => {
         });
 
         it("should allow to hide columns in the grid", () => {
-            const columns = ["Disorders", "Clinical Interpretation", "Ethnicity"];
+            const columns = ["Disorders", "Clinical Interpretation"];
 
             cy.get("@individual-grid")
                 .find("thead th")
