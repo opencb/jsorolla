@@ -17,13 +17,13 @@
 import {html, LitElement, nothing} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-import LitUtils from "./utils/lit-utils";
+import LitUtils from "./utils/lit-utils.js";
 import ModalUtils from "./modal/modal-utils.js";
 import "./opencga-export.js";
 import "../variant/interpretation/variant-interpreter-grid-config.js";
 import WebUtils from "./utils/web-utils.js";
 
-export default class OpencbGridToolbar extends LitElement {
+export default class GridToolbar extends LitElement {
 
     constructor() {
         super();
@@ -280,4 +280,4 @@ export default class OpencbGridToolbar extends LitElement {
 
 }
 
-customElements.define("opencb-grid-toolbar", OpencbGridToolbar);
+customElements.define("grid-toolbar", GridToolbar);
