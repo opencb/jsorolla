@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html} from "lit";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
-import ModalUtils from "../../commons/modal/modal-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "./user-admin-create.js";
 import "./user-admin-details-update.js";
-import "./user-admin-password-reset.js";
 import "./user-admin-status-update.js";
 import "./user-admin-admins-change.js";
 
@@ -148,15 +147,6 @@ export default class UserAdminGrid extends LitElement {
                     `;
                 }
             }),
-            "reset-password": {
-                render: () => html`
-                    <user-admin-password-reset
-                        .userId="${this.userId}"
-                        .opencgaSession="${this.opencgaSession}"
-                        @closeNotification="${e => this.onCloseNotification(e)}">
-                    </user-admin-password-reset>
-                `,
-            },
             "change-status": () => ({
                 display: {
                     modalTitle: `Update Status: User '${this.userId}' in organization '${this.organization.id}'`,
@@ -419,8 +409,19 @@ export default class UserAdminGrid extends LitElement {
                 this.gridCommons.changeActiveModal("edit-details");
                 break;
             case "reset-password":
-                this.userId = user.id;
-                this.gridCommons.changeActiveModal("reset-password");
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                    display: {
+                        okButtonText: "Reset Password",
+                    },
+                    title: `Reset Password: User <b>${user.id}</b> in organization ${this.opencgaSession.organization.id}`,
+                    message: `
+                        Are you sure you want to reset <b>${user.id}</b>'s password?
+                        <br><br>
+                        The user <b>${user.id}</b> will receive an email with a temporary password in the following email address:
+                        <span class="text-muted">${user.email}</span>.
+                    `,
+                    ok: () => this.onUserPasswordReset(user),
+                });
                 break;
             case "change-status":
                 this.userId = user.id;
@@ -435,6 +436,20 @@ export default class UserAdminGrid extends LitElement {
         }
     }
 
+    onUserPasswordReset(user) {
+        this.opencgaSession.opencgaClient.users()
+            .resetPassword(user.id)
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: `User Reset Password`,
+                    message: `User ${user.id} password reset correctly`,
+                });
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
+    }
+
     onUserUpdate() {
         this.gridCommons.clearActiveModal();
         this.renderRemoteTable();
@@ -442,12 +457,6 @@ export default class UserAdminGrid extends LitElement {
 
     onUserCreate() {
         this.gridCommons.clearActiveModal();
-    }
-
-    onCloseNotification() {
-        this.userId = null;
-        this.action = "";
-        this.requestUpdate();
     }
 
     renderToolbarLeftContent() {
