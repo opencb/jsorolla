@@ -437,11 +437,12 @@ export default class JobGrid extends LitElement {
         if (UtilsNew.isNotEmpty(params)) {
             html = "<div>";
             for (const key of Object.keys(params)) {
+                debugger
                 html += `<div style="margin: 2px 0; white-space: nowrap">`;
                 // 1. Normal parameter
                 if (typeof params[key] !== "object") {
-                    const value = (params[key]?.length > 25 ? params[key].substring(0, 25) + "..." : params[key]) || "true";
-                    const tooltip = (params[key]?.length > 25 ? params[key] : "");
+                    const value = (params[key]?.length > 25 ? params[key].substring(0, 25) + " ..." : params[key]) || "true";
+                    const tooltip = UtilsNew.escapeHtml((params[key]?.length > 25 ? params[key] : ""));
                     html += `
                         <span style="margin: 2px 0; font-weight: bold" title="${tooltip}">${key}:</span><span title="${tooltip}">${value}</span>
                     `;
@@ -468,7 +469,7 @@ export default class JobGrid extends LitElement {
                     } else {
                         // 2.2 ... it can be an empty object.
                         html += `
-                            <span style="margin: 2px 0; font-weight: bold">${key}:</span><spam style="font-style: italic">none</spam>
+                            <span style="margin: 2px 0; font-weight: bold">${key}:</span><span style="font-style: italic">none</span>
                         `;
                     }
                 }

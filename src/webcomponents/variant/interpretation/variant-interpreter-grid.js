@@ -567,11 +567,6 @@ export default class VariantInterpreterGrid extends LitElement {
             detailHtml += "<div style='padding: 5px 40px'>";
             detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(value, row, this, this.query, this._config, this.opencgaSession.project.organism.assembly);
             detailHtml += "</div>";
-
-            detailHtml += "<div style='padding: 20px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
-            detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantGridFormatter.clinicalTableDetail(value, row);
-            detailHtml += "</div>";
         }
         result += detailHtml + "</div>";
         return result;
