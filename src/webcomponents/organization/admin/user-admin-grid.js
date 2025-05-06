@@ -67,12 +67,6 @@ export default class UserAdminGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this._config = this.getDefaultConfig();
-        this.displayConfigDefault = {
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom",
-            },
-        };
     }
 
     update(changedProperties) {
@@ -291,7 +285,6 @@ export default class UserAdminGrid extends LitElement {
                 id: "dates",
                 title: "Expiration / Creation Dates",
                 field: "dates",
-                halign: this.displayConfigDefault.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => this.datesFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("dates")
