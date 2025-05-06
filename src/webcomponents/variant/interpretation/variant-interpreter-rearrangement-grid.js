@@ -479,11 +479,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             detailHtml += "<div style='padding: 5px 40px'>";
             detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
             detailHtml += "</div>";
-
-            detailHtml += "<div style='padding: 20px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
-            detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantGridFormatter.clinicalTableDetail(value, row);
-            detailHtml += "</div>";
         }
         result += detailHtml + "</div>";
         return result;
@@ -1010,7 +1005,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
-           
+
             ${this.gridCommons.renderModals()}
         `;
     }

@@ -350,11 +350,6 @@ export default class VariantBrowserGrid extends LitElement {
             detailHtml += VariantGridFormatter
                 .consequenceTypeDetailFormatter(index, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
             detailHtml += "</div>";
-
-            detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
-            detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantGridFormatter.clinicalTableDetail(index, row);
-            detailHtml += "</div>";
         }
         result += detailHtml + "</div>";
         return result;
