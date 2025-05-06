@@ -18,7 +18,6 @@ import {LitElement, html, nothing} from "lit";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
-import ModalUtils from "../../commons/modal/modal-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../study/admin/study-create.js";
 import "../../study/admin/study-update.js";
@@ -93,23 +92,76 @@ export default class StudyAdminGrid extends LitElement {
         };
 
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-    }
 
-    changeActiveActionModal(actionModal) {
-        // 1. check if there is a modal rendered
-        if (this._activeActionModal) {
-            ModalUtils.close(`${this._prefix}Modal${this._activeActionModal}`);
-        }
-
-        // 2. set the new active action modal
-        this._activeActionModal = actionModal;
-        this.requestUpdate();
-
-        // 3. show the new active action modal (if provided)
-        this.updateComplete.then(() => {
-            if (this._activeActionModal) {
-                ModalUtils.show(`${this._prefix}Modal${this._activeActionModal}`);
-            }
+        // register available modals
+        this.gridCommons.registerModals({
+            "study-create": {
+                display: {
+                    modalTitle: "Create Study",
+                    modalSize: "modal-lg",
+                },
+                render: () => html `
+                    <study-create
+                        .project=${this.project}
+                        .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{
+                            buttonsLayout: "bottom",
+                        }}"
+                        @studyCreate="${() => this.gridCommons.clearActiveModal()}">
+                    </study-create>
+                `,
+            },
+            "study-edit": () => ({
+                display: {
+                    modalTitle: `Update Study ${this._studyId}`,
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <study-update
+                        .studyFqn="${this._studyFqn}"
+                        .displayConfig="${{
+                            buttonsLayout: "bottom",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @studyUpdate="${() => this.gridCommons.clearActiveModal()}">
+                    </study-update>
+                `,
+            }),
+            "create-group": () => ({
+                display: {
+                    modalTitle: `Create Group in Study ${this._studyId}`,
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <group-admin-create
+                        .studyFqn="${this._studyFqn}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{
+                            buttonsLayout: "bottom",
+                        }}"
+                        @groupCreate="${() => this.gridCommons.clearActiveModal()}">
+                    </group-admin-create>
+                `,
+            }),
+            "manage-users": () => ({
+                display: {
+                    modalTitle: `Manage Users in Study ${this._studyId}`,
+                    modalDraggable: true,
+                    modalCyDataName: "modal-users-study-update",
+                    modalSize: "modal-lg"
+                },
+                render: () => html`
+                    <study-users-manage
+                        .studyFqn="${this._studyFqn}"
+                        .groups="${this._groups}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{
+                            buttonsLayout: "bottom",
+                        }}"
+                        @studyUpdate="${() => this.gridCommons.clearActiveModal()}">
+                    </study-users-manage>
+                `,
+            }),
         });
     }
 
@@ -284,101 +336,22 @@ export default class StudyAdminGrid extends LitElement {
 
         switch (action) {
             case "edit":
-                this.changeActiveActionModal("study-edit");
+                this.gridCommons.changeActiveModal("study-edit");
                 break;
             case "create-group":
-                this.changeActiveActionModal("create-group");
+                this.gridCommons.changeActiveModal("create-group");
                 break;
             case "manage-users":
                 this._groups = row.groups.filter(group => {
                     return ["@members", "@admins"].includes(group.id);
                 });
-                this.changeActiveActionModal("manage-users");
+                this.gridCommons.changeActiveModal("manage-users");
                 break;
         }
     }
 
-    renderActionModal() {
-        let config = null;
-
-        switch (this._activeActionModal) {
-            case "study-create":
-                config = {
-                    display: {
-                        modalTitle: "Create Study",
-                        modalSize: "modal-lg",
-                    },
-                    render: () => html `
-                        <study-create
-                            .project=${this.project}
-                            .opencgaSession="${this.opencgaSession}"
-                            .displayConfig="${{
-                                buttonsLayout: "bottom",
-                            }}"
-                            @studyCreate="${() => this.changeActiveActionModal("")}">
-                        </study-create>
-                    `,
-                };
-                break;
-            case "study-edit":
-                config = {
-                    display: {
-                        modalTitle: `Update Study ${this._studyId}`,
-                        modalSize: "modal-lg",
-                    },
-                    render: () => html`
-                        <study-update
-                            .studyFqn="${this._studyFqn}"
-                            .displayConfig="${{
-                                buttonsLayout: "bottom",
-                            }}"
-                            .opencgaSession="${this.opencgaSession}"
-                            @studyUpdate="${() => this.changeActiveActionModal("")}">
-                        </study-update>
-                    `,
-                };
-                break;
-            case "create-group":
-                config = {
-                    display: {
-                        modalTitle: `Create Group in Study ${this._studyId}`,
-                        modalSize: "modal-lg",
-                    },
-                    render: () => html`
-                        <group-admin-create
-                            .studyFqn="${this._studyFqn}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .displayConfig="${{
-                                buttonsLayout: "bottom",
-                            }}"
-                            @groupCreate="${() => this.changeActiveActionModal("")}">
-                        </group-admin-create>
-                    `,
-                };
-                break;
-            case "manage-users":
-                config = {
-                    display: {
-                        modalTitle: `Manage Users in Study ${this._studyId}`,
-                        modalDraggable: true,
-                        modalCyDataName: "modal-users-study-update",
-                        modalSize: "modal-lg"
-                    },
-                    render: () => html`
-                        <study-users-manage
-                            .studyFqn="${this._studyFqn}"
-                            .groups="${this._groups}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .displayConfig="${{
-                                buttonsLayout: "bottom",
-                            }}"
-                            @studyUpdate="${() => this.changeActiveActionModal("")}">
-                        </study-users-manage>
-                    `,
-                };
-                break;
-        }
-        return config ? ModalUtils.create(this, `${this._prefix}Modal${this._activeActionModal}`, config) : nothing;
+    onCreateClick() {
+        this.gridCommons.changeActiveModal("study-create");
     }
 
     render() {
@@ -386,23 +359,20 @@ export default class StudyAdminGrid extends LitElement {
         const isOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id);
 
         return html`
-            <!-- 1. Render toolbar if enabled -->
             ${this._config.showToolbar ? html`
                 <div class="d-flex justify-content-end mb-3">
-                    <button class="btn btn-light ${isOrganizationAdmin ? "" : "disabled"}" @click="${() => this.changeActiveActionModal("study-create")}">
+                    <button class="btn btn-light ${isOrganizationAdmin ? "" : "disabled"}" @click="${() => this.onCreateClick()}">
                         <i class="fas fa-plus me-1"></i>
                         <span>${this._config.buttonCreateText}</span>
                     </button>
                 </div>
             ` : nothing}
 
-            <!-- 2. Render grid -->
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
                 <table id="${this.gridId}"></table>
             </div>
 
-            <!-- 3. Render action modal -->
-            ${this.renderActionModal()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
