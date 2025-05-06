@@ -191,21 +191,17 @@ export default class UserAdminGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "table-light",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
-                method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
-                // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
-                // formatShowingRows: this.gridCommons.formatShowingRows,
-                detailView: !!this.detailFormatter,
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let result = null;
@@ -238,8 +234,7 @@ export default class UserAdminGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data),
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
             });
         }
@@ -465,7 +460,6 @@ export default class UserAdminGrid extends LitElement {
     getRightToolbar() {
         return [
             {
-                // className: this.permissions.WRITE ? "" : "disabled",
                 icon: "fas fa-plus",
                 title: "Create User",
                 onClick: () => {
