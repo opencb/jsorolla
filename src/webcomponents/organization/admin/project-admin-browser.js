@@ -18,7 +18,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
-import ModalUtils from "../../commons/modal/modal-utils.js";
+import GridCommons from "../../commons/grid-commons.js";
 import "../../commons/empty-state.js";
 import "../../project/project-create.js";
 import "../../project/project-update.js";
@@ -50,44 +50,64 @@ export default class ProjectAdminBrowser extends LitElement {
     #init() {
         this.COMPONENT_ID = "project-admin-browser";
         this._prefix = UtilsNew.randomString(8);
+        this.gridId = this._prefix + this.COMPONENT_ID;
 
         this._projectId = null;
-        this._activeActionModal = "";
+        this._selectedProjectId = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
+            this.propertyObserver();
         }
 
         super.update(changedProperties);
     }
 
-    changeActiveActionModal(actionModal) {
-        // 1. check if there is a modal rendered
-        if (this._activeActionModal) {
-            ModalUtils.close(`${this._prefix}Modal${this._activeActionModal}`);
-        }
+    propertyObserver() {
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...this.config,
+        };
 
-        // 2. set the new active action modal
-        this._activeActionModal = actionModal;
-        this.requestUpdate();
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
-        // 3. show the new active action modal (if provided)
-        this.updateComplete.then(() => {
-            if (this._activeActionModal) {
-                ModalUtils.show(`${this._prefix}Modal${this._activeActionModal}`);
-            }
+        // register available action modals
+        this.gridCommons.registerModals({
+            "project-create": () => ({
+                display: {
+                    modalTitle: "Create Project",
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <project-create
+                        .displayConfig="${{
+                            buttonsLayout: "bottom",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @projectCreate="${() => this.gridCommons.clearActiveModal()}">
+                    </project-create>
+                `,
+            }),
+            "project-update": () => ({
+                display: {
+                    modalTitle: `Update Project ${this._selectedProjectId}`,
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <project-update
+                        .projectId="${this._selectedProjectId}"
+                        .organization="${this.opencgaSession.organization}"
+                        .displayConfig="${{
+                            buttonsLayout: "bottom",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @projectUpdate="${() => this.gridCommons.clearActiveModal()}">
+                    </project-update>
+                `,
+            }),
         });
-    }
-
-    onUpdateProjectClick(project) {
-        this._projectId = project.id;
-        this.changeActiveActionModal("project-update");
     }
 
     renderProjects() {
@@ -117,7 +137,7 @@ export default class ProjectAdminBrowser extends LitElement {
                         <!-- Project actions -->
                         ${this._config.showProjectToolbar ? html`
                             <div class="d-flex">
-                                <button class="btn btn-light ${isOrganizationAdmin ? "" : "disabled"}" @click="${() => this.onUpdateProjectClick(project)}">
+                                <button class="btn btn-light ${isOrganizationAdmin ? "" : "disabled"}" @click="${() => this.onProjectUpdateClick(project)}">
                                     <i class="fas fa-edit me-1"></i>
                                     <span>Edit Project</span>
                                 </button>
@@ -161,48 +181,13 @@ export default class ProjectAdminBrowser extends LitElement {
         `);
     }
 
-    renderActionModal() {
-        let config = null;
+    onProjectUpdateClick(project) {
+        this._selectedProjectId = project.id;
+        this.gridCommons.changeActiveModal("project-update");
+    }
 
-        switch (this._activeActionModal) {
-            case "project-create":
-                config = {
-                    display: {
-                        modalTitle: "Create Project",
-                        modalSize: "modal-lg",
-                    },
-                    render: () => html`
-                        <project-create
-                            .displayConfig="${{
-                                buttonsLayout: "bottom",
-                            }}"
-                            .opencgaSession="${this.opencgaSession}"
-                            @projectCreate="${() => this.changeActiveActionModal("")}">
-                        </project-create>
-                    `,
-                };
-                break;
-            case "project-update":
-                config = {
-                    display: {
-                        modalTitle: `Update Project ${this._projectId}`,
-                        modalSize: "modal-lg",
-                    },
-                    render: () => html`
-                        <project-update
-                            .projectId="${this._projectId}"
-                            .organization="${this.opencgaSession.organization}"
-                            .displayConfig="${{
-                                buttonsLayout: "bottom",
-                            }}"
-                            .opencgaSession="${this.opencgaSession}"
-                            @projectUpdate="${() => this.changeActiveActionModal("")}">
-                        </project-update>
-                    `,
-                };
-                break;
-        }
-        return config ? ModalUtils.create(this, `${this._prefix}Modal${this._activeActionModal}`, config) : nothing;
+    onProjectCreateClick() {
+        this.gridCommons.changeActiveModal("project-create");
     }
 
     render() {
@@ -214,7 +199,7 @@ export default class ProjectAdminBrowser extends LitElement {
 
             ${this._config.showToolbar ? html`
                 <div class="d-flex justify-content-end mb-3">
-                    <button class="btn btn-light ${isOrganizationAdmin ? "" : "disabled"}" @click="${() => this.changeActiveActionModal("project-create")}">
+                    <button class="btn btn-light ${isOrganizationAdmin ? "" : "disabled"}" @click="${() => this.onProjectCreateClick()}">
                         <i class="fas fa-plus me-1"></i>
                         <span>${this._config.buttonCreateText}</span>
                     </button>
@@ -222,7 +207,7 @@ export default class ProjectAdminBrowser extends LitElement {
             ` : nothing}
 
             ${this.renderProjects()}
-            ${this.renderActionModal()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
