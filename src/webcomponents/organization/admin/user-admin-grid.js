@@ -305,62 +305,12 @@ export default class UserAdminGrid extends LitElement {
                 id: "actions",
                 title: "",
                 field: "actions",
-                formatter: (value, row) => `
-                    <div class="d-flex justify-content-end align-items-center">
-                        <div class="dropdown d-flex justify-content-end">
-                            <button class="btn" data-bs-toggle="dropdown">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a data-action="edit-details" class="dropdown-item ${OpencgaCatalogUtils.isOrganizationAdmin(this.organization, this.opencgaSession.user.id) ? "cursor-pointer" : "disabled"}">
-                                    <i class="fas fa-edit me-1"></i>
-                                    <span>Edit Details</span>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a data-action="reset-password" class="dropdown-item ${OpencgaCatalogUtils.isOrganizationAdmin(this.organization, this.opencgaSession.user.id) ? "cursor-pointer" : "disabled"}">
-                                    <i class="fas fa-key me-1"></i>
-                                    <span>Reset Password</span>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a data-action="change-status" class="dropdown-item ${OpencgaCatalogUtils.isOrganizationAdmin(this.organization, this.opencgaSession.user.id) ? "cursor-pointer" : "disabled"}">
-                                    <i class="fas fa-sign-in-alt me-1"></i>
-                                    <span>Change Status</span>
-                                </a>
-                                <!--
-                                <a data-action="change-admin" class="dropdown-item ${OpencgaCatalogUtils.isOrganizationAdmin(this.organization, this.opencgaSession.user.id) ? "cursor-pointer" : "disabled"}">
-                                    <i class="fas fa-user-plus me-1"></i>
-                                    <span>Add as Admin</span>
-                                </a>
-                                -->
-                                <a data-action="change-admin"
-                                   class="dropdown-item ${OpencgaCatalogUtils.isOrganizationAdmin(this.organization, this.opencgaSession.user.id) ? "" : "disabled"}}"
-                                   style="cursor:pointer;">
-                                   <div class="d-flex align-items-center">
-                                        ${this.opencgaSession.organization.admins.includes(row.id) ? `
-                                            <!-- If the user is admin, enable action REMOVE -->
-                                            <div class="" style="margin-right: 10px"><i class="fas fa-user-minus" aria-hidden="true"></i></div>
-                                            <div class="me-4">Remove as Admin...</div>
-                                        ` : `
-                                            <!-- If the user is admin, enable action ADD -->
-                                            <div class="" style="margin-right: 10px"><i class="fas fa-user-plus" aria-hidden="true"></i></div>
-                                            <div class="me-4">Add as Admin...</div>
-                                        `}
-                                   </div>
-                                </a>
-                                <hr class="dropdown-divider">
-                                <a data-action="delete" class="dropdown-item disabled" style="color: darkred">
-                                    <i class="fas fa-trash-alt me-1"></i>
-                                    <span>Delete</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                `,
+                formatter: (value, row) => this.actionsFormatter(value, row),
                 events: {
-                    "click a": (e, value, user) => this.onActionClick(e, value, user),
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 excludeFromSettings: true,
-                visible: this._config.showActions, // this.gridCommons.isColumnVisible("actions"),
+                visible: this._config.showActions,
             },
         ];
 
@@ -401,7 +351,54 @@ export default class UserAdminGrid extends LitElement {
         `;
     }
 
-    onActionClick(event, value, user) {
+    actionsFormatter(value, row) {
+        const isAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.organization, this.opencgaSession.user.id);
+        return `
+            <div class="d-flex justify-content-end align-items-center">
+                <div class="dropdown d-flex justify-content-end">
+                    <button class="btn" data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a data-action="edit-details" class="dropdown-item ${isAdmin ? "cursor-pointer" : "disabled"}">
+                            <i class="fas fa-edit me-1"></i>
+                            <span>Edit Details</span>
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a data-action="reset-password" class="dropdown-item ${isAdmin ? "cursor-pointer" : "disabled"}">
+                            <i class="fas fa-key me-1"></i>
+                            <span>Reset Password</span>
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a data-action="change-status" class="dropdown-item ${isAdmin ? "cursor-pointer" : "disabled"}">
+                            <i class="fas fa-sign-in-alt me-1"></i>
+                            <span>Change Status</span>
+                        </a>
+                        <a data-action="change-admin" class="dropdown-item ${isAdmin ? "cursor-pointer" : "disabled"}}">
+                           <div class="d-flex align-items-center cursor-pointer">
+                                ${this.opencgaSession.organization.admins.includes(row.id) ? `
+                                    <!-- If the user is admin, enable action REMOVE -->
+                                    <div class="" style="margin-right: 10px"><i class="fas fa-user-minus" aria-hidden="true"></i></div>
+                                    <div class="me-4">Remove as Admin...</div>
+                                ` : `
+                                    <!-- If the user is admin, enable action ADD -->
+                                    <div class="" style="margin-right: 10px"><i class="fas fa-user-plus" aria-hidden="true"></i></div>
+                                    <div class="me-4">Add as Admin...</div>
+                                `}
+                           </div>
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a data-action="delete" class="dropdown-item disabled" style="color: darkred">
+                            <i class="fas fa-trash-alt me-1"></i>
+                            <span>Delete</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    onActionClick(event, user) {
         const action = (event.currentTarget?.dataset?.action || "").toLowerCase();
         switch (action) {
             case "edit-details":
@@ -486,11 +483,7 @@ export default class UserAdminGrid extends LitElement {
                     .rightToolbar="${this.getRightToolbar()}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
-                    .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
-                    @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}">
+                    .config="${this.toolbarConfig}">
                 </opencb-grid-toolbar>
             </div>
 
