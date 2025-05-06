@@ -28,7 +28,7 @@ context("Job Browser Grid", () => {
     context("toolbar", () => {
         beforeEach(() => {
             cy.get("@job-grid")
-                .find("opencb-grid-toolbar")
+                .find("grid-toolbar")
                 .as("toolbar");
         });
 

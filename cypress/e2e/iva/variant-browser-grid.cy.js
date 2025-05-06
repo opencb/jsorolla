@@ -13,7 +13,7 @@ context("Variant Browser Grid", () => {
     context("toolbar", () => {
         beforeEach(() => {
             cy.get("@variant-browser-grid")
-                .find("opencb-grid-toolbar")
+                .find("grid-toolbar")
                 .as("toolbar");
         });
 

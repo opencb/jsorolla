@@ -28,7 +28,7 @@ context("Disease Panel Browser Grid", () => {
     context("toolbar", () => {
         beforeEach(() => {
             cy.get("@disease-panel-grid")
-                .find("opencb-grid-toolbar")
+                .find("grid-toolbar")
                 .as("toolbar");
         });
 

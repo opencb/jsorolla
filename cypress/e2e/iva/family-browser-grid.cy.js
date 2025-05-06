@@ -28,7 +28,7 @@ context("Family Browser Grid", () => {
     context("toolbar", () => {
         beforeEach(() => {
             cy.get("@family-grid")
-                .find("opencb-grid-toolbar")
+                .find("grid-toolbar")
                 .as("toolbar");
         });
 
@@ -53,7 +53,7 @@ context("Family Browser Grid", () => {
     context("create a family", () => {
         beforeEach(() => {
             cy.get("@family-grid")
-                .find("opencb-grid-toolbar")
+                .find("grid-toolbar")
                 .contains("button", "Create Family")
                 .click();
             cy.get("@family-grid")

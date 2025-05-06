@@ -28,7 +28,7 @@ context("Cohort Browser Grid", () => {
     context("toolbar", () => {
         beforeEach(() => {
             cy.get("@cohort-grid")
-                .find("opencb-grid-toolbar")
+                .find("grid-toolbar")
                 .as("toolbar");
         });
 
