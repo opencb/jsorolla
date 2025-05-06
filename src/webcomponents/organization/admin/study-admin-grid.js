@@ -61,7 +61,6 @@ export default class StudyAdminGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
 
-        this._activeActionModal = "";
         this._studyId = null;
         this._studyFqn = null;
         this._groups = null;
@@ -251,49 +250,21 @@ export default class StudyAdminGrid extends LitElement {
                 valign: "middle",
                 formatter: (value, row) => this.datesFormatter(value, row),
             },
-        ];
-
-        if (this._config.annotations?.length > 0) {
-            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
-        }
-
-        if (this.opencgaSession && this._config.showActions) {
-            this._columns.push({
+            {
                 id: "actions",
                 title: "Actions",
                 field: "actions",
                 align: "center",
-                formatter: () => {
-                    const isOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id);
-                    return `
-                        <div class="dropdown">
-                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-toolbox me-2"></i>
-                                <span>Actions</span>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a data-action="edit" class="dropdown-item ${isOrganizationAdmin ? "cursor-pointer" : "disabled"}">
-                                    <i class="fas fa-edit me-1"></i> Edit Study
-                                </a>
-                                <hr class="dropdown-divider"></li>
-                                <a data-action="create-group" class="dropdown-item ${isOrganizationAdmin ? "cursor-pointer" : "disabled"}">
-                                    <i class="fas fa-edit me-1"></i> Create Group
-                                </a>
-                                <a data-action="manage-users" class="dropdown-item ${isOrganizationAdmin ? "cursor-pointer" : "disabled"}">
-                                    <i class="fas fa-user-plus me-1"></i> Manage Organization Users in Study
-                                </a>
-                                <hr class="dropdown-divider"></li>
-                                <a data-action="delete" class="dropdown-item disabled">
-                                    <i class="fas fa-trash-alt me-1"></i> Delete Study
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                },
+                formatter: () => this.actionsFormatter(),
                 events: {
-                    "click a": (e, value, row) => this.onActionClick(e, value, row),
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
-            });
+                visible: this._config.showActions,
+            },
+        ];
+
+        if (this._config.annotations?.length > 0) {
+            this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
 
         this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
@@ -329,10 +300,37 @@ export default class StudyAdminGrid extends LitElement {
         `;
     }
 
-    async onActionClick(event, value, row) {
+    actionsFormatter() {
+        const isOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id);
+        return `
+            <div class="dropdown">
+                <button class="btn" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a data-action="edit" class="dropdown-item ${isOrganizationAdmin ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-edit me-1"></i> Edit Study
+                    </a>
+                    <hr class="dropdown-divider"></li>
+                    <a data-action="create-group" class="dropdown-item ${isOrganizationAdmin ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-edit me-1"></i> Create Group
+                    </a>
+                    <a data-action="manage-users" class="dropdown-item ${isOrganizationAdmin ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-user-plus me-1"></i> Manage Organization Users in Study
+                    </a>
+                    <hr class="dropdown-divider"></li>
+                    <a data-action="delete" class="dropdown-item disabled">
+                        <i class="fas fa-trash-alt me-1"></i> Delete Study
+                    </a>
+                </div>
+            </div>
+        `;
+    }
+
+    async onActionClick(event, study) {
         const action = (event.currentTarget?.dataset?.action || "").toLowerCase();
-        this._studyId = row.id;
-        this._studyFqn = row.fqn;
+        this._studyId = study.id;
+        this._studyFqn = study.fqn;
 
         switch (action) {
             case "edit":
@@ -342,7 +340,7 @@ export default class StudyAdminGrid extends LitElement {
                 this.gridCommons.changeActiveModal("create-group");
                 break;
             case "manage-users":
-                this._groups = row.groups.filter(group => {
+                this._groups = study.groups.filter(group => {
                     return ["@members", "@admins"].includes(group.id);
                 });
                 this.gridCommons.changeActiveModal("manage-users");
