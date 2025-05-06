@@ -23,7 +23,7 @@ import GridCommons from "../../commons/grid-commons.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
-import "../../commons/opencb-grid-toolbar.js";
+import "../../commons/grid-toolbar.js";
 import "../../loading-spinner.js";
 import "./variant-interpreter-grid-config.js";
 import "./variant-interpreter-rearrangement-view.js";
@@ -990,7 +990,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
     render() {
         return html`
-            <opencb-grid-toolbar
+            <grid-toolbar
                 .config="${this.toolbarConfig}"
                 .settings="${this.toolbarSetting}"
                 .opencgaSession="${this.opencgaSession}"
@@ -1000,7 +1000,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 @download="${this.onDownload}"
                 @export="${this.onDownload}"
                 @sharelink="${this.onShare}">
-            </opencb-grid-toolbar>
+            </grid-toolbar>
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>

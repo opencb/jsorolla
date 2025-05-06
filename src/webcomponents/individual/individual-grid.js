@@ -20,7 +20,7 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
-import "../commons/opencb-grid-toolbar.js";
+import "../commons/grid-toolbar.js";
 import "../clinical/clinical-analysis-view.js";
 import "../cohort/cohort-create-samples.js";
 import "../sample/sample-view.js";
@@ -719,7 +719,7 @@ export default class IndividualGrid extends LitElement {
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
+                <grid-toolbar
                     .query="${this.filters}"
                     .leftContent="${this.renderToolbarLeftContent()}"
                     .rightToolbar="${this.getRightToolbar()}"
@@ -728,7 +728,7 @@ export default class IndividualGrid extends LitElement {
                     .config="${this.toolbarConfig}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>
+                </grid-toolbar>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="ib-grid">

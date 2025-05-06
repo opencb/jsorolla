@@ -20,7 +20,7 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
-import "../commons/opencb-grid-toolbar.js";
+import "../commons/grid-toolbar.js";
 import "../loading-spinner.js";
 import "../file/file-view.js";
 import "./job-view.js";
@@ -644,7 +644,7 @@ export default class JobGrid extends LitElement {
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
+                <grid-toolbar
                     .query="${this.filters}"
                     .leftContent="${this.renderToolbarLeftContent()}"
                     .rightToolbar="${this.getRightToolbar()}"
@@ -653,7 +653,7 @@ export default class JobGrid extends LitElement {
                     .config="${this.toolbarConfig}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>
+                </grid-toolbar>
             ` : nothing}
 
             <div>

@@ -20,7 +20,7 @@ import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
-import "../commons/opencb-grid-toolbar.js";
+import "../commons/grid-toolbar.js";
 import "./workflow-create.js";
 import "./workflow-import.js";
 import "./workflow-view.js";
@@ -615,7 +615,7 @@ export default class WorkflowGrid extends LitElement {
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
+                <grid-toolbar
                     .resource="${"WORKFLOW"}"
                     .toolId="${this.toolId}"
                     .query="${this.query}"
@@ -626,7 +626,7 @@ export default class WorkflowGrid extends LitElement {
                     .config="${this.toolbarConfig}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>
+                </grid-toolbar>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">

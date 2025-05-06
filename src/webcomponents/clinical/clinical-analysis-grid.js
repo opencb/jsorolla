@@ -21,7 +21,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
-import "../commons/opencb-grid-toolbar.js";
+import "../commons/grid-toolbar.js";
 import "../individual/individual-view.js"
 import "../family/family-view.js";
 import "./clinical-analysis-view.js";
@@ -739,7 +739,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
+                <grid-toolbar
                     .opencgaSession="${this.opencgaSession}"
                     .leftContent="${this.renderToolbarLeftContent()}"
                     .rightToolbar="${this.getRightToolbar()}"
@@ -747,7 +747,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     .config="${this.toolbarConfig}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>
+                </grid-toolbar>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">

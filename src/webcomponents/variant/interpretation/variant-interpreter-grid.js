@@ -26,7 +26,7 @@ import NotificationUtils from "../../commons/utils/notification-utils.js";
 import CustomActions from "../../commons/custom-actions";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
-import "../../commons/opencb-grid-toolbar.js";
+import "../../commons/grid-toolbar.js";
 import "../../loading-spinner.js";
 import "./variant-interpreter-grid-config.js";
 import "./variant-interpreter-view.js";
@@ -1524,7 +1524,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
     render() {
         return html`
-            <opencb-grid-toolbar
+            <grid-toolbar
                 .config="${this.toolbarConfig}"
                 .settings="${this.toolbarSetting}"
                 .query="${this.filters}"
@@ -1533,7 +1533,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"
                 @export="${this.onDownload}">
-            </opencb-grid-toolbar>
+            </grid-toolbar>
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>

@@ -20,6 +20,7 @@ import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
+import "../../commons/grid-toolbar.js";
 import "./user-admin-create.js";
 import "./user-admin-details-update.js";
 import "./user-admin-status-update.js";
@@ -465,13 +466,13 @@ export default class UserAdminGrid extends LitElement {
     render() {
         return html`
             <div class="mx-1 my-2">
-                <opencb-grid-toolbar
+                <grid-toolbar
                     .leftContent="${this.renderToolbarLeftContent()}"
                     .rightToolbar="${this.getRightToolbar()}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}">
-                </opencb-grid-toolbar>
+                </grid-toolbar>
             </div>
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">

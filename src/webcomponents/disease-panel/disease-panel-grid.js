@@ -22,7 +22,7 @@ import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/catalog-browser-grid-config.js";
-import "../commons/opencb-grid-toolbar.js";
+import "../commons/grid-toolbar.js";
 import "./disease-panel-view.js";
 import "./disease-panel-update.js";
 import "./disease-panel-create.js";
@@ -560,7 +560,7 @@ export default class DiseasePanelGrid extends LitElement {
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
+                <grid-toolbar
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
                     .leftContent="${this.renderToolbarLeftContent()}"
@@ -569,7 +569,7 @@ export default class DiseasePanelGrid extends LitElement {
                     .config="${this.toolbarConfig}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>
+                </grid-toolbar>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="dpb-grid">

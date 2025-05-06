@@ -24,7 +24,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 import WebUtils from "../commons/utils/web-utils.js";
-import "../commons/opencb-grid-toolbar.js";
+import "../commons/grid-toolbar.js";
 import "../loading-spinner.js";
 import "./variant-view.js";
 
@@ -974,7 +974,7 @@ export default class VariantBrowserGrid extends LitElement {
     render() {
         return html`
             ${this._config?.showToolbar ? html`
-                <opencb-grid-toolbar
+                <grid-toolbar
                     .query="${this.query}"
                     .opencgaSession="${this.opencgaSession}"
                     .leftContent="${this.renderToolbarLeftContent()}"
@@ -982,7 +982,7 @@ export default class VariantBrowserGrid extends LitElement {
                     .config="${this.toolbarConfig}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>
+                </grid-toolbar>
             ` : nothing}
 
             <div data-cy="vb-grid">
