@@ -52,7 +52,6 @@ export default class ProjectAdminBrowser extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
 
-        this._projectId = null;
         this._selectedProjectId = null;
         this._config = this.getDefaultConfig();
     }
