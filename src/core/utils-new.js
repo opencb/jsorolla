@@ -969,6 +969,7 @@ export default class UtilsNew {
 
     // Escape HTML characters from the provided string
     static escapeHtml(str) {
+        if (!str) return str;
         return str
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
