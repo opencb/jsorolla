@@ -129,7 +129,7 @@ export default class UserAdminGrid extends LitElement {
                     </user-admin-create>
                 `,
             },
-            "edit-details": {
+            "edit-details": () => ({
                 display: {
                     modalTitle: `Update Details: User ${this.userId} in organization ${this.organization.id}`,
                     modalDraggable: true,
@@ -147,7 +147,7 @@ export default class UserAdminGrid extends LitElement {
                         </user-admin-details-update>
                     `;
                 }
-            },
+            }),
             "reset-password": {
                 render: () => html`
                     <user-admin-password-reset
@@ -157,7 +157,7 @@ export default class UserAdminGrid extends LitElement {
                     </user-admin-password-reset>
                 `,
             },
-            "change-status": {
+            "change-status": () => ({
                 display: {
                     modalTitle: `Update Status: User '${this.userId}' in organization '${this.organization.id}'`,
                     modalDraggable: true,
@@ -173,8 +173,8 @@ export default class UserAdminGrid extends LitElement {
                         @userUpdate="${e => this.onUserUpdate(e)}">
                     </user-admin-status-update>
                 `,
-            },
-            "change-admin": {
+            }),
+            "change-admin": () => ({
                 display: {
                     modalTitle: `Update Organization Admins: User ${this.userId} in organization ${this.organization.id}`,
                     modalDraggable: true,
@@ -191,7 +191,7 @@ export default class UserAdminGrid extends LitElement {
                         @userUpdate="${e => this.onUserUpdate(e)}">
                     </user-admin-admins-change>
                 `,
-            },
+            }),
         });
     }
 
