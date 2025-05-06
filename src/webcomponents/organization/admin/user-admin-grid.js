@@ -436,12 +436,12 @@ export default class UserAdminGrid extends LitElement {
     }
 
     onUserUpdate() {
-        this.changeActiveActionModal("");
+        this.gridCommons.clearActiveModal();
         this.renderRemoteTable();
     }
 
     onUserCreate() {
-        this.changeActiveActionModal("");
+        this.gridCommons.clearActiveModal();
     }
 
     onCloseNotification() {
@@ -462,7 +462,9 @@ export default class UserAdminGrid extends LitElement {
                 // className: this.permissions.WRITE ? "" : "disabled",
                 icon: "fas fa-plus",
                 title: "Create User",
-                onClick: () => this.changeActiveActionModal("create"),
+                onClick: () => {
+                    this.gridCommons.changeActiveModal("create");
+                },
             }
         ];
     }
