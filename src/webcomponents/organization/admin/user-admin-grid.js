@@ -386,7 +386,9 @@ export default class UserAdminGrid extends LitElement {
 
     onUserPasswordReset(user) {
         this.opencgaSession.opencgaClient.organization()
-            .resetUserPassword(user.id)
+            .resetUserPassword({
+                userId: user.id,
+            })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: `User Reset Password`,
