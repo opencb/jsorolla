@@ -100,14 +100,9 @@ export default class GridToolbar extends LitElement {
         LitUtils.dispatchCustomEvent(this, "export", {}, e.detail);
     }
 
-    onActionClick(e) {
-        const action = e.currentTarget.dataset.action;
+    onActionClick(event) {
+        const action = event.currentTarget.dataset.action;
         switch (action) {
-            case "create":
-                this._config.create?.modalId ?
-                    ModalUtils.show(this._config.create.modalId) :
-                    ModalUtils.show(`${this._prefix}CreateModal`);
-                break;
             case "export":
                 ModalUtils.show(`${this._prefix}ExportModal`);
                 break;
@@ -167,28 +162,6 @@ export default class GridToolbar extends LitElement {
                         <div class="d-flex align-items-stretch gap-1">
                             ${this.renderRightButtons()}
                             <div class="w-px bg-gray-200 mx-1"></div>
-                        </div>
-                    ` : nothing}
-
-                    <!-- Second, display elements configured -->
-                    ${this._config?.create && (this._settings.showCreate || this._settings.showNew) ? html`
-                        <div class="btn-group">
-                            <!-- Note 20230517 Vero: it is not possible to trigger a tooltip on a disabled button.
-                            As a workaround, the tooltip will be displayed from a wrapper -->
-                            ${isCreateDisabled ? html `
-                                <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="${isCreateDisabledTooltip}">
-                                    <button data-cy="toolbar-btn-create" data-action="create" type="button" class="btn btn-light" disabled>
-                                        <i class="fas fa-file pe-1" aria-hidden="true"></i> ${buttonCreateText}
-                                    </button>
-                                </span>
-                            ` : html `
-                                <button data-cy="toolbar-btn-create" data-action="create" type="button" class="btn btn-light" @click="${this.onActionClick}">
-                                    ${this._settings?.downloading === true ? html`
-                                        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                                    ` : nothing}
-                                    <i class="fas fa-file pe-1" aria-hidden="true"></i> ${buttonCreateText}
-                                </button>
-                            `}
                         </div>
                     ` : nothing}
 
