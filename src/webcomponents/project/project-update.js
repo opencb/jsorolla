@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2021 OpenCB
+ * Copyright 2015-2023 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,10 @@ export default class ProjectUpdate extends LitElement {
             this.projectIdObserver();
         }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+            this.displayConfig = {
+                ...this.displayConfigDefault,
+                ...this.displayConfig
+            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -165,7 +168,7 @@ export default class ProjectUpdate extends LitElement {
         const params = {
             includeResult: true
         };
-        let project, error;
+        let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.projects()
             .update(this.project?.fqn, this.updateParams, params)
@@ -177,15 +180,14 @@ export default class ProjectUpdate extends LitElement {
                     title: "Project Update",
                     message: "Project updated correctly"
                 });
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest");
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", this._project, {}, error);
             })
             .catch(reason => {
-                project = this.project;
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "projectUpdate", this.project, {}, error);
+                // LitUtils.dispatchCustomEvent(this, "projectUpdate", project, {}, error);
                 this.#setLoading(false);
             });
     }

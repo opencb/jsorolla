@@ -312,6 +312,8 @@ export default class OpencgaAnnotationComparator extends LitElement {
         }
 
         $(`#${this._prefix}-ac-table`).bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: columns,
             data: data
         });

@@ -4,7 +4,6 @@ import "../commons/view/detail-tabs.js";
 import "./user-info.js";
 import "./user-projects.js";
 import "./user-password-change.js";
-import UtilsNew from "../../core/utils-new.js";
 import ExtensionsManager from "../extensions-manager.js";
 
 export default class UserProfile extends LitElement {
@@ -84,8 +83,7 @@ export default class UserProfile extends LitElement {
                     render: (data, active, opencgaSession) => html`
                         <div>
                             <user-projects
-                                .projects="${opencgaSession?.projects}"
-                                .userId="${opencgaSession?.user?.id}">
+                                .projects="${opencgaSession?.projects}">
                             </user-projects>
                         </div>
                     `,
@@ -97,6 +95,8 @@ export default class UserProfile extends LitElement {
                     render: (data, active, opencgaSession) => html`
                         <div>
                             <user-password-change
+                                .userId="${this.opencgaSession.user.id}"
+                                .organizationId="${this.opencgaSession?.user?.organization}"
                                 .opencgaSession="${opencgaSession}">
                             </user-password-change>
                         </div>

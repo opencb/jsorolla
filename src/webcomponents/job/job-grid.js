@@ -166,8 +166,28 @@ export default class JobGrid extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             columns: this._getDefaultColumns(),
-            data: this.jobs,
-            sidePagination: "local",
+            // data: this.jobs,
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local jobs also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.jobs.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.jobs.length,
+                    rows: response,
+                };
+            },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
             // Set table properties, these are read from config property
@@ -179,7 +199,7 @@ export default class JobGrid extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
@@ -199,6 +219,8 @@ export default class JobGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -218,9 +240,11 @@ export default class JobGrid extends LitElement {
                 sortName: "Creation",
                 sortOrder: "asc",
                 gridContext: this,
-                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     document.getElementById(this._prefix + "refreshIcon").style.visibility = "visible";
+
+                    let jobsResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         deleted: false,
@@ -237,10 +261,16 @@ export default class JobGrid extends LitElement {
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.jobs()
                         .search(this.filters)
-                        .then(res => params.success(res))
-                        .catch(e => {
-                            console.error(e);
-                            params.error(e);
+                        .then(response => {
+                            jobsResponse = response;
+                            // Prepare data for columns extensions
+                            const rows = jobsResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => params.success(jobsResponse))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
                         });
                 },
                 responseHandler: response => {
@@ -275,7 +305,9 @@ export default class JobGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                     this.enableAutoRefresh();
                 },
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
+                onLoadError: (e, restResponse) => {
+                    this.gridCommons.onLoadError(e, restResponse);
+                },
             });
         }
     }
@@ -323,7 +355,7 @@ export default class JobGrid extends LitElement {
                         <div class='col-md-12'>
                             <div>
                                 <table class="table table-hover table-no-bordered">
-                                    <thead>
+                                    <thead class="table-light">
                                         <tr class="table-header">
                                             <th>ID</th>
                                             <th>Tool</th>
@@ -338,7 +370,7 @@ export default class JobGrid extends LitElement {
                                             <tr class="detail-view-row">
                                                 <td>${job.id}</td>
                                                 <td>${job.tool.id}</td>
-                                                <td>${UtilsNew.jobStatusFormatter(job.internal.status)}</td>
+                                                <td>${WebUtils.jobStatusFormatter(job.internal.status)}</td>
                                                 <td>${job.priority}</td>
                                                 <td>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</td>
                                                 <td>${job.visited}</td>
@@ -374,6 +406,12 @@ export default class JobGrid extends LitElement {
                 // await this.updateComplete;
                 ModalUtils.show(`${this._prefix}RetryModal`);
                 break;
+            case "kill":
+                this.jobKillObj = row;
+                this.requestUpdate();
+                // await this.updateComplete;
+                ModalUtils.show(`${this._prefix}KillModal`);
+                break;
             case "edit":
                 this.jobUpdateId = row.id;
                 this.requestUpdate();
@@ -398,10 +436,10 @@ export default class JobGrid extends LitElement {
                 formatter: (id, row) => `
                     <div>
                         <span style="font-weight: bold; margin: 5px 0">${id}</span>
-                        ${row.outDir?.path ? `<span class="help-block" style="margin: 5px 0">/${row.outDir.path.replace(id, "").replace("//", "/")}</span>` : ""}
+                        ${row.outDir?.path ? `<span class="d-block text-secondary" style="margin: 5px 0">/${row.outDir.path.replace(id, "").replace("//", "/")}</span>` : ""}
                     </div>
                 `,
-                visible: this.gridCommons.isColumnVisible("id")
+                visible: this.gridCommons.isColumnVisible("id"),
             },
             {
                 id: "toolId",
@@ -410,10 +448,10 @@ export default class JobGrid extends LitElement {
                 formatter: (toolId, row) => `
                     <div>
                         <span style="margin: 5px 0">${toolId}</span>
-                        ${row.tool?.type ? `<span class="help-block" style="margin: 5px 0">${row.tool.type}</span>` : ""}
+                        ${row.tool?.type ? `<span class="d-block text-secondary" style="margin: 5px 0">${row.tool.type}</span>` : ""}
                     </div>
                 `,
-                visible: this.gridCommons.isColumnVisible("toolId")
+                visible: this.gridCommons.isColumnVisible("toolId"),
             },
             {
                 id: "params",
@@ -509,14 +547,14 @@ export default class JobGrid extends LitElement {
                 id: "status",
                 title: "Status",
                 field: "internal.status",
-                formatter: status => UtilsNew.jobStatusFormatter(status),
+                formatter: status => WebUtils.jobStatusFormatter(status),
                 visible: this.gridCommons.isColumnVisible("status")
             },
             {
                 id: "executionR",
                 title: "Runtime",
-                field: "execution",
-                formatter: execution => {
+                formatter: (_, row) => {
+                    const execution = row.execution;
                     if (execution?.start) {
                         const duration = moment.duration((execution.end ? execution.end : moment().valueOf()) - execution.start);
                         const f = moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
@@ -529,10 +567,15 @@ export default class JobGrid extends LitElement {
             {
                 id: "executionD",
                 title: "Start/End Date",
-                field: "execution",
-                formatter: execution => execution?.start ?
-                    moment(execution.start).format("D MMM YYYY, h:mm:ss a") + " / " + (execution?.end ? moment(execution.end).format("D MMM YYYY, h:mm:ss a") : "-") :
-                    "-",
+                formatter: (_, row) => {
+                    const execution = row.execution;
+                    const values = [];
+                    if (execution?.start) {
+                        values.push(moment(execution.start).format("D MMM YYYY, h:mm:ss a"));
+                        values.push(execution?.end ? moment(execution.end).format("D MMM YYYY, h:mm:ss a") : "-");
+                    }
+                    return values.join(" / ") || "-";
+                },
                 visible: this.gridCommons.isColumnVisible("executionD")
             },
             {
@@ -550,44 +593,55 @@ export default class JobGrid extends LitElement {
                 title: "Actions",
                 field: "actions",
                 align: "center",
-                formatter: () => `
-                    <div class="inline-block dropdown">
-                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
-                            <span>Actions</span>
-                            <span class="caret" style="margin-left: 5px"></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li>
-                                <a data-action="retry" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-sync icon-padding" aria-hidden="true"></i> Retry ...
-                                </a>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="download-json" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
-                                </a>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) || "disabled" }">
-                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
-                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                `,
+                formatter: (value, row) => {
+                    const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
+                        this.opencgaSession.study,
+                        this.opencgaSession.user.id,
+                        this.permissionID,
+                        this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+                    return `
+                        <div class="d-inline-block dropdown">
+                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
+                                <span>Actions</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a data-action="copy-json" class="dropdown-item" href="javascript: void 0">
+                                        <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-action="download-json" class="dropdown-item" href="javascript: void 0" >
+                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a data-action="retry" class="dropdown-item" href="javascript: void 0">
+                                        <i class="fas fa-sync me-1" aria-hidden="true"></i> Retry ...
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-action="kill" class="dropdown-item" href="javascript: void 0">
+                                        <i class="fas fa-skull me-1" aria-hidden="true"></i> Kill ...
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a data-action="edit" class="dropdown-item disabled ${hasWritePermission ? "" : "disabled"}" href="javascript: void 0">
+                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-action="delete" class="dropdown-item disabled" href="javascript: void 0">
+                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    `;
+                },
                 events: {
                     "click a": this.onActionClick.bind(this),
                 },
@@ -618,7 +672,7 @@ export default class JobGrid extends LitElement {
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toLowerCase() === "tab") {
-                        const fields = ["id", "tool.id", "priority", "tags", "creationDate", "internal.status.name", "visited"];
+                        const fields = ["id", "tool.id", "priority", "tags", "creationDate", "internal.status.id", "visited"];
                         const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "job_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
@@ -642,12 +696,8 @@ export default class JobGrid extends LitElement {
         const params = {
             study: this.opencgaSession.study.fqn
         };
-        let error;
         this.opencgaSession.opencgaClient.jobs()
-            .retry(
-                {
-                    job: this.jobRetryObj?.id
-                }, params)
+            .retry({job: this.jobRetryObj?.id}, params)
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Job Retry",
@@ -655,7 +705,23 @@ export default class JobGrid extends LitElement {
                 });
             })
             .catch(reason => {
-                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            });
+    }
+
+    onJobKill() {
+        const params = {
+            study: this.opencgaSession.study.fqn
+        };
+        this.opencgaSession.opencgaClient.jobs()
+            .kill(this.jobKillObj?.id, params)
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Job Kill",
+                    message: "Job killed correctly"
+                });
+            })
+            .catch(reason => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             });
     }
@@ -664,12 +730,68 @@ export default class JobGrid extends LitElement {
         return [
             {
                 render: () => html`
-                    <button type="button" data-cy="job-refresh" class="btn btn-default btn-sm" @click="${() => this.table.bootstrapTable("refresh")}">
-                        <i class="fas fa-sync-alt icon-padding"></i> Refresh
+                    <button type="button" data-cy="job-refresh" class="btn btn-light" @click="${() => this.table.bootstrapTable("refresh")}">
+                        <i class="fas fa-sync-alt me-1"></i> Refresh
                     </button>
                 `,
             }
         ];
+    }
+
+    renderModalRetry() {
+        return ModalUtils.create(this, `${this._prefix}RetryModal`, {
+            display: {
+                modalTitle: "Job Retry",
+                modalDraggable: true,
+                modalbtnsVisible: true,
+                modalSize: "modal-lg",
+                okButtonText: "Retry Job",
+            },
+            render: () => {
+                return html`
+                    <div>This will execute a new Job with the same parameters as the original job.
+                        Are you sure do you want to execute again <b>${this.jobRetryObj?.id}</b>?
+                    </div>
+                `;
+            },
+            onOk: e => this.onJobRetry(e)
+        });
+    }
+
+    renderModalKill() {
+        return ModalUtils.create(this, `${this._prefix}KillModal`, {
+            display: {
+                modalTitle: "Job Kill",
+                modalDraggable: true,
+                modalbtnsVisible: true,
+                modalSize: "modal-lg",
+                okButtonText: "Kill Job",
+            },
+            render: () => {
+                return html`
+                    <div>This will kill a queued or running Job. Are you sure do you want to kill <b>${this.jobRetryObj?.id}</b>?</div>
+                `;
+            },
+            onOk: e => this.onJobKill(e)
+        });
+    }
+
+    renderModalUpdate() {
+        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
+            display: {
+                modalTitle: "Job Update",
+                modalDraggable: true,
+                modalSize: "modal-lg",
+            },
+            render: active => html`
+                <job-update
+                    .jobId="${this.jobUpdateId}"
+                    .active="${active}"
+                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                    .opencgaSession="${this.opencgaSession}">
+                </job-update>
+            `,
+        });
     }
 
     render() {
@@ -693,38 +815,9 @@ export default class JobGrid extends LitElement {
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${ModalUtils.create(this, `${this._prefix}RetryModal`, {
-                display: {
-                    modalTitle: "Job Retry",
-                    modalDraggable: true,
-                    modalbtnsVisible: true
-                },
-                render: () => {
-                    return html`
-                        <div>This will execute a new Job with the same parameters as the original job.
-                            Are you sure do you want to execute again <span style="font-weight: bold">${this.jobRetryObj?.id}</span>?
-                        </div>
-                    `;
-                },
-                onOk: e => this.onJobRetry(e)
-            })}
-
-            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-                display: {
-                    modalTitle: "Job Update",
-                    modalDraggable: true,
-                },
-                render: active => {
-                    return html `
-                        <job-update
-                            .jobId="${this.jobUpdateId}"
-                            .active="${active}"
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </job-update>
-                    `;
-                }
-            })}
+            ${this.renderModalRetry()}
+            ${this.renderModalKill()}
+            ${this.renderModalUpdate()}
         `;
     }
 

@@ -119,7 +119,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         // <span class='badge badge-light' style="color: ${CONSEQUENCE_TYPES.style[term.impact]}">${term.impact}</span>
         return {
             id: term.name,
-            name: `${term.name}  <span class="badge badge-light">${term.id}</span>`
+            name: `${term.name}  <span class="badge text-bg-secondary">${term.id}</span>`
         };
     }
 
@@ -189,27 +189,25 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
     render() {
         return html`
             <!-- Render the different aliases configured -->
-            <div class="form-group">
+            <div class="mb-3">
                 ${this._config.alias && this._config.alias.length > 0 ? html`
-                    <div style="margin: 5px 0px">
-                        <span>Add terms from a preset configuration:</span>
-                    </div>
+                    <label class="form-label">Add terms from a preset configuration:</label>
                     ${this._config.alias.map(alias => {
                         const id = `${this._prefix}${alias.name.replace(/ |[()]|/g, "")}`;
                         return html`
-                            <div style="margin: 5px 0px">
-                                <label class="text" for="${id}" style="font-weight: normal; cursor: pointer">
+                            <div class="form-check">
+                                <label class="form-check-label" for="${id}">
                                     <input
                                         type="checkbox"
-                                        class="${this._prefix}_ctCheckbox"
+                                        class="form-check-input ${this._prefix}_ctCheckbox"
                                         id="${id}"
                                         name="layout"
                                         value="${alias.name}"
                                         .checked="${this.presetSelected.has(alias.name)}"
                                         @click="${e => this.onPresetSelect(alias.name, e)}">
-                                    <span style="margin: 0px 5px">${alias.name} </span>
+                                    <span>${alias.name} </span>
                                 </label>
-                                <span tooltip-title="Terms" tooltip-text="${alias.terms.join("<br>")}" class="badge badge-secondary">
+                                <span class="badge rounded-pill text-bg-secondary" tooltip-title="Terms" tooltip-text="${alias.terms.join("<br>")}">
                                     ${alias.terms?.length} terms
                                 </span>
                             </div>
@@ -218,15 +216,12 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                 ` : null}
             </div>
 
-            <div class="form-group">
-                <div style="margin: 10px 0px">
-                    <span>Or select terms manually:</span>
-                </div>
+            <div class="mb-3">
+                <label class="form-label">Or select terms manually:</label>
                 <select-field-filter
-                    multiple
-                    ?liveSearch="${true}"
                     .data="${this.options}"
-                    .value=${this._ct}
+                    .value="${this._ct}"
+                    .config="${{multiple: true}}"
                     @filterChange="${this.onFilterChange}">
                 </select-field-filter>
             </div>

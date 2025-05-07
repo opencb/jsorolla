@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import {guardPage} from "../commons/html-utils.js";
 import "./family-genotype-filter.js";
-
 
 export default class FamilyGenotypeModal extends LitElement {
 
@@ -59,7 +59,9 @@ export default class FamilyGenotypeModal extends LitElement {
     }
 
     showModal() {
-        $("#" + this._prefix + "SampleGenotypeFilterModal").modal("show");
+        // $("#" + this._prefix + "SampleGenotypeFilterModal").modal("show");
+        const sampleGenotypeFilterModal = new bootstrap.Modal("#" + this._prefix + "SampleGenotypeFilterModal");
+        sampleGenotypeFilterModal.show();
     }
 
     // forward the event and handle error state
@@ -88,29 +90,24 @@ export default class FamilyGenotypeModal extends LitElement {
     render() {
         // Check Project exists
         if (!this.clinicalAnalysis) {
-            return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No Clinical Analysis selected.</h3>
-                </div>
-            `;
+            return guardPage("No Clinical Analysis selected.");
         }
 
         return html`
             <div>
                 ${this._config.text ? html`<div style="padding: 5px 0px">${this._config.text}</div>` : null}
                 <div class="text-center">
-                    <button type="button" class="btn btn-default multi-line" @click="${this.showModal}">
+                    <button type="button" class="btn btn-light multi-line" @click="${this.showModal}">
                         Family Genotype Filter ...
                     </button>
                 </div>
             </div>
 
             <div class="modal fade" id="${this._prefix}SampleGenotypeFilterModal" data-backdrop="static" data-keyboard="false"
-                 tabindex="-1" role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
-                <div class="modal-dialog" style="width: 1280px">
+                tabindex="-1" role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
+                <div class="modal-dialog" style="min-width: 1280px;max-width: 1280px;">
                     <div class="modal-content">
-                        <div class="modal-header" style="padding: 5px 15px">
+                        <div class="modal-header my-2 mx-1">
                             <h3>Family Genotype Filter</h3>
                         </div>
                         <div class="modal-body">
@@ -123,8 +120,8 @@ export default class FamilyGenotypeModal extends LitElement {
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" .disabled=${this.errorState} @click="${this.confirm}">OK</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" .disabled=${this.errorState} @click="${this.confirm}">OK</button>
                         </div>
                     </div>
                 </div>

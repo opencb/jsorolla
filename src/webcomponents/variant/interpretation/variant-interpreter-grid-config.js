@@ -19,6 +19,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../../commons/forms/data-form.js";
+import "../../commons/forms/select-field-filter.js";
 
 export default class VariantInterpreterGridConfig extends LitElement {
 
@@ -148,6 +149,11 @@ export default class VariantInterpreterGridConfig extends LitElement {
         LitUtils.dispatchCustomEvent(this, "configChange", this.config);
     }
 
+    onClear() {
+        this.onConfigObserver();
+        this.requestUpdate();
+    }
+
     async onSubmit() {
         // const newGridConfig = {...this.config};
         //
@@ -191,6 +197,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 .data="${this.config}"
                 .config="${this.getConfigForm()}"
                 @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${e=>this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>
         `;
@@ -206,16 +213,22 @@ export default class VariantInterpreterGridConfig extends LitElement {
             type: "pills",
             validation: {
                 validate: data => {
-                    return data.geneSet?.ensembl || data.geneSet?.refseq;
-                }
+                    // make sure that geneSet is present in the data object
+                    if (typeof data.geneSet !== "undefined") {
+                        return data.geneSet?.ensembl || data.geneSet?.refseq;
+                    }
+                    return true;
+                },
+                message: "You must select at least one Gene Set (Ensembl or RefSeq) in Transcript Filter.",
             },
             display: {
-                width: 10,
+                width: 12,
                 titleVisible: false,
                 titleAlign: "left",
                 titleWidth: 4,
                 defaultLayout: "vertical",
-                buttonsVisible: true
+                buttonsVisible: true,
+                buttonClearText: "Discard",
             },
             sections: [
                 {
@@ -243,7 +256,10 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                         <select-field-filter
                                             .data="${this.config?.pageList}"
                                             .value="${this.config?.pageSize}"
-                                            .multiple="${false}"
+                                            .config="${{
+                                                liveSearch: false,
+                                                multiple: false
+                                            }}"
                                             .classes="${"btn-sm"}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </select-field-filter>
@@ -269,9 +285,11 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                         <select-field-filter
                                             .data="${this.selectColumnData}"
                                             .value="${this.selectedColumns?.join(",")}"
-                                            .title="${"Columns"}"
-                                            .multiple="${true}"
-                                            .classes="${"btn-sm"}"
+                                            .config="${{
+                                                title: "Columns",
+                                                multiple: true,
+                                                liveSearch: false,
+                                            }}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                         </select-field-filter>
                                     `;
@@ -287,7 +305,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     display: {
                         titleHeader: "h4",
                         titleStyle: "margin: 5px 5px",
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "d-block text-secondary",
                         descriptionStyle: "margin: 0px 10px",
                         visible: () => !!this.config?.genotype?.type
                     },
@@ -309,7 +327,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     display: {
                         titleHeader: "h4",
                         titleStyle: "margin: 5px 5px",
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "d-block text-secondary",
                         descriptionStyle: "margin: 0px 10px",
                         visible: () => !!this.config?.geneSet
                     },
@@ -459,7 +477,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     display: {
                         titleHeader: "h4",
                         titleStyle: "margin: 5px 5px",
-                        descriptionClassName: "help-block",
+                        descriptionClassName: "d-block text-secondary",
                         descriptionStyle: "margin: 0px 10px",
                         visible: () => !!this.config?.populationFrequenciesConfig
                     },

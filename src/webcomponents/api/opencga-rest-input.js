@@ -22,7 +22,6 @@ import NotificationUtils from "../commons/utils/notification-utils";
 import LitUtils from "../commons/utils/lit-utils";
 import RestClient from "../../core/clients/rest-client";
 
-
 export default class OpencgaRestInput extends LitElement {
 
     constructor() {
@@ -364,7 +363,6 @@ export default class OpencgaRestInput extends LitElement {
         url = url.replace("{apiVersion}", this.opencgaSession.opencgaClient._config.version);
 
         if (this.endpoint.method === "GET" || this.endpoint.method === "DELETE") {
-            url += "sid=" + this.opencgaSession.opencgaClient._config.token;
             this.#getOrDeleteEndpoint(url);
         }
 
@@ -389,8 +387,12 @@ export default class OpencgaRestInput extends LitElement {
             });
 
         let error, result;
+        const options = {
+            method: this.endpoint.method,
+            token: this.opencgaSession.opencgaClient._config.token,
+        };
         this.#setLoading(true);
-        this.restClient.call(url, {method: this.endpoint.method})
+        this.restClient.call(url, options)
             .then(response => {
                 result = UtilsNew.objectClone(response.responses[0].results);
             })
@@ -406,7 +408,8 @@ export default class OpencgaRestInput extends LitElement {
 
     #postEndpoint(url, isForm) {
         // Add Study
-        url += "study=" + encodeURIComponent(this.opencgaSession.study.fqn);
+        // Fixme: not all endpoints require study. E.g. POST /users/password/
+        url += "study=" + encodeURIComponent(this.opencgaSession?.study?.fqn);
 
         // Replace PATH params
         this.endpoint.parameters
@@ -432,7 +435,7 @@ export default class OpencgaRestInput extends LitElement {
         const _options = {
             sid: this.opencgaSession.opencgaClient._config.token,
             token: this.opencgaSession.opencgaClient._config.token,
-            data: isForm ? this.formatBody(this.data?.body) : JSON.parse(this.dataJson?.body),
+            data: isForm ? this.formatBody(this.data?.body) : JSON.parse(this.dataJson?.body || "{}"),
             method: "POST",
         };
 
@@ -573,9 +576,9 @@ export default class OpencgaRestInput extends LitElement {
         }
         return html`
             <!-- Parameters Section-->
-            <div style="padding: 5px 10px">
-                <h3 style="display:inline-block;">Input Parameters</h3>
-                <div style="padding: 20px">
+            <div class="py-2 px-3">
+                <h3 class="d-inline-block">Input Parameters</h3>
+                <div class="p-4">
                     <data-form
                         .data="${this.data}"
                         .config="${this.config}"

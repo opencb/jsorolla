@@ -139,7 +139,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             }
 
             // 3. panelIntersection param: if panel lock is enabled, this param should be also enabled
-            if (this.clinicalAnalysis.panelLock) {
+            if (this.clinicalAnalysis.panelLocked) {
                 this.query.panelIntersection = true;
             }
 
@@ -219,7 +219,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
 
             // 2. Add default initial query the active filter menu
             _activeFilterFilters.unshift({
-                id: "Default Initial Query",
+                id: "Default Filter",
                 active: false,
                 query: this.query,
             });
@@ -291,9 +291,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                     hiddenFields: [],
                     lockedFields: [
                         {id: "sample"},
-                        {id: "sampleData"},
-                        {id: "file"},
-                        {id: "fileData"},
+                        // {id: "sampleData"},
+                        // {id: "file"},
+                        // {id: "fileData"},
                     ],
                 },
                 callers: [],

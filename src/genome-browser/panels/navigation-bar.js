@@ -34,104 +34,103 @@ export default class NavigationBar {
 
     #initDom() {
         const template = UtilsNew.renderHTML(`
-            <div id="${this.prefix}" style="display:flex;justify-content:space-between;">
-                <div style="display:flex;flex-wrap:wrap;gap:4px;">
+            <div id="${this.prefix}" class="d-flex justify-content-between my-1">
+                <div class="d-flex flex-wrap gap-1">
 
                     <!-- Region input -->
-                    <div id="${this.prefix}RegionForm" data-cy="gb-region" title="Position" class="form-group" style="margin:0px;">
-                        <div title="Position" class="input-group input-group-sm" style="margin-bottom:0px;">
+                    <div id="${this.prefix}RegionForm" class="m-0" data-cy="gb-region" title="Position">
+                        <div title="Position" class="input-group input-group-sm mb-0">
                             <input
                                 data-cy="gb-region-input"
                                 type="text"
                                 id="${this.prefix}RegionInput"
-                                class="form-control input-sm"
+                                class="form-control"
                                 placeholder="1:10000-20000"
                                 style="width:170px;display:inline-block;"
                             />
-                            <span class="input-group-btn">
-                                <button id="${this.prefix}RegionSubmit" data-cy="gb-region-submit" class="btn btn-default btn-sm">
-                                    <strong>Go!</strong>
-                                </button>
-                            </span>
+
+                            <button id="${this.prefix}RegionSubmit" data-cy="gb-region-submit" class="btn btn-light btn-sm">
+                                <strong>Go!</strong>
+                            </button>
                         </div>
                     </div>
 
                     <!-- Gene search -->
-                    <div id="${this.prefix}SearchForm" class="input-group input-group-sm" style="margin:0px!important;">
-                        <input
-                            type="text"
-                            id="${this.prefix}SearchInput"
-                            list="${this.prefix}SearchDataList"
-                            class="form-control input-sm"
-                            placeholder="gene"
-                            style="display:inline-block;max-width:90px;"
-                        />
-                        <datalist id="${this.prefix}SearchDataList"></datalist>
-                        <span class="input-group-btn" style="display:inline-block;">
-                            <button id="${this.prefix}SearchButton" class="btn btn-default btn-sm">
+                    <div>
+                        <div id="${this.prefix}SearchForm" class="input-group input-group-sm m-0">
+                            <input
+                                type="text"
+                                id="${this.prefix}SearchInput"
+                                list="${this.prefix}SearchDataList"
+                                class="form-control"
+                                placeholder="gene"
+                                style="display:inline-block;max-width:90px;"
+                            />
+                            <datalist id="${this.prefix}SearchDataList"></datalist>
+                            <button id="${this.prefix}SearchButton" class="btn btn-light btn-sm">
                                 <i class="fa fa-search"></i>
                             </button>
-                        </span>
+                        </div>
                     </div>
 
                     <!-- Features of interest -->
                     <div id="${this.prefix}FeaturesOfInterest" class="dropdown" style="display:none;">
-                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+                        <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
                             ${this.config.featuresOfInterestTitle}
-                            <span class="caret"></span>
                         </button>
-                        <ul id="${this.prefix}FeaturesOfInterestMenu" data-cy="gb-features-list" class="dropdown-menu"></ul>
+                        <ul id="${this.prefix}FeaturesOfInterestMenu" data-cy="gb-features-list" class="dropdown-menu" style="width: 12rem;"></ul>
                     </div>
 
                     <div id="${this.prefix}ControlsSpace" style="width:1rem;display:none;"></div>
 
                     <!-- Position controls -->
                     <div id="${this.prefix}PositionControls" class="btn-group" style="display:inline-block">
-                        <button id="${this.prefix}MoveFurtherLeftButton" class="btn btn-default btn-sm">
+                        <button id="${this.prefix}MoveFurtherLeftButton" class="btn btn-light btn-sm">
                             <i class="fa fa-angle-double-left"></i>
                         </button>
-                        <button id="${this.prefix}MoveLeftButton" class="btn btn-default btn-sm">
+                        <button id="${this.prefix}MoveLeftButton" class="btn btn-light btn-sm">
                             <i class="fa fa-angle-left"></i>
                         </button>
-                        <button id="${this.prefix}MoveRightButton" class="btn btn-default btn-sm">
+                        <button id="${this.prefix}MoveRightButton" class="btn btn-light btn-sm">
                             <i class="fa fa-angle-right"></i>
                         </button>
-                        <button id="${this.prefix}MoveFurtherRightButton" class="btn btn-default btn-sm">
+                        <button id="${this.prefix}MoveFurtherRightButton" class="btn btn-light btn-sm">
                             <i class="fa fa-angle-double-right"></i>
                         </button>
                     </div>
 
                     <!-- Zoom controls -->
-                    <div id="${this.prefix}ZoomControls" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
-                        <button title="Decrease window size" id="${this.prefix}ZoomOutButton" class="btn btn-default btn-sm">
+                    <div id="${this.prefix}ZoomControls" class="d-flex flex-wrap gap-1 align-items-center">
+                        <button title="Decrease window size" id="${this.prefix}ZoomOutButton" class="btn btn-light btn-sm">
                             <span class="fa fa-search-minus"></span>
                         </button>
                         <div class="" style="display:inline-block;">
                             <input type="range" id="${this.prefix}ZoomRange" min="0" max="100" />
                         </div>
-                        <button title="Increase window size" id="${this.prefix}ZoomInButton" class="btn btn-default btn-sm">
+                        <button title="Increase window size" id="${this.prefix}ZoomInButton" class="btn btn-light btn-sm">
                             <span class="fa fa-search-plus"></span>
                         </button>
-
-                        <!-- Window size input -->
-                        <div id="${this.prefix}WindowSizeForm" title="Window size (Nucleotides)" class="input-group input-group-sm" style="margin:0px;">
-                            <input id="${this.prefix}WindowSizeInput" data-cy="gb-window-size" class="form-control input-sm" style="max-width:60px;" />
-                            <span class="input-group-addon">nts</span>
-                        </div>
                     </div>
 
+                    <!-- Window size input -->
+                    <div class="m-0">
+                        <div id="${this.prefix}WindowSizeForm" title="Window size (Nucleotides)" class="input-group input-group-sm">
+                            <input id="${this.prefix}WindowSizeInput" data-cy="gb-window-size" class="form-control" style="max-width:60px;" />
+                            <span class="input-group-text">nts</span>
+                        </div>
+                    </div>
                 </div>
-                <div style="display:flex;flex-wrap:wrap;gap:4px;">
 
+                <div class="d-flex flex-wrap gap-1">
                     <!-- Panels buttons -->
                     <div id="${this.prefix}PanelButtons" class="btn-group" style="display:inline-block;">
-                        <button title="Toggle karyotype panel" id="${this.prefix}KaryotypeButton" class="btn btn-default btn-sm active">
+                        <button title="Toggle karyotype panel" id="${this.prefix}KaryotypeButton" class="btn btn-light btn-sm active">
                             <span class="gb-icon gb-icon-karyotype" style="display:block;width:16px;height:18px;"></span>
                         </button>
-                        <button title="Toggle chromosome panel" id="${this.prefix}ChromosomeButton" class="btn btn-default btn-sm active">
+                        <button title="Toggle chromosome panel" id="${this.prefix}ChromosomeButton" class="btn btn-light btn-sm active">
                             <span class="gb-icon gb-icon-chromosome" style="display:block;width:16px;height:18px;"></span>
                         </button>
-                        <button title="Toggle overview panel" id="${this.prefix}OverviewButton" class="btn btn-default btn-sm active">
+                        <button title="Toggle overview panel" id="${this.prefix}OverviewButton" class="btn btn-light btn-sm active">
                             <span class="gb-icon gb-icon-region" style="display:block;width:16px;height:18px;"></span>
                         </button>
                     </div>
@@ -139,17 +138,15 @@ export default class NavigationBar {
                     <!-- Region history -->
                     <div id="${this.prefix}HistoryControls">
                         <div title="Region history" class="dropdown" style="display:inline-block;">
-                            <button type="button" id="${this.prefix}RegionHistoryButton" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+                            <button type="button" id="${this.prefix}RegionHistoryButton" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
                                 <i class="fa fa-history"></i>
-                                <span class="caret"></span>
                             </button>
                             <ul id="${this.prefix}RegionHistoryMenu" class="dropdown-menu"></ul>
                         </div>
-                        <button id="${this.prefix}RegionHistoryRestore" class="btn btn-default btn-sm">
+                        <button id="${this.prefix}RegionHistoryRestore" class="btn btn-light btn-sm">
                             <i class="fa fa-redo"></i>
                         </button>
                     </div>
-
                 </div>
             </div>
         `);
@@ -335,7 +332,7 @@ export default class NavigationBar {
 
     #addRegionHistoryMenuItem(region) {
         const template = UtilsNew.renderHTML(`
-            <li><a href="">${region.toString()}</a></li>
+            <li><a class="dropdown-item" href="">${region.toString()}</a></li>
         `);
         const entry = template.querySelector("li");
         entry.addEventListener("click", event => {
@@ -479,15 +476,14 @@ export default class NavigationBar {
                 this.elements.featuresOfInterestMenu.appendChild(itemTemplate.querySelector("li"));
             } else if (item.features && item.name) {
                 const itemTemplate = UtilsNew.renderHTML(`
-                    <li class="dropdown-submenu">
-                        <a style="display:flex;align-items:center;">
+                    <li class="dropdown-submenu dropend">
+                        <a class="d-flex align-items-center gap-2 ms-2 px-2 dropdown-toggle text-decoration-none text-dark">
                             ${item.display?.color ? `
-                                <div style="background-color:${item.display.color};width:1rem;height:1rem;border-radius:999px;margin-right:8px;"></div>
+                                <div style="background-color:${item.display.color};width:1rem;height:1rem;border-radius:999px;"></div>
                             ` : ""}
-                            <span style="padding-right:8px;">${item.name}</span>
-                            <span class="caret" style="transform:rotate(270deg);margin-left:auto"></span>
+                            <span>${item.name}</span>
                         </a>
-                        <ul class="dropdown-menu" style="max-height:300px;overflow:auto;"></ul>
+                        <ul class="dropdown-menu ps-3" style="max-height:300px;overflow:auto;width:14rem"></ul>
                     </li>
                 `);
                 const itemEntry = itemTemplate.querySelector("li");

@@ -25,6 +25,7 @@ import GA4GH from "./api-mock/GA4GH.js";
 import Individual from "./api-mock/Individual.js";
 import Job from "./api-mock/Job.js";
 import Meta from "./api-mock/Meta.js";
+import Organization from "./api-mock/Organization.js";
 import Project from "./api-mock/Project.js";
 import Sample from "./api-mock/Sample.js";
 import Study from "./api-mock/Study.js";
@@ -201,6 +202,13 @@ export class OpenCGAClientMock {
             this.clients.set("ga4gh", new GA4GH(this._config));
         }
         return this.clients.get("ga4gh");
+    }
+
+    organization() {
+        if (!this.clients.has("organization")) {
+            this.clients.set("organization", new Organization(this._config));
+        }
+        return this.clients.get("organizaton");
     }
 
     getConfig() {

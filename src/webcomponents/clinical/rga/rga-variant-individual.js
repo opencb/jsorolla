@@ -105,6 +105,8 @@ export default class RgaVariantIndividual extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             // data: this.variant.individuals,
             columns: this._initTableColumns(),
             sidePagination: "server",
@@ -115,7 +117,8 @@ export default class RgaVariantIndividual extends LitElement {
             paginationVAlign: "both",
             formatShowingRows: (pageFrom, pageTo, totalRows) => this.formatShowingRows(pageFrom, pageTo, totalRows),
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             ajax: async params => {
                 try {
                     const _filters = {
@@ -393,7 +396,7 @@ export default class RgaVariantIndividual extends LitElement {
 
     render() {
         return html`
-            <h3 class="break-word">Individual presenting ${this.variant.id}</h3>
+            <h3 class="text-break">Individual presenting ${this.variant.id}</h3>
             ${this.hiddenIndividuals > 0 ? html`
                 <div class="alert alert-warning"><i class="fas fa-3x fa-exclamation-circle align-middle"></i>
                     ${this.hiddenIndividuals} individual${this.hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.

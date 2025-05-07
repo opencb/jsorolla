@@ -148,8 +148,8 @@ export default class IndividualQcMendelianErrors extends LitElement {
             };
 
             return html`
-                <h4 style="padding-top: 15px">Summary</h4>
-                <table class="table table-hover table-no-bordered">
+                <h4 class="pt-3">Summary</h4>
+                <table class="table table-hover">
                     <thead>
                     <tr>
                         <th>Sample ID</th>
@@ -182,8 +182,8 @@ export default class IndividualQcMendelianErrors extends LitElement {
                 </table>
 
                 <!-- Print errors for Individual -->
-                <h4 style="padding-top: 15px">Mendelian Errors of ${this.individual.id}</h4>
-                <table class="table table-hover table-no-bordered">
+                <h4 class="pt-3">Mendelian Errors of ${this.individual.id}</h4>
+                <table class="table table-hover">
                     <thead>
                     <tr>
                         <th>Sample ID</th>
@@ -211,15 +211,15 @@ export default class IndividualQcMendelianErrors extends LitElement {
 
         return html`
             <div>
-                <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
+                <div class="btn-group float-end">
+                    <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Download <span class="caret"></span>
+                        <i class="fa fa-download pe-1" aria-hidden="true"></i> Download
                     </button>
-                    <ul class="dropdown-menu btn-sm">
+                    <ul class="dropdown-menu">
                         ${this._config.download?.length && this._config.download.map(item => html`
                             <li>
-                                <a href="javascript: void 0" data-format="${item}" @click="${this.onDownload}">${item}</a>
+                                <a class="dropdown-item" href="javascript: void 0" data-format="${item}" @click="${this.onDownload}">${item}</a>
                             </li>
                         `)}
                     </ul>

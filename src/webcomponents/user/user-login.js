@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-
 
 export default class UserLogin extends LitElement {
 
@@ -42,11 +41,37 @@ export default class UserLogin extends LitElement {
     #init() {
         this.hasEmptyUser = false;
         this.hasEmptyPassword = false;
+        this.organizationId = "";
+    }
+
+    firstUpdated() {
+        if (this.opencgaSession?.study) {
+            this.redirect("home");
+        }
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession") && this.opencgaSession?.study) {
+            this.redirect("home");
+        }
+    }
+
+    redirect(to) {
+        LitUtils.dispatchCustomEvent(this, "redirect", null, {hash: to});
+    }
+
+    getOrganization() {
+        if (this.opencgaSession?.opencgaClient?._config?.organizations?.length === 1) {
+            return this.opencgaSession.opencgaClient._config.organizations[0];
+        }
+        // If not, return the organization from the input field
+        return (this.querySelector("#organization")?.value || "").trim();
     }
 
     onSubmit() {
         const user = (this.querySelector("#user").value || "").trim();
         const password = (this.querySelector("#password").value || "").trim();
+        const organization = this.getOrganization();
 
         this.hasEmptyUser = user.length === 0;
         this.hasEmptyPassword = password.length === 0;
@@ -56,15 +81,17 @@ export default class UserLogin extends LitElement {
 
         if (this.opencgaSession) {
             this.requestUpdate(); // Remove errors
-            this.opencgaSession.opencgaClient.login(user, password)
+            this.opencgaSession.opencgaClient.login(user, password, organization)
                 .then(response => {
                     if (response && !UtilsNew.isError(response)) {
                         if (response.getEvents?.("ERROR")?.length) {
                             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
                         } else {
                             const token = response?.getResult?.(0)?.token;
+                            // eslint-disable-next-line no-undef
                             const decoded = jwt_decode(token);
                             const dateExpired = new Date(decoded.exp * 1000);
+                            // eslint-disable-next-line no-undef
                             const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
 
                             LitUtils.dispatchCustomEvent(this, "login", null, {
@@ -114,29 +141,45 @@ export default class UserLogin extends LitElement {
     render() {
         return html`
             <div class="container-fluid" style="max-width:480px;">
-                <div class="panel panel-default">
-                    <div class="panel-body" style="padding:32px;">
-                        <div class="form-group ${this.hasEmptyUser ? "has-error" : ""}">
-                            <label for="user" class="control-label label-login">User ID</label>
-                            <div class="input-group">
-                                <span class="input-group-addon" id="username">
-                                    <i class="fa fa-user fa-lg"></i>
-                                </span>
-                                <input id="user" type="text" class="form-control" placeholder="User ID" @keyup="${e => this.onKeyUp(e)}">
-                            </div>
+                <div class="card">
+                    <div class="card-body">
+                        <label for="user" class="form-label fw-bold">User ID</label>
+                        <div class="input-group mb-3 ${this.hasEmptyUser ? "is-invalid" : ""}">
+                            <span class="input-group-text" id="username">
+                                <i class="fa fa-user fa-lg"></i>
+                            </span>
+                            <input id="user" class="form-control" type="text" placeholder="User ID"
+                                @keyup="${e => this.onKeyUp(e)}">
                         </div>
-                        <div class="form-group ${this.hasEmptyPassword ? "has-error" : ""}">
-                            <label for="pass" class="control-label label-login">Password</label>
-                            <div class="input-group">
-                                <span class="input-group-addon" id="username">
+                        <label for="pass" class="form-label fw-bold">Password</label>
+                        <div class="form-group ${this.hasEmptyPassword ? "is-invalid" : ""}">
+                            <div class="input-group mb-3">
+                                <span id="username" class="input-group-text" >
                                     <i class="fa fa-key fa-lg"></i>
                                 </span>
-                                <input id="password" type="password" class="form-control" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
+                                <input id="password" class="form-control" type="password" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
                             </div>
                         </div>
-                        <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
-                            <strong>Sign In</strong>
-                        </button>
+                        ${(this.opencgaSession?.opencgaClient?._config?.organizations?.length > 1) ? html`
+                            <div class="form-group">
+                                <label for="organization" class="form-label fw-bold">Organization</label>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">
+                                        <i class="fa fa-building fa-lg"></i>
+                                    </span>
+                                    <select class="form-select" id="organization">
+                                        ${this.opencgaSession?.opencgaClient?._config?.organizations.map(organization => html`
+                                            <option value="${organization}">${organization}</option>
+                                        `)}
+                                    </select>
+                                </div>
+                            </div>
+                        ` : nothing}
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
+                                <strong>Sign In</strong>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

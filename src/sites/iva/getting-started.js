@@ -53,7 +53,9 @@ export default class GettingStarted extends LitElement {
 
     openModal(e) {
         $("#thumbnail_modal img", this).attr("src", e.target.src);
-        $("#thumbnail_modal", this).modal("show");
+        // $("#thumbnail_modal", this).modal("show");
+        const thumbnailModal = new bootstrap.Modal("#thumbnail_modal");
+        thumbnailModal.show();
     }
 
     update(changedProperties) {
@@ -141,7 +143,7 @@ export default class GettingStarted extends LitElement {
                         <section>
                             <div class="row">
                                 <div class="col-sm-6 col-md-5 ${i % 2 ? "col-md-push-7" : ""} position-relative">
-                                    <img class="img-responsive" src="img/tools/thumbnails/${component?.thumbnail}" alt="${component?.id}" @click="${this.openModal}">
+                                    <img class="img-fluid" src="img/tools/thumbnails/${component?.thumbnail}" alt="${component?.id}" @click="${this.openModal}">
                                 </div>
                                 <div class="col-xs-6 col-md-7 ${i % 2 ? "col-md-pull-5 text-right" : ""}">
                                     <h2><a href="#${component?.id}/${this.opencgaSession && this.opencgaSession.project? `${this.opencgaSession.project.id}/${this.opencgaSession.study.id}` : ""}"> ${component?.title} </a></h2>
@@ -158,7 +160,7 @@ export default class GettingStarted extends LitElement {
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-body">
-                        <img class="img-responsive" src="">
+                        <img class="img-fluid" src="">
                     </div>
                 </div>
             </div>

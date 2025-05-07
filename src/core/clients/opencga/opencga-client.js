@@ -25,14 +25,15 @@ import GA4GH from "./api/GA4GH.js";
 import Individual from "./api/Individual.js";
 import Job from "./api/Job.js";
 import Meta from "./api/Meta.js";
+import Organization from "./api/Organization.js";
 import Project from "./api/Project.js";
 import Sample from "./api/Sample.js";
 import Study from "./api/Study.js";
 import User from "./api/User.js";
 import Variant from "./api/Variant.js";
 import VariantOperation from "./api/VariantOperation.js";
-import {CellBaseClient} from "../cellbase/cellbase-client";
-import UtilsNew from "../../utils-new";
+import {CellBaseClient} from "../cellbase/cellbase-client.js";
+import UtilsNew from "../../utils-new.js";
 
 
 export class OpenCGAClient {
@@ -47,6 +48,7 @@ export class OpenCGAClient {
         return {
             host: "",
             version: "",
+            organizations: [],
             userId: "",
             token: "",
             query: {
@@ -214,6 +216,13 @@ export class OpenCGAClient {
         return this.clients.get("admin");
     }
 
+    organization() {
+        if (!this.clients.has("organization")) {
+            this.clients.set("organization", new Organization(this._config));
+        }
+        return this.clients.get("organization");
+    }
+
     /*
      * Convenient function to create a client from the entity name, this is case insensitive.
      */
@@ -258,10 +267,18 @@ export class OpenCGAClient {
         }
     }
 
-    async login(userId, password) {
+    async login(userId, password, organization) {
         try {
-            const restResponse = await this.users()
-                .login({user: userId, password: password});
+            const query = {
+                user: userId,
+                password: password,
+            };
+            // Only include the organization to the request query if is provided
+            if (organization) {
+                query.organization = organization;
+            }
+
+            const restResponse = await this.users().login(query);
 
             // TODO remove userId and token from config and move it to session
             this._config.userId = userId;
@@ -311,7 +328,6 @@ export class OpenCGAClient {
         if (this._config.cookies.active) {
             this.#setCookies();
         }
-        return Promise.resolve();
     }
 
     #setCookies(userId, token) {
@@ -329,6 +345,11 @@ export class OpenCGAClient {
             Cookies.expire(this._config.cookies.prefix + "_userId");
             // eslint-disable-next-line no-undef
             Cookies.expire(this._config.cookies.prefix + "_sid");
+            // Remove sso token only if sso mode is enabled
+            if (this._config?.sso?.active && this._config?.sso?.cookie) {
+                // eslint-disable-next-line no-undef
+                Cookies.expire(this._config.sso.cookie);
+            }
         }
     }
 
@@ -351,6 +372,7 @@ export class OpenCGAClient {
 
     // Creates an authenticated session for the user and token of the current OpenCGAClient. The token is taken from the
     // opencgaClient object itself.
+    // @returns {Promise<any>}
     createSession() {
         const _this = this;
         return new Promise((resolve, reject) => {
@@ -382,9 +404,13 @@ export class OpenCGAClient {
                             console.error(e);
                         }
 
-
+                        // Save projects
                         session.projects = session.user.projects;
 
+                        // Fetch organization info
+                        const organizationResponse = await this.organization()
+                            .info(session.user.organization);
+                        session.organization = organizationResponse.responses[0].results[0];
 
                         // Fetch authorised Projects and Studies
                         console.log("Fetching projects and studies");

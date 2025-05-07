@@ -20,12 +20,12 @@ import VariantInterpreterGridFormatter from "./interpretation/variant-interprete
 
 export default class VariantFormatter {
 
-    static variantIdFormatter(id, variant) {
+    static variantIdFormatter(id, variant, alleleStringLengthMax = 20) {
         let ref = variant.reference ? variant.reference : "-";
         let alt = variant.alternate ? variant.alternate : "-";
 
         // Check size
-        const maxAlleleLength = 20;
+        const maxAlleleLength = alleleStringLengthMax;
         ref = (ref.length > maxAlleleLength) ? ref.substring(0, 4) + "..." + ref.substring(ref.length - 4) : ref;
         alt = (alt.length > maxAlleleLength) ? alt.substring(0, 4) + "..." + alt.substring(alt.length - 4) : alt;
 

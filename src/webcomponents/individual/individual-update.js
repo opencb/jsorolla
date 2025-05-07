@@ -162,13 +162,11 @@ export default class IndividualUpdate extends LitElement {
                                 render: (samples, dataFormFilterChange, updateParams) => {
                                     const handleSamplesFilterChange = e => {
                                         // We need to convert value from a string wth commas to an array of IDs
-                                        const sampleList = e.detail.value
-                                            ?.split(",")
+                                        const sampleList = (e.detail.value?.split(",") || [])
                                             .filter(sampleId => sampleId)
                                             .map(sampleId => ({id: sampleId}));
                                         dataFormFilterChange(sampleList);
                                     };
-
                                     return html`
                                         <catalog-search-autocomplete
                                             .value="${samples?.map(s => s.id).join(",")}"

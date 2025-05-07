@@ -89,6 +89,11 @@ const configureServer = server => {
 export default defineConfig({
     mode: env.NODE_ENV || "development",
     root: "./",
+    resolve: {
+        alias: {
+            "~bootstrap": path.resolve("./", "node_modules/bootstrap"),
+        }
+    },
     server: {
         open: env.NODE_ENV !== "production" ? "/src/sites/iva/index.html" : "/iva/index.html",
         port: 3000,

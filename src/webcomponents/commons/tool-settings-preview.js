@@ -30,7 +30,6 @@ import "../clinical/clinical-analysis-portal.js";
 import "../user/user-profile.js";
 import "../commons/view/detail-tabs.js";
 
-
 export default class ToolSettingsPreview extends LitElement {
 
     // --- CONSTRUCTOR ---
@@ -70,9 +69,9 @@ export default class ToolSettingsPreview extends LitElement {
                 render: settings => {
                     return html`
                         <individual-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .settings="${settings}"
-                                .config="${{showHeader: false}}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </individual-browser>
                     `;
                 }
@@ -81,9 +80,9 @@ export default class ToolSettingsPreview extends LitElement {
                 render: settings => {
                     return html`
                         <cohort-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .settings="${settings}"
-                                .config="${{showHeader: false}}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </cohort-browser>
                     `;
                 }
@@ -92,9 +91,9 @@ export default class ToolSettingsPreview extends LitElement {
                 render: settings => {
                     return html`
                         <family-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .settings="${settings}"
-                                .config="${{showHeader: false}}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </family-browser>
                     `;
                 }
@@ -103,9 +102,9 @@ export default class ToolSettingsPreview extends LitElement {
                 render: settings => {
                     return html`
                         <sample-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .settings="${settings}"
-                                .config="${{showHeader: false}}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </sample-browser>
                     `;
                 }
@@ -114,9 +113,9 @@ export default class ToolSettingsPreview extends LitElement {
                 render: settings => {
                     return html`
                         <file-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .settings="${settings}"
-                                .config="${{showHeader: false}}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </file-browser>
                     `;
                 }
@@ -125,9 +124,9 @@ export default class ToolSettingsPreview extends LitElement {
                 render: settings => {
                     return html`
                         <job-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .settings="${settings}"
-                                .config="${{showHeader: false}}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </job-browser>
                     `;
                 }
@@ -136,13 +135,13 @@ export default class ToolSettingsPreview extends LitElement {
                 render: settings => {
                     return html`
                         <variant-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                .consequenceTypes="${CONSEQUENCE_TYPES}"
-                                .populationFrequencies="${POPULATION_FREQUENCIES}"
-                                .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE.style}"
-                                .settings="${settings}"
-                                .config="${{showHeader: false}}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                            .consequenceTypes="${CONSEQUENCE_TYPES}"
+                            .populationFrequencies="${POPULATION_FREQUENCIES}"
+                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE.style}"
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </variant-browser>
                     `;
                 }
@@ -151,10 +150,10 @@ export default class ToolSettingsPreview extends LitElement {
                 render: settings => {
                     return html`
                         <disease-panel-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                .settings="${settings}"
-                                .config="${{showHeader: false}}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                            .settings="${settings}"
+                            .config="${{showHeader: false}}">
                         </disease-panel-browser>
                     `;
                 }
@@ -163,9 +162,9 @@ export default class ToolSettingsPreview extends LitElement {
                 render: settings => {
                     return html`
                         <clinical-analysis-browser
-                                .opencgaSession="${this.opencgaSession}"
-                                .settings="${settings}"
-                                .config="${{componentId: "clinicalAnalysisBrowserCatalog", showHeader: false}}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}"
+                            .config="${{componentId: "clinicalAnalysisBrowserCatalog", showHeader: false}}">
                         </clinical-analysis-browser>
                     `;
                 },
@@ -174,9 +173,9 @@ export default class ToolSettingsPreview extends LitElement {
                 render: settings => {
                     return html`
                         <clinical-analysis-portal
-                                .opencgaSession="${this.opencgaSession}"
-                                .settings="${settings}"
-                                .config="${{componentId: "clinicalAnalysisBrowserPortal", showHeader: false}}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}"
+                            .config="${{componentId: "clinicalAnalysisBrowserPortal", showHeader: false}}">
                         </clinical-analysis-portal>
                     `;
                 }
@@ -198,8 +197,8 @@ export default class ToolSettingsPreview extends LitElement {
                 render: settings => {
                     return html`
                         <user-profile
-                                .opencgaSession="${this.opencgaSession}"
-                                .settings="${settings}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${settings}">
                         </user-profile>
                     `;
                 },
@@ -213,11 +212,11 @@ export default class ToolSettingsPreview extends LitElement {
                         // debugger
                         return html`
                             <variant-interpreter
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                    .clinicalAnalysisId="${this.param}"
-                                    .settings="${settings}"
-                                    @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
+                                .opencgaSession="${this.opencgaSession}"
+                                .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                .clinicalAnalysisId="${this.param}"
+                                .settings="${settings}"
+                                @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
                             </variant-interpreter>
                         `;
                     }

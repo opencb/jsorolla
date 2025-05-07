@@ -133,7 +133,7 @@ export default class DiseasePanelSummary extends LitElement {
         if (!this.diseasePanel?.id) {
             return html`
                 <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
+                    <i class="fas fa-3x fa-info-circle align-middle pe-2"></i>
                     No Disease Panel ID found.
                 </div>
             `;

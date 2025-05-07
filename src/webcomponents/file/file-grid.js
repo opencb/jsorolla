@@ -24,7 +24,6 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 
-
 export default class OpencgaFileGrid extends LitElement {
 
     constructor() {
@@ -109,6 +108,7 @@ export default class OpencgaFileGrid extends LitElement {
                     disabled: true,
                     disabledTooltip: "This operation will be implemented soon. Thanks for your patience.",
                     modalCyDataName: "modal-create",
+                    modalSize: "modal-lg"
                 },
                 render: () => html `
                     <file-create
@@ -142,6 +142,8 @@ export default class OpencgaFileGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
+                theadClasses: "table-light",
+                buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
                 sidePagination: "server",
@@ -151,13 +153,15 @@ export default class OpencgaFileGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
+                paginationVAlign: "bottom", // "both",
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 gridContext: this,
-                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+                loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
+                    let filesResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         type: "FILE",
@@ -176,10 +180,16 @@ export default class OpencgaFileGrid extends LitElement {
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.files()
                         .search(this.filters)
-                        .then(res => params.success(res))
-                        .catch(e => {
-                            console.error(e);
-                            params.error(e);
+                        .then(response => {
+                            filesResponse = response;
+                            // Prepare data for columns extensions
+                            const rows = filesResponse.responses?.[0]?.results || [];
+                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                        })
+                        .then(() => params.success(filesResponse))
+                        .catch(error => {
+                            console.error(error);
+                            params.error(error);
                         });
                 },
                 responseHandler: response => {
@@ -226,9 +236,31 @@ export default class OpencgaFileGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            theadClasses: "table-light",
+            buttonsClass: "light",
             columns: this._getDefaultColumns(),
-            data: this.files,
-            sidePagination: "local",
+            // data: this.files,
+            sidePagination: "server",
+            // Josemi Note 2024-01-18: we have added the ajax function for local files also to support executing async calls
+            // when getting additional data from columns extensions.
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this.files.slice(skip, skip + limit);
+
+                // Get data for extensions
+                this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, null, rows)
+                    .then(() => params.success(rows))
+                    .catch(error => params.error(error));
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this.files.length,
+                    rows: response,
+                };
+            },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
             uniqueId: "id",
@@ -238,7 +270,8 @@ export default class OpencgaFileGrid extends LitElement {
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             gridContext: this,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            loadingTemplate: () => GridCommons.loadingFormatter(),
             onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
                 const result = this.gridCommons.onPageChange(page, size);
@@ -273,7 +306,7 @@ export default class OpencgaFileGrid extends LitElement {
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
                 break;
-            case "qualityControl":
+            case "quality-control":
                 alert("Not implemented yet");
                 break;
         }
@@ -288,8 +321,8 @@ export default class OpencgaFileGrid extends LitElement {
                 formatter: (fileName, row) => {
                     return `
                         <div>
-                            <span style="font-weight: bold; margin: 5px 0">${fileName}</span>
-                            <span class="help-block" style="margin: 5px 0">/${row.path.replace(row.name, "").replace("//", "/")}</span>
+                            <span class="fw-bold" style="margin: 5px 0">${fileName}</span>
+                            <span class="d-block text-secondary" style="margin: 5px 0">/${row.path.replace(row.name, "").replace("//", "/")}</span>
                         </div>`;
                 },
                 visible: this.gridCommons.isColumnVisible("name")
@@ -301,11 +334,11 @@ export default class OpencgaFileGrid extends LitElement {
                 formatter: sampleIds => {
                     let html = "-";
                     if (sampleIds?.length > 0) {
-                        html = `<div style="white-space: nowrap">`;
+                        html = `<div class="text-nowrap">`;
                         for (let i = 0; i < sampleIds.length; i++) {
                             // Display first 3 files
                             if (i < 3) {
-                                html += `<div style="margin: 2px 0"><span style="font-weight: bold">${sampleIds[i]}</span></div>`;
+                                html += `<div style="margin: 2px 0"><span class="fw-bold">${sampleIds[i]}</span></div>`;
                             } else {
                                 html += `<a tooltip-title="Samples" tooltip-text='${sampleIds.join("<br>")}'>... view all samples (${sampleIds.length})</a>`;
                                 break;
@@ -385,51 +418,60 @@ export default class OpencgaFileGrid extends LitElement {
                 title: "Actions",
                 field: "actions",
                 align: "center",
-                formatter: (value, row) => `
-                    <div class="inline-block dropdown">
-                        <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-toolbox icon-padding" aria-hidden="true"></i>
-                            <span>Actions</span>
-                            <span class="caret" style="margin-left: 5px"></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li>
-                                <a data-action="download" href="${downloadUrl.join("").replace("FILE_ID", row.id)}" class="btn force-text-left ${downloadUrl.length == 0 ? "disabled" : ""}">
-                                    <i class="fas fa-download icon-padding"></i>Download
-                                </a>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a data-action="copy-json" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-copy icon-padding" aria-hidden="true"></i> Copy JSON
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="download-json" href="javascript: void 0" class="btn force-text-left">
-                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download JSON
-                                </a>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a data-action="qualityControl" class="btn force-text-left ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
-                                        title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                    <i class="fas fa-rocket icon-padding" aria-hidden="true"></i> Calculate Quality Control
-                                </a>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a data-action="edit" class="btn force-text-left disabled ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) || "disabled" }">
-                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit ...
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
-                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                `,
+                formatter: (value, row) => {
+                    const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
+                        this.opencgaSession.study,
+                        this.opencgaSession.user.id,
+                        this.permissionID,
+                        this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+                    return `
+                        <div class="d-inline-block dropdown">
+                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
+                                <span>Actions</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a data-action="download"
+                                       class="dropdown-item ${downloadUrl.length === 0 ? "disabled" : ""}"
+                                       href="${downloadUrl.join("").replace("FILE_ID", row.id)}">
+                                            <i class="fas fa-download me-1"></i> Download
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a data-action="copy-json" class="dropdown-item" href="javascript: void 0">
+                                        <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-action="download-json" class="dropdown-item" href="javascript: void 0" >
+                                        <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a data-action="quality-control"
+                                       class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
+                                       title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
+                                           <i class="fas fa-rocket me-1" aria-hidden="true"></i> Calculate Quality Control
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a data-action="edit" class="dropdown-item disabled ${hasWritePermission ? "" : "disabled"}" href="javascript: void 0">
+                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-action="delete" class="dropdown-item disabled" href="javascript: void 0">
+                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    `;
+                },
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
@@ -460,7 +502,7 @@ export default class OpencgaFileGrid extends LitElement {
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toUpperCase() === "TAB") {
-                        const fields = ["id", "name", "path", "format", "bioformat", "size", "creationDate", "modificationDate", "internal.status.name"];
+                        const fields = ["id", "name", "path", "format", "bioformat", "size", "creationDate", "modificationDate", "internal.status.id"];
                         const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "files_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {

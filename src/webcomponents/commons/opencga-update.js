@@ -323,6 +323,14 @@ export default class OpencgaUpdate extends LitElement {
                         },
                     ];
                     break;
+                case "NOTE":
+                    this.endpoint = this.component?.scope === "ORGANIZATION" ?
+                        this.opencgaSession.opencgaClient.organization() :
+                        this.opencgaSession.opencgaClient.studies();
+                    this.methodUpdate = "updateNotes";
+                    this.resourceUpdateParams = {
+                        tagsAction: "SET",
+                    };
             }
         }
     }
@@ -345,21 +353,23 @@ export default class OpencgaUpdate extends LitElement {
 
     onFieldChange(e, field) {
         const param = field || e.detail.param;
-        this.updatedFields = FormUtils.getUpdatedFields(
-            this.component,
-            this.updatedFields,
-            param,
-            e.detail.value,
-            e.detail.action);
+        if (param) {
+            this.updatedFields = FormUtils.getUpdatedFields(
+                this.component,
+                this.updatedFields,
+                param,
+                e.detail.value,
+                e.detail.action);
 
-        // Notify to parent components in case the want to perform any other action, for instance, get the gene info in the disease panels.
-        LitUtils.dispatchCustomEvent(this, "componentFieldChange", e.detail.value, {
-            component: this._component,
-            updatedFields: this.updatedFields,
-            action: e.detail.action,
-            param: param,
-        });
-        this.requestUpdate();
+            // Notify to parent components in case the want to perform any other action, for instance, get the gene info in the disease panels.
+            LitUtils.dispatchCustomEvent(this, "componentFieldChange", e.detail.value, {
+                component: this._component,
+                updatedFields: this.updatedFields,
+                action: e.detail.action,
+                param: param,
+            });
+            this.requestUpdate();
+        }
     }
 
     onClear() {
@@ -415,9 +425,28 @@ export default class OpencgaUpdate extends LitElement {
         this.#setLoading(true);
         const endpointMethod = this.methodUpdate || "update";
         // CAUTION: workaround for clinical-interpreation singular API
-        const updateFunction = (this.resource === "CLINICAL_INTERPRETATION") ?
-            this.endpoint[endpointMethod](this.component.clinicalAnalysisId, this.component.id, updateParams, params) :
-            this.endpoint[endpointMethod](this.component.id, updateParams, params);
+
+        // updateFunction
+        let updateFunction = "";
+        switch (this.resource) {
+            case "NOTE":
+                if (this.component.scope === "ORGANIZATION") {
+                    updateFunction = this.endpoint[endpointMethod](this.component.id, updateParams, params);
+                } else {
+                    const {study, ...noteParams} = params;
+                    updateFunction = this.endpoint[endpointMethod](study, this.component.id, updateParams, noteParams);
+                }
+                break;
+            case "CLINICAL_INTERPRETATION":
+                updateFunction = this.endpoint[endpointMethod](this.component.clinicalAnalysisId, this.component.id, updateParams, params);
+                break;
+            default:
+                updateFunction = this.endpoint[endpointMethod](this.component.id, updateParams, params);
+                break;
+        }
+        // updateFunction = (this.resource === "CLINICAL_INTERPRETATION") ?
+        //     this.endpoint[endpointMethod](this.component.clinicalAnalysisId, this.component.id, updateParams, params) :
+        //     this.endpoint[endpointMethod](this.component.id, updateParams, params);
         updateFunction
             .then(response => {
                 this.component = UtilsNew.objectClone(response.responses[0].results[0]);

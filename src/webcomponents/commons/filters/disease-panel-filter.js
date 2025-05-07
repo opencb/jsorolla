@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import "../forms/select-field-filter.js";
 import "../forms/toggle-switch.js";
+import "../forms/toggle-radio.js";
 
 /**
  * This class ....
@@ -47,7 +48,7 @@ export default class DiseasePanelFilter extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -96,7 +97,7 @@ export default class DiseasePanelFilter extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.query = {};
         this.genes = [];
         // this.panelFeatureType = "";
@@ -156,8 +157,8 @@ export default class DiseasePanelFilter extends LitElement {
         this.diseasePanelsSelectOptions = this.diseasePanels.map(panel => ({
             id: panel.id,
             name: `${panel.name}
-                   ${panel.source ? ` - ${panel.source.author || ""} ${panel.source.project} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
-                   ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`
+                ${panel.source ? ` - ${panel.source.author || ""} ${panel.source.project} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
+                ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`
         }));
     }
 
@@ -200,105 +201,116 @@ export default class DiseasePanelFilter extends LitElement {
 
     render() {
         return html`
-            <div>
-                <div>
-                    <!-- Only show the title when all filters are displayed -->
+            <!-- Only show the title when all filters are displayed -->
+            <div class="mb-3">
+                <div class="mb-3">
                     ${this.showExtendedFilters ? html`
-                        <span>Select Disease Panels</span>
-                    ` : null}
+                        <label class="form-label">
+                            Select Disease Panels
+                        </label>
+                    ` : nothing
+                    }
+                    <select-field-filter
+                        .data="${this.diseasePanelsSelectOptions}"
+                        .value=${this.panel}
+                        .classes="${this.classes}"
+                        .config="${{
+                            multiple: this.multiple,
+                            separator: "\n"
+                        }}"
+                        @filterChange="${e => this.filterChange(e, "panel")}">
+                    </select-field-filter>
+                </div>
 
-                    <div style="padding: 2px 0px">
-                        <select-field-filter
-                            .data="${this.diseasePanelsSelectOptions}"
-                            .value=${this.panel}
-                            .liveSearch=${this.diseasePanelsSelectOptions?.length > 5}
-                            .multiple="${this.multiple}"
-                            .classes="${this.classes}"
-                            .disabled="${this.disabled}"
-                            separator="\n"
-                            @filterChange="${e => this.filterChange(e, "panel")}">
-                        </select-field-filter>
+            ${this.showSelectedPanels && this.panel?.length > 0 ? html`
+                <div class="text-secondary small" style="padding: 0 0 0 5px">
+                    Selected panels:
+                    ${this.panel.split(",").map(p => html`
+                        <div style="padding: 0 0 0 10px; font-style: italic">${p}</div>
+                    `)}
+                </div>
+            ` : nothing
+            }
+
+            ${this.showExtendedFilters ? html`
+                <div class="mb-3">
+                    <label class="form-label">
+                        Panel Intersection
+                    </label>
+                    <div class="row">
+                        <toggle-radio
+                            .value="${this.panelIntersection || false}"
+                            .data="${[{id: true, text: "ON"}, {id: false, text: "OFF"}]}"
+                            .disabled="${this.disabled || false}"
+                            @filterChange="${e => this.filterChange(e, "panelIntersection")}">
+                        </toggle-radio>
+                    </div>
+                    <div class="form-text">
+                        Executes an intersection between the panels and the region and gene filters.
                     </div>
                 </div>
 
-                ${this.showSelectedPanels && this.panel?.length > 0 ? html`
-                    <div class="help-block small" style="padding: 0 0 0 5px">
-                        Selected panels:
-                        ${this.panel.split(",").map(p => html`
-                            <div style="padding: 0 0 0 10px; font-style: italic">${p}</div>
-                        `)}
-                    </div>
-                ` : null
-                }
+                <div class="mb-3">
+                    <label class="form-label">
+                        Filter by Feature Type
+                    </label>
+                    <select-field-filter
+                        .data="${this.panelFeatureTypes}"
+                        .value=${this.panelFeatureType}
+                        .config=${{
+                            multiple: true,
+                            disabled: this.genes?.length === 0 || this.disabled
+                            }}
+                        @filterChange="${e => this.filterChange(e, "panelFeatureType")}">
+                    </select-field-filter>
+                </div>
 
-                ${this.showExtendedFilters ? html`
-                    <div style="margin: 15px 0px">
-                        <span>Panel Intersection</span>
-                        <div style="padding: 2px 0px">
-                            <toggle-switch
-                                .value="${this.panelIntersection || false}"
-                                .disabled="${this.disabled}"
-                                @filterChange="${e => this.filterChange(e, "panelIntersection")}">
-                            </toggle-switch>
-                        </div>
-                        <div class="help-block small">
-                            Executes an intersection between the panels and the region and gene filters.
-                        </div>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">
+                        Filter Genes by Mode of Inheritance
+                    </label>
+                    <select-field-filter
+                        .data="${MODE_OF_INHERITANCE}"
+                        .value=${this.panelModeOfInheritance}
+                        .config=${{
+                            multiple: true,
+                            disabled: this.genes?.length === 0 || this.disabled
+                        }}
+                        @filterChange="${e => this.filterChange(e, "panelModeOfInheritance")}">
+                    </select-field-filter>
+                </div>
 
-                    <div style="margin: 15px 0px">
-                        <span>Filter by Feature Type</span>
-                        <div style="padding: 2px 0px">
-                            <select-field-filter
-                                .data="${this.panelFeatureTypes}"
-                                .value=${this.panelFeatureType}
-                                .multiple="${true}"
-                                .disabled="${this.genes?.length === 0 || this.disabled}"
-                                @filterChange="${e => this.filterChange(e, "panelFeatureType")}">
-                            </select-field-filter>
-                        </div>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">
+                        Filter Genes by Confidence
+                    </label>
+                    <select-field-filter
+                        .data="${DISEASE_PANEL_CONFIDENCE}"
+                        .value=${this.panelConfidence}
+                        .config=${{
+                            multiple: true,
+                            disabled: this.genes?.length === 0 || this.disabled
+                        }}
+                        @filterChange="${e => this.filterChange(e, "panelConfidence")}">
+                    </select-field-filter>
+                </div>
 
-                    <div style="margin: 15px 0px">
-                        <span>Filter Genes by Mode of Inheritance</span>
-                        <div style="padding: 2px 0px">
-                            <select-field-filter
-                                .data="${MODE_OF_INHERITANCE}"
-                                .value=${this.panelModeOfInheritance}
-                                .multiple="${true}"
-                                .disabled="${this.genes?.length === 0 || this.disabled}"
-                                @filterChange="${e => this.filterChange(e, "panelModeOfInheritance")}">
-                            </select-field-filter>
-                        </div>
-                    </div>
-
-                    <div style="margin: 15px 0px">
-                        <span>Filter Genes by Confidence</span>
-                        <div style="padding: 2px 0px">
-                            <select-field-filter
-                                .data="${DISEASE_PANEL_CONFIDENCE}"
-                                .value=${this.panelConfidence}
-                                .multiple="${true}"
-                                .disabled="${this.genes?.length === 0 || this.disabled}"
-                                @filterChange="${e => this.filterChange(e, "panelConfidence")}">
-                            </select-field-filter>
-                        </div>
-                    </div>
-
-                    <div style="margin: 15px 0px">
-                        <span>Filter Genes by Role in Cancer</span>
-                        <div style="padding: 2px 0px">
-                            <select-field-filter
-                                .data="${ROLE_IN_CANCER}"
-                                .value=${this.panelRoleInCancer}
-                                .multiple="${true}"
-                                .disabled="${this.genes?.length === 0 || this.disabled}"
-                                @filterChange="${e => this.filterChange(e, "panelRoleInCancer")}">
-                            </select-field-filter>
-                        </div>
-                    </div>
-                ` : null}
-            </div>
+                <div class="mb-3">
+                    <label class="form-label">
+                        Filter Genes by Role in Cancer
+                    </label>
+                    <select-field-filter
+                        .data="${ROLE_IN_CANCER}"
+                        .value=${this.panelRoleInCancer}
+                        .config=${{
+                            multiple: true,
+                            disabled: this.genes?.length === 0 || this.disabled
+                        }}
+                        @filterChange="${e => this.filterChange(e, "panelRoleInCancer")}">
+                    </select-field-filter>
+                </div>
+            ` : nothing}
+        </div>
         `;
     }
 

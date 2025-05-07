@@ -20,6 +20,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import UtilsNew from "../../core/utils-new.js";
+import {guardPage} from "../commons/html-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/forms/select-token-filter.js";
 import "../commons/filters/disease-panel-filter.js";
@@ -29,7 +30,6 @@ import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 import "./filters/clinical-analyst-filter.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter";
-
 
 export default class ClinicalAnalysisCreate extends LitElement {
 
@@ -108,7 +108,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             //     id: this.opencgaSession?.user?.id
             // },
             comments: [],
-            panelLock: false,
+            panelLocked: false,
             samples: [],
         };
     }
@@ -358,7 +358,35 @@ export default class ClinicalAnalysisCreate extends LitElement {
             delete data.dueDate;
         }
 
-        this.opencgaSession.opencgaClient.clinical().create(data, {study: this.opencgaSession.study.fqn, createDefaultInterpretation: true})
+        this.opencgaSession.opencgaClient.clinical()
+            .create(data, {
+                study: this.opencgaSession.study.fqn,
+                includeResult: true
+            })
+            .then(response => {
+                const interpretationId = response?.responses?.[0]?.results?.[0]?.interpretation?.id;
+                const interpretationData = {
+                    method: {
+                        name: "iva-default",
+                        version: this.opencgaSession?.about?.Version || "-",
+                        dependencies: [
+                            {
+                                name: "OpenCGA",
+                                version: this.opencgaSession?.about?.Version || "-",
+                            },
+                            {
+                                name: "Cellbase",
+                                version: this.opencgaSession.project?.cellbase?.version || "-",
+                            },
+                        ],
+                    },
+                };
+                return this.opencgaSession.opencgaClient.clinical()
+                    .updateInterpretation(data.id, interpretationId, interpretationData, {
+                        study: this.opencgaSession.study.fqn,
+                        methodsAction: "SET",
+                    });
+            })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Clinical analysis created",
@@ -394,7 +422,9 @@ export default class ClinicalAnalysisCreate extends LitElement {
             <select-field-filter
                 .data="${data}"
                 .value=${selectedSamples}
-                ?multiple="${isMultiple}"
+                .config="${{
+                    multiple: isMultiple,
+                }}"
                 @filterChange="${e => this.onSampleChange(e)}">
             </select-field-filter>
         `;
@@ -402,12 +432,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
     render() {
         if (!this.opencgaSession?.study) {
-            return html `
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
+            return guardPage();
         }
 
         return html`
@@ -461,9 +486,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: (panels, dataFormFilterChange) => {
                                     const handlePanelsFilterChange = e => {
-                                        // eslint-disable-next-line no-param-reassign
-                                        const panelList = e.detail.value
-                                            ?.split(",")
+                                        const panelList = (e.detail?.value?.split(",") || [])
                                             .filter(panelId => panelId)
                                             .map(panelId => ({id: panelId}));
                                         dataFormFilterChange(panelList);
@@ -483,7 +506,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                         },
                         {
                             title: "Disease Panel Lock",
-                            field: "panelLock",
+                            field: "panelLocked",
                             type: "toggle-switch",
                             display: {
                                 helpMessage: "You must select at least one of the Clinical Analysis panels to enable Disease Panel Lock.",
@@ -499,8 +522,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: (flags, dataFormFilterChange) => {
                                     const handleFlagsFilterChange = e => {
-                                        const flagList = e.detail.value
-                                            ?.split(",")
+                                        const flagList = (e.detail?.value?.split(",") || [])
                                             .filter(flagId => flagId)
                                             .map(flagId => ({id: flagId}));
                                         dataFormFilterChange(flagList);
@@ -508,8 +530,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                     return html`
                                         <clinical-flag-filter
                                             .flag="${flags?.map(f => f.id).join(",")}"
-                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags[this.clinicalAnalysis.type?.toUpperCase()]}"
-                                            .multiple=${true}
+                                            .flags="${this.opencgaSession.study.internal?.configuration?.clinical?.flags || []}"
+                                            .multiple="${true}"
                                             @filterChange="${e => handleFlagsFilterChange(e, "flags.id")}">
                                         </clinical-flag-filter>
                                     `;
@@ -706,7 +728,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                                 "sex": (sex, member) => `${sex?.id ?? sex}(${member.karyotypicSex})`
                                             },
                                             className: {
-                                                "sex": "help-block"
+                                                "sex": "form-text"
                                             },
                                             style: {
                                                 "id": {
@@ -902,8 +924,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             display: {
                                 render: (analysts, dataFormFilterChange) => {
                                     const handleAnalystsFilterChange = e => {
-                                        const analystList = e.detail.value
-                                            ?.split(",")
+                                        const analystList = (e.detail?.value?.split(",") || [])
                                             .filter(analystId => analystId)
                                             .map(analystId => ({id: analystId}));
                                         dataFormFilterChange(analystList);
@@ -912,7 +933,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         <clinical-analyst-filter
                                             .analyst="${analysts?.map(f => f.id).join(",")}"
                                             .analysts="${this._users}"
-                                            .multiple=${true}
+                                            .multiple="${true}"
                                             @filterChange="${e => handleAnalystsFilterChange(e, "analyst.id")}">
                                         </clinical-analyst-filter>
                                     `;

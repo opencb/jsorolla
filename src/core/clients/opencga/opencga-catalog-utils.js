@@ -15,7 +15,6 @@
  */
 
 import UtilsNew from "../../utils-new.js";
-import "../../../sites/iva/conf/browsers.settings.js";
 
 export default class OpencgaCatalogUtils {
 
@@ -53,51 +52,94 @@ export default class OpencgaCatalogUtils {
         return loggedUser === "opencga" || loggedUser === user;
     }
 
-    static checkProjectPermissions(project, user) {
-        return user === "opencga" || OpencgaCatalogUtils.getProjectOwner(project) === user;
-    }
-
     // Check if the user has the right the permissions in the study.
-    static checkPermissions(study, user, permissions) {
-        if (!study || !user || !permissions) {
-            console.error(`No valid parameters, study: ${study}, user: ${user}, permissions: ${permissions}`);
+    static getStudyEffectivePermission(study, userId, permission, simplifyPermissions = false) {
+        // Caution 1 20240916 Vero:
+        //  As discussed and agreed, this method is considering the VIEW, WRITE, DELETE permissions of all catalog entities in addition to the EXECUTE_JOBS.
+        //  The rest of permissions described in the following link are not currently needed in IVA for now:
+        //  https://github.com/opencb/opencga/blob/develop/docs/manual/data-management/sharing-and-permissions/permissions.md
+        // Caution w 20240916 Vero:
+        //  As discussed and agreed, the optimization parameter simplifyPermissions is set as false by default according to the default value in OpenCGA.
+
+        // Get the resource from the provided permission, that has the structure '{OPERATION}_{RESOURCE}'. E.g:
+        // "WRITE_SAMPLES" --> "SAMPLES"
+        // "VIEW_CLINICAL_ANALYSIS" --> "CLINICAL_ANALYSIS"
+        const resource = permission.split("_").slice(1).join("_");
+
+        // VALIDATION
+        if (!study || !userId || !permission || !resource) {
+            console.error(`No valid parameters, study: ${study}, user: ${userId}, permission: ${permission}, catalogEntity: ${resource}`);
             return false;
         }
-        // Check if user is the Study owner
-        const studyOwner = study.fqn.split("@")[0];
-        if (user === studyOwner) {
-            return true;
+        const permissionLevel = {};
+        permissionLevel["NONE"] = 1;
+        if (permission !== "EXECUTE_JOBS") {
+            permissionLevel[`VIEW_${resource}`] = 2;
+            permissionLevel[`WRITE_${resource}`] = 3;
+            permissionLevel[`DELETE_${resource}`] = 4;
         } else {
-            // Check if user is a Study admin, belongs to @admins group
-            const admins = study.groups.find(group => group.id === "@admins");
-            if (admins.userIds.includes(user)) {
-                return true;
-            } else {
-                // Check if user is in acl
-                const aclUserIds = study.groups
-                    .filter(group => group.userIds.includes(user))
-                    .map(group => group.id);
-                aclUserIds.push(user);
-                for (const aclId of aclUserIds) {
-                    // Find the permissions for this user
-                    const userPermissions = study?.acl
-                        ?.find(acl => acl.member === user)?.groups
-                        ?.find(group => group.id === aclId)?.permissions || [];
-                    if (Array.isArray(permissions)) {
-                        for (const permission of permissions) {
-                            if (userPermissions?.includes(permission)) {
-                                return true;
-                            }
-                        }
-                    } else {
-                        if (userPermissions?.includes(permissions)) {
-                            return true;
-                        }
-                    }
-                }
-            }
+            permissionLevel[permission] = 2;
         }
-        return false;
+
+        const getPermissionLevel = permissionList => {
+            const levels = permissionList
+                .map(p => permissionLevel[p])
+                .filter(p => typeof p === "number");
+            return levels.length > 0 ? Math.max(...levels) : 0;
+        };
+
+        const getEffectivePermission = (userPermission, groupPermissions) => {
+            // It is possible to simplify permissions.
+            if (!simplifyPermissions) {
+                // First, find permission level at user level
+                const userPermissionLevel = getPermissionLevel(userPermission);
+                if (userPermissionLevel) {
+                    // If the permission level at user level is greater than 0, return this permission level because it has priority over groups.
+                    return userPermissionLevel;
+                } else {
+                    // Check permission level at groups level. No hierarchy defined here. Example:
+                    // If a user belongs to two groups:
+                    //  - groupA - Has permission VIEW_SAMPLES
+                    //  - groupB - Has permission WRITE_SAMPLES
+                    // The dominant permission will be the highest, i.e. WRITE_SAMPLES
+                    return Math.max(0, ...groupPermissions.map(g => getPermissionLevel(g)));
+                }
+            } else {
+                // If "simplifyPermissions = true" permissions become more flexible.
+                // As long as the user has the necessary permission at the user or group level it'll be able to perform the action.
+                // I.e., there's no hierarchy where user-level permissions override group-level ones
+                groupPermissions.push(userPermission);
+                return Math.max(0, ...groupPermissions.map(g => getPermissionLevel(g)));
+            }
+        };
+
+        // ALGORITHM
+        // 1. If userId is the installation admin grant permission
+        if (userId === "opencga") {
+            return true;
+        }
+        // 2. If userId is a Study admin, belongs to @admins group. Grant permission
+        const admins = study.groups.find(group => group.id === "@admins");
+        if (admins.userIds.includes(userId)) {
+            return true;
+        }
+        // 3. Permissions for member
+        const userPermissionsStudy = study?.acl
+            ?.find(acl => acl.member === userId)
+            ?.permissions || [];
+
+        // 4. Permissions for groups where the member belongs to
+        const groupIds = study.groups
+            .filter(group => group.userIds.includes(userId))
+            .map(group => group.id);
+
+        const groupPermissions = groupIds.map(groupId => study?.acl
+            ?.find(acl => acl.member === userId)?.groups
+            ?.find(group => group.id === groupId)?.permissions || []);
+
+        // If the effective permission retrieved is greater or equal than the permission level requested, grant permission.
+        // If not, deny permission
+        return getEffectivePermission(userPermissionsStudy, groupPermissions) >= permissionLevel[permission];
     }
 
     // Check if the user has the right the permissions in the study.
@@ -106,17 +148,25 @@ export default class OpencgaCatalogUtils {
             console.error(`No valid parameters, study: ${study}, user: ${userLogged}`);
             return false;
         }
-        // Check if user is the Study owner
-        const studyOwner = study.fqn.split("@")[0];
-        if (userLogged === studyOwner) {
+        const admins = study.groups.find(group => group.id === "@admins");
+        return !!admins.userIds.includes(userLogged);
+    }
+
+    // Check if the provided user is admin in the organization
+    static isOrganizationAdmin(organization, userId) {
+        if (!organization || !userId) {
+            return false;
+        }
+        // 1. Check if user is the organization admin
+        if (organization?.owner === userId) {
             return true;
         } else {
-            // Check if user is a Study admin, belongs to @admins group
-            const admins = study.groups.find(group => group.id === "@admins");
-            if (admins.userIds.includes(userLogged)) {
+            // Check if user is an admin of the organization
+            if (organization?.admins?.includes?.(userId)) {
                 return true;
             }
         }
+        // Other case, user is not admin of the organization
         return false;
     }
 
@@ -229,7 +279,14 @@ export default class OpencgaCatalogUtils {
         };
         return {
             attributes: {
+                // 1. Other attributes that the study might have
                 ...study.attributes,
+                // 2. BACKUP previous settings
+                // eslint-disable-next-line no-undef
+                [SETTINGS_NAME + "_BACKUP"]:
+                // eslint-disable-next-line no-undef
+                    UtilsNew.objectClone(study.attributes[SETTINGS_NAME]),
+                // 3. New tool settings
                 // eslint-disable-next-line no-undef
                 [SETTINGS_NAME]: {
                     userId: opencgaSession.user.id,
@@ -237,6 +294,7 @@ export default class OpencgaCatalogUtils {
                     date: UtilsNew.getDatetime(),
                     settings: getSettings(),
                 },
+
             }
         };
     }

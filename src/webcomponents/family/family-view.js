@@ -23,7 +23,6 @@ import "../commons/image-viewer.js";
 import "../loading-spinner.js";
 import LitUtils from "../commons/utils/lit-utils";
 
-
 export default class FamilyView extends LitElement {
 
     constructor() {
@@ -250,6 +249,15 @@ export default class FamilyView extends LitElement {
                             field: "phenotypes",
                             type: "list",
                             display: {
+                                // visible: !this._config?.hiddenFields?.includes("phenotypes"),
+                                // contentLayout: "bullets",
+                                // render: phenotype => {
+                                //     let id = phenotype.id;
+                                //     if (phenotype.id.startsWith("HP:")) {
+                                //         id = html`<a class="text-decoration-none" href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
+                                //     }
+                                //     return html`${phenotype.name} (${id})`;
+                                // },
                                 contentLayout: "vertical",
                                 format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
                                 defaultValue: "N/A"

@@ -140,7 +140,7 @@ export default class TextFieldFilter extends LitElement {
         const placeholder = (this.placeholder && this.placeholder !== "undefined") ? this.placeholder : "";
 
         return html`
-            <div id="${this._prefix}-wrapper" class="" style="margin-left: 0">
+            <div id="${this._prefix}-wrapper" class="ms-0">
                 ${rows === 1 ? html`
                     <input
                         type="${this.type || "text"}"

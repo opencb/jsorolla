@@ -35,7 +35,6 @@ import "../commons/filters/go-accessions-filter.js";
 import "../commons/filters/hpo-accessions-filter.js";
 import "../commons/filters/population-frequency-filter.js";
 import "../commons/filters/protein-substitution-score-filter.js";
-import "../commons/filters/sample-filter.js";
 import "../commons/filters/sample-genotype-filter.js";
 import "../commons/filters/individual-hpo-filter.js";
 import "./family-genotype-modal.js";
@@ -397,13 +396,17 @@ export default class VariantBrowserFilter extends LitElement {
                     `;
                     break;
                 case "sample-genotype":
-                    const sampleConfig = subsection.params?.genotypes ? {genotypes: subsection.params.genotypes} : {};
+                    // Josemi Note 20240730 - We had to change the value of the falsy expression to 'null' to prevent unnecesary
+                    // renders, as if we keep an empty object '{}' as falsy expression Lit will treat it as a new configuration object
+                    // and will force the select-field-filter to load the genotypes as a new data, even the genotypes list is the same.
+                    const sampleConfig = subsection.params?.genotypes ? {genotypes: subsection.params.genotypes} : null;
                     content = html`
                         <sample-genotype-filter
                             .sample="${this.preparedQuery.sample}"
                             .config="${sampleConfig}"
                             @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
-                        </sample-genotype-filter>`;
+                        </sample-genotype-filter>    
+                    `;
                     break;
                 case "individual-hpo":
                     content = html`
@@ -507,10 +510,11 @@ export default class VariantBrowserFilter extends LitElement {
                     content = html`
                         <role-in-cancer-filter
                             .config="${subsection.params?.rolesInCancer || ROLE_IN_CANCER}"
-                            .roleInCancer=${this.preparedQuery.generoleInCancer}
+                            .roleInCancer="${this.preparedQuery.geneRoleInCancer}"
                             .disabled="${disabled}"
                             @filterChange="${e => this.onFilterChange("geneRoleInCancer", e.detail.value)}">
-                        </role-in-cancer-filter>`;
+                        </role-in-cancer-filter>
+                    `;
                     break;
                 case "proteinSubstitutionScore":
                     content = html`
@@ -644,18 +648,16 @@ export default class VariantBrowserFilter extends LitElement {
         // We need to avoid rendering empty filters.
         if (content !== "") {
             return html`
-                <div class="form-group">
+                <div class="mb-4">
                     ${subsection.title ? html`
-                        <div id="${this._prefix}${subsection.id}" class="browser-subsection" data-cy="${subsection.id}">
-                            <span>${this._getFilterField(subsection.title)}</span>
+                        <label class="form-label fw-bold d-flex justify-content-between align-items-center" id="${this._prefix}${subsection.id}" data-cy="${subsection.id}">
+                            ${this._getFilterField(subsection.title)}
                             ${subsection.tooltip ? html`
-                                <div class="tooltip-div pull-right">
-                                    <a tooltip-title="Info" tooltip-text="${subsection.tooltip}">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                    </a>
-                                </div>
+                                <a tooltip-title="Info" tooltip-text="${subsection.tooltip}">
+                                    <i class="fa fa-info-circle text-primary" aria-hidden="true"></i>
+                                </a>
                             ` : null}
-                        </div>
+                        </label>
                     `: null}
                     <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                         ${this._createMessage(subsection)}
@@ -671,7 +673,7 @@ export default class VariantBrowserFilter extends LitElement {
 
     render() {
         return html`
-            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
+            <div class="d-flex flex-column gap-3" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
                 ${this.renderFilterMenu()}
             </div>
         `;

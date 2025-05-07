@@ -126,9 +126,9 @@ export default class CohortStatsFilter extends LitElement {
         const elem = $("#" + id)[0];
         elem.hidden = !elem.hidden;
         if (elem.hidden) {
-            e.target.className = "fa fa-plus";
+            e.target.className = "fa fa-plus ps-1";
         } else {
-            e.target.className = "fa fa-minus";
+            e.target.className = "fa fa-minus ps-1";
         }
     }
 
@@ -184,19 +184,18 @@ export default class CohortStatsFilter extends LitElement {
 
         return html`
             ${this.cohortsPerStudy.map(study => html`
-                <div style="padding: 5px 0">
-                    <div style="padding-bottom: 5px">
-                        <i id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}Icon" data-id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}"
-                           data-cy="study-cohort-toggle" class="fa fa-plus" style="cursor: pointer;padding-right: 10px"
-                           @click="${this.handleCollapseAction}"></i>
-                        <span class="break-word">Study <strong>${this.getStudyIdFromFqn(study.fqn)}</strong> cohorts</span>
+                    <div class="mb-2">
+                        <i class="fa fa-plus ps-1" id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}Icon" data-id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}"
+                            data-cy="study-cohort-toggle" style="cursor: pointer;"
+                            @click="${this.handleCollapseAction}">
+                        </i>
+                        <span class="text-break">Study <strong>${this.getStudyIdFromFqn(study.fqn)}</strong> cohorts</span>
                     </div>
 
-                    <div class="form-horizontal" id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}" hidden>
+                    <div class="row g-2" id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}" hidden>
                         ${study.cohorts.map(cohort => {
                             const stateCohort = this.state?.[study.fqn]?.find(c => c.cohort === cohort.id);
                             return html`
-                                <div class="form-group" style="margin: 5px 0px">
                                     <number-field-filter
                                         .value="${stateCohort?.value ?
                                             (stateCohort?.comparator ?? this.defaultComparator) + (stateCohort.value ?? "") :
@@ -209,10 +208,9 @@ export default class CohortStatsFilter extends LitElement {
                                         data-action="comparator"
                                         @filterChange="${e => this.filterChange(e, study.fqn, cohort.id)}">
                                     </number-field-filter>
-                                </div>`;
+                                `;
                         })}
                     </div>
-                </div>
             `)}`;
     }
 

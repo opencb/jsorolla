@@ -22,14 +22,13 @@ import "../study-admin-family.js";
 import "../study-admin-cohort.js";
 import "../study-admin-configuration.js";
 import "../../../variant/operation/variant-annotation-index-operation.js";
-import "../../../variant/operation/clinical-analysis-configuration-operation.js";
+import "../../../variant/operation/clinical-analysis-configuration-update.js";
 import "../../../variant/operation/variant-index-operation.js";
 import "../../../variant/operation/variant-stats-index-operation.js";
 import "../../../variant/operation/variant-secondary-annotation-index-operation.js";
 import "../../../variant/operation/variant-secondary-sample-index-operation.js";
 import "../../../variant/operation/variant-secondary-sample-index-configure-operation.js";
 import "../../../commons/layouts/custom-vertical-navbar.js";
-
 
 export default class StudyVariantAdmin extends LitElement {
 

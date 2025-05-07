@@ -3,6 +3,7 @@ import NotificationUtils from "../utils/notification-utils";
 import UtilsNew from "../../../core/utils-new";
 import "../filters/feature-filter.js";
 import "../filters/disease-panel-filter.js";
+import LitUtils from "../utils/lit-utils";
 
 export default class AnalysisUtils {
 
@@ -14,7 +15,7 @@ export default class AnalysisUtils {
     // }
 
     static submit(id, promise, context) {
-        promise
+        return promise
             .then(response => {
                 console.log(response);
                 NotificationUtils.dispatch(context, NotificationUtils.NOTIFY_SUCCESS, {
@@ -22,7 +23,10 @@ export default class AnalysisUtils {
                     message: `${id} has been launched successfully`,
                 });
                 // Call to analysis onClear() method
-                context.onClear();
+                if (typeof context.onClear === "function") {
+                    context.onClear();
+                }
+                return response;
             })
             .catch(response => {
                 console.log(response);
@@ -114,13 +118,14 @@ export default class AnalysisUtils {
     static getAnalysisConfiguration(id, title, description, paramSections, check, config = {}) {
         return {
             id: id,
-            icon: config.icon,
+            icon: config.icon || "",
             title: config.title || title,
             description: config.description || description,
             display: {
                 // defaultLayout: "vertical"
-                ...config.display
+                ...config?.display
             },
+            buttons: config?.buttons || {},
             sections: [
                 {
                     display: {},
@@ -139,6 +144,9 @@ export default class AnalysisUtils {
                 ...paramSections,
                 {
                     title: "Job Info",
+                    display: {
+                        visible: config.isJob !== undefined ? config.isJob : true,
+                    },
                     elements: [
                         {
                             title: "Job ID",

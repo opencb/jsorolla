@@ -163,8 +163,6 @@ export default class MutationalSignatureAnalysis extends LitElement {
                 fitNBoot: this.toolParams.fitNBoot,
                 fitThresholdPerc: this.toolParams.fitThresholdPerc,
                 fitThresholdPval: this.toolParams.fitThresholdPval,
-                fitSignaturesFile: this.toolParams.fitSignaturesFile,
-                fitRareSignaturesFile: this.toolParams.fitRareSignaturesFile,
             };
 
             // Check if we have provided an existing signature list
@@ -281,8 +279,10 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                 <select-field-filter
                                     .data="${this.generateSignaturesDropdown()}"
                                     .value=${signature}
-                                    ?multiple="${false}"
-                                    ?liveSearch=${false}
+                                    .config="${{
+                                        multiple: false,
+                                        liveSearch: false
+                                    }}"
                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </select-field-filter>
                             `,
@@ -299,7 +299,7 @@ export default class MutationalSignatureAnalysis extends LitElement {
                                 const signature = signatures.find(item => item.id === signatureId);
                                 if (signature?.query) {
                                     return Object.keys(signature.query).map(key => html`
-                                        <span class="badge">
+                                        <span class="badge text-bg-primary">
                                             ${key}: ${signature.query[key]}
                                         </span>
                                     `);
@@ -408,42 +408,6 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         title: "nboot",
                         field: "fitNBoot",
                         type: "input-text",
-                    },
-                    {
-                        title: "Fit Signatures File",
-                        field: "fitSignaturesFile",
-                        type: "custom",
-                        display: {
-                            render: (fitSignaturesFile, dataFormFilterChange) => html`
-                                <catalog-search-autocomplete
-                                    .value="${fitSignaturesFile}"
-                                    .resource="${"FILE"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false}}"
-                                    .searchField="${"id"}"
-                                    .query="${fileQuery}"
-                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                </catalog-search-autocomplete>
-                            `,
-                        },
-                    },
-                    {
-                        title: "Fit Rare Signatures File",
-                        field: "fitRareSignaturesFile",
-                        type: "custom",
-                        display: {
-                            render: (fitRareSignaturesFile, dataFormFilterChange) => html`
-                                <catalog-search-autocomplete
-                                    .value="${fitRareSignaturesFile}"
-                                    .resource="${"FILE"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false}}"
-                                    .searchField="${"id"}"
-                                    .query="${fileQuery}"
-                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                </catalog-search-autocomplete>
-                            `,
-                        },
                     },
                 ]
             }

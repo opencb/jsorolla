@@ -293,7 +293,7 @@ const CATALOG_SETTINGS = {
         },
         // merge criterium: uses this array as filter for internal 1D array.
         // It is supported either details[] or hiddenDetails[].
-        details: ["annotationSummary", "annotationConsType", "annotationPropFreq", "annotationClinical", "cohortStats", "samples", "beacon", "json-view"]
+        details: ["annotationSummary", "annotationConsType", "annotationPropFreq", "annotationClinical", "annotationPharmacogenomics", "cohortStats", "samples", "beacon", "json-view"]
         // hiddenDetails: ["json-view"]
     },
     DISEASE_PANEL_BROWSER: {
@@ -766,9 +766,6 @@ const INTERPRETER_SETTINGS = {
                     REARRANGEMENT: BROWSER_REARRANGEMENT_SETTINGS,
                 },
                 // hideGenomeBrowser: false
-            },
-            {
-                id: "review"
             },
             {
                 id: "report"

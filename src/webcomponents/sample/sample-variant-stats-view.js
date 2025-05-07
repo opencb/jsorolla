@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/simple-chart.js";
 import "../commons/forms/data-form.js";
@@ -194,33 +194,32 @@ class SampleVariantStatsView extends LitElement {
             return html`
                 <div class="alert alert-info">
                     <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Variant Stats found.
-                </div>`;
+                </div>
+            `;
         }
 
         return html`
             ${this.sample ? html`
-                    <div style="margin: 20px 10px">
-                        <div class="form-horizontal">
-                            <div class="form-group">
-                                <label class="col-md-2">Select Variant Stat</label>
-                                <div class="col-md-2">
-                                    <select-field-filter
-                                        forceSelection
-                                        .data="${this.statsSelect}"
-                                        .value=${this.variantStats.id}
-                                        @filterChange="${this.statChange}">
-                                    </select-field-filter>
-                                </div>
-                            </div>
-                        </div>
+                <div class="row my-3">
+                    <label class="col-md-2 col-form-label fw-bold">Select Variant Stat</label>
+                    <div class="col-md-2">
+                        <select-field-filter
+                            .data="${this.statsSelect}"
+                            .value="${this.variantStats.id}"
+                            .forceSelection="${true}"
+                            .config="${{
+                                liveSearch: false,
+                                multiple: false
+                            }}"
+                            @filterChange="${this.statChange}">
+                        </select-field-filter>
                     </div>
-            ` : null
-            }
-
+                </div>
+            ` : nothing}
             <div>
                 <data-form
-                   .data=${this.variantStats}
-                   .config="${this._config}">
+                    .data="${this.variantStats}"
+                    .config="${this._config}">
                 </data-form>
             </div>
         `;
