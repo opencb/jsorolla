@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
@@ -465,7 +465,7 @@ export default class UserAdminGrid extends LitElement {
 
     render() {
         return html`
-            <div class="mx-1 my-2">
+            ${this._config?.showToolbar ? html`
                 <grid-toolbar
                     .leftContent="${this.renderToolbarLeftContent()}"
                     .rightToolbar="${this.getRightToolbar()}"
@@ -473,7 +473,7 @@ export default class UserAdminGrid extends LitElement {
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}">
                 </grid-toolbar>
-            </div>
+            ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
                 <table id="${this.gridId}"></table>
