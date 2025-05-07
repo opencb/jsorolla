@@ -129,29 +129,27 @@ export default class GridToolbar extends LitElement {
                     ${this.leftContent || nothing}
                 </div>
                 <div class="d-flex gap-1 justify-content-end" data-cy="toolbar-wrapper">
-                    <!-- First, display custom elements passed as 'rightToolbar' parameter, this must be the first ones displayed -->
                     ${this.rightToolbar?.length > 0 ? html`
                         <div class="d-flex align-items-stretch gap-1">
                             ${this.renderRightButtons()}
-                            <div class="w-px bg-gray-200 mx-1"></div>
                         </div>
+                    ` : nothing}
+
+                    ${this.rightToolbar?.length > 0 && (this._settings?.showExport || this._settings?.showSettings) ? html`
+                        <div class="w-px bg-gray-200 mx-1"></div>
                     ` : nothing}
 
                     ${this._settings.showExport ? html`
-                        <div class="btn-group">
-                            <button data-cy="toolbar-btn-export" data-action="export" type="button" class="btn btn-light" @click="${this.onActionClick}">
-                                ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                                <i class="fas fa-download pe-1" aria-hidden="true"></i> Export ...
-                            </button>
-                        </div>
+                        <button data-cy="toolbar-btn-export" data-action="export" type="button" class="btn btn-light" @click="${this.onActionClick}">
+                            ${this._settings?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
+                            <i class="fas fa-download pe-1" aria-hidden="true"></i> Export ...
+                        </button>
                     ` : nothing}
 
                     ${this._settings?.showSettings ? html`
-                        <div class="btn-group">
-                            <button data-cy="toolbar-btn-settings" data-action="settings" type="button" class="btn btn-light" @click="${this.onActionClick}">
-                                <i class="fas fa-cog pe-1"></i> Settings ...
-                            </button>
-                        </div>
+                        <button data-cy="toolbar-btn-settings" data-action="settings" type="button" class="btn btn-light" @click="${this.onActionClick}">
+                            <i class="fas fa-cog pe-1"></i> Settings ...
+                        </button>
                     ` : nothing}
                 </div>
             </div>
