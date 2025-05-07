@@ -96,7 +96,6 @@ export default class GridToolbar extends LitElement {
     }
 
     onExport(e) {
-        // Simply forwarding from opencga-export to grid components
         LitUtils.dispatchCustomEvent(this, "export", {}, e.detail);
     }
 
@@ -110,7 +109,6 @@ export default class GridToolbar extends LitElement {
                 ModalUtils.show(`${this._prefix}SettingModal`);
                 break;
         }
-        LitUtils.dispatchCustomEvent(this, toolbar + UtilsNew.capitalize(action));
     }
 
     renderRightButtons() {
@@ -183,11 +181,6 @@ export default class GridToolbar extends LitElement {
                     ` : nothing}
                 </div>
             </div>
-
-            <!-- Add modals-->
-            ${(this._config?.create && (this._settings.showCreate || this._settings.showNew) && hasPermissions) ?
-            ModalUtils.create(this, this._config.create?.modalId || `${this._prefix}CreateModal`, this._config.create) :
-            nothing}
 
             ${this._settings?.showExport && this._config?.export ? ModalUtils.create(this, `${this._prefix}ExportModal`, this._config.export) : nothing}
 
