@@ -80,8 +80,8 @@ export default class UserAdminPasswordReset extends LitElement {
         let error;
         this.#setLoading(true);
         //  Reset password
-        this.opencgaSession.opencgaClient.users()
-            .resetPassword(this._user.id)
+        this.opencgaSession.opencgaClient.organization()
+            .resetUserPassword(this._user.id)
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: `User Reset Password`,
