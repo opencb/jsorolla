@@ -15,13 +15,12 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
 import ModalUtils from "./modal/modal-utils.js";
 import "./opencga-export.js";
+import "./catalog-browser-grid-config.js";
 import "../variant/interpretation/variant-interpreter-grid-config.js";
-import WebUtils from "./utils/web-utils.js";
 
 export default class GridToolbar extends LitElement {
 
@@ -66,7 +65,6 @@ export default class GridToolbar extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-
         this._settings = this.getDefaultSettings();
         this._config = this.getDefaultConfig();
     }
@@ -84,8 +82,6 @@ export default class GridToolbar extends LitElement {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
-
-            this.permissionID = WebUtils.getPermissionID(this.resource || this._config.resource, "WRITE");
         }
 
         super.update(changedProperties);
@@ -127,28 +123,6 @@ export default class GridToolbar extends LitElement {
     }
 
     render() {
-        // Button create text
-        const buttonCreateText = this._settings?.buttonCreateText || "New...";
-
-        // Check 'Create' permissions
-        let isCreateDisabled = false;
-        let isCreateDisabledTooltip = "";
-        const hasPermissions = OpencgaCatalogUtils.getStudyEffectivePermission(
-            this.opencgaSession?.study,
-            this.opencgaSession?.user?.id,
-            this.permissionID,
-            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
-
-        if (this._config?.create?.display?.disabled) {
-            isCreateDisabled = true;
-            isCreateDisabledTooltip = this._config?.create?.display?.disabledTooltip;
-        } else {
-            if (!hasPermissions) {
-                isCreateDisabled = true;
-                isCreateDisabledTooltip = "Creating a new instance requires write permissions on the study. Please, contact your administrator if you need different access rights.";
-            }
-        }
-
         return html`
             <div class="d-flex align-items-center justify-content-between mb-2" data-cy="toolbar">
                 <div class="d-flex align-items-center" data-cy="toolbar-left-content">
@@ -190,8 +164,6 @@ export default class GridToolbar extends LitElement {
 
     getDefaultSettings() {
         return {
-            // label: "records",
-            showCreate: true,
             showExport: true,
             showSettings: true,
             // download: ["Tab", "JSON"],
