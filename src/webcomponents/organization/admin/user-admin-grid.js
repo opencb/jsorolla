@@ -296,7 +296,7 @@ export default class UserAdminGrid extends LitElement {
                                    </div>
                                 </a>
                                 <hr class="dropdown-divider">
-                                <a data-action="delete" class="dropdown-item disabled" style="color: darkred">
+                                <a data-action="delete" class="dropdown-item disabled">
                                     <i class="fas fa-trash-alt me-1"></i>
                                     <span>Delete</span>
                                 </a>
