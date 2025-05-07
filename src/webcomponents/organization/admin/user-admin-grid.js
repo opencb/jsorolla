@@ -22,11 +22,9 @@ import ModalUtils from "../../commons/modal/modal-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "./user-admin-create.js";
 import "./user-admin-details-update.js";
-import "./user-admin-password-reset.js";
 import "./user-admin-status-update.js";
 import "./user-admin-admins-change.js";
 import NotificationUtils from "../../commons/utils/notification-utils";
-// import "./user-admin-password-change.js";
 
 export default class UserAdminGrid extends LitElement {
 
@@ -452,8 +450,19 @@ export default class UserAdminGrid extends LitElement {
                 this.changeActiveActionModal("edit-details");
                 break;
             case "reset-password":
-                this.userId = user.id;
-                this.changeActiveActionModal("reset-password");
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+                    display: {
+                        okButtonText: "Reset Password",
+                    },
+                    title: `Reset Password: User <b>${user.id}</b> in organization ${this.opencgaSession.organization.id}`,
+                    message: `
+                        Are you sure you want to reset <b>${user.id}</b>'s password?
+                        <br><br>
+                        The user <b>${user.id}</b> will receive an email with a temporary password in the following email address:
+                        <span class="text-muted">${user.email}</span>.
+                    `,
+                    ok: () => this.onUserPasswordReset(user),
+                });
                 break;
             case "change-status":
                 this.userId = user.id;
@@ -466,6 +475,20 @@ export default class UserAdminGrid extends LitElement {
             case "delete":
                 break;
         }
+    }
+
+    onUserPasswordReset(user) {
+        this.opencgaSession.opencgaClient.organization()
+            .resetUserPassword(user.id)
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: `User Reset Password`,
+                    message: `User ${user.id} password reset correctly`,
+                });
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
     }
 
     onUserUpdate() {
@@ -652,17 +675,6 @@ export default class UserAdminGrid extends LitElement {
                         `;
                     }
                 };
-                break;
-            case "reset-password":
-                config = {
-                    render: () => html`
-                        <user-admin-password-reset
-                            .userId="${this.userId}"
-                            .opencgaSession="${this.opencgaSession}"
-                            @closeNotification="${e => this.onCloseNotification(e)}">
-                        </user-admin-password-reset>
-                    `,
-                }
                 break;
             case "change-status":
                 config = {
