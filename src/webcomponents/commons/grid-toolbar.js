@@ -87,8 +87,8 @@ export default class GridToolbar extends LitElement {
         super.update(changedProperties);
     }
 
-    onCloseSetting() {
-        ModalUtils.close(`${this._prefix}SettingModal`);
+    onCloseSettings() {
+        ModalUtils.close(`${this._prefix}SettingsModal`);
     }
 
     onExport(e) {
@@ -102,7 +102,7 @@ export default class GridToolbar extends LitElement {
                 ModalUtils.show(`${this._prefix}ExportModal`);
                 break;
             case "settings":
-                ModalUtils.show(`${this._prefix}SettingModal`);
+                ModalUtils.show(`${this._prefix}SettingsModal`);
                 break;
         }
     }
@@ -156,7 +156,7 @@ export default class GridToolbar extends LitElement {
 
             ${this._settings?.showExport && this._config?.export ? ModalUtils.create(this, `${this._prefix}ExportModal`, this._config.export) : nothing}
 
-            ${this._settings?.showSettings && this._config?.settings ? ModalUtils.create(this, `${this._prefix}SettingModal`, this._config.settings) : nothing}
+            ${this._settings?.showSettings && this._config?.settings ? ModalUtils.create(this, `${this._prefix}SettingsModal`, this._config.settings) : nothing}
         `;
     }
 
@@ -183,8 +183,7 @@ export default class GridToolbar extends LitElement {
                         .config="${this._config}"
                         .query=${this.query}
                         .opencgaSession="${this.opencgaSession}"
-                        @export="${this.onExport}"
-                        @changeExportField="${this.onChangeExportField}">
+                        @export="${this.onExport}">
                     </opencga-export>
                 `,
             },
@@ -200,14 +199,14 @@ export default class GridToolbar extends LitElement {
                         .gridColumns="${this._config.columns}"
                         .toolId="${this.toolId || this._config?.toolId}"
                         .config="${this._settings}"
-                        @settingsUpdate="${this.onCloseSetting}">
+                        @settingsUpdate="${this.onCloseSettings}">
                     </catalog-browser-grid-config>` : html `
                     <variant-interpreter-grid-config
                         .opencgaSession="${this.opencgaSession}"
                         .gridColumns="${this._config.columns}"
                         .config="${this._settings}"
                         .toolId="${this.toolId || this._config?.toolId}"
-                        @settingsUpdate="${this.onCloseSetting}">
+                        @settingsUpdate="${this.onCloseSettings}">
                     </variant-interpreter-grid-config>
                 `,
             }
