@@ -19,12 +19,12 @@ import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import ModalUtils from "../../commons/modal/modal-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils";
 import UtilsNew from "../../../core/utils-new.js";
 import "./user-admin-create.js";
 import "./user-admin-details-update.js";
 import "./user-admin-status-update.js";
 import "./user-admin-admins-change.js";
-import NotificationUtils from "../../commons/utils/notification-utils";
 
 export default class UserAdminGrid extends LitElement {
 
@@ -129,85 +129,7 @@ export default class UserAdminGrid extends LitElement {
             toolId: this.toolId,
             resource: "USER",
             columns: this._getDefaultColumns(),
-            // create: {
-            //     display: {
-            //         modalTitle: "Create User",
-            //         modalDraggable: true,
-            //         modalCyDataName: "modal-create",
-            //         modalSize: "modal-lg"
-            //         // disabled: true,
-            //         // disabledTooltip: "...",
-            //     },
-            //     modalId: `${this._prefix}CreateUserModal`,
-            //     render: () => html `
-            //         <user-admin-create
-            //             .organization="${this.organization}"
-            //             .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
-            //             .opencgaSession="${this.opencgaSession}"
-            //             @userCreate="${e => this.onUserCreate(e)}">
-            //         </user-admin-create>`
-            // },
         };
-
-        // this.permissions = {
-        //     "organization": () => OpencgaCatalogUtils.isOrganizationAdmin(this.organization, this.opencgaSession.user.id) ? "" : "disabled",
-        //     "study": () => OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) ? "" : "disabled",
-        // };
-
-        // this.modals = {
-        //     "edit-details": {
-        //         label: "Edit Details",
-        //         icon: "fas fa-edit",
-        //         modalId: `${this._prefix}UpdateDetailsModal`,
-        //         render: () => this.renderModalDetailsUpdate(),
-        //         permission: this.permissions["organization"](),
-        //         divider: true,
-        //     },
-        //     // ToDo 20240529 Vero: Nacho/Pedro to discuss:
-        //     //  - Organization admin/owner can change usr pwd without entering current pwd
-        //     /*
-        //     "change-password": {
-        //         label: "Change Password",
-        //         icon: "fas fa-edit",
-        //         modalId: `${this._prefix}ChangePasswordModal`,
-        //         render: () => this.renderModalPasswordUpdate(),
-        //         permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
-        //     },
-        //      */
-        //     "reset-password": {
-        //         label: "Reset Password",
-        //         icon: "fas fa-key",
-        //         modalId: `${this._prefix}ResetPasswordModal`,
-        //         render: () => this.renderModalPasswordReset(),
-        //         permission: this.permissions["organization"](),
-        //         divider: true,
-        //     },
-        //     "change-status": {
-        //         label: "Change Status",
-        //         icon: "fas fa-sign-in-alt",
-        //         modalId: `${this._prefix}ChangeStatusModal`,
-        //         render: () => this.renderModalStatusUpdate(),
-        //         permission: this.permissions["organization"](),
-        //     },
-        //     "change-admin": {
-        //         labelAdd: "Add as Admin",
-        //         labelRemove: "Remove as Admin",
-        //         iconAdd: "fas fa-user-plus",
-        //         iconRemove: "fas fa-user-minus",
-        //         modalId: `${this._prefix}ChangeAdminModal`,
-        //         render: action => this.renderModalAdminChange(action),
-        //         permission: this.permissions["organization"](),
-        //         divider: true,
-        //     },
-        //     "delete": {
-        //         label: "Delete User",
-        //         icon: "fas fa-trash-alt ",
-        //         color: "text-danger",
-        //         // modalId: `${this._prefix}DeleteUserModal`,
-        //         // render: () => this.renderModalDeleteUser(),
-        //         permission: "disabled", // CAUTION: Not possible to delete users for now
-        //     },
-        // };
     }
 
     // *** PRIVATE METHODS ***
@@ -427,21 +349,6 @@ export default class UserAdminGrid extends LitElement {
         `;
     }
 
-    // *** EVENTS ***
-    // async onActionClick2(e, value, row) {
-    //     this.action = e.currentTarget.dataset.action;
-    //     this.userId = row.id;
-    //     this.adminAction = e.currentTarget.dataset.admin ?? "";
-    //     this.requestUpdate();
-    //     await this.updateComplete;
-    //     // NOTE 20240804 Vero: Since reset password does not need inputs, it has been decided that it should be
-    //     // a notification instead of the regular update modal. Therefore, in this case, a modal is not created and
-    //     // should not be shown.
-    //     if (this.action !== "reset-password") {
-    //         ModalUtils.show(this.modals[this.action]["modalId"]);
-    //     }
-    // }
-
     onActionClick(event, value, user) {
         const action = (event.currentTarget?.dataset?.action || "").toLowerCase();
         switch (action) {
@@ -505,117 +412,6 @@ export default class UserAdminGrid extends LitElement {
         this.action = "";
         this.requestUpdate();
     }
-
-    // *** RENDER METHODS ***
-    // renderModalDetailsUpdate() {
-    //     return ModalUtils.create(this, `${this._prefix}UpdateDetailsModal`, {
-    //         display: {
-    //             modalTitle: `Update Details: User ${this.userId} in organization ${this.organization.id}`,
-    //             modalDraggable: true,
-    //             modalCyDataName: "modal-details-update",
-    //             modalSize: "modal-lg"
-    //         },
-    //         render: () => {
-    //             return html`
-    //                 <user-admin-details-update
-    //                     .userId="${this.userId}"
-    //                     .organization="${this.organization}"
-    //                     .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
-    //                     .opencgaSession="${this.opencgaSession}"
-    //                     @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}UpdateDetailsModal`)}">
-    //                 </user-admin-details-update>
-    //             `;
-    //         },
-    //     });
-    // }
-
-    /*
-    // Caution 20240616 Vero: Uncomment this code when endpoint fixed in OpenCGA for admin/owner change usr pwd
-    renderModalPasswordUpdate() {
-        return ModalUtils.create(this, `${this._prefix}ChangePasswordModal`, {
-            display: {
-                modalTitle: `Change Password: User ${this.userId} in organization ${this.organization.id}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-password-change",
-                modalSize: "modal-lg"
-            },
-            render: () => {
-                return html`
-                    <user-admin-password-change
-                        .userId="${this.userId}"
-                        .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}"
-                        @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangePasswordModal`)}">
-                    </user-admin-password-change>
-                `;
-            },
-        });
-    }
-    */
-
-    // renderModalPasswordReset() {
-    //     return html`
-    //         <user-admin-password-reset
-    //             .userId="${this.userId}"
-    //             .opencgaSession="${this.opencgaSession}"
-    //             @closeNotification="${e => this.onCloseNotification(e)}">
-    //         </user-admin-password-reset>
-    //     `;
-    // }
-
-    // renderModalStatusUpdate() {
-    //     return ModalUtils.create(this, `${this._prefix}ChangeStatusModal`, {
-    //         display: {
-    //             modalTitle: `Update Status: User '${this.userId}' in organization '${this.organization.id}'`,
-    //             modalDraggable: true,
-    //             modalCyDataName: "modal-user-admin-status-update",
-    //             modalSize: "modal-lg"
-    //         },
-    //         render: () => html`
-    //             <user-admin-status-update
-    //                 .userId="${this.userId}"
-    //                 .organization="${this.organization}"
-    //                 .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top", userStatus: this._config.userStatus}}"
-    //                 .opencgaSession="${this.opencgaSession}"
-    //                 @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangeStatusModal`)}">
-    //             </user-admin-status-update>
-    //         `,
-    //     });
-    // }
-
-    // renderModalAdminChange(action) {
-    //     return ModalUtils.create(this, `${this._prefix}ChangeAdminModal`, {
-    //         display: {
-    //             modalTitle: `Update Organization Admins: User ${this.userId} in organization ${this.organization.id}`,
-    //             modalDraggable: true,
-    //             modalCyDataName: "modal-user-admin-admin-set",
-    //             modalSize: "modal-lg"
-    //         },
-    //         render: () => html`
-    //             <user-admin-admins-change
-    //                 .userId="${this.userId}"
-    //                 .organization="${this.organization}"
-    //                 .action="${action}"
-    //                 .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top", buttonClearText: ""}}"
-    //                 .opencgaSession="${this.opencgaSession}"
-    //                 @userUpdate="${e => this.onUserUpdate(e, `${this._prefix}ChangeAdminModal`)}">
-    //             </user-admin-admins-change>
-    //         `,
-    //     });
-    // }
-
-    // renderToolbar() {
-    //     if (this._config.showToolbar) {
-    //         return html `
-    //             <opencb-grid-toolbar
-    //                 .opencgaSession="${this.opencgaSession}"
-    //                 .settings="${this.toolbarSetting}"
-    //                 .config="${this.toolbarConfig}">
-    //             </opencb-grid-toolbar>
-    //         `;
-    //     }
-    // }
 
     renderToolbarLeftContent() {
         return html`
