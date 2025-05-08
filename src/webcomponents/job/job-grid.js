@@ -490,7 +490,7 @@ export default class JobGrid extends LitElement {
     }
 
     actionsFormatter(value, row) {
-        // const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        const hasExecutionPermission = this.gridCommons.hasPermission("EXECUTE");
         return `
             <div class="d-inline-block dropdown">
                 <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
@@ -507,10 +507,10 @@ export default class JobGrid extends LitElement {
                         <i class="fas fa-download me-1"></i> Download JSON
                     </a>
                     <hr class="dropdown-divider">
-                    <a data-action="retry" class="dropdown-item cursor-pointer">
+                    <a data-action="retry" class="dropdown-item ${hasExecutionPermission ? "cursor-pointer" : "disabled"}">
                         <i class="fas fa-sync me-1"></i> Retry
                     </a>
-                    <a data-action="kill" class="dropdown-item cursor-pointer">
+                    <a data-action="kill" class="dropdown-item ${hasExecutionPermission ? "cursor-pointer" : "disabled"}">
                         <i class="fas fa-skull me-1"></i> Kill
                     </a>
                     <hr class="dropdown-divider">
