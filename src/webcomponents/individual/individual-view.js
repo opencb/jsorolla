@@ -135,18 +135,19 @@ export default class IndividualView extends LitElement {
                             <i class="fas fa-info-circle me-2"></i>
                             <span>Clinical Analysis in which the individual <b>${individual.id}</b> is the proband.</span>
                         </div>
-                        <clinical-analysis-grid
-                            .active="${active}"
-                            .query="${{
-                                proband: individual.id,
-                            }}"
-                            .config=${{
-                                readOnlyMode: true,
-                                showToolbar: false,
-                                showActions: false,
-                            }}
-                            .opencgaSession="${this.opencgaSession}">
-                        </clinical-analysis-grid>
+                        <div class="overflow-y-auto">
+                            <clinical-analysis-grid
+                                .active="${active}"
+                                .query="${{
+                                    proband: individual.id,
+                                }}"
+                                .config=${{
+                                    showToolbar: false,
+                                    showActions: false,
+                                }}
+                                .opencgaSession="${this.opencgaSession}">
+                            </clinical-analysis-grid>
+                        </div>
                     `,
                 },
                 {
