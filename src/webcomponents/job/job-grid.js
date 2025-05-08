@@ -15,6 +15,7 @@
  */
 
 import {html, LitElement, nothing} from "lit";
+import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
@@ -490,6 +491,8 @@ export default class JobGrid extends LitElement {
     }
 
     actionsFormatter(value, row) {
+        // Note: to kill the job user must be an admin or the job owner
+        const hasKillPermission = row.userId === this.opencgaSession?.user?.id || CatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
         const hasExecutionPermission = this.gridCommons.hasPermission("EXECUTE");
         return `
             <div class="d-inline-block dropdown">
@@ -510,7 +513,7 @@ export default class JobGrid extends LitElement {
                     <a data-action="retry" class="dropdown-item ${hasExecutionPermission ? "cursor-pointer" : "disabled"}">
                         <i class="fas fa-sync me-1"></i> Retry
                     </a>
-                    <a data-action="kill" class="dropdown-item ${hasExecutionPermission ? "cursor-pointer" : "disabled"}">
+                    <a data-action="kill" class="dropdown-item ${hasKillPermission ? "cursor-pointer" : "disabled"}">
                         <i class="fas fa-skull me-1"></i> Kill
                     </a>
                     <hr class="dropdown-divider">
