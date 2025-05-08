@@ -171,7 +171,6 @@ export default class FileBrowser extends LitElement {
                                     .config="${params.config.filter.result.grid}"
                                     .eventNotifyName="${params.eventNotifyName}"
                                     @queryComplete="${e => params.onQueryComplete(e)}"
-                                    @selectrow="${e => params.onClickRow(e)}"
                                     @fileUpdate="${e => params.onComponentUpdate(e)}"
                                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                                     @pathChange="${e => this.onTreePathChange(e, params)}"
