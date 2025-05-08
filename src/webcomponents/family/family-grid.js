@@ -480,7 +480,7 @@ export default class FamilyGrid extends LitElement {
 
     actionsFormatter(value, row) {
         const hasWritePermission = this.gridCommons.hasPermission("WRITE");
-        // const hasQualityControl = row?.qualityControl?.metrics?.length > 0;
+        const hasJobExecutionPermission = this.gridCommons.hasPermission("EXECUTE", "JOB");
         const hasClinicalAnalysis = row?.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length > 0;
         return `
             <div class="d-inline-block dropdown">
@@ -499,7 +499,7 @@ export default class FamilyGrid extends LitElement {
                     </a>
                     <hr class="dropdown-divider">
                     <div class="dropdown-header">Analysis</div>
-                    <a data-action="family-qc-analysis" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                    <a data-action="family-qc-analysis" class="dropdown-item ${hasJobExecutionPermission ? "cursor-pointer" : "disabled"}">
                         <i class="fas fa-edit me-1"></i> Quality Control
                     </a>
                     <hr class="dropdown-divider">

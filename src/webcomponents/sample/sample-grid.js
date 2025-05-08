@@ -600,6 +600,7 @@ export default class SampleGrid extends LitElement {
 
     actionsFormatter(value, row) {
         const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        const hasJobExecutionPermission = this.gridCommons.hasPermission("EXECUTE", "JOB");
         return `
             <div class="d-inline-block dropdown">
                 <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
@@ -620,10 +621,10 @@ export default class SampleGrid extends LitElement {
                     <a class="dropdown-item cursor-pointer" data-action="view-variant-stats">
                             <i class="fas fa-user-md me-1"></i> Variant Stats
                     </a>
-                    <a data-action="sample-qc-analysis" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                    <a data-action="sample-qc-analysis" class="dropdown-item ${hasJobExecutionPermission ? "cursor-pointer" : "disabled"}">
                         <i class="fas fa-edit me-1"></i> Quality Control
                     </a>
-                    <a data-action="knockout-analysis" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                    <a data-action="knockout-analysis" class="dropdown-item ${hasJobExecutionPermission ? "cursor-pointer" : "disabled"}">
                         <i class="fas fa-edit me-1"></i> Knockout Analysis
                     </a>
                     <hr class="dropdown-divider">
