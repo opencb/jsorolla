@@ -129,17 +129,19 @@ export default class CohortView extends LitElement {
                     id: "sample-view",
                     name: "Samples",
                     render: (cohort, active) => html`
-                        <sample-grid
-                            .opencgaSession="${this.opencgaSession}"
-                            .query="${{
-                                cohortIds: cohort.id,
-                            }}"
-                            .config="${{
-                                showToolbar: false,
-                                showSelectCheckbox: false,
-                            }}"
-                            .active="${active}">
-                        </sample-grid>
+                        <div class="overflow-y-auto">
+                            <sample-grid
+                                .opencgaSession="${this.opencgaSession}"
+                                .query="${{
+                                    cohortIds: cohort.id,
+                                }}"
+                                .config="${{
+                                    showToolbar: false,
+                                    showActions: false,
+                                }}"
+                                .active="${active}">
+                            </sample-grid>
+                        </div>
                     `,
                 },
                 {
