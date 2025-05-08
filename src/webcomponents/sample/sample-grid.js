@@ -743,6 +743,7 @@ export default class SampleGrid extends LitElement {
             {
                 icon: "fa-users",
                 title: "Create Cohort",
+                disabled: !this.gridCommons.hasPermission("WRITE", "COHORT"),
                 onClick: () => this.gridCommons.changeActiveModal("create-cohort"),
             },
         ];
