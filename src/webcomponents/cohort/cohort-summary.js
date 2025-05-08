@@ -170,7 +170,7 @@ export default class CohortSummary extends LitElement {
                                         .annotationSets="${field}">
                                     </annotation-set-view>
                                 `,
-                                defaultValue: "N/A",
+                                defaultValue: "-",
                             },
                         },
                         {

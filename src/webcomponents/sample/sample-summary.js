@@ -179,7 +179,7 @@ export default class SampleSummary extends LitElement {
                             title: "Description",
                             field: "description",
                             display: {
-                                defaultValue: "N/A",
+                                defaultValue: "-",
                             }
                         },
                         {

@@ -172,7 +172,7 @@ export default class IndividualSummary extends LitElement {
                             display: {
                                 contentLayout: "vertical",
                                 format: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
-                                defaultValue: "N/A",
+                                defaultValue: "-",
                             },
                         },
                         {
@@ -182,7 +182,7 @@ export default class IndividualSummary extends LitElement {
                             display: {
                                 contentLayout: "vertical",
                                 format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
-                                defaultValue: "N/A",
+                                defaultValue: "-",
                             },
                         },
                         {

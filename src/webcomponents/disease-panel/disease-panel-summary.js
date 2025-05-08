@@ -133,23 +133,23 @@ export default class DiseasePanelSummary extends LitElement {
                             display: {
                                 contentLayout: "vertical",
                                 format: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
-                                defaultValue: "N/A",
+                                defaultValue: "-",
                             },
                         },
                         {
                             title: "Number of Genes",
                             field: "stats.numberOfGenes",
-                            defaultValue: "N/A",
+                            defaultValue: "-",
                         },
                         {
                             title: "Number of Regions",
                             field: "stats.numberOfRegions",
-                            defaultValue: "N/A",
+                            defaultValue: "-",
                         },
                         {
                             title: "Number of Variants",
                             field: "stats.numberOfVariants",
-                            defaultValue: "N/A",
+                            defaultValue: "-",
                         },
                         {
                             title: "Creation Date",
@@ -168,7 +168,7 @@ export default class DiseasePanelSummary extends LitElement {
                         {
                             title: "Description",
                             field: "description",
-                            defaultValue: "N/A",
+                            defaultValue: "-",
                         },
                     ],
                 },
