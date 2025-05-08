@@ -164,18 +164,20 @@ export default class SampleView extends LitElement {
                     id: "files",
                     name: "Files",
                     render: (sample, active) => html`
-                        <file-grid
-                            .query="${{
-                                sampleIds: sample.id,
-                                type: "FILE,VIRTUAL",
-                            }}"
-                            .active="${active}"
-                            .config="${{
-                                showToolbar: false,
-                                showActions: false,
-                            }}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </file-grid>
+                        <div class="overflow-y-auto">
+                            <file-grid
+                                .query="${{
+                                    sampleIds: sample.id,
+                                    type: "FILE,VIRTUAL",
+                                }}"
+                                .active="${active}"
+                                .config="${{
+                                    showToolbar: false,
+                                    showActions: false,
+                                }}"
+                                .opencgaSession="${this.opencgaSession}">
+                            </file-grid>
+                        </div>
                     `,
                 },
                 {
