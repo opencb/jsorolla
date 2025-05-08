@@ -488,30 +488,6 @@ export default class IndividualGrid extends LitElement {
                 },
                 visible: this.gridCommons.isColumnVisible("father")
             },
-            // {
-            //     id: "father",
-            //     title: "Father",
-            //     field: "father.id",
-            //     formatter: fatherId => {
-            //         return fatherId ? `<a class="link fw-bold" data-action="view" data-individual="${fatherId}">${fatherId}</a>` : "-";
-            //     },
-            //     events: {
-            //         "click a": (event, value, row) => this.onActionClick(event, row),
-            //     },
-            //     visible: this.gridCommons.isColumnVisible("father")
-            // },
-            // {
-            //     id: "mother",
-            //     title: "Mother",
-            //     field: "mother.id",
-            //     formatter: motherId => {
-            //         return motherId ? `<a class="link fw-bold" data-action="view" data-individual="${motherId}">${motherId}</a>` : "-";
-            //     },
-            //     events: {
-            //         "click a": (event, value, row) => this.onActionClick(event, row),
-            //     },
-            //     visible: this.gridCommons.isColumnVisible("mother")
-            // },
             {
                 id: "disorders",
                 title: "Disorders",
@@ -536,13 +512,6 @@ export default class IndividualGrid extends LitElement {
                 },
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
-            // {
-            //     id: "ethnicity",
-            //     title: "Ethnicity",
-            //     field: "ethnicity",
-            //     formatter: (ethnicity, row) => ethnicity?.id || row.population?.name || "-",
-            //     visible: this.gridCommons.isColumnVisible("ethnicity")
-            // },
             {
                 id: "creationDate",
                 title: "Modification/Creation Date",
