@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
 import "../commons/forms/data-form.js";
 import "../commons/json-viewer.js";
@@ -93,7 +93,7 @@ export default class CohortView extends LitElement {
 
     render() {
         if (!this.opencgaSession || !this._cohort) {
-            return "";
+            return nothing;
         }
 
         return html`
