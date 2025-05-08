@@ -387,14 +387,16 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: family => html`
-                                    <individual-grid
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .individuals="${family?.members || []}"
-                                        .config="${{
-                                            showSelectCheckbox: false,
-                                            showToolbar: false
-                                        }}">
-                                    </individual-grid>
+                                    <div class="overflow-y-auto">
+                                        <individual-grid
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .individuals="${family?.members || []}"
+                                            .config="${{
+                                                showToolbar: false,
+                                                showActions: false,
+                                            }}">
+                                        </individual-grid>
+                                    </div>
                                 `,
                             },
                         },
