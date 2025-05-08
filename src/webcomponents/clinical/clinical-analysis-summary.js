@@ -111,30 +111,6 @@ export default class ClinicalAnalysisSummary extends LitElement {
             display: {
                 titleVisible: false,
                 buttonsVisible: false,
-                layout: [
-                    {
-                        id: "",
-                        className: "row mb-5",
-                        sections: [
-                            {
-                                id: "detail",
-                                className: "col-md-6"
-                            },
-                            {
-                                id: "proband",
-                                className: "col-md-6"
-                            }
-                        ]
-                    },
-                    {
-                        id: "family",
-                        className: ""
-                    },
-                    {
-                        id: "files",
-                        className: ""
-                    }
-                ],
                 ...this.displayConfig,
             },
             sections: [
