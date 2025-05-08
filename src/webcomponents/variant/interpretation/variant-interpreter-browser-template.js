@@ -78,7 +78,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         this.searchActive = true;
-        this.variant = null;
         this.query = {};
         this.notifications = [];
 
@@ -119,7 +118,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         if (this.currentQueryBeforeSaveEvent) {
             this.query = {...this.currentQueryBeforeSaveEvent};
             this.currentQueryBeforeEvent = null;
-            this.variant = null;
         }
     }
 
@@ -128,7 +126,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.searchActive = false;
-            this.variant = null;
         }
     }
 
@@ -222,12 +219,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
-    onSelectVariant(e) {
-        this.variantId = e.detail.id;
-        this.variant = e.detail.row;
-        this.requestUpdate();
-    }
-
     onCheckVariant(e) {
         const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
         rows.forEach(row => {
@@ -293,7 +284,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.preparedQuery = {...e.detail.query};
         this.executedQuery = {...e.detail.query};
         this.query = {...e.detail.query}; // We need to update the internal query to propagate to filters
-        this.variant = null;
         this.notifyQueryChange();
         this.requestUpdate();
     }
@@ -426,7 +416,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             .config="${this._config.filter.result.grid}"
                             .active="${this.active}"
                             @queryComplete="${this.onQueryComplete}"
-                            @selectrow="${this.onSelectVariant}"
                             @updaterow="${this.onUpdateVariant}"
                             @checkrow="${this.onCheckVariant}"
                             @settingsUpdate="${this.onSettingsUpdate}">
@@ -440,7 +429,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             .config="${this._config.filter.result.grid}"
                             .active="${this.active}"
                             @queryComplete="${this.onQueryComplete}"
-                            @selectrow="${this.onSelectVariant}"
                             @updaterow="${this.onUpdateVariant}"
                             @checkrow="${this.onCheckVariant}"
                             @settingsUpdate="${this.onSettingsUpdate}">
@@ -454,7 +442,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             <genome-browser
                                 .opencgaSession="${this.opencgaSession}"
                                 .config="${this._config.genomeBrowser.config}"
-                                .region="${this.variant}"
                                 .tracks="${this._config.genomeBrowser.tracks}"
                                 .active="${this.active && this.activeView === "genome-browser"}">
                             </genome-browser>
@@ -462,7 +449,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             <split-genome-browser
                                 .opencgaSession="${this.opencgaSession}"
                                 .config="${this._config.genomeBrowser.config}"
-                                .regions="${this.variant}"
                                 .tracks="${this._config.genomeBrowser.tracks}"
                                 .active="${this.active && this.activeView === "genome-browser"}">
                             </split-genome-browser>

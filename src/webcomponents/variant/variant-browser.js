@@ -84,8 +84,6 @@ export default class VariantBrowser extends LitElement {
         this.executedQuery = {};
         this.selectedFacet = {};
         this.preparedFacetQueryFormatted = {};
-        // this.errorState = false;
-        this.variant = null;
         this.notifications = [];
 
         this.activeView = "table";
@@ -141,7 +139,6 @@ export default class VariantBrowser extends LitElement {
 
             // Search must be disabled even defaultFilter is empty
             this.searchActive = false;
-            this.variant = null;
 
             this.facetQuery = null;
             this.preparedFacetQueryFormatted = null;
@@ -157,7 +154,6 @@ export default class VariantBrowser extends LitElement {
 
                 LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
                 this.searchActive = false; // Disable search button
-                this.variant = null;
             }
         }
     }
@@ -177,7 +173,6 @@ export default class VariantBrowser extends LitElement {
         this.preparedQuery = {...e.detail.query};
         this.executedQuery = {...e.detail.query};
         this.searchActive = false;
-        this.variant = null;
         this.notifySearch(this.preparedQuery);
         this.requestUpdate();
     }
@@ -186,7 +181,6 @@ export default class VariantBrowser extends LitElement {
         this.preparedQuery = {};
         this.executedQuery = {};
         this.searchActive = false;
-        this.variant = null;
         this.notifySearch(this.preparedQuery);
         this.requestUpdate();
     }
@@ -199,12 +193,6 @@ export default class VariantBrowser extends LitElement {
     onQueryComplete(event) {
         this.notifications = WebUtils.getResponseEvents(event.detail.response);
         this.searchActive = true;
-        this.requestUpdate();
-    }
-
-    onSelectVariant(e) {
-        this.variantId = e.detail.id;
-        this.variant = e.detail.row;
         this.requestUpdate();
     }
 
@@ -284,7 +272,6 @@ export default class VariantBrowser extends LitElement {
                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                     .config="${this._config.filter.result.grid}"
                     @queryComplete="${this.onQueryComplete}"
-                    @selectrow="${this.onSelectVariant}"
                     @settingsUpdate="${this.onSettingsUpdate}">
                 </variant-browser-grid>
             </div>
@@ -300,15 +287,12 @@ export default class VariantBrowser extends LitElement {
             </div>
 
             <div class="${this.activeView === "genome" ? "d-block" : "d-none"}">
-                ${this.variant ? html`
-                    <genome-browser
-                        .opencgaSession="${this.opencgaSession}"
-                        .config="${this._config.genomeBrowser.config}"
-                        .region="${this.variant}"
-                        .tracks="${this._config.genomeBrowser.tracks}"
-                        .active="${this.activeView === "genome"}">
-                    </genome-browser>
-                ` : nothing}
+                <genome-browser
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config.genomeBrowser.config}"
+                    .tracks="${this._config.genomeBrowser.tracks}"
+                    .active="${this.activeView === "genome"}">
+                </genome-browser>
             </div>
         `;
     }
