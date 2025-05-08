@@ -220,7 +220,6 @@ export default class IndividualSummary extends LitElement {
                         {
                             title: "Modification Date",
                             field: "modificationDate",
-                            // type: "custom",
                             display: {
                                 format: modificationDate => UtilsNew.dateFormatter(modificationDate),
                             },
@@ -268,6 +267,7 @@ export default class IndividualSummary extends LitElement {
                                         type: "list",
                                         display: {
                                             contentLayout: "bullets",
+                                            defaultValue: "-",
                                             format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
                                         },
                                     },

@@ -242,6 +242,7 @@ export default class FamilySummary extends LitElement {
                                         field: "disorders",
                                         type: "list",
                                         display: {
+                                            defaultValue: "-",
                                             format: disorder => CatalogGridFormatter.disorderFormatter([disorder])
                                         }
                                     },
@@ -250,6 +251,7 @@ export default class FamilySummary extends LitElement {
                                         field: "phenotypes",
                                         type: "list",
                                         display: {
+                                            defaultValue: "-",
                                             format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype])
                                         }
                                     },
