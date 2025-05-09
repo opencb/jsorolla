@@ -316,7 +316,8 @@ export default class FamilyGenotypeFilter extends LitElement {
                     <div class="form-check-label mode-button">
                         <select-field-filter
                             .data="${this.modeSelectData}"
-                            value="${this.mode}"
+                            .value="${this.mode}"
+                            .forceSelection="${true}"
                             .config="${{
                                 liveSearch: false,
                                 multiple: false,
