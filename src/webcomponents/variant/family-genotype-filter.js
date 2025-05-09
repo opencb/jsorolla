@@ -236,6 +236,13 @@ export default class FamilyGenotypeFilter extends LitElement {
     async onSampleTableChange(e) {
         e.preventDefault();
         const {gt, sampleId} = e.target.dataset;
+        // initialize the genotypes of this sample if not already in the state
+        if (!this.state[sampleId]) {
+            this.state[sampleId] = {
+                id: sampleId,
+                genotypes: []
+            };
+        }
         if (e.target.checked) {
             this.state[sampleId].genotypes.push(gt);
         } else {
