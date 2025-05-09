@@ -261,7 +261,7 @@ export default class FamilyGenotypeFilter extends LitElement {
         }
 
         // make sure the proband has at least 1 GT checked
-        this.errorState = !this.state[probandSampleId].genotypes.length ? "At least one genotype have to be selected for the proband." : false;
+        this.errorState = !this.state[probandSampleId]?.genotypes?.length ? "At least one genotype have to be selected for the proband." : false;
         this.state = {...this.state};
         this.noGtSamples = [...this.noGtSamples];
         this.requestUpdate();
