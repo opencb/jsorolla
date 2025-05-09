@@ -233,7 +233,7 @@ export default class FamilyGenotypeFilter extends LitElement {
     }
 
     // Update state on genotype change
-    async onSampleTableChange(e) {
+    onSampleTableChange(e) {
         e.preventDefault();
         const {gt, sampleId} = e.target.dataset;
         // initialize the genotypes of this sample if not already in the state
@@ -265,7 +265,6 @@ export default class FamilyGenotypeFilter extends LitElement {
         this.state = {...this.state};
         this.noGtSamples = [...this.noGtSamples];
         this.requestUpdate();
-        await this.updateComplete;
         this.notifySampleFilterChange();
     }
 
