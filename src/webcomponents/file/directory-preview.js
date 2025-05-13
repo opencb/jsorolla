@@ -22,6 +22,9 @@ export default class DirectoryPreview extends LitElement {
             directoryId: {
                 type: String,
             },
+            query: {
+                type: Object,
+            },
             opencgaSession: {
                 type: Object,
             },
@@ -44,6 +47,10 @@ export default class DirectoryPreview extends LitElement {
     update(changedProperties) {
         if (changedProperties.has("directoryId") || changedProperties.has("opencgaSession") || changedProperties.has("active")) {
             this.directoryIdObserver();
+        }
+
+        if (changedProperties.has("query") || changedProperties.has("opencgaSession") || changedProperties.has("active")) {
+            this.queryObserver();
         }
 
         if (changedProperties.has("config")) {
@@ -75,6 +82,38 @@ export default class DirectoryPreview extends LitElement {
                     this._files = content
                         .filter(child => child.file.type.toUpperCase() === "FILE")
                         .map(child => child.file);
+                    this.fetchImagesFiles();
+                })
+                .catch(error => {
+                    console.error(error);
+                })
+                .finally(() => {
+                    this._loading = false;
+                    this.requestUpdate();
+                });
+        }
+    }
+
+    queryObserver() {
+        this._directories = [];
+        this._files = [];
+
+        if (this.query && this.opencgaSession && this.active) {
+            this._loading = true;
+            
+            this.opencgaSession.opencgaClient.files()
+                .search({
+                    study: this.opencgaSession.study.fqn,
+                    ...this.query,
+                    directory: this.query.path ? this.query.path.slice(2).slice(0, -2) : "",
+                })
+                .then(response => {
+                    this._directories = (response.responses?.[0]?.results || []).filter(item => {
+                        return item.type.toUpperCase() === "DIRECTORY";
+                    })
+                    this._files = (response.responses?.[0]?.results || []).filter(item => {
+                        return item.type.toUpperCase() === "FILE";
+                    })
                     this.fetchImagesFiles();
                 })
                 .catch(error => {
@@ -150,7 +189,7 @@ export default class DirectoryPreview extends LitElement {
     }
 
     render() {
-        if (!this.directoryId || !this.opencgaSession || !this.active) {
+        if (!this.opencgaSession || !this.active) {
             return nothing;
         }
 
