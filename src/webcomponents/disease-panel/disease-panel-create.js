@@ -38,9 +38,6 @@ export default class DiseasePanelCreate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
-            },
             displayConfig: {
                 type: Object
             },
@@ -70,21 +67,11 @@ export default class DiseasePanelCreate extends LitElement {
         this.isLoading = false;
         // NOTE Vero 20231025: Probably not needed.
         this.annotatedGenes = {};
-        this.displayConfigDefault = {
-            style: "margin: 10px",
-            buttonOkText: "Create",
-            titleWidth: 3,
-            defaultLayout: "horizontal",
-        };
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig
-            };
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -201,7 +188,6 @@ export default class DiseasePanelCreate extends LitElement {
                     title: "New Disease Panel",
                     message: "New Disease Panel created correctly"
                 });
-                // LitUtils.dispatchCustomEvent(this, "sessionPanelUpdate", res.responses[0].results[0], {action: "CREATE"});
                 LitUtils.dispatchCustomEvent(this, "diseasePanelCreate", response.responses[0].results[0]);
                 this.requestUpdate();
             })
@@ -228,8 +214,10 @@ export default class DiseasePanelCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            // type: "form",
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                buttonOkText: "Create",
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
