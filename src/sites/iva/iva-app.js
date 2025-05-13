@@ -843,17 +843,13 @@ class IvaApp extends LitElement {
         this._createOpenCGASession();
     }
 
-    onSessionPanelUpdate(e) {
-        const action = e.detail.action || "CREATE";
-        switch (action) {
-            case "CREATE":
-                if (this.opencgaSession.study) {
-                    this.opencgaSession.study.panels = [
-                        ...this.opencgaSession.study?.panels,
-                        e.detail.value
-                    ];
-                }
-                break;
+    onDiseasePanelCreate(event) {
+        // when a new disease panel is created, we add it to the study panels instead of refreshing the whole session
+        if (this.opencgaSession?.study?.panels && event?.detail?.value) {
+            this.opencgaSession.study.panels = [
+                ...this.opencgaSession.study?.panels,
+                event.detail.value
+            ];
         }
         this.opencgaSession = {...this.opencgaSession};
     }
@@ -941,18 +937,6 @@ class IvaApp extends LitElement {
                     </div>
                 `;
                 break;
-            // case "clinical-analysis-portal":
-            // case "clinicalAnalysisPortal":
-            //     content = html`
-            //         <div class="content">
-            //             <clinical-analysis-portal
-            //                 .opencgaSession="${this.opencgaSession}"
-            //                 .settings="${this.settings.CLINICAL_ANALYSIS_PORTAL_BROWSER}"
-            //                 @sessionPanelUpdate="${this.onSessionPanelUpdate}">
-            //             </clinical-analysis-portal>
-            //         </div>
-            //     `;
-            //     break;
             case "rga":
                 content = html`
                     <div class="content">
@@ -1025,7 +1009,8 @@ class IvaApp extends LitElement {
                             .query="${this.queries[this.tool]}"
                             .settings="${this.settings.DISEASE_PANEL_BROWSER}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "disease-panel")}"
-                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}">
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}"
+                            @diseasePanelCreate="${e => this.onDiseasePanelCreate(e)}">
                         </disease-panel-browser>
                     </div>
                 `;
