@@ -25,6 +25,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import ModalUtils from "../commons/modal/modal-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
+import "./directory-preview.js";
 import "./file-folder-create.js";
 import "./file-create.js";
 import "./file-upload.js";
@@ -75,6 +76,7 @@ export default class OpencgaFileGrid extends LitElement {
         this.activeActionModal = "";
         this.lastFilters = null;
         this._selectedFile = null;
+        this._mode = "thumbnails";
         this._config = this.getDefaultConfig();
     }
 
@@ -147,11 +149,13 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     renderTable() {
-        // If this.files is provided as property we render the array directly
-        if (this.files?.length > 0) {
-            this.renderLocalTable();
-        } else {
-            this.renderRemoteTable();
+        if (this._mode === "list") {
+            // If this.files is provided as property we render the array directly
+            if (this.files?.length > 0) {
+                this.renderLocalTable();
+            } else {
+                this.renderRemoteTable();
+            }
         }
     }
 
@@ -601,6 +605,17 @@ export default class OpencgaFileGrid extends LitElement {
         LitUtils.dispatchCustomEvent(this, "pathCreate", newPath);
     }
 
+    onChangeMode(mode) {
+        this._mode = mode;
+        this.requestUpdate();
+        // force to re-render the table if the new mode is list
+        if (this._mode === "list") {
+            this.updateComplete.then(() => {
+                this.renderTable();
+            });
+        }
+    }
+
     renderToolbarLeftContent() {
         const pathFragments = this.getCurrentPath()
             .split("/")
@@ -634,6 +649,28 @@ export default class OpencgaFileGrid extends LitElement {
         const hasJobExecutionPermission = this.hasPermission("JOB", "EXECUTE");
 
         return [
+            {
+                render: () => {
+                    const modes = [
+                        {id: "list", icon: "fa fa-th-list"},
+                        {id: "thumbnails", icon: "fa fa-th"},
+                    ];
+                    return html`
+                        <div class="btn-group">
+                            ${modes.map(mode => html`
+                                <button class="btn btn-light ${this._mode === mode.id ? "active" : ""}" @click="${() => this.onChangeMode(mode.id)}">
+                                    <i class="${mode.icon}"></i>
+                                </button>
+                            `)}
+                        </div>
+                    `;
+                },
+            },
+            {
+                render: () => {
+                    return html`<div class="w-px bg-gray-200 mx-1"></div>`;
+                },
+            },
             {
                 icon: "fa-folder-plus",
                 title: "Create Folder",
@@ -806,9 +843,20 @@ export default class OpencgaFileGrid extends LitElement {
                 </div>
             ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
-                <table id="${this.gridId}"></table>
-            </div>
+            ${this._mode === "list" ? html`
+                <div id="${this._prefix}GridTableDiv" class="force-overflow">
+                    <table id="${this.gridId}"></table>
+                </div>
+            ` : nothing}
+
+            ${this._mode === "thumbnails" ? html`
+                <directory-preview
+                    .query="${this.query}"
+                    .active="${true}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @fileClick="${event => this.onSelectFile(event)}">
+                </directory-preview>
+            ` : nothing}
 
             ${this.renderActionModal()}
         `;
