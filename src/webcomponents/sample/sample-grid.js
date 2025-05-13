@@ -146,6 +146,7 @@ export default class SampleGrid extends LitElement {
                         }}"
                         @sampleCreate="${() => {
                             this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
                         }}">
                     </sample-create>
                 `,
@@ -168,6 +169,7 @@ export default class SampleGrid extends LitElement {
                         }}"
                         @sampleUpdate="${() => {
                             this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
                         }}">
                     </sample-update>
                 `,
