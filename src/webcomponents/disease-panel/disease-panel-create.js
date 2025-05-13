@@ -189,21 +189,24 @@ export default class DiseasePanelCreate extends LitElement {
     }
 
     onSubmit(e) {
-        e.stopPropagation();
         this.opencgaSession.opencgaClient.panels()
-            .create(this.diseasePanel, {study: this.opencgaSession.study.fqn, includeResult: true})
-            .then(res => {
+            .create(this.diseasePanel, {
+                study: this.opencgaSession.study.fqn,
+                includeResult: true,
+            })
+            .then(response => {
                 this.diseasePanel = {};
                 this.requestUpdate();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "New Disease Panel",
                     message: "New Disease Panel created correctly"
                 });
-                LitUtils.dispatchCustomEvent(this, "sessionPanelUpdate", res.responses[0].results[0], {action: "CREATE"});
+                // LitUtils.dispatchCustomEvent(this, "sessionPanelUpdate", res.responses[0].results[0], {action: "CREATE"});
+                LitUtils.dispatchCustomEvent(this, "diseasePanelCreate", response.responses[0].results[0]);
                 this.requestUpdate();
             })
-            .catch(err => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+            .catch(error => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             });
     }
 
