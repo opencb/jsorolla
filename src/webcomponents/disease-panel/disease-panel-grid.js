@@ -450,7 +450,7 @@ export default class DiseasePanelGrid extends LitElement {
             ok: () => {
                 const copy = JSON.parse(JSON.stringify(diseasePanel));
                 copy.id = diseasePanel.id + "-Copy";
-                copy.name = "Copy of " + row.name;
+                copy.name = "Copy of " + diseasePanel.name;
                 // Delete managed fields
                 delete copy.uuid;
                 delete copy.creationDate; // FIXME remove this line
@@ -463,11 +463,10 @@ export default class DiseasePanelGrid extends LitElement {
                     .create(copy, {
                         study: this.opencgaSession.study.fqn,
                     })
-                    .then(response => {
+                    .then(() => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             message: `Disease panel '${diseasePanel.id}' has been copied.`,
                         });
-                        // LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                         this.table.bootstrapTable("refresh");
                     }).catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
@@ -488,12 +487,11 @@ export default class DiseasePanelGrid extends LitElement {
                     .delete(diseasePanel.id, {
                         study: this.opencgaSession.study.fqn,
                     })
-                    .then(response => {
+                    .then(() => {
                         // Display confirmation message and update the table
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             message: `Disease panel '${diseasePanel.id}' has been deleted.`,
                         });
-                        // LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
                         this.table.bootstrapTable("refresh");
                     }).catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
