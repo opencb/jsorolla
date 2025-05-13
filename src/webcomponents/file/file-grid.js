@@ -652,7 +652,7 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 render: () => {
                     const modes = [
-                        {id: "list", icon: "fa fa-th-list"},
+                        {id: "list", icon: "fa fa-list"},
                         {id: "thumbnails", icon: "fa fa-th"},
                     ];
                     return html`
