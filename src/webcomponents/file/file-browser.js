@@ -97,16 +97,11 @@ export default class FileBrowser extends LitElement {
     }
 
     onTreePathChange(event, params) {
-        const query = {
-            ...params.executedQuery,
-        };
+        // note: clicking on a folder in the tree will clear the current query
+        const query = {};
 
-        // check if the path is empty --> in that case we have clicked in the root folder
-        // so we should remove the path from the query
-        if (!event.detail.value) {
-            delete query.path;
-            delete query.directory;
-        } else {
+        // only include the directory field if the event.detail.value is not empty
+        if (event.detail.value) {
             query.path = "~^" + event.detail.value + ".+";
         }
 
