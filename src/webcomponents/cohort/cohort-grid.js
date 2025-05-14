@@ -309,7 +309,7 @@ export default class CohortGrid extends LitElement {
             },
             {
                 id: "creationDate",
-                title: "Modification/Creation Date",
+                title: "Modification / Creation Date",
                 field: "creationDate",
                 formatter: (value, row) => CatalogGridFormatter.modifiedAndCreateDateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("creationDate")
