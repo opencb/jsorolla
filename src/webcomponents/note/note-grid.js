@@ -371,18 +371,19 @@ export default class NoteGrid extends LitElement {
                 formatter: (value, row) => CatalogGridFormatter.modifiedAndCreateDateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("dates")
             },
-        ];
-
-        if (this.opencgaSession && this._config.showActions) {
-            this._columns.push({
+            {
                 id: "actions",
                 align: "right",
                 formatter: (value, row) => this.actionsFormatter(row),
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
-            });
-        }
+                visible: this._config.showActions,
+                excludeFromSettings: true,
+                excludeFromExport: true,
+            },
+        ];
+
         this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
     }
