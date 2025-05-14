@@ -462,11 +462,13 @@ export default class DiseasePanelGrid extends LitElement {
                 this.opencgaSession.opencgaClient.panels()
                     .create(copy, {
                         study: this.opencgaSession.study.fqn,
+                        includeResult: true,
                     })
-                    .then(() => {
+                    .then(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             message: `Disease panel '${diseasePanel.id}' has been copied.`,
                         });
+                        LitUtils.dispatchCustomEvent(this, "diseasePanelCreate", response.responses[0].results[0]);
                         this.table.bootstrapTable("refresh");
                     }).catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
