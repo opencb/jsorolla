@@ -321,7 +321,9 @@ export default class CohortGrid extends LitElement {
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
-                visible: this._config.showActions && this.gridCommons.isColumnVisible("actions"),
+                visible: this._config.showActions,
+                excludeFromExport: true,
+                excludeFromSettings: true,
             },
         ];
 
