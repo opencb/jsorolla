@@ -255,7 +255,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             });
 
             // Add 'file' filter if 'fileData' exists
-            if (this.files) {
+            if (this.files?.length > 1) {
                 const fileNames = this.files.map(f => f.name).join(",");
                 for (const filter of _activeFilterFilters) {
                     if (filter.query?.fileData && !filter.query?.file) {

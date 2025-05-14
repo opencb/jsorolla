@@ -439,11 +439,14 @@ export class OpenCGAClient {
                                                     // Fetch all the cohort
                                                     console.log("Fetching cohorts");
                                                     const cohortsResponse = await _this.cohorts()
-                                                        .search({study: study.fqn, exclude: "samples", limit: 100});
+                                                        .search({
+                                                            study: study.fqn,
+                                                            internalStatus: "READY,CALCULATING,INVALID",
+                                                            exclude: "samples",
+                                                            limit: 100,
+                                                        });
                                                     study.cohorts = cohortsResponse.responses[0].results
                                                         .filter(cohort => !cohort.attributes?.IVA?.ignore);
-                                                    // FIXME line above should check cohort.internal instead
-                                                    // .filter(cohort => cohort.internal.index?.status === "READY");
 
                                                     // Keep track of the studies to fetch Disease Panels
                                                     studies.push(study.fqn);
