@@ -76,7 +76,7 @@ export default class OpencgaFileGrid extends LitElement {
         this.activeActionModal = "";
         this.lastFilters = null;
         this._selectedFile = null;
-        this._mode = "thumbnails";
+        this._mode = "list";
         this._config = this.getDefaultConfig();
     }
 
@@ -230,14 +230,8 @@ export default class OpencgaFileGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                // onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onDblClickRow: row => {
-                    if (row.type === "DIRECTORY") {
-                        this.onPathChange(row.path);
-                    } else {
-                        this._selectedFile = row;
-                        this.changeActiveActionModal("view");
-                    }
+                    this.onClickFile(row);
                 },
                 onCheck: row => {
                     this.gridCommons.onCheck(row.id, row);
@@ -616,6 +610,17 @@ export default class OpencgaFileGrid extends LitElement {
         }
     }
 
+    onClickFile(file) {
+        if (file) {
+            if (file.type === "DIRECTORY") {
+                this.onPathChange(file.path);
+            } else {
+                this._selectedFile = file;
+                this.changeActiveActionModal("view");
+            }
+        }
+    }
+
     renderToolbarLeftContent() {
         const pathFragments = this.getCurrentPath()
             .split("/")
@@ -854,7 +859,7 @@ export default class OpencgaFileGrid extends LitElement {
                     .query="${this.query}"
                     .active="${true}"
                     .opencgaSession="${this.opencgaSession}"
-                    @fileClick="${event => this.onSelectFile(event)}">
+                    @fileClick="${event => this.onClickFile(event.detail)}">
                 </directory-preview>
             ` : nothing}
 
