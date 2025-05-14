@@ -100,12 +100,12 @@ export default class DirectoryPreview extends LitElement {
 
         if (this.query && this.opencgaSession && this.active) {
             this._loading = true;
-            
             this.opencgaSession.opencgaClient.files()
                 .search({
                     study: this.opencgaSession.study.fqn,
                     ...this.query,
-                    directory: this.query.path ? this.query.path.slice(2).slice(0, -2) : "",
+                    limit: 500,
+                    directory: this.query?.directory || "",
                 })
                 .then(response => {
                     this._directories = (response.responses?.[0]?.results || []).filter(item => {

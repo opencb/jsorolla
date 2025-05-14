@@ -193,13 +193,17 @@ export default class OpencgaFileGrid extends LitElement {
                     let filesResponse = null;
                     const filters = {
                         study: this.opencgaSession.study.fqn,
-                        // type: "FILE",
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         include: "id,name,path,type,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets,attributes.variantFileMetadata.header.version",
                         ...this.query
                     };
+
+                    // Fix strict mode when query is empty
+                    if (Object.keys(this.query || {}).length === 0) {
+                        filters.directory = "";
+                    }
                     // When searching by directory we must also show directories
                     // if (this.filters.directory) {
                     //     this.filters.type = "FILE,DIRECTORY";
