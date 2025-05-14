@@ -655,28 +655,6 @@ export default class OpencgaFileGrid extends LitElement {
 
         return [
             {
-                render: () => {
-                    const modes = [
-                        {id: "list", icon: "fa fa-list"},
-                        {id: "thumbnails", icon: "fa fa-th"},
-                    ];
-                    return html`
-                        <div class="btn-group">
-                            ${modes.map(mode => html`
-                                <button class="btn btn-light ${this._mode === mode.id ? "active" : ""}" @click="${() => this.onChangeMode(mode.id)}">
-                                    <i class="${mode.icon}"></i>
-                                </button>
-                            `)}
-                        </div>
-                    `;
-                },
-            },
-            {
-                render: () => {
-                    return html`<div class="w-px bg-gray-200 mx-1"></div>`;
-                },
-            },
-            {
                 icon: "fa-folder-plus",
                 title: "Create Folder",
                 disabled: !hasWritePermission,
@@ -699,6 +677,28 @@ export default class OpencgaFileGrid extends LitElement {
                 title: "Fetch File",
                 disabled: !hasWritePermission || !hasJobExecutionPermission,
                 onClick: () => this.changeActiveActionModal("fetch-file"),
+            },
+            {
+                render: () => {
+                    return html`<div class="w-px bg-gray-200 mx-1"></div>`;
+                },
+            },
+            {
+                render: () => {
+                    const modes = [
+                        {id: "list", icon: "fa fa-list"},
+                        {id: "thumbnails", icon: "fa fa-th"},
+                    ];
+                    return html`
+                        <div class="btn-group">
+                            ${modes.map(mode => html`
+                                <button class="btn btn-light ${this._mode === mode.id ? "active" : ""}" @click="${() => this.onChangeMode(mode.id)}">
+                                    <i class="${mode.icon}"></i>
+                                </button>
+                            `)}
+                        </div>
+                    `;
+                },
             },
         ];
     }
