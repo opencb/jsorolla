@@ -102,7 +102,8 @@ export default class FileBrowser extends LitElement {
 
         // only include the directory field if the event.detail.value is not empty
         if (event.detail.value) {
-            query.path = "~^" + event.detail.value + ".+";
+            query.directory = event.detail.value;
+            // query.path = "~^" + event.detail.value + ".+";
         }
 
         // execute the onQuerySearch method of OpencgaBrowser
@@ -149,7 +150,7 @@ export default class FileBrowser extends LitElement {
                                 <file-tree
                                     .opencgaSession="${params.opencgaSession}"
                                     .rootDirectoryId="${":"}"
-                                    .currentPath="${params.executedQuery?.directory || (params.executedQuery?.path || "").slice(2, -2)}"
+                                    .currentPath="${params.executedQuery?.directory}"
                                     .lastCreatedPath="${this._lastCreatedPath}"
                                     .config="${{
                                         rootDirectoryName: "DATA",
@@ -216,6 +217,7 @@ export default class FileBrowser extends LitElement {
                                 placeholder: "genomes/resources/files/...",
                                 description: "",
                                 quick: true,
+                                multiple: false,
                             },
                             {
                                 id: "format",
