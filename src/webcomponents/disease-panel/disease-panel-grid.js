@@ -494,6 +494,7 @@ export default class DiseasePanelGrid extends LitElement {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                             message: `Disease panel '${diseasePanel.id}' has been deleted.`,
                         });
+                        LitUtils.dispatchCustomEvent(this, "diseasePanelDelete", diseasePanel);
                         this.table.bootstrapTable("refresh");
                     }).catch(response => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
