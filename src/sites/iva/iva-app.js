@@ -854,6 +854,16 @@ class IvaApp extends LitElement {
         this.opencgaSession = {...this.opencgaSession};
     }
 
+    onDiseasePanelDelete(event) {
+        // remove the deleted disease panel from the study panels
+        if (this.opencgaSession?.study?.panels && event?.detail?.value?.id) {
+            this.opencgaSession.study.panels = this.opencgaSession.study.panels.filter(panel => {
+                return panel.id !== event.detail.value.id;
+            });
+        }
+        this.opencgaSession = {...this.opencgaSession};
+    }
+
     onStudyUpdateRequest() {
         // TODO: update only the current study instead of refreshing the whole session
         this._createOpenCGASession();
@@ -954,6 +964,7 @@ class IvaApp extends LitElement {
                             @querySearch="${e => this.onQueryFilterSearch(e, "disease-panel")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}"
                             @diseasePanelCreate="${e => this.onDiseasePanelCreate(e)}">
+                            @diseasePanelDelete="${e => this.onDiseasePanelDelete(e)}">
                         </disease-panel-browser>
                     </div>
                 `;
