@@ -84,6 +84,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             "workflow": "WORKFLOW",
             "input": "FILE",
             "output": "FILE",
+            "directory": "DIRECTORY",
         };
 
         // Select the right distinct field to be displayed
@@ -124,6 +125,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             case "jobId":
             case "workflow":
             case "output":
+            case "directory":
                 content = html`
                     <catalog-search-autocomplete
                         .value="${preparedQuery[subsection.id]}"
@@ -131,17 +133,6 @@ export default class OpencgaBrowserFilter extends LitElement {
                         .opencgaSession="${opencgaSession}"
                         .config="${subsection}"
                         @filterChange="${e => onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-search-autocomplete>
-                `;
-                break;
-            case "directory": // Temporal Solution
-                content = html`
-                    <catalog-search-autocomplete
-                        .value="${preparedQuery[subsection.id]}"
-                        resource="DIRECTORY"
-                        .opencgaSession="${opencgaSession}"
-                        .config="${subsection}"
-                        @filterChange="${e => onFilterChange("path", "~^" + e.detail.value + ".+")}">
                     </catalog-search-autocomplete>
                 `;
                 break;
