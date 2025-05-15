@@ -150,16 +150,16 @@ export default class SampleVariantStatsBrowser extends LitElement {
     onFilterSearch(e) {
         this.preparedQuery = {...e.detail.query};
         this.executedQuery = {...e.detail.query};
-        this.renderVariantStats();
+        this.fetchVariantStats();
     }
 
     onFilterClear() {
         this.preparedQuery = {};
         this.executedQuery = {};
-        this.renderVariantStats();
+        this.fetchVariantStats();
     }
 
-    renderVariantStats() {
+    fetchVariantStats() {
         this.searchActive = false;
         this.requestUpdate();
 
@@ -230,6 +230,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 // Josemi NOTE: this is a terrible and temporal fix to force closing the Save Menu
                 // when user clicks the 'Save' button in the Save menu.
                 this.querySelector(`div#${this._prefix}Save div.dropdown-menu`)?.classList?.toggle?.("show");
+                this.requestUpdate();
             })
             .catch(response => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
