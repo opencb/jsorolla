@@ -462,7 +462,7 @@ export default class WorkflowGrid extends LitElement {
     actionsFormatter() {
         const hasWritePermission = this.gridCommons.hasPermission("WRITE");
         const hasDeletePermission = this.gridCommons.hasPermission("DELETE");
-        const hasExecutePermission = this.gridCommons.hasPermission("EXECUTE");
+        const hasExecutePermission = this.gridCommons.hasPermission("EXECUTE", "JOB");
         return `
             <div class="d-flex justify-content-end align-items-center">
                 <div class="dropdown d-flex justify-content-end">
