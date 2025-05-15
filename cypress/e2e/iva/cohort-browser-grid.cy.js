@@ -45,7 +45,7 @@ context("Cohort Browser Grid", () => {
 
         it("should display the 'Settings' button", () => {
             cy.get("@toolbar")
-                .contains("button", "Settings")
+                .find(`button[data-cy="toolbar-btn-settings"]`)
                 .should("be.visible");
         });
     });

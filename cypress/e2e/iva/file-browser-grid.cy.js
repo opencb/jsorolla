@@ -63,7 +63,7 @@ context("File Browser Grid", () => {
 
         it("should display a 'Settings' button", () => {
             cy.get("@toolbar")
-                .contains("button", "Settings")
+                .find(`button[data-cy="toolbar-btn-settings"]`)
                 .should("be.visible");
         });
     });
@@ -71,7 +71,7 @@ context("File Browser Grid", () => {
     context("settings", () => {
         it("should display the settings modal when clicking on the 'Settings' button", () => {
             cy.get("@file-grid")
-                .contains("button", "Settings")
+                .find(`button[data-cy="toolbar-btn-settings"]`)
                 .click();
             cy.get("div.modal-dialog")
                 .should("be.visible");
@@ -89,7 +89,7 @@ context("File Browser Grid", () => {
                     .should("be.visible");
             });
             cy.get("@file-grid")
-                .contains("button", "Settings")
+                .find(`button[data-cy="toolbar-btn-settings"]`)
                 .click();
             cy.get("@file-grid")
                 .find(`div[data-testid="test-columns"] select-field-filter`)

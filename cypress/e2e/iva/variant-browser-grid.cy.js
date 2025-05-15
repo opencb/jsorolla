@@ -22,9 +22,15 @@ context("Variant Browser Grid", () => {
                 .should("be.visible");
         });
 
+        it("should display the 'Export' button", () => {
+            cy.get("@toolbar")
+                .find(`button[data-cy="toolbar-btn-export"]`)
+                .should("be.visible");
+        });
+
         it("should display the 'Settings' button", () => {
             cy.get("@toolbar")
-                .contains("button", "Settings")
+                .find(`button[data-cy="toolbar-btn-settings"]`)
                 .should("be.visible");
         });
     });

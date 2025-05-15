@@ -45,13 +45,13 @@ context("Job Browser Grid", () => {
 
         it("should display a 'Export' button", () => {
             cy.get("@toolbar")
-                .contains("button", "Export")
+                .find(`button[data-cy="toolbar-btn-export"]`)
                 .should("be.visible");
         });
 
         it("should display a 'Settings' button", () => {
             cy.get("@toolbar")
-                .contains("button", "Settings")
+                .find(`button[data-cy="toolbar-btn-settings"]`)
                 .should("be.visible");
         });
     });
@@ -59,7 +59,7 @@ context("Job Browser Grid", () => {
     context("setting", () => {
         it("should display the settings modal when clicking on the 'Settings' button", () => {
             cy.get("@job-grid")
-                .contains("button", "Settings")
+                .find(`button[data-cy="toolbar-btn-settings"]`)
                 .click();
             cy.get("div.modal-dialog")
                 .should("be.visible");
@@ -77,7 +77,7 @@ context("Job Browser Grid", () => {
                     .should("be.visible");
             });
             cy.get("@job-grid")
-                .contains("button", "Settings")
+                .find(`button[data-cy="toolbar-btn-settings"]`)
                 .click();
             cy.get("@job-grid")
                 .find(`div[data-testid="test-columns"] select-field-filter`)
