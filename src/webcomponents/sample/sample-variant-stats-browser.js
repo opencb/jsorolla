@@ -63,7 +63,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.active = true;
 
-        this.save = {};
         this.searchActive = true;
         this.preparedQuery = {};
         this.executedQuery = {};
@@ -182,17 +181,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 this.searchActive = true;
                 this.requestUpdate();
             });
-    }
-
-    onSaveFieldChange(e) {
-        switch (e.detail.param) {
-            case "id":
-                this.save.id = e.detail.value;
-                break;
-            case "description":
-                this.save.description = e.detail.value;
-                break;
-        }
     }
 
     onSave() {
@@ -355,59 +343,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 </div>
             </div>
         `;
-    }
-
-    getSaveConfig() {
-        return {
-            title: "",
-            icon: "fas fa-save",
-            mode: "modal",
-            type: "form",
-            buttons: {
-                show: false,
-                cancelText: "Cancel",
-                okText: "Save"
-            },
-            display: {
-                style: "margin: 0px 25px 0px 0px",
-                modalTitle: "Save Variant Stats",
-                modalButtonIcon: "fas fa-save",
-                modalButtonClassName: "btn btn-primary",
-                modalDisabled: !OpencgaCatalogUtils.getStudyEffectivePermission(
-                    this.opencgaSession.study,
-                    this.opencgaSession.user.id,
-                    "WRITE_CLINICAL_ANALYSIS",
-                    this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions),
-                labelWidth: 3,
-                labelAlign: "right",
-                defaultValue: "",
-                defaultLayout: "horizontal",
-                modalSize: "modal-lg"
-            },
-            sections: [
-                {
-                    elements: [
-                        {
-                            name: "Filter ID",
-                            field: "id",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a filter ID"
-                            }
-                        },
-                        {
-                            name: "Description",
-                            field: "description",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a filter description",
-                                rows: 2
-                            }
-                        }
-                    ]
-                }
-            ]
-        };
     }
 
     getDefaultConfig() {
