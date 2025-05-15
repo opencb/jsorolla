@@ -540,6 +540,9 @@ export default class WorkflowGrid extends LitElement {
                         jobId: `workflow-delete-${UtilsNew.getDatetime()}`,
                     })
                     .then(() => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: `Workflow '${workflow.id}' has been deleted.`,
+                        });
                         this.table.bootstrapTable("refresh");
                     })
                     .catch(error => {
