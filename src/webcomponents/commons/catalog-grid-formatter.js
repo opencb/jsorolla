@@ -184,7 +184,7 @@ export default class CatalogGridFormatter {
     static modifiedAndCreateDateFormatter(value, row) {
         if (row) {
             return `
-                <div class="" title="Version ${row.version}">
+                <div class="" title="${row.version ? `Version ${row.version}` : ""}">
                     <span class="my-1">${UtilsNew.dateFormatter(row.modificationDate)}</span>
                     <span class="d-block text-secondary my-1">${UtilsNew.dateFormatter(row.creationDate)}</span>
                 </div>
