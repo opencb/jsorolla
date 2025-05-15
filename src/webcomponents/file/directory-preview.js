@@ -100,13 +100,20 @@ export default class DirectoryPreview extends LitElement {
 
         if (this.query && this.opencgaSession && this.active) {
             this._loading = true;
+            const filters = {
+                study: this.opencgaSession.study.fqn,
+                ...this.query,
+                limit: 500,
+            };
+
+            // check for including directory in the query
+            // this is a workaround to request the content of the root directory in strict mode
+            if (Object.keys(this.query).length === 0) {
+                filters.directory = "";
+            }
+
             this.opencgaSession.opencgaClient.files()
-                .search({
-                    study: this.opencgaSession.study.fqn,
-                    ...this.query,
-                    limit: 500,
-                    directory: this.query?.directory || "",
-                })
+                .search(filters)
                 .then(response => {
                     this._directories = (response.responses?.[0]?.results || []).filter(item => {
                         return item.type.toUpperCase() === "DIRECTORY";

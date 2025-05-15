@@ -200,14 +200,10 @@ export default class OpencgaFileGrid extends LitElement {
                         ...this.query
                     };
 
-                    // Fix strict mode when query is empty
+                    // fix strict mode when query is empty
                     if (Object.keys(this.query || {}).length === 0) {
                         filters.directory = "";
                     }
-                    // When searching by directory we must also show directories
-                    // if (this.filters.directory) {
-                    //     this.filters.type = "FILE,DIRECTORY";
-                    // }
 
                     // Store the current filters
                     this.lastFilters = filters;
