@@ -336,7 +336,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                         </div>
                         ` : html`
                             <div class="alert alert-info" role="alert">
-                                <i class="fas fa-info-circle"></i> Please select some filters to see variant stats.
+                                <i class="fas fa-info-circle pe-1"></i> Please select some filters to see variant stats.
                             </div>
                         `}
                     `}
