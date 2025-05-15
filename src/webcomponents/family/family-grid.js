@@ -500,7 +500,7 @@ export default class FamilyGrid extends LitElement {
                     <hr class="dropdown-divider">
                     <div class="dropdown-header">Analysis</div>
                     <a data-action="family-qc-analysis" class="dropdown-item ${hasJobExecutionPermission ? "cursor-pointer" : "disabled"}">
-                        <i class="fas fa-edit me-1"></i> Quality Control
+                        <i class="fas fa-rocket me-1"></i> Quality Control
                     </a>
                     <hr class="dropdown-divider">
                     <div class="dropdown-header">Clinical Interpreter</div>

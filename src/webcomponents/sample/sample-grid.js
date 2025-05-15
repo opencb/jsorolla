@@ -624,10 +624,10 @@ export default class SampleGrid extends LitElement {
                             <i class="fas fa-user-md me-1"></i> Variant Stats
                     </a>
                     <a data-action="sample-qc-analysis" class="dropdown-item ${hasJobExecutionPermission ? "cursor-pointer" : "disabled"}">
-                        <i class="fas fa-edit me-1"></i> Quality Control
+                        <i class="fas fa-rocket me-1"></i> Quality Control
                     </a>
                     <a data-action="knockout-analysis" class="dropdown-item ${hasJobExecutionPermission ? "cursor-pointer" : "disabled"}">
-                        <i class="fas fa-edit me-1"></i> Knockout Analysis
+                        <i class="fas fa-rocket me-1"></i> Knockout Analysis
                     </a>
                     <hr class="dropdown-divider">
                     <div class="dropdown-header">Clinical Interpreter</div>
