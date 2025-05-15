@@ -963,7 +963,7 @@ class IvaApp extends LitElement {
                             .settings="${this.settings.DISEASE_PANEL_BROWSER}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "disease-panel")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}"
-                            @diseasePanelCreate="${e => this.onDiseasePanelCreate(e)}">
+                            @diseasePanelCreate="${e => this.onDiseasePanelCreate(e)}"
                             @diseasePanelDelete="${e => this.onDiseasePanelDelete(e)}">
                         </disease-panel-browser>
                     </div>
