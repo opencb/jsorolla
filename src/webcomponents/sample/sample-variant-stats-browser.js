@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../variant/variant-browser-filter.js";
 import "../loading-spinner.js";
+import "./sample-variant-stats-view.js";
 
 export default class SampleVariantStatsBrowser extends LitElement {
 
@@ -141,23 +141,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
         }
     }
 
-    onFilterChange(e) {
-        this.preparedQuery = e.detail.query;
-        this.requestUpdate();
-    }
-
-    onFilterSearch(e) {
-        this.preparedQuery = {...e.detail.query};
-        this.executedQuery = {...e.detail.query};
-        this.fetchVariantStats();
-    }
-
-    onFilterClear() {
-        this.preparedQuery = {};
-        this.executedQuery = {};
-        this.fetchVariantStats();
-    }
-
     fetchVariantStats() {
         this.searchActive = false;
         this.requestUpdate();
@@ -181,6 +164,23 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 this.searchActive = true;
                 this.requestUpdate();
             });
+    }
+
+    onFilterChange(e) {
+        this.preparedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    onFilterSearch(e) {
+        this.preparedQuery = {...e.detail.query};
+        this.executedQuery = {...e.detail.query};
+        this.fetchVariantStats();
+    }
+
+    onFilterClear() {
+        this.preparedQuery = {};
+        this.executedQuery = {};
+        this.fetchVariantStats();
     }
 
     onSave() {
@@ -226,7 +226,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
             });
     }
 
-    selectVariantStats(id) {
+    onChangeVariantStats(id) {
         const qcVariantStats = this.sample.qualityControl[this._variantStatsPath].variantStats.find(qcVariantStats => qcVariantStats.id === id);
 
         if (qcVariantStats) {
@@ -247,7 +247,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
             return this.sample.qualityControl[this._variantStatsPath].variantStats.map(qcVariantStat => {
                 const active = this.sampleQcVariantStats?.id === qcVariantStat.id;
                 return html`
-                    <a class="d-block dropdown-item ${active ? "active" : "cursor-pointer"}" @click="${() => this.selectVariantStats(qcVariantStat.id)}">
+                    <a class="d-block dropdown-item ${active ? "active" : "cursor-pointer"}" @click="${() => this.onChangeVariantStats(qcVariantStat.id)}">
                         <div class="fw-bold">${qcVariantStat.id}</div>
                     </a>
                 `;
