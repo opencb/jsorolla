@@ -195,9 +195,6 @@ export default class FileBrowser extends LitElement {
                 }
             ],
             filter: {
-                activeFilters: {
-                    lockedFields: [{id: "path"}]
-                },
                 sections: [
                     {
                         title: "Section title",
