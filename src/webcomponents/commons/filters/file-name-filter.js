@@ -2,7 +2,7 @@ import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import "../forms/select-token-filter.js";
 
-export default class FilenameFilter extends LitElement {
+export default class FileNameFilter extends LitElement {
 
     constructor() {
         super();
@@ -78,4 +78,4 @@ export default class FilenameFilter extends LitElement {
 
 }
 
-customElements.define("filename-filter", FilenameFilter);
+customElements.define("file-name-filter", FileNameFilter);
