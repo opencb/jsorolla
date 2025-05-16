@@ -47,7 +47,7 @@ export default class FilenameFilter extends LitElement {
     render() {
         return html`
             <div class="mb-3">
-                <div class="form-label">Filter by specific files:</div>
+                <div class="form-label mb-1">Filter by specific files:</div>
                 <catalog-search-autocomplete
                     .value="${this.query?.name}"
                     .resource="${"FILE"}"
@@ -59,7 +59,7 @@ export default class FilenameFilter extends LitElement {
                 </catalog-search-autocomplete>
             </div>
             <div class="">
-                <div class="form-label">Or filter by files that contains the following pattern (regexp) in the name:</div>
+                <div class="form-label mb-1">Or filter by files that contains the following pattern (regexp) in the name:</div>
                 <input
                     type="text"
                     .value="${(this.query?.path || "").slice(1)}"
