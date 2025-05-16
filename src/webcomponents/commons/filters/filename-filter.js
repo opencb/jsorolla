@@ -28,15 +28,11 @@ export default class FilenameFilter extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    update(changedProperties) {
-        super.update(changedProperties);
-    }
-
     onNameFilterChange(event) {
         event.stopPropagation(); // prevent the event from bubbling up to the parent component
         event.stopImmediatePropagation(); // prevent other listeners of the same event from being called
         LitUtils.dispatchCustomEvent(this, "filterChange", null, {
-            field: field,
+            field: "name",
             value: event.detail.value,
         });
     }
@@ -50,22 +46,26 @@ export default class FilenameFilter extends LitElement {
 
     render() {
         return html`
-            <div class="mb-2">
+            <div class="mb-3">
                 <div class="form-label">Filter by specific files:</div>
                 <catalog-search-autocomplete
-                    .value="${this.query?.["name"]}"
+                    .value="${this.query?.name}"
                     .resource="${"FILE"}"
                     .opencgaSession="${this.opencgaSession}"
-                    .config="${{}}"
+                    .config="${{
+                        disabled: !!this.query?.path,
+                    }}"
                     @filterChange="${event => this.onNameFilterChange(event)}">
                 </catalog-search-autocomplete>
             </div>
             <div class="">
-                <div class="form-label">Or filter by files that contains your pattern in the name:</div>
+                <div class="form-label">Or filter by files that contains the following pattern (regexp) in the name:</div>
                 <input
                     type="text"
+                    .value="${(this.query?.path || "").slice(1)}"
                     class="form-control w-full"
-                    placeholder=""
+                    ?disabled="${!!this.query?.name}"
+                    placeholder=".*\\.vcf$"
                     @input="${event => this.onPathFilterChange(event)}"
                 />
             </div>
