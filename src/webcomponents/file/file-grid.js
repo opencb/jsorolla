@@ -314,7 +314,7 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     getCurrentPath() {
-        return this.query?.directory || (this.query?.path || "").slice(2, -2);
+        return this.query?.directory || "";
     }
 
     _getDefaultColumns() {
