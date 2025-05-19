@@ -104,7 +104,6 @@ export default class FileBrowser extends LitElement {
         // only include the directory field if the event.detail.value is not empty
         if (event.detail.value) {
             query.directory = event.detail.value;
-            // query.path = "~^" + event.detail.value + ".+";
         }
 
         // execute the onQuerySearch method of OpencgaBrowser
