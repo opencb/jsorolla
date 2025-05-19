@@ -100,6 +100,7 @@ export default class DirectoryPreview extends LitElement {
 
         if (this.query && this.opencgaSession && this.active) {
             this._loading = true;
+            let filesResponse = null;
             const filters = {
                 study: this.opencgaSession.study.fqn,
                 ...this.query,
@@ -115,6 +116,7 @@ export default class DirectoryPreview extends LitElement {
             this.opencgaSession.opencgaClient.files()
                 .search(filters)
                 .then(response => {
+                    filesResponse = response;
                     this._directories = (response.responses?.[0]?.results || []).filter(item => {
                         return item.type.toUpperCase() === "DIRECTORY";
                     })
@@ -127,6 +129,9 @@ export default class DirectoryPreview extends LitElement {
                     console.error(error);
                 })
                 .finally(() => {
+                    LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                        response: filesResponse,
+                    });
                     this._loading = false;
                     this.requestUpdate();
                 });
