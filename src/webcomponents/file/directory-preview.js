@@ -38,6 +38,7 @@ export default class DirectoryPreview extends LitElement {
     }
 
     #init() {
+        this._totalResults = 0;
         this._directories = [];
         this._files = [];
         this._loading = false;
@@ -95,6 +96,7 @@ export default class DirectoryPreview extends LitElement {
     }
 
     queryObserver() {
+        this._totalResults = 0;
         this._directories = [];
         this._files = [];
 
@@ -104,7 +106,8 @@ export default class DirectoryPreview extends LitElement {
             const filters = {
                 study: this.opencgaSession.study.fqn,
                 ...this.query,
-                limit: 500,
+                limit: this._config?.maxResults,
+                count: true,
             };
 
             // check for including directory in the query
@@ -119,10 +122,11 @@ export default class DirectoryPreview extends LitElement {
                     filesResponse = response;
                     this._directories = (response.responses?.[0]?.results || []).filter(item => {
                         return item.type.toUpperCase() === "DIRECTORY";
-                    })
+                    });
                     this._files = (response.responses?.[0]?.results || []).filter(item => {
                         return item.type.toUpperCase() === "FILE";
-                    })
+                    });
+                    this._totalResults = response.responses?.[0]?.numTotalResults || 0;
                     this.fetchImagesFiles();
                 })
                 .catch(error => {
@@ -222,6 +226,13 @@ export default class DirectoryPreview extends LitElement {
         }
 
         return html`
+            ${this.query && this._totalResults > this._config?.maxResults ? html`
+                <div class="alert alert-warning mb-3">
+                    <i class="fas fa-exclamation-triangle pe-2"></i>
+                    <span>Displaying ${this._config.maxResults} out of ${this._totalResults} total results. </span>
+                    <span>Use more specific filters to narrow down results.</span>
+                </div>
+            ` : nothing}
             <div class="d-flex flex-column">
                 ${this._directories.length > 0 ? html`
                     <div class="fs-5 fw-bold mb-2">Folders</div>
@@ -240,7 +251,9 @@ export default class DirectoryPreview extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            maxResults: 500,
+        };
     }
 
 }
