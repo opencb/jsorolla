@@ -19,7 +19,7 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "../commons/aggregation-stats.js";
-import "../commons/filters/file-name-filter.js";
+import "../commons/filters/file-filter.js";
 import "./file-grid.js";
 import "./file-tree.js";
 
@@ -207,11 +207,11 @@ export default class FileBrowser extends LitElement {
                                 description: "",
                                 render: (onFilterChange, query, opencgaSession) => {
                                     return html`
-                                        <file-name-filter
+                                        <file-filter
                                             .opencgaSession="${opencgaSession}"
                                             .query="${query}"
                                             @filterChange="${event => onFilterChange(event.detail.field, event.detail.value)}">
-                                        </file-name-filter>
+                                        </file-filter>
                                     `;
                                 },
                                 quick: true,
