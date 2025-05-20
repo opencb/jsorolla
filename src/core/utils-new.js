@@ -1119,4 +1119,44 @@ export default class UtilsNew {
         return binaryExtensions.has((file.name || file).split(".").pop());
     }
 
+    static getFileIcon(file) {
+        let format = file.format;
+
+        // fix the format based on the file name
+        if (format === "UNKNOWN" || format === "PLAIN") {
+            if (file.name.endsWith(".pdf")) {
+                format = "PDF";
+            }
+            else if (file.name.endsWith(".html") || file.name.endsWith(".htm")) {
+                format = "HTML";
+            }
+            else if (UtilsNew.isBinaryFile(file.name)) {
+                format = "BINARY";
+            }
+        }
+        
+        switch (file.format) {
+            case "IMAGE":
+                return "fa-file-image";
+            case "BAM":
+            case "BAI":
+            case "BINARY":
+                return "fa-file-archive";
+            case "JSON":
+                return "fa-file-code";
+            case "PDF":
+                return "fa-file-pdf";
+            case "HTML":
+                return "fa-html5";
+            case "VCF":
+            case "PLAIN":
+                return "fa-file-alt";
+            case "TAB_SEPARATED_VALUES":
+            case "COMMA_SEPARATED_VALUES":
+                return "fa-file-excel";
+            default:
+                return "fa-file";
+        }
+    }
+
 }
