@@ -194,7 +194,7 @@ export default class DirectoryPreview extends LitElement {
                                     }}">
                                 </image-viewer>
                             ` : html`
-                                <i class="fas fa-file-alt fs-1 text-gray-500"></i>
+                                <i class="fas ${UtilsNew.getFileIcon(file)} display-3 text-gray-500"></i>
                             `}
                         </div>
                         <div class="mt-2">
