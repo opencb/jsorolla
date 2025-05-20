@@ -1133,6 +1133,10 @@ export default class UtilsNew {
             else if (UtilsNew.isBinaryFile(file.name)) {
                 format = "BINARY";
             }
+            // assign .log or .err files to TEXT files
+            else if (file.name.endsWith(".log") || file.name.endsWith(".err")) {
+                format = "TEXT";
+            }
         }
         
         switch (format) {
@@ -1150,6 +1154,7 @@ export default class UtilsNew {
                 return "fa-html5";
             case "VCF":
             case "PLAIN":
+            case "TEXT":
                 return "fa-file-alt";
             case "TAB_SEPARATED_VALUES":
             case "COMMA_SEPARATED_VALUES":
