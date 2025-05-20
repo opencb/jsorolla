@@ -1135,7 +1135,7 @@ export default class UtilsNew {
             }
         }
         
-        switch (file.format) {
+        switch (format) {
             case "IMAGE":
                 return "fa-file-image";
             case "BAM":
