@@ -194,6 +194,11 @@ export default class FileBrowser extends LitElement {
                 }
             ],
             filter: {
+                activeFilters: {
+                    alias: {
+                        path: "name",
+                    },
+                },
                 sections: [
                     {
                         title: "Section title",
