@@ -1113,4 +1113,10 @@ export default class UtilsNew {
         }
     }
 
+    // checks if the provided file is a binary file
+    static isBinaryFile(file) {
+        const binaryExtensions = new Set(["tbi", "bai", "zip", "bigWig", "pbi", "gz"]);
+        return binaryExtensions.has((file.name || file).split(".").pop());
+    }
+
 }
