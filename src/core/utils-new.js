@@ -1146,12 +1146,11 @@ export default class UtilsNew {
             case "BAI":
             case "BINARY":
                 return "fa-file-archive";
+            case "HTML":
             case "JSON":
                 return "fa-file-code";
             case "PDF":
                 return "fa-file-pdf";
-            case "HTML":
-                return "fa-html5";
             case "VCF":
             case "PLAIN":
             case "TEXT":
