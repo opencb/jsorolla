@@ -197,7 +197,12 @@ export default class DirectoryPreview extends LitElement {
                                 <i class="fas fa-file-alt fs-1 text-gray-500"></i>
                             `}
                         </div>
-                        <div class="mt-2">${file.name}</div>
+                        <div class="mt-2">
+                            <span>${file.name}</span>
+                            ${file.size ? html`
+                                <span class="text-secondary"> (${UtilsNew.getDiskUsage(file.size)})</span>
+                            ` : nothing}
+                        </div>
                     </div>
                 </div>
             `;
