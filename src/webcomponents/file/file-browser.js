@@ -274,6 +274,12 @@ export default class FileBrowser extends LitElement {
                                 quick: true,
                             },
                             {
+                                id: "tags",
+                                title: "Tags",
+                                multiple: true,
+                                quick: true,
+                            },
+                            {
                                 id: "date",
                                 title: "Date",
                                 type: "date",
