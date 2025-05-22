@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/forms/data-form.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
 import "../loading-spinner.js";
 
 export default class FileUpload extends LitElement {
@@ -97,7 +98,7 @@ export default class FileUpload extends LitElement {
             fileName: this._file.fileName || this._file.file.name, // get the name from the uploaded file
             relativeFilePath: this._file.relativeFilePath.substring(1) || this.path,
             description: this._file.description || "",
-            tags: this._file.tags ? this._file.tags.split(",") : [],
+            tags: this._file.tags ? this._file.tags.split(",").map(t => t.trim()) : [],
         };
 
         this.#setLoading(true);
@@ -186,10 +187,21 @@ export default class FileUpload extends LitElement {
                         {
                             title: "Tags",
                             field: "tags",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                helpMessage: "Comma separated list of tags to be associated with the file.",
-                                placeholder: "tag1,tag2",
+                                render: (tags, onFilterChange) => html`
+                                    <catalog-distinct-autocomplete
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .resource="${"FILE"}"
+                                        .value="${(tags || []).join(",")}"
+                                        .queryField="${"tags"}"
+                                        .distinctFields="${"tags"}"
+                                        .config="${{
+                                            freeTag: true,
+                                        }}"
+                                        @filterChange="${event => onFilterChange(event.detail.value)}">
+                                    </catalog-distinct-autocomplete>
+                                `,
                             },
                         },
                     ],
