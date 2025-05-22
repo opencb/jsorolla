@@ -147,7 +147,6 @@ export default class NoteBrowser extends LitElement {
                 },
             ],
             filter: {
-                searchButton: false,
                 sections: [
                     {
                         title: "Section title",
