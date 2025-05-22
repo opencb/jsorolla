@@ -31,6 +31,7 @@ import "./file-create.js";
 import "./file-upload.js";
 import "./file-fetch.js";
 import "./file-detail.js";
+import "./file-update.js";
 import "../variant/operation/variant-index-operation.js";
 
 export default class OpencgaFileGrid extends LitElement {
@@ -439,6 +440,7 @@ export default class OpencgaFileGrid extends LitElement {
                 field: "actions",
                 formatter: (value, row) => {
                     const hasDownloadPermission = this.hasPermission("FILE", "DOWNLOAD");
+                    const hasWritePermission = this.hasPermission("FILE", "WRITE");
                     const hasDeletePermission = this.hasPermission("FILE", "DELETE");
                     const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
                     const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
@@ -472,6 +474,9 @@ export default class OpencgaFileGrid extends LitElement {
                                         <i class="fas fa-rocket me-1"></i> Run Variant Index
                                     </a>
                                     <hr class="dropdown-divider">
+                                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit
+                                    </a>
                                     <a data-action="delete" class="dropdown-item ${hasDeletePermission ? "cursor-pointer" : "disabled"}">
                                         <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
                                     </a>
@@ -506,6 +511,10 @@ export default class OpencgaFileGrid extends LitElement {
             case "view":
                 this._selectedFile = file;
                 this.changeActiveActionModal("view");
+                break;
+            case "edit":
+                this._selectedFile = file;
+                this.changeActiveActionModal("update");
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(file, null, "\t"));
@@ -719,6 +728,30 @@ export default class OpencgaFileGrid extends LitElement {
                             .fileId="${this._selectedFile.id}"
                             .opencgaSession="${this.opencgaSession}">
                         </file-detail>
+                    `,
+                };
+                break;
+            case "update":
+                config = {
+                    display: {
+                        modalTitle: `Update File ${this._selectedFile?.name}`,
+                        modalCyDataName: `modal-file-update`,
+                        modalSize: "modal-lg",
+                    },
+                    render: () => html`
+                        <file-update
+                            .fileId="${this._selectedFile.id}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .active="${true}"
+                            .displayConfig="${{
+                                type: "form",
+                                buttonsLayout: "bottom",
+                            }}"
+                            @fileUpdate="${() => {
+                                this.changeActiveActionModal("");
+                                this.forceTableRefresh();
+                            }}">
+                        </file-update>
                     `,
                 };
                 break;
