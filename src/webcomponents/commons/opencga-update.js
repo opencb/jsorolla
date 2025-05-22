@@ -349,7 +349,7 @@ export default class OpencgaUpdate extends LitElement {
                     this.updateCustomisation = [
                         params => {
                             if (params.tags) {
-                                params.tags = params.tags?.split(",") || [];
+                                params.tags = params.tags?.split(",").map(t => t.trim()) || [];
                             }
                         },
                     ];
