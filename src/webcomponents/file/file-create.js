@@ -156,9 +156,7 @@ export default class FileCreate extends LitElement {
                             display: {
                                 defaultValue: `/${this.path}`,
                                 disabled: true,
-                                help: {
-                                    text: "Path where the file will be uploaded.",
-                                }
+                                helpMessage: "Path where the file will be uploaded.",
                             },
                         },
                         {
@@ -167,20 +165,16 @@ export default class FileCreate extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
-                                help: {
-                                    text: "Name of the file to be uploaded (including extension).",
-                                },
-                            }
+                                helpMessage: "Name of the file to be uploaded (including extension).",
+                            },
                         },
                         {
                             title: "Description",
                             field: "description",
                             type: "input-text",
                             display: {
-                                help: {
-                                    text: "Description of the file to be uploaded.",
-                                },
-                            }
+                                helpMessage: "Description of the file to be uploaded.",
+                            },
                         },
                         {
                             title: "Tags",
@@ -198,10 +192,8 @@ export default class FileCreate extends LitElement {
                             required: true,
                             display: {
                                 rows: 10,
-                                help: {
-                                    text: "Content of the file to be uploaded. Maximum size is 1MB.",
-                                },
-                            }
+                                helpMessage: "Content of the file to be uploaded. Maximum size is 1MB.",
+                            },
                         },
                     ],
                 },
