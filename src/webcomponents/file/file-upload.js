@@ -177,14 +177,6 @@ export default class FileUpload extends LitElement {
                             },
                         },
                         {
-                            title: "Description",
-                            field: "description",
-                            type: "input-text",
-                            display: {
-                                helpMessage: "Description of the file to be uploaded.",
-                            },
-                        },
-                        {
                             title: "Tags",
                             field: "tags",
                             type: "custom",
@@ -202,6 +194,14 @@ export default class FileUpload extends LitElement {
                                         @filterChange="${event => onFilterChange(event.detail.value)}">
                                     </catalog-distinct-autocomplete>
                                 `,
+                            },
+                        },
+                        {
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                helpMessage: "Description of the file to be uploaded.",
                             },
                         },
                     ],
