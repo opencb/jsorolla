@@ -1,5 +1,6 @@
 import {html, LitElement} from "lit";
 import "../commons/opencga-update.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
 
 export default class FileUpdate extends LitElement {
 
@@ -77,10 +78,21 @@ export default class FileUpdate extends LitElement {
                         {
                             title: "Tags",
                             field: "tags",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                placeholder: "tag1,tag2",
-                                helpMessage: "Comma separated list of tags",
+                                render: (tags, onFilterChange) => html`
+                                    <catalog-distinct-autocomplete
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .resource="${"FILE"}"
+                                        .value="${(tags || []).join(",")}"
+                                        .queryField="${"tags"}"
+                                        .distinctFields="${"tags"}"
+                                        .config="${{
+                                            freeTag: true,
+                                        }}"
+                                        @filterChange="${event => onFilterChange(event.detail.value)}">
+                                    </catalog-distinct-autocomplete>
+                                `,
                             },
                         },
                     ],
