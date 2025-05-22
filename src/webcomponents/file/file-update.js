@@ -67,15 +67,6 @@ export default class FileUpdate extends LitElement {
                 {
                     elements: [
                         {
-                            title: "Description",
-                            field: "description",
-                            type: "input-text",
-                            display: {
-                                rows: 2,
-                                placeholder: "Add a description...",
-                            },
-                        },
-                        {
                             title: "Tags",
                             field: "tags",
                             type: "custom",
@@ -93,6 +84,15 @@ export default class FileUpdate extends LitElement {
                                         @filterChange="${event => onFilterChange(event.detail.value)}">
                                     </catalog-distinct-autocomplete>
                                 `,
+                            },
+                        },
+                        {
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Add a description...",
                             },
                         },
                     ],
