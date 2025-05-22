@@ -18,6 +18,7 @@ import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/forms/data-form.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
 
 export default class FileCreate extends LitElement {
 
@@ -97,7 +98,7 @@ export default class FileCreate extends LitElement {
         const {name, ...otherFileData} = this._file;
         const data = {
             ...otherFileData,
-            tags: otherFileData.tags ? otherFileData.tags.split(",") : [],
+            tags: otherFileData.tags ? otherFileData.tags.split(",").map(t => t.trim()) : [],
             path: `${this.path || ""}${name}`,
         };
 
@@ -179,10 +180,21 @@ export default class FileCreate extends LitElement {
                         {
                             title: "Tags",
                             field: "tags",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                helpMessage: "Comma separated list of tags to be associated with the file.",
-                                placeholder: "tag1,tag2",
+                                render: (tags, onFilterChange) => html`
+                                    <catalog-distinct-autocomplete
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .resource="${"FILE"}"
+                                        .value="${(tags || []).join(",")}"
+                                        .queryField="${"tags"}"
+                                        .distinctFields="${"tags"}"
+                                        .config="${{
+                                            freeTag: true,
+                                        }}"
+                                        @filterChange="${event => onFilterChange(event.detail.value)}">
+                                    </catalog-distinct-autocomplete>
+                                `,
                             },
                         },
                         {
