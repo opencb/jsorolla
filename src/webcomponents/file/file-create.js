@@ -97,6 +97,7 @@ export default class FileCreate extends LitElement {
         const {name, ...otherFileData} = this._file;
         const data = {
             ...otherFileData,
+            tags: otherFileData.tags ? otherFileData.tags.split(",") : [],
             path: `${this.path || ""}${name}`,
         };
 
@@ -182,12 +183,21 @@ export default class FileCreate extends LitElement {
                             }
                         },
                         {
+                            title: "Tags",
+                            field: "tags",
+                            type: "input-text",
+                            display: {
+                                helpMessage: "Comma separated list of tags to be associated with the file.",
+                                placeholder: "tag1,tag2",
+                            },
+                        },
+                        {
                             title: "Content",
                             field: "content",
                             type: "input-text",
                             required: true,
                             display: {
-                                rows: 20,
+                                rows: 10,
                                 help: {
                                     text: "Content of the file to be uploaded. Maximum size is 1MB.",
                                 },
