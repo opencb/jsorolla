@@ -147,27 +147,14 @@ export default class FileFolderCreate extends LitElement {
             sections: [
                 {
                     elements: [
-                        // {
-                        //     title: "Type",
-                        //     field: "type",
-                        //     type: "input-text",
-                        //     required: true,
-                        //     display: {
-                        //         defaultValue: "DIRECTORY",
-                        //         disabled: true,
-                        //     },
-                        // },
                         {
                             title: "Path",
                             field: "path",
                             type: "input-text",
-                            // required: true,
                             display: {
                                 defaultValue: `/${this.path}`,
                                 disabled: true,
-                                help: {
-                                    text: "Path where the folder will be created.",
-                                }
+                                helpMessage: "Path where the folder will be created.",
                             },
                         },
                         {
@@ -176,10 +163,8 @@ export default class FileFolderCreate extends LitElement {
                             required: true,
                             type: "input-text",
                             display: {
-                                help: {
-                                    text: "Name of the folder to be created.",
-                                },
-                            }
+                                helpMessage: "Name of the folder to be created.",
+                            },
                         },
                     ],
                 },
