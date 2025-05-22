@@ -201,6 +201,7 @@ export default class FileUpload extends LitElement {
                             field: "description",
                             type: "input-text",
                             display: {
+                                rows: 3,
                                 helpMessage: "Description of the file to be uploaded.",
                             },
                         },
