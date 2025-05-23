@@ -26,7 +26,7 @@ const hosts = [
     },
     {
         id: "reference",
-        url: "https://demo.app.zettagenomics.com/opencga"
+        url: "https://test.app.zettagenomics.com/task-7610/opencga"
     },
 ];
 
@@ -246,18 +246,18 @@ const SUITE = {
                     description: "Execute analysis tools using data of the current study.",
                 },
                 {
+                    id: "my-analysis-tools",
+                    name: "My Analysis",
+                    icon: "fa-cog",
+                    visibility: "public",
+                    description: "Explore and manage all your exceuted analysis.",
+                },
+                {
                     id: "workflow-manager",
                     name: "Workflow Manager",
                     icon: "fa-stream",
                     visibility: "public",
                     description: "Build, import and execute NextFlow workflows.",
-                },
-                {
-                    id: "tool-analysis",
-                    name: "Custom Tool",
-                    icon: "fa-rocket",
-                    visibility: "public",
-                    description: "Execute your own custom tools easily in the cloud.",
                 },
                 {
                     id: "jupyter-lab",
@@ -266,13 +266,6 @@ const SUITE = {
                     visibility: "public",
                     description: "Create, share, and execute Jupyter Notebooks with Python.",
                 },
-                // {
-                //     id: "my-analysis",
-                //     name: "My Analysis",
-                //     icon: "fa-cog",
-                //     visibility: "public",
-                //     description: "Explore and manage all your exceuted analysis.",
-                // },
                 {
                     id: "cohort-browser",
                     name: "Cohort Manager",
