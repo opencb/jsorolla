@@ -266,4 +266,15 @@ export default class CatalogGridFormatter {
         return html;
     }
 
+    static tagsFormatter(tags) {
+        if (tags?.length > 0) {
+            return `
+                <div class="d-flex gap-1 flex-wrap" style="max-width:15rem;">
+                    ${tags.map(tag => `<span class="badge bg-primary">${tag}</span>`).join(" ")}
+                </div>
+            `;
+        }
+        return "-";
+    }
+
 }
