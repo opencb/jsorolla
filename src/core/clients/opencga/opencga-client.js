@@ -19,6 +19,7 @@ import Alignment from "./api/Alignment.js";
 import ClinicalAnalysis from "./api/ClinicalAnalysis.js";
 import Cohort from "./api/Cohort.js";
 import DiseasePanel from "./api/DiseasePanel.js";
+import ExternalTool from "./api/ExternalTool.js";
 import Family from "./api/Family.js";
 import File from "./api/File.js";
 import GA4GH from "./api/GA4GH.js";
@@ -153,6 +154,13 @@ export class OpenCGAClient {
         return this.clients.get("individuals");
     }
 
+    externalTool() {
+        if (!this.clients.has("externalTool")) {
+            this.clients.set("externalTool", new ExternalTool(this._config));
+        }
+        return this.clients.get("externalTool");
+    }
+
     families() {
         if (!this.clients.has("families")) {
             this.clients.set("families", new Family(this._config));
@@ -251,6 +259,8 @@ export class OpenCGAClient {
                 return this.samples();
             case "INDIVIDUAL":
                 return this.individuals();
+            case "EXTERNAL_TOOL":
+                return this.externalTool();
             case "FAMILY":
                 return this.families();
             case "COHORT":
