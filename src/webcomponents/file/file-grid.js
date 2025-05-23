@@ -197,7 +197,7 @@ export default class OpencgaFileGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        include: "id,name,path,type,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets,attributes.variantFileMetadata.header.version",
+                        include: "id,name,path,type,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets,attributes.variantFileMetadata.header.version,tags",
                         ...this.query
                     };
 
@@ -427,6 +427,13 @@ export default class OpencgaFileGrid extends LitElement {
                     return result;
                 },
                 visible: this.gridCommons.isColumnVisible("index"),
+            },
+            {
+                id: "tags",
+                title: "Tags",
+                field: "tags",
+                formatter: tags => CatalogGridFormatter.tagsFormatter(tags),
+                visible: this.gridCommons.isColumnVisible("tags"),
             },
             {
                 id: "creationDate",
