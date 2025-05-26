@@ -98,7 +98,7 @@ export default class FamilyGenotypeModal extends LitElement {
                 ` : nothing}
                 <div class="d-grid">
                     <button type="button" class="btn btn-light multi-line" @click="${this.showModal}">
-                        Family Genotype Filter ...
+                        Customize
                     </button>
                 </div>
             </div>
