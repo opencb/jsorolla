@@ -110,8 +110,7 @@ export default class WelcomePage extends LitElement {
                             ` : nothing}
                         </div>
                         <div class="d-flex">
-                            <a class="d-inline-flex align-items-center gap-2 btn btn-primary text-white" href="#${this.app.id}/${item.id}">
-                                <span class="fw-bold">Enter tool</span>
+                            <a class="btn border border-dark rounded-circle" href="#${this.app.id}/${item.id}">
                                 <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
