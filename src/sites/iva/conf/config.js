@@ -399,14 +399,13 @@ const SUITE = {
             welcomePage: {
                 title: "Admin",
                 subtitle: "Perform all the administrative tasks for your Organization or Study.",
-                // content: "Administration tools for managing users, projects, and studies.",
             },
             menu: [
                 {
                     id: "organization-admin",
                     name: "Organization Admin",
                     icon: "fa-building",
-                    description: "Manage the configuration of the current organization.",
+                    description: "Manage the configuration of the current Organization.",
                     visibility: "public",
                 },
                 {
