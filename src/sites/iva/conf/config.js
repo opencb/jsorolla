@@ -306,7 +306,7 @@ const SUITE = {
                     name: "Case Interpreter Portal",
                     icon: "fa-file-medical",
                     visibility: "public",
-                    description: "Explore and review Clinical Interpretations: Filter by gene, consequence, frequency, and create clinical interpretations and reports.",
+                    description: "Explore and review Clinical Interpretations: filter by gene, consequence, frequency, and create clinical interpretations and reports.",
                 },
                 {
                     id: "disease-panel-browser",
