@@ -19,7 +19,7 @@ on:
 jobs:
   publish-test:
     name: Deploy IVA Web Application
-    runs-on: ubuntu-22.04
+    runs-on: ${{ vars.UBUNTU_VERSION }}
     steps:
       - name: Download 'build' dir
         uses: actions/download-artifact@v4
