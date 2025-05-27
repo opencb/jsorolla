@@ -228,6 +228,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 this.clinicalAnalysisManager.removeVariant(row);
             }
         });
+        this.requestUpdate();
     }
 
     onUpdateVariant(e) {
