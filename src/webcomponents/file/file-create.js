@@ -173,16 +173,6 @@ export default class FileCreate extends LitElement {
                             }
                         },
                         {
-                            title: "Description",
-                            field: "description",
-                            type: "input-text",
-                            display: {
-                                help: {
-                                    text: "Description of the file to be uploaded.",
-                                },
-                            }
-                        },
-                        {
                             title: "Resource",
                             field: "resource",
                             type: "checkbox",
@@ -192,6 +182,16 @@ export default class FileCreate extends LitElement {
                                 },
                                 helpMessage: "If checked, the file will be created as a resource. This option is only available for study administrators.",
                             },
+                        },
+                        {
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                help: {
+                                    text: "Description of the file to be uploaded.",
+                                },
+                            }
                         },
                         {
                             title: "Content",
