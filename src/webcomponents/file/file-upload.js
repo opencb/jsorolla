@@ -97,6 +97,7 @@ export default class FileUpload extends LitElement {
             fileName: this._file.fileName || this._file.file.name, // get the name from the uploaded file
             relativeFilePath: this._file.relativeFilePath.substring(1) || this.path,
             description: this._file.description || "",
+            resource: this._file.resource ?? false,
         };
 
         this.#setLoading(true);
@@ -179,6 +180,17 @@ export default class FileUpload extends LitElement {
                                     text: "Name of the file to be uploaded. If not provided, the name of the uploaded file will be used.",
                                 },
                             }
+                        },
+                        {
+                            title: "Resource",
+                            field: "resource",
+                            type: "checkbox",
+                            display: {
+                                disabled: () => {
+                                    return CatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.is);
+                                },
+                                helpMessage: "If checked, the file will be created as a resource. This option is only available for study administrators.",
+                            },
                         },
                         {
                             title: "Description",
