@@ -17,6 +17,7 @@
 import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/data-form.js";
 
 export default class FileFolderCreate extends LitElement {
@@ -147,21 +148,10 @@ export default class FileFolderCreate extends LitElement {
             sections: [
                 {
                     elements: [
-                        // {
-                        //     title: "Type",
-                        //     field: "type",
-                        //     type: "input-text",
-                        //     required: true,
-                        //     display: {
-                        //         defaultValue: "DIRECTORY",
-                        //         disabled: true,
-                        //     },
-                        // },
                         {
                             title: "Path",
                             field: "path",
                             type: "input-text",
-                            // required: true,
                             display: {
                                 defaultValue: `/${this.path}`,
                                 disabled: true,
@@ -180,6 +170,17 @@ export default class FileFolderCreate extends LitElement {
                                     text: "Name of the folder to be created.",
                                 },
                             }
+                        },
+                        {
+                            title: "Resource",
+                            field: "resource",
+                            type: "checkbox",
+                            display: {
+                                disabled: () => {
+                                    return CatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.is);
+                                },
+                                helpMessage: "If checked, the file will be created as a resource. This option is only available for study administrators.",
+                            },
                         },
                     ],
                 },
