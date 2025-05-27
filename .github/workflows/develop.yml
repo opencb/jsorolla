@@ -22,8 +22,9 @@ jobs:
     secrets: inherit
 
   deploy-web:
-    uses: ./.github/workflows/deploy-jsorolla-web-workflow.yml
-    needs: [ build, test ]
+    uses: opencb/java-common-libs/.github/workflows/publish-test-report-workflow.yml@develop
+    needs: build
     with:
-      version: ${{ needs.build.outputs.version }}
+      target_path: /var/www/html/iva/builds/${{ needs.build.outputs.version }}
+      content: build-folder
     secrets: inherit
