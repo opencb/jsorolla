@@ -45,12 +45,12 @@ export default class ClinicalAnalysisReport extends LitElement {
         this._template = null;
         if (this.opencgaSession && this.clinicalAnalysis) {
             this.opencgaSession.opencgaClient.files()
-                .dowload(this._templateFile, {
+                .download(this._templateFile, {
                     study: this.opencgaSession.study.fqn,
                 })
                 .then(response => {
-                    const content = response.responses[0].results[0].content;
-                    return this.loadTemplateFromFile(content, this._templateFile.endsWith(".js") ? "JAVASCRIPT" : "JSON");
+                    // const content = response.responses[0].results[0].content;
+                    return this.loadTemplateFromFile(response, this._templateFile.endsWith(".js") ? "JAVASCRIPT" : "JSON");
                 })
                 .then(template => {
                     this._template = template;
