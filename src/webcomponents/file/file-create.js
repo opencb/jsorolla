@@ -17,6 +17,7 @@
 import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/data-form.js";
 
 export default class FileCreate extends LitElement {
@@ -180,6 +181,17 @@ export default class FileCreate extends LitElement {
                                     text: "Description of the file to be uploaded.",
                                 },
                             }
+                        },
+                        {
+                            title: "Resource",
+                            field: "resource",
+                            type: "checkbox",
+                            display: {
+                                disabled: () => {
+                                    return CatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.is);
+                                },
+                                helpMessage: "If checked, the file will be created as a resource. This option is only available for study administrators.",
+                            },
                         },
                         {
                             title: "Content",
