@@ -178,7 +178,7 @@ export default class FileCreate extends LitElement {
                             type: "checkbox",
                             display: {
                                 disabled: () => {
-                                    return CatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.is);
+                                    return !CatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
                                 },
                                 helpMessage: "If checked, the file will be created as a resource. This option is only available for study administrators.",
                             },
