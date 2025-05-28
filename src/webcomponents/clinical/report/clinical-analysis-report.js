@@ -67,11 +67,9 @@ export default class ClinicalAnalysisReport extends LitElement {
             case "JSON":
                 return Promise.resolve(JSON.parse(fileContent));
             case "JAVASCRIPT":
-                const dataUri = "data:text/javascript;charset=utf-8," + encodeURIComponent(fileContent);
-                return import(dataUri)
-                    .then(module => {
-                        return module.getTemplate();
-                    });
+                const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
+                const fn = new AsyncFunction(`${fileContent} return getTemplate();`);
+                return Promise.resolve(fn())
             default:
                 throw new Error(`Unsupported format: ${format}`);
         }
