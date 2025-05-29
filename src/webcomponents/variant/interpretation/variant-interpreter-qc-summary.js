@@ -190,7 +190,7 @@ class VariantInterpreterQcSummary extends LitElement {
                                 format: {
                                     disorder: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
                                 },
-                                defaultValue: "N/A",
+                                defaultValue: "-",
                             },
                         },
                         {

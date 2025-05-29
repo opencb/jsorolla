@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-import {html, LitElement, nothing} from "lit";
-import UtilsNew from "../../core/utils-new.js";
-import Types from "../commons/types.js";
+import {LitElement, html, nothing} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
 import "../commons/forms/data-form.js";
-import "../commons/filters/catalog-search-autocomplete.js";
-import "../study/annotationset/annotation-set-view.js";
-import "../loading-spinner.js";
+import "../commons/json-viewer.js";
+import "./note-summary.js";
 
 export default class NoteView extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -35,17 +34,17 @@ export default class NoteView extends LitElement {
 
     static get properties() {
         return {
-            note: {
-                type: Object,
-            },
             noteId: {
                 type: String,
+            },
+            note: {
+                type: Object
             },
             noteScope: {
                 type: String,
             },
             opencgaSession: {
-                type: Object,
+                type: Object
             },
             displayConfig: {
                 type: Object,
@@ -54,14 +53,7 @@ export default class NoteView extends LitElement {
     }
 
     #init() {
-        this.displayConfigDefault = {
-            buttonsVisible: false,
-            collapsable: true,
-            titleVisible: false,
-            titleWidth: 2,
-            defaultValue: "-",
-            pdf: false,
-        };
+        this.COMPONENT_ID = "note-view";
         this._note = null;
         this._config = this.getDefaultConfig();
     }
@@ -70,17 +62,20 @@ export default class NoteView extends LitElement {
         if (changedProperties.has("noteId") || changedProperties.has("noteScope")) {
             this.noteIdOrScopeObserver();
         }
+
         if (changedProperties.has("note")) {
             this.noteObserver();
         }
-        if (changedProperties.has("displayConfig")) {
+
+        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
     noteObserver() {
-        this._note = this.note;
+        this._note = {...this.note};
     }
 
     noteIdOrScopeObserver() {
@@ -110,112 +105,52 @@ export default class NoteView extends LitElement {
     }
 
     render() {
-        if (!this._note) {
+        if (!this.opencgaSession || !this._note) {
             return nothing;
         }
 
         return html`
             <data-form
-                .data="${this._note}"
-                .config="${this._config}">
+                .data="${this._note || {}}"
+                .config="${this._config || {}}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            title: "Summary",
-            icon: "",
+        return {
             display: {
-                ...this.displayConfigDefault,
-                ...(this.displayConfig || {}),
+                type: "pills",
+                pillsLeftColumnClass: "col-md-2",
+                pillsRightColumnClass: "col-md-10",
+                buttonsVisible: false,
+                ...this.displayConfig,
             },
             sections: [
                 {
-                    title: "General",
-                    collapsed: false,
-                    elements: [
-                        {
-                            title: "Note ID",
-                            type: "complex",
-                            display: {
-                                template: "${id} (UUID: ${uuid})",
-                                style: {
-                                    id: {
-                                        "font-weight": "bold",
-                                    }
-                                },
-                            },
-                        },
-                        {
-                            title: "Scope",
-                            field: "scope"
-                        },
-                        {
-                            title: "User",
-                            field: "userId"
-                        },
-                        {
-                            title: "Visibility",
-                            field: "visibility"
-                        },
-                        {
-                            title: "Type",
-                            field: "valueType"
-                        },
-                        {
-                            title: "Version",
-                            field: "version",
-                        },
-                        {
-                            title: "Tags",
-                            field: "tags",
-                            type: "custom",
-                            display: {
-                                render: tags => {
-                                    return (tags || []).map(t => `<span class="badge rounded-pill text-bg-primary">${t}</span>`).join(" ") || "-";
-                                },
-                            },
-                        },
-                        {
-                            title: "Creation Date",
-                            field: "creationDate",
-                            display: {
-                                format: date => UtilsNew.dateFormatter(date),
-                            },
-                        },
-                        {
-                            title: "Modification Date",
-                            field: "modificationDate",
-                            display: {
-                                format: date => UtilsNew.dateFormatter(date),
-                            },
-                        },
-                        {
-                            title: "Content",
-                            type: "custom",
-                            display: {
-                                render: note => {
-                                    let content = "";
-                                    switch (note?.valueType) {
-                                        case "OBJECT":
-                                        case "ARRAY":
-                                            content = `<pre>${JSON.stringify(note.value, null, "    ")}</pre>`;
-                                            break;
-                                        case "STRING":
-                                        case "INTEGER":
-                                        case "DOUBLE":
-                                        default:
-                                            content = note?.value;
-                                    }
-                                    return content;
-                                },
-                            },
-                        },
-                    ],
+                    id: "note-summary",
+                    name: "Overview",
+                    render: (note, active) => html`
+                        <note-summary
+                            .note="${note}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </note-summary>
+                    `,
                 },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (note, active) => html`
+                        <json-viewer
+                            .data="${note}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
+                },
+                ...ExtensionsManager.getViews(this.COMPONENT_ID, this.opencgaSession),
             ],
-        });
+        };
     }
 
 }

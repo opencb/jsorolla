@@ -678,11 +678,15 @@ export default class FiltersToolbar extends LitElement {
                             <span>Advanced Filters</span>
                         </button>
                     ` : nothing}
-                    <div class="w-px bg-gray-200"></div>
-                    <button class="btn ${hasPendingChanges ? "btn-primary" : "btn-danger"} d-flex align-items-center gap-2 ${!this.searchActive ? "disabled" : ""}" @click="${this.onSearch}">
-                        <i class="fas fa-search"></i>
-                        <span class="fw-bold">Search</span>
-                    </button>
+                    ${this._config.searchButton ? html`
+                        <div class="w-px bg-gray-200"></div>
+                        <button class="btn ${hasPendingChanges ? "btn-primary" : "btn-danger"} d-flex align-items-center gap-2 ${!this.searchActive ? "disabled" : ""}" @click="${this.onSearch}">
+                            ${this._config.searchButtonIcon ? html`
+                                <i class="${this._config.searchButtonIcon}"></i>
+                            ` : nothing}
+                            <span class="fw-bold">${this._config.searchButtonText || "Search"}</span>
+                        </button>
+                    ` : nothing}
                     <div class="ms-auto d-flex align-items-stretch gap-2">
                         <!-- Clear current query -->
                          <button class="btn btn-light d-flex align-items-center gap-2 ${emptyPreparedQuery ? "disabled" : ""}" @click="${this.onClear}">
@@ -781,6 +785,9 @@ export default class FiltersToolbar extends LitElement {
             sections: [],
             examples: [],
             defaultFilter: {},
+            searchButton: true,
+            searchButtonText: "Search",
+            searchButtonIcon: "fas fa-search",
         };
     }
 

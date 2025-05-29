@@ -552,11 +552,11 @@ export default class RgaIndividualView extends LitElement {
                 </div>`;
         }
         return html`
-            <opencb-grid-toolbar
+            <grid-toolbar
                 .config="${this.toolbarConfig}"
                 @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}">
-            </opencb-grid-toolbar>
+            </grid-toolbar>
 
             <div id="${this._prefix}GridTableDiv" data-cy="individual-view-grid">
                 <table id="${this._prefix}RgaIndividualBrowserGrid"></table>

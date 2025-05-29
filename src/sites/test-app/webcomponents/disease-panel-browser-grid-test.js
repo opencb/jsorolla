@@ -17,10 +17,6 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/disease-panel/disease-panel-grid.js";
-import "../../../webcomponents/disease-panel/disease-panel-detail.js";
-import "../../../webcomponents/disease-panel/disease-panel-create.js";
-import "../../../webcomponents/disease-panel/disease-panel-update.js";
-
 
 class DiseasePanelBrowserGridTest extends LitElement {
 
@@ -50,7 +46,6 @@ class DiseasePanelBrowserGridTest extends LitElement {
             "disease-panels-platinum.json",
         ];
         this._data = null;
-        this._selectedRow = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -71,7 +66,6 @@ class DiseasePanelBrowserGridTest extends LitElement {
             Promise.all(promises)
                 .then(data => {
                     this._data = data[0];
-                    this._selectedRow = this._data[0];
                     this.mutate();
                     this.requestUpdate();
                 })
@@ -93,80 +87,28 @@ class DiseasePanelBrowserGridTest extends LitElement {
         this.requestUpdate();
     }
 
-    onSelectRow(e) {
-        this._selectedRow = e.detail.row;
-        this.requestUpdate();
-    }
-
     render() {
         if (!this._data) {
             return "Loading...";
         }
 
         return html`
-            <div data-cy="disease-panel-browser-container">
-                <h2 style="font-weight: bold;">
-                    Disease Panel Browser Grid (${this.FILES[0]})
-                </h2>
-                <disease-panel-grid
-                    .toolId="${this.COMPONENT_ID}"
-                    .diseasePanels="${this._data}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.grid}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}"
-                    @selectrow="${e => this.onSelectRow(e)}">
-                </disease-panel-grid>
-                <disease-panel-detail
-                    .diseasePanel="${this._selectedRow}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.detail}">
-                </disease-panel-detail>
-            </div>
+            <h2 class="fw-bold">
+                Disease Panel Browser Grid (${this.FILES[0]})
+            </h2>
+            <disease-panel-grid
+                .toolId="${this.COMPONENT_ID}"
+                .diseasePanels="${this._data}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config.grid}"
+                @settingsUpdate="${() => this.onSettingsUpdate()}">
+            </disease-panel-grid>
         `;
     }
 
     getDefaultConfig() {
         return {
-            grid: {
-                pageSize: 10,
-                pageList: [10, 25, 50],
-                multiSelection: false,
-                showSelectCheckbox: false,
-                toolbar: {
-                    showColumns: true,
-                    showDownload: false,
-                    showExport: false,
-                    showSettings: false,
-                    exportTabs: ["download", "link", "code"]
-                },
-            },
-            detail: {
-                title: "Disease Panel",
-                showTitle: true,
-                items: [
-                    {
-                        id: "disease-panel-view",
-                        name: "Summary",
-                        active: true,
-                        render: (diseasePanel, _active, opencgaSession) => html`
-                            <disease-panel-summary
-                                .diseasePanel="${diseasePanel}"
-                                .opencgaSession="${opencgaSession}">
-                            </disease-panel-summary>
-                        `,
-                    },
-                    {
-                        id: "json-view",
-                        name: "JSON Data",
-                        render: (diseasePanel, active) => html`
-                            <json-viewer
-                                .data="${diseasePanel}"
-                                .active="${active}">
-                            </json-viewer>
-                        `,
-                    },
-                ]
-            },
+            grid: {},
         };
     }
 
