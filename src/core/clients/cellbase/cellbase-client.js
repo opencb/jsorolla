@@ -310,6 +310,16 @@ export class CellBaseClient {
         return suffixKey;
     }
 
+    _createSearchParams(params = {}) {
+        const searchParams = new URLSearchParams(params);
+        // check if apiKey is defined in the configuration
+        if (this._config.apiKey) {
+            searchParams.set("apiKey", this._config.apiKey);
+        }
+        // generate the search params string
+        return searchParams.toString();
+    }
+
     getConfig() {
         return this._config;
     }
