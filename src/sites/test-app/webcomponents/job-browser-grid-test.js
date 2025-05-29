@@ -15,11 +15,9 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/job/job-grid.js";
-import "../../../webcomponents/job/job-detail.js";
-
 
 class JobBrowserGridTest extends LitElement {
 
@@ -49,7 +47,6 @@ class JobBrowserGridTest extends LitElement {
             "job-1000G.json",
         ];
         this._data = null;
-        this._selectedRow = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -70,7 +67,6 @@ class JobBrowserGridTest extends LitElement {
             Promise.all(allPromises)
                 .then(data => {
                     this._data = data[0];
-                    this._selectedRow = this._data[0];
                     this.mutate();
                     this.requestUpdate();
                 })
@@ -84,11 +80,6 @@ class JobBrowserGridTest extends LitElement {
         return null;
     }
 
-    onSelectRow(e) {
-        this._selectedRow = e.detail.row;
-        this.requestUpdate();
-    }
-
     onSettingsUpdate() {
         this._config.grid = {
             ...this._config.grid,
@@ -99,35 +90,26 @@ class JobBrowserGridTest extends LitElement {
 
     render() {
         if (!this._data) {
-            return "Loading...";
+            return nothing;
         }
 
         return html`
-            <div data-cy="job-browser">
-                <h2 style="font-weight: bold;">
-                    Job Browser Grid (${this.FILES[0]})
-                </h2>
-                <job-grid
-                    .toolId="${this.COMPONENT_ID}"
-                    .jobs="${this._data}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.grid}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}"
-                    @selectrow="${e => this.onSelectRow(e)}">
-                </job-grid>
-                <job-detail
-                    .job="${this._selectedRow}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.detail}">
-                </job-detail>
-            </div>
+            <h2 class="fw-bold">
+                Job Browser Grid (${this.FILES[0]})
+            </h2>
+            <job-grid
+                .toolId="${this.COMPONENT_ID}"
+                .jobs="${this._data}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config.grid}"
+                @settingsUpdate="${() => this.onSettingsUpdate()}">
+            </job-grid>
         `;
     }
 
     getDefaultConfig() {
         return {
             grid: {},
-            detail: {},
         };
     }
 
