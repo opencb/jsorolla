@@ -99,6 +99,12 @@ export class CellBaseClient {
             url = `http://${url}`;
         }
 
+        // Append search params
+        const searchParams = this._createSearchParams({});
+        if (searchParams) {
+            url += `?${searchParams}`;
+        }
+
         // options.error = function() {
         //     if (++count < hosts.length) {
         //         // we need a new URL
@@ -285,10 +291,10 @@ export class CellBaseClient {
             url += `${category}/${subcategory}/${resource}`;
         }
 
-        // We add the query params formatted in URL
-        const queryParamsUrl = this._createSuffixKey(params, false);
-        if (typeof queryParamsUrl !== "undefined" && queryParamsUrl != null && queryParamsUrl !== "") {
-            url += `?${queryParamsUrl}`;
+        // We add the search params formatted in URL
+        const searchParamsUrl = this._createSearchParams(params);
+        if (!!searchParamsUrl) {
+            url += `?${searchParamsUrl}`;
         }
         return url;
     }
