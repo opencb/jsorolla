@@ -74,16 +74,18 @@ export default class OpencgaBrowserFilter extends LitElement {
         // Make sure some filters point the right RESOURCE
         this.filterToResource = {
             "fileIds": "FILE",
-            "samples": "SAMPLE",
             "sample": "SAMPLE",
+            "samples": "SAMPLE",
             "sampleIds": "SAMPLE",
             "individualId": "INDIVIDUAL",
-            "members": "INDIVIDUAL",
             "family": "FAMILY",
+            "familyIds": "FAMILY",
+            "members": "INDIVIDUAL",
+            "cohortIds": "COHORT",
             "jobId": "JOB",
-            "workflow": "WORKFLOW",
             "input": "FILE",
             "output": "FILE",
+            "workflow": "WORKFLOW",
         };
 
         // Select the right distinct field to be displayed
@@ -101,29 +103,32 @@ export default class OpencgaBrowserFilter extends LitElement {
             "sex": "sex.id",
             "karyotypicSex": "karyotypicSex",
             "type": "type",
+            "internalStatus": "internal.status.id",
         };
     }
 
     renderFilter(subsection, onFilterChange, preparedQuery, opencgaSession) {
         let content = nothing;
-        const id = subsection.id === "priority" ? `${this.resource.toLowerCase()}_${subsection.id}`: subsection.id;
+        const id = subsection.id === "priority" ? `${this.resource.toLowerCase()}_${subsection.id}` : subsection.id;
 
         switch (id) {
             case "id":
             case "name":
             case "fileIds":
-            case "father":
-            case "mother":
             case "samples":
             case "sample":
             case "sampleIds":
             case "individualId":
-            case "members":
+            case "father":
+            case "mother":
             case "family":
-            case "input":
+            case "familyIds":
+            case "members":
+            case "cohortIds":
             case "jobId":
-            case "workflow":
+            case "input":
             case "output":
+            case "workflow":
                 content = html`
                     <catalog-search-autocomplete
                         .value="${preparedQuery[subsection.id]}"
@@ -158,6 +163,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             case "sex":
             case "karyotypicSex":
             case "type":
+            case "internalStatus":
                 content = html`
                     <catalog-distinct-autocomplete
                         .value="${preparedQuery[subsection.id]}"
@@ -174,7 +180,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             case "lifeStatus":
             case "bioformat":
             case "internalVariantIndexStatus":
-            case "internalStatus":
+            // case "internalStatus":
             case "visited":
             case "job_priority":
             case "visibility":

@@ -49,8 +49,8 @@ class VariantBrowserGridTest extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "variant-browser";
-        this.variants = null;
-        this._config = {};
+        this._data = null;
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
@@ -66,7 +66,7 @@ class VariantBrowserGridTest extends LitElement {
         if (this.testDataVersion && this.testVariantFile) {
             UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${this.testVariantFile}.json`)
                 .then(content => {
-                    this.variants = content;
+                    this._data = content;
                     this.mutate();
                 })
                 .catch(err => {
@@ -99,7 +99,7 @@ class VariantBrowserGridTest extends LitElement {
     }
 
     render() {
-        if (!this.variants || !this.opencgaSession) {
+        if (!this._data) {
             return nothing;
         }
 
@@ -110,7 +110,7 @@ class VariantBrowserGridTest extends LitElement {
                 </h2>
                 <variant-browser-grid
                     .toolId="${this.COMPONENT_ID}"
-                    .variants="${this.variants}"
+                    .variants="${this._data}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config}"
                     @settingsUpdate="${() => this.onSettingsUpdate()}"
@@ -118,6 +118,10 @@ class VariantBrowserGridTest extends LitElement {
                 </variant-browser-grid>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {};
     }
 
 }

@@ -447,11 +447,11 @@ export default class RgaGeneView extends LitElement {
 
     render() {
         return html`
-            <opencb-grid-toolbar
+            <grid-toolbar
                 .config="${this.toolbarConfig}"
                  @columnChange="${this.onColumnChange}"
                  @download="${this.onDownload}">
-            </opencb-grid-toolbar>
+            </grid-toolbar>
 
             <div id="${this._prefix}GridTableDiv" data-cy="gene-view-grid">
                 <table id="${this._prefix}RgaGeneBrowserGrid"></table>
