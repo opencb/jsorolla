@@ -22,11 +22,6 @@ import "../../cache/indexeddb-cache.js";
 export class CellBaseClient {
 
     constructor(config) {
-        if (UtilsNew.isNotEmpty(config)) {
-            this._config = config;
-        } else {
-            this._config = this.getDefaultConfig();
-        }
         this.setConfig(config);
         if (this._config.cache.active) {
             this.indexedDBCache = new IndexedDBCache(this._config.cache.database);
@@ -330,8 +325,11 @@ export class CellBaseClient {
         return this._config;
     }
 
-    setConfig(config) {
-        this._config = {...this.getDefaultConfig(), ...config};
+    setConfig(config = {}) {
+        this._config = {
+            ...this.getDefaultConfig(),
+            ...config,
+        };
     }
 
     generateKey(params) {
