@@ -41,6 +41,7 @@ export class CellBaseClient {
             host: "https://ws.zettagenomics.com/cellbase",
             version: "v5.8",
             species: "hsapiens",
+            apiKey: "",
             query: {
                 batchSize: "",
                 limit: 10
