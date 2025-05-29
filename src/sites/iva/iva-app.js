@@ -51,7 +51,6 @@ import "../../webcomponents/individual/individual-browser.js";
 import "../../webcomponents/individual/individual-update.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
-import "../../webcomponents/job/job-view.js";
 import "../../webcomponents/workflow/workflow-browser.js";
 import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/job/job-monitor.js";
@@ -61,7 +60,6 @@ import "../../webcomponents/organization/admin/organization-admin.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/admin/study-admin.js";
 import "../../webcomponents/study/admin/study-admin-iva.js";
-import "../../webcomponents/study/admin/catalog-admin.js";
 import "../../webcomponents/study/admin/variant/operations-admin.js";
 import "../../webcomponents/study/study-dashboard.js";
 import "../../webcomponents/user/user-profile.js";
@@ -846,17 +844,23 @@ class IvaApp extends LitElement {
         this._createOpenCGASession();
     }
 
-    onSessionPanelUpdate(e) {
-        const action = e.detail.action || "CREATE";
-        switch (action) {
-            case "CREATE":
-                if (this.opencgaSession.study) {
-                    this.opencgaSession.study.panels = [
-                        ...this.opencgaSession.study?.panels,
-                        e.detail.value
-                    ];
-                }
-                break;
+    onDiseasePanelCreate(event) {
+        // when a new disease panel is created, we add it to the study panels instead of refreshing the whole session
+        if (this.opencgaSession?.study?.panels && event?.detail?.value) {
+            this.opencgaSession.study.panels = [
+                ...this.opencgaSession.study?.panels,
+                event.detail.value
+            ];
+        }
+        this.opencgaSession = {...this.opencgaSession};
+    }
+
+    onDiseasePanelDelete(event) {
+        // remove the deleted disease panel from the study panels
+        if (this.opencgaSession?.study?.panels && event?.detail?.value?.id) {
+            this.opencgaSession.study.panels = this.opencgaSession.study.panels.filter(panel => {
+                return panel.id !== event.detail.value.id;
+            });
         }
         this.opencgaSession = {...this.opencgaSession};
     }
@@ -864,34 +868,6 @@ class IvaApp extends LitElement {
     onStudyUpdateRequest() {
         // TODO: update only the current study instead of refreshing the whole session
         this._createOpenCGASession();
-        
-        // this.opencgaSession.opencgaClient.studies()
-        //     .info(e.detail.value)
-        //     .then(res => {
-        //         const updatedStudy = res.responses[0].results[0];
-        //         for (const project of this.opencgaSession.user.projects) {
-        //             if (project.studies?.length > 0) {
-        //                 const studyIndex = project.studies.findIndex(study => study.fqn === e.detail.value);
-        //                 if (studyIndex >= 0) {
-        //                     project.studies[studyIndex] = updatedStudy;
-        //                     break;
-        //                 }
-        //             }
-        //         }
-        //
-        //         // Update opencgaSession.study if the study updated is the active one
-        //         if (this.opencgaSession.study && this.opencgaSession.study.fqn === e.detail.value) {
-        //             this.opencgaSession.study = updatedStudy;
-        //         }
-        //
-        //         this.settings = UtilsNew.objectClone(this.opencgaSession.study.attributes[SETTINGS_NAME].settings);
-        //         this.opencgaSession = {...this.opencgaSession};
-        //         // this.requestUpdate();
-        //     })
-        //     .catch(e => {
-        //         console.error(e);
-        //         // params.error(e);
-        //     });
     }
 
     renderTool() {
@@ -906,14 +882,14 @@ class IvaApp extends LitElement {
                     </welcome-page>
                 `;
                 break;
-            case "dahsboard":
+            case "dashboard":
                 content = html`
                     <div class="d-flex justify-content-center">
                         <span>Dashboard</span>
                     </div>
                 `;
                 break;
-            case "aoutzetta":
+            case "aboutzetta":
             case "about":
                 content = html`
                     <div class="content">
@@ -931,7 +907,7 @@ class IvaApp extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
                             .reactomeClient="${this.reactomeClient}"
-                            .query="${this.queries["variant-browser"]}"
+                            .query="${this.queries[this.tool]}"
                             .settings="${this.settings.VARIANT_BROWSER}"
                             .consequenceTypes="${this.config.consequenceTypes}"
                             .populationFrequencies="${this.config.populationFrequencies}"
@@ -944,18 +920,6 @@ class IvaApp extends LitElement {
                     </div>
                 `;
                 break;
-            // case "clinical-analysis-portal":
-            // case "clinicalAnalysisPortal":
-            //     content = html`
-            //         <div class="content">
-            //             <clinical-analysis-portal
-            //                 .opencgaSession="${this.opencgaSession}"
-            //                 .settings="${this.settings.CLINICAL_ANALYSIS_PORTAL_BROWSER}"
-            //                 @sessionPanelUpdate="${this.onSessionPanelUpdate}">
-            //             </clinical-analysis-portal>
-            //         </div>
-            //     `;
-            //     break;
             case "rga":
                 content = html`
                     <div class="content">
@@ -981,40 +945,11 @@ class IvaApp extends LitElement {
                     <div class="content">
                         <sample-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .query="${this.queries.sample}"
+                            .query="${this.queries[this.tool]}"
                             .settings="${this.settings.SAMPLE_BROWSER}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "sample")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "sample")}">
                         </sample-browser>
-                    </div>
-                `;
-                break;
-            case "sampleUpdate":
-            case "sample-update":
-                content = html`
-                    <tool-header
-                        title="${`Sample <span class="inverse"> ${this.sampleId} </span>` }"
-                        icon="fas fa-vial icon-padding">
-                    </tool-header>
-                    <div class="content">
-                        <sample-update
-                            .sampleId="${this.sampleId}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .displayConfig=${
-                                {
-                                    showBtnSampleBrowser: true,
-                                    width: "10",
-                                    style: "margin: 10px",
-                                    labelWidth: 3,
-                                    labelAlign: "right",
-                                    defaultLayout: "horizontal",
-                                    defaultValue: "",
-                                    help: {
-                                        mode: "block" // icon
-                                    }
-                                }
-                            }>
-                        </sample-update>
                     </div>
                 `;
                 break;
@@ -1025,37 +960,13 @@ class IvaApp extends LitElement {
                         <disease-panel-browser
                             .opencgaSession="${this.opencgaSession}"
                             .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
-                            .query="${this.queries["disease-panel"]}"
+                            .query="${this.queries[this.tool]}"
                             .settings="${this.settings.DISEASE_PANEL_BROWSER}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "disease-panel")}"
-                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}">
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "disease-panel")}"
+                            @diseasePanelCreate="${e => this.onDiseasePanelCreate(e)}"
+                            @diseasePanelDelete="${e => this.onDiseasePanelDelete(e)}">
                         </disease-panel-browser>
-                    </div>
-                `;
-                break;
-            case "diseasePanelUpdate":
-            case "disease-panel-update":
-                content = html`
-                    <div class="content">
-                        <disease-panel-update
-                            .diseasePanelId="${this.diseasePanelId}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .displayConfig=${
-                                {
-                                    showBtnSampleBrowser: true,
-                                    width: "10",
-                                    style: "margin: 10px",
-                                    labelWidth: 3,
-                                    labelAlign: "right",
-                                    defaultLayout: "horizontal",
-                                    defaultValue: "",
-                                    help: {
-                                        mode: "block" // icon
-                                    }
-                                }
-                            }>
-                        </disease-panel-update>
                     </div>
                 `;
                 break;
@@ -1066,7 +977,7 @@ class IvaApp extends LitElement {
                 content = html`
                     <file-browser
                         .opencgaSession="${this.opencgaSession}"
-                        .query="${this.queries.file}"
+                        .query="${this.queries[this.tool]}"
                         .settings="${this.settings.FILE_BROWSER}"
                         @querySearch="${e => this.onQueryFilterSearch(e, "file")}"
                         @activeFilterChange="${e => this.onQueryFilterSearch(e, "file")}">
@@ -1079,40 +990,11 @@ class IvaApp extends LitElement {
                     <div class="content">
                         <individual-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .query="${this.queries.individual}"
+                            .query="${this.queries[this.tool]}"
                             .settings="${this.settings.INDIVIDUAL_BROWSER}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "individual")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "individual")}">
                         </individual-browser>
-                    </div>
-                `;
-                break;
-            case "individualUpdate":
-            case "individual-update":
-                content = html`
-                    <tool-header
-                        title="${`Individual <span class="inverse"> ${this.individualId} </span>` }"
-                        icon="fas fa-vial icon-padding">
-                    </tool-header>
-                    <div class="content">
-                        <individual-update
-                            .individualId="${this.individualId}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .displayConfig=${
-                                {
-                                    showBtnSampleBrowser: true,
-                                    width: "10",
-                                    style: "margin: 10px",
-                                    labelWidth: 3,
-                                    labelAlign: "right",
-                                    defaultLayout: "horizontal",
-                                    defaultValue: "",
-                                    help: {
-                                        mode: "block" // icon
-                                    }
-                                }
-                            }>
-                        </individual-update>
                     </div>
                 `;
                 break;
@@ -1122,40 +1004,11 @@ class IvaApp extends LitElement {
                     <div class="content">
                         <family-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .query="${this.queries.family}"
+                            .query="${this.queries[this.tool]}"
                             .settings="${this.settings.FAMILY_BROWSER}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "family")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "family")}">
                         </family-browser>
-                    </div>
-                `;
-                break;
-            case "familyUpdate":
-            case "family-update":
-                content = html`
-                    <tool-header
-                        title="${`Family <span class="inverse"> ${this.familyId} </span>` }"
-                        icon="fas fa-vial icon-padding">
-                    </tool-header>
-                    <div class="content">
-                        <family-update
-                            .familyId="${this.familyId}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .displayConfig=${
-                                {
-                                    showBtnSampleBrowser: true,
-                                    width: "10",
-                                    style: "margin: 10px",
-                                    labelWidth: 3,
-                                    labelAlign: "right",
-                                    defaultLayout: "horizontal",
-                                    defaultValue: "",
-                                    help: {
-                                        mode: "block" // icon
-                                    }
-                                }
-                            }>
-                        </family-update>
                     </div>
                 `;
                 break;
@@ -1216,7 +1069,7 @@ class IvaApp extends LitElement {
                     <div class="content">
                         <cohort-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .query="${this.queries.cohort}"
+                            .query="${this.queries[this.tool]}"
                             .settings="${this.settings.COHORT_BROWSER}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "cohort")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "cohort")}">
@@ -1233,7 +1086,7 @@ class IvaApp extends LitElement {
                     <clinical-analysis-browser
                         .opencgaSession="${this.opencgaSession}"
                         .settings="${this.settings.CLINICAL_ANALYSIS_BROWSER}"
-                        .query="${this.queries["clinical-analysis"]}"
+                        .query="${this.queries[this.tool]}"
                         @querySearch="${e => this.onQueryFilterSearch(e, "clinical-analysis")}"
                         @activeFilterChange="${e => this.onQueryFilterSearch(e, "clinical-analysis")}">
                     </clinical-analysis-browser>
@@ -1246,10 +1099,22 @@ class IvaApp extends LitElement {
                         <job-browser
                             .opencgaSession="${this.opencgaSession}"
                             .settings= ${this.settings.JOB_BROWSER}
-                            .query="${this.queries.job}"
+                            .query="${this.queries[this.tool]}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "job")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "job")}">
                         </job-browser>
+                    </div>
+                `;
+                break;
+            case "job-view":
+                content = html`
+                    <div class="content">
+                        <job-view
+                            .jobId="${this.queries[this.tool].id}"
+                            .opencgaSession="${this.opencgaSession}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "job")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "job")}">
+                        </job-view>
                     </div>
                 `;
                 break;
@@ -1258,7 +1123,7 @@ class IvaApp extends LitElement {
                     <div class="content">
                         <note-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .query="${this.queries["note-browser"]}"
+                            .query="${this.queries[this.tool]}"
                             .settings="${this.settings.NOTE_BROWSER}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "note-browser")}">
                         </note-browser>
@@ -1271,7 +1136,7 @@ class IvaApp extends LitElement {
                     <div class="content">
                         <workflow-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .query="${this.queries["workflow-browser"]}"
+                            .query="${this.queries[this.tool]}"
                             .settings="${this.settings.WORKFLOW_BROWSER}"
                             @querySearch="${e => this.onQueryFilterSearch(e, "workflow")}"
                             @activeFilterChange="${e => this.onQueryFilterSearch(e, "workflow")}">
@@ -1354,7 +1219,7 @@ class IvaApp extends LitElement {
                     <div class="content">
                         <sample-variant-stats-browser
                             .opencgaSession="${this.opencgaSession}"
-                            .sampleId="${this.sampleId}"
+                            .sampleId="${this.queries[this.tool].id}"
                             .active="${true}"
                             .settings="${{...VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS, showTitle: true}}">
                         </sample-variant-stats-browser>
@@ -1399,21 +1264,6 @@ class IvaApp extends LitElement {
                     </div>
                 `;
                 break;
-            case "job-view":
-                content = html`
-                    <tool-header
-                        title="${this.jobSelected || "No job selected"}"
-                        icon="${"fas fa-rocket"}">
-                    </tool-header>
-                    <div class="content">
-                        <job-view
-                            mode="full"
-                            .jobId="${this.jobSelected}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </job-view>
-                    </div>
-                `;
-                break;
             case "organization-admin":
                 content = html`
                     <organization-admin
@@ -1421,14 +1271,6 @@ class IvaApp extends LitElement {
                         @studyUpdateRequest="${this.onStudyUpdateRequest}"
                         @sessionUpdateRequest="${this.onSessionUpdateRequest}">
                     </organization-admin>
-                `;
-                break;
-            case "catalog-admin":
-                content = html`
-                    <catalog-admin
-                        .opencgaSession="${this.opencgaSession}"
-                        @sessionUpdateRequest="${this.onSessionUpdateRequest}">
-                    </catalog-admin>
                 `;
                 break;
             // case "projects-admin":

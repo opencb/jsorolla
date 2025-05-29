@@ -37,8 +37,8 @@ export default class ClinicalAnalysisGroup extends LitElement {
         this.COMPONENT_ID = "clinical-analysis-group";
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
-        this.activeGroup = this._config.groups[0];
-        this.groups = [];
+        this._activeGroup = this._config.groups[0];
+        this._groups = [];
     }
 
     updated(changedProperties) {
@@ -52,39 +52,35 @@ export default class ClinicalAnalysisGroup extends LitElement {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
-                showCreate: false, // Caution: force create false independently of admin/default decision.
             };
-
             this.updateGroups();
         }
     }
 
     updateGroups() {
-        this.groups = []; // Reset groups
+        this._groups = []; // Reset groups
         this.requestUpdate();
         this.opencgaSession.opencgaClient.clinical()
-            .distinct(this.activeGroup.distinctField, {
+            .distinct(this._activeGroup.distinctField, {
                 study: this.opencgaSession.study.fqn,
             })
             .then(response => {
-                this.groups = response.getResults();
-
+                this._groups = response.getResults();
                 // Check if a custom sorting function has been provided
-                if (typeof this.activeGroup.customSort === "function") {
-                    this.groups = this.activeGroup.customSort(this.groups);
+                if (typeof this._activeGroup.customSort === "function") {
+                    this._groups = this._activeGroup.customSort(this._groups);
                 }
-
                 this.requestUpdate();
             });
     }
 
     onGroupChange(newGroup) {
-        this.activeGroup = newGroup;
+        this._activeGroup = newGroup;
         this.updateGroups();
     }
 
     onQueryComplete(event, item) {
-        const totalResults = event.detail.value?.responses[0]?.numTotalResults || 0;
+        const totalResults = event.detail?.response?.responses[0]?.numTotalResults || 0;
         this.querySelector(`#${this._prefix}GroupCount${item}`).textContent = `(${totalResults} cases)`;
     }
 
@@ -96,72 +92,58 @@ export default class ClinicalAnalysisGroup extends LitElement {
     renderGroupItem(item) {
         const query = {
             ...this.query,
-            [this.activeGroup.queryField]: item,
+            [this._activeGroup.queryField]: item,
         };
         return html`
-            <div>
-                <h3>
-                    <i class="fas ${this.activeGroup.display.icon} icon-padding"></i>
-                    <strong>${item || this.activeGroup.display.emptyTitle}</strong>
-                    <span id="${this._prefix}GroupCount${item}"></span>
-                </h3>
-                <clinical-analysis-grid
-                    .toolId="${this.toolId}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config}"
-                    .query="${query}"
-                    .active="${true}"
-                    @rowUpdate="${() => this.onRowUpdate()}"
-                    @queryComplete="${e => this.onQueryComplete(e, item)}">
-                </clinical-analysis-grid>
-            </div>
+            <h3 class="fw-bold">
+                <i class="fas ${this._activeGroup.display.icon} icon-padding"></i>
+                <strong>${item || this._activeGroup.display.emptyTitle}</strong>
+                <span id="${this._prefix}GroupCount${item}"></span>
+            </h3>
+            <clinical-analysis-grid
+                .toolId="${this.toolId}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config?.grid}"
+                .query="${query}"
+                .active="${true}"
+                @rowUpdate="${() => this.onRowUpdate()}"
+                @queryComplete="${e => this.onQueryComplete(e, item)}">
+            </clinical-analysis-grid>
         `;
     }
 
     render() {
         return html`
-            <div>
-                <div class="d-flex">
-                    <!--
-                    ${this.config?.showCreate ? html`
-                        <a type="button" href="#clinical-analysis-create/" class="btn btn-light">
-                            <i class="fas fa-columns icon-padding"></i>
-                            <span>New</span>
-                        </a>
-                    ` : null}
-                    -->
-                    <div class="dropdown ms-auto">
-                        <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="fas fa-layer-group me-1"></i>
-                            Group by
-                        </button>
-                        <ul class="dropdown-menu ms-auto me-0">
-                            ${this._config.groups.map(group => html`
-                                <li>
-                                    <a class="dropdown-item" style="cursor:pointer;" @click="${() => this.onGroupChange(group)}">
-                                        <div class="form-check">
-                                            <input
-                                                class="form-check-input"
-                                                type="radio"
-                                                name="CaseGroupBy"
-                                                ?checked="${group.id === this.activeGroup.id}"/>
-                                            <label class="form-check-label">${group.display.title}</label>
-                                        </div>
-                                    </a>
-                                </li>
-                            `)}
-                        </ul>
+            <div class="d-flex">
+                <div class="dropdown ms-auto">
+                    <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-layer-group me-1"></i> Group by
+                    </button>
+                    <div class="dropdown-menu ms-auto me-0">
+                        ${this._config.groups.map(group => html`
+                            <a class="dropdown-item cursor-pointer" @click="${() => this.onGroupChange(group)}">
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        name="CaseGroupBy"
+                                        ?checked="${group.id === this._activeGroup.id}"/>
+                                    <label class="form-check-label">${group.display.title}</label>
+                                </div>
+                            </a>
+                        `)}
                     </div>
                 </div>
-                ${this.groups.map(item => this.renderGroupItem(item))}
             </div>
+            ${this._groups.map(item => this.renderGroupItem(item))}
         `;
     }
 
     getDefaultConfig() {
         return {
-            showToolbar: false,
-            showCreate: false,
+            grid: {
+                showToolbar: false,
+            },
             groups: [
                 {
                     id: "analyst",
