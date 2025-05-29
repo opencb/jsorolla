@@ -36,25 +36,6 @@ export class CellBaseClient {
         this.check();
     }
 
-    getDefaultConfig() {
-        return {
-            host: "https://ws.zettagenomics.com/cellbase",
-            version: "v5.8",
-            species: "hsapiens",
-            apiKey: "",
-            query: {
-                batchSize: "",
-                limit: 10
-            },
-            cache: {
-                active: false,
-                // TODO FIXME database: `${this.species}_${this.version}_cellbase_cache`,
-                subcategories: ["genomic_chromosome", "genomic_region", "genomic_variant", "feature_gene", "feature_variation",
-                    "feature_clinical", "feature_id", "feature_protein", "feature_transcript"]
-            }
-        };
-    }
-
     async check() {
         const globalEvent = (type, value) => {
             globalThis.dispatchEvent(
@@ -341,6 +322,15 @@ export class CellBaseClient {
         // params is added to the key to avoid unwanted request abort.
         // We can do it because we don't have tables in IVA that queries Cellbase.
         return `${new Error().stack.split("\n    at ").slice(0, 5).join("|") + JSON.stringify(params)}`;
+    }
+
+    getDefaultConfig() {
+        return {
+            host: "https://ws.zettagenomics.com/cellbase",
+            version: "v5.8",
+            species: "hsapiens",
+            apiKey: "",
+        };
     }
 
 }
