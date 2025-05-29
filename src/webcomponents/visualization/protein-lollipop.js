@@ -116,6 +116,11 @@ export default class ProteinLollipop extends LitElement {
             .queryVariant(params)
             .then(response => {
                 return response.responses?.[0]?.results || [];
+            })
+            .catch(error => {
+                console.error(error);
+                this.error = `Error fetching variants for gene '${this.geneId}' in study '${this.opencgaSession.study.fqn}': ${error}`;
+                return [];
             });
     }
 
