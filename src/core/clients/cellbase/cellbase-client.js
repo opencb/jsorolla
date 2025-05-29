@@ -16,17 +16,11 @@
 
 import RestClient from "../rest-client.js";
 import UtilsNew from "../../utils-new.js";
-import "../../cache/indexeddb-cache.js";
-
 
 export class CellBaseClient {
 
     constructor(config) {
         this.setConfig(config);
-        if (this._config.cache.active) {
-            this.indexedDBCache = new IndexedDBCache(this._config.cache.database);
-            this._initCache();
-        }
         this.restClient = new RestClient();
         this.check();
     }
@@ -63,10 +57,6 @@ export class CellBaseClient {
                     });
                 });
         }
-    }
-
-    _initCache() {
-        this.indexedDBCache.createObjectStores(this._config.cache.subcategories);
     }
 
     /*
@@ -155,115 +145,13 @@ export class CellBaseClient {
         return this.get("feature", "regulatory", id, resource, params, options);
     }
 
-    async get(category, subcategory, ids, resource, params, options = {}) {
-        // we store the options from the parameter or from the default values in config
+    get(category, subcategory, ids, resource, params, options = {}) {
         const host = options.host || this._config.host;
-
-        if (!host) {
-            throw new Error("Cellbase host not defined");
-        }
-        const cache = options.cache || this._config.cache;
-
-        let response;
-        if (cache.active) {
-            const os = `${category}_${subcategory}`;
-
-            const nonCachedIds = [];
-
-            const cacheKeys = [];
-            const suffixKey = this._createSuffixKey(params, true);
-
-            let idArray = [];
-            if (ids !== undefined && ids !== null) {
-                idArray = ids.split(",");
-                for (let i = 0; i < idArray.length; i++) {
-                    cacheKeys.push(`${idArray[i]}_${resource}${suffixKey}`);
-                }
-            } else {
-                cacheKeys.push(resource + suffixKey);
-            }
-
-            console.time("Cache time:");
-            const _this = this;
-            response = new Promise(function (resolve, reject) {
-                _this.indexedDBCache.getAll(os, cacheKeys, function (results) {
-                    let uncachedQueries = false;
-                    for (let i = 0; i < results.length; i++) {
-                        if (results[i] === undefined) {
-                            uncachedQueries = true;
-                            if (idArray.length > 0) {
-                                nonCachedIds.push(idArray[i]);
-                            }
-                        }
-                    }
-
-                    options.cacheFn = function (dataResponse) {
-                        // we add the new fetched data to the cache
-                        const suffixKey = _this._createSuffixKey(params, true);
-                        // We make a copy of dataResponse
-                        const query = {};
-                        for (const i in dataResponse) {
-                            if (Object.prototype.hasOwnProperty.call(dataResponse, i)) {
-                                query[i] = dataResponse[i];
-                            }
-                        }
-                        // And remove the key response
-                        delete query["response"];
-
-                        if (idArray.length > 0) {
-                            for (let i = 0; i < dataResponse.response.length; i++) {
-                                const result = {
-                                    query: query,
-                                    data: dataResponse.response[i]
-                                };
-                                // Update the data time to 0
-                                result.data.dbTime = 0;
-                                _this.indexedDBCache.add(os, `${idArray[i]}_${resource}${suffixKey}`, result);
-                            }
-                        } else {
-                            for (let i = 0; i < dataResponse.response.length; i++) {
-                                const result = {
-                                    query: query,
-                                    data: dataResponse.response[i]
-                                };
-                                // Update the data time to 0
-                                result.data.dbTime = 0;
-                                _this.indexedDBCache.add(os, resource + suffixKey, result);
-                            }
-                        }
-                    };
-                    if (uncachedQueries) {
-                        resolve(_this._callRestWebService(host, category, subcategory, nonCachedIds, resource, params, options));
-                    } else {
-                        const queryResponse = results[0].query;
-                        queryResponse["response"] = [];
-                        for (let i = 0; i < results.length; i++) {
-                            queryResponse.response.push(results[i].data);
-                        }
-                        resolve(queryResponse);
-                        // If the call is OK then we execute the success function from the user
-                        if (typeof options !== "undefined" && typeof options.success === "function") {
-                            options.success(response);
-                        }
-                    }
-                    console.timeEnd("Cache time:");
-                });
-            });
-        } else {
-            response = this._callRestWebService(host, category, subcategory, ids, resource, params, options);
-        }
-
-        return response;
-    }
-
-    _callRestWebService(host, category, subcategory, ids, resource, params, options) {
         const version = options.version || this._config.version;
         const species = options.species || this._config.species;
-
         const url = this._createRestUrl(host, version, species, category, subcategory, ids, resource, params);
-        const k = this.generateKey({...params, species, category, subcategory, resource, params});
-        // FIXME: add try-catch-finally (see opencga-rest-input.js)
-        return this.restClient.call(url, options, k);
+
+        return this.restClient.call(url, options);
     }
 
     _createRestUrl(host, version, species, category, subcategory, ids, resource, params) {
