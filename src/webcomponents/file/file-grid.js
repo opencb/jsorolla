@@ -151,7 +151,7 @@ export default class OpencgaFileGrid extends LitElement {
                             buttonsLayout: "bottom",
                         }}"
                         @fileUpdate="${() => {
-                            this.changeActiveActionModal("");
+                            this.gridCommons.clearActiveModal();
                             this.forceTableRefresh();
                         }}">
                     </file-update>
