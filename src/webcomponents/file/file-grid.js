@@ -577,7 +577,7 @@ export default class OpencgaFileGrid extends LitElement {
 
     actionsFormatter(value, row) {
         const hasDownloadPermission = this.gridCommons.hasPermission("DOWNLOAD");
-        const hasWritePermission = this.hasPermission("FILE", "WRITE");
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
         const hasDeletePermission = this.gridCommons.hasPermission("DELETE");
         const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
         const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
