@@ -14,283 +14,225 @@
  * limitations under the License.
  */
 
-import UtilsTest from "../../support/utils-test.js";
-import BrowserTest from "../../support/browser-test";
-
 context("Disease Panel Browser Grid", () => {
-    const browserGrid = "disease-panel-grid";
-
     beforeEach(() => {
         cy.visit("#disease-panel-browser-grid");
-        cy.get("div[data-cy='disease-panel-browser-container']")
-            .as("container");
+        cy.get("disease-panel-grid")
+            .as("disease-panel-grid");
         cy.waitUntil(() => {
-            return cy.get("@container")
+            return cy.get("@disease-panel-grid")
                 .should("be.visible");
         });
     });
 
-    // TOOLBAR
-    context("Disease Panel Toolbar", () => {
+    context("toolbar", () => {
         beforeEach(() => {
-            cy.get("@container")
-                .find("div[data-cy='toolbar']")
+            cy.get("@disease-panel-grid")
+                .find("grid-toolbar")
                 .as("toolbar");
         });
 
-        //1. Render the toolbar
-        context("render", () => {
-            // 1.1. It should render a div with the toolbar
-            it("should render toolbar", () => {
-                cy.get("@container")
-                    .find("div[data-cy='toolbar-wrapper']")
-                    .should("be.visible");
-            });
-            // 1.1. If configured, it should render a New button
-            it("should render New button", () => {
-                cy.get("@container")
-                    .find("button[data-action='create']")
-                    .should("be.visible");
-            });
+        it("should be visible", () => {
+            cy.get("@toolbar")
+                .should("be.visible");
+        });
+
+        it("should display the 'Create Disease Panel' button", () => {
+            cy.get("@toolbar")
+                .contains("button", "Create Disease Panel")
+                .should("be.visible");
+        });
+
+        it("should display the 'Settings' button", () => {
+            cy.get("@toolbar")
+                .find(`button[data-cy="toolbar-btn-settings"]`)
+                .should("be.visible");
         });
     });
 
-    // MODAL CREATE
-    context("Modal Create", () => {
+    context("create a disease panel", () => {
         beforeEach(() => {
-            cy.get("@container")
-                .find("button[data-action='create']")
+            cy.get("@disease-panel-grid")
+                .contains("button", "Create Disease Panel")
                 .click();
-            cy.get("@container")
-                .find("div[data-cy='modal-create']")
-                .as("modal-create");
+            cy.get("@disease-panel-grid")
+                .find("div[data-cy='modal-disease-panel-create']")
+                .as("modal-disease-panel-create");
         });
-        // 1. Open modal and render create
-        it("should render create modal", () => {
-            cy.get("@modal-create")
+
+        it("should display the modal for creating a disease panel when clicking the 'Create Disease Panel' button", () => {
+            cy.get("@modal-disease-panel-create")
                 .find("div.modal-dialog")
                 .should("be.visible");
         });
-        // 2. Render title
-        it("should render create title", () => {
-            cy.get("@modal-create")
+
+        it("should display the 'Create Disease Panel' title in the modal", () => {
+            cy.get("@modal-disease-panel-create")
                 .find("h4.modal-title")
                 .should("contain.text", "Create Disease Panel");
         });
-        // 3. Render button clear
-        it("should render button clear", () => {
-            cy.get("@modal-create")
-                .contains("button", "Clear")
-                .should("be.visible");
-        });
-        // 4. Render button create
-        it("should render button create", () => {
-            cy.get("@modal-create")
+
+        it("should display the 'Create' button in the modal", () => {
+            cy.get("@modal-disease-panel-create")
                 .contains("button", "Create")
                 .should("be.visible");
         });
-        // 5. Render tabs
-        it("should render form tabs", () => {
-            cy.get("@modal-create")
+
+        it("should display the 'Clear' button in the modal", () => {
+            cy.get("@modal-disease-panel-create")
+                .contains("button", "Clear")
+                .should("be.visible");
+        });
+
+        it("should display content as tabs", () => {
+            cy.get("@modal-disease-panel-create")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.greaterThan", 1);
         });
-        // 6. Render Disease Panel ID
-        it("should have form field ID", () => {
-            cy.get("@modal-create")
-                .find("data-form div.form-horizontal div.row div.col-md-3")
+
+        it("should ask for a disease panel ID in the form", () => {
+            cy.get("@modal-disease-panel-create")
+                .find("data-form")
                 .should("contain.text", "Disease Panel ID");
         });
     });
 
-    // MODAL UPDATE
-    context("Modal Update", () => {
+    context("update a disease panel", () => {
         beforeEach(() => {
-            cy.get("@container")
-                .find("table tbody tr td button.dropdown-toggle")
+            cy.get("@disease-panel-grid")
+                .find(`table tbody tr td button[data-cy="actions-button"]`)
                 .first()
                 .click();
-            cy.get("@container")
-                .find("a[data-action='edit']")
+            cy.get("@disease-panel-grid")
+                .find(`a[data-action="edit"]`)
                 .first()
                 .click();
-            cy.get("div[data-cy='modal-update']")
-                .as("modal-update");
+            cy.get(`div[data-cy="modal-disease-panel-update"]`)
+                .as("modal-disease-panel-update");
         });
-        // 1. Open modal and render update
-        it("should render update modal", () => {
-            cy.get("@modal-update")
+
+        it("should display the modal for updating a disease panel when clicking the 'Edit' action", () => {
+            cy.get("@modal-disease-panel-update")
                 .find("div.modal-dialog")
                 .should("be.visible");
         });
-        // 2. Render title
-        it("should render update title", () => {
-            cy.get("@modal-update")
+
+        it("should display the 'Update Disease Panel' title in the modal", () => {
+            cy.get("@modal-disease-panel-update")
                 .find("h4.modal-title")
                 .should("contain.text", "Update Disease Panel");
         });
-        // 3. Render button clear
-        it("should render button clear", () => {
-            cy.get("@modal-update")
+
+        it("should display the 'Discard Changes' button in the modal", () => {
+            cy.get("@modal-disease-panel-update")
                 .contains("button", "Discard Changes")
                 .should("be.visible");
         });
-        // 4. Render button create
-        it("should render button create", () => {
-            cy.get("@modal-update")
+
+        it("should display the 'Update' button in the modal", () => {
+            cy.get("@modal-disease-panel-update")
                 .contains("button", "Update")
                 .should("be.visible");
         });
-        // 5. Render tabs
-        it("should render form tabs", () => {
-            cy.get("@modal-update")
+
+        it("should display content as tabs", () => {
+            cy.get("@modal-disease-panel-update")
                 .find("ul.nav.nav-tabs > li")
                 .should("have.length.greaterThan", 1);
         });
-        // 6. Render Sample ID
-        it("should have form field ID equal to sample selected", () => {
-            cy.get("@modal-update")
-                .find("data-form div.row div.row div.col-md-3")
+
+        it("should have a field with the ID of the selected disease panel", () => {
+            cy.get("@modal-disease-panel-update")
+                .find("data-form")
                 .should("contain.text", "Disease Panel ID");
         });
     });
 
-    context("Modal Setting", () => {
-        it("should move modal setting", () => {
-            cy.get("button[data-action='settings']")
+    context("settings", () => {
+        it("should display the settings modal when clicking on the 'Settings' button", () => {
+            cy.get("@disease-panel-grid")
+                .find(`button[data-action="settings"]`)
                 .click();
-
-            BrowserTest.getElementByComponent({
-                selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:"div",
-                elementId: "SettingModal"
-            }).as("settingModal");
-
-            cy.get("@settingModal")
-                .then(($modal) => {
-                    const startPosition = $modal.offset();
-                    cy.log("start Position:", startPosition);
-
-                    // Drag the modal to a new position using Cypress's drag command
-                    cy.get("@settingModal")
-                        .find(".modal-header")
-                        .as("modalHeader");
-
-                    cy.get("@modalHeader")
-                        .trigger("mousedown", { which: 1 }); // Trigger mouse down event
-                    cy.get("@modalHeader")
-                        .trigger("mousemove", { clientX: 100, clientY: 100 }); // Move the mouse
-                    cy.get("@modalHeader")
-                        .trigger("mouseup"); // Release the mouse
-
-                    // Get the final position of the modal
-                    cy.get("@modalHeader")
-                        .then(($modal) => {
-                            const finalPosition = $modal.offset();
-                            cy.log("final Position:", finalPosition);
-                            // Assert that the modal has moved
-                            expect(finalPosition.left).to.not.equal(startPosition.left);
-                            expect(finalPosition.top).to.not.equal(startPosition.top);
-                        });
-                });
+            cy.get("div.modal-dialog")
+                .should("be.visible");
         });
 
-        it("should hide columns [Disorders,Source,Extra column]",() => {
-            const columns = ["Disorders","Source","Extra column"];
-            cy.get("disease-panel-grid thead th")
-                .as("headerColumns");
+        it("should allow to hide columns in the grid", () => {
+            const columns = ["Disorders", "Source", "Extra column"];
 
-            columns.forEach(col => {
+            cy.get("@disease-panel-grid")
+                .find("thead th")
+                .as("headerColumns");
+            columns.forEach(column => {
                 cy.get("@headerColumns")
-                    .contains("div",col)
+                    .contains("div", column)
                     .should("be.visible");
             });
-            cy.get("button[data-action='settings']")
+            cy.get("@disease-panel-grid")
+                .find(`button[data-action="settings"]`)
                 .click();
-            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-container")
+            cy.get("@disease-panel-grid")
+                .find(`div[data-testid="test-columns"] select-field-filter`)
+                .as("columnsSelector");
+            cy.get("@columnsSelector")
+                .find(".select2-container")
                 .click();
             columns.forEach(col => {
-                UtilsTest.getByDataTest("test-columns", "select-field-filter span.select2-results li")
+                cy.get("@columnsSelector")
+                    .find("span.select2-results li")
                     .contains(col)
                     .click();
             });
-            UtilsTest.getByDataTest("test-columns", "select-field-filter .select2-selection")
+            cy.get("@columnsSelector")
+                .find(".select2-selection")
                 .click();
-            BrowserTest.getElementByComponent({
-                selector: `${browserGrid} opencb-grid-toolbar`,
-                tag:"div",
-                elementId: "SettingModal"
-            }).as("settingModal");
-
-            cy.get("@settingModal")
+            cy.get("@disease-panel-grid")
+                .find(".modal-body")
                 .contains("button", "OK")
                 .click();
+
             cy.get("@headerColumns")
                 .should($header => {
-                    const _columns = Array.from($header, th => th.textContent.trim());
+                    const visibleColumns = Array.from($header, th => th.textContent.trim());
                     columns.forEach(col => {
-                        expect(col).not.to.be.oneOf(_columns);
+                        expect(col).not.to.be.oneOf(visibleColumns);
                     });
                 });
         });
     });
 
-    // GRID
-    context("Disease Panel Grid", () => {
-        const gridComponent = "disease-panel-grid";
-
-        beforeEach(() => {
-            cy.get("@container")
-                .find("div[data-cy='dpb-grid']")
-                .as("grid");
-        });
-
-        // 1. Render the grid
-        context("render", () => {
-            // It should render a table, with at least one column and one row
-            it("should render table", () => {
-                cy.get("@container")
+    context("grid", () => {
+        context("content", () => {
+            it("should render a <table> element", () => {
+                cy.get("@disease-panel-grid")
                     .find("table")
                     .should("be.visible");
             });
-            it("should render at least one row", () => {
-                cy.get("@container")
+
+            it("should display at least one row in the table", () => {
+                cy.get("@disease-panel-grid")
                     .find("tbody tr")
                     .should("be.visible");
             });
-            it("should render at least one column", () => {
-                cy.get("@container")
+
+            it("should display at least one column in the table", () => {
+                cy.get("@disease-panel-grid")
                     .find("thead tr th")
                     .should("be.visible");
             });
-            it("should render column titles", () => {
-                cy.get("@container")
-                    .find("thead tr th div[class='th-inner']")
+
+            it("should display titles in of each column", () => {
+                cy.get("@disease-panel-grid")
+                    .find(`thead tr th div[class="th-inner "]`)
+                    .first()
                     .should("not.be.empty");
-            });
-            it("should render at least one row", () => {
-                cy.get("@container")
-                    .find("tbody tr")
-                    .should("be.visible");
-            });
-            // It should render the pagination
-            it("should change page", () => {
-                UtilsTest.changePage(gridComponent,2);
             });
         });
 
         context("data completeness", () => {
-            let creationDateIndex = null;
-
-            beforeEach(() => {
-                cy.get("@grid")
-                    .find("tbody")
-                    .as("body");
-            });
-
-            it("should have IDs", () => {
-                cy.get("@body")
-                    .find("td:first-child")
+            it("should display the disease panel ID in each row", () => {
+                cy.get("@disease-panel-grid")
+                    .find("tbody td:first-child")
                     .each($td => {
                         cy.wrap($td)
                             .should("not.be.empty");
@@ -298,55 +240,13 @@ context("Disease Panel Browser Grid", () => {
             });
         });
 
-        context("data format", () => {
-
-            beforeEach(() => {
-                cy.get("@grid")
-                    .find("tbody tr[data-index='0']")
-                    .as("row");
-            });
-        });
-
-        context("extension", () => {
+        context("extensions", () => {
             it("should display 'Extra Column' column", () => {
-                cy.get("thead th")
+                cy.get("@disease-panel-grid")
+                    .find("thead th")
                     .contains("Extra column")
                     .should("be.visible");
             });
-        });
-
-    });
-
-    context("Detail", () => {
-        beforeEach(() => {
-            cy.get("@container")
-                .find("div[data-cy='dpb-detail']")
-                .as("detail");
-        });
-
-        it("should render", () => {
-            cy.get("@detail")
-                .should("be.visible");
-        });
-
-        it("should display info from the selected row",() => {
-            const panel = "Familial_non_syndromic_congenital_heart_disease-PanelAppId-212";
-            cy.get(`tbody tr[data-uniqueid="${panel}"]`)
-                .find(`td:first`)
-                .trigger("click");
-
-            cy.get(`detail-tabs h3`)
-                .should("contain.text", `Disease Panel ${panel}`);
-        });
-
-        it("should display 'JSON Data' Tab", () => {
-            cy.get("@detail")
-                .find("li")
-                .contains("JSON Data")
-                .trigger("click");
-
-            cy.get("json-viewer")
-                .should("be.visible");
         });
     });
 });

@@ -5,10 +5,11 @@ export default class ModalUtils {
 
     static show(id) {
         const modalElm = document.querySelector(`#${id}`);
+        // note: first we need to show the modal before we can set the draggable
+        $(`#${id}`).modal("show");
         if (modalElm.dataset?.draggable === "true") {
             ModalUtils.draggableModal(modalElm);
         }
-        $(`#${id}`).modal("show");
     }
 
     static close(id) {
@@ -24,7 +25,7 @@ export default class ModalUtils {
         const modalTitle = config.display?.modalTitle || "";
         const modalTitleClassName = config.display?.modalTitleClassName || "";
         const modalTitleStyle = config.display?.modalTitleStyle || "";
-        const btnsVisible = config.display?.modalbtnsVisible;
+        const btnsVisible = config.display?.modalBtnsVisible ?? config.display?.modalbtnsVisible;
         const btnCancelVisible = config.display?.btnCancelVisible ?? true;
         const btnSaveVisible = config.display?.btnSaveVisible ?? true;
         const modalDraggable = config.display?.modalDraggable ?? false;
@@ -39,7 +40,7 @@ export default class ModalUtils {
         };
 
         return html`
-            <div class="modal fade ${modalContainerClass}" id="${id}" tabindex="-1" data-draggable="${modalDraggable}" data-cy="${modalCyName}">
+            <div class="modal ${modalContainerClass}" id="${id}" tabindex="-1" data-draggable="${modalDraggable}" data-cy="${modalCyName}">
                 <div class="modal-dialog ${modalSize}" style="${modalStyle}">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -57,12 +58,12 @@ export default class ModalUtils {
                             <div class="modal-footer">
                                 ${btnCancelVisible ? html`
                                     <button type="button" class="btn btn-light" data-bs-dismiss="modal" @click="${handleCancel}">
-                                        ${config?.display?.cancelButtonText || "Cancel"}
+                                        ${config?.display?.btnCancelText || config?.display?.cancelButtonText || "Cancel"}
                                     </button>
                                 ` : nothing}
                                 ${btnSaveVisible ? html`
                                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${handleOk}">
-                                        ${config?.display?.okButtonText || "Save"}
+                                        ${config?.display?.btnSaveText || config?.display?.btnOkText || config?.display?.okButtonText || "Save"}
                                     </button>
                                 ` : nothing}
                             </div>
@@ -79,8 +80,9 @@ export default class ModalUtils {
         const modalHeader = modalElm.querySelector(".modal-header");
 
         if (modalDialog) {
+            const modalSize = modalDialog.getBoundingClientRect();
             modalDialog.style.margin = "0";
-            modalDialog.style.left = (window.innerWidth * 0.30) + "px";
+            modalDialog.style.left = ((window.innerWidth - (modalSize?.width || 0)) * 0.50) + "px";
             modalDialog.style.top = (window.innerHeight * 0.05) + "px";
         }
 

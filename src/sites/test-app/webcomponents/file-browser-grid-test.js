@@ -15,11 +15,9 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/file/file-grid.js";
-import "../../../webcomponents/file/file-detail.js";
-
 
 class FileBrowserGridTest extends LitElement {
 
@@ -49,7 +47,6 @@ class FileBrowserGridTest extends LitElement {
             "files-chinese.json",
         ];
         this._data = null;
-        this._selectedRow = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -70,7 +67,6 @@ class FileBrowserGridTest extends LitElement {
             Promise.all(allPromises)
                 .then(data => {
                     this._data = data[0];
-                    this._selectedRow = this._data[0];
                     this.mutate();
                     this.requestUpdate();
                 })
@@ -84,11 +80,6 @@ class FileBrowserGridTest extends LitElement {
         return null;
     }
 
-    onSelectRow(e) {
-        this._selectedRow = e.detail.row;
-        this.requestUpdate();
-    }
-
     onSettingsUpdate() {
         this._config.grid = {
             ...this._config.grid,
@@ -99,35 +90,26 @@ class FileBrowserGridTest extends LitElement {
 
     render() {
         if (!this._data) {
-            return "Loading...";
+            return nothing;
         }
 
         return html`
-            <div data-cy="file-browser">
-                <h2 style="font-weight: bold;">
-                    File Browser Grid (${this.FILES[0]})
-                </h2>
-                <file-grid
-                    .toolId="${this.COMPONENT_ID}"
-                    .files="${this._data}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.grid}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}"
-                    @selectrow="${e => this.onSelectRow(e)}">
-                </file-grid>
-                <file-detail
-                    .file="${this._selectedRow}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.detail}">
-                </file-detail>
-            </div>
+            <h2 class="fw-bold">
+                File Browser Grid (${this.FILES[0]})
+            </h2>
+            <file-grid
+                .toolId="${this.COMPONENT_ID}"
+                .files="${this._data}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config.grid}"
+                @settingsUpdate="${() => this.onSettingsUpdate()}">
+            </file-grid>
         `;
     }
 
     getDefaultConfig() {
         return {
             grid: {},
-            detail: {},
         };
     }
 

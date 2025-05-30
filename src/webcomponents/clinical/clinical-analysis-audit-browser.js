@@ -18,12 +18,9 @@ import {LitElement, html, nothing} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 
 import UtilsNew from "../../core/utils-new.js";
-import "../commons/tool-header.js";
-import "../variant/interpretation/variant-interpreter-grid.js";
-import "../variant/interpretation/variant-interpreter-detail.js";
-import "../variant/variant-browser-filter.js";
 import GridCommons from "../commons/grid-commons.js";
 import {Namespace, TempusDominus} from "@eonasdan/tempus-dominus";
+import "../commons/tool-header.js";
 
 class ClinicalAnalysisAuditBrowser extends LitElement {
 
