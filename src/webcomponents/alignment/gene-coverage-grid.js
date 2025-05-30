@@ -17,7 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
-import "../commons/opencb-grid-toolbar.js";
+import "../commons/grid-toolbar.js";
 import "../loading-spinner.js";
 // import DATA from "./data.js";
 
@@ -334,8 +334,8 @@ export default class GeneCoverageGrid extends LitElement {
                 </div>
             ` : null}
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar @download="${this.onDownload}">
-                </opencb-grid-toolbar>` :
+                <grid-toolbar @download="${this.onDownload}">
+                </grid-toolbar>` :
             null}
             <div class="gene-coverage-grid">
                 <table id="${this.gridId}"></table>

@@ -22,10 +22,10 @@ import "../../clinical/clinical-analysis-update.js";
 import "../../clinical/interpretation/clinical-interpretation-manager.js";
 import "../../clinical/clinical-analysis-consent-editor.js";
 import "../../clinical/clinical-analysis-audit-browser.js";
-import "../../clinical/clinical-analysis-view.js";
+import "../../clinical/clinical-analysis-summary.js";
 import "../../project/project-cellbase-info.js";
 import "../../commons/view/detail-tabs.js";
-import "../../individual/individual-view.js";
+import "../../individual/individual-summary.js";
 import "../../loading-spinner.js";
 
 class VariantInterpreterLanding extends LitElement {
@@ -159,10 +159,10 @@ class VariantInterpreterLanding extends LitElement {
                         return html`
                             <div class="col-md-10 offset-md-1">
                                 <tool-header title="Clinical Data"></tool-header>
-                                <individual-view
+                                <individual-summary
                                     .individual="${clinicalAnalysis.proband}"
                                     .opencgaSession="${opencgaSession}">
-                                </individual-view>
+                                </individual-summary>
                             </div>
                         `;
                     }
@@ -224,11 +224,11 @@ class VariantInterpreterLanding extends LitElement {
                         return html`
                             <div class="col-md-10 offset-md-1">
                                 <tool-header title="Case Summary - ${clinicalAnalysis?.id || ""}"></tool-header>
-                                <clinical-analysis-view
-                                    .settings="${this._config.items?.find(el => el.id === "overview")?.settings}"
+                                <clinical-analysis-summary
                                     .clinicalAnalysis="${clinicalAnalysis}"
+                                    .active="${active}"
                                     .opencgaSession="${opencgaSession}">
-                                </clinical-analysis-view>
+                                </clinical-analysis-summary>
                             </div>
                         `;
                     }
