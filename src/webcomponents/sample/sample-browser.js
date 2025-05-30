@@ -19,7 +19,6 @@ import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "../commons/aggregation-stats.js";
 import "./sample-grid.js";
-import "./sample-detail.js";
 
 export default class SampleBrowser extends LitElement {
 
@@ -128,17 +127,9 @@ export default class SampleBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .active="${true}"
                             @queryComplete="${e => params.onQueryComplete(e)}"
-                            @selectrow="${e => params.onClickRow(e)}"
                             @sampleUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </sample-grid>
-                        ${params?.detail ? html`
-                            <sample-detail
-                                .sampleId="${params.detail?.id}"
-                                .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}">
-                            </sample-detail>
-                        ` : nothing}
                     `,
                 },
                 {
@@ -183,6 +174,13 @@ export default class SampleBrowser extends LitElement {
                                 quick: true,
                             },
                             {
+                                id: "cohortIds",
+                                title: "Cohort ID",
+                                placeholder: "file.vcf, ...",
+                                description: "",
+                                quick: true,
+                            },
+                            {
                                 id: "phenotypes",
                                 title: "Phenotypes",
                                 placeholder: "Full-text search, e.g. melanoma",
@@ -191,7 +189,8 @@ export default class SampleBrowser extends LitElement {
                             {
                                 id: "somatic",
                                 title: "Somatic",
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                             {
                                 id: "date",
@@ -220,79 +219,11 @@ export default class SampleBrowser extends LitElement {
                         exportTabs: ["download", "link", "code"]
                     }
                 },
-                detail: {
-                    title: "Sample",
-                    showTitle: true,
-                    items: [
-                        {
-                            id: "sample-view",
-                            name: "Overview",
-                            active: true,
-                            render: (sample, active, opencgaSession) => html`
-                                <sample-view
-                                    .sample="${sample}"
-                                    .active="${active}"
-                                    .opencgaSession="${opencgaSession}">
-                                </sample-view>
-                            `,
-                        },
-                        {
-                            id: "sample-variant-stats-view",
-                            name: "Variant Stats",
-                            render: (sample, active, opencgaSession) => html`
-                                <sample-variant-stats-view
-                                    .sampleId="${sample.id}"
-                                    .active="${active}"
-                                    .opencgaSession="${opencgaSession}">
-                                </sample-variant-stats-view>
-                            `,
-                        },
-                        {
-                            id: "samtools-flags-stats-view",
-                            name: "Samtools Flagstat",
-                            render: (sample, active, opencgaSession) => html`
-                                <samtools-flagstats-view
-                                    .sample="${sample}"
-                                    .opencgaSession="${opencgaSession}">
-                                </samtools-flagstats-view>
-                            `,
-                        },
-                        {
-                            id: "individual-view",
-                            name: "Individual",
-                            render: (sample, active, opencgaSession) => html`
-                                <individual-view
-                                    .individualId="${sample?.individualId}"
-                                    .opencgaSession="${opencgaSession}">
-                                </individual-view>
-                            `,
-                        },
-                        {
-                            id: "file-view",
-                            name: "Files",
-                            render: (sample, active, opencgaSession) => html`
-                                <file-grid
-                                    .query="${{sampleIds: sample.id, type: "FILE,VIRTUAL"}}"
-                                    .active="${active}"
-                                    .config="${{
-                                        showToolbar: false,
-                                    }}"
-                                    .opencgaSession="${opencgaSession}">
-                                </file-grid>
-                            `,
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (sample, active, opencgaSession) => html`
-                                <json-viewer
-                                    .data="${sample}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        }
-                    ]
-                }
+                view: {
+                    displayConfig: {
+
+                    },
+                },
             },
             aggregation: {
                 default: ["somatic", "creationYear[MONTH]"],
