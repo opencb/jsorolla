@@ -288,7 +288,10 @@ export default class FilePreview extends LitElement {
                 return html`
                     <json-viewer
                         .active="${this.active}"
-                        .data="${fileWithContent.content || {}}">
+                        .data="${fileWithContent.content || {}}"
+                        .config="${{
+                            showDownloadButton: false,
+                        }}">
                     </json-viewer>
                 `;
             case "html":
