@@ -60,7 +60,7 @@ export default class DownloadButton extends LitElement {
     render() {
         return html`
             <button title="${this.title || ""}"
-                    class="${this.classes ?? "btn btn-light mt-3"}"
+                    class="${this.classes ?? "btn btn-sm btn-light"}"
                     @click="${this.download}">
                 <i class="fa fa-download p-1" aria-hidden="true"></i> ${this.name || "Download"}
             </button>

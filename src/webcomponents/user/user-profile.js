@@ -102,7 +102,7 @@ export default class UserProfile extends LitElement {
                         </div>
                     `,
                 },
-                ...ExtensionsManager.getDetailTabs("user-profile"),
+                ...ExtensionsManager.getViews("user-profile"),
             ],
         };
     }

@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utils-new.js";
 import "../loading-spinner.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import GridCommons from "../commons/grid-commons.js";
-import "../commons/opencb-grid-toolbar.js";
+import "../commons/grid-toolbar.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class VariantSamples extends LitElement {
@@ -472,14 +472,14 @@ export default class VariantSamples extends LitElement {
                 </div>
 
                 <div style="margin: 5px 0">
-                    <opencb-grid-toolbar
+                    <grid-toolbar
                         .opencgaSession="${this.opencgaSession}"
                         .settings="${this.toolbarSettings}"
                         .config="${this.toolbarConfig}"
                         @columnChange="${this.onColumnChange}"
                         @download="${this.onDownload}"
                         @export="${this.onDownload}">
-                    </opencb-grid-toolbar>
+                    </grid-toolbar>
                 </div>
 
                 <div>
