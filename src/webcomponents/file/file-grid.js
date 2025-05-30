@@ -658,17 +658,23 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     onDelete(file) {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-        };
-
         // FIXME 20241217 VERO: When trying to delete a file fetched from an external source in the root path:
         //  - If delete is used, opencga returns error "Use unlink". This is happening because the field "external" in this case is set to true in opencga.
         //  - If unlink is used, opencga returns error "[...] Could not unlink [...] Could not delete file: No documents could be found to be updated".
         //  Bug created:  https://app.clickup.com/t/36631768/TASK-7291
-        const endpoint = file.external ?
-            this.opencgaSession.opencgaClient.files().unlink(file.id, params) :
-            this.opencgaSession.opencgaClient.files().delete(file.id, params);
+        let endpoint = null;
+        if (file.external) {
+            endpoint = this.opencgaSession.opencgaClient.files()
+                .unlink(file.id, {
+                    study: this.opencgaSession.study.fqn,
+                });
+        } else {
+            endpoint = this.opencgaSession.opencgaClient.files()
+                .delete(file.id, {
+                    skipTrash: true,
+                    study: this.opencgaSession.study.fqn,
+                });
+        }
         endpoint
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
