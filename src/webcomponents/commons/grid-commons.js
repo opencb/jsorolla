@@ -15,6 +15,7 @@
  */
 
 import UtilsNew from "../../core/utils-new.js";
+import ModalUtils from "./modal/modal-utils.js";
 import CustomActions from "./custom-actions.js";
 import ExtensionsManager from "../extensions-manager.js";
 
@@ -44,6 +45,8 @@ export default class GridCommons {
         this.checkedRows = new Map();
         this.selectedRow;
         this.extensionsData = {}; // To store extra data for extensions
+        this.activeModal = ""; // current active modal
+        this.modals = {}; // map with all the available modals
     }
 
     responseHandler(response, bootstrapTableConfig) {
@@ -355,6 +358,52 @@ export default class GridCommons {
                 header.style.display = "";
             }
         }
+    }
+
+    // change the current active modal
+    changeActiveModal(name) {
+        // 1. check if there is a modal rendered
+        if (this.activeModal) {
+            ModalUtils.close(`GridModal${this.activeModal}`);
+        }
+
+        // 2. set the new active modal
+        this.activeModal = name;
+        this.context.requestUpdate();
+
+        // 3. show the new active action modal (if provided)
+        this.context.updateComplete.then(() => {
+            if (this.activeModal) {
+                ModalUtils.show(`GridModal${this.activeModal}`);
+            }
+        });
+    }
+
+    // resets the active modal
+    clearActiveModal() {
+        this.changeActiveModal("");
+    }
+
+    // register a list of modals available for this grid
+    registerModals(modals) {
+        this.modals = modals;
+    }
+
+    // render the active modal
+    renderModals() {
+        if (this.activeModal) {
+            let modalConfig = this.modals[this.activeModal];
+            // sometimes the modalConfig is a function that returns a modalConfig
+            // for example when the configuration dependes on the selected row in the grid
+            if (modalConfig && typeof modalConfig === "function") {
+                modalConfig = modalConfig(this.context);
+            }
+            // check if the modalConfig is a valid object
+            if (modalConfig && typeof modalConfig.render === "function") {
+                return ModalUtils.create(this.context, `GridModal${this.activeModal}`, modalConfig);
+            }
+        }
+        return null;
     }
 
 }
