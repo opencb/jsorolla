@@ -627,7 +627,7 @@ export default class OpencgaFileGrid extends LitElement {
                 break;
             case "edit":
                 this._selectedFile = file;
-                this.changeActiveActionModal("update");
+                this.gridCommons.changeActiveModal("update");
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(file, null, "\t"));
