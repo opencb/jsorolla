@@ -177,7 +177,8 @@ export default class VariantInterpreterGrid extends LitElement {
         this.gridCommons.registerModals({
             "variant-curate": () => ({
                 display: {
-                    modalTitle: `Review Variant ${this._selectedVariant.id}`,
+                    scrollable: true,
+                    title: `Review Variant ${this._selectedVariant.id}`,
                     modalCyDataName: `modal-variant-curate`,
                     modalSize: "modal-xl",
                     modalBtnsVisible: true,
@@ -201,7 +202,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     modalTitle: `Variant ${this._selectedVariant.id}`,
                     modalCyDataName: `modal-variant-view`,
                     modalSize: "modal-3xl",
-                    modalDraggable: true,
                 },
                 render: () => html`
                     <variant-interpreter-view
