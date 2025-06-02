@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-import {guardPage} from "../commons/html-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/forms/select-token-filter.js";
 import "../commons/filters/disease-panel-filter.js";
@@ -36,7 +35,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,30 +47,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            config: {
-                type: Object,
-            },
             displayConfig: {
                 type: Object,
             },
         };
     }
 
-    _init() {
+    #init() {
         this.clinicalAnalysis = {};
         this._users = [];
-
-        this.displayConfigDefault = {
-            style: "margin: 10px",
-            buttonsWidth: 8,
-            buttonClearText: "Clear",
-            buttonOkText: "Create Clinical Analysis",
-            width: 8,
-            titleVisible: false,
-            titleAlign: "left",
-            titleWidth: 3,
-            defaultLayout: "horizontal",
-        };
         this._config = this.getDefaultConfig();
     }
 
@@ -86,11 +70,8 @@ export default class ClinicalAnalysisCreate extends LitElement {
             this.requestUpdate();
         }
 
-        if (changedProperties.has("config")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
@@ -432,7 +413,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
     render() {
         if (!this.opencgaSession?.study) {
-            return guardPage();
+            return nothing;
         }
 
         return html`
@@ -448,11 +429,11 @@ export default class ClinicalAnalysisCreate extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "clinical-analysis",
-            title: "Create Case",
-            icon: "fas fa-user-md",
-            requires: "2.0.0",
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                buttonClearText: "Clear",
+                buttonOkText: "Create Clinical Analysis",
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
