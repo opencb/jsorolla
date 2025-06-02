@@ -18,15 +18,15 @@ export default class ModalUtils {
 
     static create(self, id, config) {
         const modalContainerClass = config.display?.modalContainerClass || "";
-        const modalStyle = config.display?.modalStyle || "";
-        const modalSize = config.display?.modalSize || "";
+        const modalStyle = config?.display?.style || config.display?.modalStyle || "";
+        const modalSize = config?.display?.size || config?.display?.modalSize || "";
         const modalTitle = config?.display?.title || config.display?.modalTitle || "";
-        const modalTitleClassName = config.display?.modalTitleClassName || "";
-        const modalTitleStyle = config.display?.modalTitleStyle || "";
-        const btnsVisible = config.display?.modalBtnsVisible ?? config.display?.modalbtnsVisible;
-        const btnCancelVisible = config.display?.btnCancelVisible ?? true;
-        const btnSaveVisible = config.display?.btnSaveVisible ?? true;
-        const modalDraggable = config.display?.modalDraggable ?? false;
+        const modalTitleClassName = config?.display?.titleClassName || config?.display?.modalTitleClassName || "";
+        const modalTitleStyle = config?.display?.titleStyle || config.display?.modalTitleStyle || "";
+        const btnsVisible = config?.display?.buttonsVisible ?? config.display?.modalBtnsVisible ?? config.display?.modalbtnsVisible;
+        const btnCancelVisible = config?.display?.buttonCancelVisible ?? config.display?.btnCancelVisible ?? true;
+        const btnSaveVisible = config?.display?.buttonSaveVisible ?? config.display?.btnSaveVisible ?? true;
+        const modalDraggable = config?.display?.draggable ?? config.display?.modalDraggable ?? false;
         const modalCyName = config.display?.modalCyDataName || "";
         const modalScrollable = config?.display?.scrollable ?? config?.display?.modalScrollable ?? false;
 
@@ -35,7 +35,15 @@ export default class ModalUtils {
             config?.onCancel ? config.onCancel(event) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, event);
         };
         const handleOk = event => {
-            config?.onOk ? config.onOk(event) : LitUtils.dispatchCustomEvent(self, "modalOk", null, event);
+            if (typeof config?.onSave === "function") {
+                config.onSave(event);
+            } else if (typeof config?.onOk === "function") {
+                // NOTE: onOk has been deprecated in favor of onSave
+                config.onOk(event);
+            } else {
+                // if no onSave function is provided, dispatch a custom event
+                LitUtils.dispatchCustomEvent(self, "modalOk", null, event);
+            }
         };
 
         return html`
@@ -57,12 +65,12 @@ export default class ModalUtils {
                             <div class="modal-footer">
                                 ${btnCancelVisible ? html`
                                     <button type="button" class="btn btn-light" data-bs-dismiss="modal" @click="${handleCancel}">
-                                        ${config?.display?.btnCancelText || config?.display?.cancelButtonText || "Cancel"}
+                                        ${config?.display?.buttonCancelText || config?.display?.btnCancelText || config?.display?.cancelButtonText || "Cancel"}
                                     </button>
                                 ` : nothing}
                                 ${btnSaveVisible ? html`
                                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${handleOk}">
-                                        ${config?.display?.btnSaveText || config?.display?.btnOkText || config?.display?.okButtonText || "Save"}
+                                        ${config?.display?.buttonSaveText || config?.display?.btnSaveText || config?.display?.okButtonText || "Save"}
                                     </button>
                                 ` : nothing}
                             </div>
