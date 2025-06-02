@@ -18,17 +18,18 @@ import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
+import CustomActions from "../../commons/custom-actions";
 import VariantUtils from "../variant-utils.js";
-import "./variant-interpreter-grid-config.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
 import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
-import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
-import CustomActions from "../../commons/custom-actions";
+import "./variant-interpreter-grid-config.js";
+import "./variant-interpreter-curate.js";
 
 export default class VariantInterpreterGrid extends LitElement {
 
@@ -73,6 +74,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "";
+        this.RESOURCE = "CLINICAL_VARIANT";
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
         this._rows = [];
@@ -93,6 +95,9 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // Keep the status of selected variants
         this.queriedVariants = {};
+
+        this._checkedVariants = new Map();
+        this._selectedVariant = null;
 
         this.displayConfigDefault = {
             header: {
@@ -169,10 +174,35 @@ export default class VariantInterpreterGrid extends LitElement {
         // 4. Set toolbar config
         this.toolbarConfig = {
             toolId: this.toolId,
-            resource: "CLINICAL_VARIANT",
+            resource: this.RESOURCE,
             showInterpreterConfig: true,
             columns: this._getDefaultColumns()
         };
+
+        // register modals
+        this.gridCommons.registerModals({
+            "variant-curate": () => ({
+                display: {
+                    modalTitle: `Review Variant ${this._selectedVariant.id}`,
+                    modalCyDataName: `modal-variant-curate`,
+                    modalSize: "modal-xl",
+                    modalBtnsVisible: true,
+                    btnCancelText: "Cancel",
+                    btnSaveText: "Save",
+                },
+                render: () => html`
+                    <variant-interpreter-curate
+                        .opencgaSession="${this.opencgaSession}"
+                        .variant="${this._selectedVariant}"
+                        @variantChange="${event => {
+                            // TODO
+                        }}">
+                    </clinical-interpretation-variant-review>
+                `,
+                onCancel: () => {},
+                onOk: () => {},
+            }),
+        });
     }
 
     onColumnChange(e) {
@@ -761,7 +791,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         </a>`,
                     field: "interpretation",
                     rowspan: 1,
-                    colspan: 4,
+                    colspan: 5,
                     halign: this.displayConfigDefault.header.horizontalAlign,
                 },
                 {
@@ -1075,6 +1105,24 @@ export default class VariantInterpreterGrid extends LitElement {
                     excludeFromSettings: true,
                     visible: this.review || this._config?.showReview,
                     excludeFromExport: true // this is used in opencga-export
+                },
+                {
+                    id: "curate",
+                    "title": "Curate",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        return `
+                            <button class="btn btn-light btn-sm">Curate</button>
+                        `;
+                    },
+                    align: "center",
+                    events: {
+                        "click button": (event, value, row) => this.onVariantCurate(event, row),
+                    },
+                    excludeFromSettings: true,
+                    excludeFromExport: true,
+                    visible: this.review || this._config?.showReview,
                 },
             ]
         ];
@@ -1518,6 +1566,11 @@ export default class VariantInterpreterGrid extends LitElement {
         this.evidenceReview = null;
     }
 
+    onVariantCurate(event, row) {
+        this._selectedVariant = row;
+        this.gridCommons.changeActiveModal("variant-curate");
+    }
+
     renderToolbarLeftContent() {
         return html`
             <span id="${this.gridId + "PaginationInfo"}"></span>
@@ -1589,6 +1642,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     </div>
                 </div>
             </div>
+
+            ${this.gridCommons.renderModals()}
         `;
     }
 
