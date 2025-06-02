@@ -96,9 +96,9 @@ export default class FamilyGenotypeModal extends LitElement {
                 ${this._config.text ? html`
                     <div class="mb-2">${this._config.text}</div>
                 ` : nothing}
-                <div class="text-center">
+                <div class="d-grid">
                     <button type="button" class="btn btn-light multi-line" @click="${this.showModal}">
-                        Family Genotype Filter ...
+                        Customize
                     </button>
                 </div>
             </div>
