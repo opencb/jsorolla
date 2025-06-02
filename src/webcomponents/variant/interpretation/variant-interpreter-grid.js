@@ -179,11 +179,10 @@ export default class VariantInterpreterGrid extends LitElement {
                 display: {
                     scrollable: true,
                     title: `Review Variant ${this._selectedVariant.id}`,
-                    modalCyDataName: `modal-variant-curate`,
-                    modalSize: "modal-xl",
-                    modalBtnsVisible: true,
-                    btnCancelText: "Cancel",
-                    btnSaveText: "Save",
+                    size: "modal-xl",
+                    buttonsVisible: true,
+                    buttonCancelText: "Cancel",
+                    buttonSaveText: "Save",
                 },
                 render: () => html`
                     <variant-interpreter-curate
@@ -195,7 +194,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     </variant-interpreter-curate>
                 `,
                 onCancel: () => {},
-                onOk: () => {},
+                onSave: () => {},
             }),
             "view-variant": () => ({
                 display: {
