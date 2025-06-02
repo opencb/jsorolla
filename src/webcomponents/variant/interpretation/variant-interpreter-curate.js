@@ -1,6 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
+import "../annotation/cellbase-variant-annotation-summary.js";
 
 export default class VariantInterpreterCurate extends LitElement {
 
@@ -27,7 +28,7 @@ export default class VariantInterpreterCurate extends LitElement {
             variantId: {
                 type: String
             },
-            config: {
+            displayConfig: {
                 type: Object
             }
         };
@@ -47,7 +48,7 @@ export default class VariantInterpreterCurate extends LitElement {
             this.variantObserver();
         }
 
-        if (changedProperties.has("config") || changedProperties.has("toolId")) {
+        if (changedProperties.has("displayConfig")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
@@ -94,6 +95,27 @@ export default class VariantInterpreterCurate extends LitElement {
 
     getDefaultConfig() {
         return {
+            display: {
+                type: "pills",
+                pillsLeftColumnClass: "col-md-2",
+                pillsRightColumnClass: "col-md-10",
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
+            sections: [
+                {
+                    id: "annotationSummary",
+                    name: "Summary",
+                    render: variant => html`
+                        <cellbase-variant-annotation-summary
+                            .variantAnnotation="${variant?.annotation}"
+                            .consequenceTypes="${CONSEQUENCE_TYPES}"
+                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                            .assembly="${this.opencgaSession.project.organism.assembly}">
+                        </cellbase-variant-annotation-summary>
+                    `,
+                },
+            ],
         };
     }
 
