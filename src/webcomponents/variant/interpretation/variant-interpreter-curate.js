@@ -2,6 +2,7 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../annotation/cellbase-variant-annotation-summary.js";
+import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
 
 export default class VariantInterpreterCurate extends LitElement {
 
@@ -86,6 +87,12 @@ export default class VariantInterpreterCurate extends LitElement {
         }
 
         return html`
+            <div class="alert alert-light mb-4 d-flex align-items-center justify-content-between">
+                <div class="">Select this variant</div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
+                </div>
+            </div>
             <data-form
                 .data="${this._variant}"
                 .config="${this._config}">
@@ -113,6 +120,27 @@ export default class VariantInterpreterCurate extends LitElement {
                             .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
                             .assembly="${this.opencgaSession.project.organism.assembly}">
                         </cellbase-variant-annotation-summary>
+                    `,
+                },
+                {
+                    id: "review",
+                    name: "Review",
+                    render: variant => html`
+                        <clinical-interpretation-variant-review
+                            .opencgaSession="${this.opencgaSession}"
+                            .variant="${variant}"
+                            .mode="${"form"}"
+                            @variantChange="${e => {
+                                // TODO
+                            }}">
+                        </clinical-interpretation-variant-review>
+                    `,
+                },
+                {
+                    id: "evidences",
+                    name: "Evidences",
+                    render: () => html`
+                        <p>Provide any additional evidence or comments regarding the variant.</p>
                     `,
                 },
             ],
