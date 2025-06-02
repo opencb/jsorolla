@@ -289,7 +289,6 @@ export default class FileBrowser extends LitElement {
                                 id: "annotations",
                                 title: "File Annotations",
                                 description: "",
-                                quick: true,
                             }
                         ]
                     }
