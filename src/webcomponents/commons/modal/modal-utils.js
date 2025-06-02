@@ -17,12 +17,10 @@ export default class ModalUtils {
     }
 
     static create(self, id, config) {
-        // Parse modal parameters, all of them must start with prefix 'modal'
-        // const modalWidth = config.display?.modalWidth || "auto";
         const modalContainerClass = config.display?.modalContainerClass || "";
         const modalStyle = config.display?.modalStyle || "";
         const modalSize = config.display?.modalSize || "";
-        const modalTitle = config.display?.modalTitle || "";
+        const modalTitle = config?.display?.title || config.display?.modalTitle || "";
         const modalTitleClassName = config.display?.modalTitleClassName || "";
         const modalTitleStyle = config.display?.modalTitleStyle || "";
         const btnsVisible = config.display?.modalBtnsVisible ?? config.display?.modalbtnsVisible;
@@ -30,6 +28,7 @@ export default class ModalUtils {
         const btnSaveVisible = config.display?.btnSaveVisible ?? true;
         const modalDraggable = config.display?.modalDraggable ?? false;
         const modalCyName = config.display?.modalCyDataName || "";
+        const modalScrollable = config?.display?.scrollable ?? config?.display?.modalScrollable ?? false;
 
         // handle modal events (cancel, and submit aka ok)
         const handleCancel = event => {
@@ -41,7 +40,7 @@ export default class ModalUtils {
 
         return html`
             <div class="modal ${modalContainerClass}" id="${id}" tabindex="-1" data-draggable="${modalDraggable}" data-cy="${modalCyName}">
-                <div class="modal-dialog ${modalSize}" style="${modalStyle}">
+                <div class="modal-dialog ${modalSize} ${modalScrollable ? "modal-dialog-scrollable" : ""}" style="${modalStyle}">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h4 class="modal-title text-truncate ${modalTitleClassName}" style="${modalTitleStyle}">
