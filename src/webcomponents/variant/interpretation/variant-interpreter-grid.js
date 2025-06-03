@@ -30,7 +30,7 @@ import "../../commons/grid-toolbar.js";
 import "../../loading-spinner.js";
 import "./variant-interpreter-grid-config.js";
 import "./variant-interpreter-view.js";
-import "./variant-interpreter-curate.js";
+import "../curate/variant-curate.js";
 
 export default class VariantInterpreterGrid extends LitElement {
 
@@ -185,13 +185,13 @@ export default class VariantInterpreterGrid extends LitElement {
                     buttonSaveText: "Save",
                 },
                 render: () => html`
-                    <variant-interpreter-curate
+                    <variant-curate
                         .opencgaSession="${this.opencgaSession}"
                         .variant="${this._selectedVariant}"
                         @variantChange="${event => {
                             // TODO
                         }}">
-                    </variant-interpreter-curate>
+                    </variant-curate>
                 `,
                 onCancel: () => {},
                 onSave: () => {},

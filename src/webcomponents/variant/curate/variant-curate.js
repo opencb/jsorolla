@@ -4,7 +4,7 @@ import "../../commons/forms/data-form.js";
 import "../annotation/cellbase-variant-annotation-summary.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
 
-export default class VariantInterpreterCurate extends LitElement {
+export default class VariantCurate extends LitElement {
 
     constructor() {
         super();
@@ -152,4 +152,4 @@ export default class VariantInterpreterCurate extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-curate", VariantInterpreterCurate);
+customElements.define("variant-curate", VariantCurate);
