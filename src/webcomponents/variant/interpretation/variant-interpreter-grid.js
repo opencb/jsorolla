@@ -1010,7 +1010,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     events: {
                         "click input": e => this.onVariantCheck(e)
                     },
-                    visible: this._config.showSelectCheckbox,
+                    visible: false, // this._config.showSelectCheckbox,
                     excludeFromSettings: true,
                     excludeFromExport: true // this is used in opencga-export
                 },
@@ -1030,7 +1030,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         "click button": (event, value, row) => this.onActionClick(event, row),
                     },
                     excludeFromSettings: true,
-                    visible: this.review || this._config?.showReview,
+                    visible: false, // this.review || this._config?.showReview,
                     excludeFromExport: true // this is used in opencga-export
                 },
                 {
