@@ -102,6 +102,11 @@ export default class VariantCurate extends LitElement {
         this._variant = UtilsNew.objectClone(this.variant);
     }
 
+    onSelectChange() {
+        this._selected = !this._selected;
+        this.requestUpdate();
+    }
+
     onStatusChange(event) {
         // TODO
     }
@@ -110,12 +115,27 @@ export default class VariantCurate extends LitElement {
         // TODO
     }
 
+    renderVariantSelect() {
+        return html`
+            <div class="alert ${this._selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-2 flex-grow-1 cursor-pointer" @click="${() => this.onSelectChange()}">
+                <label class="form-label mb-0 fw-bold">
+                    ${this._selected ? html`
+                        <span>This Variant is on the <b>Primary Findings</b> of the Interpretation.</span>    
+                    ` : html`
+                        <span>Select this Variant to add it to the <b>Primary Findings</b> of the Interpretation.</span>
+                    `}
+                </label>
+                <input class="form-check-input mt-0" type="checkbox" ?checked="${this._selected}">
+            </div>
+        `;
+    }
+
     renderVariantStatus() {
         return html`
-            <div class="d-flex align-items-center">
+            <div class="alert alert-light d-flex align-items-center">
                 <div class="d-flex align-items-center gap-2">
                     <label class="form-label mb-0 fw-bold">Status</label>
-                    <select class="form-select form-select-sm" ?disabled="${this._selected}">
+                    <select class="form-select form-select-sm" ?disabled="${!this._selected}">
                         ${this.STATUS_VALUES.map(status => html`
                             <option value="${status}" ?selected="${this._variant?.status === status}">
                                 ${status}
@@ -125,7 +145,7 @@ export default class VariantCurate extends LitElement {
                 </div>
                 <div class="d-flex align-items-center gap-2 ms-3">
                     <label class="form-label mb-0 fw-bold">Confidence</label>
-                    <select class="form-select form-select-sm" ?disabled="${this._selected}">
+                    <select class="form-select form-select-sm" ?disabled="${!this._selected}">
                         ${this.CONFIDENCE_VALUES.map(confidence => html`
                             <option value="${confidence}" ?selected="${this._variant?.confidence === confidence}">
                                 ${confidence}
@@ -143,12 +163,9 @@ export default class VariantCurate extends LitElement {
         }
 
         return html`
-            <div class="alert alert-light mb-4 d-flex align-items-center justify-content-between">
-                <div class="">Select this variant</div>
+            <div class="d-flex gap-2 mb-4">
+                ${this.renderVariantSelect()}
                 ${this.renderVariantStatus()}
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
-                </div>
             </div>
             <data-form
                 .data="${this._variant}"
