@@ -2381,31 +2381,26 @@ export default class DataForm extends LitElement {
     }
 
     renderContentAsPills(dismiss) {
-        // Buttons values
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
         const buttonsLayout = this._getButtonsLayout();
-
         const notificationHtml = this.getFormNotificationHtml();
 
         return html`
             ${notificationHtml}
-
             ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
             <div class="row">
                 <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
                     <ul class="nav nav-pills flex-column">
-                        ${
-                            this._getVisibleSections().map((section, index) => {
-                                const active = index === this.activeSection;
-                                return html`
-                                    <li class="nav-item" role="presentation">
-                                        <a class="nav-link fw-bold ${active ? "active" : ""}" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                            ${section.title || section.name || ""}
-                                        </a>
-                                    </li>
-                                `;
-                            })
-                        }
+                        ${this._getVisibleSections().map((section, index) => {
+                            const active = index === this.activeSection;
+                            return html`
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link fw-bold ${active ? "active" : ""}" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                        ${section.title || section.name || ""}
+                                    </a>
+                                </li>
+                            `;
+                        })}
                     </ul>
                 </div>
                 <div class="${this.config?.display?.pillsRightColumnClass || "col-md-9"}">
