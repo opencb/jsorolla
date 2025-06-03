@@ -18,25 +18,42 @@ export default class VariantCurate extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             clinicalAnalysis: {
-                type: Object
+                type: Object,
             },
             variant: {
-                type: Object
+                type: Object,
             },
             variantId: {
-                type: String
+                type: String,
+            },
+            selected: {
+                type: Boolean,
             },
             displayConfig: {
-                type: Object
+                type: Object,
             }
         };
     }
 
     #init() {
+        this.STATUS_VALUES = [
+            "NOT_REVIEWED",
+            "REVIEW_REQUESTED",
+            "REVIEWED",
+            "DISCARDED",
+            "REPORTED",
+            "ARTIFACT",
+        ];
+        this.CONFIDENCE_VALUES = [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+        ];
         this._variant = null;
+        this._selected = false;
         this._config = this.getDefaultConfig();
     }
 
@@ -47,6 +64,10 @@ export default class VariantCurate extends LitElement {
 
         if (changedProperties.has("variant")) {
             this.variantObserver();
+        }
+
+        if (changedProperties.has("selected")) {
+            this._selected = !!this.selected;
         }
 
         if (changedProperties.has("displayConfig")) {
@@ -81,6 +102,41 @@ export default class VariantCurate extends LitElement {
         this._variant = UtilsNew.objectClone(this.variant);
     }
 
+    onStatusChange(event) {
+        // TODO
+    }
+
+    onConfidenceChange(event) {
+        // TODO
+    }
+
+    renderVariantStatus() {
+        return html`
+            <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <label class="form-label mb-0 fw-bold">Status</label>
+                    <select class="form-select form-select-sm" ?disabled="${this._selected}">
+                        ${this.STATUS_VALUES.map(status => html`
+                            <option value="${status}" ?selected="${this._variant?.status === status}">
+                                ${status}
+                            </option>
+                        `)}
+                    </select>
+                </div>
+                <div class="d-flex align-items-center gap-2 ms-3">
+                    <label class="form-label mb-0 fw-bold">Confidence</label>
+                    <select class="form-select form-select-sm" ?disabled="${this._selected}">
+                        ${this.CONFIDENCE_VALUES.map(confidence => html`
+                            <option value="${confidence}" ?selected="${this._variant?.confidence === confidence}">
+                                ${confidence}
+                            </option>
+                        `)}
+                    </select>
+                </div>
+            </div>
+        `;
+    }
+
     render() {
         if (!this.opencgaSession || !this._variant) {
             return nothing;
@@ -89,6 +145,7 @@ export default class VariantCurate extends LitElement {
         return html`
             <div class="alert alert-light mb-4 d-flex align-items-center justify-content-between">
                 <div class="">Select this variant</div>
+                ${this.renderVariantStatus()}
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
                 </div>
