@@ -104,8 +104,8 @@ export default class VariantInterpreterCurate extends LitElement {
         return {
             display: {
                 type: "pills",
-                pillsLeftColumnClass: "col-md-2",
-                pillsRightColumnClass: "col-md-10",
+                pillsLeftColumnClass: "col-md-1",
+                pillsRightColumnClass: "col-md-11",
                 buttonsVisible: false,
                 ...this.displayConfig,
             },
@@ -113,6 +113,7 @@ export default class VariantInterpreterCurate extends LitElement {
                 {
                     id: "annotationSummary",
                     name: "Summary",
+                    icon: "fa-info-circle",
                     render: variant => html`
                         <cellbase-variant-annotation-summary
                             .variantAnnotation="${variant?.annotation}"
@@ -125,6 +126,7 @@ export default class VariantInterpreterCurate extends LitElement {
                 {
                     id: "review",
                     name: "Review",
+                    icon: "fa-edit",
                     render: variant => html`
                         <clinical-interpretation-variant-review
                             .opencgaSession="${this.opencgaSession}"
@@ -139,8 +141,9 @@ export default class VariantInterpreterCurate extends LitElement {
                 {
                     id: "evidences",
                     name: "Evidences",
+                    icon: "fa-list",
                     render: () => html`
-                        <p>Provide any additional evidence or comments regarding the variant.</p>
+                        <p>Evidences.</p>
                     `,
                 },
             ],
