@@ -451,7 +451,6 @@ export default class DataForm extends LitElement {
         const layout = this.config?.display?.defaultLayout || "";
         const layoutClassName = (layout === "horizontal") ? "form-horizontal" : "";
 
-        // if (this.config.type === "tabs" || this.config.type === "pills") {
         if (this.config?.type === "tabs" || this.config?.display?.type === "tabs" ||
             this.config?.type === "pills" || this.config?.display?.type === "pills") {
             // Render all sections but display only active section
@@ -2174,13 +2173,9 @@ export default class DataForm extends LitElement {
         LitUtils.dispatchCustomEvent(this, "submit", section, {}, null);
     }
 
-    // onCustomEvent(e, eventName, data) {
-    //     LitUtils.dispatchCustomEvent(this, eventName, data);
-    // }
-
     onSectionChange(e) {
         e.preventDefault();
-        this.activeSection = parseInt(e.target.dataset.sectionIndex) || 0;
+        this.activeSection = parseInt(e?.currentTarget?.dataset?.sectionIndex || 0);
         this.requestUpdate();
     }
 
@@ -2390,18 +2385,26 @@ export default class DataForm extends LitElement {
             ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
             <div class="row">
                 <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
-                    <ul class="nav nav-pills flex-column">
+                    <div class="nav nav-pills flex-column">
                         ${this._getVisibleSections().map((section, index) => {
                             const active = index === this.activeSection;
+                            const sectionClass = section.icon ? "d-flex align-items-center flex-column gap-2 mb-2" : "";
                             return html`
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link fw-bold ${active ? "active" : ""}" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                        ${section.title || section.name || ""}
-                                    </a>
-                                </li>
+                                <a class="nav-link cursor-pointer ${sectionClass} ${active ? "active" : ""}" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                    ${section.icon ? html`
+                                        <i class="fas lh-1 fs-4 ${section.icon}"></i>
+                                        <span class="fw-bold lh-1 fs-8 text-center">
+                                            ${section.title || section.name || ""}
+                                        </span>
+                                    ` : html`
+                                        <span class="fw-bold">
+                                            ${section.title || section.name || ""}
+                                        </span>
+                                    `}
+                                </a>
                             `;
                         })}
-                    </ul>
+                    </div>
                 </div>
                 <div class="${this.config?.display?.pillsRightColumnClass || "col-md-9"}">
                     ${this.renderData()}
