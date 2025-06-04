@@ -52,6 +52,7 @@ export default class VariantCurate extends LitElement {
             "MEDIUM",
             "HIGH",
         ];
+        this._prefix = UtilsNew.randomString(8);
         this._variant = null;
         this._selected = false;
         this._config = this.getDefaultConfig();
@@ -80,6 +81,12 @@ export default class VariantCurate extends LitElement {
         super.update(changedProperties);
     }
 
+    updated(changedProperties) {
+        if (changedProperties.has("selected")) {
+            this.querySelector(`#${this._prefix}SelectCheckbox`).checked = this._selected;
+        }
+    }
+
     variantIdObserver() {
         if (this.opencgaSession && this.variantId) {
             this.opencgaSession.opencgaClient.clinical()
@@ -102,8 +109,8 @@ export default class VariantCurate extends LitElement {
         this._variant = UtilsNew.objectClone(this.variant);
     }
 
-    onSelectChange() {
-        this._selected = !this._selected;
+    onSelectChange(event) {
+        this._selected = event.currentTarget.checked;
         this.requestUpdate();
     }
 
@@ -117,15 +124,21 @@ export default class VariantCurate extends LitElement {
 
     renderVariantSelect() {
         return html`
-            <div class="alert ${this._selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-2 flex-grow-1 cursor-pointer" @click="${() => this.onSelectChange()}">
-                <label class="form-label mb-0 fw-bold">
+            <div class="alert ${this._selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-2 flex-grow-1">
+                <label class="form-label mb-0 fw-bold cursor-pointer" for="${this._prefix}SelectCheckbox">
                     ${this._selected ? html`
                         <span>This Variant is on the <b>Primary Findings</b> of the Interpretation.</span>    
                     ` : html`
                         <span>Select this Variant to add it to the <b>Primary Findings</b> of the Interpretation.</span>
                     `}
                 </label>
-                <input class="form-check-input mt-0" type="checkbox" ?checked="${this._selected}">
+                <input
+                    id="${this._prefix}SelectCheckbox"
+                    class="form-check-input mt-0"
+                    type="checkbox"
+                    ?checked="${this._selected}"
+                    @change="${event => this.onSelectChange(event)}"
+                >
             </div>
         `;
     }
