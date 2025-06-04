@@ -193,9 +193,8 @@ export default class VariantCurateEvidencesGrid extends LitElement {
                     formatter: (value, row) => {
                         return `
                             <div class="dropdown">
-                                <button class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown">
-                                    <i class="fa fa-edit me-1"></i>
-                                    <span>Review</span>
+                                <button class="btn" data-bs-toggle="dropdown">
+                                    <i class="fa fa-edit"></i>
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <div>Add your review here</div>
