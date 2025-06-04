@@ -2,6 +2,7 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
+import VariantGridFormatter from "../variant-grid-formatter.js";
 
 export default class VariantCurateEvidencesGrid extends LitElement {
 
@@ -22,7 +23,7 @@ export default class VariantCurateEvidencesGrid extends LitElement {
             clinicalAnalysis: {
                 type: Object,
             },
-            evidences: {
+            variant: {
                 type: Object,
             },
             active: {
@@ -46,7 +47,7 @@ export default class VariantCurateEvidencesGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("evidences")) {
+        if (changedProperties.has("variant")) {
             this.renderLocalEvidences();
         }
     }
@@ -57,7 +58,7 @@ export default class VariantCurateEvidencesGrid extends LitElement {
         this.table.bootstrapTable({
             classes: "table table-borderless table-hover table-grid",
             buttonsClass: "light",
-            data: this.evidences || [],
+            data: this.variant?.evidences || [],
             columns: this.getDefaultColumns(),
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
@@ -72,7 +73,7 @@ export default class VariantCurateEvidencesGrid extends LitElement {
         });
     }
 
-    geneNameFormatter(evidence) {
+    geneFormatter(evidence) {
         if (evidence?.genomicFeature?.geneName) {
             return `
                 <div>
@@ -92,9 +93,27 @@ export default class VariantCurateEvidencesGrid extends LitElement {
         return "-";
     }
 
+    transcriptFormatter(evidence) {
+        const ct = (this.variant.annotation?.consequenceTypes || []).find(ct => {
+            return ct.ensemblTranscriptId === evidence?.genomicFeature?.transcriptId || ct.transcriptId === evidence?.genomicFeature?.transcriptId;
+        });
+        return `
+            <div class="">${ct?.biotype || "-"}</div>
+            ${evidence?.genomicFeature?.transcriptId ? `
+                <div class="">
+                    <div class="">
+                        ${VariantGridFormatter.getHgvsLink(evidence.genomicFeature.transcriptId, this.variant.annotation.hgvs) || ""}
+                    </div>
+                    <div class="">
+                        ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, this.variant.annotation.hgvs) || ""}
+                    </div>
+                </div>
+            ` : ""}
+        `;
+    }
 
     render() {
-        if (!this.opencgaSession || !this.evidences) {
+        if (!this.opencgaSession || !this.variant) {
             return nothing;
         }
 
@@ -113,14 +132,14 @@ export default class VariantCurateEvidencesGrid extends LitElement {
                     title: "Gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => this.geneNameFormatter(row),
+                    formatter: (value, row) => this.geneFormatter(row),
                 },
                 {
                     id: "transcript",
                     title: "Transcript",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => "-",
+                    formatter: (value, row) => this.transcriptFormatter(row),
                 },
                 {
                     id: "consequence-type",
