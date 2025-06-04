@@ -165,6 +165,26 @@ export default class VariantCurateEvidencesGrid extends LitElement {
                     rowspan: 1,
                     colspan: 2,
                 },
+                {
+                    id: "review",
+                    title: "Review",
+                    align: "right",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        return `
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown">
+                                    <i class="fa fa-edit me-1"></i>
+                                    <span>Review</span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <div>Add your review here</div>
+                                </div>
+                            </div>
+                        `;
+                    },
+                },
             ],
             [
                 {
