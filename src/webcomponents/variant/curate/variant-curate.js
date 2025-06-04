@@ -52,7 +52,6 @@ export default class VariantCurate extends LitElement {
             "MEDIUM",
             "HIGH",
         ];
-        this._prefix = UtilsNew.randomString(8);
         this._variant = null;
         this._selected = false;
         this._config = this.getDefaultConfig();
@@ -82,9 +81,9 @@ export default class VariantCurate extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("selected")) {
-            this.querySelector(`#${this._prefix}SelectCheckbox`).checked = this._selected;
-        }
+        // if (changedProperties.has("selected")) {
+        //     this.querySelector(`#${this._prefix}SelectCheckbox`).checked = this._selected;
+        // }
     }
 
     variantIdObserver() {
@@ -109,8 +108,8 @@ export default class VariantCurate extends LitElement {
         this._variant = UtilsNew.objectClone(this.variant);
     }
 
-    onSelectChange(event) {
-        this._selected = event.currentTarget.checked;
+    onSelectChange() {
+        this._selected = !this._selected;
         this.requestUpdate();
     }
 
@@ -125,20 +124,16 @@ export default class VariantCurate extends LitElement {
     renderVariantSelect() {
         return html`
             <div class="alert ${this._selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-2 flex-grow-1">
-                <label class="form-label mb-0 fw-bold cursor-pointer" for="${this._prefix}SelectCheckbox">
+                <label class="form-label mb-0 fw-bold">
                     ${this._selected ? html`
                         <span>This Variant is on the <b>Primary Findings</b> of the Interpretation.</span>    
                     ` : html`
                         <span>Select this Variant to add it to the <b>Primary Findings</b> of the Interpretation.</span>
                     `}
                 </label>
-                <input
-                    id="${this._prefix}SelectCheckbox"
-                    class="form-check-input mt-0"
-                    type="checkbox"
-                    ?checked="${this._selected}"
-                    @change="${event => this.onSelectChange(event)}"
-                >
+                <button class="btn btn-sm ${this._selected ? "btn-primary" : "btn-light"} rounded-2" @click="${() => this.onSelectChange()}">
+                    <i class="fa fa-check lh-1 ${this._selected ? "opacity-100" : "opacity-25 text-secondary"}"></i>
+                </button>
             </div>
         `;
     }
