@@ -3,6 +3,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../annotation/cellbase-variant-annotation-summary.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
+import "./variant-curate-evidences-grid.js";
 
 export default class VariantCurate extends LitElement {
 
@@ -224,8 +225,12 @@ export default class VariantCurate extends LitElement {
                     id: "evidences",
                     name: "Evidences",
                     icon: "fa-list",
-                    render: () => html`
-                        <p>Evidences.</p>
+                    render: (variant, active) => html`
+                        <variant-curate-evidences-grid
+                            .opencgaSession="${this.opencgaSession}"
+                            .evidences="${variant?.evidences || []}"
+                            .active="${active}">
+                        </variant-curate-evidences-grid>
                     `,
                 },
             ],
