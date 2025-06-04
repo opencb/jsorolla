@@ -207,8 +207,8 @@ export default class VariantCurate extends LitElement {
                     `,
                 },
                 {
-                    id: "review",
-                    name: "Review",
+                    id: "discussion",
+                    name: "Discussion",
                     icon: "fa-edit",
                     render: variant => html`
                         <clinical-interpretation-variant-review
@@ -220,6 +220,12 @@ export default class VariantCurate extends LitElement {
                             }}">
                         </clinical-interpretation-variant-review>
                     `,
+                },
+                {
+                    id: "comments",
+                    name: "Comments",
+                    icon: "fa-comments",
+                    render: variant => html``,
                 },
                 {
                     id: "evidences",
