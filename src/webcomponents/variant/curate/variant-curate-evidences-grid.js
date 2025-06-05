@@ -112,6 +112,21 @@ export default class VariantCurateEvidencesGrid extends LitElement {
         `;
     }
 
+    consequenceTypeFormatter(evidence) {
+        const items = (evidence?.genomicFeature?.consequenceTypes || []).map(so => {
+            const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
+            return `
+                <div class="" style="color:${color};">
+                    <span>${so.name}</span>
+                    <a class="" href="${BioinfoUtils.getSequenceOntologyLink(so.accession)}" target="_blank">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+            `;
+        });
+        return items.join("") || "-";
+    }
+
     render() {
         if (!this.opencgaSession || !this.variant) {
             return nothing;
@@ -146,9 +161,7 @@ export default class VariantCurateEvidencesGrid extends LitElement {
                     title: "Consequence Type",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => {
-                        return "-";
-                    },
+                    formatter: (value, row) => this.consequenceTypeFormatter(row),
                 },
                 {
                     id: "transcript-flags",
