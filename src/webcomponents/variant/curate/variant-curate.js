@@ -234,6 +234,7 @@ export default class VariantCurate extends LitElement {
                     render: (variant, active) => html`
                         <variant-curate-evidences-grid
                             .opencgaSession="${this.opencgaSession}"
+                            .clinicalAnalysis="${this.clinicalAnalysis}"
                             .variant="${variant}"
                             .active="${active}">
                         </variant-curate-evidences-grid>

@@ -264,7 +264,7 @@ export default class VariantCurateEvidencesGrid extends LitElement {
                         }
                         return "-";
                     },
-                    visible: this.clinicalAnalysis.type.toUpperCase() == "CANCER",
+                    visible: this.clinicalAnalysis?.type?.toUpperCase() == "CANCER",
                 },
                 {
                     id: "prediction",
