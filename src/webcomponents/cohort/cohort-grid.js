@@ -239,7 +239,7 @@ export default class CohortGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        include: "id,creationDate,status,type,numSamples,annotationSets",
+                        include: "id,name,description,numSamples,creationDate,modificationDate,status,internal,annotationSets",
                         ...this.query
                     };
 
@@ -320,12 +320,12 @@ export default class CohortGrid extends LitElement {
         this._columns = [
             {
                 id: "id",
-                title: "Cohort ID",
+                title: "Cohort",
                 field: "id",
-                formatter: (cohortId, cohort) => {
+                formatter: cohortId => {
                     return `
                         <div>
-                            <span style="font-weight: bold; margin: 5px 0">${cohortId}</span>
+                            <span class="d-block link fw-bold">${cohortId}</span>
                         </div>`;
                 },
                 halign: "center",
@@ -336,10 +336,11 @@ export default class CohortGrid extends LitElement {
                 title: "Name",
                 field: "name",
                 formatter: (name, cohort) => {
+                    const _name = name || (cohort.id === "ALL") ? "ALL" : cohort.id;
                     return `
                         <div class="m-1">
-                            <span style="font-weight: bold; margin: 5px 0">${name || "-"}</span>
-                            <span class="d-block text-secondary" style="margin: 5px 0">${cohort.description || "-"}</span>
+                            <span class="d-block link fw-bold my-1">${_name}</span>
+                            <span class="text-secondary my-1" style="margin: 5px 0">${cohort.description || "-"}</span>
                         </div>
                     `;
                 },
