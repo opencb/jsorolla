@@ -326,11 +326,24 @@ export default class CohortGrid extends LitElement {
                     return `
                         <div>
                             <span style="font-weight: bold; margin: 5px 0">${cohortId}</span>
-                            ${cohort.name ? `<span class="d-block text-secondary" style="margin: 5px 0">${cohort.name}</span>` : ""}
                         </div>`;
                 },
                 halign: "center",
                 visible: this.gridCommons.isColumnVisible("id")
+            },
+            {
+                id: "name",
+                title: "Name",
+                field: "name",
+                formatter: (name, cohort) => {
+                    return `
+                        <div class="m-1">
+                            <span style="font-weight: bold; margin: 5px 0">${name || "-"}</span>
+                            <span class="d-block text-secondary" style="margin: 5px 0">${cohort.description || "-"}</span>
+                        </div>
+                    `;
+                },
+                visible: this.gridCommons.isColumnVisible("name")
             },
             {
                 id: "numSamples",
