@@ -252,6 +252,21 @@ export default class VariantCurateEvidencesGrid extends LitElement {
                     formatter: (value, row) => this.panelFormatter(row),
                 },
                 {
+                    id: "roleInCancer",
+                    title: "Role in Cancer",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        if (row.rolesInCancer) {
+                            return row.rolesInCancer
+                                .map(v => v.match(/^TUMOR_SUP{1,2}RESSOR_GENE$/) ? "TSG" : v)
+                                .join(", ");
+                        }
+                        return "-";
+                    },
+                    visible: this.clinicalAnalysis.type.toUpperCase() == "CANCER",
+                },
+                {
                     id: "prediction",
                     title: "Automatic Prediction",
                     rowspan: 2,
