@@ -127,6 +127,21 @@ export default class VariantCurateEvidencesGrid extends LitElement {
         return items.join("") || "-";
     }
 
+    transcriptFlagsFormatter(evidence) {
+        const ct = (this.variant.annotation?.consequenceTypes || []).find(ct => {
+            return ct.ensemblTranscriptId === evidence?.genomicFeature?.transcriptId || ct.transcriptId === evidence?.genomicFeature?.transcriptId;
+        });
+        if (ct?.transcriptId || ct?.ensemblTranscriptId) {
+            if (ct?.transcriptFlags?.length > 0) {
+                return ct.transcriptFlags.map(flag => `<div class="my-1">${flag}</div>`).join("");
+            }
+            if (ct?.transcriptAnnotationFlags?.length > 0) {
+                return ct.transcriptAnnotationFlags.map(flag => `<div class="my-1">${flag}</div>`).join("");
+            }
+        }
+        return "-";
+    }
+
     render() {
         if (!this.opencgaSession || !this.variant) {
             return nothing;
@@ -168,9 +183,7 @@ export default class VariantCurateEvidencesGrid extends LitElement {
                     title: "Transcript Flags",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => {
-                        return "-";
-                    },
+                    formatter: (value, row) => this.transcriptFlagsFormatter(row),
                 },
                 {
                     id: "disease-panel",
