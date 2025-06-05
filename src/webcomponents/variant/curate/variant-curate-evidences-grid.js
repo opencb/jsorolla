@@ -187,6 +187,20 @@ export default class VariantCurateEvidencesGrid extends LitElement {
         return "-";
     }
 
+    tierFormatter(evidence) {
+        if (evidence.review?.tier) {
+            let color = "black";
+            const tierClassification = evidence.review.tier?.toUpperCase();
+            color = (tierClassification === "TIER1" || tierClassification === "TIER 1") ? "red" : color;
+            color = (tierClassification === "TIER2" || tierClassification === "TIER 2") ? "darkorange" : color;
+            color = (tierClassification === "TIER3" || tierClassification === "TIER 3") ? "blue" : color;
+            return `
+                <span style="color:${color}">${evidence.review.tier}</span>
+            `;
+        }
+        return "-";
+    }
+
     render() {
         if (!this.opencgaSession || !this.variant) {
             return nothing;
@@ -284,9 +298,7 @@ export default class VariantCurateEvidencesGrid extends LitElement {
                     title: "Tier",
                     rowspan: 1,
                     colspan: 1,
-                    formatter: (value, row) => {
-                        return "-";
-                    },
+                    formatter: (value, row) => this.tierFormatter(row),
                 },
             ],
         ];
