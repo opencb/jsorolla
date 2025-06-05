@@ -169,6 +169,24 @@ export default class VariantCurateEvidencesGrid extends LitElement {
         return "-";
     }
 
+    predictionFormatter(classification) {
+        if (classification?.clinicalSignificance || classification?.acmg?.length > 0) {
+            return `
+                ${classification?.clinicalSignificance ? `
+                    <div class="my-1" style="color: ${CLINICAL_SIGNIFICANCE_SETTINGS[classification.clinicalSignificance].color}">
+                        ${CLINICAL_SIGNIFICANCE_SETTINGS[classification.clinicalSignificance].id}
+                    </div>
+                ` : ""}
+                ${classification?.acmg?.length > 0 ? `
+                    <div class="text-secondary">
+                        ${classification.acmg.map(acmg => acmg.classification || acmg).join(", ")}
+                    </div>
+                ` : ""}
+            `;
+        }
+        return "-";
+    }
+
     render() {
         if (!this.opencgaSession || !this.variant) {
             return nothing;
@@ -224,9 +242,7 @@ export default class VariantCurateEvidencesGrid extends LitElement {
                     title: "Automatic Prediction",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => {
-                        return "-";
-                    },
+                    formatter: (value, row) => this.predictionFormatter(row.classification),
                 },
                 {
                     id: "classification",
@@ -261,9 +277,7 @@ export default class VariantCurateEvidencesGrid extends LitElement {
                     title: "ACMG",
                     rowspan: 1,
                     colspan: 1,
-                    formatter: (value, row) => {
-                        return "-";
-                    },
+                    formatter: (value, row) => this.predictionFormatter(row.review),
                 },
                 {
                     id: "tier",
