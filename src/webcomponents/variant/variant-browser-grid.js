@@ -936,7 +936,7 @@ export default class VariantBrowserGrid extends LitElement {
             limit: 1000,
             count: false
         };
-        this.opepncgaSession.opencgaClient.variants().query(filters)
+        this.opencgaSession.opencgaClient.variants().query(filters)
             .then(response => {
                 const results = response.getResults();
                 // Check if user clicked in Tab or JSON format
