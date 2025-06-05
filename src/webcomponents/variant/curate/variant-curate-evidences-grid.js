@@ -2,6 +2,7 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
+import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 
 export default class VariantCurateEvidencesGrid extends LitElement {
@@ -142,6 +143,32 @@ export default class VariantCurateEvidencesGrid extends LitElement {
         return "-";
     }
 
+    panelFormatter(evidence) {
+        if (evidence.panelId) {
+            const panel = this.opencgaSession.study?.panels?.find(panel => panel.id === evidence.panelId);
+            if (panel) {
+                const gene = panel.genes.find(gene => gene.id === evidence.genomicFeature.geneName || gene.name === evidence.genomicFeature.geneName);
+                const confidenceColor = gene?.confidence === "HIGH" ? "green" : gene?.confidence === "MEDIUM" ? "darkorange" : "red";
+                return `
+                    ${CatalogGridFormatter.panelFormatter([panel])}
+                    ${gene.modesOfInheritance ? `
+                        <div class="text-body-secondary" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">
+                            ${gene.modesOfInheritance.join(", ")}
+                        </div>
+                    ` : ""}
+                    ${gene.confidence ? `
+                        <div style="color: ${confidenceColor}" title="Panel Confidence of gene ${gene.name}">
+                            <span>${gene.confidence}</span>
+                        </div>
+                    ` : ""}
+                `;
+            }
+            // no panel found in the study??
+            return evidence.panelId;
+        }
+        return "-";
+    }
+
     render() {
         if (!this.opencgaSession || !this.variant) {
             return nothing;
@@ -190,9 +217,7 @@ export default class VariantCurateEvidencesGrid extends LitElement {
                     title: "Disease Panel",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => {
-                        return "-";
-                    },
+                    formatter: (value, row) => this.panelFormatter(row),
                 },
                 {
                     id: "prediction",
