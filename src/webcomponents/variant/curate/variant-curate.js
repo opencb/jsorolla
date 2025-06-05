@@ -232,6 +232,7 @@ export default class VariantCurate extends LitElement {
                     name: "Evidences",
                     icon: "fa-list",
                     render: (variant, active) => html`
+                        <h3>Evidences</h3>
                         <variant-curate-evidences-grid
                             .opencgaSession="${this.opencgaSession}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
