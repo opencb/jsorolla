@@ -351,9 +351,8 @@ export default class OpencgaUpdate extends LitElement {
                     };
                     this.updateCustomisation = [
                         params => {
-                            if (params.tags) {
-                                params.tags = params.tags?.split(",").map(t => t.trim()) || [];
-                            }
+                            // Note: we have to convert empty tags string to an empty array
+                            params.tags = (params.tags || "")?.split(",").map(t => t.trim()).filter(Boolean);
                         },
                     ];
                     break;
