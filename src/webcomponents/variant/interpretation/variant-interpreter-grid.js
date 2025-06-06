@@ -187,6 +187,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 render: () => html`
                     <variant-curate
                         .opencgaSession="${this.opencgaSession}"
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
                         .variant="${this._selectedVariant}"
                         @variantChange="${event => {
                             // TODO
