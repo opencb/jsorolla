@@ -40,6 +40,7 @@ export default class VariantCurateEvidencesGrid extends LitElement {
 
         this._prefix = UtilsNew.randomString(8);
         this._gridId = this._prefix + "EvidencesGrid";
+        this._selectedEvidence = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -201,14 +202,36 @@ export default class VariantCurateEvidencesGrid extends LitElement {
         return "-";
     }
 
+    onEvidenceSelect(event, evidence) {
+        this._selectedEvidence = evidence;
+        this.requestUpdate();
+    }
+
+    onEvidenceUnselect() {
+        this._selectedEvidence = null;
+        this.requestUpdate();
+    }
+
     render() {
         if (!this.opencgaSession || !this.variant) {
             return nothing;
         }
 
         return html`
-            <div class="force-overflow">
-                <table id="${this._gridId}"></table>
+            <div class="d-flex flex-row gap-4" style="min-width:0px;">
+                <div class="w-full overflow-y-auto">
+                    <table id="${this._gridId}"></table>
+                </div>
+                ${this._selectedEvidence ? html`
+                    <div class="border-start border-secondary opacity-25"></div>
+                    <div class="flex-shrink-0" style="width:560px;">
+                        <div class="d-flex flex-row align-items-center justify-content-between mb-2">
+                            <h4 class="mb-0">Evidence Review</h4>
+                            <button class="btn-close" @click="${() => this.onEvidenceUnselect()}"></button>
+                        </div>    
+                        <div class="">Evidence Review</div>
+                    </div>    
+                ` : nothing}
             </div>
         `;
     }
@@ -288,15 +311,13 @@ export default class VariantCurateEvidencesGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row) => {
                         return `
-                            <div class="dropdown">
-                                <button class="btn" data-bs-toggle="dropdown">
-                                    <i class="fa fa-edit"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-end">
-                                    <div>Add your review here</div>
-                                </div>
-                            </div>
+                            <button class="btn">
+                                <i class="fa fa-edit"></i>
+                            </button>
                         `;
+                    },
+                    events: {
+                        "click button": (event, value, row) => this.onEvidenceSelect(event, row),
                     },
                 },
             ],
