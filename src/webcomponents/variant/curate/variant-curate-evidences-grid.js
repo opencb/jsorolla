@@ -238,6 +238,9 @@ export default class VariantCurateEvidencesGrid extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .review="${this._selectedEvidence}"
                             .somatic="${this.clinicalAnalysis.type === "CANCER"}"
+                            .displayConfig="${{
+                                defaultLayout: "vertical",
+                            }}"
                             @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
                         </clinical-interpretation-variant-evidence-review>
                     </div>    
