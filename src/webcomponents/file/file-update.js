@@ -71,19 +71,26 @@ export default class FileUpdate extends LitElement {
                             field: "tags",
                             type: "custom",
                             display: {
-                                render: (tags, onFilterChange) => html`
-                                    <catalog-distinct-autocomplete
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .resource="${"FILE"}"
-                                        .value="${(tags || []).join(",")}"
-                                        .queryField="${"tags"}"
-                                        .distinctFields="${"tags"}"
-                                        .config="${{
-                                            freeTag: true,
-                                        }}"
-                                        @filterChange="${event => onFilterChange(event.detail.value)}">
-                                    </catalog-distinct-autocomplete>
-                                `,
+                                render: (tags, onFilterChange) => {
+                                    // Note: the component catalog-distinct-autocomplete only accepts the value as a comma-separated string, 
+                                    // but in OpenCGA the tags value is saved as an array.
+                                    if (Array.isArray(tags)) {
+                                        tags = tags.join(",");
+                                    }
+                                    return html`
+                                        <catalog-distinct-autocomplete
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .resource="${"FILE"}"
+                                            .value="${tags}"
+                                            .queryField="${"tags"}"
+                                            .distinctFields="${"tags"}"
+                                            .config="${{
+                                                freeTag: true,
+                                            }}"
+                                            @filterChange="${event => onFilterChange(event.detail.value)}">
+                                        </catalog-distinct-autocomplete>
+                                    `;
+                                },
                             },
                         },
                         {
