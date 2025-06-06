@@ -25,7 +25,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -43,16 +43,13 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
             somatic: {
                 type: Boolean,
             },
-            mode: {
-                type: String, // Values: form, modal
-            },
             displayConfig: {
                 type: Object
             },
         };
     }
 
-    _init() {
+    #init() {
         this.updateParams = {};
         this.mode = "";
         this.review = {};
@@ -68,15 +65,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
             this.config = this.getDefaultConfig();
         }
 
-        if (changedProperties.has("mode")) {
-            this.config = this.getDefaultConfig();
-        }
-
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig,
-            };
             this.config = this.getDefaultConfig();
         }
 
@@ -140,138 +129,113 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
 
     getDefaultConfig() {
         const discussion = this.review?.discussion || {};
-        const sections = [
-            {
-                elements: [
-                    {
-                        title: "Clinical Significance",
-                        field: "clinicalSignificance",
-                        type: "custom",
-                        display: {
-                            render: clinicalSignificance => html`
-                                <select-field-filter
-                                    .data="${CLINICAL_SIGNIFICANCE}"
-                                    .value="${(clinicalSignificance || "").toLowerCase()}"
-                                    @filterChange="${e => this.onFieldChange(e, "clinicalSignificance")}">
-                                </select-field-filter>
-                            `,
-                            defaultValue: "",
+        return {
+            display: {
+                defaultValue: "",
+                defaultLayout: "horizontal",
+                titleVisible: false,
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
+            sections: [
+                {
+                    elements: [
+                        {
+                            title: "Clinical Significance",
+                            field: "clinicalSignificance",
+                            type: "custom",
+                            display: {
+                                render: clinicalSignificance => html`
+                                    <select-field-filter
+                                        .data="${CLINICAL_SIGNIFICANCE}"
+                                        .value="${(clinicalSignificance || "").toLowerCase()}"
+                                        @filterChange="${e => this.onFieldChange(e, "clinicalSignificance")}">
+                                    </select-field-filter>
+                                `,
+                                defaultValue: "",
+                            },
                         },
-                    },
-                    {
-                        title: "Tier",
-                        field: "tier",
-                        type: "input-text",
-                        display: {
-                            rows: 1,
+                        {
+                            title: "Tier",
+                            field: "tier",
+                            type: "input-text",
+                            display: {
+                                rows: 1,
+                            },
                         },
-                    },
-                    {
-                        title: "ACMG",
-                        field: "acmg",
-                        type: "object-list",
-                        display: {
-                            // visible: !this.somatic,
-                            style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                            // collapsable: false,
-                            // maxNumItems: 5,
-                            showEditItemListButton: true,
-                            showDeleteItemListButton: true,
-                            view: acmg => html `
-                                <div style="margin-bottom:1rem;">
-                                    <div>
+                        {
+                            title: "ACMG",
+                            field: "acmg",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                showEditItemListButton: true,
+                                showDeleteItemListButton: true,
+                                view: acmg => html `
+                                    <div style="margin-bottom:1rem;">
                                         <div>
-                                            <label>${acmg.classification || "-"}</label>
-                                            <span>  -  ${acmg.strength || html`<span style="color: gray; font-style: italic">No strength level found</span>`}</span>
+                                            <div>
+                                                <label>${acmg.classification || "-"}</label>
+                                                <span>  -  ${acmg.strength || html`<span style="color: gray; font-style: italic">No strength level found</span>`}</span>
+                                            </div>
+                                            <div>${acmg.comment || "No comment found"}</div>
                                         </div>
-                                        <div>${acmg.comment || "No comment found"}</div>
+                                        <div class="d-block text-secondary" style="margin: 5px">
+                                            Added by <b>${acmg.author || this.opencgaSession?.user?.id || "-"}</b> on
+                                            <b>${UtilsNew.dateFormatter(acmg.date || UtilsNew.getDatetime())}</b>
+                                        </div>
                                     </div>
-                                    <div class="d-block text-secondary" style="margin: 5px">
-                                        Added by <b>${acmg.author || this.opencgaSession?.user?.id || "-"}</b> on
-                                        <b>${UtilsNew.dateFormatter(acmg.date || UtilsNew.getDatetime())}</b>
-                                    </div>
-                                </div>`,
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Classification",
+                                    field: "acmg[].classification",
+                                    type: "custom",
+                                    display: {
+                                        render: (acmg, dataFormFilterChange) => html`
+                                            <acmg-filter
+                                                .acmg="${acmg || []}"
+                                                .multiple="${false}"
+                                                @filterChange="${e => dataFormFilterChange(e.detail.value?.[0])}">
+                                            </acmg-filter>
+                                        `,
+                                    }
+                                },
+                                {
+                                    title: "Strength",
+                                    field: "acmg[].strength",
+                                    type: "select",
+                                    allowedValues: ACMG_STRENGTH_LEVEL,
+                                    display: {
+                                        placeholder: "Add strength..."
+                                    }
+                                },
+                                {
+                                    title: "Comment",
+                                    field: "acmg[].comment",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 3,
+                                        placeholder: "Add comment...",
+                                    }
+                                },
+                            ]
                         },
-                        elements: [
-                            {
-                                title: "Classification",
-                                field: "acmg[].classification",
-                                type: "custom",
-                                display: {
-                                    render: (acmg, dataFormFilterChange) => html`
-                                        <acmg-filter
-                                            .acmg="${acmg || []}"
-                                            .multiple="${false}"
-                                            @filterChange="${e => dataFormFilterChange(e.detail.value?.[0])}">
-                                        </acmg-filter>
-                                    `,
-                                }
+                        {
+                            title: "Discussion",
+                            field: "discussion.text",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a discussion",
+                                rows: 5,
+                                helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
                             },
-                            {
-                                title: "Strength",
-                                field: "acmg[].strength",
-                                type: "select",
-                                allowedValues: ACMG_STRENGTH_LEVEL,
-                                display: {
-                                    placeholder: "Add strength..."
-                                }
-                            },
-                            {
-                                title: "Comment",
-                                field: "acmg[].comment",
-                                type: "input-text",
-                                display: {
-                                    rows: 3,
-                                    placeholder: "Add comment...",
-                                }
-                            },
-                        ]
-                    },
-                    {
-                        title: "Discussion",
-                        field: "discussion.text",
-                        type: "input-text",
-                        display: {
-                            placeholder: "Add a discussion",
-                            rows: 5,
-                            helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
                         },
-                    },
-                ]
-            }
-        ];
-
-        if (this.mode === "modal") {
-            return {
-                title: "Edit",
-                icon: "fas fa-edit",
-                mode: "modal",
-                display: {
-                    // style: "margin: 25px 50px 0px 0px",
-                    titleWidth: 3,
-                    defaultValue: "",
-                    defaultLayout: "horizontal",
-                    buttonClearText: "Cancel",
-                    buttonOkText: "Save",
-                },
-                sections: sections,
-            };
-        } else {
-            return {
-                title: "Save",
-                // icon: "fas fa-save",
-                display: {
-                    style: "padding:16px;",
-                    titleWidth: 3,
-                    titleAlign: "right",
-                    defaultValue: "",
-                    defaultLayout: "horizontal",
-                    titleVisible: false,
-                    buttonsVisible: false,
-                },
-                sections: sections,
-            };
-        }
+                    ]
+                }
+            ],
+        };
     }
 
 }
