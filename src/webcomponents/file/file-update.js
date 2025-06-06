@@ -47,7 +47,7 @@ export default class FileUpdate extends LitElement {
     }
 
     render() {
-        return html `
+        return html`
             <opencga-update
                 .resource="${"FILE"}"
                 .componentId="${this.fileId}"
