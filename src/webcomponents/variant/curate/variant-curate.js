@@ -172,7 +172,7 @@ export default class VariantCurate extends LitElement {
         }
 
         return html`
-            <div class="d-flex gap-2 mb-4">
+            <div class="d-flex gap-2 mb-2">
                 ${this.renderVariantSelect()}
                 ${this.renderVariantStatus()}
             </div>
