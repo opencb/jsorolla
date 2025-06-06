@@ -204,6 +204,14 @@ export default class JobBrowser extends LitElement {
                                 quick: true,
                             },
                             {
+                                id: "userId",
+                                title: "User",
+                                placeholder: "e.g. userId",
+                                defaultValue: "",
+                                description: "",
+                                quick: true,
+                            },
+                            {
                                 id: "priority",
                                 title: "Priority",
                                 placeholder: "Priority",
