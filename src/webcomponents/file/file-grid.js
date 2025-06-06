@@ -152,7 +152,7 @@ export default class OpencgaFileGrid extends LitElement {
                         }}"
                         @fileUpdate="${() => {
                             this.gridCommons.clearActiveModal();
-                            this.forceTableRefresh();
+                            this.table.bootstrapTable("refresh");
                         }}">
                     </file-update>
                 `,
