@@ -4,6 +4,7 @@ import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
+import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
 
 export default class VariantCurateEvidencesGrid extends LitElement {
 
@@ -212,6 +213,10 @@ export default class VariantCurateEvidencesGrid extends LitElement {
         this.requestUpdate();
     }
 
+    onEvidenceReviewChange(event) {
+        // TODO
+    }
+
     render() {
         if (!this.opencgaSession || !this.variant) {
             return nothing;
@@ -224,12 +229,17 @@ export default class VariantCurateEvidencesGrid extends LitElement {
                 </div>
                 ${this._selectedEvidence ? html`
                     <div class="border-start border-secondary opacity-25"></div>
-                    <div class="flex-shrink-0" style="width:560px;">
-                        <div class="d-flex flex-row align-items-center justify-content-between mb-2">
+                    <div class="flex-shrink-0" style="width:480px;">
+                        <div class="d-flex flex-row align-items-center justify-content-between mb-4">
                             <h4 class="mb-0">Evidence Review</h4>
                             <button class="btn-close" @click="${() => this.onEvidenceUnselect()}"></button>
                         </div>    
-                        <div class="">Evidence Review</div>
+                        <clinical-interpretation-variant-evidence-review
+                            .opencgaSession="${this.opencgaSession}"
+                            .review="${this._selectedEvidence}"
+                            .somatic="${this.clinicalAnalysis.type === "CANCER"}"
+                            @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
+                        </clinical-interpretation-variant-evidence-review>
                     </div>    
                 ` : nothing}
             </div>
