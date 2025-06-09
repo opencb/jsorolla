@@ -6,7 +6,7 @@ import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
 
-export default class VariantCurateEvidencesGrid extends LitElement {
+export default class VariantReviewEvidencesGrid extends LitElement {
 
     constructor() {
         super();
@@ -363,4 +363,4 @@ export default class VariantCurateEvidencesGrid extends LitElement {
 
 }
 
-customElements.define("variant-curate-evidences-grid", VariantCurateEvidencesGrid);
+customElements.define("variant-review-evidences-grid", VariantReviewEvidencesGrid);
