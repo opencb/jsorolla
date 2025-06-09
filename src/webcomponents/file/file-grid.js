@@ -23,12 +23,14 @@ import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-util
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/grid-toolbar.js";
 import "../loading-spinner.js";
+import "./directory-preview.js";
 import "../sample/sample-view.js";
 import "../job/job-view.js";
 import "./file-folder-create.js";
 import "./file-create.js";
 import "./file-upload.js";
 import "./file-fetch.js";
+import "./file-update.js";
 import "./file-view.js";
 import "../variant/operation/variant-index-operation.js";
 
@@ -75,6 +77,7 @@ export default class OpencgaFileGrid extends LitElement {
         this.active = true;
         this.lastFilters = null;
         this._selectedFile = null;
+        this._mode = "list";
         this._selectedSampleId = null;
         this._selectedJobId = null;
         this._config = this.getDefaultConfig();
@@ -130,6 +133,28 @@ export default class OpencgaFileGrid extends LitElement {
                         .fileId="${this._selectedFile.id}"
                         .opencgaSession="${this.opencgaSession}">
                     </file-view>
+                `,
+            }),
+            "update": () => ({
+                display: {
+                    modalTitle: `Update File ${this._selectedFile?.name}`,
+                    modalCyDataName: `modal-file-update`,
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
+                    <file-update
+                        .fileId="${this._selectedFile.id}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .active="${true}"
+                        .displayConfig="${{
+                            type: "form",
+                            buttonsLayout: "bottom",
+                        }}"
+                        @fileUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </file-update>
                 `,
             }),
             "create-folder": {
@@ -261,11 +286,13 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     renderTable() {
-        // If this.files is provided as property we render the array directly
-        if (this.files?.length > 0) {
-            this.renderLocalTable();
-        } else {
-            this.renderRemoteTable();
+        if (this._mode === "list") {
+            // If this.files is provided as property we render the array directly
+            if (this.files?.length > 0) {
+                this.renderLocalTable();
+            } else {
+                this.renderRemoteTable();
+            }
         }
     }
 
@@ -303,17 +330,17 @@ export default class OpencgaFileGrid extends LitElement {
                     let filesResponse = null;
                     const filters = {
                         study: this.opencgaSession.study.fqn,
-                        // type: "FILE",
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        include: "id,name,path,type,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets,attributes.variantFileMetadata.header.version",
+                        include: "id,name,path,type,uuid,sampleIds,jobId,status,format,bioformat,size,creationDate,modificationDate,internal,annotationSets,attributes.variantFileMetadata.header.version,tags",
                         ...this.query
                     };
-                    // When searching by directory we must also show directories
-                    // if (this.filters.directory) {
-                    //     this.filters.type = "FILE,DIRECTORY";
-                    // }
+
+                    // fix strict mode when query is empty
+                    if (Object.keys(this.query || {}).length === 0) {
+                        filters.directory = "";
+                    }
 
                     // Store the current filters
                     this.lastFilters = filters;
@@ -341,9 +368,7 @@ export default class OpencgaFileGrid extends LitElement {
                     return result.response;
                 },
                 onDblClickRow: row => {
-                    if (row.type === "DIRECTORY") {
-                        this.onPathChange(row.path);
-                    }
+                    this.onClickFile(row);
                 },
                 onLoadSuccess: data => this.gridCommons.onLoadSuccess(data),
                 onLoadError: (event, response) => this.gridCommons.onLoadError(event, response),
@@ -403,7 +428,7 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     getCurrentPath() {
-        return this.query?.directory || (this.query?.path || "").slice(2, -2);
+        return this.query?.directory || "";
     }
 
     _getDefaultColumns() {
@@ -411,9 +436,9 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 id: "icon",
                 field: "type",
-                formatter: value => {
+                formatter: (value, row) => {
                     return `
-                        <i class="fs-5 fas ${value === "DIRECTORY" ? "fa-folder" : "fa-file-alt"}"></i>
+                        <i class="fs-5 ${value === "DIRECTORY" ? "fas fa-folder" : "far " + UtilsNew.getFileIcon(row)}"></i>
                     `;
                 },
                 align: "center",
@@ -516,6 +541,13 @@ export default class OpencgaFileGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("index"),
             },
             {
+                id: "tags",
+                title: "Tags",
+                field: "tags",
+                formatter: tags => CatalogGridFormatter.tagsFormatter(tags),
+                visible: this.gridCommons.isColumnVisible("tags"),
+            },
+            {
                 id: "creationDate",
                 title: "Creation date",
                 field: "creationDate",
@@ -545,6 +577,7 @@ export default class OpencgaFileGrid extends LitElement {
 
     actionsFormatter(value, row) {
         const hasDownloadPermission = this.gridCommons.hasPermission("DOWNLOAD");
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
         const hasDeletePermission = this.gridCommons.hasPermission("DELETE");
         const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
         const downloadUrl = OpencgaCatalogUtils.getDownloadFileUrl(this.opencgaSession, row.id);
@@ -573,6 +606,9 @@ export default class OpencgaFileGrid extends LitElement {
                             <i class="fas fa-rocket me-1"></i> Run Variant Index
                         </a>
                         <hr class="dropdown-divider">
+                        <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                            <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit
+                        </a>
                         <a data-action="delete" class="dropdown-item ${hasDeletePermission ? "cursor-pointer" : "disabled"}">
                             <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
                         </a>
@@ -588,6 +624,10 @@ export default class OpencgaFileGrid extends LitElement {
             case "view":
                 this._selectedFile = file;
                 this.gridCommons.changeActiveModal("view");
+                break;
+            case "edit":
+                this._selectedFile = file;
+                this.gridCommons.changeActiveModal("update");
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(file, null, "\t"));
@@ -618,17 +658,23 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     onDelete(file) {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-        };
-
         // FIXME 20241217 VERO: When trying to delete a file fetched from an external source in the root path:
         //  - If delete is used, opencga returns error "Use unlink". This is happening because the field "external" in this case is set to true in opencga.
         //  - If unlink is used, opencga returns error "[...] Could not unlink [...] Could not delete file: No documents could be found to be updated".
         //  Bug created:  https://app.clickup.com/t/36631768/TASK-7291
-        const endpoint = file.external ?
-            this.opencgaSession.opencgaClient.files().unlink(file.id, params) :
-            this.opencgaSession.opencgaClient.files().delete(file.id, params);
+        let endpoint = null;
+        if (file.external) {
+            endpoint = this.opencgaSession.opencgaClient.files()
+                .unlink(file.id, {
+                    study: this.opencgaSession.study.fqn,
+                });
+        } else {
+            endpoint = this.opencgaSession.opencgaClient.files()
+                .delete(file.id, {
+                    skipTrash: true,
+                    study: this.opencgaSession.study.fqn,
+                });
+        }
         endpoint
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -689,6 +735,28 @@ export default class OpencgaFileGrid extends LitElement {
         LitUtils.dispatchCustomEvent(this, "pathCreate", newPath);
     }
 
+    onChangeMode(mode) {
+        this._mode = mode;
+        this.requestUpdate();
+        // force to re-render the table if the new mode is list
+        if (this._mode === "list") {
+            this.updateComplete.then(() => {
+                this.renderTable();
+            });
+        }
+    }
+
+    onClickFile(file) {
+        if (file) {
+            if (file.type === "DIRECTORY") {
+                this.onPathChange(file.path);
+            } else {
+                this._selectedFile = file;
+                this.changeActiveActionModal("view");
+            }
+        }
+    }
+
     renderToolbarLeftContent() {
         const pathFragments = this.getCurrentPath()
             .split("/")
@@ -746,6 +814,28 @@ export default class OpencgaFileGrid extends LitElement {
                 disabled: !hasWritePermission || !hasJobExecutionPermission,
                 onClick: () => this.gridCommons.changeActiveModal("fetch-file"),
             },
+            {
+                render: () => {
+                    return html`<div class="w-px bg-gray-200 mx-1"></div>`;
+                },
+            },
+            {
+                render: () => {
+                    const modes = [
+                        {id: "list", icon: "fa fa-list"},
+                        {id: "thumbnails", icon: "fa fa-th"},
+                    ];
+                    return html`
+                        <div class="btn-group">
+                            ${modes.map(mode => html`
+                                <button class="btn btn-light ${this._mode === mode.id ? "active" : ""}" @click="${() => this.onChangeMode(mode.id)}">
+                                    <i class="${mode.icon}"></i>
+                                </button>
+                            `)}
+                        </div>
+                    `;
+                },
+            },
         ];
     }
 
@@ -766,9 +856,20 @@ export default class OpencgaFileGrid extends LitElement {
                 </grid-toolbar>
             ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow">
-                <table id="${this.gridId}"></table>
-            </div>
+            ${this._mode === "list" ? html`
+                <div id="${this._prefix}GridTableDiv" class="force-overflow">
+                    <table id="${this.gridId}"></table>
+                </div>
+            ` : nothing}
+
+            ${this._mode === "thumbnails" ? html`
+                <directory-preview
+                    .query="${this.query}"
+                    .active="${true}"
+                    .opencgaSession="${this.opencgaSession}"
+                    @fileClick="${event => this.onClickFile(event.detail)}">
+                </directory-preview>
+            ` : nothing}
 
             ${this.gridCommons.renderModals()}
         `;

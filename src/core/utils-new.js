@@ -1114,4 +1114,54 @@ export default class UtilsNew {
         }
     }
 
+    // checks if the provided file is a binary file
+    static isBinaryFile(file) {
+        const binaryExtensions = new Set(["tbi", "bai", "zip", "bigWig", "pbi", "gz"]);
+        return binaryExtensions.has((file.name || file).split(".").pop());
+    }
+
+    static getFileIcon(file) {
+        let format = file.format;
+
+        // fix the format based on the file name
+        if (format === "UNKNOWN" || format === "PLAIN") {
+            if (file.name.endsWith(".pdf")) {
+                format = "PDF";
+            }
+            else if (file.name.endsWith(".html") || file.name.endsWith(".htm")) {
+                format = "HTML";
+            }
+            else if (UtilsNew.isBinaryFile(file.name)) {
+                format = "BINARY";
+            }
+            // assign .log or .err files to TEXT files
+            else if (file.name.endsWith(".log") || file.name.endsWith(".err")) {
+                format = "TEXT";
+            }
+        }
+        
+        switch (format) {
+            case "IMAGE":
+                return "fa-file-image";
+            case "BAM":
+            case "BAI":
+            case "BINARY":
+                return "fa-file-archive";
+            case "HTML":
+            case "JSON":
+                return "fa-file-code";
+            case "PDF":
+                return "fa-file-pdf";
+            case "VCF":
+            case "PLAIN":
+            case "TEXT":
+                return "fa-file-alt";
+            case "TAB_SEPARATED_VALUES":
+            case "COMMA_SEPARATED_VALUES":
+                return "fa-file-excel";
+            default:
+                return "fa-file";
+        }
+    }
+
 }
