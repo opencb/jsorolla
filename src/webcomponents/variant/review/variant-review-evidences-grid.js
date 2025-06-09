@@ -203,14 +203,19 @@ export default class VariantReviewEvidencesGrid extends LitElement {
         return "-";
     }
 
-    onEvidenceSelect(event, evidence) {
+    onEvidenceSelect(event, evidence, index) {
         this._selectedEvidence = evidence;
         this.requestUpdate();
+        // mark the evidence row as selected
+        this.querySelector(`#${this._gridId} tbody tr.selected`)?.classList.remove("selected"); // unmark any previously selected row
+        this.querySelector(`#${this._gridId} tbody tr[data-index="${index}"]`).classList.add("selected");
     }
 
     onEvidenceUnselect() {
         this._selectedEvidence = null;
         this.requestUpdate();
+        // unmark the evidence row as selected
+        this.querySelector(`#${this._gridId} tbody tr.selected`)?.classList.remove("selected");
     }
 
     onEvidenceReviewChange(event) {
@@ -330,7 +335,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                         `;
                     },
                     events: {
-                        "click button": (event, value, row) => this.onEvidenceSelect(event, row),
+                        "click button": (event, value, row, index) => this.onEvidenceSelect(event, row, index),
                     },
                 },
             ],
