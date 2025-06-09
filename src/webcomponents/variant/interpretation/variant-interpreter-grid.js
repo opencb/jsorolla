@@ -995,45 +995,45 @@ export default class VariantInterpreterGrid extends LitElement {
                         this.gridCommons.isColumnVisible("prediction", "interpretation")
                     ),
                 },
-                // {
-                //     id: "Select",
-                //     title: "Select",
-                //     rowspan: 1,
-                //     colspan: 1,
-                //     formatter: (value, row) => {
-                //         const checked = this.checkedVariants?.has(row.id) ? "checked" : "";
-                //         const disabled = (this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
-                //         return `
-                //             <input class="check check-variant" type="checkbox" data-variant="${row.id}" ${checked} ${disabled}>
-                //         `;
-                //     },
-                //     align: "center",
-                //     events: {
-                //         "click input": e => this.onVariantCheck(e)
-                //     },
-                //     visible: false, // this._config.showSelectCheckbox,
-                //     excludeFromSettings: true,
-                //     excludeFromExport: true // this is used in opencga-export
-                // },
-                // {
-                //     id: "review",
-                //     title: "Review",
-                //     rowspan: 1,
-                //     colspan: 1,
-                //     formatter: (value, row, index) => {
-                //         const disabled = (!this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
-                //         const checked = this.checkedVariants.has(row.id);
-                //         const variant = checked ? this.checkedVariants.get(row.id) : row;
-                //         return VariantInterpreterGridFormatter.reviewFormatter(variant, index, checked, disabled, this._prefix, this._config);
-                //     },
-                //     align: "center",
-                //     events: {
-                //         "click button": (event, value, row) => this.onActionClick(event, row),
-                //     },
-                //     excludeFromSettings: true,
-                //     visible: false, // this.review || this._config?.showReview,
-                //     excludeFromExport: true // this is used in opencga-export
-                // },
+                {
+                    id: "Select",
+                    title: "Select",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        const checked = this.checkedVariants?.has(row.id) ? "checked" : "";
+                        const disabled = (this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+                        return `
+                            <input class="check check-variant" type="checkbox" data-variant="${row.id}" ${checked} ${disabled}>
+                        `;
+                    },
+                    align: "center",
+                    events: {
+                        "click input": e => this.onVariantCheck(e)
+                    },
+                    visible: false, // this._config.showSelectCheckbox,
+                    excludeFromSettings: true,
+                    excludeFromExport: true // this is used in opencga-export
+                },
+                {
+                    id: "review-old",
+                    title: "Review",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row, index) => {
+                        const disabled = (!this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+                        const checked = this.checkedVariants.has(row.id);
+                        const variant = checked ? this.checkedVariants.get(row.id) : row;
+                        return VariantInterpreterGridFormatter.reviewFormatter(variant, index, checked, disabled, this._prefix, this._config);
+                    },
+                    align: "center",
+                    events: {
+                        "click button": (event, value, row) => this.onActionClick(event, row),
+                    },
+                    excludeFromSettings: true,
+                    visible: false, // this.review || this._config?.showReview,
+                    excludeFromExport: true // this is used in opencga-export
+                },
                 {
                     id: "review",
                     title: "Review",
