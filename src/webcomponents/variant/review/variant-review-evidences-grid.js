@@ -42,6 +42,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this._gridId = this._prefix + "EvidencesGrid";
         this._selectedEvidence = null;
+        this._selectedEvidenceIndex = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -70,8 +71,11 @@ export default class VariantReviewEvidencesGrid extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             paginationVAlign: "bottom",
-            onPostBody: data => {
-                // this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
+            onPostBody: () => {
+                // mark the selected evidence row
+                if (this._selectedEvidence) {
+                    this.querySelector(`#${this._gridId} tbody tr[data-index="${this._selectedEvidenceIndex}"]`)?.classList.add("selected");
+                }
             },
         });
     }
@@ -205,6 +209,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
 
     onEvidenceSelect(event, evidence, index) {
         this._selectedEvidence = evidence;
+        this._selectedEvidenceIndex = index;
         this.requestUpdate();
         // mark the evidence row as selected
         this.querySelector(`#${this._gridId} tbody tr.selected`)?.classList.remove("selected"); // unmark any previously selected row
@@ -213,6 +218,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
 
     onEvidenceUnselect() {
         this._selectedEvidence = null;
+        this._selectedEvidenceIndex = null;
         this.requestUpdate();
         // unmark the evidence row as selected
         this.querySelector(`#${this._gridId} tbody tr.selected`)?.classList.remove("selected");
