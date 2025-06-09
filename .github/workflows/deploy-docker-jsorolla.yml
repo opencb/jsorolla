@@ -27,7 +27,7 @@ jobs:
         run: "find build -regex '.*sh' | while read file ; do chmod u+x $file ; done"
       - uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_HUB_USER }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          username: ${{ secrets.ZETTA_DOCKER_HUB_USER }}
+          password: ${{ secrets.ZETTA_DOCKER_HUB_PASSWORD }}
       - name: Deploy in Docker Hub
-        run: ${{ inputs.cli }}
+        run: ${{ inputs.cli }}  --org zettagenomics
