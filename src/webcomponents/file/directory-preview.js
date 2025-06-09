@@ -198,7 +198,7 @@ export default class DirectoryPreview extends LitElement {
                             `}
                         </div>
                         <div class="mt-2">
-                            <span>${file.name}</span>
+                            <span class="text-break">${file.name}</span>
                             <span class="text-secondary"> (${UtilsNew.getDiskUsage(file.size || 0)})</span>
                         </div>
                     </div>
