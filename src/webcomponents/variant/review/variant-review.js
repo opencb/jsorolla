@@ -2,7 +2,6 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../annotation/cellbase-variant-annotation-summary.js";
-import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
 import "./variant-review-evidences-grid.js";
 
 export default class VariantReview extends LitElement {
@@ -190,6 +189,7 @@ export default class VariantReview extends LitElement {
                 pillsLeftColumnClass: "col-md-1",
                 pillsRightColumnClass: "col-md-11",
                 buttonsVisible: false,
+                defaultLayout: "vertical",
                 ...this.displayConfig,
             },
             sections: [
@@ -210,22 +210,57 @@ export default class VariantReview extends LitElement {
                     id: "discussion",
                     name: "Discussion",
                     icon: "fa-edit",
-                    render: variant => html`
-                        <clinical-interpretation-variant-review
-                            .opencgaSession="${this.opencgaSession}"
-                            .variant="${variant}"
-                            .mode="${"form"}"
-                            @variantChange="${e => {
-                                // TODO
-                            }}">
-                        </clinical-interpretation-variant-review>
-                    `,
+                    elements: [
+                        {
+                            id: "discussion",
+                            title: "Discussion",
+                            type: "input-text",
+                            field: "discussion.text",
+                            display: {
+                                placeholder: "Add your discussion here...",
+                                rows: 10,
+                            },
+                        },
+                    ],
                 },
                 {
                     id: "comments",
                     name: "Comments",
                     icon: "fa-comments",
-                    render: variant => html``,
+                    elements: [
+                        {
+                            title: "Comments",
+                            field: "comments",
+                            type: "object-list",
+                            display: {
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                showAddBatchListButton: false,
+                                showEditItemListButton: false,
+                                showDeleteItemListButton: false,
+                                view: comment => {
+                                    const tags = UtilsNew.commaSeparatedArray(comment.tags)
+                                        .join(", ") || "-";
+
+                                    return html`
+                                        <div style="margin-bottom:1rem;">
+                                            <div style="display:flex;margin-bottom:0.5rem;">
+                                                <div style="padding-right:1rem;">
+                                                    <i class="fas fa-comment-dots"></i>
+                                                </div>
+                                                <div style="font-weight:bold">
+                                                    ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
+                                                </div>
+                                            </div>
+                                            <div style="width:100%;">
+                                                <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
+                                                <div class="text-muted">Tags: ${tags}</div>
+                                            </div>
+                                        </div>
+                                    `;
+                                },
+                            },
+                        },
+                    ],
                 },
                 {
                     id: "evidences",
