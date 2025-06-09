@@ -121,6 +121,10 @@ export default class VariantReview extends LitElement {
         // TODO
     }
 
+    onFieldChange(event) {
+        console.log(event.detail);
+    }
+
     renderVariantSelect() {
         return html`
             <div class="alert ${this._selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-2 flex-grow-1">
@@ -177,7 +181,8 @@ export default class VariantReview extends LitElement {
             </div>
             <data-form
                 .data="${this._variant}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @fieldChange="${event => this.onFieldChange(event)}">
             </data-form>
         `;
     }
@@ -217,6 +222,7 @@ export default class VariantReview extends LitElement {
                             type: "input-text",
                             field: "discussion.text",
                             display: {
+                                disabled: () => !this._selected,
                                 placeholder: "Add your discussion here...",
                                 rows: 10,
                             },
@@ -233,6 +239,7 @@ export default class VariantReview extends LitElement {
                             field: "comments",
                             type: "object-list",
                             display: {
+                                disabled: () => !this._selected,
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 showAddBatchListButton: false,
                                 showEditItemListButton: false,
