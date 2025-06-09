@@ -1559,7 +1559,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
     // TODO: rename this method to variantReview
     onVariantCurate(event, row) {
-        this._selectedVariant = row;
+        this._selectedVariant = UtilsNew.objectClone(row);
         this.gridCommons.changeActiveModal("review-variant");
     }
 
