@@ -438,7 +438,7 @@ export default class OpencgaFileGrid extends LitElement {
                 field: "type",
                 formatter: (value, row) => {
                     return `
-                        <i class="fs-5 fas ${value === "DIRECTORY" ? "fa-folder" : UtilsNew.getFileIcon(row)}"></i>
+                        <i class="fs-5 ${value === "DIRECTORY" ? "fas fa-folder" : "far " + UtilsNew.getFileIcon(row)}"></i>
                     `;
                 },
                 align: "center",
