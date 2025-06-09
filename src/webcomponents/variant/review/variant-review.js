@@ -71,10 +71,7 @@ export default class VariantReview extends LitElement {
         }
 
         if (changedProperties.has("displayConfig")) {
-            this._config = {
-                ...this.getDefaultConfig(),
-                ...this.config,
-            };
+            this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
@@ -110,6 +107,7 @@ export default class VariantReview extends LitElement {
 
     onSelectChange() {
         this._selected = !this._selected;
+        this._config = this.getDefaultConfig(); // Rebuild config to update the disabled state of the form elements
         this.requestUpdate();
     }
 
