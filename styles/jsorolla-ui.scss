@@ -172,6 +172,11 @@ body {
             border-bottom-right-radius: $border-radius;
         }
     }
+    // row selected style
+    & tbody tr.selected {
+        @extend .table-success;
+        background-color: var(--bs-table-bg)
+    }
 }
 
 // fix the dropdown hidden in a bootstrap table
