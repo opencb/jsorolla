@@ -28,9 +28,9 @@ import "../../clinical/interpretation/clinical-interpretation-variant-review.js"
 import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
 import "../../commons/grid-toolbar.js";
 import "../../loading-spinner.js";
+import "../review/variant-review.js";
 import "./variant-interpreter-grid-config.js";
 import "./variant-interpreter-view.js";
-import "../curate/variant-curate.js";
 
 export default class VariantInterpreterGrid extends LitElement {
 
@@ -175,7 +175,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // register modals
         this.gridCommons.registerModals({
-            "variant-curate": () => ({
+            "review-variant": () => ({
                 display: {
                     scrollable: true,
                     title: `Review Variant ${this._selectedVariant.id}`,
@@ -185,14 +185,14 @@ export default class VariantInterpreterGrid extends LitElement {
                     buttonSaveText: "Save",
                 },
                 render: () => html`
-                    <variant-curate
+                    <variant-review
                         .opencgaSession="${this.opencgaSession}"
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .variant="${this._selectedVariant}"
                         @variantChange="${event => {
                             // TODO
                         }}">
-                    </variant-curate>
+                    </variant-review>
                 `,
                 onCancel: () => {},
                 onSave: () => {},
@@ -212,47 +212,47 @@ export default class VariantInterpreterGrid extends LitElement {
                     </variant-interpreter-view>
                 `,
             }),
-            "review-variant": () => ({
-                display: {
-                    modalTitle: `Review Variant ${this._selectedVariant.id}`,
-                    modalCyDataName: `modal-variant-reivew`,
-                    modalSize: "modal-lg",
-                    modalBtnsVisible: true,
-                    btnCancelText: "Cancel",
-                    btnSaveText: "Save",
-                },
-                render: () => html`
-                    <clinical-interpretation-variant-review
-                        .opencgaSession="${this.opencgaSession}"
-                        .variant="${this._selectedVariant}"
-                        .mode="${"form"}"
-                        @variantChange="${e => this.onVariantReviewChange(e)}">
-                    </clinical-interpretation-variant-review>
-                `,
-                onCancel: () => this.onVariantReviewCancel(),
-                onOk: () => this.onVariantReviewSave(),
-            }),
-            "review-evidence": () => ({
-                display: {
-                    modalTitle: `Review Variant Evidence`,
-                    modalCyDataName: `modal-evidence-review`,
-                    modalSize: "modal-lg",
-                    modalBtnsVisible: true,
-                    btnCancelText: "Cancel",
-                    btnSaveText: "Save",
-                },
-                render: () => html`
-                    <clinical-interpretation-variant-evidence-review
-                        .opencgaSession="${this.opencgaSession}"
-                        .review="${this._selectedEvidence}"
-                        .mode="${"page"}"
-                        .somatic="${this.clinicalAnalysis.type === "CANCER"}"
-                        @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
-                    </clinical-interpretation-variant-evidence-review>
-                `,
-                onCancel: () => this.onEvidenceReviewCancel(),
-                onOk: () => this.onEvidenceReviewSave(),
-            }),
+            // "review-variant": () => ({
+            //     display: {
+            //         modalTitle: `Review Variant ${this._selectedVariant.id}`,
+            //         modalCyDataName: `modal-variant-reivew`,
+            //         modalSize: "modal-lg",
+            //         modalBtnsVisible: true,
+            //         btnCancelText: "Cancel",
+            //         btnSaveText: "Save",
+            //     },
+            //     render: () => html`
+            //         <clinical-interpretation-variant-review
+            //             .opencgaSession="${this.opencgaSession}"
+            //             .variant="${this._selectedVariant}"
+            //             .mode="${"form"}"
+            //             @variantChange="${e => this.onVariantReviewChange(e)}">
+            //         </clinical-interpretation-variant-review>
+            //     `,
+            //     onCancel: () => this.onVariantReviewCancel(),
+            //     onOk: () => this.onVariantReviewSave(),
+            // }),
+            // "review-evidence": () => ({
+            //     display: {
+            //         modalTitle: `Review Variant Evidence`,
+            //         modalCyDataName: `modal-evidence-review`,
+            //         modalSize: "modal-lg",
+            //         modalBtnsVisible: true,
+            //         btnCancelText: "Cancel",
+            //         btnSaveText: "Save",
+            //     },
+            //     render: () => html`
+            //         <clinical-interpretation-variant-evidence-review
+            //             .opencgaSession="${this.opencgaSession}"
+            //             .review="${this._selectedEvidence}"
+            //             .mode="${"page"}"
+            //             .somatic="${this.clinicalAnalysis.type === "CANCER"}"
+            //             @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
+            //         </clinical-interpretation-variant-evidence-review>
+            //     `,
+            //     onCancel: () => this.onEvidenceReviewCancel(),
+            //     onOk: () => this.onEvidenceReviewSave(),
+            // }),
         });
     }
 
@@ -995,53 +995,53 @@ export default class VariantInterpreterGrid extends LitElement {
                         this.gridCommons.isColumnVisible("prediction", "interpretation")
                     ),
                 },
-                {
-                    id: "Select",
-                    title: "Select",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        const checked = this.checkedVariants?.has(row.id) ? "checked" : "";
-                        const disabled = (this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
-                        return `
-                            <input class="check check-variant" type="checkbox" data-variant="${row.id}" ${checked} ${disabled}>
-                        `;
-                    },
-                    align: "center",
-                    events: {
-                        "click input": e => this.onVariantCheck(e)
-                    },
-                    visible: false, // this._config.showSelectCheckbox,
-                    excludeFromSettings: true,
-                    excludeFromExport: true // this is used in opencga-export
-                },
+                // {
+                //     id: "Select",
+                //     title: "Select",
+                //     rowspan: 1,
+                //     colspan: 1,
+                //     formatter: (value, row) => {
+                //         const checked = this.checkedVariants?.has(row.id) ? "checked" : "";
+                //         const disabled = (this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+                //         return `
+                //             <input class="check check-variant" type="checkbox" data-variant="${row.id}" ${checked} ${disabled}>
+                //         `;
+                //     },
+                //     align: "center",
+                //     events: {
+                //         "click input": e => this.onVariantCheck(e)
+                //     },
+                //     visible: false, // this._config.showSelectCheckbox,
+                //     excludeFromSettings: true,
+                //     excludeFromExport: true // this is used in opencga-export
+                // },
+                // {
+                //     id: "review",
+                //     title: "Review",
+                //     rowspan: 1,
+                //     colspan: 1,
+                //     formatter: (value, row, index) => {
+                //         const disabled = (!this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+                //         const checked = this.checkedVariants.has(row.id);
+                //         const variant = checked ? this.checkedVariants.get(row.id) : row;
+                //         return VariantInterpreterGridFormatter.reviewFormatter(variant, index, checked, disabled, this._prefix, this._config);
+                //     },
+                //     align: "center",
+                //     events: {
+                //         "click button": (event, value, row) => this.onActionClick(event, row),
+                //     },
+                //     excludeFromSettings: true,
+                //     visible: false, // this.review || this._config?.showReview,
+                //     excludeFromExport: true // this is used in opencga-export
+                // },
                 {
                     id: "review",
                     title: "Review",
                     rowspan: 1,
                     colspan: 1,
-                    formatter: (value, row, index) => {
-                        const disabled = (!this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
-                        const checked = this.checkedVariants.has(row.id);
-                        const variant = checked ? this.checkedVariants.get(row.id) : row;
-                        return VariantInterpreterGridFormatter.reviewFormatter(variant, index, checked, disabled, this._prefix, this._config);
-                    },
-                    align: "center",
-                    events: {
-                        "click button": (event, value, row) => this.onActionClick(event, row),
-                    },
-                    excludeFromSettings: true,
-                    visible: false, // this.review || this._config?.showReview,
-                    excludeFromExport: true // this is used in opencga-export
-                },
-                {
-                    id: "curate",
-                    "title": "Curate",
-                    rowspan: 1,
-                    colspan: 1,
                     formatter: (value, row) => {
                         return `
-                            <button class="btn btn-light btn-sm">Curate</button>
+                            <button class="btn btn-light btn-sm">Review</button>
                         `;
                     },
                     align: "center",
@@ -1279,11 +1279,12 @@ export default class VariantInterpreterGrid extends LitElement {
                 break;
             case "review":
             case "edit":
-                if (this.checkedVariants && this.checkedVariants.has(variant.id)) {
-                    // Generate a clone of the variant review to prevent changing original values
-                    this._selectedVariant = UtilsNew.objectClone(this.checkedVariants.get(variant.id));
-                    this.gridCommons.changeActiveModal("review-variant");
-                }
+                // TODO
+                // if (this.checkedVariants && this.checkedVariants.has(variant.id)) {
+                //     // Generate a clone of the variant review to prevent changing original values
+                //     this._selectedVariant = UtilsNew.objectClone(this.checkedVariants.get(variant.id));
+                //     this.gridCommons.changeActiveModal("review-variant");
+                // }
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(variant, null, "\t"));
@@ -1556,9 +1557,10 @@ export default class VariantInterpreterGrid extends LitElement {
         this.gridCommons.clearActiveModal();
     }
 
+    // TODO: rename this method to variantReview
     onVariantCurate(event, row) {
         this._selectedVariant = row;
-        this.gridCommons.changeActiveModal("variant-curate");
+        this.gridCommons.changeActiveModal("review-variant");
     }
 
     renderToolbarLeftContent() {
