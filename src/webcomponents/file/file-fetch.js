@@ -158,9 +158,7 @@ export default class FileFetch extends LitElement {
                             display: {
                                 defaultValue: `/${this.path}`,
                                 disabled: true,
-                                help: {
-                                    text: "Path where the file be downloaded."
-                                }
+                                helpMessage: "Path where the file be downloaded."
                             },
                         },
                         {
@@ -170,9 +168,7 @@ export default class FileFetch extends LitElement {
                             required: true,
                             display: {
                                 placeholder: "https://",
-                                help: {
-                                    text: "URL where the file is located."
-                                }
+                                helpMessage: "URL where the file is located."
                             },
                         },
                         /*
@@ -188,9 +184,7 @@ export default class FileFetch extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: `${this.JOB_ID}-${UtilsNew.getDatetime()}`,
-                                help: {
-                                    text: "If empty then it is automatically initialized with the tool ID and current date"
-                                }
+                                helpMessage: "If empty then it is automatically initialized with the tool ID and current date"
                             },
                         },
                     ],

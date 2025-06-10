@@ -26,7 +26,7 @@ const hosts = [
     },
     {
         id: "reference",
-        url: "https://test.app.zettagenomics.com/task-7359/opencga"
+        url: "https://test.app.zettagenomics.com/task-7516/opencga"
     },
 ];
 
@@ -306,7 +306,7 @@ const SUITE = {
                     name: "Case Interpreter Portal",
                     icon: "fa-file-medical",
                     visibility: "public",
-                    description: "Explore and review Clinical Interpretations: Filter by gene, consequence, frequency, and create clinical interpretations and reports.",
+                    description: "Explore and review Clinical Interpretations: filter by gene, consequence, frequency, and create clinical interpretations and reports.",
                 },
                 {
                     id: "disease-panel-browser",
@@ -399,14 +399,13 @@ const SUITE = {
             welcomePage: {
                 title: "Admin",
                 subtitle: "Perform all the administrative tasks for your Organization or Study.",
-                // content: "Administration tools for managing users, projects, and studies.",
             },
             menu: [
                 {
                     id: "organization-admin",
                     name: "Organization Admin",
                     icon: "fa-building",
-                    description: "Manage the configuration of the current organization.",
+                    description: "Manage the configuration of the current Organization.",
                     visibility: "public",
                 },
                 {
@@ -427,7 +426,7 @@ const SUITE = {
                     id: "operations-admin",
                     name: "Variant Operations",
                     icon: "fa-server",
-                    description: "Execute variant operations in the current organization or study.",
+                    description: "Execute variant operations in the current Organization or study.",
                     visibility: "public",
                 },
             ],
