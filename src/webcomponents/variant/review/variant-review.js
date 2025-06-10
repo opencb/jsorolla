@@ -159,7 +159,7 @@ export default class VariantReview extends LitElement {
                     <label class="form-label mb-0 fw-bold">Confidence</label>
                     <select class="form-select form-select-sm" ?disabled="${!this.selected}" @change="${event => this.onConfidenceChange(event)}">
                         ${this.CONFIDENCE_VALUES.map(confidence => html`
-                            <option value="${confidence}" ?selected="${this._variant?.confidence === confidence}">
+                            <option value="${confidence}" ?selected="${this._variant?.confidence?.value === confidence}">
                                 ${confidence}
                             </option>
                         `)}
