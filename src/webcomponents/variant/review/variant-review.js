@@ -122,7 +122,19 @@ export default class VariantReview extends LitElement {
     }
 
     onFieldChange(event) {
-        console.log(event.detail);
+        LitUtils.dispatchCustomEvent(this, "variantChange", null, {
+            variant: this._variant,
+        });
+        // if the updated field is comments, we need to force an update of the variant
+        if (event.detail.param.startsWith("comments") && event.detail.action === "ADD") {
+            const lastComment = this._variant.comments[this._variant.comments.length - 1];
+            this._variant.comments[this._variant.comments.length - 1] = {
+                ...lastComment,
+                author: this.opencgaSession?.user?.id || "-",
+                date: UtilsNew.getDatetime(),
+            };
+            this.requestUpdate();
+        }
     }
 
     renderVariantSelect() {
