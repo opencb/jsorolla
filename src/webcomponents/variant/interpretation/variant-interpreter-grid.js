@@ -183,7 +183,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     buttonsVisible: true,
                     buttonCancelText: "Cancel",
                     buttonSaveText: "Save",
-                    backdrop: "static",
                 },
                 render: () => html`
                     <variant-review
