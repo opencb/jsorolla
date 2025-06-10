@@ -54,6 +54,7 @@ export default class VariantReview extends LitElement {
             "HIGH",
         ];
         this._variant = null;
+        this._updatedFields = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -103,11 +104,21 @@ export default class VariantReview extends LitElement {
     }
 
     onStatusChange(event) {
-        // TODO
+        this._variant.status = event.currentTarget.value;
+        LitUtils.dispatchCustomEvent(this, "variantChange", null, {
+            variant: this._variant,
+        });
     }
 
     onConfidenceChange(event) {
-        // TODO
+        this._variant.confidence = {
+            value: event.currentTarget.value,
+            author: this.opencgaSession?.user?.id,
+            date: UtilsNew.getDatetime(),
+        };
+        LitUtils.dispatchCustomEvent(this, "variantChange", null, {
+            variant: this._variant,
+        });
     }
 
     onFieldChange(event) {
@@ -136,7 +147,7 @@ export default class VariantReview extends LitElement {
             <div class="alert alert-light d-flex align-items-center">
                 <div class="d-flex align-items-center gap-2">
                     <label class="form-label mb-0 fw-bold">Status</label>
-                    <select class="form-select form-select-sm" ?disabled="${!this.selected}">
+                    <select class="form-select form-select-sm" ?disabled="${!this.selected}" @change="${event => this.onStatusChange(event)}">
                         ${this.STATUS_VALUES.map(status => html`
                             <option value="${status}" ?selected="${this._variant?.status === status}">
                                 ${status}
@@ -146,7 +157,7 @@ export default class VariantReview extends LitElement {
                 </div>
                 <div class="d-flex align-items-center gap-2 ms-3">
                     <label class="form-label mb-0 fw-bold">Confidence</label>
-                    <select class="form-select form-select-sm" ?disabled="${!this.selected}">
+                    <select class="form-select form-select-sm" ?disabled="${!this.selected}" @change="${event => this.onConfidenceChange(event)}">
                         ${this.CONFIDENCE_VALUES.map(confidence => html`
                             <option value="${confidence}" ?selected="${this._variant?.confidence === confidence}">
                                 ${confidence}
