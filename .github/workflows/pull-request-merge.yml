@@ -12,7 +12,7 @@ on:
 jobs:
   docker-delete:
     name: Delete TASK docker image
-    runs-on: ubuntu-22.04
+    runs-on: ${{ vars.UBUNTU_VERSION }}
     steps:
       - name: "Checkout JSorolla"
         uses: actions/checkout@v2
