@@ -29,6 +29,7 @@ export default class ModalUtils {
         const modalDraggable = config?.display?.draggable ?? config.display?.modalDraggable ?? false;
         const modalCyName = config.display?.modalCyDataName || "";
         const modalScrollable = config?.display?.scrollable ?? config?.display?.modalScrollable ?? false;
+        const backdrop = config?.display?.backdrop ?? ""; // set to "static" to prevent closing the modal on backdrop click
 
         // handle modal events (cancel, and submit aka ok)
         const handleCancel = event => {
@@ -47,7 +48,7 @@ export default class ModalUtils {
         };
 
         return html`
-            <div class="modal ${modalContainerClass}" id="${id}" tabindex="-1" data-draggable="${modalDraggable}" data-cy="${modalCyName}">
+            <div class="modal ${modalContainerClass}" id="${id}" tabindex="-1" data-bs-backdrop="${backdrop}" data-draggable="${modalDraggable}" data-cy="${modalCyName}">
                 <div class="modal-dialog ${modalSize} ${modalScrollable ? "modal-dialog-scrollable" : ""}" style="${modalStyle}">
                     <div class="modal-content">
                         <div class="modal-header">
