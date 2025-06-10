@@ -97,7 +97,7 @@ export default class VariantReview extends LitElement {
 
     onSelectChange() {
         LitUtils.dispatchCustomEvent(this, "selectChange", null, {
-            selected: !this._selected,
+            selected: !this.selected,
             variant: this._variant,
         });
     }

@@ -1590,6 +1590,8 @@ export default class VariantInterpreterGrid extends LitElement {
             checked: event.detail.selected,
             rows: Array.from(this.checkedVariants.values())
         });
+
+        // needed to notify variant-review that the variant is now selected/unselected
         this.requestUpdate();
     }
 
