@@ -191,9 +191,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         .variant="${this._selectedVariant}"
                         .selected="${this.checkedVariants.has(this._selectedVariant.id)}"
                         @selectChange="${event => this.onVariantSelectChange(event)}"
-                        @variantChange="${event => {
-                            // TODO
-                        }}">
+                        @variantChange="${event => this.onVariantReviewChange(event)}">
                     </variant-review>
                 `,
                 onCancel: () => {},
@@ -1468,30 +1466,6 @@ export default class VariantInterpreterGrid extends LitElement {
         }));
     }
 
-    onVariantReviewChange(event) {
-        this._selectedVariant = event.detail.value;
-    }
-
-    onVariantReviewSave() {
-        this.checkedVariants?.set(this._selectedVariant.id, this._selectedVariant);
-
-        // Dispatch variant update
-        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
-            id: this._selectedVariant.id,
-            row: this._selectedVariant,
-            rows: Array.from(this.checkedVariants.values()),
-        });
-
-        // Clear selected variant to review
-        this._selectedVariant = null;
-        this.gridCommons.clearActiveModal();
-    }
-
-    onVariantReviewCancel() {
-        this._selectedVariant = null;
-        this.gridCommons.clearActiveModal();
-    }
-
     onEvidenceCheck(event) {
         const variantId = event.currentTarget.dataset.variantId;
         const evidenceIndex = parseInt(event.currentTarget.dataset.clinicalEvidenceIndex);
@@ -1566,7 +1540,6 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     onVariantSelectChange(event) {
-        console.log(event);
         const variantId = event.detail.variant.id;
 
         // NOTE Josemi 20221121: we will check first if this variant is in the primaryFindings list
@@ -1593,6 +1566,32 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // needed to notify variant-review that the variant is now selected/unselected
         this.requestUpdate();
+    }
+
+    onVariantReviewChange(event) {
+        console.log(event.detail);
+        this._selectedVariant = event.detail.variant;
+    }
+
+    onVariantReviewSave() {
+        // TODO
+        // this.checkedVariants?.set(this._selectedVariant.id, this._selectedVariant);
+
+        // Dispatch variant update
+        // LitUtils.dispatchCustomEvent(this, "updaterow", null, {
+        //     id: this._selectedVariant.id,
+        //     row: this._selectedVariant,
+        //     rows: Array.from(this.checkedVariants.values()),
+        // });
+
+        // Clear selected variant to review
+        this._selectedVariant = null;
+        this.gridCommons.clearActiveModal();
+    }
+
+    onVariantReviewCancel() {
+        this._selectedVariant = null;
+        this.gridCommons.clearActiveModal();
     }
 
     renderToolbarLeftContent() {
