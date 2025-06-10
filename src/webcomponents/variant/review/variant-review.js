@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "../../commons/forms/data-form.js";
 import "../annotation/cellbase-variant-annotation-summary.js";
 import "./variant-review-evidences-grid.js";
@@ -70,17 +71,11 @@ export default class VariantReview extends LitElement {
             this._selected = !!this.selected;
         }
 
-        if (changedProperties.has("displayConfig")) {
+        if (changedProperties.has("displayConfig") || changedProperties.has("selected")) {
             this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
-    }
-
-    updated(changedProperties) {
-        // if (changedProperties.has("selected")) {
-        //     this.querySelector(`#${this._prefix}SelectCheckbox`).checked = this._selected;
-        // }
     }
 
     variantIdObserver() {
@@ -102,13 +97,17 @@ export default class VariantReview extends LitElement {
     }
 
     variantObserver() {
-        this._variant = UtilsNew.objectClone(this.variant);
+        this._variant = this.variant; // UtilsNew.objectClone(this.variant);
     }
 
     onSelectChange() {
-        this._selected = !this._selected;
-        this._config = this.getDefaultConfig(); // Rebuild config to update the disabled state of the form elements
-        this.requestUpdate();
+        LitUtils.dispatchCustomEvent(this, "selectChange", null, {
+            selected: !this._selected,
+            variant: this._variant,
+        });
+        // this._selected = !this._selected;
+        // this._config = this.getDefaultConfig(); // Rebuild config to update the disabled state of the form elements
+        // this.requestUpdate();
     }
 
     onStatusChange(event) {
