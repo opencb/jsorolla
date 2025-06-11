@@ -96,6 +96,18 @@ export default class VariantReview extends LitElement {
         this._variant = this.variant; // UtilsNew.objectClone(this.variant);
     }
 
+    dispatchChange() {
+        LitUtils.dispatchCustomEvent(this, "variantChange", null, {
+            variant: {
+                ...this._variant,
+                comments: (this._variant?.comments || []).map(comment => ({
+                    ...comment,
+                    tags: UtilsNew.commaSeparatedArray(comment.tags || []),
+                })),
+            },
+        });
+    }
+
     onSelectChange() {
         LitUtils.dispatchCustomEvent(this, "selectChange", null, {
             selected: !this.selected,
@@ -105,9 +117,7 @@ export default class VariantReview extends LitElement {
 
     onStatusChange(event) {
         this._variant.status = event.currentTarget.value;
-        LitUtils.dispatchCustomEvent(this, "variantChange", null, {
-            variant: this._variant,
-        });
+        this.dispatchChange();
     }
 
     onConfidenceChange(event) {
@@ -116,9 +126,7 @@ export default class VariantReview extends LitElement {
             author: this.opencgaSession?.user?.id,
             date: UtilsNew.getDatetime(),
         };
-        LitUtils.dispatchCustomEvent(this, "variantChange", null, {
-            variant: this._variant,
-        });
+        this.dispatchChange();
     }
 
     onFieldChange(event) {
@@ -135,9 +143,7 @@ export default class VariantReview extends LitElement {
             this._updateParams = {};
             this.requestUpdate();
         }
-        LitUtils.dispatchCustomEvent(this, "variantChange", null, {
-            variant: this._variant,
-        });
+        this.dispatchChange();
     }
 
     renderVariantSelect() {
