@@ -194,8 +194,12 @@ export default class VariantInterpreterGrid extends LitElement {
                         @variantChange="${event => this.onVariantReviewChange(event)}">
                     </variant-review>
                 `,
-                onCancel: () => {},
-                onSave: () => {},
+                onCancel: () => {
+                    this.onVariantReviewCancel();
+                },
+                onSave: () => {
+                    this.onVariantReviewSave();
+                },
             }),
             "view-variant": () => ({
                 display: {
@@ -1574,15 +1578,15 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     onVariantReviewSave() {
-        // TODO
-        // this.checkedVariants?.set(this._selectedVariant.id, this._selectedVariant);
-
-        // Dispatch variant update
-        // LitUtils.dispatchCustomEvent(this, "updaterow", null, {
-        //     id: this._selectedVariant.id,
-        //     row: this._selectedVariant,
-        //     rows: Array.from(this.checkedVariants.values()),
-        // });
+        // check if the variant is already in the primary findings
+        if (this.checkedVariants.has(this._selectedVariant.id)) {
+            this.checkedVariants.set(this._selectedVariant.id, this._selectedVariant);
+            LitUtils.dispatchCustomEvent(this, "updaterow", null, {
+                id: this._selectedVariant.id,
+                row: this._selectedVariant,
+                rows: Array.from(this.checkedVariants.values()),
+            });
+        }
 
         // Clear selected variant to review
         this._selectedVariant = null;
