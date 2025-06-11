@@ -54,7 +54,7 @@ export default class VariantReview extends LitElement {
             "HIGH",
         ];
         this._variant = null;
-        this._updatedFields = {};
+        this._updateParams = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -122,19 +122,22 @@ export default class VariantReview extends LitElement {
     }
 
     onFieldChange(event) {
+        // if the updated field is comments, we need to force an update of the variant
+        if (event.detail.param.startsWith("comments")) {
+            if (event.detail.action === "ADD") {
+                const lastComment = this._variant.comments[this._variant.comments.length - 1];
+                this._variant.comments[this._variant.comments.length - 1] = {
+                    ...lastComment,
+                    author: this.opencgaSession?.user?.id || "-",
+                    date: UtilsNew.getDatetime(),
+                };
+            }
+            this._updateParams = {};
+            this.requestUpdate();
+        }
         LitUtils.dispatchCustomEvent(this, "variantChange", null, {
             variant: this._variant,
         });
-        // if the updated field is comments, we need to force an update of the variant
-        if (event.detail.param.startsWith("comments") && event.detail.action === "ADD") {
-            const lastComment = this._variant.comments[this._variant.comments.length - 1];
-            this._variant.comments[this._variant.comments.length - 1] = {
-                ...lastComment,
-                author: this.opencgaSession?.user?.id || "-",
-                date: UtilsNew.getDatetime(),
-            };
-            this.requestUpdate();
-        }
     }
 
     renderVariantSelect() {
@@ -194,6 +197,7 @@ export default class VariantReview extends LitElement {
             <data-form
                 .data="${this._variant}"
                 .config="${this._config}"
+                .updateParams="${this._updateParams}"
                 @fieldChange="${event => this.onFieldChange(event)}">
             </data-form>
         `;
@@ -278,6 +282,25 @@ export default class VariantReview extends LitElement {
                                     `;
                                 },
                             },
+                            elements: [
+                                {
+                                    title: "Message",
+                                    field: "comments[].message",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add comment...",
+                                        rows: 3
+                                    }
+                                },
+                                {
+                                    title: "Tags",
+                                    field: "comments[].tags",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add tags..."
+                                    }
+                                },
+                            ]
                         },
                     ],
                 },
