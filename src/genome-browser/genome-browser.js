@@ -40,9 +40,7 @@ export default class GenomeBrowser {
             this.cellBaseClient = new CellBaseClient({
                 host: this.config.cellBaseHost,
                 version: this.config.cellBaseVersion,
-                cache: {
-                    active: false,
-                },
+                apiKey: this.config.cellBaseApiKey,
             });
         }
 

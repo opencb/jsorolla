@@ -479,8 +479,9 @@ export class OpenCGAClient {
                                             if (project.cellbase?.url && project.cellbase.version !== "v5" && project.cellbase.version !== "v4") {
                                                 const cellbaseClient = new CellBaseClient({
                                                     host: project.cellbase.url,
-                                                    version: project.cellbase.version.startsWith("v") ? project.cellbase.version : "v" + project.cellbase.version,
-                                                    species: "hsapiens",
+                                                    version: project.cellbase.version,
+                                                    species: project.organism.scientificName,
+                                                    apiKey: project.cellbase.apiKey,
                                                 });
                                                 // Call to: https://ws.zettagenomics.com/cellbase/webservices/rest/v5.1/meta/hsapiens/dataReleases
                                                 const promise = cellbaseClient.getMeta("dataReleases");

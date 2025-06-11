@@ -771,6 +771,7 @@ class IvaApp extends LitElement {
                 host: this.opencgaSession.project.cellbase.url.replace(/\/$/, ""),
                 version: this.opencgaSession.project.cellbase.version,
                 species: this.opencgaSession.project.organism.scientificName,
+                apiKey: this.opencgaSession.project.cellbase.apiKey,
             });
 
             // 2.1 This simplifies passing 'cellbaseClient' to all components
