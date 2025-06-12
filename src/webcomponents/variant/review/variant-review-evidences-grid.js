@@ -235,7 +235,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
     }
 
     onEvidenceReviewChange(event) {
-        // TODO
+        console.log(event.detail);
     }
 
     render() {
@@ -257,7 +257,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                         </div>    
                         <clinical-interpretation-variant-evidence-review
                             .opencgaSession="${this.opencgaSession}"
-                            .review="${this._selectedEvidence}"
+                            .review="${this._selectedEvidence?.review}"
                             .somatic="${this.clinicalAnalysis.type === "CANCER"}"
                             .displayConfig="${{
                                 defaultLayout: "vertical",
