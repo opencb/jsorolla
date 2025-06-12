@@ -226,10 +226,10 @@ body {
 
 // additional cursor utilities
 .cursor-pointer {
-    cursor: pointer;
+    cursor: pointer !important;
 }
 .cursor-not-allowed {
-    cursor: not-allowed;
+    cursor: not-allowed !important;
 }
 
 // additional width and height utilities
