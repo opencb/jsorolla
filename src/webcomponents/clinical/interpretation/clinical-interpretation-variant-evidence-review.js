@@ -72,6 +72,10 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
         const param = (field || e.detail.param);
 
         switch (param) {
+            case "selected":
+                // If the field is selected, we need to refresh the configuration
+                this._config = this.getDefaultConfig();
+                break;
             case "clinicalSignificance":
                 // Fix clinical significance value --> must be in uppercase
                 this._review.clinicalSignificance = typeof e.detail.value === "string" ? e.detail.value.toUpperCase() : e.detail.value;
@@ -128,6 +132,27 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
             sections: [
                 {
                     elements: [
+                        {
+                            field: "selected",
+                            type: "custom",
+                            display: {
+                                render: (selected, dataFormFilterChange) => html`
+                                    <div class="alert ${selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-3 flex-grow-1">
+                                        <label class="form-label mb-0 fw-bold">
+                                            ${selected ? html`
+                                                <span>Added as a supported evidences of the variant.</span>    
+                                            ` : html`
+                                                <span>Add as a supported evidence for the variant.</span>
+                                            `}
+                                        </label>
+                                        <button class="btn btn-sm ${selected ? "btn-primary" : "btn-light"} rounded-2" @click="${() => dataFormFilterChange(!selected)}">
+                                            <i class="fa fa-check lh-1 ${selected ? "opacity-100" : "opacity-25 text-secondary"}"></i>
+                                        </button>
+                                    </div>
+                                `,
+                                defaultValue: false,
+                            },
+                        },
                         {
                             title: "Clinical Significance",
                             field: "clinicalSignificance",
