@@ -228,6 +228,9 @@ body {
 .cursor-pointer {
     cursor: pointer;
 }
+.cursor-not-allowed {
+    cursor: not-allowed;
+}
 
 // additional width and height utilities
 .w-full {
