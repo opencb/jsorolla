@@ -326,7 +326,10 @@ export default class VariantReview extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .variant="${variant}"
-                            .active="${active}">
+                            .active="${active}"
+                            .config="${{
+                                review: this._selected,
+                            }}">
                         </variant-review-evidences-grid>
                     `,
                 },
