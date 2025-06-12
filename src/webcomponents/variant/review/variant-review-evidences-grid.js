@@ -31,6 +31,9 @@ export default class VariantReviewEvidencesGrid extends LitElement {
             active: {
                 type: Boolean,
             },
+            config: {
+                type: Object,
+            },
         };
     }
 
@@ -47,11 +50,18 @@ export default class VariantReviewEvidencesGrid extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+        }
+
         super.update(changedProperties);
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("variant")) {
+        if (changedProperties.has("variant") || changedProperties.has("config")) {
             this.renderLocalEvidences();
         }
     }
@@ -238,7 +248,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                 <div class="w-full overflow-y-auto">
                     <table id="${this._gridId}"></table>
                 </div>
-                ${this._selectedEvidence ? html`
+                ${this._config.review && this._selectedEvidence ? html`
                     <div class="border-start border-secondary opacity-25"></div>
                     <div class="flex-shrink-0" style="width:400px;">
                         <div class="d-flex flex-row align-items-center justify-content-between mb-4">
@@ -343,6 +353,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                     events: {
                         "click button": (event, value, row, index) => this.onEvidenceSelect(event, row, index),
                     },
+                    visible: !!this._config.review,
                 },
             ],
             [
@@ -369,6 +380,8 @@ export default class VariantReviewEvidencesGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+
+            review: true,
         };
     }
 
