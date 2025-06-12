@@ -117,13 +117,14 @@ export default class UserAdminCreate extends LitElement {
                 });
                 LitUtils.dispatchCustomEvent(this, "userCreate", newUser, {});
                 LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {});
+
+                this.#initOriginalObjects();
             })
             .catch(reason => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
                 this.#setLoading(false);
-                this.#initOriginalObjects();
             });
     }
 
@@ -185,10 +186,10 @@ export default class UserAdminCreate extends LitElement {
                                 message: "The user password can not be empty.",
                             },
                             display: {
-                                helpMessage: `
-                                    Type a strong password of a minimum length of 8 characters, combining at least:
-                                    1 upper-case letter, 1 lower-case letter, 1 digit, and 1 special character.
-                                `,
+                                help: {
+                                    text: `Type a strong password of a minimum length of 8 characters, combining at least:
+                                    1 upper-case letter, 1 lower-case letter, 1 digit, and 1 special character.`,
+                                }
                             },
                         },
                         {
@@ -202,16 +203,6 @@ export default class UserAdminCreate extends LitElement {
                                     return !!user.confirmPassword && user.confirmPassword === user.password;
                                 },
                                 message: "The user passwords do not match.",
-                            },
-                        },
-                        {
-                            title: "Change password",
-                            field: "requiredAction",
-                            type: "toggle-switch",
-                            required: false,
-                            display: {
-                                disabled: true,
-                                helpMessage: "Coming soon: Required user action for changing password.",
                             },
                         },
                     ],

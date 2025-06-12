@@ -106,6 +106,7 @@ export default class VariantIndexOperation extends LitElement {
             calculateStats: this.toolParams.calculateStats || false,
             annotate: this.toolParams.annotate || false,
             resume: this.toolParams.resume || false,
+            loadMultiFileData: this.toolParams.loadMultiFileData || false,
         };
         const params = {
             study: this.toolParams.study || this.opencgaSession.study.fqn,
@@ -122,6 +123,7 @@ export default class VariantIndexOperation extends LitElement {
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            study: this.toolParams.study || "",
         };
         this.config = this.getDefaultConfig();
     }
@@ -167,13 +169,12 @@ export default class VariantIndexOperation extends LitElement {
                     {
                         title: "File",
                         field: "file",
-                        // type: "input-text",
                         type: "custom",
                         required: true,
                         display: {
-                            render: toolParams => html`
+                            render: file => html`
                                 <catalog-search-autocomplete
-                                    .value="${toolParams?.file}"
+                                    .value="${file}"
                                     .resource="${"FILE"}"
                                     .query="${
                                     {
@@ -219,6 +220,16 @@ export default class VariantIndexOperation extends LitElement {
                             }
                         }
                     },
+                    {
+                        title: "Load MultiFile Data",
+                        field: "loadMultiFileData",
+                        type: "checkbox",
+                        display: {
+                            help: {
+                                text: "Load variants from multiple files"
+                            }
+                        }
+                    },
                 ],
             }
         ];
@@ -228,7 +239,9 @@ export default class VariantIndexOperation extends LitElement {
             this.title ?? this.TITLE,
             this.DESCRIPTION,
             params,
-            this.check()
+            this.check(),
+            {},
+            this.opencgaSession
         );
     }
 

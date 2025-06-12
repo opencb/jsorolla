@@ -19,10 +19,14 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import ModalUtils from "../commons/modal/modal-utils.js";
-import "../commons/opencb-grid-toolbar.js";
-import WebUtils from "../commons/utils/web-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import "../commons/grid-toolbar.js";
+import "../clinical/clinical-analysis-view.js";
+import "../individual/individual-view.js";
+import "../variant/analysis/family-qc-analysis.js";
+import "./family-create.js";
+import "./family-update.js";
+import "./family-view.js";
 
 export default class FamilyGrid extends LitElement {
 
@@ -58,9 +62,13 @@ export default class FamilyGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "family-grid";
+        this.RESOURCE = "FAMILY";
+        this.active = true;
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
-        this.active = true;
+        this._selectedFamilyId = null;
+        this._selectedIndividualId = null;
+        this._selectedClinicalAnalysisId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -99,49 +107,121 @@ export default class FamilyGrid extends LitElement {
             toolId: this.toolId,
             resource: "FAMILY",
             columns: this._getDefaultColumns(),
-            create: {
-                display: {
-                    modalTitle: "Family Create",
-                    modalDraggable: true,
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
-                },
-                render: () => html `
-                    <family-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </family-create>
-                `
-            },
-            // Uncomment in case we need to change defaults
-            // export: {
-            //     display: {
-            //         modalTitle: "Family Export",
-            //     },
-            //     render: () => html`
-            //         <opencga-export
-            //             .config="${this._config}"
-            //             .query=${this.query}
-            //             .opencgaSession="${this.opencgaSession}"
-            //             @export="${this.onExport}"
-            //             @changeExportField="${this.onChangeExportField}">
-            //         </opencga-export>`
-            // },
-            // settings: {
-            //     display: {
-            //         modalTitle: "Family Settings",
-            //     },
-            //     render: () => html `
-            //         <catalog-browser-grid-config
-            //             .opencgaSession="${this.opencgaSession}"
-            //             .gridColumns="${this._columns}"
-            //             .config="${this._config}"
-            //             @configChange="${this.onGridConfigChange}">
-            //         </catalog-browser-grid-config>`
-            // }
         };
 
-        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
+        // register available modals for this grid
+        this.gridCommons.registerModals({
+            "create-family": {
+                display: {
+                    modalTitle: "Create Family",
+                    modalSize: "modal-lg",
+                    modalCyDataName: "family-create",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <family-create
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @familyCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </family-create>
+                `,
+            },
+            "view-family": () => ({
+                display: {
+                    modalTitle: `Family ${this._selectedFamilyId}`,
+                    modalSize: "modal-3xl",
+                    modalCyDataName: "family-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <family-view
+                        .familyId="${this._selectedFamilyId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </family-view>
+                `,
+            }),
+            "update-family": () => ({
+                display: {
+                    modalTitle: `Update Family ${this._selectedFamilyId}`,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "family-update",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <family-update
+                        .familyId="${this._selectedFamilyId}"
+                        .active="${true}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "down",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @familyUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </family-update>
+                `,
+            }),
+            "view-individual": () => ({
+                display: {
+                    modalTitle: `Individual ${this._selectedIndividualId}`,
+                    modalSize: "modal-3xl",
+                    modalCyDataName: "individual-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <individual-view
+                        .individualId="${this._selectedIndividualId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </individual-view>
+                `,
+            }),
+            "view-clinical-analysis": () => ({
+                display: {
+                    modalTitle: `Clinical Analysis ${this._selectedClinicalAnalysisId}`,
+                    modalSize: "modal-3xl",
+                    modalCyDataName: "clinical-analysis-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <clinical-analysis-view
+                        .clinicalAnalysisId="${this._selectedClinicalAnalysisId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-analysis-view>
+                `,
+            }),
+            "launch-family-qc-analysis": () => ({
+                display: {
+                    modalTitle: `Launch Family QC Analysis ${this._selectedFamilyId}`,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "family-qc-analysis",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <family-qc-analysis
+                        .opencgaSession="${this.opencgaSession}"
+                        .toolParams="${{
+                            family: this._selectedFamilyId,
+                        }}"
+                        .config="${{
+                            display: {
+                                titleVisible: false,
+                            },
+                        }}">
+                    </family-qc-analysis>
+                `,
+            }),
+        });
     }
 
     fetchClinicalAnalysis(rows, casesLimit) {
@@ -191,10 +271,9 @@ export default class FamilyGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "table-light",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
-                method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
@@ -203,12 +282,10 @@ export default class FamilyGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
-                showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                detailFormatter: this.detailFormatter,
-                gridContext: this,
+                paginationVAlign: "bottom",
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+                },
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let familyResponse = null;
@@ -240,42 +317,19 @@ export default class FamilyGrid extends LitElement {
                         .catch(error => {
                             console.error(error);
                             params.error(error);
+                        })
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: familyResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
-                },
-                onCheck: row => {
-                    this.gridCommons.onCheck(row.id, row);
-                },
-                onCheckAll: rows => {
-                    this.gridCommons.onCheckAll(rows);
-                },
-                onUncheck: row => {
-                    this.gridCommons.onUncheck(row.id, row);
-                },
-                onUncheckAll: rows => {
-                    this.gridCommons.onUncheckAll(rows);
-                },
-                onLoadSuccess: data => {
-                    this.gridCommons.onLoadSuccess(data, 1);
-                },
-                onLoadError: (e, restResponse) => {
-                    this.gridCommons.onLoadError(e, restResponse);
-                },
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data),
+                onLoadError: (event, response) => this.gridCommons.onLoadError(event, response),
             });
         }
     }
@@ -284,7 +338,7 @@ export default class FamilyGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            theadClasses: "table-light",
+            classes: "table table-borderless table-hover table-grid",
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
             // data: this.families,
@@ -316,201 +370,80 @@ export default class FamilyGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
-            gridContext: this,
-            loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+            paginationVAlign: "bottom",
+            formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
             },
+            loadingTemplate: () => GridCommons.loadingFormatter(),
+            onPostBody: data => this.gridCommons.onLoadSuccess({rows: data, total: data.length}),
         });
     }
 
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
-    detailFormatter(value, row) {
-        let result = `
-            <div class='row' style="padding: 5px 10px 20px 10px">
-                <div class='col-md-12'>
-                    <h5 style="font-weight: bold">Members</h5>
-        `;
-
-        if (UtilsNew.isNotEmptyArray(row.members)) {
-            let tableCheckboxHeader = "";
-
-            if (this.gridContext._config.multiSelection) {
-                tableCheckboxHeader = "<th>Select</th>";
-            }
-
-            result += `
-                <div style="width: 90%;padding-left: 20px">
-                    <table class="table table-hover table-no-bordered">
-                        <thead class="table-light">
-                            <tr class="table-header">
-                                ${tableCheckboxHeader}
-                                <th>ID</th>
-                                <th>Sex</th>
-                                <th>Father</th>
-                                <th>Mother</th>
-                                <th>Affectation Status</th>
-                                <th>Life Status</th>
-                                <th>Year of Birth</th>
-                                <th>Creation Date</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            for (const member of row.members) {
-                let tableCheckboxRow = "";
-                // If parent row is checked and there is only one samlpe then it must be selected
-                if (this.gridContext._config.multiSelection) {
-                    let checkedStr = "";
-                    for (const family of this.gridContext.families) {
-                        if (family.id === row.id && row.members.length === 1) {
-                            // TODO check member has been checked before, we need to store them
-                            checkedStr = "checked";
-                            break;
-                        }
-                    }
-
-                    tableCheckboxRow = `
-                        <td>
-                            <input id='${this.gridContext.prefix}${member.id}Checkbox' type='checkbox' ${checkedStr}>
-                        </td>
-                    `;
-                }
-
-                const father = (UtilsNew.isNotEmpty(member.father.id)) ? member.father.id : "-";
-                const mother = (UtilsNew.isNotEmpty(member.mother.id)) ? member.mother.id : "-";
-                const affectation = (UtilsNew.isNotEmpty(member.affectationStatus)) ? member.affectationStatus : "-";
-                const lifeStatus = (UtilsNew.isNotEmpty(member.lifeStatus)) ? member.lifeStatus : "-";
-                const dateOfBirth = UtilsNew.isNotEmpty(member.dateOfBirth) ? moment(member.dateOfBirth, "YYYYMMDD").format("YYYY") : "-";
-                const creationDate = moment(member.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY");
-
-                result += `
-                    <tr class="detail-view-row">
-                        ${tableCheckboxRow}
-                        <td>${member.id}</td>
-                        <td>${member.sex?.id || member.sex || "Not specified"}</td>
-                        <td>${father}</td>
-                        <td>${mother}</td>
-                        <td>${affectation}</td>
-                        <td>${lifeStatus}</td>
-                        <td>${dateOfBirth}</td>
-                        <td>${creationDate}</td>
-                        <td>${member?.status?.name || "-"}</td>
-                    </tr>
-                `;
-            }
-            result += "</tbody></table></diV>";
-        } else {
-            result += "No members found";
-        }
-
-        result += "</div></div>";
-        return result;
-    }
-
-    async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase();
-        switch (action) {
-            case "edit":
-                this.familyUpdateId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
-                break;
-            case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
-                break;
-            case "download-json":
-                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
-                break;
-            case "qualityControl":
-                alert("Not implemented yet");
-                break;
-        }
-    }
-
     _getDefaultColumns() {
-        // Check column visibility
         this._columns = [
             {
                 id: "id",
                 title: "Family",
                 field: "id",
-                formatter: familyId => `<div><span style="font-weight: bold">${familyId}</span></div>`,
-                sortable: true,
-                halign: "center",
+                formatter: familyId => {
+                    return `<a class="link fw-bold" data-action="view">${familyId}</a>`;
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "members",
                 title: "Members",
                 field: "members",
-                formatter: members => {
-                    let html = "-";
-                    if (members?.length > 0) {
-                        html = `<div style="white-space: nowrap">`;
-                        for (let i = 0; i < members.length; i++) {
-                            // Display first 5 members
-                            if (i < 5) {
-                                html += `
-                                    <div style="margin: 2px 0">
-                                        <span style="font-weight: bold">${members[i].id}</span><span> (${members[i].sex.id})</span>
-                                    </div>
-                                `;
-                            } else {
-                                html += `<a tooltip-title="Files" tooltip-text='${members.join("")}'>... view all members (${members.length})</a>`;
-                                break;
-                            }
-                        }
-                        html += "</div>";
-                    }
-                    return html;
+                formatter: (members, family) => this.membersFormatter(members, family),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
-                halign: "center",
-                visible: this.gridCommons.isColumnVisible("members")
+                visible: this.gridCommons.isColumnVisible("members"),
             },
             {
                 id: "disorders",
                 title: "Disorders",
                 field: "disorders",
                 formatter: disorders => CatalogGridFormatter.disorderFormatter(disorders),
-                halign: "center",
-                visible: this.gridCommons.isColumnVisible("disorders")
+                visible: this.gridCommons.isColumnVisible("disorders"),
             },
             {
                 id: "phenotypes",
                 title: "Phenotypes",
                 field: "phenotypes",
-                formatter: CatalogGridFormatter.phenotypesFormatter,
-                halign: "center",
+                formatter: phenotypes => CatalogGridFormatter.phenotypesFormatter(phenotypes),
                 visible: this.gridCommons.isColumnVisible("phenotypes")
             },
             {
                 id: "caseId",
-                title: "Case ID",
+                title: "Clinical Interpretation",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
-                halign: "center",
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
                 id: "creationDate",
-                title: "Creation Date",
+                title: "Modification / Creation Date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
-                sortable: true,
-                halign: "center",
+                formatter: (value, row) => CatalogGridFormatter.modifiedAndCreateDateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("creationDate")
+            },
+            {
+                id: "actions",
+                align: "right",
+                formatter: (value, row) => this.actionsFormatter(value, row),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                visible: this._config.showActions,
+                excludeFromExport: true,
+                excludeFromSettings: true,
             },
         ];
 
@@ -518,73 +451,114 @@ export default class FamilyGrid extends LitElement {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
 
-        if (this.opencgaSession && this._config.showActions) {
-            this._columns.push({
-                id: "actions",
-                title: "Actions",
-                field: "actions",
-                align: "center",
-                formatter: (value, row) => `
-                    <div class="d-inline-block dropdown">
-                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
-                            <span>Actions</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
-                                    <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
-                                    <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a data-action="qualityControl" class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
-                                        title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                    <i class="fas fa-rocket me-1" aria-hidden="true"></i> Calculate Quality Control
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
-                                    <a data-action="interpreter" class="dropdown-item ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
-                                        href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
-                                        <i class="fas fa-user-md me-1" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
-                                    </a>
-                                `).join("") : `
-                                    <a data-action="interpreter" class="dropdown-item disabled" href="#">
-                                        <i class="fas fa-user-md me-1" aria-hidden="true"></i> No cases found
-                                    </a>
-                                `}
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) ? "" : "disabled"}"
-                                        href="javascript: void 0">
-                                    <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="delete" href="javascript: void 0" class="dropdown-item disabled">
-                                    <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                `,
-                events: {
-                    "click a": this.onActionClick.bind(this)
-                },
-                visible: this.gridCommons.isColumnVisible("actions")
-            });
-        }
-
-        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
+    }
+
+    membersFormatter(members, family) {
+        let memberRoles = {};
+        Object.entries(family?.roles || {}).forEach(([_, individuals]) => {
+            memberRoles = {
+                ...individuals,
+                ...memberRoles
+            };
+        });
+
+        const memberItems = (members || []).map(member => {
+            // Old version displayed the sex: ${member?.sex?.id ? `<span class="text-secondary">(${member.sex.id})</span>` : ""}
+            return `
+                <div style="white-space: nowrap">
+                    <a class="fw-bold link" data-action="view-individual" data-individual="${member.id}">${member.id}</a>
+                    ${memberRoles[member.id] ? `<span class="text-secondary">(${memberRoles[member.id]})</span>` : ""}
+                </div>
+            `;
+        });
+
+        // Note: we only display the first 5 members of the family
+        return GridCommons.generateExpandCollapseContent(memberItems, 5);
+    }
+
+    actionsFormatter(value, row) {
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        const hasJobExecutionPermission = this.gridCommons.hasPermission("EXECUTE", "JOB");
+        const hasClinicalAnalysis = row?.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length > 0;
+        return `
+            <div class="d-inline-block dropdown">
+                <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a data-action="view" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-eye me-1"></i> View
+                    </a>
+                    <a data-action="copy-json" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-copy me-1"></i> Copy JSON
+                    </a>
+                    <a data-action="download-json" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-download me-1"></i> Download JSON
+                    </a>
+                    <hr class="dropdown-divider">
+                    <div class="dropdown-header">Analysis</div>
+                    <a data-action="family-qc-analysis" class="dropdown-item ${hasJobExecutionPermission ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-rocket me-1"></i> Quality Control
+                    </a>
+                    <hr class="dropdown-divider">
+                    <div class="dropdown-header">Clinical Interpreter</div>
+                    ${hasClinicalAnalysis ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
+                        <a class="dropdown-item" href="#clinical/interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
+                            <i class="fas fa-user-md me-1"></i> ${clinicalAnalysis.id}
+                        </a>
+                    `).join("") : `
+                        <a class="dropdown-item disabled">
+                            <i class="fas fa-user-md me-1"></i> No cases found
+                        </a>
+                    `}
+                    <hr class="dropdown-divider">
+                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </a>
+                    <a data-action="delete" class="dropdown-item disabled">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </a>
+                </div>
+            </div>
+        `;
+    }
+
+    onActionClick(event, family) {
+        const action = event.currentTarget?.dataset?.action?.toLowerCase();
+        switch (action) {
+            case "view":
+                this._selectedFamilyId = family.id;
+                this.gridCommons.changeActiveModal("view-family");
+                break;
+            case "view-individual":
+                this._selectedIndividualId = event.currentTarget.dataset.individual;
+                this.gridCommons.changeActiveModal("view-individual");
+                break;
+            case "view-case":
+            case "view-clinical-analysis":
+                this._selectedClinicalAnalysisId = event.currentTarget.dataset.clinicalAnalysis;
+                this.gridCommons.changeActiveModal("view-clinical-analysis");
+                break;
+            case "edit":
+                this._selectedFamilyId = family.id;
+                this.gridCommons.changeActiveModal("update-family");
+                break;
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(family, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(family, null, "\t")], family.id + ".json");
+                break;
+            case "quality-control":
+                alert("Not implemented yet");
+                break;
+            case "family-qc-analysis":
+                this._selectedFamilyId = family.id;
+                this.gridCommons.changeActiveModal("launch-family-qc-analysis");
+                break;
+        }
     }
 
     async onDownload(e) {
@@ -625,46 +599,43 @@ export default class FamilyGrid extends LitElement {
             });
     }
 
-    renderModalUpdate() {
-        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-            display: {
-                modalTitle: `Family Update: ${this.familyUpdateId}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-update",
-                modalSize: "modal-lg"
+    getRightToolbar() {
+        return [
+            {
+                icon: "fa-plus",
+                title: "Create Family",
+                disabled: !this.gridCommons.hasPermission("WRITE"),
+                onClick: () => this.gridCommons.changeActiveModal("create-family"),
             },
-            render: active => html`
-                <family-update
-                    .familyId="${this.familyUpdateId}"
-                    .active="${active}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}">
-                </family-update>
-            `,
-        });
+        ];
+    }
+
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
     }
 
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
+                <grid-toolbar
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @familyCreate="${this.renderTable}">
-                </opencb-grid-toolbar>
+                    @export="${this.onDownload}">
+                </grid-toolbar>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${this.renderModalUpdate()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
@@ -673,15 +644,10 @@ export default class FamilyGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showSelectCheckbox: false,
-            multiSelection: false,
-            detailFormatter: this.detailFormatter, // function with the detail formatter
-            detailView: true,
 
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],

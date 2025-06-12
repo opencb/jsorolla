@@ -65,14 +65,12 @@ export default class CatalogSearchAutocomplete extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
         }
-
         super.update(changedProperties);
     }
 
@@ -80,7 +78,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
         this.RESOURCES = {
             "PROJECT": {
                 searchField: "id",
-                placeholder: "project...",
+                placeholder: "Project...",
                 // client: this.opencgaSession.opencgaClient.projects(),
                 fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.projects().search(params),
                 fields: item => ({
@@ -91,16 +89,15 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 }
             },
             "STUDY": {
-                searchField: "id",
-                placeholder: "study...",
+                searchField: "fqn",
+                placeholder: "Study...",
                 // client: this.opencgaSession.opencgaClient.studies(),
-                fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.studies().search(params),
+                fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.studies().search(this.opencgaSession.project.id, params),
                 fields: item => ({
                     "name": item.id,
                 }),
                 query: {
-                    project: this.opencgaSession.project.id,
-                    include: "id,name"
+                    include: "id,name,fqn"
                 }
             },
             "SAMPLE": {
@@ -140,7 +137,6 @@ export default class CatalogSearchAutocomplete extends LitElement {
                     include: "id"
                 }
             },
-
             "CLINICAL_ANALYSIS": {
                 searchField: "id",
                 placeholder: "Start typing",
@@ -203,6 +199,19 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 query: {
                     type: "FILE",
                     include: "id,name,format,size,path",
+                }
+            },
+            "WORKFLOW": {
+                searchField: "id",
+                placeholder: "Start typing",
+                // client: this.opencgaSession.opencgaClient.workflows(),
+                fetch: filters => this.opencgaSession.opencgaClient.workflows().search(filters),
+                fields: item => ({
+                    id: item.id,
+                    name: item.name
+                }),
+                query: {
+                    include: "id,name"
                 }
             },
             "DIRECTORY": {
@@ -288,7 +297,12 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 };
 
                 this.RESOURCES[this.resource].fetch(filters)
-                    .then(response => success(response))
+                    .then(response => {
+                        if (this._config.additionalValues?.length > 0) {
+                            this._config.additionalValues.forEach(v => response.responses[0].results.unshift(v));
+                        }
+                        success(response)
+                    })
                     .catch(error => failure(error));
             },
             preprocessResults(results) {

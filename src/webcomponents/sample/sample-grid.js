@@ -16,14 +16,20 @@
 
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import "../commons/opencb-grid-toolbar.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import "../commons/grid-toolbar.js";
+import "../cohort/cohort-create-samples.js";
+import "../individual/individual-view.js";
+import "../file/file-view.js";
+import "../variant/analysis/knockout-analysis.js";
+import "../variant/analysis/sample-qc-analysis.js";
+import "./sample-create.js";
 import "./sample-update.js";
-import ModalUtils from "../commons/modal/modal-utils.js";
-import WebUtils from "../commons/utils/web-utils.js";
+import "./sample-view.js";
+import "./sample-variant-stats-browser.js";
 
 export default class SampleGrid extends LitElement {
 
@@ -61,10 +67,14 @@ export default class SampleGrid extends LitElement {
     }
 
     #init() {
+        this.RESOURCE = "SAMPLE";
         this.COMPONENT_ID = "sample-grid";
+        this.active = true;
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
-        this.active = true;
+        this._selectedSampleId = null;
+        this._selectedIndividualId = null;
+        this._selectedFileId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -100,60 +110,202 @@ export default class SampleGrid extends LitElement {
 
         this.toolbarConfig = {
             toolId: this.toolId,
-            resource: "SAMPLE",
+            resource: this.RESOURCE,
             columns: this._getDefaultColumns(),
-            create: {
+        };
+
+        // initialize modals
+        this.gridCommons.registerModals({
+            "view-sample": () => ({
                 display: {
-                    modalTitle: "Sample Create",
+                    modalTitle: `Sample ${this._selectedSampleId}`,
+                    modalSize: "modal-3xl",
+                    modalCyDataName: "sample-view",
                     modalDraggable: true,
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
-                    // disabled: true,
-                    // disabledTooltip: "...",
                 },
-                render: () => html `
-                    <sample-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                render: () => html`
+                    <sample-view
+                        .sampleId="${this._selectedSampleId}"
                         .opencgaSession="${this.opencgaSession}">
+                    </sample-view>
+                `,
+            }),
+            "create-sample": {
+                display: {
+                    modalTitle: "Create Sample",
+                    modalSize: "modal-lg",
+                    modalCyDataName: "sample-create",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <sample-create
+                        .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "down",
+                        }}"
+                        @sampleCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
                     </sample-create>
                 `,
             },
-            // Uncomment in case we need to change defaults
-            // export: {
-            //     display: {
-            //         modalTitle: "Sample Export",
-            //     },
-            //     render: () => html`
-            //         <opencga-export
-            //             .config="${this._config}"
-            //             .query=${this.query}
-            //             .opencgaSession="${this.opencgaSession}"
-            //             @export="${this.onExport}"
-            //             @changeExportField="${this.onChangeExportField}">
-            //         </opencga-export>`
-            // },
-            // settings: {
-            //     display: {
-            //         modalTitle: "Sample Settings",
-            //     },
-            //     render: () => html `
-            //         <catalog-browser-grid-config
-            //             .opencgaSession="${this.opencgaSession}"
-            //             .gridColumns="${this._columns}"
-            //             .config="${this._config}"
-            //             @configChange="${this.onGridConfigChange}">
-            //         </catalog-browser-grid-config>`
-            // }
-        };
-
-        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
+            "update-sample": () => ({
+                display: {
+                    modalTitle: `Update Sample: ${this._selectedSampleId}`,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "sample-update",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <sample-update
+                        .opencgaSession="${this.opencgaSession}"
+                        .sampleId="${this._selectedSampleId}"
+                        .active="${true}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        @sampleUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </sample-update>
+                `,
+            }),
+            "create-cohort": {
+                display: {
+                    modalTitle: "Create Cohort",
+                    modalSize: "modal-lg",
+                    modalbtnsVisible: false,
+                    modalCyDataName: "cohort-create",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <cohort-create-samples
+                        .opencgaSession="${this.opencgaSession}"
+                        .resource="${this.RESOURCE}"
+                        .query="${this.filters}"
+                        @cohortCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                        }}">
+                    </cohort-create-samples>
+                `,
+            },
+            "view-file": () => ({
+                display: {
+                    modalTitle: `File ${this._selectedFileId.split(":").pop()}`,
+                    modalCyDataName: `modal-file-view`,
+                    modalSize: "modal-3xl",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <file-view
+                        .fileId="${this._selectedFileId}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </file-view>
+                `,
+            }),
+            "view-individual": () => ({
+                display: {
+                    modalTitle: `Individual ${this._selectedIndividualId}`,
+                    modalSize: "modal-3xl",
+                    modalCyDataName: "individual-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <individual-view
+                        .individualId="${this._selectedIndividualId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </individual-view>
+                `,
+            }),
+            "view-clinical-analysis": () => ({
+                display: {
+                    modalTitle: `Clinical Analysis ${this._selectedClinicalAnalysisId}`,
+                    modalSize: "modal-3xl",
+                    modalCyDataName: "clinical-analysis-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <clinical-analysis-view
+                        .clinicalAnalysisId="${this._selectedClinicalAnalysisId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-analysis-view>
+                `,
+            }),
+            "view-sample-variant-stats": () => ({
+                display: {
+                    modalTitle: `Sample Variant Stats ${this._selectedSampleId}`,
+                    modalSize: "modal-3xl",
+                    modalCyDataName: "sample-variant-stats",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <sample-variant-stats-browser
+                        .opencgaSession="${this.opencgaSession}"
+                        .sampleId="${this._selectedSampleId}"
+                        .active="${true}"
+                        .settings="${{
+                            ...VARIANT_INTERPRETER_SAMPLE_VARIANT_STATS_SETTINGS,
+                            showTitle: false,
+                        }}">
+                    </sample-variant-stats-browser>
+                `,
+            }),
+            "launch-sample-qc-analysis": () => ({
+                display: {
+                    modalTitle: `Launch Sample QC Analysis ${this._selectedSampleId}`,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "sample-qc-analysis",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <sample-qc-analysis
+                        .opencgaSession="${this.opencgaSession}"
+                        .toolParams="${{
+                            sample: this._selectedSampleId,
+                        }}"
+                        .config="${{
+                            display: {
+                                titleVisible: false,
+                            },
+                        }}">
+                    </sample-qc-analysis>
+                `,
+            }),
+            "launch-knockout-analysis": () => ({
+                display: {
+                    modalTitle: `Launch Knockout Analysis ${this._selectedSampleId}`,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "knockout-analysis",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <knockout-analysis
+                        .opencgaSession="${this.opencgaSession}"
+                        .toolParams="${{
+                            sample: this._selectedSampleId,
+                        }}"
+                        .config="${{
+                            display: {
+                                titleVisible: false,
+                            },
+                        }}">
+                    </knockout-analysis>
+                `,
+            }),
+        });
     }
 
-    fetchClinicalAnalysis(rows, casesLimit) {
+    fetchClinicalAnalysis(rows, individuals, casesLimit) {
         if (rows && rows.length > 0) {
             return this.opencgaSession.opencgaClient.clinical()
                 .search({
-                    individual: rows.map(sample => sample.individualId).join(","),
+                    individual: individuals,
                     study: this.opencgaSession.study.fqn,
                     include: "id,proband.id,family.members",
                     limit: casesLimit * 10,
@@ -196,7 +348,7 @@ export default class SampleGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "table-light",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
                 method: "get",
@@ -207,10 +359,10 @@ export default class SampleGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
-                detailView: !!this.detailFormatter,
-                gridContext: this,
+                paginationVAlign: "bottom",
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+                },
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let sampleResponse = null;
@@ -233,7 +385,14 @@ export default class SampleGrid extends LitElement {
                         .then(response => {
                             sampleResponse = response;
                             // Fetch clinical analysis to display the Case ID
-                            return this.fetchClinicalAnalysis(sampleResponse?.responses?.[0]?.results || [], casesLimit);
+                            const samples = sampleResponse?.responses?.[0]?.results;
+                            const individuals = (samples || [])
+                                .map(sample => sample.individualId)
+                                .filter(individualId => !!individualId)
+                                .join(",");
+                            if (individuals) {
+                                return this.fetchClinicalAnalysis(samples || [], individuals, casesLimit);
+                            }
                         })
                         .then(() => {
                             // Prepare data for columns extensions
@@ -244,42 +403,19 @@ export default class SampleGrid extends LitElement {
                         .catch(error => {
                             console.error(error);
                             params.error(error);
+                        })
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: sampleResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
-                },
-                onCheck: row => {
-                    this.gridCommons.onCheck(row.id, row);
-                },
-                onCheckAll: rows => {
-                    this.gridCommons.onCheckAll(rows);
-                },
-                onUncheck: row => {
-                    this.gridCommons.onUncheck(row.id, row);
-                },
-                onUncheckAll: rows => {
-                    this.gridCommons.onUncheckAll(rows);
-                },
-                onLoadSuccess: data => {
-                    this.gridCommons.onLoadSuccess(data, 1);
-                },
-                onLoadError: (e, restResponse) => {
-                    this.gridCommons.onLoadError(e, restResponse);
-                },
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data),
+                onLoadError: (event, response) => this.gridCommons.onLoadError(event, response),
             });
         }
     }
@@ -288,10 +424,9 @@ export default class SampleGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            theadClasses: "table-light",
+            classes: "table table-borderless table-hover table-grid",
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
-            // data: this.samples,
             sidePagination: "server",
             // Josemi Note 2024-01-18: we have added the ajax function for local variants also to support executing async calls
             // when getting additional data from columns extensions.
@@ -316,50 +451,23 @@ export default class SampleGrid extends LitElement {
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
             uniqueId: "id",
+            paginationVAlign: "bottom",
+            formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+            },
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            detailView: this._config.detailView,
-            gridContext: this,
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            },
+            onPostBody: data => this.gridCommons.onLoadSuccess({rows: data, total: data.length}),
         });
-    }
-
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
-    async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
-        switch (action) {
-            case "edit":
-                this.sampleUpdateId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
-                break;
-            case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(row, null, "\t"));
-                break;
-            case "download-json":
-                UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
-                break;
-            case "qualityControl":
-                alert("Not implemented yet");
-                break;
-        }
     }
 
     _getDefaultColumns() {
         this._columns = [
             {
                 id: "id",
-                title: "Sample ID",
+                title: "Sample",
                 field: "id",
                 formatter: (sampleId, sample) => {
                     let somaticHtml = "";
@@ -367,61 +475,120 @@ export default class SampleGrid extends LitElement {
                         somaticHtml = sample.somatic ? "Somatic" : "Germline";
                     }
                     return `
-                        <div>
-                            <span style="font-weight: bold; margin: 5px 0">${sampleId}</span>
-                            ${somaticHtml ? `<span class="d-block text-secondary" style="margin: 5px 0">${somaticHtml}</span>` : ""}
-                        </div>
+                        <a class="link fw-bold d-block my-1" data-action="view">${sampleId}</a>
+                        ${somaticHtml ? `<div class="text-secondary my-1">${somaticHtml}</div>` : ""}
                     `;
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "individualId",
-                title: "Individual ID",
+                title: "Individual",
                 field: "individualId",
                 formatter: individualId => {
-                    if (individualId) {
-                        return `<div><span style="font-weight: bold">${individualId}</span></div>`;
-                    } else {
-                        return "-";
-                    }
+                    return individualId ? `<a class="link fw-bold" data-action="view-individual" data-individual="${individualId}">${individualId}</a>` : "-";
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("individualId")
             },
             {
+                id: "cohorts",
+                title: "Cohorts",
+                field: "cohortIds",
+                formatter: cohortIds => {
+                    const items = (cohortIds || [])
+                        .filter(cohortId => cohortId !== "ALL")
+                        .map(cohortId => {
+                            return `
+                                <div>
+                                    <span>${cohortId}</span>
+                                </div>
+                            `;
+                        });
+                    return `
+                        <div class="d-flex flex-column gap-1">
+                            ${items.length > 0 ? items.join("") : "-"}
+                        </div>
+                    `;
+                },
+                visible: this.gridCommons.isColumnVisible("cohorts")
+            },
+            {
                 id: "fileIds",
-                title: "Files (Only BAM and VCF)",
+                title: "BAM/VCF Files",
                 field: "fileIds",
-                formatter: fileIds => CatalogGridFormatter.fileFormatter(fileIds, ["vcf", "vcf.gz", "bam"]),
+                formatter: fileIds => CatalogGridFormatter.fileFormatter(fileIds, ["fastq", "fastq.gz", "bam", "cram", "vcf", "vcf.gz", "gvcf", "gvcf.gz"]),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("fileIds")
             },
             {
                 id: "caseId",
-                title: "Case ID",
+                title: "Clinical Interpretation",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
-                width: "10",
-                widthUnit: "%",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
                 id: "collection.method",
                 title: "Collection Method",
                 field: "collection.method",
-                visible: this.gridCommons.isColumnVisible("collection.method")
+                formatter: method => {
+                    return method || "-";
+                },
+                visible: this.gridCommons.isColumnVisible("collection.method"),
             },
             {
                 id: "processing.preparationMethod",
                 title: "Preparation Method",
                 field: "processing.preparationMethod",
+                formatter: method => {
+                    return method || "-";
+                },
                 visible: this.gridCommons.isColumnVisible("processing.preparationMethod")
             },
             {
+                id: "status",
+                title: "Variant Index Status",
+                field: "internal.variant.index.status.id",
+                formatter: (variantIndexStatusId, sample) => {
+                    let result = "-";
+                    result = `
+                        <div class="d-flex flex-column gap-1">
+                            <label>Index: ${variantIndexStatusId}</label>
+                            <label>Annotation: ${sample?.internal?.variant?.annotationIndex?.status?.id}</label>
+                        </div>
+                    `;
+                    return result;
+                },
+                visible: this.gridCommons.isColumnVisible("status"),
+            },
+            {
                 id: "creationDate",
-                title: "Creation Date",
+                title: "Modification / Creation Date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
+                formatter: (value, row) => CatalogGridFormatter.modifiedAndCreateDateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("creationDate")
+            },
+            {
+                id: "actions",
+                align: "right",
+                formatter: (value, row) => this.actionsFormatter(value, row),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                visible: this._config.showActions,
+                excludeFromExport: true,
+                excludeFromSettings: true,
             },
         ];
 
@@ -429,83 +596,104 @@ export default class SampleGrid extends LitElement {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
 
-        if (this.opencgaSession && this._config.showActions) {
-            this._columns.push({
-                id: "actions",
-                title: "Actions",
-                field: "actions",
-                align: "center",
-                formatter: (value, row) => `
-                    <div class="d-inline-block dropdown">
-                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
-                            <span>Actions</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
-                                    <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
-                                    <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a data-action="variantStats" class="dropdown-item"
-                                        href="#sampleVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                                    <i class="fas fa-user me-1" aria-hidden="true"></i> Variant Stats Browser
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="cancerVariantStats" class="dropdown-item ${row.somatic ? "" : "disabled"}"
-                                        href="#sampleCancerVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                                    <i class="fas fa-user me-1" aria-hidden="true"></i> Cancer Variant Plots
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="qualityControl" class="dropdown-item ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
-                                        title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                    <i class="fas fa-rocket me-1" aria-hidden="true"></i> Calculate Quality Control
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
-                                    <a data-action="interpreter" class="dropdown-item ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
-                                        href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
-                                            <i class="fas fa-user-md me-1" aria-hidden="true"></i> Case Interpreter - ${clinicalAnalysis.id}
-                                        </a>
-                                    `).join("") : `<a data-action="interpreter" class="dropdown-item disabled" href="#">
-                                        <i class="fas fa-user-md me-1" aria-hidden="true"></i> No cases found
-                                    </a>`}
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) ? "" : "disabled"}"
-                                        href="javascript: void 0">
-                                    <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="delete" href="javascript: void 0" class="dropdown-item disabled">
-                                    <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                `,
-                events: {
-                    "click a": this.onActionClick.bind(this)
-                },
-                visible: this.gridCommons.isColumnVisible("actions")
-            });
-        }
-
-        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
+    }
+
+    actionsFormatter(value, row) {
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        const hasJobExecutionPermission = this.gridCommons.hasPermission("EXECUTE", "JOB");
+        return `
+            <div class="d-inline-block dropdown">
+                <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a data-action="view" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-eye me-1"></i> View
+                    </a>
+                    <a data-action="copy-json" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-copy me-1"></i> Copy JSON
+                    </a>
+                    <a data-action="download-json" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-download me-1"></i> Download JSON
+                    </a>
+                    <hr class="dropdown-divider">
+                    <div class="dropdown-header">Analysis</div>
+                    <a class="dropdown-item cursor-pointer" data-action="view-variant-stats">
+                            <i class="fas fa-user-md me-1"></i> Variant Stats
+                    </a>
+                    <a data-action="sample-qc-analysis" class="dropdown-item ${hasJobExecutionPermission ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-rocket me-1"></i> Quality Control
+                    </a>
+                    <a data-action="knockout-analysis" class="dropdown-item ${hasJobExecutionPermission ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-rocket me-1"></i> Knockout Analysis
+                    </a>
+                    <hr class="dropdown-divider">
+                    <div class="dropdown-header">Clinical Interpreter</div>
+                    ${row.attributes?.OPENCGA_CLINICAL_ANALYSIS?.length ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
+                        <a class="dropdown-item" href="#clinical/interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${clinicalAnalysis.id}">
+                            <i class="fas fa-user-md me-1"></i> ${clinicalAnalysis.id}
+                        </a>
+                    `).join("") : `
+                        <a class="dropdown-item disabled">
+                            <i class="fas fa-user-md me-1"></i> No cases found
+                        </a>
+                    `}
+                    <hr class="dropdown-divider">
+                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </a>
+                    <a data-action="delete" class="dropdown-item disabled">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </a>
+                </div>
+            </div>
+        `;
+    }
+
+    onActionClick(event, sample) {
+        const action = event.currentTarget?.dataset?.action?.toLowerCase();
+        switch (action) {
+            case "view":
+                this._selectedSampleId = sample.id;
+                this.gridCommons.changeActiveModal("view-sample");
+                break;
+            case "edit":
+                this._selectedSampleId = sample.id;
+                this.gridCommons.changeActiveModal("update-sample");
+                break;
+            case "copy-json":
+                UtilsNew.copyToClipboard(JSON.stringify(sample, null, "\t"));
+                break;
+            case "download-json":
+                UtilsNew.downloadData([JSON.stringify(sample, null, "\t")], sample.id + ".json");
+                break;
+            case "view-file":
+                this._selectedFileId = event.currentTarget.dataset.file;
+                this.gridCommons.changeActiveModal("view-file");
+                break;
+            case "view-individual":
+                this._selectedIndividualId = event.currentTarget.dataset.individual;
+                this.gridCommons.changeActiveModal("view-individual");
+                break;
+            case "view-clinical-analysis":
+                this._selectedClinicalAnalysisId = event.currentTarget?.dataset?.clinicalAnalysis;
+                this.gridCommons.changeActiveModal("view-clinical-analysis");
+                break;
+            case "view-variant-stats":
+                this._selectedSampleId = sample.id;
+                this.gridCommons.changeActiveModal("view-sample-variant-stats");
+                break;
+            case "sample-qc-analysis":
+                this._selectedSampleId = sample.id;
+                this.gridCommons.changeActiveModal("launch-sample-qc-analysis");
+                break;
+            case "knockout-analysis":
+                this._selectedSampleId = sample.id;
+                this.gridCommons.changeActiveModal("launch-knockout-analysis");
+                break;
+        }
     }
 
     async onDownload(e) {
@@ -546,144 +734,49 @@ export default class SampleGrid extends LitElement {
             });
     }
 
-    onCreateCohortShow() {
-        const filters = {
-            ...this.filters,
-            include: "id",
-            limit: 5000,
-        };
-        this.opencgaSession.opencgaClient.samples()
-            .search(filters)
-            .then(response => {
-                const results = response.getResults();
-                if (results) {
-                    this.createCohortSampleIds = results.map(s => {
-                        return {"id": s.id};
-                    });
-                    this.requestUpdate();
-                    ModalUtils.show(`${this._prefix}CreateCohortModal`);
-                } else {
-                    console.error("Error in result format");
-                }
-            })
-            .catch(response => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-            });
-    }
-
-    onCreateCohortSave() {
-        const cohortId = document.querySelector(`#${this._prefix}CohortId`).value;
-        const cohortName = document.querySelector(`#${this._prefix}CohortName`).value;
-
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            includeResult: false
-        };
-        this.opencgaSession.opencgaClient.cohorts()
-            .create({
-                id: cohortId,
-                name: cohortName ?? "",
-                samples: this.createCohortSampleIds,
-            }, params)
-            .then(() => {
-                this.createCohortSampleIds = [];
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Cohort Create",
-                    message: "Cohort created correctly"
-                });
-            })
-            .catch(reason => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-            });
-    }
-
     getRightToolbar() {
         return [
             {
-                render: () => html`
-                    <button type="button" class="btn btn-light" @click="${e => this.onCreateCohortShow(e)}">
-                        <i class="fas fa-users pe-1"></i> Create Cohort
-                    </button>
-                `,
-            }
+                icon: "fa-plus",
+                title: "Create Sample",
+                disabled: !this.gridCommons.hasPermission("WRITE"),
+                onClick: () => this.gridCommons.changeActiveModal("create-sample"),
+            },
+            {
+                icon: "fa-users",
+                title: "Create Cohort",
+                disabled: !this.gridCommons.hasPermission("WRITE", "COHORT"),
+                onClick: () => this.gridCommons.changeActiveModal("create-cohort"),
+            },
         ];
     }
 
-    renderModalUpdate() {
-        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-            display: {
-                modalTitle: `Sample Update: ${this.sampleUpdateId}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-update",
-                modalSize: "modal-lg",
-            },
-            render: active => html`
-                <sample-update
-                    .sampleId="${this.sampleUpdateId}"
-                    .active="${active}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}">
-                </sample-update>
-            `,
-        });
-    }
-
-    renderModalCohortCreate() {
-        return ModalUtils.create(this, `${this._prefix}CreateCohortModal`, {
-            display: {
-                modalTitle: "Create Cohort",
-                modalDraggable: true,
-                modalbtnsVisible: true,
-                modalSize: "modal-md",
-            },
-            render: () => {
-                return html`
-                    <div class="mb-2">
-                        Create a new cohort with <span class="fw-bold">${this.createCohortSampleIds?.length} samples</span>.
-                        This can take few seconds depending on the number of samples.
-                    </div>
-                    ${this.createCohortSampleIds?.length === 5000 ? html`
-                        <div class="alert alert-warning mb-2">No more than 5,000 samples allowed</div>
-                    ` : nothing}
-                    <form>
-                        <div class="mb-2">
-                            <label for="${this._prefix}CohortId" class="form-label">Cohort ID</label>
-                            <input type="text" class="form-control" id="${this._prefix}CohortId" placeholder="">
-                        </div>
-                        <div class="mb-0">
-                            <label for="${this._prefix}CohortName" class="form-label">Cohort Name</label>
-                            <input type="text" class="form-control" id="${this._prefix}CohortName" placeholder="">
-                        </div>
-                    </form>
-                `;
-            },
-            onOk: e => this.onCreateCohortSave(e)
-        });
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
     }
 
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
+                <grid-toolbar
                     .query="${this.filters}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
                     .rightToolbar="${this.getRightToolbar()}"
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @sampleCreate="${this.renderTable}">
-                </opencb-grid-toolbar>
+                    @export="${this.onDownload}">
+                </grid-toolbar>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${this.renderModalCohortCreate()}
-            ${this.renderModalUpdate()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
@@ -692,14 +785,10 @@ export default class SampleGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            multiSelection: false,
-            showSelectCheckbox: false,
-            // detailView: true,
 
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],

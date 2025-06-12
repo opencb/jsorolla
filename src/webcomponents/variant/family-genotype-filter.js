@@ -233,9 +233,16 @@ export default class FamilyGenotypeFilter extends LitElement {
     }
 
     // Update state on genotype change
-    async onSampleTableChange(e) {
+    onSampleTableChange(e) {
         e.preventDefault();
         const {gt, sampleId} = e.target.dataset;
+        // initialize the genotypes of this sample if not already in the state
+        if (!this.state[sampleId]) {
+            this.state[sampleId] = {
+                id: sampleId,
+                genotypes: []
+            };
+        }
         if (e.target.checked) {
             this.state[sampleId].genotypes.push(gt);
         } else {
@@ -254,11 +261,10 @@ export default class FamilyGenotypeFilter extends LitElement {
         }
 
         // make sure the proband has at least 1 GT checked
-        this.errorState = !this.state[probandSampleId].genotypes.length ? "At least one genotype have to be selected for the proband." : false;
+        this.errorState = !this.state[probandSampleId]?.genotypes?.length ? "At least one genotype have to be selected for the proband." : false;
         this.state = {...this.state};
         this.noGtSamples = [...this.noGtSamples];
         this.requestUpdate();
-        await this.updateComplete;
         this.notifySampleFilterChange();
     }
 
@@ -316,7 +322,8 @@ export default class FamilyGenotypeFilter extends LitElement {
                     <div class="form-check-label mode-button">
                         <select-field-filter
                             .data="${this.modeSelectData}"
-                            value="${this.mode}"
+                            .value="${this.mode}"
+                            .forceSelection="${true}"
                             .config="${{
                                 liveSearch: false,
                                 multiple: false,
@@ -442,17 +449,17 @@ export default class FamilyGenotypeFilter extends LitElement {
                 </div>
 
                 ${this.noGtSamples.length ? html`
-                    <div class="col-md-12" style="padding: 10px 20px">
+                    <div class="col-md-12">
                         <div class="alert alert-info" role="alert">
-                            <i class="fas fa-info-circle align-middle icon-padding"></i>
+                            <i class="fas fa-info-circle pe-2"></i>
                             All genotypes for sample${this.noGtSamples.length > 1 ? "s" : ""} ${this.noGtSamples.join(", ")} will be included.
                         </div>
                     </div>
                 ` : null}
                 ${this.showModeOfInheritance && this.errorState ? html`
-                    <div class="col-md-12" style="padding: 10px 20px">
+                    <div class="col-md-12">
                         <div class="alert alert-danger" role="alert">
-                            <i class="fas fa-exclamation-triangle align-middle icon-padding"></i>
+                            <i class="fas fa-exclamation-triangle pe-2"></i>
                             ${this.errorState}
                         </div>
                     </div>

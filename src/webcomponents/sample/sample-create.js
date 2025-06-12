@@ -100,7 +100,7 @@ export default class SampleCreate extends LitElement {
                 this.sample = {};
                 this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Sample Create",
+                    title: "New Sample",
                     message: "Sample created correctly"
                 });
             })
@@ -116,7 +116,9 @@ export default class SampleCreate extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
 
         return html`
@@ -126,7 +128,8 @@ export default class SampleCreate extends LitElement {
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
-            </data-form>`;
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {

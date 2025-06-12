@@ -5,10 +5,11 @@ export default class ModalUtils {
 
     static show(id) {
         const modalElm = document.querySelector(`#${id}`);
+        // note: first we need to show the modal before we can set the draggable
+        $(`#${id}`).modal("show");
         if (modalElm.dataset?.draggable === "true") {
             ModalUtils.draggableModal(modalElm);
         }
-        $(`#${id}`).modal("show");
     }
 
     static close(id) {
@@ -17,34 +18,36 @@ export default class ModalUtils {
 
     static create(self, id, config) {
         // Parse modal parameters, all of them must start with prefix 'modal'
-        const modalWidth = config.display?.modalWidth || "768px";
+        // const modalWidth = config.display?.modalWidth || "auto";
+        const modalContainerClass = config.display?.modalContainerClass || "";
+        const modalStyle = config.display?.modalStyle || "";
         const modalSize = config.display?.modalSize || "";
         const modalTitle = config.display?.modalTitle || "";
-        const modalTitleHeader = config.display?.modalTitleHeader || "h4";
         const modalTitleClassName = config.display?.modalTitleClassName || "";
         const modalTitleStyle = config.display?.modalTitleStyle || "";
-        const btnsVisible = config.display?.modalbtnsVisible;
-        const modalDraggable = config.display?.modalDraggable || false;
-        const modalCyDataName = config.display?.modalCyDataName || "";
+        const btnsVisible = config.display?.modalBtnsVisible ?? config.display?.modalbtnsVisible;
+        const btnCancelVisible = config.display?.btnCancelVisible ?? true;
+        const btnSaveVisible = config.display?.btnSaveVisible ?? true;
+        const modalDraggable = config.display?.modalDraggable ?? false;
+        const modalCyName = config.display?.modalCyDataName || "";
+
+        // handle modal events (cancel, and submit aka ok)
+        const handleCancel = event => {
+            config?.onCancel ? config.onCancel(event) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, event);
+        };
+        const handleOk = event => {
+            config?.onOk ? config.onOk(event) : LitUtils.dispatchCustomEvent(self, "modalOk", null, event);
+        };
 
         return html`
-            <div
-                class="modal fade"
-                id="${id}"
-                data-draggable="${modalDraggable}"
-                tabindex="-1"
-                role="dialog"
-                aria-labelledby="DataModalLabel"
-                aria-hidden="true"
-                data-cy="${modalCyDataName}"
-            >
-                <div class="modal-dialog ${modalSize}" style="width: ${modalWidth}">
+            <div class="modal ${modalContainerClass}" id="${id}" tabindex="-1" data-draggable="${modalDraggable}" data-cy="${modalCyName}">
+                <div class="modal-dialog ${modalSize}" style="${modalStyle}">
                     <div class="modal-content">
                         <div class="modal-header">
-                            ${ModalUtils.#getTitleHeader(modalTitleHeader, modalTitle, "modal-title " + modalTitleClassName, modalTitleStyle)}
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                                    @click="${e => config?.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}">
-                            </button>
+                            <h4 class="modal-title text-truncate ${modalTitleClassName}" style="${modalTitleStyle}">
+                                ${modalTitle}
+                            </h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" @click="${handleCancel}"></button>
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
@@ -53,22 +56,16 @@ export default class ModalUtils {
                         </div>
                         ${btnsVisible? html`
                             <div class="modal-footer">
-                                <button
-                                    type="button"
-                                    class="btn btn-light"
-                                    data-bs-dismiss="modal"
-                                    @click="${e => config?.onCancel ? config.onCancel(e) : LitUtils.dispatchCustomEvent(self, "modalCancel", null, e)}"
-                                >
-                                    ${config?.display?.cancelButtonText || "Cancel"}
-                                </button>
-                                <button
-                                    type="button"
-                                    class="btn btn-primary"
-                                    data-bs-dismiss="modal"
-                                    @click="${e => config?.onOk ? config.onOk(e) : LitUtils.dispatchCustomEvent(self, "modalOk", null, e)}"
-                                >
-                                    ${config?.display?.okButtonText || "Save"}
-                                </button>
+                                ${btnCancelVisible ? html`
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" @click="${handleCancel}">
+                                        ${config?.display?.btnCancelText || config?.display?.cancelButtonText || "Cancel"}
+                                    </button>
+                                ` : nothing}
+                                ${btnSaveVisible ? html`
+                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${handleOk}">
+                                        ${config?.display?.btnSaveText || config?.display?.btnOkText || config?.display?.okButtonText || "Save"}
+                                    </button>
+                                ` : nothing}
                             </div>
                         `: nothing}
                     </div>
@@ -77,31 +74,15 @@ export default class ModalUtils {
         `;
     }
 
-    static #getTitleHeader(header, title, classes, style) {
-        switch (header) {
-            case "h1":
-                return html`<h1 class="${classes}" style="${style}">${title}</h1>`;
-            case "h2":
-                return html`<h2 class="${classes}" style="${style}">${title}</h2>`;
-            case "h3":
-                return html`<h3 class="${classes}" style="${style}">${title}</h3>`;
-            case "h4":
-                return html`<h4 class="${classes}" style="${style}">${title}</h4>`;
-            case "h5":
-                return html`<h5 class="${classes}" style="${style}">${title}</h5>`;
-            case "h6":
-                return html`<h6 class="${classes}" style="${style}">${title}</h6>`;
-        }
-    }
-
     static draggableModal(modalElm) {
         const offset = [0, 0, 0, 0];
         const modalDialog = modalElm.querySelector(".modal-dialog");
         const modalHeader = modalElm.querySelector(".modal-header");
 
         if (modalDialog) {
+            const modalSize = modalDialog.getBoundingClientRect();
             modalDialog.style.margin = "0";
-            modalDialog.style.left = (window.innerWidth * 0.30) + "px";
+            modalDialog.style.left = ((window.innerWidth - (modalSize?.width || 0)) * 0.50) + "px";
             modalDialog.style.top = (window.innerHeight * 0.05) + "px";
         }
 

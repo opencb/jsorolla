@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import WebUtils from "../commons/utils/web-utils.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 
 export class JobMonitor extends LitElement {
 
@@ -45,8 +45,8 @@ export class JobMonitor extends LitElement {
     #init() {
         this.JOBS_TYPES = {
             ALL: {
-                title: "All",
-                jobsTypes: [],
+                title: "Latest",
+                jobsTypes: ["PENDING", "QUEUED", "RUNNING", "DONE", "ERROR", "ABORTED"],
             },
             RUNNING: {
                 title: "Running",
@@ -58,9 +58,9 @@ export class JobMonitor extends LitElement {
             },
         };
         this._interval = -1;
-        this._jobs = [];
-        this._addedJobs= new Set(); // Used for displaying the NEW label in each new job
-        this._updatedJobsCount = 0; // To store the number of changes (new jobs, state changes)
+        this._jobs = null;
+        this._latestJobs = []; // To store the latest updated jobs
+        this._updatedJobs= new Set(); // Used for displaying the NEW label in each new job
         this._visibleJobsType = "ALL"; // Current visible jobs types (one of JOB_TYPES)
         this._config = this.getDefaultConfig();
     }
@@ -73,9 +73,9 @@ export class JobMonitor extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this._jobs = [];
-            this._updatedJobsCount = 0;
-            this._addedJobs = new Set();
+            this._jobs = null;
+            this._latestJobs = [];
+            this._updatedJobs = new Set();
             this._visibleJobsType = "ALL";
         }
         if (changedProperties.has("config")) {
@@ -97,7 +97,12 @@ export class JobMonitor extends LitElement {
         clearInterval(this._interval);
         if (this.opencgaSession) {
             // Check if the user has VIEW_JOBS permission in the current study
-            if (CatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "VIEW_JOBS")) {
+            const hasViewPermission = OpencgaCatalogUtils.getStudyEffectivePermission(
+                this.opencgaSession.study,
+                this.opencgaSession.user.id,
+                "VIEW_JOBS",
+                this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+            if (hasViewPermission) {
                 this.fetchLastJobs();
                 this._interval = setInterval(() => this.fetchLastJobs(), this._config.interval);
             }
@@ -105,22 +110,28 @@ export class JobMonitor extends LitElement {
     }
 
     fetchLastJobs() {
-        this.opencgaSession.opencgaClient.jobs()
-            .search({
-                study: this.opencgaSession.study.fqn,
-                internalStatus: "PENDING,QUEUED,RUNNING,DONE,ERROR,ABORTED",
-                limit: this._config.limit || 10,
-                sort: "creationDate",
-                include: "id,internal.status,tool,creationDate",
-                order: -1,
-            })
-            .then(response => {
-                const newJobsList = response?.responses?.[0]?.results || [];
+        // generate the list of job types to fetch. Note that if the visible jobs type is "ALL",
+        // we will prevent requesting for the same job types multiple times
+        const jobsTypesToFetch = Array.from(new Set(["ALL", this._visibleJobsType]));
+        const jobsPromises = jobsTypesToFetch.map(jobType => {
+            return this.opencgaSession.opencgaClient.jobs()
+                .search({
+                    study: this.opencgaSession.study.fqn,
+                    internalStatus: this.JOBS_TYPES[jobType].jobsTypes.join(","),
+                    limit: this._config.limit || 10,
+                    sort: "creationDate",
+                    include: "id,internal.status,tool,creationDate",
+                    order: -1,
+                });
+        });
+        Promise.all(jobsPromises)
+            .then(responses => {
+                const newJobsList = responses[0]?.responses?.[0]?.results || [];
                 // 1. Process the list of new jobs returned by OpenCGA
                 // Note: we check if the previous list of jobs is not empty, to prevent marking all jobs as new jobs
-                if (this._jobs.length > 0) {
+                if (this._latestJobs?.length > 0) {
                     newJobsList.forEach(job => {
-                        const oldJob = this._jobs.find(j => j.id === job.id);
+                        const oldJob = this._latestJobs.find(j => j.id === job.id);
                         if (oldJob) {
                             const statusId = job?.internal?.status?.id || "-";
                             const oldStatusId = oldJob?.internal?.status?.id || "-";
@@ -129,20 +140,20 @@ export class JobMonitor extends LitElement {
                                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
                                     message: `The job <b>${job?.id}</b> has now status ${statusId}.`,
                                 });
-                                this._updatedJobsCount = this._updatedJobsCount + 1;
                             }
                         } else {
                             // This is a new job, so we display an info notification to the user
                             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_INFO, {
                                 message: `The job <b>${job?.id}</b> has been added.`,
                             });
-                            this._updatedJobsCount = this._updatedJobsCount + 1;
-                            this._addedJobs.add(job.id);
+                            this._updatedJobs.add(job.id);
                         }
                     });
                 }
                 // 2. Save the new jobs list
-                this._jobs = newJobsList;
+                this._latestJobs = newJobsList;
+                // 3. save the visible jobs list
+                this._jobs = responses[1]?.responses?.[0]?.results || newJobsList;
                 this.requestUpdate();
             })
             .catch(response => {
@@ -151,99 +162,87 @@ export class JobMonitor extends LitElement {
     }
 
     getJobUrl(jobId) {
-        return `#job/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${jobId}`;
+        return `#catalog/job-browser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}?id=${jobId}`;
     }
 
     onRefresh(event) {
         event.stopPropagation();
+        this._jobs = null;
         this.fetchLastJobs();
+        this.requestUpdate();
     }
 
     onJobTypeChange(event, newJobType) {
         event.stopPropagation();
+        this._jobs = null;
         this._visibleJobsType = newJobType;
+        this.fetchLastJobs();
         this.requestUpdate();
     }
 
     renderJobsButtons() {
         return Object.keys(this.JOBS_TYPES).map(type => html`
-            <button class="btn btn-light ${type === this._visibleJobsType ? "active" : ""} flex-fill" @click="${e => this.onJobTypeChange(e, type)}">
+            <button class="flex-fill btn ${type === this._visibleJobsType ? "btn-primary" : ""}" @click="${e => this.onJobTypeChange(e, type)}">
                 <strong>${this.JOBS_TYPES[type].title}</strong>
             </button>
         `);
     }
 
     renderVisibleJobsList() {
-        // Get the list of visible jobs with the selected type
-        const visibleJobs = this._jobs.filter(job => {
-            return this._visibleJobsType === "ALL" || this.JOBS_TYPES[this._visibleJobsType].jobsTypes.includes(job?.internal?.status?.id);
-        });
-        if (visibleJobs.length > 0) {
-            return visibleJobs.map(job => html`
-                <li>
-                    <a href="${this.getJobUrl(job.id)}" class="dropdown-item border-top">
-                        <div class="d-flex align-items-center overflow-hidden">
-                            <div class="flex-shrink-0 fs-2 rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
-                                <i class="text-secondary fas fa-rocket"></i>
+        if (this._jobs && this._jobs.length > 0) {
+            return this._jobs.map(job => html`
+                <a href="${this.getJobUrl(job.id)}" class="dropdown-item">
+                    <div class="d-flex align-items-center overflow-hidden">
+                        <div class="flex-shrink-0 fs-2 rocket-${job?.internal?.status?.id ?? job?.internal?.status?.name ?? "default"}">
+                            <i class="text-secondary fas fa-rocket"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            ${this._updatedJobs.has(job?.id) ? html`
+                                <span class="badge bg-primary rounded-pill">NEW</span>
+                            ` : nothing}
+                            <div class="mt-0 text-truncate" style="max-width:275px">
+                                ${job?.id || "-"}
                             </div>
-                            <div class="flex-grow-1 ms-3">
-                                ${this._addedJobs.has(job?.id) ? html`
-                                    <span class="badge bg-primary rounded-pill">NEW</span>
-                                ` : nothing}
-                                <div class="mt-0 text-truncate" style="max-width:275px">
-                                    ${job?.id || "-"}
-                                </div>
-                                <small class="text-secondary">
-                                    <span>${job?.tool?.id || "-"}</span>
-                                    <div class="vr"></div>
-                                    ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}
-                                </small>
-                                <div>
-                                    ${UtilsNew.renderHTML(WebUtils.jobStatusFormatter(job?.internal?.status))}
-                                </div>
+                            <small class="text-secondary">
+                                <span>${job?.tool?.id || "-"}</span>
+                                <div class="vr"></div>
+                                ${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}
+                            </small>
+                            <div>
+                                ${UtilsNew.renderHTML(CatalogGridFormatter.jobStatusFormatter(job?.internal?.status))}
                             </div>
                         </div>
-                    </a>
-                </li>
+                    </div>
+                </a>
             `);
+        } else if (this._jobs && this._jobs.length === 0) {
+            return html`
+                <div class="d-flex flex-column justify-content-center align-items-center py-3 gap-1">
+                    <i class="fas fa-tasks"></i>
+                    <div class="fw-bold small">No jobs on this category</div>
+                </div>
+            `;
         } else {
             return html`
-                <li>
-                    <div class="pt-2 pb-1 text-center fw-bold border-top">
-                        No jobs on this category.
-                    </div>
-                </li>
+                <div class="d-flex flex-column justify-content-center align-items-center py-3 gap-1">
+                    <i class="fas fa-sync-alt anim-rotate"></i>
+                    <div class="fw-bold small">Loading jobs...</div>
+                </div>
             `;
         }
     }
 
     render() {
         return html`
-            <ul id="job-monitor" class="navbar-nav">
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle dropdown-button-wrapper" data-bs-toggle="dropdown" role="button">
-                        <div class="dropdown-button-icon">
-                            <i class="fas fa-rocket"></i>
-                        </div>
-                        ${this._updatedJobsCount > 0 ? html`
-                            <span class="position-absolute top-0 start-100 mt-1 translate-middle badge bg-danger rounded-pill">
-                                ${this._updatedJobsCount}
-                            </span>
-                        ` : nothing}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" style="width:350px;">
-                        <li class="d-flex justify-content-around mx-1 mb-2 gap-2">
-                            <div class="btn-group w-100">
-                                ${this.renderJobsButtons()}
-                            </div>
-                            <button @click="${e => this.onRefresh(e)}" class="btn btn-light" title="Force immediate refresh">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                        </li>
-                        ${this.renderVisibleJobsList()}
-                    </ul>
-                </li>
-            </ul>
+            <div class="d-flex align-items-stretch mb-2 gap-2">
+                <div class="shrink-0 w-full d-flex align-items-center rounded-2 bg-gray-100 border">
+                    ${this.renderJobsButtons()}
+                </div>
+                <button @click="${e => this.onRefresh(e)}" class="btn btn-light" title="Force immediate refresh">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            ${this.renderVisibleJobsList()}
         `;
     }
 

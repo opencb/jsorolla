@@ -118,6 +118,7 @@ export default class VariantAnnotationIndexOperation extends LitElement {
     onClear() {
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            project: this.toolParams.project || "",
         };
         this.config = this.getDefaultConfig();
     }
@@ -179,7 +180,9 @@ export default class VariantAnnotationIndexOperation extends LitElement {
             this.title ?? this.TITLE,
             this.DESCRIPTION,
             params,
-            this.check()
+            this.check(),
+            {},
+            this.opencgaSession
         );
     }
 

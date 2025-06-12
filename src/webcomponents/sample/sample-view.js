@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import LitUtils from "../commons/utils/lit-utils.js";
-import UtilsNew from "../../core/utils-new.js";
-import Types from "../commons/types.js";
+import {html, LitElement, nothing} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
 import "../commons/forms/data-form.js";
-import "../commons/filters/catalog-search-autocomplete.js";
-import "../study/annotationset/annotation-set-view.js";
-import "../loading-spinner.js";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter";
+import "./sample-summary.js";
+import "./sample-variant-stats-view.js";
+import "../individual/individual-summary.js";
+import "../alignment/qc/samtools-flagstats-view.js";
 
 export default class SampleView extends LitElement {
 
@@ -38,14 +36,11 @@ export default class SampleView extends LitElement {
 
     static get properties() {
         return {
-            sample: {
-                type: Object,
-            },
             sampleId: {
                 type: String,
             },
-            search: {
-                type: Boolean,
+            sample: {
+                type: Object,
             },
             opencgaSession: {
                 type: Object,
@@ -57,207 +52,147 @@ export default class SampleView extends LitElement {
     }
 
     #init() {
-        this.sample = {};
-        this.search = false;
-        this.isLoading = false;
-
-        this.displayConfigDefault = {
-            buttonsVisible: false,
-            collapsable: true,
-            titleVisible: false,
-            titleWidth: 2,
-            defaultValue: "-",
-            pdf: false,
-        };
+        this.COMPONENT_ID = "sample-view";
+        this._sample = null;
         this._config = this.getDefaultConfig();
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
-        if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
+
+        if (changedProperties.has("sample")) {
+            this.sampleObserver();
+        }
+
+        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
-    sampleIdObserver() {
-        if (this.sampleId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-                includeIndividual: true,
-            };
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.samples()
-                .info(this.sampleId, params)
-                .then(response => {
-                    this.sample = response.responses[0].results[0];
-                })
-                .catch(reason => {
-                    this.sample = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "sampleSearch", this.sample, {query: {includeIndividual: true}}, error);
-                    this.#setLoading(false);
-                });
-        } else {
-            this.sample = {};
-        }
+    sampleObserver() {
+        this._sample = {...this.sample};
     }
 
-    onFilterChange(e) {
-        this.sampleId = e.detail.value;
+    sampleIdObserver() {
+        if (this.opencgaSession && this.sampleId) {
+            this.opencgaSession.opencgaClient.samples()
+                .info(this.sampleId, {
+                    study: this.opencgaSession.study.fqn,
+                })
+                .then(response => {
+                    this._sample = response.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error(response);
+                });
+        }
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
-
-        if (!this.sample?.id && this.search === false) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    Sample ID not found.
-                </div>
-            `;
+        if (!this.opencgaSession || !this._sample) {
+            return nothing;
         }
 
         return html`
             <data-form
-                .data="${this.sample}"
-                .config="${this._config}">
+                .data="${this._sample || {}}"
+                .config="${this._config || {}}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            title: "Summary",
-            icon: "",
-            display: this.displayConfig || this.displayConfigDefault,
+        return {
+            display: {
+                type: "pills",
+                pillsLeftColumnClass: "col-md-2",
+                pillsRightColumnClass: "col-md-10",
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
-                    title: "Search",
-                    display: {
-                        visible: sample => !sample?.id && this.search === true,
-                        showPDF: false,
-                    },
-                    elements: [
-                        {
-                            title: "Sample ID",
-                            // field: "sampleId",
-                            type: "custom",
-                            display: {
-                                render: () => html`
-                                    <catalog-search-autocomplete
-                                        .value="${this.sample?.id}"
-                                        .resource="${"SAMPLE"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>
-                                `,
-                            },
-                        },
-                    ],
+                    id: "sample-view",
+                    name: "Overview",
+                    render: (sample, active) => html`
+                        <sample-summary
+                            .sample="${sample}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </sample-summary>
+                    `,
                 },
                 {
-                    title: "General",
-                    collapsed: false,
-                    display: {
-                        visible: sample => sample?.id,
-                    },
-                    elements: [
-                        {
-                            title: "Sample ID",
-                            type: "complex",
-                            display: {
-                                template: "${id} (UUID: ${uuid})",
-                                style: {
-                                    id: {
-                                        "font-weight": "bold",
-                                    }
-                                },
-                            },
-                        },
-                        {
-                            title: "Individual ID",
-                            field: "individualId"
-                        },
-                        {
-                            title: "Files",
-                            field: "fileIds",
-                            type: "list",
-                            display: {
-                                defaultValue: "Files not found or empty",
-                                contentLayout: "bullets",
-                            },
-                        },
-                        {
-                            title: "Somatic",
-                            field: "somatic",
-                        },
-                        {
-                            title: "Version",
-                            field: "version",
-                        },
-                        {
-                            title: "Status",
-                            type: "complex",
-                            display: {
-                                template: "${internal.status.id} (${internal.status.date})",
-                                format: {
-                                    "internal.status.date": date => UtilsNew.dateFormatter(date),
-                                }
-                            },
-                        },
-                        {
-                            title: "Creation Date",
-                            field: "creationDate",
-                            display: {
-                                format: date => UtilsNew.dateFormatter(date),
-                            },
-                        },
-                        {
-                            title: "Modification Date",
-                            field: "modificationDate",
-                            display: {
-                                format: date => UtilsNew.dateFormatter(date),
-                            },
-                        },
-                        {
-                            title: "Description",
-                            field: "description",
-                            display: {
-                                defaultValue: "N/A",
-                            }
-                        },
-                        {
-                            title: "Phenotypes",
-                            field: "phenotypes",
-                            type: "list",
-                            display: {
-                                // showPDF: false,
-                                contentLayout: "bullets",
-                                format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
-                            },
-                        },
-                    ],
+                    id: "sample-variant-stats-view",
+                    name: "Variant Stats",
+                    render: (sample, active) => html`
+                        <sample-variant-stats-view
+                            .sampleId="${sample.id}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </sample-variant-stats-view>
+                    `,
                 },
+                {
+                    id: "samtools-flags-stats-view",
+                    name: "Samtools Flagstat",
+                    render: (sample, active) => html`
+                        <samtools-flagstats-view
+                            .sample="${sample}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </samtools-flagstats-view>
+                    `,
+                },
+                {
+                    id: "individual-summary",
+                    name: "Individual",
+                    render: (sample, active) => html`
+                        <individual-summary
+                            .individualId="${sample?.individualId}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </individual-summary>
+                    `,
+                },
+                {
+                    id: "files",
+                    name: "Files",
+                    render: (sample, active) => html`
+                        <div class="overflow-y-auto">
+                            <file-grid
+                                .query="${{
+                                    sampleIds: sample.id,
+                                    type: "FILE,VIRTUAL",
+                                }}"
+                                .active="${active}"
+                                .config="${{
+                                    showToolbar: false,
+                                    showActions: false,
+                                }}"
+                                .opencgaSession="${this.opencgaSession}">
+                            </file-grid>
+                        </div>
+                    `,
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (sample, active) => html`
+                        <json-viewer
+                            .data="${sample}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
+                },
+                ...ExtensionsManager.getViews(this.COMPONENT_ID, this.opencgaSession),
             ],
-        });
+        };
     }
 
 }

@@ -3,6 +3,8 @@ import NotificationUtils from "../utils/notification-utils";
 import UtilsNew from "../../../core/utils-new";
 import "../filters/feature-filter.js";
 import "../filters/disease-panel-filter.js";
+import "../filters/catalog-search-autocomplete.js";
+import LitUtils from "../utils/lit-utils";
 
 export default class AnalysisUtils {
 
@@ -13,8 +15,15 @@ export default class AnalysisUtils {
     //     };
     // }
 
+    static extToolsDocker(opencgaSession) {
+        return {
+            id: "opencb/opencga-ext-tools",
+            version: opencgaSession.opencga.version
+        };
+    }
+
     static submit(id, promise, context) {
-        promise
+        return promise
             .then(response => {
                 console.log(response);
                 NotificationUtils.dispatch(context, NotificationUtils.NOTIFY_SUCCESS, {
@@ -22,7 +31,10 @@ export default class AnalysisUtils {
                     message: `${id} has been launched successfully`,
                 });
                 // Call to analysis onClear() method
-                context.onClear();
+                if (typeof context.onClear === "function") {
+                    context.onClear();
+                }
+                return response;
             })
             .catch(response => {
                 console.log(response);
@@ -33,6 +45,7 @@ export default class AnalysisUtils {
     static fillJobParams(toolParams, prefix) {
         return {
             jobId: toolParams.jobId || `${prefix}-${UtilsNew.getDatetime()}`,
+            jobDependsOn: toolParams.jobDependsOn || "",
             jobTags: toolParams.jobTags || "",
             jobDescription: toolParams.jobDescription || "",
         };
@@ -111,16 +124,17 @@ export default class AnalysisUtils {
         ];
     }
 
-    static getAnalysisConfiguration(id, title, description, paramSections, check, config = {}) {
+    static getAnalysisConfiguration(id, title, description, paramSections, check, config = {}, opencgaSession) {
         return {
             id: id,
-            icon: config.icon,
+            icon: config.icon || "",
             title: config.title || title,
             description: config.description || description,
             display: {
-                // defaultLayout: "vertical"
-                ...config.display
+                buttonOkText: config.buttons?.okText || "Run Analysis",
+                ...config?.display
             },
+            buttons: config?.buttons || {},
             sections: [
                 {
                     display: {},
@@ -139,6 +153,10 @@ export default class AnalysisUtils {
                 ...paramSections,
                 {
                     title: "Job Info",
+                    display: {
+                        className: "p-2",
+                        visible: config.isJob ?? true,
+                    },
                     elements: [
                         {
                             title: "Job ID",
@@ -152,11 +170,35 @@ export default class AnalysisUtils {
                             },
                         },
                         {
+                            title: "Depends On",
+                            field: "jobDependsOn",
+                            type: "custom",
+                            display: {
+                                placeholder: "Add job tags...",
+                                visible: !!opencgaSession,
+                                render: (data, onFieldChange) => html`
+                                    <catalog-search-autocomplete
+                                        .resource="${"JOB"}"
+                                        .opencgaSession="${opencgaSession}"
+                                        .query="${
+                                            {
+                                                internalStatus: "PENDING,QUEUED,RUNNING",
+                                                include: "id,name",
+                                            }}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e => onFieldChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `,
+                                helpMessage: "Job ID that this job depends on. The job will not start until the specified job has finished. Only jobs in PENDING, QUEUED or RUNNING status can be selected.",
+                            },
+                        },
+                        {
                             title: "Tags",
                             field: "jobTags",
                             type: "input-text",
                             display: {
                                 placeholder: "Add job tags...",
+                                helpMessage: "Comma separated list of tags to be associated to the job",
                             },
                         },
                         {
@@ -164,8 +206,9 @@ export default class AnalysisUtils {
                             field: "jobDescription",
                             type: "input-text",
                             display: {
-                                rows: 2,
+                                rows: 3,
                                 placeholder: "Add a job description...",
+                                helpMessage: "Description of the job",
                             },
                         },
                     ]

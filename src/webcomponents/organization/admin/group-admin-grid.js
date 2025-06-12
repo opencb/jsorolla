@@ -276,7 +276,7 @@ export default class GroupAdminGrid extends LitElement {
             });
         }
 
-        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
     }
 
@@ -363,28 +363,20 @@ export default class GroupAdminGrid extends LitElement {
         });
     }
 
-    renderToolbar() {
-        if (this._config.showToolbar) {
-        // @groupCreate="${e => this.onGroupEvent(e, `${this._prefix}Modal`)}"
-            return html `
-                <opencb-grid-toolbar
+    render() {
+        return html`
+            ${this._config.showToolbar ? html`
+                <grid-toolbar
                     .opencgaSession="${this.opencgaSession}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}">
-                </opencb-grid-toolbar>
-            `;
-        }
-    }
+                </grid-toolbar>
+            ` : nothing}
 
-    render() {
-        return html`
-            <!-- 1. Render toolbar if enabled -->
-            ${this.renderToolbar()}
-            <!-- 2. Render grid -->
             <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
                 <table id="${this.gridId}"></table>
             </div>
-            <!-- 3. On action click, render update modal -->
+
             ${this.action ? this.modals[this.action]["render"](): nothing}
         `;
     }

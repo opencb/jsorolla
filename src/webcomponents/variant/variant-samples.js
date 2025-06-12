@@ -19,9 +19,8 @@ import UtilsNew from "../../core/utils-new.js";
 import "../loading-spinner.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import GridCommons from "../commons/grid-commons.js";
-import "../commons/opencb-grid-toolbar.js";
+import "../commons/grid-toolbar.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-
 
 export default class VariantSamples extends LitElement {
 
@@ -69,14 +68,8 @@ export default class VariantSamples extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this.config);
 
         // Nacho: to be more consistent with the rest of the application we are NOT selecting all genotypes by default
+        this.genotypeFilter = "";
         this.selectedGenotypes = "";
-        // const selectedGenotypesArray = [];
-        // for (const genotype of this.config.genotypes) {
-        //     if (genotype.fields) {
-        //         selectedGenotypesArray.push(genotype.fields.filter(gt => gt.id).map(gt => gt.id).join(","));
-        //     }
-        // }
-        // this.selectedGenotypes = selectedGenotypesArray.join(",");
     }
 
     updated(changedProperties) {
@@ -160,15 +153,41 @@ export default class VariantSamples extends LitElement {
 
     async fetchData(query, batchSize) {
         try {
-            const variantResponse = await this.opencgaSession.opencgaClient.variants()
-                .querySample(query);
+            let variantResponse = null;
+            this.numUserTotalSamples = 0;
+            this.numSamples = 0;
+
+            if (query.variant?.length <= 5000) {
+                variantResponse = await this.opencgaSession.opencgaClient.variants()
+                    .querySample(query);
+                this.numSamples = variantResponse.responses[0]?.attributes?.numSamplesRegardlessPermissions;
+            } else {
+                // this is a workaround to prevent an error when the variant ID is too long (as GET requests may be blocked by the browser)
+                // we are using a deprecated POST endpoint of variant/query
+                const bodyParams = {
+                    study: query.study,
+                    id: query.variant,
+                    includeSample: "all",
+                    includeSampleId: true,
+                };
+                // check if we have to filter by genotype
+                if (query.genotype) {
+                    bodyParams.sampleData = `GT=${query.genotype}`;
+                }
+                variantResponse = await this.opencgaSession.opencgaClient.variants()
+                    ._post("analysis", null, "variant", null, "query", bodyParams, {
+                        exclude: "annotation",
+                    });
+
+                // the attributes of the response object from analysis/variant/query does not contain numSamplesRegardlessPermissions
+                // so we have to ise numSamples instead
+                this.numSamples = variantResponse.responses[0]?.attributes?.numSamples;
+            }
+
             const variantSamplesResult = variantResponse.getResult(0);
 
             // const stats = variantSamplesResult.studies[0].stats;
             // const stats = variantSamplesResult.studies[0].stats;
-
-            this.numUserTotalSamples = 0;
-            this.numSamples = variantResponse.responses[0]?.attributes?.numSamplesRegardlessPermissions;
 
             // Get the total number of samples from stats if OpenCGA does not return them
             // if (typeof this.numSamples !== "number" || isNaN(this.numSamples)) {
@@ -316,7 +335,7 @@ export default class VariantSamples extends LitElement {
                     field: "attributes.OPENCGA_INDIVIDUAL",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: (attributesIndividual, sample) => CatalogGridFormatter.sexFormatter(attributesIndividual.sex, attributesIndividual),
+                    formatter: attributesIndividual => CatalogGridFormatter.sexFormatter(attributesIndividual?.sex, attributesIndividual),
                     halign: "center"
                 },
                 {
@@ -396,12 +415,15 @@ export default class VariantSamples extends LitElement {
     }
 
     onSelectFilterChange(e) {
-        this._genotypeFilter = e.detail?.value;
+        this.selectedGenotypes = e.detail?.value;
+        this.requestUpdate();
     }
 
     onSearch() {
-        this.genotypeFilter = this._genotypeFilter;
-        this.renderTable();
+        if (this.selectedGenotypes !== this.genotypeFilter) {
+            this.genotypeFilter = this.selectedGenotypes;
+            this.renderTable();
+        }
     }
 
     render() {
@@ -414,7 +436,7 @@ export default class VariantSamples extends LitElement {
             <div>
                 ${this.numSamples !== this.numUserTotalSamples ? html`
                     <div class="alert alert-warning">
-                        <i class="fas fa-3x fa-exclamation-circle align-middle"></i>
+                        <i class="fas fa-exclamation-circle me-1"></i>
                         Number of samples found is <span style="font-weight: bold">${this.numSamples}</span>
                         ${this.approximateCount === true ? html` (<i>please note this is an estimated number</i>)` : ""}, and
                         your user account has permission to view <span style="font-weight: bold">${this.numUserTotalSamples} samples</span>.
@@ -422,39 +444,42 @@ export default class VariantSamples extends LitElement {
                     </div>
                 ` : nothing}
 
+                ${this.selectedGenotypes !== this.genotypeFilter ? html`
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle align-middle me-1"></i>
+                        <span>The selected genotypes have been updated. Please click the <b>Search</b> button to refresh the table with the updated results.</span>
+                    </div>    
+                ` : nothing}
+
                 <div class="row" style="margin-top: 20px">
                     <div class="col-md-12">
                         <div class="col-md-4"><label>Select Genotypes:</label></div>
                     </div>
                     <div class="col-md-12">
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <select-field-filter
-                                    .data="${this.config.genotypes}"
-                                    .value="${this.selectedGenotypes}"
-                                    .selectedTextFormat="${"count > 3"}"
-                                    .config="${{multiple: true}}"
-                                    @filterChange="${this.onSelectFilterChange}">
-                                </select-field-filter>
-                                <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" @click="${this.onSearch}">
-                                    <i class="fas fa-search"></i> Search
-                                </button>
-                            </span>
-                            </div>
+                        <div class="d-flex gap-1">
+                            <select-field-filter
+                                .data="${this.config.genotypes}"
+                                .value="${this.selectedGenotypes}"
+                                .selectedTextFormat="${"count > 3"}"
+                                .config="${{multiple: true}}"
+                                @filterChange="${this.onSelectFilterChange}">
+                            </select-field-filter>
+                            <button class="btn btn-light" type="button" @click="${this.onSearch}">
+                                <i class="fas fa-search me-1"></i> Search
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 <div style="margin: 5px 0">
-                    <opencb-grid-toolbar
+                    <grid-toolbar
                         .opencgaSession="${this.opencgaSession}"
                         .settings="${this.toolbarSettings}"
                         .config="${this.toolbarConfig}"
                         @columnChange="${this.onColumnChange}"
                         @download="${this.onDownload}"
                         @export="${this.onDownload}">
-                    </opencb-grid-toolbar>
+                    </grid-toolbar>
                 </div>
 
                 <div>

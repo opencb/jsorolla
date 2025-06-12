@@ -66,20 +66,17 @@ export default class RestMenu extends LitElement {
                                 <div class="card">
                                     <div class="card-body" role="tab" id="${categoryName}HeadingOne">
                                         <h5 class="card-title">
-                                            <div class="">
-                                                <a class="text-decoration-none" role="button" data-bs-toggle="collapse"
-                                                data-bs-parent="#accordion" href="#${categoryName}CollapseOne" aria-expanded="true" aria-controls="${category.name}CollapseOne">
-                                                    <div class="mb-2">
-                                                        ${category.name} <span class="badge bg-primary float-end rounded-pill">${category.endpoints?.length || "NA"}</span>
-                                                    </div>
-                                                    <div class="fs-5" style="text-transform: none;letter-spacing: 1px">
-                                                        ${category.path}
-                                                    </div>
-                                                </a>
+                                            <div class="cursor-pointer" data-bs-toggle="collapse" data-bs-target="#${categoryName}Collapse">
+                                                <div class="mb-2">
+                                                    ${category.name} <span class="badge bg-primary float-end rounded-pill">${category.endpoints?.length || "NA"}</span>
+                                                </div>
+                                                <div class="fs-5" style="text-transform: none;letter-spacing: 1px">
+                                                    ${category.path}
+                                                </div>
                                             </div>
                                         </h5>
                                     </div>
-                                    <div id="${categoryName}CollapseOne" class="collapse" role="tabpanel" aria-labelledby="${categoryName}HeadingOne">
+                                    <div id="${categoryName}Collapse" class="collapse" role="tabpanel">
                                         ${
                                             category.endpoints.sort((a, b) => {
                                                 return this.config.methodOrder[a.method] - this.config.methodOrder[b.method];

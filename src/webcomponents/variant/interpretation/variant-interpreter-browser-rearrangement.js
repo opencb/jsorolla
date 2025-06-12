@@ -47,6 +47,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             cellbaseClient: {
                 type: Object
             },
+            title: {
+                type: String,
+            },
             active: {
                 type: Boolean,
             },
@@ -80,9 +83,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         super.update(changedProperties);
     }
 
-    /*
-     * Fetch the ClinicalAnalysis object from REST and trigger the observer call.
-     */
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
@@ -219,7 +219,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
 
             // 2. Add default initial query the active filter menu
             _activeFilterFilters.unshift({
-                id: "Default Initial Query",
+                id: "Default Filter",
                 active: false,
                 query: this.query,
             });
@@ -271,23 +271,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Cancer Case Interpreter",
-            icon: "fas fa-search",
-            active: false,
-            showOtherTools: false,
-            showTitle: false,
+            title: this.title || "Rearrangement Variant Browser",
             filter: {
-                title: "Filter",
-                searchButton: true,
-                searchButtonText: "Search",
                 activeFilters: {
-                    alias: {
-                        "ct": "Consequence Types"
-                    },
-                    complexFields: [
-                        {id: "sample", separator: ";"},
-                        {id: "fileData", separator: ","},
-                    ],
                     hiddenFields: [],
                     lockedFields: [
                         {id: "sample"},
@@ -295,6 +281,9 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         // {id: "file"},
                         // {id: "fileData"},
                     ],
+                },
+                save: {
+                    ignoreParams: ["study", "sample", "file", "fileData"],
                 },
                 callers: [],
                 sections: [
@@ -324,18 +313,34 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                             },
                             {
                                 id: "region",
-                                title: "Genomic Location",
-                                tooltip: tooltips.region
+                                title: "Genomic Region",
+                                tooltip: tooltips.region,
+                                quick: true
+
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs (gene, SNPs, ...)",
-                                tooltip: tooltips.feature
+                                title: "Feature ID",
+                                description: "Select a feature from the list (gene, SNP, etc.)",
+                                tooltip: tooltips.feature,
+                                quick: true
                             },
+                            // {
+                            //     id: "diseasePanels",
+                            //     title: "Disease Panel",
+                            //     tooltip: tooltips.diseasePanels,
+                            //     quick: true
+                            // },
                             {
                                 id: "diseasePanels",
-                                title: "Disease Panels",
-                                tooltip: tooltips.diseasePanels
+                                title: "Disease Panel",
+                                disabled: () => this.clinicalAnalysis.panelLocked,
+                                message: {
+                                    visible: () => this.clinicalAnalysis.panelLocked,
+                                    text: "Case Panel is locked, you are not allowed to change selected panel(s)."
+                                },
+                                tooltip: tooltips.diseasePanels,
+                                quick: true
                             },
                             {
                                 id: "biotype",
@@ -345,12 +350,13 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                             },
                             {
                                 id: "ext-svtype",
-                                title: "SVTYPE",
+                                title: "SV Type",
                                 types: ["TRANSLOCATION", "DUPLICATION", "INVERSION", "DELETION"],
                                 tooltip: tooltips.type,
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["brass"]?.name : null}`,
-                                }
+                                },
+                                quick: true
                             }
                         ]
                     }
@@ -394,34 +400,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                         variantTypes: ["BREAKEND"],
                     }
                 },
-                detail: {
-                    title: variants => {
-                        return `Selected Variants: ${variants?.[0]?.id} - ${variants?.[1]?.id}`;
-                    },
-                    showTitle: true,
-                    items: [
-                        {
-                            id: "json-view-variant1",
-                            name: "Variant 1 JSON Data",
-                            render: (variants, active) => html`
-                                <json-viewer
-                                    .data="${variants?.[0]}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        },
-                        {
-                            id: "json-view-variant2",
-                            name: "Variant 2 JSON Data",
-                            render: (variants, active) => html`
-                                <json-viewer
-                                    .data="${variants?.[1]}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        },
-                    ]
-                }
             },
             aggregation: {},
             genomeBrowser: {

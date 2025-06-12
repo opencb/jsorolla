@@ -18,7 +18,8 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
-import ModalUtils from "../../commons/modal/modal-utils.js";
+import GridCommons from "../../commons/grid-commons.js";
+import "../../commons/empty-state.js";
 import "../../project/project-create.js";
 import "../../project/project-update.js";
 import "./study-admin-grid.js";
@@ -37,14 +38,11 @@ export default class ProjectAdminBrowser extends LitElement {
 
     static get properties() {
         return {
-            organization: {
-                type: Object,
-            },
             opencgaSession: {
                 type: Object,
             },
             config: {
-                type: Object
+                type: Object,
             },
         };
     }
@@ -53,152 +51,105 @@ export default class ProjectAdminBrowser extends LitElement {
         this.COMPONENT_ID = "project-admin-browser";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
-        this.projects = [];
+
+        this._selectedProjectId = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession") ||
-            changedProperties.has("organization") ||
-            changedProperties.has("config")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
             this.propertyObserver();
         }
+
         super.update(changedProperties);
     }
 
     propertyObserver() {
-        // With each property change we must be updated config and create the columns again. No extra checks are needed.
         this._config = {
             ...this.getDefaultConfig(),
             ...this.config,
         };
 
-        // Config for the grid toolbar
-        this.toolbarSetting = {
-            ...this._config,
-        };
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
-        this.toolbarConfig = {
-            toolId: this.toolId,
-            resource: "PROJECT",
-            create: {
+        // register available action modals
+        this.gridCommons.registerModals({
+            "project-create": () => ({
                 display: {
-                    modalTitle: "Project Create",
-                    modalDraggable: true,
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
-                    // disabled: true,
-                    // disabledTooltip: "...",
+                    modalTitle: "Create Project",
+                    modalSize: "modal-lg",
                 },
-                modalId: `${this._prefix}CreateProjectModal`,
-                render: () => html `
+                render: () => html`
                     <project-create
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
+                        .displayConfig="${{
+                            buttonsLayout: "bottom",
+                        }}"
                         .opencgaSession="${this.opencgaSession}"
-                        @projectCreate="${e => this.onProjectCreate(e)}">
-                    </project-create>`
-            },
-        };
-
-        this.modals = {
-            "project-update": {
-                label: "Edit Project",
-                icon: "fas fa-edit",
-                modalId: `${this._prefix}UpdateProjectModal`,
-                render: () => this.renderProjectUpdate(),
-                permission: OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id) || "disabled",
-            },
-        };
-    }
-
-    // *** EVENTS ***
-    async onActionClick(e, project) {
-        this.action = e.currentTarget.dataset.action;
-        this.projectId = project.id;
-        this.requestUpdate();
-        await this.updateComplete;
-        ModalUtils.show(this.modals[this.action]["modalId"]);
-    }
-
-    onProjectCreate() {
-        // Close modal
-        ModalUtils.close(this.toolbarConfig.create.modalId);
-    }
-
-    // *** RENDER ***
-    renderProjectUpdate() {
-        return ModalUtils.create(this, `${this._prefix}UpdateProjectModal`, {
-            display: {
-                modalTitle: `Update Project: Project ${this.projectId} in organization ${this.organization.id}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-project-update",
-                modalSize: "modal-lg"
-            },
-            // @projectUpdate="${e => this.onProjectUpdate(e, `${this._prefix}UpdateDetailsModal`)}"
-            render: () => {
-                return html`
+                        @projectCreate="${() => this.gridCommons.clearActiveModal()}">
+                    </project-create>
+                `,
+            }),
+            "project-update": () => ({
+                display: {
+                    modalTitle: `Update Project ${this._selectedProjectId}`,
+                    modalSize: "modal-lg",
+                },
+                render: () => html`
                     <project-update
-                        .projectId="${this.projectId}"
-                        .organization="${this.organization}"
-                        .displayConfig="${{mode: "page", type: "form", buttonsLayout: "top"}}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .projectId="${this._selectedProjectId}"
+                        .organization="${this.opencgaSession.organization}"
+                        .displayConfig="${{
+                            buttonsLayout: "bottom",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @projectUpdate="${() => this.gridCommons.clearActiveModal()}">
                     </project-update>
-                `;
-            },
+                `,
+            }),
         });
     }
 
-    renderProjectsToolbar() {
-        if (this._config.showToolbar) {
-            return html `
-                <opencb-grid-toolbar
-                    .opencgaSession="${this.opencgaSession}"
-                    .settings="${this.toolbarSetting}"
-                    .config="${this.toolbarConfig}">
-                </opencb-grid-toolbar>
+    renderProjects() {
+        const isOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id);
+        const projects = this.opencgaSession?.organization?.projects || [];
+
+        // if no projects are available, display an empty state
+        if (projects.length === 0) {
+            return html`
+                <empty-state
+                    title="No projects found"
+                    icon="fas fa-folder-open"
+                    description="No projects found in this organization. Click on 'Create Project' to create a new project.">
+                </empty-state>
             `;
         }
-    }
-
-    renderProject(project) {
-        return html `
+        
+        return projects.map(project => html`
             <div class="card mb-5">
-                <!--PROJECTS information and actions -->
                 <div class="px-3 py-3">
-                    <!--1. Project header: title and actions-->
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <!-- 1.1 Project title: name/id and fqn -->
+                        <!-- Project title -->
                         <h4 class="d-flex align-items-center">
-                            <div class="d-flex me-4">
-                                ${project.name || project.id}
-                            </div>
-                            <div class="text-muted">
-                                [ ${project.fqn} ]
-                            </div>
+                            <div class="d-flex me-4">${project.name || project.id}</div>
+                            <div class="text-muted">[ ${project.fqn} ]</div>
                         </h4>
-                        <!-- 1.2. Project Actions -->
-                        <div id="actions" class="d-flex">
-                            ${
-                                Object.keys(this.modals).map(modalKey => {
-                                    const modal = this.modals[modalKey];
-                                    return html`
-                                        <button class="btn btn-light"
-                                                data-action="${modalKey}"
-                                                @click="${e => this.onActionClick(e, project)}">
-                                            <i class=${modal.icon} aria-hidden="true"></i> ${modal.label}...
-                                        </button>
-                                    `;
-                                })
-                            }
-                        </div>
+                        <!-- Project actions -->
+                        ${this._config.showProjectToolbar ? html`
+                            <div class="d-flex">
+                                <button class="btn btn-light ${isOrganizationAdmin ? "" : "disabled"}" @click="${() => this.onProjectUpdateClick(project)}">
+                                    <i class="fas fa-edit me-1"></i>
+                                    <span>Edit Project</span>
+                                </button>
+                            </div>
+                        ` : nothing}
                     </div>
-                     <!--2. Project info: organism, assembly, cellbase -->
+                     <!-- Project info: organism, assembly, cellbase -->
                     <div class="d-flex mb-2">
                         <div class="fs-6 me-4">
                             ${project.organism?.scientificName.toUpperCase() || "-"} (${project.organism?.assembly || "-"})
                         </div>
                         <div class="fs-6 me-4">
-                            Cellbase: ${project.cellbase?.version || "-"}
+                            CellBase: ${project.cellbase?.version || "-"}
                         </div>
                         <div class="fs-6 me-4">
                             Data Release: ${project.cellbase?.dataRelease || "-"}
@@ -210,44 +161,63 @@ export default class ProjectAdminBrowser extends LitElement {
                             </a>
                         </div>
                     </div>
-                    <!--3. Project description -->
+                    <!-- Project description -->
                     <div class="card-subtitle text-muted">
                         ${project.description}
                     </div>
                 </div>
-                <!--STUDIES grid -->
+                <!-- List of all studies on this project -->
                 <div class="card-body">
                     <study-admin-grid
-                        .toolId="${this.COMPONENT_ID}"
+                        .toolId="${this.COMPONENT_ID || ""}"
                         .project="${project}"
-                        .organization="${this.organization}"
+                        .organization="${this.opencgaSession.organization}"
                         .opencgaSession="${this.opencgaSession}"
                         .active="${true}">
                     </study-admin-grid>
                 </div>
-                <!-- 4. On action click, render action modal -->
-                ${this.action ? this.modals[this.action]["render"](): nothing}
             </div>
-        `;
+        `);
+    }
+
+    onProjectUpdateClick(project) {
+        this._selectedProjectId = project.id;
+        this.gridCommons.changeActiveModal("project-update");
+    }
+
+    onProjectCreateClick() {
+        this.gridCommons.changeActiveModal("project-create");
     }
 
     render() {
+        // check if the user is organization admin, so he can create new projects
+        const isOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession.organization, this.opencgaSession.user.id);
+
         return html`
-            <!-- 1. Render toolbar at project browser level if enabled -->
-            ${this.renderProjectsToolbar()}
-            <!-- 2. Render projects. Each project has each own grid -->
-            ${this.organization.projects.map(project => this.renderProject(project))}
+            <h2 class="fw-bold mb-0">${this._config.title}</h2>
+
+            ${this._config.showToolbar ? html`
+                <div class="d-flex justify-content-end mb-3">
+                    <button class="btn btn-light ${isOrganizationAdmin ? "" : "disabled"}" @click="${() => this.onProjectCreateClick()}">
+                        <i class="fas fa-plus me-1"></i>
+                        <span>${this._config.buttonCreateText}</span>
+                    </button>
+                </div>
+            ` : nothing}
+
+            ${this.renderProjects()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
-    // *** CONFIG ***
     getDefaultConfig() {
         return {
+            title: "Manage Projects and Studies",
             showToolbar: true,
             showExport: false,
             showSettings: false,
             showCreate: true,
-            buttonCreateText: "New Project...",
+            buttonCreateText: "Create Project",
             showGraphicFilters: false,
             showProjectToolbar: true,
         };
