@@ -137,10 +137,10 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                             type: "custom",
                             display: {
                                 render: (selected, dataFormFilterChange) => html`
-                                    <div class="alert ${selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-3 flex-grow-1">
+                                    <div class="alert ${selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-3 flex-grow-1 mb-0">
                                         <label class="form-label mb-0 fw-bold">
                                             ${selected ? html`
-                                                <span>Added as a supported evidences of the variant.</span>    
+                                                <span>Added as a supported evidence of the variant.</span>    
                                             ` : html`
                                                 <span>Add as a supported evidence for the variant.</span>
                                             `}
@@ -151,6 +151,9 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                     </div>
                                 `,
                                 defaultValue: false,
+                                helpMessage: selected => {
+                                    return !selected ? "You have not selected this evidence. Click on the check button to add it as a supported evidence for the variant and to enable the review" : "";
+                                },
                             },
                         },
                         {
@@ -158,6 +161,9 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                             field: "clinicalSignificance",
                             type: "select",
                             allowedValues: CLINICAL_SIGNIFICANCE,
+                            display: {
+                                disabled: !this._review?.selected,
+                            },
                             // type: "custom",
                             // display: {
                             //     render: clinicalSignificance => html`
@@ -176,6 +182,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                             type: "input-text",
                             display: {
                                 rows: 1,
+                                disabled: !this._review?.selected,
                             },
                         },
                         {
@@ -186,6 +193,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 showEditItemListButton: true,
                                 showDeleteItemListButton: true,
+                                disabled: !this._review?.selected,
                                 view: acmg => html `
                                     <div style="margin-bottom:1rem;">
                                         <div>
@@ -245,6 +253,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                 placeholder: "Add a discussion",
                                 rows: 5,
                                 helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
+                                disabled: !this._review?.selected,
                             },
                         },
                     ]
