@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/filters/acmg-filter.js";
@@ -40,9 +40,6 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
             review: {
                 type: Object,
             },
-            somatic: {
-                type: Boolean,
-            },
             displayConfig: {
                 type: Object
             },
@@ -51,31 +48,24 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
 
     #init() {
         this.updateParams = {};
-        this.mode = "";
-        this.review = {};
-        this.config = this.getDefaultConfig();
+        this._review = {};
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("review")) {
-            this.variantEvidenceObserver();
-        }
-
-        if (changedProperties.has("somatic")) {
-            this.config = this.getDefaultConfig();
+            this.reviewObserver();
         }
 
         if (changedProperties.has("displayConfig")) {
-            this.config = this.getDefaultConfig();
+            this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
     }
 
-    variantEvidenceObserver() {
-        this.review = this.review || {}; // Prevent undefined clinical evidence review
+    reviewObserver() {
         this._review = UtilsNew.objectClone(this.review);
-        this.config = this.getDefaultConfig();
     }
 
     onFieldChange(e, field) {
@@ -84,7 +74,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
         switch (param) {
             case "clinicalSignificance":
                 // Fix clinical significance value --> must be in uppercase
-                this.review.clinicalSignificance = typeof e.detail.value === "string" ? e.detail.value.toUpperCase() : e.detail.value;
+                this._review.clinicalSignificance = typeof e.detail.value === "string" ? e.detail.value.toUpperCase() : e.detail.value;
                 break;
             case "discussion.text":
                 if (typeof this.updateParams?.discussion?.text !== "undefined") {
@@ -104,14 +94,12 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                     author: this.opencgaSession?.user?.id || "-",
                     date: UtilsNew.getDatetime(),
                 };
-                this.review = {...this.review};
+                this._review = {...this._review};
                 break;
         }
 
-        this.review = {...this.review};
-
         LitUtils.dispatchCustomEvent(this, "evidenceReviewChange", null, {
-            value: this.review
+            value: this._review
         });
 
         this.requestUpdate();
@@ -120,8 +108,8 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
     render() {
         return html`
             <data-form
-                .data="${this.review}"
-                .config="${this.config}"
+                .data="${this._review}"
+                .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}">
             </data-form>
         `;
@@ -143,17 +131,19 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                         {
                             title: "Clinical Significance",
                             field: "clinicalSignificance",
-                            type: "custom",
-                            display: {
-                                render: clinicalSignificance => html`
-                                    <select-field-filter
-                                        .data="${CLINICAL_SIGNIFICANCE}"
-                                        .value="${(clinicalSignificance || "").toLowerCase()}"
-                                        @filterChange="${e => this.onFieldChange(e, "clinicalSignificance")}">
-                                    </select-field-filter>
-                                `,
-                                defaultValue: "",
-                            },
+                            type: "select",
+                            allowedValues: CLINICAL_SIGNIFICANCE,
+                            // type: "custom",
+                            // display: {
+                            //     render: clinicalSignificance => html`
+                            //         <select-field-filter
+                            //             .data="${CLINICAL_SIGNIFICANCE}"
+                            //             .value="${(clinicalSignificance || "").toLowerCase()}"
+                            //             @filterChange="${e => this.onFieldChange(e, "clinicalSignificance")}">
+                            //         </select-field-filter>
+                            //     `,
+                            //     defaultValue: "",
+                            // },
                         },
                         {
                             title: "Tier",
