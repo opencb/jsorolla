@@ -241,12 +241,11 @@ export default class VariantReview extends LitElement {
                 },
                 {
                     id: "discussion",
-                    name: "Discussion",
+                    title: "Discussion",
                     icon: "fa-edit",
                     elements: [
                         {
                             id: "discussion",
-                            title: "Discussion",
                             type: "input-text",
                             field: "discussion.text",
                             display: {
@@ -259,11 +258,10 @@ export default class VariantReview extends LitElement {
                 },
                 {
                     id: "comments",
-                    name: "Comments",
+                    title: "Comments",
                     icon: "fa-comments",
                     elements: [
                         {
-                            title: "Comments",
                             field: "comments",
                             type: "object-list",
                             display: {
@@ -318,10 +316,9 @@ export default class VariantReview extends LitElement {
                 },
                 {
                     id: "evidences",
-                    name: "Evidences",
+                    title: "Evidences",
                     icon: "fa-list",
                     render: (variant, active) => html`
-                        <h3>Evidences</h3>
                         <variant-review-evidences-grid
                             .opencgaSession="${this.opencgaSession}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
