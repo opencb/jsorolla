@@ -458,7 +458,7 @@ export class OpenCGAClient {
 
                                                     // Fetch all the cohort
                                                     console.log("Fetching cohorts");
-                                                    const cohortsResponse = await _this.cohorts()
+                                                    const cohortsResponse = await this.cohorts()
                                                         .search({
                                                             study: study.fqn,
                                                             internalStatus: "READY,CALCULATING,INVALID",
