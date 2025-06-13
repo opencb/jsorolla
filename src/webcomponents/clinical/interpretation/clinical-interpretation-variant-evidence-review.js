@@ -99,7 +99,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
 
         // dispatch a review change event
         LitUtils.dispatchCustomEvent(this, "evidenceReviewChange", null, {
-            value: this._review
+            review: this._review
         });
 
         this.requestUpdate();
