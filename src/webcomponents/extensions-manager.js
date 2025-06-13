@@ -2,7 +2,7 @@ import {html} from "lit";
 
 export default {
     TYPES: {
-        DETAIL_TAB: "detail-tab",
+        VIEW: "view",
         TOOL: "tool",
         COLUMN: "column",
         INTERPRETER_TOOL: "interpreter-tool",
@@ -10,7 +10,8 @@ export default {
 
         // DEPRECATED: will be removed in future versions
         DEPRECATED_INTERPRETATION_TOOL: "interpretation_tool", // --> use INTERPRETER_TOOL instead
-        DEPRECATED_DETAIL_TAB: "detail_tab",
+        DEPRECATED_OLD_DETAIL_TAB: "detail_tab",
+        DEPRECATED_DETAIL_TAB: "detail-tab",
     },
 
     // Allows to get a list with all extensions of the specified type
@@ -26,26 +27,27 @@ export default {
             });
     },
 
-    // Gets a list of detail tabs generated from the extensions for the specified component
+    // Gets a list of view tabs generated from the extensions for the specified component
     // @param {string} componentId - ID of the component where the new detail tabs will be injected
-    // @return {array} tabs - a list of detail tabs configuration
-    getDetailTabs(componentId) {
-        return this.getByType([this.TYPES.DETAIL_TAB, this.TYPES.DEPRECATED_DETAIL_TAB])
+    // @param {object} opencgaSession - OpenCGA session object
+    // @return {array} views - a list of views configuration
+    getViews(componentId, opencgaSession) {
+        const viewTypes = [
+            this.TYPES.VIEW,
+            this.TYPES.DEPRECATED_DETAIL_TAB,
+            this.TYPES.DEPRECATED_OLD_DETAIL_TAB,
+        ];
+        return this.getByType(viewTypes)
             .filter(extension => (extension.components || []).includes(componentId))
             .map(extension => ({
                 id: extension.id,
                 name: extension.name,
-                active: false,
-                render: (data, active, opencgaSession) => {
+                render: (data, active) => {
                     return extension.render({
                         html: html,
                         opencgaSession: opencgaSession,
                         data: data,
                         active: active,
-                        // DEPRECATED: 'tabData' and 'tabActive' have been renamed as 'data' and 'active' respectively.
-                        // Will be removed in future versions
-                        tabData: data,
-                        tabActive: active,
                     });
                 },
             }));
@@ -87,12 +89,13 @@ export default {
     },
 
     // Returns a list of custom columns for the specified component
-    // @param {array} columns - An array of columns where new columns will be injected
     // @param {string} componentId - ID of the component where this new column will be injected
+    // @param {object} opencgaSession - OpenCGA session object
+    // @param {array} columns - An array of columns where new columns will be injected
     // @param {function} checkColumnVisible: function to determine if column is visible or not
     // @param {function} getData: function to obtain custom data for columns
     // @return {array} columns - a list of columns configurations
-    injectColumns(columns, componentId, checkColumnVisible, getData) {
+    injectColumns(componentId, opencgaSession, columns, checkColumnVisible, getData) {
         // We need to check if we are in a single or multiple row levels
         const hasGroupedRows = columns.length === 2 && (Array.isArray(columns[0]) && Array.isArray(columns[1]));
         this.getByType(this.TYPES.COLUMN)
@@ -107,7 +110,7 @@ export default {
                             // We need to overwrite the formatter to provide custom data of this columns
                             formatter: (value, row, index) => {
                                 const data = typeof getData === "function" ? getData() : {};
-                                return newColumn.config.formatter(value, row, index, data?.[extension.id]);
+                                return newColumn.config.formatter(value, row, index, opencgaSession, data?.[extension.id]);
                             },
                         };
                         // check if we have provided a function to check if column is visible

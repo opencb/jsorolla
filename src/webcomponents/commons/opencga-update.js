@@ -323,6 +323,18 @@ export default class OpencgaUpdate extends LitElement {
                         },
                     ];
                     break;
+                case "WORKFLOW":
+                    this.endpoint = this.opencgaSession.opencgaClient.workflows();
+                    this.resourceInfoParams = {};
+                    this.updateCustomisation = [
+                        params => {
+                            if (params.tags) {
+                                // eslint-disable-next-line no-param-reassign
+                                params.tags = params.tags?.split(",") || [];
+                            }
+                        },
+                    ];
+                    break;
                 case "NOTE":
                     this.endpoint = this.component?.scope === "ORGANIZATION" ?
                         this.opencgaSession.opencgaClient.organization() :
@@ -331,6 +343,19 @@ export default class OpencgaUpdate extends LitElement {
                     this.resourceUpdateParams = {
                         tagsAction: "SET",
                     };
+                case "FILE":
+                    this.endpoint = this.opencgaSession.opencgaClient.files();
+                    this.resourceInfoParams = {};
+                    this.resourceUpdateParams = {
+                        tagsAction: "SET",
+                    };
+                    this.updateCustomisation = [
+                        params => {
+                            // Note: we have to convert empty tags string to an empty array
+                            params.tags = (params.tags || "")?.split(",").map(t => t.trim()).filter(Boolean);
+                        },
+                    ];
+                    break;
             }
         }
     }

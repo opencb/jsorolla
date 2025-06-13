@@ -22,7 +22,7 @@ import ClinicalAnalysisManager from "./clinical-analysis-manager.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 // import PdfBuilder, {stylePdf} from "../../core/pdf-builder.js";
-import "./clinical-analysis-summary.js";
+import "./clinical-analysis-review-summary.js";
 import "../variant/interpretation/variant-interpreter-review.js";
 import "../disease-panel/disease-panel-grid.js";
 import "./interpretation/clinical-interpretation-view.js";
@@ -385,10 +385,10 @@ export default class ClinicalAnalysisReview extends LitElement {
                                         <div style="font-size:24px;font-weight: bold;margin-bottom: 12px">
                                             <span>${isLocked(data)} Case Info</span>
                                         </div>
-                                        <clinical-analysis-summary
+                                        <clinical-analysis-review-summary
                                             .clinicalAnalysis="${data}"
                                             .opencgaSession="${this.opencgaSession}">
-                                        </clinical-analysis-summary>
+                                        </clinical-analysis-review-summary>
                                     `;
                                 }
                             }

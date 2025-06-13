@@ -15,13 +15,14 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/layouts/custom-vertical-navbar.js";
-import "../../commons/tool-settings-restore";
-import "../../commons/tool-settings-update.js";
 import LitUtils from "../../commons/utils/lit-utils";
 import NotificationUtils from "../../commons/utils/notification-utils";
 import UtilsNew from "../../../core/utils-new";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
+import "../../commons/view/vertical-menu.js";
+import "../../commons/pages/restricted-access-page.js";
+import "../../commons/tool-settings-restore";
+import "../../commons/tool-settings-update.js";
 
 export default class StudyAdminIva extends LitElement {
 
@@ -37,15 +38,6 @@ export default class StudyAdminIva extends LitElement {
 
     static get properties() {
         return {
-            organizationId: {
-                type: String,
-            },
-            studyId: {
-                type: String,
-            },
-            study: {
-                type: Object,
-            },
             opencgaSession: {
                 type: Object,
             },
@@ -56,177 +48,127 @@ export default class StudyAdminIva extends LitElement {
     }
 
     #init() {
-        this.menuStructure = {
-            catalog: ["Catalog Tools", Object.keys(CATALOG_SETTINGS)],
-            // variant: ["Variant", Object.keys(VARIANT_SETTINGS)],
-            clinical: ["Clinical Tools", Object.keys(INTERPRETER_SETTINGS)],
-            user: ["User", Object.keys(USER_SETTINGS)],
-        };
+        this._config = {};
     }
 
     update(changedProperties) {
-        if (changedProperties.has("organizationId")) {
-            this.organizationIdObserver();
+        if (changedProperties.has("opencgaSession") || changedProperties.has("settings")) {
+            this._config = this.getDefaultConfig();
         }
-        if (changedProperties.has("studyId")) {
-            this.studyIdObserver();
-        }
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }
+
         super.update(changedProperties);
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
-    /* -- OBSERVER METHODS -- */
-    organizationIdObserver() {
-        // FIXME Vero: on creating a new group, for instance,
-        //  the session is updated but the org id does not change.
-        //  I need to get the organization info again to refresh the grid.
-        //  For now, I will query org info only with property opencgaSession change.
-        //  TO think about it.
-        // if (this.organizationId && this.opencgaSession) {
-        if (this.organizationId || this.opencgaSession) {
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.organization()
-                .info(this.opencgaSession.organization.id)
-                .then(response => {
-                    this.organization = UtilsNew.objectClone(response.responses[0].results[0]);
-                })
-                .catch(reason => {
-                    // this.organization = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    LitUtils.dispatchCustomEvent(this, "organizationInfo", this.organization, {}, error);
-                    this.#setLoading(false);
-                });
+    formatToolTitle(str) {
+        if (typeof str !== "string") {
+            return "";
         }
+
+        let title = str
+            .trim()
+            .toLowerCase()
+            .split("_")
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+
+        // CAUTION 20250228 Vero: The code was designed for formatting the tool names
+        //  from the tool keys in browser.settings.js for consistency. We have planned a discussion for unifying tool names.
+        //  I am pretty sure that a change on the name in settings, won't affect the application,
+        //  but since it is a delicate tool, I prefer to go for this awful workaround and do it properly in 3.1
+        return (title === "Clinical Analysis Browser") ? "Clinical Analysis Portal" : title;
     }
 
-    studyIdObserver() {
-        if (this.studyId && this.opencgaSession) {
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.studies()
-                .info(this.studyId)
-                .then(response => {
-                    this.study = response.responses[0].results[0];
-                })
-                .catch(reason => {
-                    error = reason;
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "studySearch", this.study, {}, error);
-                    this.#setLoading(false);
-                });
-        }
-    }
-
-    opencgaSessionObserver() {
-        this.study = this.opencgaSession.study;
-        this._config = this.getDefaultConfig();
-    }
-
-    // --- RENDER METHOD  ---
     render() {
-        if (this.opencgaSession.study && this.organization) {
-            if (!OpencgaCatalogUtils.isOrganizationAdmin(this.organization, this.opencgaSession.user.id) &&
-                !OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
-                return html`
-                    <tool-header class="page-title-no-margin"  title="${this._config.name}" icon="${this._config.icon}"></tool-header>
-                    <div class="d-flex flex-column align-items-center justify-content-center">
-                        <h1 class="display-1"><i class="fas fa-user-shield me-4"></i>Restricted access</h1>
-                        <h3>The page you are trying to access has restricted access.</h3>
-                        <h3>Please refer to your system administrator.</h3>
-                    </div>
-                `;
-            }
+        const isOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, this.opencgaSession?.user?.id);
+        const isAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
 
+        if (!this.opencgaSession || (!isOrganizationAdmin && !isAdmin)) {
             return html`
-            <tool-header class="page-title-no-margin" title="${this._config.name}" icon="${this._config.icon}"></tool-header>
-            <custom-vertical-navbar
-                .study="${this.study}"
-                .opencgaSession="${this.opencgaSession}"
-                .activeMenuItem="${"tool_settings"}"
-                .config="${this._config}">
-            </custom-vertical-navbar>
-        `;
+                <restricted-access-page
+                    message="The page you are trying to access has restricted access. Please refer to your system administrator.">
+                </restricted-access-page>
+            `;
         }
+
+        return html`
+            <tool-header title="${this._config.name}"></tool-header>
+            <vertical-menu
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config || {}}">
+            </vertical-menu>
+        `;
     }
 
     getDefaultConfig() {
-        const menu = [
+        const toolGroups = [
             {
-                id: "general",
-                name: "General",
-                visibility: "private",
-                submenu: [
-                    {
-                        id: "tool_settings",
-                        name: "Tool Settings",
-                        visibility: "private",
-                        render: (opencgaSession, study) => {
-                            return html `
-                                <div class="py-3">Reset all settings to their original defaults and restore the backup version</div>
-                                <tool-settings-restore
-                                    .study="${study}"
-                                    .opencgaSession="${opencgaSession}"
-                                    @studyToolSettingsUpdate="${e => this.onStudyToolSettingsUpdate(e)}">
-                                </tool-settings-restore>
-                            `;
-                        },
-                    },
-                    // {
-                    //     id: "constants",
-                    //     name: "Constants",
-                    //     // icon: "fa-solid fa-square",
-                    //     visibility: "private",
-                    //     render: (opencgaSession, study) => this.renderToolSettings(),
-                    // },
-                ],
+                id: "catalog",
+                name: "Catalog Tools",
+                tools: Object.keys(CATALOG_SETTINGS),
             },
-            ...Object.entries(this.menuStructure)
-                .map(([menuKey, [header, submenuKeys]]) => ({
-                    id: menuKey,
-                    name: header,
-                    category: true,
-                    visibility: "private",
-                    submenu: submenuKeys.map(toolName => {
-                        const toolSettings = this.settings[toolName];
-                        return {
-                            id: toolName.toLowerCase(),
-                            name: UtilsNew.capitalize(toolName.toLowerCase().replace(/_/g, " ")),
-                            // icon: "fa-solid fa-square",
-                            visibility: "private",
-                            render: (opencgaSession, study) => {
-                                return html `
-                                    <tool-settings-update
-                                        .opencgaSession="${opencgaSession}"
-                                        .study="${study}"
-                                        .toolSettings="${toolSettings}"
-                                        .toolName="${toolName}">
-                                    </tool-settings-update>
-                                `;
-                            },
-                        };
-                    })
-                }))
+            {
+                id: "clinical",
+                name: "Clinical Tools",
+                tools: Object.keys(INTERPRETER_SETTINGS),
+            },
+            {
+                id: "user",
+                name: "User",
+                tools: Object.keys(USER_SETTINGS),
+            },
         ];
+
         return {
             name: "IVA Configuration",
-            logo: "",
-            icon: "fas fa-sliders-h",
-            visibility: "private", // public | private | none
-            menu: menu
+            display: {
+                menuStyle: "width:240px;",
+            },
+            menu: [
+                {
+                    id: "general",
+                    name: "General",
+                    submenu: [
+                        {
+                            id: "tool_settings",
+                            name: "Tool Settings",
+                            render: opencgaSession => html`
+                                <div class="py-3">Reset all settings to their original defaults and restore the backup version</div>
+                                <tool-settings-restore
+                                    .opencgaSession="${opencgaSession}"
+                                    .study="${opencgaSession.study}"
+                                    @studyToolSettingsUpdate="${e => this.onStudyToolSettingsUpdate(e)}">
+                                </tool-settings-restore>
+                            `,
+                        },
+                        // {
+                        //     id: "constants",
+                        //     name: "Constants",
+                        //     // icon: "fa-solid fa-square",
+                        //     visibility: "private",
+                        //     render: (opencgaSession, study) => this.renderToolSettings(),
+                        // },
+                    ],
+                },
+                ...toolGroups.map(toolGroup => ({
+                    id: toolGroup.id,
+                    name: toolGroup.name,
+                    submenu: toolGroup.tools.map(toolName => {
+                        const toolSettings = this.settings[toolName];
+                        return {
+                            id: toolGroup.id + "-" + toolName.toLowerCase(),
+                            name: this.formatToolTitle(toolName),
+                            render: opencgaSession => html`
+                                <tool-settings-update
+                                    .opencgaSession="${opencgaSession}"
+                                    .study="${{...opencgaSession.study}}"
+                                    .toolSettings="${toolSettings}"
+                                    .toolName="${toolName}">
+                                </tool-settings-update>
+                            `,
+                        };
+                    }),
+                })),
+            ],
         };
     }
 

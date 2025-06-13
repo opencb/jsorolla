@@ -242,11 +242,17 @@ export default class UtilsNew {
         if (bytes === 0) {
             return "0 Byte";
         }
-        const k = useInternationalSystem ? 1000 : 1024;
-        const dm = numDecimals ? numDecimals : 2;
+        // 1. International System of Units (SI) - 1000
         const sizes = [" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB"];
         const sizesBinary = [" Bytes", " KiB", " MiB", " GiB", " TiB", " PiB", " EiB", " ZiB", " YiB"];
+
+        // 2. Calculate the size
+        const k = useInternationalSystem ? 1000 : 1024;
         const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+        // 3. Calculate number of decimals.
+        // Note: if the result is in Bytes we don't want decimals
+        const dm = (i === 0) ? 0 : numDecimals;
         return (bytes / Math.pow(k, i)).toFixed(dm) + (useInternationalSystem ? sizes[i] : sizesBinary[i]);
     }
 
@@ -627,7 +633,7 @@ export default class UtilsNew {
         // merge detail tab
         // it doesn't check for external.details.length and external.hiddenDetails.length because it supports empty array
         if (detail?.items) {
-            if (external?.details || external?.hiddenDetails) {
+            if (external?.details?.length > 0 || external?.hiddenDetails) {
                 detail.items = UtilsNew.mergeArray(internal.detail.items, external.details || external.hiddenDetails, !!external.hiddenDetails);
             }
         }
@@ -963,6 +969,7 @@ export default class UtilsNew {
 
     // Escape HTML characters from the provided string
     static escapeHtml(str) {
+        if (!str) return str;
         return str
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -1085,6 +1092,76 @@ export default class UtilsNew {
             (result[objectValue] = result[objectValue] || []).push(currentValue);
             return result;
         }, {});
+    }
+
+    // get the corresponding mime type for the given file extension
+    static getMimeType(extension) {
+        switch (extension) {
+            case "json":
+                return "application/json";
+            case "png":
+                return "image/png";
+            case "jpg":
+            case "jpeg":
+                return "image/jpeg";
+            case "svg":
+                return "image/svg+xml";
+            case "pdf":
+                return "application/pdf";
+            case "txt":
+            default:
+                return "text/plain";
+        }
+    }
+
+    // checks if the provided file is a binary file
+    static isBinaryFile(file) {
+        const binaryExtensions = new Set(["tbi", "bai", "zip", "bigWig", "pbi", "gz"]);
+        return binaryExtensions.has((file.name || file).split(".").pop());
+    }
+
+    static getFileIcon(file) {
+        let format = file.format;
+
+        // fix the format based on the file name
+        if (format === "UNKNOWN" || format === "PLAIN") {
+            if (file.name.endsWith(".pdf")) {
+                format = "PDF";
+            }
+            else if (file.name.endsWith(".html") || file.name.endsWith(".htm")) {
+                format = "HTML";
+            }
+            else if (UtilsNew.isBinaryFile(file.name)) {
+                format = "BINARY";
+            }
+            // assign .log or .err files to TEXT files
+            else if (file.name.endsWith(".log") || file.name.endsWith(".err")) {
+                format = "TEXT";
+            }
+        }
+        
+        switch (format) {
+            case "IMAGE":
+                return "fa-file-image";
+            case "BAM":
+            case "BAI":
+            case "BINARY":
+                return "fa-file-archive";
+            case "HTML":
+            case "JSON":
+                return "fa-file-code";
+            case "PDF":
+                return "fa-file-pdf";
+            case "VCF":
+            case "PLAIN":
+            case "TEXT":
+                return "fa-file-alt";
+            case "TAB_SEPARATED_VALUES":
+            case "COMMA_SEPARATED_VALUES":
+                return "fa-file-excel";
+            default:
+                return "fa-file";
+        }
     }
 
 }

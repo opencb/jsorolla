@@ -76,19 +76,19 @@ class VariantInterpreterBrowserSave extends LitElement {
         const hasVariantsToFilter = this.state.addedVariants?.length || this.state.updatedVariants?.length;
         return html`
             <div>
-                <div class="my-1 mx-2">
+                <div class="my-1">
                     <span class="fw-bold">Changed Variants</span>
                 </div>
-                <div class="my-1 mx-3 overflow-y-auto" style="max-height:350px;">
+                <div class="my-1 mx-2 overflow-y-auto" style="max-height:350px;">
                     ${this.renderVariantsList("New selected variants", this.state?.addedVariants || [], "success")}
                     ${this.renderVariantsList("Updated variants", this.state?.updatedVariants || [], "warning")}
                     ${this.renderVariantsList("Removed variants", this.state?.removedVariants || [], "danger")}
                 </div>
                 <hr class="dropdown-divider">
-                <div class="my-1 mx-2">
+                <div class="my-1">
                     <span class="fw-bold">Add a new Interpretation Comment</span>
                 </div>
-                <div class="my-1 mx-3">
+                <div class="my-1 mx-2">
                     <div class="mb-1">
                         <label for="${this._prefix}CommentMessage" class="form-label small mb-0">Comment Message</label>
                         <textarea id="${this._prefix}CommentMessage" class="form-control" rows="3" placeholder="Your message..."></textarea>
@@ -99,7 +99,7 @@ class VariantInterpreterBrowserSave extends LitElement {
                     </div>
                 </div>
                 <hr class="dropdown-divider">
-                <div class="d-flex align-items-center justify-content-between mx-2">
+                <div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex">
                         <button class="btn btn-light ${hasVariantsToFilter ? "" : "disabled"}" @click="${() => this.onFilter()}">
                             <i class="fas fa-filter pe-1"></i> Filter Variants

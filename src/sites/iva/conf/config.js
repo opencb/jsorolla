@@ -26,14 +26,14 @@ const hosts = [
     },
     {
         id: "reference",
-        url: "https://test.app.zettagenomics.com/reference/opencga"
+        url: "https://test.app.zettagenomics.com/task-7516/opencga"
     },
 ];
 
 const opencga = {
     host: hosts[2].url,
     version: "v2",
-    organizations: [],
+    // organizations: ["test", "test2"],
     cookie: {
         prefix: "iva-" + hosts[2].id,
         secure: true,
@@ -89,89 +89,6 @@ const opencga = {
     // summary: true,
 };
 
-const CATALOG_NAVBAR_MENU = {
-    id: "catalog",
-    name: "Catalog",
-    visibility: "public",
-    icon: "img/tools/icons/aggregation2.svg",
-    submenu: [
-        // {
-        //     id: "projects",
-        //     name: "Projects",
-        //     visibility: "public"
-        // },
-
-        {
-            name: "Browsers",
-            category: true,
-            id: "cat-catalog",
-            visibility: "public"
-        },
-        {
-            id: "file",
-            name: "File Browser",
-            visibility: "public"
-        },
-        {
-            id: "sample",
-            name: "Sample Browser",
-            visibility: "public",
-            icon: "img/tools/icons/file_explorer.svg",
-            description: `
-                <p>Explore samples in Catalog</p>
-                <ul>
-                    <li>Search samples by different filters.</li>
-                    <li>Execute aggregations stats.</li>
-                </ul>
-            `,
-            featured: true,
-        },
-        {
-            id: "individual",
-            name: "Individual Browser",
-            visibility: "public"
-        },
-        {
-            id: "family",
-            name: "Family Browser",
-            visibility: "public"
-        },
-        {
-            id: "cohort",
-            name: "Cohort Browser",
-            visibility: "public"
-        },
-        {
-            id: "note-browser",
-            name: "Note Browser",
-            visibility: "public",
-        },
-        {
-            separator: true,
-            visibility: "public"
-        },
-        {
-            id: "clinicalAnalysis",
-            name: "Clinical Analysis Browser",
-            visibility: "public"
-        },
-        {
-            id: "disease-panel",
-            name: "Disease Panel Browser",
-            visibility: "public"
-        },
-        {
-            separator: true,
-            visibility: "public"
-        },
-        {
-            id: "job",
-            name: "Job Browser",
-            visibility: "public"
-        },
-    ]
-};
-
 const SUITE = {
     id: "suite",
     name: "OpenCB Suite",
@@ -187,22 +104,28 @@ const SUITE = {
     about: {
         dropdown: true,
         links: [
-            {id: "code", name: "Source code", url: "https://github.com/opencb/iva", icon: "fa fa-code"},
-            {id: "documentation", name: "Documentation", url: "http://docs.opencb.org/display/iva", icon: "fa fa-book"},
-            {id: "tutorial", name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials", icon: "fa fa-question-circle"},
-            {id: "releases", name: "Releases", url: "https://github.com/opencb/iva/releases", icon: "fa fa-archive"},
+            // {id: "code", name: "Source code", url: "https://github.com/opencb/iva", icon: "fa fa-code"},
+            // {id: "documentation", name: "Documentation", url: "http://docs.opencb.org/display/iva", icon: "fa fa-book"},
+            // {id: "tutorial", name: "Tutorial", url: "http://docs.opencb.org/display/iva/Tutorials", icon: "fa fa-question-circle"},
+            // {id: "releases", name: "Releases", url: "https://github.com/opencb/iva/releases", icon: "fa fa-archive"},
             {id: "about", name: "About", url: "#about", icon: "fa fa-info-circle"},
             {id: "terms", name: "Terms", url: "#terms", icon: "fa fa-file-alt"},
             {id: "contact", name: "Contact", url: "#contact", icon: "fa fa-envelope"},
             {id: "faq", name: "FAQ", url: "#faq", icon: "fa fa-question"},
-            {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
-            {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
+            // {id: "rest-api", name: "OpenCGA REST API", icon: "fas fa-book-open"},
+            // {id: "getting-started", name: "Getting Started", tab: false, url: "#getting-started", icon: "fa fa-book"}
         ]
     },
-    jobMonitor: {
+    fileExplorer: {
         visibility: "private"
     },
-    fileExplorer: {
+    workflowManager: {
+        visibility: "private"
+    },
+    customToolAnalysisExecutor: {
+        visibility: "private"
+    },
+    jobMonitor: {
         visibility: "private"
     },
     restApi: {
@@ -217,46 +140,39 @@ const SUITE = {
         minRemainingTime: 60000,
         maxRemainingTime: 600000 // 10 min
     },
-    landingPage: {
+    loginPage: {
         organisation: {
-            logo: {img: "img/opencb-logo.png", height: "60px", link: "https://github.com/opencb"},
+            logo: "img/opencb-logo.png",
+            link: "https://github.com/opencb",
             title: "Unleash the power of genomic data",
             display: {
-                logoStyle: "",
-                logoClass: "",
-                titleStyle: "",
-                titleClass: "",
+                logoHeight: "100px",
+                logoClass: "mb-2",
+                titleClass: "fs-3 opacity-25",
             }
         },
         login: {
-            logo: {img: "img/iva.svg", height: "80px", link: ""},
-            title: "Welcome back!",
+            logo: "img/iva.svg",
+            title: "Sign in",
+            subtitle: "Welcome back!",
             display: {
-                logoStyle: "margin-bottom: 32px;",
-                logoClass: "",
-                titleStyle: "",
-                titleClass: "",
-                contentStyle: "",
-                contentClass: "",
+                logoClass: "mb-4",
+                logoHeight: "50px",
+                titleClass: "fs-1 fw-medium mb-0",
+                subtitleClass: "fs-5 fw-normal text-gray-800 mb-4",
             },
         }
     },
     welcomePage: {
         display: {
-            titleStyle: "text-align:center"
+            logoClass: "mb-4",
+            contentClass: "fs-3",
         },
-        title: "OpenCB Suite",
         logo: "img/iva.svg",
-        bottomLogo: {img: "", link: "", height: ""},
         content: `
-        <div style="margin: 20px">
-            <p class="text-center">
-                Welcome to the OpenCB Suite for whole genome variant analysis.<br />
-                This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
-                pedigrees, case-controls or sporadic samples.
-            </p>
-            <br>
-        </div>`,
+            Welcome to the OpenCB Suite for whole genome variant analysis.
+            This interactive tool allows finding genes affected by deleterious variants that segregate along family pedigrees, case-controls or sporadic samples.
+        `,
     },
     aboutPage: {
         display: {
@@ -272,579 +188,248 @@ const SUITE = {
     userMenu: [
         {id: "account", name: "Your Profile", url: "#account", icon: "fa fa-user", visibility: "private"},
         // {id: "projects", name: "Projects", url: "#projects", icon: "fa fa-database", visibility: "private"},
-        {id: "file-manager", name: "File Manager", url: "#file-manager", icon: "fas fa-folder-open", visibility: "private"}
+        // {id: "file-manager", name: "File Manager", url: "#file-manager", icon: "fas fa-folder-open", visibility: "private"}
     ],
     footer: {
-        display: {
-            backgroundColor: "",
-        },
-        organisation: {
-            logo: {img: "img/opencb-logo.png", height: "20px", link: "https://github.com/opencb/"},
-            text: "",
-            textStyle: "",
-        },
-        project: {
-            logo: {img: "", height: "3rem", link: ""},
-        },
-        opencb: {
-            display: {
-                textColor: "",
-            },
-            logo: {img: "", height: "", link: ""},
-            text: "Powered by OpenCB",
-            link: "https://github.com/opencb/",
-        },
-        custom: "", // Optionally, a custom footer can be added.
+        // display: {
+        //     contentClass: "",
+        // },
+        // content: "",
     },
-    // The order, title and nested submenus are respected
+    sidebar: {
+        organisation: {
+            logo: {
+                img: "img/opencb-icon.png",
+            },
+            menu: [
+                {id: "code", name: "Source code", icon: "fa-code", url: "https://github.com/opencb/jsorolla", tab: true},
+                {id: "documentation", name: "Documentation", icon: "fa-book", url: "http://docs.opencb.org/display/iva", tab: true},
+                {id: "tutorial", name: "Tutorial", icon: "fa-user-graduate", url: "http://docs.opencb.org/display/iva/Tutorials", tab: true},
+                {id: "releases", name: "Releases", icon: "fa-rocket", url: "https://github.com/opencb/jsorolla/releases", tab: true},
+                {id: "about", name: "About", icon: "fa-info-circle", url: "#about", tab: true},
+            ],
+        },
+    },
     apps: [
         {
-            id: "iva",
-            name: "Variant Analysis",
+            id: "research",
+            name: "Research", // Short name of the app. This is the name that will be displayed in the sidebar
+            title: "Research Environment",
+            description: "Explore variants in real-time and execute analysis and tools.",
+            icon: "fa-flask",
+            color: "#3789FB",
             logo: "img/tools/icons/variant_browser_white.svg",
             logoAlt: "img/tools/icons/variant_browser.svg",
-            icon: "img/tools/icons/variant_browser.svg",
             visibility: "public",
             welcomePage: {
-                display: {
-                    logoWidth: "100px",
-                    titleStyle: "text-align:center;",
-                    subtitleStyle: "text-align:center;"
-                },
-                title: "Variant Analysis",
-                subtitle: "Explore variants in real-time and execute analysis",
-                // logo: "img/Zetta_logo.png",
-                logo: "img/tools/icons/variant_browser.svg",
-                content: `
-                    <p class="text-center">
-                        Welcome to the OpenCB Variant Analysis application.<br>
-                        This interactive tool allows browse and run variant analysis.
-                    </p>
-                `,
-                links: [
-                    {title: "Documentation", url: "http://docs.opencb.org/display/iva"},
-                ]
+                title: "Research Environment",
+                subtitle: "Explore and understand the genetic diversity of a population.",
+                // content: `
+                //     Variant Research Environment App implements different tools to focus on the analysis and interpretation of genomic variants
+                //     to understand their role in diseases, traits, and biological processes. It involves the use of our aggregated variant database,
+                //     bioinformatics tools, workflows, notebooks, and computational methods to identify, classify, and study variants for personalized medicine and genetic research.
+                // `,
             },
             menu: [
                 {
                     id: "variant-browser",
                     name: "Variant Browser",
-                    icon: "img/tools/icons/variant_browser.svg",
+                    icon: "fa-dna",
                     visibility: "public",
-                    featured: true,
-                    description: `
-                        <p>Explore all variants identified by the current study.</p>
-                        <ul>
-                            <li>Rich annotation and links to leading reference databases</li>
-                            <li>Filter by gene, consequence, frequency and much more</li>
-                        </ul>
-                    `,
+                    description: "Explore our high-performance and scalable aggregated variant database in real-time.",
                 },
                 {
-                    id: "analysis",
-                    name: "Analysis",
-                    description: "",
-                    icon: "img/tools/icons/aggregation.svg",
+                    id: "analysis-tools",
+                    name: "Analysis Tools",
+                    icon: "fa-tools",
                     visibility: "public",
-                    submenu: [
-                        {
-                            name: "Summary Stats",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "sample-variant-stats",
-                            name: "Sample Variant Stats",
-                            acronym: "SVS",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "cohort-variant-stats",
-                            name: "Cohort Variant Stats",
-                            acronym: "CS",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Association Analysis",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "gwas",
-                            name: "Genome-Wide Association Study (GWAS)",
-                            acronym: "GWAS",
-                            description: "Study of a genome-wide set of genetic variants in different individuals to see if any variant is associated with a trait",
-                            icon: "img/tools/icons/aggregation.svg",
-                            visibility: "public",
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Sample Analysis",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "knockout",
-                            name: "Knockout Analysis",
-                            acronym: "KO",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "sample-eligibility",
-                            name: "Eligibility Analysis",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Individual Analysis",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "inferred-sex",
-                            name: "Sex Inference",
-                            acronym: "SI",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "individual-relatedness",
-                            name: "Relatedness",
-                            acronym: "RL",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "mendelian-error",
-                            name: "Mendelian Errors",
-                            acronym: "ME",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Cancer Analysis",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "mutational-signature",
-                            name: "Mutational Signature",
-                            acronym: "SG",
-                            description: "",
-                            icon: "img/tools/icons/aggregation.svg",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Quality Control",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "sample-qc",
-                            name: "Sample Quality Control",
-                            description: "Calculate different genetic checks and metrics and store data in Sample Catalog",
-                            icon: "img/tools/icons/aggregation.svg",
-                            visibility: "public"
-                        },
-                        {
-                            id: "individual-qc",
-                            name: "Individual Quality Control",
-                            description: "Calculate different genetic checks and metrics and store data in Individual Catalog",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "family-qc",
-                            name: "Family Quality Control",
-                            description: "Calculate different genetic checks and metrics and store data in Family Catalog",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Export",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "variant-export",
-                            name: "Variant Export",
-                            acronym: "EX",
-                            description: `
-                                Filter and export variants, with their annotation and sample genotypes,
-                                from the Variant Storage to a file in multiple supported formats (vcf, json, tped, ensembl vep tab...)
-                                for being shared or processed by an external tool.
-                            `,
-                            icon: "img/tools/icons/aggregation.svg",
-                            visibility: "public"
-                        },
-                        {
-                            id: "variant-stats-exporter",
-                            name: "Variant Stats Export",
-                            acronym: "VSE",
-                            description: "Export variant stats for different cohorts",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "External Tools",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "beacon",
-                            name: "GA4GH Beacon",
-                            description: `
-                                <ul>
-                                    <li>Federated search from the Global Alliance for Genomics and Health</li>
-                                    <li>Find databases that have information about specific variants</li>
-                                </ul>`,
-                            thumbnail: "beacon.png",
-                            fa_icon: "fa fa-globe-europe",
-                            icon: "beacon.svg",
-                            visibility: "public"
-                        },
-                        {
-                            id: "plink",
-                            name: "Plink",
-                            acronym: "Pl",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "gatk",
-                            name: "GATK",
-                            acronym: "GT",
-                            description: "",
-                            icon: "",
-                            visibility: "public"
-                        },
-                    ]
+                    description: "Execute analysis tools using data of the current study.",
                 },
                 {
-                    id: "alignment",
-                    name: "Alignment",
-                    description: "",
-                    icon: "img/tools/icons/alignment.svg",
-                    visibility: "none",
-                    submenu: [
-                        {
-                            name: "Data Management",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "alignment-index",
-                            name: "Alignment Index",
-                            description: "Create a .bai index file.",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "coverage-index",
-                            name: "Coverage Index",
-                            description: "Precompute coverage in a BigWig file",
-                            icon: "",
-                            visibility: "public"
-                        },
-                        {
-                            separator: true,
-                            visibility: "public"
-                        },
-                        {
-                            name: "Summary Stats",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "alignment-stats",
-                            name: "Alignment Stats",
-                            description: "Compute BAM stats using samtools",
-                            icon: "",
-                            visibility: "public"
-                        }
-                    ]
+                    id: "workflow-manager",
+                    name: "Workflow Manager",
+                    icon: "fa-stream",
+                    visibility: "public",
+                    description: "Build, import and execute NextFlow workflows.",
                 },
                 {
-                    id: "tools",
-                    name: "Other Tools",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    visibility: "none",
-                    submenu: [
-                        {
-                            id: "rga",
-                            name: "Recessive Variant Analysis",
-                            acronym: "",
-                            icon: "",
-                            description: "",
-                            visibility: "public"
-                        },
-                        {
-                            id: "beacon",
-                            name: "GA4GH Beacon",
-                            description: `
-                                <ul>
-                                    <li>Federated search from the Global Alliance for Genomics and Health</li>
-                                    <li>Find databases that have information about specific variants</li>
-                                </ul>`,
-                            thumbnail: "beacon.png",
-                            fa_icon: "fa fa-globe-europe",
-                            icon: "beacon.svg",
-                            visibility: "public"
-                        }
-                        // {
-                        //     id: "genomeBrowser",
-                        //     title: "Genome Browser",
-                        //     acronym: "GB",
-                        //     description: `<ul>
-                        //                     <li>Based on Genome Maps (http://genomemaps.org)</li>
-                        //                     <li>Smooth, interactive variant visualisation</li>
-                        //                     </ul>`,
-                        //     visibility: "private",
-                        //     thumbnail: "screenshot3.png",
-                        //     fa_icon: "fa fa-globe-europe",
-                        //     icon: "genome_browser.svg"
-                        //
-                        // },
-                    ]
+                    id: "tool-analysis",
+                    name: "Custom Tool",
+                    icon: "fa-rocket",
+                    visibility: "public",
+                    description: "Execute your own custom tools easily in the cloud.",
                 },
-                CATALOG_NAVBAR_MENU,
+                {
+                    id: "jupyter-lab",
+                    name: "Jupyter Lab Notebooks",
+                    icon: "fa-book",
+                    visibility: "public",
+                    description: "Create, share, and execute Jupyter Notebooks with Python.",
+                },
+                // {
+                //     id: "my-analysis",
+                //     name: "My Analysis",
+                //     icon: "fa-cog",
+                //     visibility: "public",
+                //     description: "Explore and manage all your exceuted analysis.",
+                // },
+                {
+                    id: "cohort-browser",
+                    name: "Cohort Manager",
+                    icon: "fa-search",
+                    visibility: "public",
+                    description: "Explore and manage all cohorts in the current study.",
+                },
             ],
-            fileExplorer: {
-                visibility: "private"
-            },
-            jobMonitor: {
-                visibility: "private"
-            },
-            // TODO This option seems to be deprecated, do we need to keep it?
-            search: {
-                placeholder: "Search",
-                visible: false
-            },
         },
         {
             id: "clinical",
-            name: "Clinical Analysis",
+            name: "Clinical",
+            title: "Clinical Analysis",
+            description: "Create cases, execute clinical interpretations, and create clinical reports.",
+            icon: "fa-stethoscope",
+            color: "#FA8938",
             logo: "img/tools/icons/interpretation_portal_white.svg",
             logoAlt: "img/tools/icons/interpretation_portal.svg",
-            icon: "img/tools/icons/interpretation_portal.svg",
             visibility: "public",
             welcomePage: {
                 title: "Clinical Analysis",
-                display: {
-                    titleStyle: "text-align:center;",
-                    subtitleStyle: "text-align:center;",
-                    logoWidth: "100px",
-                },
-                subtitle: "Interactive Case Interpreter",
-                // logo: "img/Zetta_logo.png",
-                logo: "img/tools/icons/interpretation_portal.svg",
-                content: `
-                    <p class="text-center">
-                        Welcome to the OpenCB Clinical Analysis Application
-                        <br>
-                        This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
-                    </p>`
+                subtitle: "Combine genetic and clinical data to interpret a case and gain insights for a diagnosis.",
+                // content: `
+                //     Welcome to the OpenCB Clinical Analysis Application.
+                //     This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
+                // `,
             },
             menu: [
                 {
-                    id: "clinicalAnalysisPortal",
+                    id: "clinical-analysis-portal",
                     name: "Case Interpreter Portal",
-                    icon: "img/tools/icons/interpretation_portal.svg",
-                    description: `
-                        <p>Explore and review Clinical Interpretations analysis</p>
-                        <ul>
-                            <li>Filter by gene, consequence, frequency and much more.</li>
-                            <li>Create clinical interpretations and reports.</li>
-                        </ul>
-                    `,
+                    icon: "fa-file-medical",
                     visibility: "public",
-                    thumbnail: "interpretation_portal.png",
-                    featured: true,
+                    description: "Explore and review Clinical Interpretations: filter by gene, consequence, frequency, and create clinical interpretations and reports.",
                 },
                 {
-                    id: "clinical",
-                    name: "Management",
-                    icon: "img/tools/icons/interpretation_portal.svg",
+                    id: "disease-panel-browser",
+                    name: "Disease Panel Browser",
+                    icon: "fa-th-list",
                     visibility: "public",
-                    submenu: [
-                        {
-                            name: "Case Management",
-                            category: true,
-                            visibility: "public"
-                        },
-                        {
-                            id: "clinical-analysis-create",
-                            name: "Create Case",
-                            icon: "img/tools/icons/genome_browser.svg",
-                            description: `
-                                <p>Create a clinical Case</p>
-                                <ul>
-                                    <li>Execute clinical interpretations analysis.</li>
-                                    <li>Create clinical reports.</li>
-                                </ul>
-                            `,
-                            visibility: "public",
-                            featured: true,
-                        }
-                    ]
+                    description: "Explore, manage, and create any Disease Panel associated with the active Study.",
                 },
-                CATALOG_NAVBAR_MENU
+                {
+                    id: "cvdb-browser",
+                    name: "Clinical Variant DB",
+                    icon: "fa-database",
+                    visibility: "none",
+                    description: "Explore and review relevant information from your clinical analysis: interpretations, variants, and variant evidence.",
+                },
             ],
-            fileExplorer: {
-                visibility: "private"
+        },
+        {
+            id: "catalog",
+            name: "Catalog",
+            title: "Data Catalog",
+            description: "Manage and explore your data, files, samples, individuals, and families.",
+            icon: "fa-archive",
+            color: "#15D0C1",
+            logo: "img/tools/icons/interpretation_portal_white.svg",
+            logoAlt: "img/tools/icons/interpretation_portal.svg",
+            visibility: "public",
+            welcomePage: {
+                title: "Data Catalog",
+                subtitle: "Explore and manage all relevant metadata and clinical information.",
+                // content: `
+                //     Welcome to the Data Catalog Application.
+                //     This app allows clinicians to create cases, execute clinical interpretations and create clinical reports.
+                // `,
             },
-            jobMonitor: {
-                visibility: "private"
-            },
-            search: {
-                placeholder: "Search",
-                visible: false
-            },
+            menu: [
+                {
+                    id: "sample-browser",
+                    name: "Sample Browser",
+                    icon: "fa-vial",
+                    visibility: "public",
+                    description: "Explore and manage all samples in the current study.",
+                },
+                {
+                    id: "individual-browser",
+                    name: "Individual Browser",
+                    icon: "fa-user",
+                    visibility: "public",
+                    description: "Explore and manage all individuals in the current study.",
+                },
+                {
+                    id: "family-browser",
+                    name: "Family Browser",
+                    icon: "fa-users",
+                    visibility: "public",
+                    description: "Explore and manage all families in the current study.",
+                },
+                {
+                    id: "note-browser",
+                    name: "Note Browser",
+                    icon: "fa-sticky-note",
+                    visibility: "public",
+                    description: "Explore and manage all notes in the current study.",
+                },
+                {
+                    id: "job-browser",
+                    name: "Job Browser",
+                    icon: "fa-rocket",
+                    visibility: "public",
+                    description: "Explore and manage all jobs in the current study.",
+                },
+                {
+                    id: "file-manager",
+                    name: "File Manager",
+                    icon: "fa-folder",
+                    visibility: "public",
+                    description: "Manage your data in the cloud.",
+                },
+            ],
         },
         {
             id: "admin",
             name: "Admin",
+            icon: "fa-user-cog",
+            color: "#9C64F7",
+            description: "Administration tools for managing users, projects, and studies.",
             logo: "img/tools/icons/file_explorer_white.svg",
             logoAlt: "img/tools/icons/file_explorer.svg",
-            icon: "img/tools/icons/file_explorer.svg",
             visibility: "public",
             welcomePage: {
-                display: {
-                    titleStyle: "text-align:center;",
-                    subtitleStyle: "text-align:center;",
-                    logoWidth: "100px",
-                },
                 title: "Admin",
-                // subtitle: "",
-                logo: "img/tools/icons/file_explorer.svg",
-                content: `
-                    <p class="text-center">
-                        Welcome to the OpenCB Administration Application
-                    </p>
-                    <br>`
+                subtitle: "Perform all the administrative tasks for your Organization or Study.",
             },
             menu: [
                 {
                     id: "organization-admin",
-                    name: "Organizations Admin",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
+                    name: "Organization Admin",
+                    icon: "fa-building",
+                    description: "Manage the configuration of the current Organization.",
                     visibility: "public",
-                    featured: true,
                 },
                 {
                     id: "study-admin",
                     name: "Study Admin",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
+                    icon: "fa-file-invoice",
+                    description: "Manage the configuration of the current study.",
                     visibility: "public",
-                    featured: true,
                 },
-                // {
-                //     id: "variant-admin",
-                //     name: "Variant database",
-                //     fa_icon: "fas fa-file-invoice",
-                //     icon: "img/tools/icons/variant_browser.svg",
-                //     description: "",
-                //     visibility: "public",
-                //     featured: false,
-                // },
                 {
                     id: "study-admin-iva",
                     name: "IVA Configuration",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
+                    icon: "fa-cogs",
+                    description: "Manage the configuration of the current IVA instance.",
                     visibility: "public",
-                    featured: false,
                 },
-                // {
-                //     id: "catalog-admin",
-                //     name: "Catalog Management",
-                //     fa_icon: "fas fa-file-invoice",
-                //     icon: "img/tools/icons/variant_browser.svg",
-                //     description: "",
-                //     visibility: "public",
-                //     featured: false,
-                // },
-                // {
-                //     id: "study-variant-admin",
-                //     name: "Study Variant Admin",
-                //     fa_icon: "fas fa-file-invoice",
-                //     icon: "img/tools/icons/variant_browser.svg",
-                //     description: "",
-                //     visibility: "public",
-                //     featured: true,
-                // },
                 {
                     id: "operations-admin",
-                    name: "Operations Admin",
-                    fa_icon: "fas fa-file-invoice",
-                    icon: "img/tools/icons/variant_browser.svg",
-                    description: "",
+                    name: "Variant Operations",
+                    icon: "fa-server",
+                    description: "Execute variant operations in the current Organization or study.",
                     visibility: "public",
-                    featured: true,
                 },
-                // {
-                //     id: "projects-admin",
-                //     name: "Project Manager",
-                //     fa_icon: "fas fa-file-invoice",
-                //     icon: "img/tools/icons/variant_browser.svg",
-                //     description: "",
-                //     visibility: "public",
-                //     featured: true,
-                // },
             ],
-            fileExplorer: {
-                visibility: "private"
-            },
-            jobMonitor: {
-                visibility: "none"
-            },
-            search: {
-                placeholder: "Search",
-                visible: false
-            },
         }
     ]
 };

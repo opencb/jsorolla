@@ -45,6 +45,7 @@ export default class ProjectCreate extends LitElement {
     #init() {
         this.#initOriginalObject();
         this.isLoading = false;
+        this.apiKeyProject = null;
         this.displayConfigDefault = {
             style: "margin: 10px",
             titleWidth: 3,
@@ -54,17 +55,18 @@ export default class ProjectCreate extends LitElement {
     }
 
     #initOriginalObject() {
-        this.project = {
+        this._project = {
             organism: {
                 scientificName: "Homo sapiens",
                 assembly: "GRCh38",
             },
             cellbase: {
                 url: "https://ws.zettagenomics.com/cellbase",
-                version: "v5.8"
+                version: "v5.8",
+                dataRelease: "8",
+                apiKey: ""
             }
         };
-        this._project = UtilsNew.objectClone(this.project);
     }
 
     #setLoading(value) {
@@ -79,6 +81,10 @@ export default class ProjectCreate extends LitElement {
                 ...this.displayConfig,
             };
             this._config = this.getDefaultConfig();
+        }
+        if (changedProperties.has("opencgaSession")) {
+            this.apiKeyProject = this.opencgaSession.projects.find(p => !!p.cellbase.apiKey);
+            this._project.cellbase.apiKey = this.apiKeyProject?.cellbase?.apiKey || "";
         }
         super.update(changedProperties);
     }
@@ -161,6 +167,7 @@ export default class ProjectCreate extends LitElement {
                             name: "Name",
                             field: "name",
                             type: "input-text",
+                            required: true,
                             display: {
                                 placeholder: "Project name...",
                             }
@@ -168,7 +175,8 @@ export default class ProjectCreate extends LitElement {
                         {
                             name: "Species",
                             field: "organism.scientificName",
-                            type: "input-text",
+                            type: "select",
+                            allowedValues: ["Homo sapiens", "Mus musculus"],
                             required: true,
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
@@ -177,11 +185,19 @@ export default class ProjectCreate extends LitElement {
                         {
                             name: "Species Assembly",
                             field: "organism.assembly",
-                            type: "input-text",
+                            type: "select",
                             required: true,
-                            display: {
-                                placeholder: "e.g. GRCh38",
-                            }
+                            allowedValues: data => {
+                                switch (data.organism.scientificName.toUpperCase()) {
+                                    case "HOMO SAPIENS":
+                                        return ["GRCh37", "GRCh38"];
+                                    case "MUS MUSCULUS":
+                                        return ["GRCm39"];
+                                    default:
+                                        return [];
+                                }
+                            },
+                            display: {}
                         },
                         {
                             title: "Cellbase",
@@ -193,21 +209,35 @@ export default class ProjectCreate extends LitElement {
                                     field: "cellbase.url",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add an URL",
+                                        placeholder: "Add CellBase server URL",
                                     }
                                 },
                                 {
                                     title: "Version",
                                     field: "cellbase.version",
                                     type: "select",
-                                    // FIXME Vero 20240712: Waiting for Nacho's advise
-                                    //  Can they be queried? In cellbase more versions are responding:
-                                    //  5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.8
-                                    //  https://ws.zettagenomics.com/cellbase/webservices/#!/Gene/getInfo_1
-                                    allowedValues: ["v5.0", "v5.1", "v5.2", "v5.8"],
+                                    allowedValues: ["v5.2", "v5.8"],
                                     defaultValue: "v5.8",
+                                    display: {}
+                                },
+                                {
+                                    title: "Data Release",
+                                    field: "cellbase.dataRelease",
+                                    type: "input-text",
+                                    display: {}
+                                },
+                                {
+                                    title: "API Key",
+                                    field: "cellbase.apiKey",
+                                    type: "input-text",
                                     display: {
-                                        // placeholder: "Add version"
+                                        helpMessage: () => {
+                                            if (this.apiKeyProject) {
+                                                return `This API Key has been taken from the project: '${this.apiKeyProject.id}'`;
+                                            } else {
+                                                return "Add your CellBase API key (optional)"
+                                            }
+                                        },
                                     }
                                 },
                             ]

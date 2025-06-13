@@ -55,6 +55,7 @@ export default class WebUtils {
             "STUDY": "STUDIES",
             "USER": "USERS",
             "NOTE": "NOTE",
+            "WORKFLOW": "WORKFLOWS",
         };
         return (resource && mapResourcePermissionId[resource] && mode) ? `${mode.toUpperCase()}_${mapResourcePermissionId[resource]}` : "";
     }
@@ -64,38 +65,21 @@ export default class WebUtils {
         let queryStr = "";
         // Check if query object has been provided
         if (query) {
-            const keys = Object.keys(query);
-            // Special case: only id field is in the query
-            if (keys.length === 1 && keys[0] === "id") {
-                queryStr = query.id;
-            } else {
-                queryStr = (new URLSearchParams(query)).toString();
-            }
+            queryStr = "?" + (new URLSearchParams(query)).toString();
         }
-        return `${baseUrl}#${tool}/${opencgaSession.project.id}/${opencgaSession.study.id}/${queryStr}`;
+        return `${baseUrl}#${tool}/${opencgaSession.project.id}/${opencgaSession.study.id}${queryStr}`;
     }
 
-    static jobStatusFormatter(status, appendDescription = false) {
-        const description = appendDescription && status?.description ? `<br>${status.description}` : "";
-        const statusId = status.id;
-        switch (statusId) {
-            case "PENDING":
-            case "QUEUED":
-                return `<span class="text-primary"><i class="far fa-clock me-1"></i> ${statusId}${description}</span>`;
-            case "RUNNING":
-                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate me-1"></i> ${statusId}${description}</span>`;
-            case "DONE":
-                return `<span class="text-success"><i class="fas fa-check-circle me-1"></i> ${statusId}${description}</span>`;
-            case "ERROR":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i> ${statusId}${description}</span>`;
-            case "UNKNOWN":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i> ${statusId}${description}</span>`;
-            case "ABORTED":
-                return `<span class="text-warning"><i class="fas fa-ban me-1"></i> ${statusId}${description}</span>`;
-            case "DELETED":
-                return `<span class="text-primary"><i class="fas fa-trash-alt me-1"></i> ${statusId}${description}</span>`;
-        }
-        return "-";
+    static getInterpreterLink(opencgaSession, caseId = "") {
+        const hashItems = [
+            // ...window.location.hash.replace("#", "").split("/").slice(0, -3), // '#clinical/portal/project/study' --> ['clinical']
+            "clinical",
+            "interpreter",
+            opencgaSession?.project?.id || "",
+            opencgaSession?.study?.id || "",
+        ];
+
+        return `#${hashItems.filter(Boolean).join("/")}${!!caseId ? "?id=" + caseId : ""}`;
     }
 
     static getClinicalAnalysisPriorityColour(rank) {
@@ -108,6 +92,12 @@ export default class WebUtils {
         };
 
         return priorityRankToColor[rank] ?? "";
+    }
+
+    static getResponseEvents(response) {
+        return [...(response?.events || []), ...(response?.responses?.[0]?.events || [])].filter(event => {
+            return event && !!event.message;
+        });
     }
 
 }

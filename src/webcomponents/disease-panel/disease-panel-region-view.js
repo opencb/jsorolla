@@ -17,7 +17,7 @@
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
-import "../commons/opencb-grid-toolbar.js";
+import "../commons/grid-toolbar.js";
 
 
 export default class DiseasePanelRegionView extends LitElement {
@@ -207,14 +207,14 @@ export default class DiseasePanelRegionView extends LitElement {
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
+                <grid-toolbar
                     .config="${this.toolbarConfig}"
                     .query="${this.query}"
                     .opencgaSession="${this.opencgaSession}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
                     @export="${this.onDownload}">
-                </opencb-grid-toolbar>
+                </grid-toolbar>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">

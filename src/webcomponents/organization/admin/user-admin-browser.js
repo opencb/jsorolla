@@ -17,7 +17,6 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import UtilsNew from "../../../core/utils-new.js";
 import "./user-admin-grid.js";
 
 export default class UserAdminBrowser extends LitElement {
@@ -40,9 +39,6 @@ export default class UserAdminBrowser extends LitElement {
             study: {
                 type: Object,
             },
-            organization: {
-                type: Object,
-            },
             opencgaSession: {
                 type: Object,
             },
@@ -55,20 +51,14 @@ export default class UserAdminBrowser extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "user-admin-browser";
-        this.users = [];
         this._config = this.getDefaultConfig();
-        this.isLoading = false;
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -80,46 +70,38 @@ export default class UserAdminBrowser extends LitElement {
     }
 
     // Vero 09072024 Note: Maintained for future use of this component in the Study Admin
-    studyIdObserver() {
-        if (this.studyId && this.opencgaSession) {
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.studies()
-                .info(this.studyId)
-                .then(response => {
-                    this._study = UtilsNew.objectClone(response.responses[0].results[0]);
-                })
-                .catch(reason => {
-                    this._study = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "studyChange", this.study, {}, error);
-                    this.#setLoading(false);
-                });
-        } else {
-            this._study = {};
-        }
-    }
-
-    renderFilterGraphics() {
-        if (this._config.showGraphicFilters) {
-            return html `
-            <!--<graphic-filter></graphic-filter>-->
-        `;
-        }
-    }
+    // studyIdObserver() {
+    //     if (this.studyId && this.opencgaSession) {
+    //         let error;
+    //         this.opencgaSession.opencgaClient.studies()
+    //             .info(this.studyId)
+    //             .then(response => {
+    //                 this._study = UtilsNew.objectClone(response.responses[0].results[0]);
+    //             })
+    //             .catch(reason => {
+    //                 this._study = {};
+    //                 error = reason;
+    //                 console.error(reason);
+    //             })
+    //             .finally(() => {
+    //                 this._config = this.getDefaultConfig();
+    //                 LitUtils.dispatchCustomEvent(this, "studyChange", this.study, {}, error);
+    //             });
+    //     } else {
+    //         this._study = {};
+    //     }
+    // }
 
     render() {
+        if (!this.opencgaSession) {
+            return nothing;
+        }
+
         return html `
-            <!-- 1. Render filter graphics if enabled -->
-            ${this.renderFilterGraphics()}
-            <!-- 2. Render grid -->
+            <h2 class="fw-bold mb-0">${this._config.title}</h2>
             <user-admin-grid
                 .toolId="${this.COMPONENT_ID}"
-                .organization="${this.organization}"
+                .organization="${this.opencgaSession?.organization}"
                 .opencgaSession="${this.opencgaSession}"
                 .active="${true}">
             </user-admin-grid>
@@ -128,7 +110,7 @@ export default class UserAdminBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            showGraphicFilters: false,
+            title: "Manage Users",
         };
     }
 

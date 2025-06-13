@@ -327,7 +327,6 @@ class VariantInterpreter extends LitElement {
                         <div id="${this._prefix}report" >
                             <div class="col-md-10 offset-md-1">
                                 <tool-header
-                                    class="bg-white"
                                     title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
                                 </tool-header>
                                 <clinical-analysis-review
@@ -365,6 +364,10 @@ class VariantInterpreter extends LitElement {
     }
 
     renderToolbarRightContent() {
+        // Note: we have to maintain the URL structure, so if we are inside an app we have to maintain the app
+        const hashItems = window.location.hash.replace("#", "").split("/");
+        const exitUrl = "#" + [...hashItems.slice(0, -3), "clinical-analysis-portal", this.opencgaSession.project.id, this.opencgaSession.study.id].join("/");
+
         return html`
             <div class="d-flex align-items-center">
                 ${this.clinicalAnalysis?.interpretation ? html`
@@ -432,7 +435,7 @@ class VariantInterpreter extends LitElement {
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
-                            <a class="dropdown-item" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                            <a class="dropdown-item" href="${exitUrl}">
                                 <i class="fas fa-sign-out-alt pe-1"></i> Exit Interpreter
                             </a>
                         </li>
