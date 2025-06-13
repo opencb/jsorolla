@@ -218,7 +218,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
     }
 
     onEvidenceSelect(event, evidence, index) {
-        this._selectedEvidence = UtilsNew.objectClone(evidence);
+        this._selectedEvidence = evidence;
         this._selectedEvidenceIndex = index;
         this.requestUpdate();
         // mark the evidence row as selected
@@ -232,10 +232,11 @@ export default class VariantReviewEvidencesGrid extends LitElement {
         this.requestUpdate();
         // unmark the evidence row as selected
         this.querySelector(`#${this._gridId} tbody tr.selected`)?.classList.remove("selected");
+        this.table.bootstrapTable("refresh");
     }
 
     onEvidenceReviewChange(event) {
-        console.log(event.detail);
+        this._selectedEvidence.review = event.detail.review;
     }
 
     render() {
