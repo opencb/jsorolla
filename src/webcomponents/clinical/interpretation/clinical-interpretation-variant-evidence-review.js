@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/filters/acmg-filter.js";
@@ -68,40 +68,36 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
         this._review = UtilsNew.objectClone(this.review);
     }
 
-    onFieldChange(e, field) {
-        const param = (field || e.detail.param);
+    onFieldChange(event) {
+        const param = event.detail.param;
 
-        switch (param) {
-            case "selected":
-                // If the field is selected, we need to refresh the configuration
-                this._config = this.getDefaultConfig();
-                break;
-            case "clinicalSignificance":
-                // Fix clinical significance value --> must be in uppercase
-                this._review.clinicalSignificance = typeof e.detail.value === "string" ? e.detail.value.toUpperCase() : e.detail.value;
-                break;
-            case "discussion.text":
-                if (typeof this.updateParams?.discussion?.text !== "undefined") {
-                    this.review.discussion.author = this.opencgaSession.user?.id || "-";
-                    this.review.discussion.date = UtilsNew.getDatetime();
-                } else {
-                    // We need to reset discussion author and date
-                    this.review.discussion.author = this._review.discussion?.author;
-                    this.review.discussion.date = this._review.discussion?.date;
-                }
-                break;
-            case param.match(/^acmg/)?.input:
+        if (param === "selected") {
+            // If the field is selected, we need to refresh the configuration
+            this._config = this.getDefaultConfig();
+        } else if (param === "clinicalSignificance") {
+            // Fix clinical significance value --> must be in uppercase
+            this._review.clinicalSignificance = typeof event.detail.value === "string" ? event.detail.value.toUpperCase() : event.detail.value;
+        } else if (param === "discussion.text") {
+            if (typeof this.updateParams?.discussion?.text !== "undefined") {
+                this._review.discussion.author = this.opencgaSession.user?.id || "-";
+                this._review.discussion.date = UtilsNew.getDatetime();
+            } else {
+                // We need to reset discussion author and date
+                this._review.discussion.author = this.review.discussion?.author;
+                this._review.discussion.date = this.review.discussion?.date;
+            }
+        } else if (param.startsWith("acmg")) {
+            if (event.detail.action === "ADD") {
                 // Assign ACMG comment author and date (similar as implemented in TASK-1473)
-                const lastReview = this.review.acmg[this.review.acmg.length - 1];
-                this.review.acmg[this.review.acmg.length - 1] = {
-                    ...lastReview,
-                    author: this.opencgaSession?.user?.id || "-",
-                    date: UtilsNew.getDatetime(),
-                };
-                this._review = {...this._review};
-                break;
+                const lastAcmgReview = this._review.acmg[this._review.acmg.length - 1];
+                lastAcmgReview.author = this.opencgaSession?.user?.id || "-";
+                lastAcmgReview.date = UtilsNew.getDatetime();
+            }
+            // we need to clone the review object to trigger the update
+            this._review = {...this._review};
         }
 
+        // dispatch a review change event
         LitUtils.dispatchCustomEvent(this, "evidenceReviewChange", null, {
             value: this._review
         });
