@@ -218,7 +218,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
     }
 
     onEvidenceSelect(event, evidence, index) {
-        this._selectedEvidence = evidence;
+        this._selectedEvidence = UtilsNew.objectClone(evidence);
         this._selectedEvidenceIndex = index;
         this.requestUpdate();
         // mark the evidence row as selected
