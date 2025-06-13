@@ -259,7 +259,6 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                         <clinical-interpretation-variant-evidence-review
                             .opencgaSession="${this.opencgaSession}"
                             .review="${this._selectedEvidence?.review}"
-                            .somatic="${this.clinicalAnalysis.type === "CANCER"}"
                             .displayConfig="${{
                                 defaultLayout: "vertical",
                             }}"
