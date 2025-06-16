@@ -158,7 +158,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                             type: "select",
                             allowedValues: CLINICAL_SIGNIFICANCE,
                             display: {
-                                disabled: !this._review?.selected,
+                                disabled: !this._review?.select,
                             },
                             // type: "custom",
                             // display: {
@@ -178,7 +178,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                             type: "input-text",
                             display: {
                                 rows: 1,
-                                disabled: !this._review?.selected,
+                                disabled: !this._review?.select,
                             },
                         },
                         {
@@ -189,7 +189,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 showEditItemListButton: true,
                                 showDeleteItemListButton: true,
-                                disabled: !this._review?.selected,
+                                disabled: !this._review?.select,
                                 view: acmg => html `
                                     <div style="margin-bottom:1rem;">
                                         <div>
@@ -249,7 +249,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                 placeholder: "Add a discussion",
                                 rows: 5,
                                 helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
-                                disabled: !this._review?.selected,
+                                disabled: !this._review?.select,
                             },
                         },
                     ]
