@@ -152,6 +152,11 @@ export default class VariantReview extends LitElement {
         this.dispatchChange();
     }
 
+    onEvidenceChange(event) {
+        this._variant.evidences[event.detail.index] = event.detail.evidence;
+        this.dispatchChange();
+    }
+
     renderVariantSelect() {
         return html`
             <div class="alert ${this._selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-2 flex-grow-1">
@@ -326,7 +331,8 @@ export default class VariantReview extends LitElement {
                             .active="${active}"
                             .config="${{
                                 review: this._selected,
-                            }}">
+                            }}"
+                            @evidenceChange="${event => this.onEvidenceChange(event)}">
                         </variant-review-evidences-grid>
                     `,
                 },
