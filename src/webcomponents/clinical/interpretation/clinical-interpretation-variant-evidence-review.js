@@ -71,7 +71,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
     onFieldChange(event) {
         const param = event.detail.param;
 
-        if (param === "selected") {
+        if (param === "select") {
             // If the field is selected, we need to refresh the configuration
             this._config = this.getDefaultConfig();
         } else if (param === "clinicalSignificance") {
@@ -129,7 +129,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                 {
                     elements: [
                         {
-                            field: "selected",
+                            field: "select",
                             type: "custom",
                             display: {
                                 render: (selected, dataFormFilterChange) => html`
