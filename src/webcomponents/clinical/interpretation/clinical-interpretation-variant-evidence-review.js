@@ -156,7 +156,13 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                             title: "Clinical Significance",
                             field: "clinicalSignificance",
                             type: "select",
-                            allowedValues: CLINICAL_SIGNIFICANCE,
+                            // Note: clinicalSignificante ids must be in uppercase
+                            allowedValues: CLINICAL_SIGNIFICANCE.map(item => {
+                                return {
+                                    id: item.id.toUpperCase(),
+                                    name: item.name || item.id,
+                                };
+                            }),
                             display: {
                                 disabled: !this._review?.select,
                             },
