@@ -1,6 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
@@ -218,7 +219,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
     }
 
     onEvidenceSelect(event, evidence, index) {
-        this._selectedEvidence = evidence;
+        this._selectedEvidence = this.variant.evidences[index];
         this._selectedEvidenceIndex = index;
         this.requestUpdate();
         // mark the evidence row as selected
@@ -237,6 +238,10 @@ export default class VariantReviewEvidencesGrid extends LitElement {
 
     onEvidenceReviewChange(event) {
         this._selectedEvidence.review = event.detail.review;
+        LitUtils.dispatchCustomEvent(this, "evidenceChange", {
+            evidence: this._selectedEvidence,
+            index: this._selectedEvidenceIndex,
+        });
     }
 
     render() {
