@@ -231,13 +231,15 @@ export default class VariantReviewEvidencesGrid extends LitElement {
         this._selectedEvidence = null;
         this._selectedEvidenceIndex = null;
         this.requestUpdate();
-        // unmark the evidence row as selected
-        this.querySelector(`#${this._gridId} tbody tr.selected`)?.classList.remove("selected");
-        this.table.bootstrapTable("refresh");
+        // force to update the local evidences table after finishing the update
+        this.updateComplete.then(() => {
+            this.renderLocalEvidences();
+        });
     }
 
     onEvidenceReviewChange(event) {
-        this._selectedEvidence.review = event.detail.review;
+        // note: using object.assign to avoid overwriting the review object reference
+        Object.assign(this._selectedEvidence.review, event.detail.review);
         LitUtils.dispatchCustomEvent(this, "evidenceChange", {
             evidence: this._selectedEvidence,
             index: this._selectedEvidenceIndex,
