@@ -191,6 +191,10 @@ export default class VariantInterpreterGrid extends LitElement {
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .variant="${this._selectedVariant}"
                         .selected="${this._selectedVariantChecked}"
+                        .settings="${{
+                            geneSet: this._config?.geneSet,
+                            consequenceType: this._config?.consequenceType,
+                        }}"
                         @variantChange="${event => this.onVariantReviewChange(event)}">
                     </variant-review>
                 `,
