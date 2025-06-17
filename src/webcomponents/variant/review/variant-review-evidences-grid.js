@@ -425,6 +425,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                     title: "ACMG",
                     rowspan: 1,
                     colspan: 1,
+                    align: "center",
                     formatter: (value, row) => this.predictionFormatter(row.review),
                 },
                 {
@@ -432,6 +433,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                     title: "Tier",
                     rowspan: 1,
                     colspan: 1,
+                    align: "center",
                     formatter: (value, row) => this.tierFormatter(row),
                 },
             ],
