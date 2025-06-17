@@ -305,7 +305,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
 
         return html`
             <div class="d-flex flex-row gap-4" style="min-width:0px;">
-                <div class="">
+                <div class="w-full">
                     <div id="${this._gridId}Filters" class="mb-2"></div>
                     <div class="w-full overflow-y-auto">
                         <table id="${this._gridId}"></table>
