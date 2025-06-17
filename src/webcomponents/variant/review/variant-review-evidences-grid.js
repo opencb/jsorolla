@@ -5,6 +5,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
+import VariantInterpreterGridFormatter from "../interpretation/variant-interpreter-grid-formatter.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
 
 export default class VariantReviewEvidencesGrid extends LitElement {
@@ -43,6 +44,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
         this.table = null;
         this.gridCommons = null;
 
+        this._evidences = [];
         this._prefix = UtilsNew.randomString(8);
         this._gridId = this._prefix + "EvidencesGrid";
         this._selectedEvidence = null;
@@ -58,6 +60,10 @@ export default class VariantReviewEvidencesGrid extends LitElement {
             };
         }
 
+        if (changedProperties.has("variant") || changedProperties.has("config")) {
+            this.filterEvidences();
+        }
+
         super.update(changedProperties);
     }
 
@@ -67,21 +73,67 @@ export default class VariantReviewEvidencesGrid extends LitElement {
         }
     }
 
+    filterEvidences() {
+        this._evidences = [];
+        // 1. we need to prepare evidences to be filtered properly,
+        // the easiest way is to recycle the existing function 'consequenceTypeDetailFormatterFilter',
+        // so we need to add consequenceType information
+        const evidences = [];
+        const transcriptMap = new Map();
+        this.variant.annotation.consequenceTypes.forEach(consequenceType => {
+            transcriptMap.set(consequenceType.transcriptId, consequenceType);
+        });
+        (this.variant?.evidences || []).map((evidence, index) => {
+            // we are missing regulatory variants
+            if (evidence.genomicFeature?.transcriptId) {
+                evidences.push({
+                    index: index,
+                    ...evidence,
+                    ...transcriptMap.get(evidence.genomicFeature.transcriptId)
+                });
+            }
+        });
+        // 2. we need to sort the evidences by gene name
+        BioinfoUtils.sort(evidences, evidence => evidence.genomicFeature?.geneName);
+        // 3. filter the evidences using the consequenceTypeDetailFormatterFilter
+        const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(evidences, this._config).indexes;
+        this._evidences = showArrayIndexes.map(index => {
+            return evidences[index];
+        });
+    }
+
     renderLocalEvidences() {
         this.table = $("#" + this._gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             classes: "table table-borderless table-hover table-grid",
             buttonsClass: "light",
-            data: this.variant?.evidences || [],
+            // data: this.variant?.evidences || [],
             columns: this.getDefaultColumns(),
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
             uniqueId: "id",
+            sidePagination: "server",
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             paginationVAlign: "bottom",
+            ajax: params => {
+                const tableOptions = $(this.table).bootstrapTable("getOptions");
+                const limit = params.data.limit || tableOptions.pageSize;
+                const skip = params.data.offset || 0;
+                const rows = this._evidences.slice(skip, skip + limit);
+
+                return params.success(rows);
+            },
+            // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
+            responseHandler: response => {
+                return {
+                    total: this._evidences.length,
+                    rows: response,
+                };
+            },
+
             onPostBody: () => {
                 // mark the selected evidence row
                 if (this._selectedEvidence) {
@@ -253,8 +305,11 @@ export default class VariantReviewEvidencesGrid extends LitElement {
 
         return html`
             <div class="d-flex flex-row gap-4" style="min-width:0px;">
-                <div class="w-full overflow-y-auto">
-                    <table id="${this._gridId}"></table>
+                <div class="">
+                    <div id="${this._gridId}Filters" class="mb-2"></div>
+                    <div class="w-full overflow-y-auto">
+                        <table id="${this._gridId}"></table>
+                    </div>
                 </div>
                 ${this._config.review && this._selectedEvidence ? html`
                     <div class="border-start border-secondary opacity-25"></div>
@@ -389,6 +444,24 @@ export default class VariantReviewEvidencesGrid extends LitElement {
             pageList: [5, 10, 25],
 
             review: true,
+
+            geneSet: {
+                ensembl: true,
+                refseq: true,
+            },
+            consequenceType: {
+                // all: false,
+                maneTranscript: true,
+                gencodeBasicTranscript: false,
+                ensemblCanonicalTranscript: true,
+                refseqTranscript: true,
+                ccdsTranscript: false,
+                ensemblTslTranscript: false,
+                proteinCodingTranscript: false,
+                highImpactConsequenceTypeTranscript: false,
+
+                showNegativeConsequenceTypes: true
+            },
         };
     }
 
