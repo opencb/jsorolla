@@ -405,7 +405,7 @@ export default class IndividualCreate extends LitElement {
                                 `,
                                 search: {
                                     title: "Autocomplete",
-                                    button: false,
+                                    button: true,
                                     render: (currentData, dataFormFilterChange) => html`
                                         <cellbase-search-autocomplete
                                             .resource="${"PHENOTYPE"}"
@@ -421,6 +421,7 @@ export default class IndividualCreate extends LitElement {
                                     field: "phenotypes[].id",
                                     type: "input-text",
                                     display: {
+                                        disabled: true,
                                         placeholder: "Add phenotype ID...",
                                     }
                                 },

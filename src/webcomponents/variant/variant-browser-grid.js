@@ -566,7 +566,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) =>
-                        VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
+                        VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession?.project?.organism?.scientificName, this.opencgaSession.project.organism.assembly, this._config),
                     halign: "center",
                     visible: this.gridCommons.isColumnVisible("id")
                 },
@@ -738,7 +738,7 @@ export default class VariantBrowserGrid extends LitElement {
                                     </li>
                                     <li data-cy="varsome-variant-link">
                                         <a target="_blank" class="btn force-text-left" ${row.type === "COPY_NUMBER" ? "disabled" : ""}
-                                            href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
+                                            href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.scientificName, this.opencgaSession?.project?.organism?.assembly)}">
                                             <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Varsome
                                         </a>
                                     </li>
@@ -746,7 +746,7 @@ export default class VariantBrowserGrid extends LitElement {
                                     <li class="dropdown-header">CellBase Links</li>
                                     ${["v5.2", "v5.8"].map(v => `
                                     <li>
-                                        <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`)}">
+                                        <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`, this.opencgaSession?.project?.organism?.scientificName)}">
                                             <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i>
                                             CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}
                                         </a>
@@ -755,7 +755,7 @@ export default class VariantBrowserGrid extends LitElement {
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
                                         <a target="_blank" class="dropdown-item"
-                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.assembly)}">
+                                                href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.scientificName, this.opencgaSession?.project?.organism?.assembly)}">
                                             <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Ensembl Genome Browser
                                         </a>
                                     </li>

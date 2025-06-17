@@ -106,22 +106,23 @@ export default class BioinfoUtils {
         return "https://www.uniprot.org/uniprot/" + featureId;
     }
 
-    static getVariantLink(id, location, source, assembly) {
+    static getVariantLink(id, location, source, species = "hsapiens", assembly = "grch38") {
         if (!source) {
             return null;
         }
 
-        // Check for cellbase source
+        // Check for CellBase source
         if (source.toUpperCase().startsWith("CELLBASE_V")) {
             const version = source.toUpperCase().replace("CELLBASE_", "").toLowerCase();
-            return `https://ws.zettagenomics.com/cellbase/webservices/rest/${version}/hsapiens/genomic/variant/${id}/annotation`;
+            return `https://ws.zettagenomics.com/cellbase/webservices/rest/${version}/${species}/genomic/variant/${id}/annotation`;
         }
 
         if (id?.startsWith("rs")) {
+            const sp = (species === "Homo sapiens" || species === "hsapiens") ? "Homo_sapiens" : "Mus_musculus";
             if (assembly?.toUpperCase() === "GRCH38") {
-                return `http://ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}`;
+                return `https://ensembl.org/${sp}/Variation/Explore?vdb=variation;v=${id}`;
             } else {
-                return `http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}`;
+                return `https://grch37.ensembl.org/${sp}/Variation/Explore?vdb=variation;v=${id}`;
             }
         }
 
@@ -135,23 +136,21 @@ export default class BioinfoUtils {
 
         switch (source.toUpperCase()) {
             case "DECIPHER":
-                // To make things easier the conversion of OpenCB Variant ID to Decipher ID must happen here
+                // To make things easier, the conversion of OpenCB Variant ID to Decipher ID must happen here
                 const decipherId = id.replace(/:/g, "-");
                 return `https://www.deciphergenomics.org/sequence-variant/${decipherId}`;
             case "ENSEMBL_GENOME_BROWSER":
+                const sp = (species === "Homo sapiens" || species === "hsapiens") ? "Homo_sapiens" : "Mus_musculus";
                 if (assembly?.toUpperCase() === "GRCH38") {
-                    return `http://ensembl.org/Homo_sapiens/Location/View?r=${region}`;
+                    return `https://ensembl.org/${sp}/Location/View?r=${region}`;
                 } else {
-                    return `http://grch37.ensembl.org/Homo_sapiens/Location/View?r=${region}`;
+                    return `https://grch37.ensembl.org/${sp}/Location/View?r=${region}`;
                 }
             case "UCSC_GENOME_BROWSER":
-                return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr${region}`;
+                const hg = assembly?.toUpperCase() === "GRCH38" ? "hg38" : "hg19";
+                return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=${hg}&position=chr${region}`;
             case "VARSOME":
-                if (assembly?.toUpperCase() === "GRCH38") {
-                    return `https://varsome.com/variant/hg38/${BioinfoUtils.getVariantInVarsomeFormat(id)}`;
-                } else {
-                    return `https://varsome.com/variant/hg19/${BioinfoUtils.getVariantInVarsomeFormat(id)}`;
-                }
+                return `https://varsome.com/variant/${assembly?.toUpperCase() === "GRCH38" ? "hg38" : "hg19"}/${BioinfoUtils.getVariantInVarsomeFormat(id)}`;
         }
     }
 

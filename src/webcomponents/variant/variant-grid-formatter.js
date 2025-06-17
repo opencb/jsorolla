@@ -63,7 +63,7 @@ export default class VariantGridFormatter {
         return result;
     }
 
-    static variantIdFormatter(id, variant, index, assembly, config = {}) {
+    static variantIdFormatter(id, variant, index, species = "Homo sapiens", assembly, config = {}) {
         if (!variant) {
             return;
         }
@@ -73,7 +73,7 @@ export default class VariantGridFormatter {
         // 1. Create links for tooltip
         let tooltipText = "";
         const variantRegion = variant.chromosome + ":" + variant.start + "-" + variant.end;
-        // 1.1. Add Decipher only if variant is a SNV or we have the original call. INDELS cannot be linked in the Variant Browser
+        // 1.1. Add Decipher only if variant is an SNV or we have the original call. INDELS cannot be linked in the Variant Browser
         if (variant.id || variant.studies[0]?.files[0]?.call?.variantId) {
             const variantId = variant.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || variant.id;
             tooltipText += `
@@ -84,7 +84,7 @@ export default class VariantGridFormatter {
                     </a>
                 </div>
                 <div style="padding: 5px" data-cy="varsome-variant-link">
-                    <a target="_blank" ${variant.type === "COPY_NUMBER" ? `class="text-decoration-none disabled"` : `class="text-decoration-none" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "varsome", assembly)}"`}>
+                    <a target="_blank" ${variant.type === "COPY_NUMBER" ? `class="text-decoration-none disabled"` : `class="text-decoration-none" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "varsome", species, assembly)}"`}>
                         Varsome ${variant.type === "COPY_NUMBER" ? "<small>(Disabled)</small>" : ""}
                     </a>
                 </div>
@@ -95,12 +95,12 @@ export default class VariantGridFormatter {
         tooltipText += `
             <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Genome Browsers</div>
             <div style="padding: 5px">
-                <a class="text-decoration-none" target="_blank" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "ensembl_genome_browser", assembly)}">
+                <a class="text-decoration-none" target="_blank" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "ensembl_genome_browser", species, assembly)}">
                     Ensembl Genome Browser
                 </a>
             </div>
             <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "ucsc_genome_browser")}">
+                <a target="_blank" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "ucsc_genome_browser", species, assembly)}">
                     UCSC Genome Browser
                 </a>
             </div>

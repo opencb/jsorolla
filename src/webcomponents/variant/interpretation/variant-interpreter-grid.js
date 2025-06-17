@@ -618,7 +618,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
+                    formatter: (value, row, index) => VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession?.project?.organism?.scientificName, this.opencgaSession.project.organism.assembly, this._config),
                     halign: this.displayConfigDefault.header.horizontalAlign,
                     // sortable: true
                     visible: this.gridCommons.isColumnVisible("id"),
