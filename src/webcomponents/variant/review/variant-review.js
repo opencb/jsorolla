@@ -33,6 +33,9 @@ export default class VariantReview extends LitElement {
             selected: {
                 type: Boolean,
             },
+            settings: {
+                type: Object,
+            },
             displayConfig: {
                 type: Object,
             }
@@ -331,6 +334,8 @@ export default class VariantReview extends LitElement {
                             .active="${active}"
                             .config="${{
                                 review: this._selected,
+                                geneSet: this.settings?.geneSet,
+                                consequenceType: this.settings?.consequenceType,
                             }}"
                             @evidenceChange="${event => this.onEvidenceChange(event)}">
                         </variant-review-evidences-grid>
