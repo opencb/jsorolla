@@ -387,9 +387,10 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                 },
                 {
                     id: "prediction",
-                    title: "Automatic Prediction",
+                    title: "Automatic<br>Prediction",
                     rowspan: 2,
                     colspan: 1,
+                    align: "center",
                     formatter: (value, row) => this.predictionFormatter(row.classification),
                 },
                 {
