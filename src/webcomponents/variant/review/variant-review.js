@@ -101,7 +101,7 @@ export default class VariantReview extends LitElement {
     }
 
     variantObserver() {
-        this._variant = this.variant; // UtilsNew.objectClone(this.variant);
+        this._variant = UtilsNew.objectClone(this.variant);
     }
 
     dispatchChange() {
@@ -155,8 +155,10 @@ export default class VariantReview extends LitElement {
         this.dispatchChange();
     }
 
-    onEvidenceChange(event) {
-        this._variant.evidences[event.detail.index] = event.detail.evidence;
+    onEvidenceReviewChange(event) {
+        this._variant.evidences[event.detail.index].review = event.detail.review;
+        this._variant = {...this._variant}; // Force update
+        this.requestUpdate();
         this.dispatchChange();
     }
 
@@ -337,7 +339,7 @@ export default class VariantReview extends LitElement {
                                 geneSet: this.settings?.geneSet,
                                 consequenceType: this.settings?.consequenceType,
                             }}"
-                            @evidenceChange="${event => this.onEvidenceChange(event)}">
+                            @evidenceReviewChange="${event => this.onEvidenceReviewChange(event)}">
                         </variant-review-evidences-grid>
                     `,
                 },
