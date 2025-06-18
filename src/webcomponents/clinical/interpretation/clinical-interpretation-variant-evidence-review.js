@@ -158,7 +158,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                             `}
                                         </label>
                                         <button class="btn btn-sm ${selected ? "btn-primary" : "btn-light"} rounded-2" @click="${() => dataFormFilterChange(!selected)}">
-                                            <i class="fa fa-check lh-1 ${selected ? "opacity-100" : "opacity-25 text-secondary"}"></i>
+                                            <i class="fa fa-check lh-1 ${selected ? "opacity-100" : "opacity-0"}"></i>
                                         </button>
                                     </div>
                                 `,
