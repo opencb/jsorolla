@@ -48,7 +48,7 @@ export default class SwaggerUi extends LitElement {
                 environment = "/" + xetaMatch[0];
             }
         }
-        const serverUrl = this.opencgaSession.server.host + "/webservices/rest/v2/meta/openapi" + "?environment=" + environment;
+        const serverUrl = this.opencgaSession.server.host + "/webservices/rest/v2/meta/openapi" + "?environment=" + environment + "&" + "study=" + this.opencgaSession.study.fqn;
 
         // 2. Create an instance of the SwaggerUIBundle
         const ui = SwaggerUIBundle({
