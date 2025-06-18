@@ -297,9 +297,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
         this._selectedEvidence = UtilsNew.objectClone(evidence);
         this._selectedEvidenceIndex = index;
         this.requestUpdate();
-        // mark the evidence row as selected
-        this.querySelector(`#${this._gridId} tbody tr.selected`)?.classList.remove("selected"); // unmark any previously selected row
-        this.querySelector(`#${this._gridId} tbody tr[data-index="${index}"]`).classList.add("selected");
+        this.renderLocalEvidences();
     }
 
     onEvidenceReviewChange(event) {
@@ -317,16 +315,14 @@ export default class VariantReviewEvidencesGrid extends LitElement {
         this._selectedEvidence = null;
         this._selectedEvidenceIndex = null;
         this.requestUpdate();
+        this.renderLocalEvidences();
     }
 
     onEvidenceReviewCancel() {
         this._selectedEvidence = null;
         this._selectedEvidenceIndex = null;
         this.requestUpdate();
-        // force to update the local evidences table after finishing the update
-        this.updateComplete.then(() => {
-            this.renderLocalEvidences();
-        });
+        this.renderLocalEvidences();
     }
 
     render() {
@@ -442,7 +438,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row) => {
                         return `
-                            <button class="mx-auto btn btn-light d-flex align-items-center gap-1 ${!this._config.review ? "disabled" : ""}">
+                            <button class="mx-auto btn btn-light d-flex align-items-center gap-1 ${!this._config.review || this._selectedEvidence ? "disabled" : ""}">
                                 <i class="fa fa-edit"></i>
                                 <span>Review</span>
                             </button>
