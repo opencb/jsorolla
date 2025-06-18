@@ -336,9 +336,9 @@ export default class VariantReviewEvidencesGrid extends LitElement {
 
         return html`
             <div class="d-flex flex-row gap-4" style="min-width:0px;">
-                <div class="w-full">
+                <div class="w-full overflow-y-auto">
                     <div id="${this._gridId}Filters" class="mb-0"></div>
-                    <div class="w-full overflow-y-auto">
+                    <div class="w-full">
                         <table id="${this._gridId}"></table>
                     </div>
                 </div>
@@ -437,13 +437,14 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                 {
                     id: "review",
                     title: "Review",
-                    align: "right",
+                    align: "center",
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => {
                         return `
-                            <button class="btn">
+                            <button class="btn btn-light d-flex align-items-center gap-1">
                                 <i class="fa fa-edit"></i>
+                                <span>Review</span>
                             </button>
                         `;
                     },
