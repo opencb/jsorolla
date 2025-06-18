@@ -1,6 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import FormUtils from "../../commons/forms/form-utils.js";
 import "../../commons/forms/data-form.js";
 import "../annotation/cellbase-variant-annotation-summary.js";
 import "./variant-review-evidences-grid.js";
@@ -128,6 +129,7 @@ export default class VariantReview extends LitElement {
 
     onStatusChange(event) {
         this._variant.status = event.currentTarget.value;
+        this._updatedParams = FormUtils.getUpdatedFields(this.variant, this._updatedParams, "status", event.currentTarget.value);
         this.dispatchChange();
     }
 
@@ -137,6 +139,7 @@ export default class VariantReview extends LitElement {
             author: this.opencgaSession?.user?.id,
             date: UtilsNew.getDatetime(),
         };
+        this._updatedParams = FormUtils.getUpdatedFields(this.variant, this._updatedParams, "confidence.value", event.currentTarget.value);
         this.dispatchChange();
     }
 
@@ -150,8 +153,8 @@ export default class VariantReview extends LitElement {
                     author: this.opencgaSession?.user?.id || "-",
                     date: UtilsNew.getDatetime(),
                 };
+                this._updatedParams.comments = this._variant.comments;
             }
-            // this._updateParams = {};
             this.requestUpdate();
         }
         this.dispatchChange();
