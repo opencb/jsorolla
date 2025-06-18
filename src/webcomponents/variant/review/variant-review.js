@@ -178,7 +178,7 @@ export default class VariantReview extends LitElement {
                     `}
                 </label>
                 <button class="btn btn-sm ${this._selected ? "btn-primary" : "btn-light"} rounded-2" @click="${() => this.onSelectChange()}">
-                    <i class="fa fa-check lh-1 ${this._selected ? "opacity-100" : "opacity-25 text-secondary"}"></i>
+                    <i class="fa fa-check lh-1 ${this._selected ? "opacity-100" : "opacity-0"}"></i>
                 </button>
             </div>
         `;
