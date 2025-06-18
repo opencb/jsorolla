@@ -353,7 +353,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                             .review="${this._selectedEvidence?.review}"
                             .displayConfig="${{
                                 defaultLayout: "vertical",
-                                buttonClearText: "Cancel Evidence",
+                                buttonClearText: "Cancel",
                                 buttonOkText: "Save Evidence",
                             }}"
                             @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}"
@@ -442,7 +442,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row) => {
                         return `
-                            <button class="btn btn-light d-flex align-items-center gap-1">
+                            <button class="mx-auto btn btn-light d-flex align-items-center gap-1 ${!this._config.review ? "disabled" : ""}">
                                 <i class="fa fa-edit"></i>
                                 <span>Review</span>
                             </button>
@@ -451,7 +451,6 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                     events: {
                         "click button": (event, value, row, index) => this.onEvidenceSelect(event, row, index),
                     },
-                    visible: !!this._config.review,
                 },
             ],
             [
