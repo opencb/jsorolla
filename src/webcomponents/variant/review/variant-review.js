@@ -58,7 +58,7 @@ export default class VariantReview extends LitElement {
         ];
         this._variant = null;
         this._selected = false;
-        this._updateParams = {};
+        this._updatedParams = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -91,6 +91,7 @@ export default class VariantReview extends LitElement {
                     includeSampleId: "true",
                 })
                 .then(response => {
+                    this._updateParams = {};
                     this._variant = response?.responses?.[0]?.results?.[0];
                     this.requestUpdate();
                 })
@@ -101,6 +102,9 @@ export default class VariantReview extends LitElement {
     }
 
     variantObserver() {
+        this._updatedParams = {
+            evidences: new Set(),
+        };
         this._variant = UtilsNew.objectClone(this.variant);
     }
 
@@ -149,7 +153,7 @@ export default class VariantReview extends LitElement {
                     date: UtilsNew.getDatetime(),
                 };
             }
-            this._updateParams = {};
+            // this._updateParams = {};
             this.requestUpdate();
         }
         this.dispatchChange();
@@ -158,6 +162,7 @@ export default class VariantReview extends LitElement {
     onEvidenceReviewChange(event) {
         this._variant.evidences[event.detail.index].review = event.detail.review;
         this._variant = {...this._variant}; // Force update
+        this._updatedParams.evidences.add(event.detail.index); // register this evidence in the update params
         this.requestUpdate();
         this.dispatchChange();
     }
@@ -219,7 +224,7 @@ export default class VariantReview extends LitElement {
             <data-form
                 .data="${this._variant}"
                 .config="${this._config}"
-                .updateParams="${this._updateParams}"
+                .updateParams="${this._updatedParams}"
                 @fieldChange="${event => this.onFieldChange(event)}">
             </data-form>
         `;
@@ -333,6 +338,7 @@ export default class VariantReview extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .variant="${variant}"
+                            .updatedEvidences="${this._updatedParams.evidences}"
                             .active="${active}"
                             .config="${{
                                 review: this._selected,
