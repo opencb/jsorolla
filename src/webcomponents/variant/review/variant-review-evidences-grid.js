@@ -294,7 +294,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
     }
 
     onEvidenceSelect(event, evidence, index) {
-        this._selectedEvidence = this.variant.evidences[index];
+        this._selectedEvidence = UtilsNew.objectClone(evidence);
         this._selectedEvidenceIndex = index;
         this.requestUpdate();
         // mark the evidence row as selected
@@ -302,22 +302,30 @@ export default class VariantReviewEvidencesGrid extends LitElement {
         this.querySelector(`#${this._gridId} tbody tr[data-index="${index}"]`).classList.add("selected");
     }
 
-    onEvidenceUnselect() {
+    onEvidenceReviewChange(event) {
+        event.stopPropagation();
+        this._selectedEvidence.review = event.detail.review;
+    }
+
+    onEvidenceReviewSave() {
+        // Emit the evidence change event
+        LitUtils.dispatchCustomEvent(this, "evidenceReviewChange", null, {
+            review: this._selectedEvidence.review,
+            index: this._selectedEvidence.index,
+        });
+        // reset the selected evidence
+        this._selectedEvidence = null;
+        this._selectedEvidenceIndex = null;
+        this.requestUpdate();
+    }
+
+    onEvidenceReviewCancel() {
         this._selectedEvidence = null;
         this._selectedEvidenceIndex = null;
         this.requestUpdate();
         // force to update the local evidences table after finishing the update
         this.updateComplete.then(() => {
             this.renderLocalEvidences();
-        });
-    }
-
-    onEvidenceReviewChange(event) {
-        // note: using object.assign to avoid overwriting the review object reference
-        Object.assign(this._selectedEvidence.review, event.detail.review);
-        LitUtils.dispatchCustomEvent(this, "evidenceChange", {
-            evidence: this._selectedEvidence,
-            index: this._selectedEvidenceIndex,
         });
     }
 
@@ -339,15 +347,18 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                     <div class="flex-shrink-0" style="width:400px;">
                         <div class="d-flex flex-row align-items-center justify-content-between mb-4">
                             <h4 class="mb-0">Evidence Review</h4>
-                            <button class="btn-close" @click="${() => this.onEvidenceUnselect()}"></button>
                         </div>    
                         <clinical-interpretation-variant-evidence-review
                             .opencgaSession="${this.opencgaSession}"
                             .review="${this._selectedEvidence?.review}"
                             .displayConfig="${{
                                 defaultLayout: "vertical",
+                                buttonClearText: "Cancel Evidence",
+                                buttonOkText: "Save Evidence",
                             }}"
-                            @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
+                            @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}"
+                            @evidenceReviewSubmit="${e => this.onEvidenceReviewSave(e)}"
+                            @evidenceReviewClear="${e => this.onEvidenceReviewCancel(e)}">
                         </clinical-interpretation-variant-evidence-review>
                     </div>    
                 ` : nothing}
