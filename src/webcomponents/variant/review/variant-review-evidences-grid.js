@@ -30,6 +30,9 @@ export default class VariantReviewEvidencesGrid extends LitElement {
             variant: {
                 type: Object,
             },
+            updatedEvidences: {
+                type: Object,
+            },
             active: {
                 type: Boolean,
             },
@@ -41,6 +44,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
 
     #init() {
         this.active = true;
+        this.updatedEvidences = null;
         this.table = null;
         this.gridCommons = null;
 
@@ -437,8 +441,14 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => {
+                        let buttonColor = "btn-light";
+                        if (this.updatedEvidences && this.updatedEvidences.has(row.index)) {
+                            buttonColor = "btn-warning";
+                        } else if (row?.review?.select) {
+                            buttonColor = "btn-primary";
+                        }
                         return `
-                            <button class="mx-auto btn btn-light d-flex align-items-center gap-1 ${!this._config.review || this._selectedEvidence ? "disabled" : ""}">
+                            <button class="mx-auto btn ${buttonColor} d-flex align-items-center gap-1 ${!this._config.review || this._selectedEvidence ? "disabled" : ""}">
                                 <i class="fa fa-edit"></i>
                                 <span>Review</span>
                             </button>
