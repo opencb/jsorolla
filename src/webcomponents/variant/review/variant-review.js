@@ -102,9 +102,7 @@ export default class VariantReview extends LitElement {
     }
 
     variantObserver() {
-        this._updatedParams = {
-            evidences: new Set(),
-        };
+        this._updatedParams = {};
         this._variant = UtilsNew.objectClone(this.variant);
     }
 
@@ -162,7 +160,11 @@ export default class VariantReview extends LitElement {
     onEvidenceReviewChange(event) {
         this._variant.evidences[event.detail.index].review = event.detail.review;
         this._variant = {...this._variant}; // Force update
-        this._updatedParams.evidences.add(event.detail.index); // register this evidence in the update params
+        // register this evidence in the update params
+        if (!this._updatedParams.evidences) {
+            this._updatedParams.evidences = new Set();
+        }
+        this._updatedParams.evidences.add(event.detail.index);
         this.requestUpdate();
         this.dispatchChange();
     }
