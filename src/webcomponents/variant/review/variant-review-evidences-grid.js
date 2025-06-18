@@ -45,6 +45,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
         this.gridCommons = null;
 
         this._evidences = [];
+        this._applyTranscriptFilters = true;
         this._prefix = UtilsNew.randomString(8);
         this._gridId = this._prefix + "EvidencesGrid";
         this._selectedEvidence = null;
@@ -74,7 +75,6 @@ export default class VariantReviewEvidencesGrid extends LitElement {
     }
 
     filterEvidences() {
-        this._evidences = [];
         // 1. we need to prepare evidences to be filtered properly,
         // the easiest way is to recycle the existing function 'consequenceTypeDetailFormatterFilter',
         // so we need to add consequenceType information
@@ -96,19 +96,24 @@ export default class VariantReviewEvidencesGrid extends LitElement {
         // 2. we need to sort the evidences by gene name
         BioinfoUtils.sort(evidences, evidence => evidence.genomicFeature?.geneName);
         // 3. filter the evidences using the consequenceTypeDetailFormatterFilter
-        const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(evidences, this._config).indexes;
-        this._evidences = showArrayIndexes.map(index => {
-            return evidences[index];
-        });
+        if (this._applyTranscriptFilters) {
+            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(evidences, this._config).indexes;
+            this._evidences = showArrayIndexes.map(index => {
+                return evidences[index];
+            });
+        } else {
+            // if we are not applying the filters, we just return all the evidences
+            this._evidences = evidences;
+        }
     }
 
     renderLocalEvidences() {
+        this.querySelector(`#${this._gridId}Filters`).innerHTML = ""; // reset the filters bar
         this.table = $("#" + this._gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             classes: "table table-borderless table-hover table-grid",
             buttonsClass: "light",
-            // data: this.variant?.evidences || [],
             columns: this.getDefaultColumns(),
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
@@ -133,12 +138,30 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                     rows: response,
                 };
             },
-
             onPostBody: () => {
                 // mark the selected evidence row
                 if (this._selectedEvidence) {
                     this.querySelector(`#${this._gridId} tbody tr[data-index="${this._selectedEvidenceIndex}"]`)?.classList.add("selected");
                 }
+                // display the filters bar
+                this.querySelector(`#${this._gridId}Filters`).innerHTML = `
+                    <div class="">
+                        <span>Showing </span>
+                        <span class="fw-bold" style="color:red;">${this._evidences.length}</span>
+                        <span> of </span>
+                        <span class="fw-bold" style="color:red">${this.variant.evidences.length}</span>
+                        <span> clinical evidences. </span>
+                        <a class="link-primary cursor-pointer">
+                            ${this._evidences.length !== this.variant.evidences.length ? "Show all..." : "Apply filters..."}
+                        </a>
+                    </div>
+                `;
+                // add the click event to the filters bar
+                this.querySelector(`#${this._gridId}Filters a`).addEventListener("click", () => {
+                    this._applyTranscriptFilters = !this._applyTranscriptFilters;
+                    this.filterEvidences();
+                    this.renderLocalEvidences();
+                });
             },
         });
     }
@@ -306,7 +329,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
         return html`
             <div class="d-flex flex-row gap-4" style="min-width:0px;">
                 <div class="w-full">
-                    <div id="${this._gridId}Filters" class="mb-2"></div>
+                    <div id="${this._gridId}Filters" class="mb-0"></div>
                     <div class="w-full overflow-y-auto">
                         <table id="${this._gridId}"></table>
                     </div>
