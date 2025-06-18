@@ -111,7 +111,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
     }
 
     onClear() {
-        LitUtils.dispatchCustomEvent(this, "evidenceReviewCancel", null, {
+        LitUtils.dispatchCustomEvent(this, "evidenceReviewClear", null, {
             review: this._review,
         });
     }
@@ -136,8 +136,8 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                 defaultLayout: "horizontal",
                 titleVisible: false,
                 buttonsVisible: true,
-                buttonOkText: "Save Evidence",
-                buttonClearText: "Cancel Evidence",
+                buttonOkText: "Save",
+                buttonClearText: "Clear",
                 buttonOkDisabled: review => !review?.select && review?.select === this.review?.select,
                 ...this.displayConfig,
             },
