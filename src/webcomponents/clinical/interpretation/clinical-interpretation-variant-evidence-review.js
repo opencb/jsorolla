@@ -104,12 +104,26 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
         this.requestUpdate();
     }
 
+    onSubmit() {
+        LitUtils.dispatchCustomEvent(this, "evidenceReviewSubmit", null, {
+            review: this._review,
+        });
+    }
+
+    onClear() {
+        LitUtils.dispatchCustomEvent(this, "evidenceReviewCancel", null, {
+            review: this._review,
+        });
+    }
+
     render() {
         return html`
             <data-form
                 .data="${this._review}"
                 .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}">
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @submit="${() => this.onSubmit()}"
+                @clear="${() => this.onClear()}">
             </data-form>
         `;
     }
@@ -121,7 +135,10 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                 defaultValue: "",
                 defaultLayout: "horizontal",
                 titleVisible: false,
-                buttonsVisible: false,
+                buttonsVisible: true,
+                buttonOkText: "Save Evidence",
+                buttonClearText: "Cancel Evidence",
+                buttonOkDisabled: review => !review?.select && review?.select === this.review?.select,
                 ...this.displayConfig,
             },
             sections: [
