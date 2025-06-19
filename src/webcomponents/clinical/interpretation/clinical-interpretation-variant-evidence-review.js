@@ -75,7 +75,11 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
             this._config = this.getDefaultConfig();
         } else if (param === "clinicalSignificance") {
             // Fix clinical significance value --> must be in uppercase
-            this._review.clinicalSignificance = typeof event.detail.value === "string" ? event.detail.value.toUpperCase() : event.detail.value;
+            if (event.detail.value) {
+                this._review.clinicalSignificance = event.detail.value.toUpperCase();
+            } else {
+                delete this._review.clinicalSignificance;
+            }
         } else if (param === "discussion.text") {
             if (typeof this.updateParams?.discussion?.text !== "undefined") {
                 this._review.discussion.author = this.opencgaSession.user?.id || "-";
