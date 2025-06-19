@@ -179,7 +179,7 @@ export default class VariantInterpreterGrid extends LitElement {
             "review-variant": () => ({
                 display: {
                     scrollable: true,
-                    title: `Review Variant ${this._selectedVariant.id}`,
+                    title: "Review Variant",
                     size: "modal-3xl",
                     buttonsVisible: true,
                     buttonCancelText: "Cancel",
