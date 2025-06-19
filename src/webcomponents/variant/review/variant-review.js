@@ -172,14 +172,24 @@ export default class VariantReview extends LitElement {
         this.dispatchChange();
     }
 
+    renderVariantInfo() {
+        return html`
+            <div class="alert alert-light d-flex align-items-center flex-grow-1">
+                <div class="">
+                    <span class="fw-bold fs-5 lh-1">${this._variant.id}</span>
+                </div>
+            </div>
+        `;
+    }
+
     renderVariantSelect() {
         return html`
-            <div class="alert ${this._selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-2 flex-grow-1">
-                <label class="form-label mb-0 fw-bold">
+            <div class="alert ${this._selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-2">
+                <label class="form-label mb-0">
                     ${this._selected ? html`
-                        <span>This Variant is on the <b>Primary Findings</b> of the Interpretation.</span>    
+                        <span>Remove from <b>Primary Findings</b>.</span>    
                     ` : html`
-                        <span>Select this Variant to add it to the <b>Primary Findings</b> of the Interpretation.</span>
+                        <span>Select as <b>Primary Finding</b>.</span>
                     `}
                 </label>
                 <button class="btn btn-sm ${this._selected ? "btn-primary" : "btn-light"} rounded-2" @click="${() => this.onSelectChange()}">
@@ -222,7 +232,8 @@ export default class VariantReview extends LitElement {
         }
 
         return html`
-            <div class="d-flex gap-2 mb-2">
+            <div class="d-flex gap-2 mb-2 w-full">
+                ${this.renderVariantInfo()}
                 ${this.renderVariantSelect()}
                 ${this.renderVariantStatus()}
             </div>
