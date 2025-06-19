@@ -1083,6 +1083,7 @@ export default class DataForm extends LitElement {
                         disabled: disabled,
                         required: element?.required,
                     }}"
+                    .forceSelection="${element?.forceSelection ?? false}"
                     .value="${defaultValue}"
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
                     @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
