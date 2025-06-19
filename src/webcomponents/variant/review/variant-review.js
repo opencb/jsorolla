@@ -2,6 +2,7 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
+import VariantGridFormatter from "../variant-grid-formatter.js";
 import "../../commons/forms/data-form.js";
 import "../annotation/cellbase-variant-annotation-summary.js";
 import "./variant-review-evidences-grid.js";
@@ -173,10 +174,27 @@ export default class VariantReview extends LitElement {
     }
 
     renderVariantInfo() {
+        const consequenceTypes = [], soVisited = new Set();
+        // ctResults = {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes}
+        const ctRestuls = VariantGridFormatter._consequenceTypeDetailFormatterFilter(this._variant?.annotation?.consequenceTypes, this.settings);
+        (ctRestuls.selectedConsequenceTypes || []).forEach(ct => {
+            ct.sequenceOntologyTerms.forEach(so => {
+                if (!soVisited.has(so?.name)) {
+                    consequenceTypes.push(html`
+                        <span style="color: ${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black"}">${so.name}</span>
+                    `);
+                    soVisited.add(so.name);
+                }
+            });
+        });
+
         return html`
-            <div class="alert alert-light d-flex align-items-center flex-grow-1">
+            <div class="alert alert-light flex-grow-1">
                 <div class="">
-                    <span class="fw-bold fs-5 lh-1">${this._variant.id}</span>
+                    <span class="fw-bold lh-1">${this._variant.id}</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    ${consequenceTypes}
                 </div>
             </div>
         `;
