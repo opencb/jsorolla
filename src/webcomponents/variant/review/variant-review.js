@@ -174,19 +174,36 @@ export default class VariantReview extends LitElement {
     }
 
     renderVariantInfo() {
-        const consequenceTypes = [], soVisited = new Set();
+        const consequenceTypes = [], negativeConsequenceTypes = [];
+        const soVisited = new Set();
         // ctResults = {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes}
         const ctRestuls = VariantGridFormatter._consequenceTypeDetailFormatterFilter(this._variant?.annotation?.consequenceTypes, this.settings);
         (ctRestuls.selectedConsequenceTypes || []).forEach(ct => {
             ct.sequenceOntologyTerms.forEach(so => {
                 if (!soVisited.has(so?.name)) {
                     consequenceTypes.push(html`
-                        <span style="color: ${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black"}">${so.name}</span>
+                        <span style="color:${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black"}">${so.name}</span>
                     `);
                     soVisited.add(so.name);
                 }
             });
         });
+        // filtered consequence types
+        if (ctRestuls.notSelectedConsequenceTypes?.length > 0) {
+            ctRestuls.notSelectedConsequenceTypes.forEach(ct => {
+                ct.sequenceOntologyTerms.forEach(so => {
+                    if (!soVisited.has(so?.name)) {
+                        negativeConsequenceTypes.push(so);
+                        soVisited.add(so.name);
+                    }
+                });
+            });
+            if (negativeConsequenceTypes.length > 0) {
+                consequenceTypes.push(html`
+                    <span class="text-secondary fst-italic">+${negativeConsequenceTypes.length} terms filtered</span>
+                `);
+            }
+        }
 
         return html`
             <div class="alert alert-light flex-grow-1">
