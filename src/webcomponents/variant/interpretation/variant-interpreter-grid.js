@@ -24,6 +24,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import CustomActions from "../../commons/custom-actions";
 import VariantUtils from "../variant-utils.js";
+import WebUtils from "../../commons/utils/web-utils.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
 import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
 import "../../commons/grid-toolbar.js";
@@ -179,7 +180,7 @@ export default class VariantInterpreterGrid extends LitElement {
             "review-variant": () => ({
                 display: {
                     scrollable: true,
-                    title: "Review Variant",
+                    title: `${WebUtils.formatDisplayName(this.clinicalAnalysis.interpretation.id, this.clinicalAnalysis.interpretation.name)} - Review Variant`,
                     size: "modal-3xl",
                     buttonsVisible: true,
                     buttonCancelText: "Cancel",
