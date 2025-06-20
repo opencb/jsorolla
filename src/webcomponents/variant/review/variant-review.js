@@ -163,7 +163,7 @@ export default class VariantReview extends LitElement {
 
     onEvidenceReviewChange(event) {
         this._variant.evidences[event.detail.index].review = event.detail.review;
-        this._variant = {...this._variant}; // Force update
+        // this._variant = {...this._^ariant}; // Force update
         // register this evidence in the update params
         if (!this._updatedParams.evidences) {
             this._updatedParams.evidences = new Set();
