@@ -30,9 +30,6 @@ export default class VariantReviewEvidencesGrid extends LitElement {
             variant: {
                 type: Object,
             },
-            updatedEvidences: {
-                type: Object,
-            },
             active: {
                 type: Boolean,
             },
@@ -44,12 +41,14 @@ export default class VariantReviewEvidencesGrid extends LitElement {
 
     #init() {
         this.active = true;
-        this.updatedEvidences = null;
         this.table = null;
         this.gridCommons = null;
 
         this._evidences = [];
+        this._visibleEvidencesIndex = [];
+        this._updatedEvidences = new Set();
         this._applyTranscriptFilters = true;
+
         this._prefix = UtilsNew.randomString(8);
         this._gridId = this._prefix + "EvidencesGrid";
         this._selectedEvidence = null;
@@ -58,6 +57,10 @@ export default class VariantReviewEvidencesGrid extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("variant")) {
+            this.variantObserver();
+        }
+
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
@@ -65,24 +68,22 @@ export default class VariantReviewEvidencesGrid extends LitElement {
             };
         }
 
-        if (changedProperties.has("variant") || changedProperties.has("config")) {
-            this.filterEvidences();
-        }
-
         super.update(changedProperties);
     }
 
     updated(changedProperties) {
         if (changedProperties.has("variant") || changedProperties.has("config")) {
+            this.filterEvidences();
             this.renderLocalEvidences();
         }
     }
 
-    filterEvidences() {
-        // 1. we need to prepare evidences to be filtered properly,
+    variantObserver() {
+        this._updatedEvidences = new Set(); // reset the updated evidences
+        // we need to prepare evidences to be filtered properly,
         // the easiest way is to recycle the existing function 'consequenceTypeDetailFormatterFilter',
         // so we need to add consequenceType information
-        const evidences = [];
+        this._evidences = [];
         const transcriptMap = new Map();
         this.variant.annotation.consequenceTypes.forEach(consequenceType => {
             transcriptMap.set(consequenceType.transcriptId, consequenceType);
@@ -90,7 +91,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
         (this.variant?.evidences || []).map((evidence, index) => {
             // we are missing regulatory variants
             if (evidence.genomicFeature?.transcriptId) {
-                evidences.push({
+                this._evidences.push({
                     index: index,
                     ...evidence,
                     ...transcriptMap.get(evidence.genomicFeature.transcriptId)
@@ -98,16 +99,16 @@ export default class VariantReviewEvidencesGrid extends LitElement {
             }
         });
         // 2. we need to sort the evidences by gene name
-        BioinfoUtils.sort(evidences, evidence => evidence.genomicFeature?.geneName);
-        // 3. filter the evidences using the consequenceTypeDetailFormatterFilter
+        BioinfoUtils.sort(this._evidences, evidence => evidence.genomicFeature?.geneName);
+    }
+
+    filterEvidences() {
+        this._visibleEvidencesIndex = [];
         if (this._applyTranscriptFilters) {
-            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(evidences, this._config).indexes;
-            this._evidences = showArrayIndexes.map(index => {
-                return evidences[index];
-            });
+            this._visibleEvidencesIndex = VariantGridFormatter._consequenceTypeDetailFormatterFilter(this._evidences, this._config).indexes;
         } else {
             // if we are not applying the filters, we just return all the evidences
-            this._evidences = evidences;
+            this._visibleEvidencesIndex = this._evidences.map((evidence, index) => index);
         }
     }
 
@@ -131,14 +132,16 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                 const tableOptions = $(this.table).bootstrapTable("getOptions");
                 const limit = params.data.limit || tableOptions.pageSize;
                 const skip = params.data.offset || 0;
-                const rows = this._evidences.slice(skip, skip + limit);
+                const rows = this._visibleEvidencesIndex.slice(skip, skip + limit).map(index => {
+                    return this._evidences[index];
+                });
 
                 return params.success(rows);
             },
             // Josemi Note 2024-01-18: we use this method to tell bootstrap-table how many rows we have in our data
             responseHandler: response => {
                 return {
-                    total: this._evidences.length,
+                    total: this._visibleEvidencesIndex.length,
                     rows: response,
                 };
             },
@@ -151,12 +154,12 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                 this.querySelector(`#${this._gridId}Filters`).innerHTML = `
                     <div class="">
                         <span>Showing </span>
-                        <span class="fw-bold" style="color:red;">${this._evidences.length}</span>
+                        <span class="fw-bold" style="color:red;">${this._visibleEvidencesIndex.length}</span>
                         <span> of </span>
-                        <span class="fw-bold" style="color:red">${this.variant.evidences.length}</span>
+                        <span class="fw-bold" style="color:red">${this._evidences.length}</span>
                         <span> clinical evidences. </span>
                         <a class="link-primary cursor-pointer">
-                            ${this._evidences.length !== this.variant.evidences.length ? "Show all..." : "Apply filters..."}
+                            ${this._visibleEvidencesIndex.length !== this._evidences.length ? "Show all..." : "Apply filters..."}
                         </a>
                     </div>
                 `;
@@ -310,6 +313,9 @@ export default class VariantReviewEvidencesGrid extends LitElement {
     }
 
     onEvidenceReviewSave() {
+        const index = this._visibleEvidencesIndex[this._selectedEvidenceIndex];
+        this._evidences[index].review = this._selectedEvidence.review;
+        this._updatedEvidences.add(this._selectedEvidence.index);
         // Emit the evidence change event
         LitUtils.dispatchCustomEvent(this, "evidenceReviewChange", null, {
             review: this._selectedEvidence.review,
@@ -441,12 +447,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => {
-                        let buttonColor = "btn-light";
-                        if (this.updatedEvidences && this.updatedEvidences.has(row.index)) {
-                            buttonColor = "btn-warning";
-                        } else if (row?.review?.select) {
-                            buttonColor = "btn-primary";
-                        }
+                        const buttonColor = this._updatedEvidences.has(row.index) ? "btn-warning" : (row?.review?.select ? "btn-primary" : "btn-light");
                         return `
                             <button class="mx-auto btn ${buttonColor} d-flex align-items-center gap-1 ${!this._config.review || this._selectedEvidence ? "disabled" : ""}">
                                 <i class="fa fa-edit"></i>
