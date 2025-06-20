@@ -80,6 +80,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
 
     variantObserver() {
         this._updatedEvidences = new Set(); // reset the updated evidences
+        this._applyTranscriptFilters = true; // reset the apply transcript filters flag
         // we need to prepare evidences to be filtered properly,
         // the easiest way is to recycle the existing function 'consequenceTypeDetailFormatterFilter',
         // so we need to add consequenceType information
