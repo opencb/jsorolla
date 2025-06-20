@@ -154,21 +154,21 @@ export default class VariantReview extends LitElement {
                     author: this.opencgaSession?.user?.id || "-",
                     date: UtilsNew.getDatetime(),
                 };
-                this._updatedParams.comments = this._variant.comments;
+                this._updatedParams = {
+                    ...this._updatedParams,
+                    comments: this._variant.comments,
+                };
             }
             this.requestUpdate();
+        } else if (event.detail.param === "discussion") {
+            this._updatedParams.discussion = this._variant.discussion;
         }
         this.dispatchChange();
     }
 
     onEvidenceReviewChange(event) {
         this._variant.evidences[event.detail.index].review = event.detail.review;
-        // this._variant = {...this._^ariant}; // Force update
-        // register this evidence in the update params
-        if (!this._updatedParams.evidences) {
-            this._updatedParams.evidences = new Set();
-        }
-        this._updatedParams.evidences.add(event.detail.index);
+        this._updatedParams.evidences = this._variant.evidences; // register evidences as updated params
         this.requestUpdate();
         this.dispatchChange();
     }
