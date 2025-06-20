@@ -139,47 +139,51 @@ export default class GenomeBrowserComponent extends LitElement {
     }
 
     parseTracks(tracks) {
-        return tracks.map(track => {
-            switch (track.type) {
-                case "sequence":
-                    return new SequenceTrack({
-                        cellBaseClient: this.config.cellBaseClient,
-                        ...track.config,
-                    });
-                case "gene":
-                    return new GeneTrack({
-                        cellBaseClient: this.config.cellBaseClient,
-                        ...track.config,
-                    });
-                case "gene-overview":
-                    return new GeneOverviewTrack({
-                        cellBaseClient: this.config.cellBaseClient,
-                        ...track.config,
-                    });
-                case "variant":
-                    return new VariantTrack({
-                        cellBaseClient: this.config.cellBaseClient,
-                        ...track.config,
-                    });
-                case "opencga-variant":
-                    return new OpenCGAVariantTrack({
-                        opencgaClient: this.opencgaSession.opencgaClient,
-                        opencgaStudy: this.opencgaSession.study.fqn,
-                        ...track.config,
-                    });
-                case "opencga-alignment":
-                    return new OpenCGAAlignmentTrack({
-                        opencgaClient: this.opencgaSession.opencgaClient,
-                        opencgaStudy: this.opencgaSession.study.fqn,
-                        ...track.config,
-                    });
-                default:
-                    return new FeatureTrack({
-                        cellBaseClient: this.config.cellBaseClient,
-                        ...track.config,
-                    });
-            }
-        });
+        return (tracks || [])
+            .filter(track => {
+                return typeof track.visible !== "boolean" || track.visible;
+            })
+            .map(track => {
+                switch (track.type) {
+                    case "sequence":
+                        return new SequenceTrack({
+                            cellBaseClient: this.config.cellBaseClient,
+                            ...track.config,
+                        });
+                    case "gene":
+                        return new GeneTrack({
+                            cellBaseClient: this.config.cellBaseClient,
+                            ...track.config,
+                        });
+                    case "gene-overview":
+                        return new GeneOverviewTrack({
+                            cellBaseClient: this.config.cellBaseClient,
+                            ...track.config,
+                        });
+                    case "variant":
+                        return new VariantTrack({
+                            cellBaseClient: this.config.cellBaseClient,
+                            ...track.config,
+                        });
+                    case "opencga-variant":
+                        return new OpenCGAVariantTrack({
+                            opencgaClient: this.opencgaSession.opencgaClient,
+                            opencgaStudy: this.opencgaSession.study.fqn,
+                            ...track.config,
+                        });
+                    case "opencga-alignment":
+                        return new OpenCGAAlignmentTrack({
+                            opencgaClient: this.opencgaSession.opencgaClient,
+                            opencgaStudy: this.opencgaSession.study.fqn,
+                            ...track.config,
+                        });
+                    default:
+                        return new FeatureTrack({
+                            cellBaseClient: this.config.cellBaseClient,
+                            ...track.config,
+                        });
+                }
+            });
     }
 
     render() {

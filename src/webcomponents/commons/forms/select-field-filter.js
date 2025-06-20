@@ -103,12 +103,13 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     loadData() {
-        if (!this.data || this.data.length === 0) {
-            return;
-        }
-
         this.select.empty();
-        const options = this.data.map(item => this.getOptions(item));
+
+        // Force to unbind 'select2:select' and 'select2:unselect' listeners
+        this.select.off("select2:select");
+        this.select.off("select2:unselect");
+
+        const options = (this.data || []).map(item => this.getOptions(item));
 
         const selectConfig = {
             ...this._config,
@@ -309,25 +310,9 @@ export default class SelectFieldFilter extends LitElement {
         };
     }
 
-    filterChange(e) {
-        const disabled = Object.values(e.target.options)
-            .filter(data => data.disabled === true)
-            .map(data => {
-                if (data.selected) {
-                    return data.value;
-                }
-            });
+    filterChange() {
+        const selection = this.select.select2("data").map(el => el.id);
 
-        const selection = Array.isArray(this.select.select2("data")) ?
-            [...this.select.select2("data").map(el => el.id), ...disabled] :
-            this.select.select2("data").map(el => el.id);
-
-        let val = "";
-        if (selection && selection.length) {
-            if (this._config?.multiple) {
-                val = selection.join(",");
-            }
-        }
         LitUtils.dispatchCustomEvent(this, "filterChange", selection.join(","),
         {}, null, {bubbles: false, composed: false});
     }
@@ -356,7 +341,7 @@ export default class SelectFieldFilter extends LitElement {
     renderShowSelectAll() {
         return html`
             <span class="input-group-text rounded-start-0">
-                <input class="form-check-input mt-0" id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." @click=${this.selectAll}>
+                <input class="form-check-input mt-0 me-2" id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." @click=${this.selectAll}>
                 <span class="fw-bold ms-1">All</span>
             </span>
         `;
@@ -368,7 +353,6 @@ export default class SelectFieldFilter extends LitElement {
                 .select-field-filter .select2-results__options {
                     max-height: 600px !important;
                 }
-
                 .select-field-filter .select2-results__option--selected {
                     background-color: #fff !important;
                     color: #000 !important;
@@ -390,13 +374,13 @@ export default class SelectFieldFilter extends LitElement {
     render() {
         return html`
             ${this.renderStyle()}
-            <div class="input-group mb-1 select-field-filter">
+            <div class="input-group select-field-filter">
                 <select
                     class="form-select"
                     id="${this._prefix}"
                     @change="${this.filterChange}">
                 </select>
-                ${this.all ? this.renderShowSelectAll() : nothing}
+                ${this._config?.all ? this.renderShowSelectAll() : nothing}
             </div>
         `;
     }

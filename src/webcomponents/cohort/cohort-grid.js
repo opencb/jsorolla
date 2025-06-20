@@ -79,7 +79,6 @@ export default class CohortGrid extends LitElement {
         super.update(changedProperties);
     }
 
-
     updated(changedProperties) {
         if (changedProperties.size > 0 && this.active) {
             this.renderTable();
@@ -347,27 +346,33 @@ export default class CohortGrid extends LitElement {
                 title: "Actions",
                 field: "actions",
                 align: "center",
-                formatter: () => `
-                    <div class="d-inline-block dropdown">
-                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
-                            <span>Actions</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a data-action="edit" class="dropdown-item ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID) ? "" : "disabled"}"
-                                        href="javascript: void 0">
-                                    <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                                </a>
-                            </li>
-                            <li>
-                                <a data-action="delete" href="javascript: void 0" class="dropdown-item btn force-text-left disabled">
-                                    <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                `,
+                formatter: () => {
+                    const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
+                        this.opencgaSession.study,
+                        this.opencgaSession.user.id,
+                        this.permissionID,
+                        this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
+                    return `
+                        <div class="d-inline-block dropdown">
+                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
+                                <span>Actions</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "" : "disabled"}" href="javascript: void 0">
+                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-action="delete" class="dropdown-item btn force-text-left disabled" href="javascript: void 0">
+                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    `;
+                },
                 events: {
                     "click a": this.onActionClick.bind(this),
                 },

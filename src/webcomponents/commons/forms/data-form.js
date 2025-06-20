@@ -807,7 +807,7 @@ export default class DataForm extends LitElement {
         }
 
         return html`
-            <div class="${hasErrorMessages ? "text-danger" : nothing}">
+            <div>
                 <div data-testid="${this.config.test?.active ? `${this.config.test.prefix || "test"}-${element.field}` : nothing}">
                     ${contentHtml}
                 </div>
@@ -815,7 +815,7 @@ export default class DataForm extends LitElement {
                     <div class="form-text">${helpMessage}</div>
                 ` : nothing}
                 ${hasErrorMessages ? html`
-                    <div class="d-flex mt-2 text-body-secondary">
+                    <div class="d-flex mt-2 text-danger">
                         <div class="me-2">
                             <i class="${this._getErrorIcon(element)}"></i>
                         </div>
@@ -930,14 +930,16 @@ export default class DataForm extends LitElement {
 
         const content = html`
             <div class="form-check">
-                <input
-                    id="${this._prefix}FilterCheckbox"
-                    type="checkbox"
-                    class="${this._prefix}FilterCheckbox form-check-input"
-                    .checked="${value}"
-                    ?disabled="${disabled}"
-                    @click="${e => this.onFilterChange(element, e.currentTarget.checked)}">
-                <label class="form-check-label" for="${this._prefix}FilterCheckbox">${element.text}</label>
+                <label class="form-check-label">
+                    <input
+                        id="${this._prefix}${element.field}"
+                        type="checkbox"
+                        class="form-check-input"
+                        .checked="${value}"
+                        ?disabled="${disabled}"
+                        @click="${e => this.onFilterChange(element, e.currentTarget.checked)}">
+                        ${element.text}
+                </label>
             </div>
         `;
 

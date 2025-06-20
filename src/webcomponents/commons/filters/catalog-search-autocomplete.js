@@ -80,7 +80,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
         this.RESOURCES = {
             "PROJECT": {
                 searchField: "id",
-                placeholder: "project...",
+                placeholder: "Project...",
                 // client: this.opencgaSession.opencgaClient.projects(),
                 fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.projects().search(params),
                 fields: item => ({
@@ -91,16 +91,15 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 }
             },
             "STUDY": {
-                searchField: "id",
-                placeholder: "study...",
+                searchField: "fqn",
+                placeholder: "Study...",
                 // client: this.opencgaSession.opencgaClient.studies(),
-                fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.studies().search(params),
+                fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.studies().search(this.opencgaSession.project.id, params),
                 fields: item => ({
                     "name": item.id,
                 }),
                 query: {
-                    project: this.opencgaSession.project.id,
-                    include: "id,name"
+                    include: "id,name,fqn"
                 }
             },
             "SAMPLE": {

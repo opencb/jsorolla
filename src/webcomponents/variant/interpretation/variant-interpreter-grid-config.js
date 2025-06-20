@@ -149,6 +149,11 @@ export default class VariantInterpreterGridConfig extends LitElement {
         LitUtils.dispatchCustomEvent(this, "configChange", this.config);
     }
 
+    onClear() {
+        this.onConfigObserver();
+        this.requestUpdate();
+    }
+
     async onSubmit() {
         // const newGridConfig = {...this.config};
         //
@@ -192,6 +197,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 .data="${this.config}"
                 .config="${this.getConfigForm()}"
                 @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${e=>this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>
         `;
@@ -207,8 +213,13 @@ export default class VariantInterpreterGridConfig extends LitElement {
             type: "pills",
             validation: {
                 validate: data => {
-                    return data.geneSet?.ensembl || data.geneSet?.refseq;
-                }
+                    // make sure that geneSet is present in the data object
+                    if (typeof data.geneSet !== "undefined") {
+                        return data.geneSet?.ensembl || data.geneSet?.refseq;
+                    }
+                    return true;
+                },
+                message: "You must select at least one Gene Set (Ensembl or RefSeq) in Transcript Filter.",
             },
             display: {
                 width: 12,
@@ -216,7 +227,8 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 titleAlign: "left",
                 titleWidth: 4,
                 defaultLayout: "vertical",
-                buttonsVisible: true
+                buttonsVisible: true,
+                buttonClearText: "Discard",
             },
             sections: [
                 {

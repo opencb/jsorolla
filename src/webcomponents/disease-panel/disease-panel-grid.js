@@ -466,7 +466,17 @@ export default class DiseasePanelGrid extends LitElement {
                 field: "actions",
                 align: "center",
                 formatter: () => {
-                    const isAdmin = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, this.permissionID);
+                    const simplifyPermissions = this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions;
+                    const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
+                        this.opencgaSession.study,
+                        this.opencgaSession.user.id,
+                        this.permissionID,
+                        simplifyPermissions);
+                    const hasDeletePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
+                        this.opencgaSession.study,
+                        this.opencgaSession.user.id,
+                        "DELETE_PANELS",
+                        simplifyPermissions);
                     return `
                         <div class="d-inline-block dropdown" style="display: flex; justify-content: center;">
                             <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -486,18 +496,18 @@ export default class DiseasePanelGrid extends LitElement {
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a data-action="copy" href="javascript: void 0" class="dropdown-item ${isAdmin ? "" : "disabled" }">
+                                    <a data-action="copy" href="javascript: void 0" class="dropdown-item ${hasWritePermission ? "" : "disabled" }">
                                         <i class="fas fa-user me-1" aria-hidden="true"></i> Make a Copy
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a data-action="edit" class="dropdown-item ${isAdmin ? "" : "disabled" }">
+                                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "" : "disabled" }">
                                         <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
                                     </a>
                                 </li>
                                 <li>
-                                    <a data-action="delete" href="javascript: void 0" class="dropdown-item ${isAdmin ? "" : "disabled" }">
+                                    <a data-action="delete" href="javascript: void 0" class="dropdown-item ${hasDeletePermission ? "" : "disabled" }">
                                         <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
                                     </a>
                                 </li>
