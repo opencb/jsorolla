@@ -17,15 +17,15 @@
 export default class WebUtils {
 
     static formatDisplayName(id, name, defaultValue = "-") {
-        if (id && name) {
+        if (id && name && id !== name) {
             // First case: both id and name exists and are not empty
             return `${name} (${id})`;
-        } else if (id) {
-            // Second case: only id exists
-            return id;
         } else if (name) {
-            // Third case: only name exists
+            // Second case: only name exists
             return name;
+        } else if (id) {
+            // Third case: only id exists
+            return id;
         } else {
             // Fallback: neither id and name exists
             return defaultValue;
