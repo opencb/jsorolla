@@ -98,7 +98,7 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                 });
             }
         });
-        // 2. we need to sort the evidences by gene name
+        // we need to sort the evidences by gene name
         BioinfoUtils.sort(this._evidences, evidence => evidence.genomicFeature?.geneName);
     }
 
@@ -313,6 +313,8 @@ export default class VariantReviewEvidencesGrid extends LitElement {
     }
 
     onEvidenceReviewSave() {
+        // note: we can not use _selectedEvidenceIndex as the evidences may have been filtered
+        // so we need to find the correct index in the _visibleEvidencesIndex array
         const index = this._visibleEvidencesIndex[this._selectedEvidenceIndex];
         this._evidences[index].review = this._selectedEvidence.review;
         this._updatedEvidences.add(this._selectedEvidence.index);
