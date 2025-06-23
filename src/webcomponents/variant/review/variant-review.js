@@ -276,13 +276,19 @@ export default class VariantReview extends LitElement {
         if (!this.opencgaSession || !this._variant) {
             return nothing;
         }
+        const hasPendingChanges = Object.keys(this._updatedParams).length > 0 || this._selected !== this.selected;
 
         return html`
+            ${hasPendingChanges ? html`
+                <div class="alert alert-warning d-flex align-items-center mb-2">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    <span class="ms-2">There are pending changes on this review. Click on <b>Save Review</b> to save them.</span>
+                </div>
+            ` : nothing}
             <div class="d-flex gap-2 mb-2 w-full">
                 ${this.renderVariantInfo()}
                 ${this.renderVariantSelect()}
                 ${this.renderVariantStatus()}
-                ${this.renderPendingChangesToSave()}
             </div>
             <data-form
                 .data="${this._variant}"
