@@ -220,6 +220,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     onCheckVariant(e) {
+        /* 
         const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
         rows.forEach(row => {
             if (e.detail.checked) {
@@ -229,14 +230,17 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             }
         });
         this.requestUpdate();
+        */
     }
 
     onUpdateVariant(e) {
+        /* 
         const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
         rows.forEach(row => {
             this.clinicalAnalysisManager.updateSingleVariant(row);
         });
         this.requestUpdate();
+        */
     }
 
     onFilterVariants(e) {
@@ -324,6 +328,30 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     onSettingsUpdate() {
         this.settingsObserver();
         this.requestUpdate();
+    }
+
+    onVariantReviewAdd(event) {
+        this.clinicalAnalysisManager.addVariantToPrimaryFindings(event.detail.variant).then(() => {
+            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                clinicalAnalysis: this.clinicalAnalysis,
+            });
+        });
+    }
+
+    onVariantReviewUpdate(event) {
+        this.clinicalAnalysisManager.updateVariantInPrimaryFindings(event.detail.variant).then(() => {
+            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                clinicalAnalysis: this.clinicalAnalysis,
+            });
+        });
+    }
+
+    onVariantReviewRemove(event) {
+        this.clinicalAnalysisManager.removeVariantFromPrimaryFindings(event.detail.variant).then(() => {
+            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                clinicalAnalysis: this.clinicalAnalysis,
+            });
+        });
     }
 
     onChangeView(newView) {
@@ -419,6 +447,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             @queryComplete="${this.onQueryComplete}"
                             @updaterow="${this.onUpdateVariant}"
                             @checkrow="${this.onCheckVariant}"
+                            @variantReviewAdd="${e => this.onVariantReviewAdd(e)}"
+                            @variantReviewRemove="${e => this.onVariantReviewRemove(e)}"
+                            @variantReviewUpdate="${e => this.onVariantReviewUpdate(e)}"
                             @settingsUpdate="${this.onSettingsUpdate}">
                         </variant-interpreter-grid>` : html`
                         <variant-interpreter-rearrangement-grid
