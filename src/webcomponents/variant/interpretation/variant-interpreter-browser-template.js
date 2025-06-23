@@ -257,29 +257,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
-    onResetVariants() {
-        this.clinicalAnalysisManager.reset();
-
-        this.preparedQuery = {...this.preparedQuery};
-        this.executedQuery = {...this.executedQuery};
-        delete this.preparedQuery.id;
-        delete this.executedQuery.id;
-
-        this.clinicalAnalysis = {...this.clinicalAnalysis};
-    }
-
-    onSaveVariants(e) {
-        // We save current query so we can execute the same query after refreshing, check 'clinicaAnalysisObserver'
-        this.currentQueryBeforeSaveEvent = this.query;
-
-        const comment = e.detail.comment;
-        this.clinicalAnalysisManager.updateInterpretationVariants(comment, () => {
-            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-                clinicalAnalysis: this.clinicalAnalysis,
-            }, null, {bubbles: true, composed: true});
-        });
-    }
-
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
@@ -331,6 +308,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     onVariantReview(event) {
+        // We save current query so we can execute the same query after refreshing, check 'clinicaAnalysisObserver'
+        this.currentQueryBeforeSaveEvent = this.query;
+
         this.clinicalAnalysisManager.updateVariantInPrimaryFindings(event.detail.variant, event.detail.action).then(() => {
             LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
                 clinicalAnalysis: this.clinicalAnalysis,
@@ -367,12 +347,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                 <variant-interpreter-browser-toolbar
                     class="d-flex"
                     .clinicalAnalysis="${this.clinicalAnalysis}"
-                    .state="${this.clinicalAnalysisManager.state}"
                     .variantInclusionState="${this.variantInclusionState || []}"
-                    .write="${OpencgaCatalogUtils.getStudyEffectivePermission(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS", this.opencgaSession.organization?.configuration?.optimizations?.simplifyPermissions)}"
-                    @filterVariants="${e => this.onFilterVariants(e)}"
-                    @resetVariants="${e => this.onResetVariants(e)}"
-                    @saveInterpretation="${e => this.onSaveVariants(e)}">
+                    @filterVariants="${e => this.onFilterVariants(e)}">
                 </variant-interpreter-browser-toolbar>
                 <!-- Separator and buttons -->
                 <div class="w-px bg-gray-200 mx-1"></div>
