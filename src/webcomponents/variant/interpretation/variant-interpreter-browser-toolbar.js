@@ -40,9 +40,6 @@ class VariantInterpreterBrowserToolbar extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            write: {
-                type: Boolean
-            },
             config: {
                 type: Object
             }
@@ -51,7 +48,6 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.write = false;
         this._config = this.getDefaultConfig();
     }
 
