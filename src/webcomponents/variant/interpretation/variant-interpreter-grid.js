@@ -1618,31 +1618,28 @@ export default class VariantInterpreterGrid extends LitElement {
         //         rows: Array.from(this.checkedVariants.values()),
         //     });
         // }
+        // 1. get the action to perform based on the selected variant state
+        let action = "";
         if (this._selectedVariantChecked && !this.checkedVariants.has(this._selectedVariant.id)) {
-            // 1. if the variant has been selected, emit the variantReviewAdd event
             // we have to update the variant.filters field to include the current filters
+            action = "ADD";
             this._selectedVariant.filters = {
                 ...this.filters,
             };
-            LitUtils.dispatchCustomEvent(this, "variantReviewAdd", null, {
-                id: this._selectedVariant.id,
-                variant: this._selectedVariant,
-            });
         } else if (this._selectedVariantChecked && this.checkedVariants.has(this._selectedVariant.id)) {
-            // 2. if the variant is already selected, emit the variantReviewUpdate event
-            LitUtils.dispatchCustomEvent(this, "variantReviewUpdate", null, {
-                id: this._selectedVariant.id,
-                variant: this._selectedVariant,
-            });
+            action = "UPDATE";
         } else {
-            // 3. if the variant is not selected, emit the variantReviewRemove event
-            LitUtils.dispatchCustomEvent(this, "variantReviewRemove", null, {
-                id: this._selectedVariant.id,
-                variant: this._selectedVariant,
-            });
+            action = "REMOVE";
         }
 
-        // 4. clear selected variant to review
+        // 2. emit the event with the selected variant and action
+        LitUtils.dispatchCustomEvent(this, "variantReview", null, {
+            id: this._selectedVariant.id,
+            variant: this._selectedVariant,
+            action: action,
+        });
+
+        // 3. clear selected variant to review
         this._selectedVariant = null;
         this.gridCommons.clearActiveModal();
     }
