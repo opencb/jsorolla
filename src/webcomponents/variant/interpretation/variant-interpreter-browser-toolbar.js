@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import "./variant-interpreter-browser-save.js";
 
 class VariantInterpreterBrowserToolbar extends LitElement {
 
@@ -33,9 +32,6 @@ class VariantInterpreterBrowserToolbar extends LitElement {
     static get properties() {
         return {
             clinicalAnalysis: {
-                type: Object
-            },
-            state: {
                 type: Object
             },
             variantInclusionState: {
@@ -89,67 +85,6 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         this.querySelector(`div#${this._prefix}View div.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
-    onFilterModifiedVariants() {
-        LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
-            variants: [
-                ...this.state.addedVariants,
-                ...this.state.updatedVariants,
-                ...this.state.removedVariants,
-            ],
-        });
-        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
-        // when user clicks the 'Filter Variants' button in the Save menu.
-        this.querySelector(`div#${this._prefix}Save div.dropdown-menu`)?.classList?.toggle?.("show");
-    }
-
-    onResetModifiedVariants() {
-        LitUtils.dispatchCustomEvent(this, "resetVariants", null);
-        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
-        // when user clicks the 'Discard Changes' button in the Save menu.
-        this.querySelector(`div#${this._prefix}Save div.dropdown-menu`)?.classList?.toggle?.("show");
-    }
-
-    onSaveInterpretation(event) {
-        LitUtils.dispatchCustomEvent(this, "saveInterpretation", null, {
-            comment: event?.detail?.comment || {},
-        });
-        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
-        // when user clicks the 'Save' button in the Save menu.
-        this.querySelector(`div#${this._prefix}Save div.dropdown-menu`)?.classList?.toggle?.("show");
-    }
-
-    onSaveFieldsChange(type, e) {
-        this.comment = this.comment ? this.comment : {};
-        switch (type) {
-            case "message":
-                this.comment.message = e.detail.value;
-                break;
-            case "tags":
-                this.comment.tags = e.detail.value;
-                break;
-        }
-    }
-
-    // onInterpretationChangesModalShow() {
-    //     ModalUtils.show();
-    // }
-
-    // renderInterpretationChangesSaveModal() {
-    //     return ModalUtils.create(this, `${this._prefix}InterpretationChangesSaveModal`, {
-    //         display: {
-    //             modalTitle: "Review and Save Interpretation Changes",
-    //             modalDraggable: false,
-    //             modalSize: "modal-lg"
-    //         },
-    //         render: () => html`
-    //             <variant-interpreter-save
-    //                 .clinicalAnalysis="${this.clinicalAnalysis}"
-    //                 .state="${this.state}">
-    //             </variant-interpreter-save>
-    //         `,
-    //     });
-    // }
-
     renderInclusionVariant(inclusion) {
         const iconHtml = html`
             <div
@@ -199,7 +134,6 @@ class VariantInterpreterBrowserToolbar extends LitElement {
     }
 
     render() {
-        const hasVariantsToSave = this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length;
         const primaryFindings = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
 
         return html`
@@ -260,27 +194,6 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                 <div class="fw-bold lh-sm">No primary findings saved.</div>
                             </div>
                         `}
-                    </div>
-                </div>
-                <div class="dropdown d-none" id="${this._prefix}Save">
-                    <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-light"} ${!this.write ? "disabled" : ""} dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                        <i class="fas fa-save pe-1"></i>
-                        <strong>Save</strong>
-                        ${hasVariantsToSave ? html`
-                            <span class="badge bg-white text-danger rounded-pill ms-1">
-                                ${this.state.addedVariants.length + this.state.removedVariants.length + this.state.updatedVariants.length}
-                            </span>
-                        ` : nothing}
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end shadow" style="width:500px;">
-                        <variant-interpreter-browser-save
-                            .opencgaSession="${this.opencgaSession}"
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .state="${this.state}"
-                            @saveVariants="${e => this.onSaveInterpretation(e)}"
-                            @discardVariants="${() => this.onResetModifiedVariants()}"
-                            @filterVariants="${() => this.onFilterModifiedVariants()}">
-                        </variant-interpreter-browser-save>
                     </div>
                 </div>
             </div>
