@@ -64,12 +64,12 @@ export default class ModalUtils {
                         ${btnsVisible? html`
                             <div class="modal-footer">
                                 ${btnCancelVisible ? html`
-                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" @click="${handleCancel}">
+                                    <button type="button" class="btn btn-light" data-role="modal-cancel" data-bs-dismiss="modal" @click="${handleCancel}">
                                         ${config?.display?.buttonCancelText || config?.display?.btnCancelText || config?.display?.cancelButtonText || "Cancel"}
                                     </button>
                                 ` : nothing}
                                 ${btnSaveVisible ? html`
-                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="${handleOk}">
+                                    <button type="button" class="btn btn-primary" data-role="modal-save" data-bs-dismiss="modal" @click="${handleOk}">
                                         ${config?.display?.buttonSaveText || config?.display?.btnSaveText || config?.display?.okButtonText || "Save"}
                                     </button>
                                 ` : nothing}
