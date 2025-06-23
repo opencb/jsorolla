@@ -1590,34 +1590,6 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     onVariantReviewSave() {
-        // 1. check if the variant has changed its selected state
-        // if (this.checkedVariants.has(this._selectedVariant.id) !== this._selectedVariantChecked) {
-        //     if (this._selectedVariantChecked) {
-        //         this._selectedVariant.filters = {
-        //             ...this.filters,
-        //         };
-        //         this.checkedVariants.set(this._selectedVariant.id, this._selectedVariant);
-        //     } else {
-        //         this.checkedVariants.delete(this._selectedVariant.id);
-        //     }
-        //     // dispatch checkrow event to notify the change
-        //     LitUtils.dispatchCustomEvent(this, "checkrow", null, {
-        //         id: this._selectedVariant.id,
-        //         row: this._selectedVariant,
-        //         checked: this._selectedVariantChecked,
-        //         rows: Array.from(this.checkedVariants.values())
-        //     });
-        // }
-
-        // // 2. if the variant is still selected, we need to update the variant in the primary findings
-        // if (this._selectedVariantChecked) {
-        //     this.checkedVariants.set(this._selectedVariant.id, this._selectedVariant);
-        //     LitUtils.dispatchCustomEvent(this, "updaterow", null, {
-        //         id: this._selectedVariant.id,
-        //         row: this._selectedVariant,
-        //         rows: Array.from(this.checkedVariants.values()),
-        //     });
-        // }
         // 1. get the action to perform based on the selected variant state
         let action = "";
         if (this._selectedVariantChecked && !this.checkedVariants.has(this._selectedVariant.id)) {
