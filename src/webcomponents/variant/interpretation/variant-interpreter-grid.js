@@ -184,7 +184,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     size: "modal-3xl",
                     buttonsVisible: true,
                     buttonCancelText: "Cancel",
-                    buttonSaveText: "Save",
+                    buttonSaveText: "Save Review",
                 },
                 render: () => html`
                     <variant-review
