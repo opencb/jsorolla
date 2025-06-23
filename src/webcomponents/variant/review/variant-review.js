@@ -84,6 +84,19 @@ export default class VariantReview extends LitElement {
         super.update(changedProperties);
     }
 
+    updated() {
+        // enable or disable the save button based on whether there are pending changes
+        const hasPendingChanges = Object.keys(this._updatedParams).length > 0 || this._selected !== this.selected;
+        const buttonElement = this.closest(".modal-dialog")?.querySelector(`button[data-role="modal-save"]`);
+        if (buttonElement) {
+            if (hasPendingChanges) {
+                buttonElement.removeAttribute("disabled");
+            } else {
+                buttonElement.setAttribute("disabled", "true");
+            }
+        }
+    }
+
     variantIdObserver() {
         if (this.opencgaSession && this.variantId) {
             this.opencgaSession.opencgaClient.clinical()
