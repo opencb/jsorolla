@@ -1591,35 +1591,58 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onVariantReviewSave() {
         // 1. check if the variant has changed its selected state
-        if (this.checkedVariants.has(this._selectedVariant.id) !== this._selectedVariantChecked) {
-            if (this._selectedVariantChecked) {
-                this._selectedVariant.filters = {
-                    ...this.filters,
-                };
-                this.checkedVariants.set(this._selectedVariant.id, this._selectedVariant);
-            } else {
-                this.checkedVariants.delete(this._selectedVariant.id);
-            }
-            // dispatch checkrow event to notify the change
-            LitUtils.dispatchCustomEvent(this, "checkrow", null, {
+        // if (this.checkedVariants.has(this._selectedVariant.id) !== this._selectedVariantChecked) {
+        //     if (this._selectedVariantChecked) {
+        //         this._selectedVariant.filters = {
+        //             ...this.filters,
+        //         };
+        //         this.checkedVariants.set(this._selectedVariant.id, this._selectedVariant);
+        //     } else {
+        //         this.checkedVariants.delete(this._selectedVariant.id);
+        //     }
+        //     // dispatch checkrow event to notify the change
+        //     LitUtils.dispatchCustomEvent(this, "checkrow", null, {
+        //         id: this._selectedVariant.id,
+        //         row: this._selectedVariant,
+        //         checked: this._selectedVariantChecked,
+        //         rows: Array.from(this.checkedVariants.values())
+        //     });
+        // }
+
+        // // 2. if the variant is still selected, we need to update the variant in the primary findings
+        // if (this._selectedVariantChecked) {
+        //     this.checkedVariants.set(this._selectedVariant.id, this._selectedVariant);
+        //     LitUtils.dispatchCustomEvent(this, "updaterow", null, {
+        //         id: this._selectedVariant.id,
+        //         row: this._selectedVariant,
+        //         rows: Array.from(this.checkedVariants.values()),
+        //     });
+        // }
+        if (this._selectedVariantChecked && !this.checkedVariants.has(this._selectedVariant.id)) {
+            // 1. if the variant has been selected, emit the variantReviewAdd event
+            // we have to update the variant.filters field to include the current filters
+            this._selectedVariant.filters = {
+                ...this.filters,
+            };
+            LitUtils.dispatchCustomEvent(this, "variantReviewAdd", null, {
                 id: this._selectedVariant.id,
-                row: this._selectedVariant,
-                checked: this._selectedVariantChecked,
-                rows: Array.from(this.checkedVariants.values())
+                variant: this._selectedVariant,
+            });
+        } else if (this._selectedVariantChecked && this.checkedVariants.has(this._selectedVariant.id)) {
+            // 2. if the variant is already selected, emit the variantReviewUpdate event
+            LitUtils.dispatchCustomEvent(this, "variantReviewUpdate", null, {
+                id: this._selectedVariant.id,
+                variant: this._selectedVariant,
+            });
+        } else {
+            // 3. if the variant is not selected, emit the variantReviewRemove event
+            LitUtils.dispatchCustomEvent(this, "variantReviewRemove", null, {
+                id: this._selectedVariant.id,
+                variant: this._selectedVariant,
             });
         }
 
-        // 2. if the variant is still selected, we need to update the variant in the primary findings
-        if (this._selectedVariantChecked) {
-            this.checkedVariants.set(this._selectedVariant.id, this._selectedVariant);
-            LitUtils.dispatchCustomEvent(this, "updaterow", null, {
-                id: this._selectedVariant.id,
-                row: this._selectedVariant,
-                rows: Array.from(this.checkedVariants.values()),
-            });
-        }
-
-        // 3. clear selected variant to review
+        // 4. clear selected variant to review
         this._selectedVariant = null;
         this.gridCommons.clearActiveModal();
     }
