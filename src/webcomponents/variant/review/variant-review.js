@@ -145,6 +145,7 @@ export default class VariantReview extends LitElement {
         this._variant.status = event.currentTarget.value;
         this._updatedParams = FormUtils.getUpdatedFields(this.variant, this._updatedParams, "status", event.currentTarget.value);
         this.dispatchChange();
+        this.requestUpdate();
     }
 
     onConfidenceChange(event) {
@@ -155,6 +156,7 @@ export default class VariantReview extends LitElement {
         };
         this._updatedParams = FormUtils.getUpdatedFields(this.variant, this._updatedParams, "confidence.value", event.currentTarget.value);
         this.dispatchChange();
+        this.requestUpdate();
     }
 
     onFieldChange(event) {
