@@ -159,10 +159,12 @@ export default class VariantReview extends LitElement {
                     comments: this._variant.comments,
                 };
             }
-            this.requestUpdate();
-        } else if (event.detail.param === "discussion") {
-            this._updatedParams.discussion = this._variant.discussion;
+        } else if (event.detail.param === "discussion.text") {
+            this._updatedParams.discussion = {
+                text: this._variant.discussion?.text || "",
+            };
         }
+        this.requestUpdate();
         this.dispatchChange();
     }
 
@@ -261,6 +263,15 @@ export default class VariantReview extends LitElement {
         `;
     }
 
+    renderPendingChangesToSave() {
+        const hasPendingChanges = Object.keys(this._updatedParams).length > 0 || this._selected !== this.selected;
+        return html`
+            <div class="alert ${hasPendingChanges ? "alert-warning" : "alert-light"} d-flex align-items-center">
+                <i class="fa fa-save fs-3"></i>
+            </div>
+        `;
+    }
+
     render() {
         if (!this.opencgaSession || !this._variant) {
             return nothing;
@@ -271,6 +282,7 @@ export default class VariantReview extends LitElement {
                 ${this.renderVariantInfo()}
                 ${this.renderVariantSelect()}
                 ${this.renderVariantStatus()}
+                ${this.renderPendingChangesToSave()}
             </div>
             <data-form
                 .data="${this._variant}"
