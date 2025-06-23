@@ -405,8 +405,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             .config="${this._config.filter.result.grid}"
                             .active="${this.active}"
                             @queryComplete="${this.onQueryComplete}"
-                            @updaterow="${this.onUpdateVariant}"
-                            @checkrow="${this.onCheckVariant}"
                             @variantReview="${e => this.onVariantReview(e)}"
                             @settingsUpdate="${this.onSettingsUpdate}">
                         </variant-interpreter-grid>` : html`
