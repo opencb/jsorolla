@@ -330,24 +330,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
-    onVariantReviewAdd(event) {
-        this.clinicalAnalysisManager.addVariantToPrimaryFindings(event.detail.variant).then(() => {
-            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-                clinicalAnalysis: this.clinicalAnalysis,
-            });
-        });
-    }
-
-    onVariantReviewUpdate(event) {
-        this.clinicalAnalysisManager.updateVariantInPrimaryFindings(event.detail.variant).then(() => {
-            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-                clinicalAnalysis: this.clinicalAnalysis,
-            });
-        });
-    }
-
-    onVariantReviewRemove(event) {
-        this.clinicalAnalysisManager.removeVariantFromPrimaryFindings(event.detail.variant).then(() => {
+    onVariantReview(event) {
+        this.clinicalAnalysisManager.updateVariantInPrimaryFindings(event.detail.variant, event.detail.action).then(() => {
             LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
                 clinicalAnalysis: this.clinicalAnalysis,
             });
@@ -447,9 +431,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             @queryComplete="${this.onQueryComplete}"
                             @updaterow="${this.onUpdateVariant}"
                             @checkrow="${this.onCheckVariant}"
-                            @variantReviewAdd="${e => this.onVariantReviewAdd(e)}"
-                            @variantReviewRemove="${e => this.onVariantReviewRemove(e)}"
-                            @variantReviewUpdate="${e => this.onVariantReviewUpdate(e)}"
+                            @variantReview="${e => this.onVariantReview(e)}"
                             @settingsUpdate="${this.onSettingsUpdate}">
                         </variant-interpreter-grid>` : html`
                         <variant-interpreter-rearrangement-grid
