@@ -262,7 +262,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         `}
                     </div>
                 </div>
-                <div class="dropdown d-flex" id="${this._prefix}Save">
+                <div class="dropdown d-none" id="${this._prefix}Save">
                     <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-light"} ${!this.write ? "disabled" : ""} dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <i class="fas fa-save pe-1"></i>
                         <strong>Save</strong>
@@ -281,7 +281,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             @discardVariants="${() => this.onResetModifiedVariants()}"
                             @filterVariants="${() => this.onFilterModifiedVariants()}">
                         </variant-interpreter-browser-save>
-                        </div>
+                    </div>
                 </div>
             </div>
         `;
