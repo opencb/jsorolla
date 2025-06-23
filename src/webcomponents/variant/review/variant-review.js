@@ -93,7 +93,7 @@ export default class VariantReview extends LitElement {
                     includeSampleId: "true",
                 })
                 .then(response => {
-                    this._updateParams = {};
+                    this._updatedParams = {};
                     this._variant = response?.responses?.[0]?.results?.[0];
                     this.requestUpdate();
                 })
