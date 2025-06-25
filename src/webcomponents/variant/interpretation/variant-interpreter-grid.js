@@ -1055,7 +1055,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     },
                     align: "center",
                     events: {
-                        "click button": (event, value, row) => this.onVariantCurate(event, row),
+                        "click button": (event, value, row) => this.onVariantReview(event, row),
                     },
                     excludeFromSettings: true,
                     excludeFromExport: true,
@@ -1542,8 +1542,7 @@ export default class VariantInterpreterGrid extends LitElement {
         this.gridCommons.clearActiveModal();
     }
 
-    // TODO: rename this method to variantReview
-    onVariantCurate(event, row) {
+    onVariantReview(event, row) {
         // check if the variant is already selected
         if (this.checkedVariants.has(row.id)) {
             this._selectedVariant = UtilsNew.objectClone(this.checkedVariants.get(row.id));
