@@ -307,8 +307,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 pageList: this._config.pageList,
                 paginationVAlign: "bottom",
                 formatShowingRows: (pageFrom, pageTo, totalRows) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
-                detailView: this._config.detailView,
-                detailFormatter: (value, row) => this.detailFormatter(value, row),
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: this,
@@ -406,17 +404,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onDblClickRow: (row, element) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
-                },
                 onLoadSuccess: data => {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
@@ -427,47 +414,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.requestUpdate();
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onExpandRow: (index, row) => {
-                    // Automatically select this row after clicking on "+" icons
-                    this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
-
-                    // Listen to Show/Hide link in the detail formatter consequence type table
-                    // TODO remove this
-                    document.getElementById(this._prefix + row.id + "ShowEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-                    document.getElementById(this._prefix + row.id + "HideEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-
-                    document.getElementById(this._prefix + row.id + "ShowCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-                    document.getElementById(this._prefix + row.id + "HideCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-
-                    // Enable or disable evidence select
-                    Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
-                        if (row.id === element.dataset.variantId) {
-                            // eslint-disable-next-line no-param-reassign
-                            element.disabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
-                            element.addEventListener("change", e => this.onEvidenceCheck(e));
-                        }
-                    });
-
-                    // Enable or disable evidence edit and register event listeners
-                    Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
-                        if (row.id === element.dataset.variantId) {
-                            let isEvidenceSelected = false;
-                            if (this.checkedVariants.has(row.id)) {
-                                const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
-                                const evidence = this.checkedVariants.get(row.id).evidences[evidenceIndex];
-
-                                isEvidenceSelected = evidence.review?.select || false;
-                            }
-
-                            // Prevent editing evidences of not selected variants
-                            // eslint-disable-next-line no-param-reassign
-                            element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
-                            element.addEventListener("click", e => this.onVariantEvidenceReview(e));
-                        }
-                    });
-
-                    UtilsNew.initTooltip(this);
-                },
                 rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
             });
         }
@@ -510,62 +456,9 @@ export default class VariantInterpreterGrid extends LitElement {
             pageList: this._config.pageList,
             paginationVAlign: "bottom",
             formatShowingRows: this.gridCommons.formatShowingRows,
-            detailView: this._config.detailView,
-            detailFormatter: (value, row) => this.detailFormatter(value, row),
             loadingTemplate: () => GridCommons.loadingFormatter(),
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: this,
-            onDblClickRow: (row, element) => {
-                // We detail view is active we expand the row automatically.
-                // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                if (this._config.detailView) {
-                    if (element[0].innerHTML.includes("fa-plus")) {
-                        $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
-                    } else {
-                        $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
-                    }
-                }
-            },
-            onExpandRow: (index, row) => {
-                // Automatically select this row after clicking on "+" icons
-                this.gridCommons.onClickRow(row.id, row, this.querySelector(`tr[data-index="${index}"]`));
-
-                // Listen to Show/Hide link in the detail formatter consequence type table
-                document.getElementById(this._prefix + row.id + "ShowEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-                document.getElementById(this._prefix + row.id + "HideEvidence")?.addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-
-                document.getElementById(this._prefix + row.id + "ShowCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-                document.getElementById(this._prefix + row.id + "HideCt")?.addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
-
-                // Enable or disable evidence select
-                Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
-                    if (row.id === element.dataset.variantId) {
-                        // eslint-disable-next-line no-param-reassign
-                        element.disabled = !this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
-                        element.addEventListener("change", e => this.onEvidenceCheck(e));
-                    }
-                });
-
-                // Enable or disable evidence edit and register event listeners
-                Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
-                    if (row.id === element.dataset.variantId) {
-                        let isEvidenceSelected = false;
-                        if (this.checkedVariants.has(row.id)) {
-                            const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
-                            const evidence = this.checkedVariants.get(row.id).evidences[evidenceIndex];
-
-                            isEvidenceSelected = evidence.review?.select || false;
-                        }
-
-                        // Prevent editing evidences of not selected variants
-                        // eslint-disable-next-line no-param-reassign
-                        element.disabled = !isEvidenceSelected || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
-                        element.addEventListener("click", e => this.onVariantEvidenceReview(e));
-                    }
-                });
-
-                UtilsNew.initTooltip(this);
-            },
             onPostBody: data => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
@@ -576,6 +469,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     // Grid formatters
+    // TODO: REMOVE
     detailFormatter(value, row) {
         let variant = row;
         if (this.checkedVariants && this.checkedVariants.has(variant.id)) {
