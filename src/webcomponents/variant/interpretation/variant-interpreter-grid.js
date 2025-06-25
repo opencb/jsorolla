@@ -1555,35 +1555,6 @@ export default class VariantInterpreterGrid extends LitElement {
         this.gridCommons.changeActiveModal("review-variant");
     }
 
-    // onVariantSelectChange(event) {
-    //     const variantId = event.detail.variant.id;
-
-    //     // NOTE Josemi 20221121: we will check first if this variant is in the primaryFindings list
-    //     // If not, we will get the variant from the rows list
-    //     let variant = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).find(item => item.id === variantId);
-    //     if (!variant) {
-    //         variant = this._rows.find(row => row.id === variantId);
-    //     }
-
-    //     if (event.detail.selected) {
-    //         // Add current filter executed when variant is checked
-    //         variant.filters = {...this.filters};
-    //         this.checkedVariants.set(variantId, variant);
-    //     } else {
-    //         this.checkedVariants.delete(variantId);
-    //     }
-
-    //     LitUtils.dispatchCustomEvent(this, "checkrow", null, {
-    //         id: variantId,
-    //         row: variant,
-    //         checked: event.detail.selected,
-    //         rows: Array.from(this.checkedVariants.values())
-    //     });
-
-    //     // needed to notify variant-review that the variant is now selected/unselected
-    //     this.requestUpdate();
-    // }
-
     onVariantReviewChange(event) {
         this._selectedVariant = event.detail.variant;
         this._selectedVariantChecked = event.detail.selected;
