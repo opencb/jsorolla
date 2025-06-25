@@ -1221,8 +1221,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 `;
             });
 
-        const reviewId = `${this._prefix}${row.id}VariantReviewActionButton`;
-        const reviewDisabled = (!this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+        const reviewDisabled = (this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
         const position = row.chromosome + ":" + row.start + "-" + row.end;
 
         return `
@@ -1231,8 +1230,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a id="${reviewId}" class="dropdown-item reviewButton ${reviewDisabled} cursor-pointer" data-action="review">
-                        <i class="fas fa-edit me-1"></i> Edit
+                    <a class="dropdown-item ${reviewDisabled} cursor-pointer" data-action="review">
+                        <i class="fas fa-edit me-1"></i> Review Variant
                     </a>
                     <hr class="dropdown-divider">
                     <div class="dropdown-header">External Links</div>
@@ -1286,12 +1285,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 break;
             case "review":
             case "edit":
-                // TODO
-                // if (this.checkedVariants && this.checkedVariants.has(variant.id)) {
-                //     // Generate a clone of the variant review to prevent changing original values
-                //     this._selectedVariant = UtilsNew.objectClone(this.checkedVariants.get(variant.id));
-                //     this.gridCommons.changeActiveModal("review-variant");
-                // }
+                this.onVariantReview(event, variant);
                 break;
             case "copy-json":
                 UtilsNew.copyToClipboard(JSON.stringify(variant, null, "\t"));
