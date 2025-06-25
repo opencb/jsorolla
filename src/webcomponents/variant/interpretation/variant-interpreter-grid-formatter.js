@@ -1032,7 +1032,7 @@ export default class VariantInterpreterGridFormatter {
             <div>
                 ${config?.showEditReview ? `
                     <div class="d-flex justify-content-center">
-                        <button class="d-flex align-items-center btn btn-sm ${checked ? "btn-primary" : "btn-light"} ${disabled ? "disabled" : ""}" data-variant="${variant.id}">
+                        <button class="d-flex align-items-center btn ${checked ? "btn-primary" : "btn-light"} ${disabled ? "disabled" : ""}" data-variant="${variant.id}">
                             <i class="fa fa-edit pe-2"></i>
                             <span>Review</span>
                         </button>
