@@ -831,7 +831,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "interpretation",
                     align: "center",
                     rowspan: 1,
-                    colspan: 5,
+                    colspan: 3,
                 },
                 {
                     id: "actions",
@@ -1003,45 +1003,6 @@ export default class VariantInterpreterGrid extends LitElement {
                         (this.clinicalAnalysis.type?.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type?.toUpperCase() === "FAMILY") &&
                         this.gridCommons.isColumnVisible("prediction", "interpretation")
                     ),
-                },
-                {
-                    id: "Select",
-                    title: "Select",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        const checked = this.checkedVariants?.has(row.id) ? "checked" : "";
-                        const disabled = (this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
-                        return `
-                            <input class="check check-variant" type="checkbox" data-variant="${row.id}" ${checked} ${disabled}>
-                        `;
-                    },
-                    align: "center",
-                    events: {
-                        "click input": e => this.onVariantCheck(e)
-                    },
-                    visible: false, // this._config.showSelectCheckbox,
-                    excludeFromSettings: true,
-                    excludeFromExport: true // this is used in opencga-export
-                },
-                {
-                    id: "review-old",
-                    title: "Review",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: (value, row, index) => {
-                        const disabled = (!this.checkedVariants?.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
-                        const checked = this.checkedVariants.has(row.id);
-                        const variant = checked ? this.checkedVariants.get(row.id) : row;
-                        return VariantInterpreterGridFormatter.reviewFormatter(variant, index, checked, disabled, this._prefix, this._config);
-                    },
-                    align: "center",
-                    events: {
-                        "click button": (event, value, row) => this.onActionClick(event, row),
-                    },
-                    excludeFromSettings: true,
-                    visible: false, // this.review || this._config?.showReview,
-                    excludeFromExport: true // this is used in opencga-export
                 },
                 {
                     id: "review",
@@ -1402,70 +1363,6 @@ export default class VariantInterpreterGrid extends LitElement {
         // $("#" + this._prefix + "ConfigModal").modal("show");
         const configModal = new bootstrap.Modal("#" + this._prefix + "ConfigModal");
         configModal.show();
-    }
-
-    onVariantCheck(e) {
-        const variantId = e.currentTarget.dataset.variant;
-
-        // NOTE Josemi 20221121: we will check first if this variant is in the primaryFindings list
-        // If not, we will get the variant from the rows list
-        let variant = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).find(item => item.id === variantId);
-        if (!variant) {
-            variant = this._rows.find(e => e.id === variantId);
-        }
-
-        if (e.currentTarget.checked) {
-            // Add current filter executed when variant is checked
-            variant.filters = {...this.filters};
-            this.checkedVariants.set(variantId, variant);
-        } else {
-            this.checkedVariants.delete(variantId);
-        }
-
-        // Set 'Edit' button as enabled/disabled in 'Review' column
-        // Josemi NOTE 20240205 - Edit buton in column is not rendered when 'Review' column is hidden
-        const reviewButton = document.getElementById(`${this._prefix}${variantId}VariantReviewButton`);
-        if (reviewButton) {
-            reviewButton.disabled = !e.currentTarget.checked;
-        }
-
-        // Set 'Edit' button as enabled/disabled in 'Actions' dropdown
-        // Josemi NOTE 20240205 - Edit buton in actions dropdown is not rendered when when actions column is hidden
-        const reviewActionButton = document.getElementById(`${this._prefix}${variantId}VariantReviewActionButton`);
-        if (reviewActionButton) {
-            if (e.currentTarget.checked) {
-                reviewActionButton.classList.remove("disabled");
-            } else {
-                reviewActionButton.classList.add("disabled");
-            }
-        }
-
-        // Enable or disable evidences select
-        Array.from(document.getElementsByClassName(`${this._prefix}EvidenceReviewCheckbox`)).forEach(element => {
-            if (variant.id === element.dataset.variant) {
-                // eslint-disable-next-line no-param-reassign
-                element.disabled = !this.checkedVariants.has(variant.id);
-            }
-        });
-
-        // Set 'Edit' button of evidences review as enabled/disabled
-        Array.from(document.getElementsByClassName(this._prefix + "EvidenceReviewButton")).forEach(element => {
-            if (variant.id === element.dataset.variant) {
-                const evidenceIndex = parseInt(element.dataset.clinicalEvidenceIndex);
-                const isEvidenceSelected = variant.evidences[evidenceIndex]?.review?.select || false;
-                // eslint-disable-next-line no-param-reassign
-                element.disabled = !this.checkedVariants.has(variant.id) || !isEvidenceSelected;
-            }
-        });
-
-        this.dispatchEvent(new CustomEvent("checkrow", {
-            detail: {
-                id: variantId,
-                row: variant,
-                checked: e.currentTarget.checked,
-                rows: Array.from(this.checkedVariants.values())
-            }
-        }));
     }
 
     onEvidenceCheck(event) {
