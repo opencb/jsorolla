@@ -1044,14 +1044,14 @@ export default class VariantInterpreterGridFormatter {
                     </div>
                 ` : ""}
                 ${checked && (variant.comments?.length > 0 || variant.discussion?.text) ? `
-                    <div class="d-flex justify-content-center gap-4">
+                    <div class="d-flex justify-content-center gap-2">
                         ${variant.discussion?.text ? `
-                            <a tooltip-title='Discussion' tooltip-text='${discussionTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <a class='text-decoration-none text-body' tooltip-title='Discussion' tooltip-text='${discussionTooltipText}' tooltip-position-at='left bottom' tooltip-position-my='right top'>
                                 <i class="fas fa-comment-alt"></i>
                             </a>
                         ` : ""}
                         ${variant.comments?.length > 0 ? `
-                            <a class="d-flex align-items-center" tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <a class='d-flex align-items-center text-decoration-none text-body' tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at='left bottom' tooltip-position-my='right top'>
                                 <i class="fas fa-comments pe-1"></i>
                                 <span>${variant.comments.length}</span>
                             </a>
