@@ -1000,6 +1000,68 @@ export default class VariantInterpreterGridFormatter {
         `;
     }
 
+    static newReviewFormatter(row, clinicalAnalysis, checkedVariants, config) {
+        const disabled = clinicalAnalysis.locked || clinicalAnalysis.interpretation?.locked;
+        const checked = checkedVariants.has(row.id);
+        const variant = checked ? checkedVariants.get(row.id) : row;
+
+        let discussionTooltipText = "";
+        if (variant.discussion?.text) {
+            discussionTooltipText = `
+                <div style="min-width:200px;">
+                    <div>${variant.discussion?.text || "-"}</div>
+                    <div style="margin-top:6px;">
+                        Added by <b>${variant.discussion?.author || "-"}</b> on <b>${UtilsNew.dateFormatter(variant.discussion?.date)}</b>
+                    </div>
+                </div>
+            `;
+        }
+        // Prepare comments
+        const commentsTooltipText = `
+            <div style="min-width:200px;">
+                ${(variant.comments || []).map(comment => `
+                    <div style="padding:4px;">
+                        <label>${comment.author} - ${UtilsNew.dateFormatter(comment.date)}</label>
+                        <div>${comment.message || "-"}</div>
+                    </div>
+                `).join("")}
+            </div>
+        `;
+
+        return `
+            <div>
+                ${config?.showEditReview ? `
+                    <div class="d-flex justify-content-center">
+                        <button class="d-flex align-items-center btn btn-sm ${checked ? "btn-primary" : "btn-light"} ${disabled ? "disabled" : ""}" data-variant="${variant.id}">
+                            <i class="fa fa-edit pe-2"></i>
+                            <span>Review</span>
+                        </button>
+                    </div>
+                `: ""}
+                ${checked && variant?.status ? `
+                    <div class="text-body-secondary text-center my-2">
+                        ${variant.status}
+                    </div>
+                ` : ""}
+                ${checked && (variant.comments?.length > 0 || variant.discussion?.text) ? `
+                    <div class="d-flex justify-content-center gap-4">
+                        ${variant.discussion?.text ? `
+                            <a tooltip-title='Discussion' tooltip-text='${discussionTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                                <i class="fas fa-comment-alt"></i>
+                            </a>
+                        ` : ""}
+                        ${variant.comments?.length > 0 ? `
+                            <a class="d-flex align-items-center" tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                                <i class="fas fa-comments pe-1"></i>
+                                <span>${variant.comments.length}</span>
+                            </a>
+                        ` : ""}
+                    </div>
+                ` : ""}
+            </div>
+        `;
+    }
+
     static rearrangementFeatureOverlapFormatter(variant, genes, opencgaSession) {
         const overlaps = [];
         (variant?.annotation?.consequenceTypes || [])
