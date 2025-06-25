@@ -25,8 +25,6 @@ import NotificationUtils from "../../commons/utils/notification-utils.js";
 import CustomActions from "../../commons/custom-actions";
 import VariantUtils from "../variant-utils.js";
 import WebUtils from "../../commons/utils/web-utils.js";
-import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
-import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
 import "../../commons/grid-toolbar.js";
 import "../../loading-spinner.js";
 import "../review/variant-review.js";
