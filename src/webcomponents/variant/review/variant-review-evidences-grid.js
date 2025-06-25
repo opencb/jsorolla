@@ -217,10 +217,10 @@ export default class VariantReviewEvidencesGrid extends LitElement {
         const items = (evidence?.genomicFeature?.consequenceTypes || []).map(so => {
             const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
             return `
-                <div class="" style="color:${color};">
+                <div class="d-flex align-items-center gap-2" style="color:${color};">
                     <span>${so.name}</span>
-                    <a class="" href="${BioinfoUtils.getSequenceOntologyLink(so.accession)}" target="_blank">
-                        <i class="fas fa-external-link-alt"></i>
+                    <a href="${BioinfoUtils.getSequenceOntologyLink(so.accession)}" target="_blank">
+                        <i class="fas fa-external-link-alt fs-8"></i>
                     </a>
                 </div>
             `;
