@@ -1221,7 +1221,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 `;
             });
 
-        const reviewDisabled = (this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
+        const reviewDisabled = this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
         const position = row.chromosome + ":" + row.start + "-" + row.end;
 
         return `
@@ -1230,8 +1230,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item ${reviewDisabled} cursor-pointer" data-action="review">
-                        <i class="fas fa-edit me-1"></i> Review Variant
+                    <a class="dropdown-item ${reviewDisabled ? "disabled" : "cursor-pointer"}" data-action="review">
+                        <i class="fas fa-edit pe-2"></i>
+                        <span>Review Variant</span>
                     </a>
                     <hr class="dropdown-divider">
                     <div class="dropdown-header">External Links</div>
