@@ -169,11 +169,11 @@ export default class VariantReview extends LitElement {
                     author: this.opencgaSession?.user?.id || "-",
                     date: UtilsNew.getDatetime(),
                 };
-                this._updatedParams = {
-                    ...this._updatedParams,
-                    comments: this._variant.comments,
-                };
+                this._updatedParams.comments = this._variant.comments;
             }
+            // force to refresh the updated params object
+            // this is to make sure that the current comment is displayed in the form
+            this._updatedParams = {...this._updatedParams};
         } else if (event.detail.param === "discussion.text") {
             this._updatedParams.discussion = {
                 text: this._variant.discussion?.text || "",
