@@ -1049,9 +1049,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        return `
-                            <button class="btn btn-light btn-sm">Review</button>
-                        `;
+                        return VariantInterpreterGridFormatter.newReviewFormatter(row, this.clinicalAnalysis, this.checkedVariants, this._config);
                     },
                     align: "center",
                     events: {
