@@ -17,7 +17,6 @@
 import {html, LitElement, nothing} from "lit";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import WebUtils from "../../commons/utils/web-utils.js";
 import Region from "../../../core/bioinfo/region.js";
