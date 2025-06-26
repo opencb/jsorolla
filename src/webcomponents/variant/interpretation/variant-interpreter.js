@@ -164,7 +164,9 @@ class VariantInterpreter extends LitElement {
 
     onClinicalAnalysisUpdate() {
         return this.opencgaSession.opencgaClient.clinical()
-            .info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
+            .info(this.clinicalAnalysis.id, {
+                study: this.opencgaSession.study.fqn,
+            })
             .then(response => {
                 this.clinicalAnalysis = response.responses[0].results[0];
             });

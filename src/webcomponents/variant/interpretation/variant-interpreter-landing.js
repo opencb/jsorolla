@@ -125,7 +125,7 @@ class VariantInterpreterLanding extends LitElement {
                             <div class="col-md-10 offset-md-1">
                                 <tool-header title="Case Manager - ${clinicalAnalysis?.id ?? ""}"></tool-header>
                                 <clinical-analysis-update
-                                    .clinicalAnalysisId="${clinicalAnalysis?.id}"
+                                    .clinicalAnalysis="${clinicalAnalysis}"
                                     .opencgaSession="${opencgaSession}"
                                     .displayConfig="${displayConfig}"
                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
