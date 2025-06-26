@@ -84,8 +84,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.review = false;
         this.active = true;
 
-        this._selectedVariant = null;
-        this._selectedVariantChecked = false;
+        this._selectedVariants = null;
+        this._selectedVariantsChecked = false;
 
         this.gridCommons = null;
         this.clinicalAnalysisManager = null;
@@ -709,9 +709,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     },
                     align: "center",
                     events: {
-                        "click input": event => this.onVariantCheck(event),
+                        "click button": event => this.onVariantCheck(event),
                     },
-                    visible: this._config.showSelectCheckbox,
+                    visible: false, // this._config.showSelectCheckbox,
                     excludeFromExport: true // this is used in opencga-export
                 },
                 {
@@ -719,14 +719,11 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row, index) => {
-                        const disabled = (!this.checkedVariants?.has(row[0].id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
-                        const checked = this.checkedVariants.has(row[0].id);
-                        const variant = checked ? this.checkedVariants.get(row[0].id) : row[0];
-                        return VariantInterpreterGridFormatter.reviewFormatter(variant, index, checked, disabled, this._prefix, this._config);
+                        return VariantInterpreterGridFormatter.newReviewFormatter(row[0], this.clinicalAnalysis, this.checkedVariants, this._config);
                     },
                     align: "center",
                     events: {
-                        "click button": (event, value, row) => this.onActionClick(event, row),
+                        "click button": (event, value, row) => this.onVariantReview(event, row),
                     },
                     visible: this.review || this._config.showReview,
                     excludeFromExport: true // this is used in opencga-export
@@ -772,18 +769,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 break;
             case "edit":
             case "review":
-                this._selectedVariant = null;
-                if (this.checkedVariants && this.checkedVariants.has(variants[0].id)) {
-                    this._selectedVariant = [
-                        UtilsNew.objectClone(this.checkedVariants.get(variants[0].id)),
-                        UtilsNew.objectClone(this.checkedVariants.get(variants[1].id)),
-                    ];
-                    this.gridCommons.changeActiveModal("review-variant");
-                    // this.requestUpdate();
-                    // eslint-disable-next-line no-undef
-                    // const reviewSampleModal = new bootstrap.Modal("#" + this._prefix + "ReviewSampleModal");
-                    // reviewSampleModal.show();
-                }
+                this.onVariantReview(event, variants);
                 break;
             case "download":
                 UtilsNew.downloadData([JSON.stringify(variants, null, "\t")], variants.map(v => v.id).join("-") + ".json");
@@ -951,6 +937,22 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             row: this._rows[index],
             rows: Array.from(this.checkedVariants.values()),
         });
+    }
+
+    onVariantReview(event, variants) {
+        if (this.checkedVariants.has(variants[0].id)) {
+            this._selectedVariants = [
+                UtilsNew.objectClone(this.checkedVariants.get(variants[0].id)),
+                UtilsNew.objectClone(this.checkedVariants.get(variants[1].id)),
+            ];
+        } else {
+            this._selectedVariants = [
+                UtilsNew.objectClone(variants[0]),
+                UtilsNew.objectClone(variants[1]),
+            ];
+        }
+        this._selectedVariantsChecked = this.checkedVariants.has(variants[0].id);
+        this.gridCommons.changeActiveModal("review-variant");
     }
 
     onVariantReviewChange(event) {
