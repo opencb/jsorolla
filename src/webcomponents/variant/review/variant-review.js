@@ -35,6 +35,9 @@ export default class VariantReview extends LitElement {
             selected: {
                 type: Boolean,
             },
+            reviewEvidences: {
+                type: Boolean,
+            },
             settings: {
                 type: Object,
             },
@@ -77,7 +80,7 @@ export default class VariantReview extends LitElement {
             this._selected = !!this.selected;
         }
 
-        if (changedProperties.has("displayConfig") || changedProperties.has("selected")) {
+        if (changedProperties.has("displayConfig") || changedProperties.has("selected") || changedProperties.has("reviewEvidences")) {
             this._config = this.getDefaultConfig();
         }
 
@@ -417,6 +420,9 @@ export default class VariantReview extends LitElement {
                     id: "evidences",
                     title: "Evidences",
                     icon: "fa-list",
+                    display: {
+                        visible: () => !!this.reviewEvidences,
+                    },
                     render: (variant, active) => html`
                         <variant-review-evidences-grid
                             .opencgaSession="${this.opencgaSession}"
