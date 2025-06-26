@@ -315,35 +315,40 @@ export default class ClinicalAnalysisManager {
             });
     }
 
-    updateVariantInPrimaryFindings(variant, action = "UPDATE") {
+    updateVariantInPrimaryFindings(variants, action = "UPDATE") {
         // prepare interpretation object for the update
         const interpretation = {
             primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings,
         };
         // check the action to perform
-        switch (action) {
-            case "ADD":
-                // check if the variant is already in the primary findings
-                if (interpretation.primaryFindings.find(v => v.id === variant.id)) {
-                    console.error("There must be an error, variant " + variant.id + " already exists in primary findings.");
-                    return Promise.reject(new Error("Variant already exists in primary findings."));
-                }
-                // add the variant to the primary findings
-                interpretation.primaryFindings.push(variant);
-                break;
-            case "UPDATE":
-                // find the index of the variant in the primary findings
-                const index = interpretation.primaryFindings.findIndex(v => v.id === variant.id);
-                if (index === -1) {
-                    console.error("There must be an error, variant " + variant.id + " does not exist in primary findings.");
-                    return Promise.reject(new Error("Variant does not exist in primary findings."));
-                }
-                // update the variant in the primary findings
-                interpretation.primaryFindings[index] = variant;
-                break;
-            case "REMOVE":
-                interpretation.primaryFindings = interpretation.primaryFindings.filter(v => v.id !== variant.id);
-                break;
+        // NOTE: variant can be an array of variants (for example in rearrangements)
+        const variantsArray = Array.isArray(variants) ? variants : [variants];
+        for (let i = 0; i < variantsArray.length; i++) {
+            const variant = variantsArray[i];
+            switch (action) {
+                case "ADD":
+                    // check if the variant is already in the primary findings
+                    if (interpretation.primaryFindings.find(v => v.id === variant.id)) {
+                        console.error("There must be an error, variant " + variant.id + " already exists in primary findings.");
+                        return Promise.reject(new Error("Variant already exists in primary findings."));
+                    }
+                    // add the variant to the primary findings
+                    interpretation.primaryFindings.push(variant);
+                    break;
+                case "UPDATE":
+                    // find the index of the variant in the primary findings
+                    const index = interpretation.primaryFindings.findIndex(v => v.id === variant.id);
+                    if (index === -1) {
+                        console.error("There must be an error, variant " + variant.id + " does not exist in primary findings.");
+                        return Promise.reject(new Error("Variant does not exist in primary findings."));
+                    }
+                    // update the variant in the primary findings
+                    interpretation.primaryFindings[index] = variant;
+                    break;
+                case "REMOVE":
+                    interpretation.primaryFindings = interpretation.primaryFindings.filter(v => v.id !== variant.id);
+                    break;
+            }
         }
         // update the interpretation
         const interpretationId = this.clinicalAnalysis.interpretation.id;
