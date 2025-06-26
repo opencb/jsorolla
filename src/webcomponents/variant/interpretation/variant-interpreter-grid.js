@@ -82,11 +82,11 @@ export default class VariantInterpreterGrid extends LitElement {
         this._selectedVariantChecked = false;
         this._selectedEvidence = null;
         this._selectedEvidenceIndex = null;
+        this._checkedVariants = new Map();
 
         this.toolbarConfig = {};
         this.toolbarSetting = {};
 
-        this.checkedVariants = new Map();
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.active = true;
         this.review = false;
@@ -131,13 +131,13 @@ export default class VariantInterpreterGrid extends LitElement {
                 this.clinicalAnalysis.interpretation = {};
             }
 
-            this.checkedVariants = new Map();
+            this._checkedVariants = new Map();
             if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length > 0) {
                 for (const variant of this.clinicalAnalysis.interpretation.primaryFindings) {
-                    this.checkedVariants.set(variant.id, variant);
+                    this._checkedVariants.set(variant.id, variant);
                 }
             } else {
-                this.checkedVariants.clear();
+                this._checkedVariants.clear();
             }
 
             if (this.clinicalAnalysis.type?.toUpperCase() === "CANCER") {
@@ -863,7 +863,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        const variant = this.checkedVariants.get(row.id);
+                        const variant = this._checkedVariants.get(row.id);
                         return VariantInterpreterGridFormatter.exomiserScoresFormatter(value, variant);
                     },
                     align: "center",
@@ -888,7 +888,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        const checkedVariant = this.checkedVariants?.has(row.id) ? this.checkedVariants.get(row.id) : row;
+                        const checkedVariant = this._checkedVariants?.has(row.id) ? this._checkedVariants.get(row.id) : row;
                         return VariantInterpreterGridFormatter.predictionFormatter(value, checkedVariant);
                     },
                     align: "center",
@@ -903,7 +903,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        return VariantInterpreterGridFormatter.newReviewFormatter(row, this.clinicalAnalysis, this.checkedVariants, this._config);
+                        return VariantInterpreterGridFormatter.newReviewFormatter(row, this.clinicalAnalysis, this._checkedVariants, this._config);
                     },
                     align: "center",
                     events: {
@@ -1242,8 +1242,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onVariantReview(event, row) {
         // check if the variant is already selected
-        if (this.checkedVariants.has(row.id)) {
-            this._selectedVariant = UtilsNew.objectClone(this.checkedVariants.get(row.id));
+        if (this._checkedVariants.has(row.id)) {
+            this._selectedVariant = UtilsNew.objectClone(this._checkedVariants.get(row.id));
             this._selectedVariantChecked = true;
         } else {
             this._selectedVariant = UtilsNew.objectClone(row);
@@ -1260,13 +1260,13 @@ export default class VariantInterpreterGrid extends LitElement {
     onVariantReviewSave() {
         // 1. get the action to perform based on the selected variant state
         let action = "";
-        if (this._selectedVariantChecked && !this.checkedVariants.has(this._selectedVariant.id)) {
+        if (this._selectedVariantChecked && !this._checkedVariants.has(this._selectedVariant.id)) {
             // we have to update the variant.filters field to include the current filters
             action = "ADD";
             this._selectedVariant.filters = {
                 ...this.filters,
             };
-        } else if (this._selectedVariantChecked && this.checkedVariants.has(this._selectedVariant.id)) {
+        } else if (this._selectedVariantChecked && this._checkedVariants.has(this._selectedVariant.id)) {
             action = "UPDATE";
         } else {
             action = "REMOVE";
