@@ -22,11 +22,12 @@ import VariantGridFormatter from "../variant-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import "../../clinical/interpretation/clinical-interpretation-variant-review.js";
+import WebUtils from "../../commons/utils/web-utils.js";
 import "../../commons/grid-toolbar.js";
 import "../../loading-spinner.js";
 import "./variant-interpreter-grid-config.js";
 import "./variant-interpreter-rearrangement-view.js";
+import "../review/variant-review.js";
 
 export default class VariantInterpreterRearrangementGrid extends LitElement {
 
@@ -74,7 +75,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
         this._rows = [];
-        this._selectedVariant = null;
 
         this.toolbarConfig = {};
         this.toolbarSetting = {};
@@ -83,7 +83,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.checkedVariants = new Map();
         this.review = false;
         this.active = true;
+
         this._selectedVariant = null;
+        this._selectedVariantChecked = false;
 
         this.gridCommons = null;
         this.clinicalAnalysisManager = null;
@@ -189,25 +191,30 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             }),
             "review-variant": () => ({
                 display: {
-                    modalTitle: `Review Variant ${this._selectedVariant[0].id}`,
-                    modalCyDataName: `modal-variant-reivew`,
-                    modalSize: "modal-lg",
-                    modalBtnsVisible: true,
-                    btnCancelText: "Cancel",
-                    btnSaveText: "Save",
+                    scrollable: true,
+                    title: `${WebUtils.formatDisplayName(this.clinicalAnalysis.interpretation.id, this.clinicalAnalysis.interpretation.name)} - Review Variant`,
+                    size: "modal-3xl",
+                    buttonsVisible: true,
+                    buttonCancelText: "Cancel",
+                    buttonSaveText: "Save Review",
                 },
                 render: () => html`
-                    <clinical-interpretation-variant-review
+                    <variant-review
                         .opencgaSession="${this.opencgaSession}"
-                        .variant="${this._selectedVariant[0]}"
-                        .mode="${"form"}"
-                        @variantChange="${e => this.onVariantReviewChange(e)}">
-                    </clinical-interpretation-variant-review>
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                        .variant="${this._selectedVariant}"
+                        .selected="${this._selectedVariantChecked}"
+                        .reviewEvidences="${true}"
+                        .settings="${{
+                            geneSet: this._config?.geneSet,
+                            consequenceType: this._config?.consequenceType,
+                        }}"
+                        @variantChange="${event => this.onVariantReviewChange(event)}">
+                    </variant-review>
                 `,
                 onCancel: () => this.onVariantReviewCancel(),
                 onOk: () => this.onVariantReviewSave(),
             }),
-
         });
     }
 
