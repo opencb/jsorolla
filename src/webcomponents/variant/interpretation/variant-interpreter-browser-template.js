@@ -310,11 +310,12 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         // We save current query so we can execute the same query after refreshing, check 'clinicaAnalysisObserver'
         this.currentQueryBeforeSaveEvent = this.executedQuery;
 
-        this.clinicalAnalysisManager.updateVariantInPrimaryFindings(event.detail.variant, event.detail.action).then(() => {
-            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-                clinicalAnalysis: this.clinicalAnalysis,
+        this.clinicalAnalysisManager.updateVariantInPrimaryFindings(event.detail.variant, event.detail.action)
+            .then(() => {
+                LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                    clinicalAnalysis: this.clinicalAnalysis,
+                });
             });
-        });
     }
 
     onChangeView(newView) {
@@ -416,8 +417,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             .config="${this._config.filter.result.grid}"
                             .active="${this.active}"
                             @queryComplete="${this.onQueryComplete}"
-                            @updaterow="${this.onUpdateVariant}"
-                            @checkrow="${this.onCheckVariant}"
+                            @variantReview="${e => this.onVariantReview(e)}"
                             @settingsUpdate="${this.onSettingsUpdate}">
                         </variant-interpreter-rearrangement-grid>`
                     }
