@@ -218,52 +218,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     </variant-interpreter-view>
                 `,
             }),
-            // "review-variant": () => ({
-            //     display: {
-            //         modalTitle: `Review Variant ${this._selectedVariant.id}`,
-            //         modalCyDataName: `modal-variant-reivew`,
-            //         modalSize: "modal-lg",
-            //         modalBtnsVisible: true,
-            //         btnCancelText: "Cancel",
-            //         btnSaveText: "Save",
-            //     },
-            //     render: () => html`
-            //         <clinical-interpretation-variant-review
-            //             .opencgaSession="${this.opencgaSession}"
-            //             .variant="${this._selectedVariant}"
-            //             .mode="${"form"}"
-            //             @variantChange="${e => this.onVariantReviewChange(e)}">
-            //         </clinical-interpretation-variant-review>
-            //     `,
-            //     onCancel: () => this.onVariantReviewCancel(),
-            //     onOk: () => this.onVariantReviewSave(),
-            // }),
-            // "review-evidence": () => ({
-            //     display: {
-            //         modalTitle: `Review Variant Evidence`,
-            //         modalCyDataName: `modal-evidence-review`,
-            //         modalSize: "modal-lg",
-            //         modalBtnsVisible: true,
-            //         btnCancelText: "Cancel",
-            //         btnSaveText: "Save",
-            //     },
-            //     render: () => html`
-            //         <clinical-interpretation-variant-evidence-review
-            //             .opencgaSession="${this.opencgaSession}"
-            //             .review="${this._selectedEvidence}"
-            //             .mode="${"page"}"
-            //             .somatic="${this.clinicalAnalysis.type === "CANCER"}"
-            //             @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}">
-            //         </clinical-interpretation-variant-evidence-review>
-            //     `,
-            //     onCancel: () => this.onEvidenceReviewCancel(),
-            //     onOk: () => this.onEvidenceReviewSave(),
-            // }),
         });
-    }
-
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
     }
 
     renderVariants() {
@@ -1301,7 +1256,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 .query="${this.filters}"
                 .opencgaSession="${this.opencgaSession}"
                 .leftContent="${this.renderToolbarLeftContent()}"
-                @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"
                 @export="${this.onDownload}">
             </grid-toolbar>
