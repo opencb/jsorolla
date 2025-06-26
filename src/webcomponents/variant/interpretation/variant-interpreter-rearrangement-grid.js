@@ -718,7 +718,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     title: "Review",
                     rowspan: 1,
                     colspan: 1,
-                    formatter: (value, row, index) => {
+                    formatter: (value, row) => {
                         return VariantInterpreterGridFormatter.newReviewFormatter(row[0], this.clinicalAnalysis, this.checkedVariants, this._config);
                     },
                     align: "center",
@@ -726,7 +726,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         "click button": (event, value, row) => this.onVariantReview(event, row),
                     },
                     visible: this.review || this._config.showReview,
-                    excludeFromExport: true // this is used in opencga-export
+                    excludeFromExport: true,
                 },
             ]
         ];
