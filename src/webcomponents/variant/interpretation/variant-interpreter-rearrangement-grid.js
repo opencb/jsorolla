@@ -676,7 +676,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        return VariantInterpreterGridFormatter.newReviewFormatter(row[0], this.clinicalAnalysis, this._checkedVariants, this._config);
+                        return VariantInterpreterGridFormatter.reviewFormatter(row[0], this.clinicalAnalysis, this._checkedVariants, this._config);
                     },
                     align: "center",
                     events: {
