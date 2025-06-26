@@ -84,7 +84,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.review = false;
         this.active = true;
 
-        this._selectedVariants = null;
+        this._selectedVariant = null; // used in the variant-view
+        this._selectedVariants = null; // used in the variant-review
         this._selectedVariantsChecked = false;
 
         this.gridCommons = null;
@@ -212,8 +213,12 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         @variantChange="${event => this.onVariantReviewChange(event)}">
                     </variant-review>
                 `,
-                onCancel: () => this.onVariantReviewCancel(),
-                onOk: () => this.onVariantReviewSave(),
+                onCancel: () => {
+                    this.onVariantReviewCancel();
+                },
+                onSave: () => {
+                    this.onVariantReviewSave();
+                },
             }),
         });
     }
@@ -956,38 +961,52 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     onVariantReviewChange(event) {
-        this._selectedVariant[0] = event.detail.value;
+        this._selectedVariants[0] = event.detail.variant;
+        this._selectedVariantsChecked = event.detail.selected;
     }
 
     onVariantReviewSave() {
-        // Update second variant info
-        this._selectedVariant[1] = {
-            ...this._selectedVariant[1],
-            discussion: this._selectedVariant[0].discussion,
-            status: this._selectedVariant[0].status,
-            comments: this._selectedVariant[0].comments,
-            confidence: this._selectedVariant[0].confidence,
-        };
+        // 1. get the action to perform based on the selected variant state
+        let action = "";
+        if (this._selectedVariantsChecked && !this.checkedVariants.has(this._selectedVariants[0].id)) {
+            // we have to update the variant.filters field to include the current filters
+            action = "ADD";
+            this._selectedVariants.forEach(variant => {
+                variant.filters = {
+                    ...this.filters,
+                };
+            });
+        } else if (this._selectedVariantsChecked && this.checkedVariants.has(this._selectedVariants[0].id)) {
+            action = "UPDATE";
+        } else {
+            action = "REMOVE";
+        }
 
-        // Update checked variants
-        this._selectedVariant.forEach(variant => {
-            this.checkedVariants?.set(variant.id, variant);
-        });
+        // update second variant info
+        if (action === "ADD" || action === "UPDATE") {
+            this._selectedVariants[1] = {
+                ...this._selectedVariants[1],
+                discussion: this._selectedVariants[0].discussion,
+                status: this._selectedVariants[0].status,
+                comments: this._selectedVariants[0].comments,
+                confidence: this._selectedVariants[0].confidence,
+            };
+        }
 
         // Dispatch variant update
-        LitUtils.dispatchCustomEvent(this, "updaterow", null, {
-            id: this._selectedVariant[0].id,
-            row: this._selectedVariant,
-            rows: Array.from(this.checkedVariants.values()),
+        LitUtils.dispatchCustomEvent(this, "variantReview", null, {
+            id: this._selectedVariants[0].id,
+            variant: this._selectedVariants,
+            action: action,
         });
 
         // Reset variants review
-        this._selectedVariant = null;
+        this._selectedVariants = null;
         this.gridCommons.clearActiveModal();
     }
 
     onVariantReviewCancel() {
-        this._selectedVariant = null;
+        this._selectedVariants = null;
         this.gridCommons.clearActiveModal();
     }
 
