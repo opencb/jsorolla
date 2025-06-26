@@ -743,8 +743,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     actionsFormatter(value, row) {
-        const reviewId = `${this._prefix}${row[0].id}VariantReviewActionButton`;
-        const reviewDisabled = (!this.checkedVariants.has(row[0].id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "cursor-pointer";
+        const reviewDisabled = this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked;
 
         return `
             <div class="dropdown">
@@ -752,8 +751,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a id="${reviewId}" class="dropdown-item reviewButton ${reviewDisabled}" data-action="edit">
-                        <i class="fas fa-edit icon-padding"></i> Edit
+                    <a class="dropdown-item ${reviewDisabled ? "disabled" : "cursor-pointer"}" data-action="review">
+                        <i class="fas fa-edit pe-2"></i>
+                        <span>Review Variant</span>
                     </a>
                     <hr class="dropdown-divider">
                     <div class="dropdown-header">Fetch Variant</div>
