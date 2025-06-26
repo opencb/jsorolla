@@ -202,9 +202,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     <variant-review
                         .opencgaSession="${this.opencgaSession}"
                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                        .variant="${this._selectedVariant}"
-                        .selected="${this._selectedVariantChecked}"
-                        .reviewEvidences="${true}"
+                        .variant="${this._selectedVariants[0]}"
+                        .selected="${this._selectedVariantsChecked}"
+                        .reviewEvidences="${false}"
                         .settings="${{
                             geneSet: this._config?.geneSet,
                             consequenceType: this._config?.consequenceType,
