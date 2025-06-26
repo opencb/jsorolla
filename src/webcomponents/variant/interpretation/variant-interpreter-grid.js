@@ -80,8 +80,6 @@ export default class VariantInterpreterGrid extends LitElement {
         this._rows = [];
         this._selectedVariant = null;
         this._selectedVariantChecked = false;
-        this._selectedEvidence = null;
-        this._selectedEvidenceIndex = null;
         this._checkedVariants = new Map();
 
         this.toolbarConfig = {};
