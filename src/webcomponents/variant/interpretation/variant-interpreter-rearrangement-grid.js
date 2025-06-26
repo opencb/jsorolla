@@ -223,10 +223,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         });
     }
 
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
     generateRowsFromVariants(variants) {
         const pairs = []; // pairs = [[v1, v2], [v3, v4], [v5, v6]];
         (variants || []).forEach(variant => {
@@ -466,34 +462,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             },
             rowStyle: (row, index) => this.gridCommons.rowHighlightStyle(row, index),
         });
-    }
-
-    /*
-     *  GRID FORMATTERS
-     */
-    detailFormatter(value, row) {
-        let result = "<div class='row' style='padding-bottom: 20px'>";
-        let detailHtml = "";
-        if (row && row.annotation) {
-            // if (this.variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
-            //     detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Variant Allele Frequency</h4></div>";
-            //     detailHtml += "<div style='padding: 5px 40px'>";
-            //     detailHtml += VariantInterpreterGridFormatter.variantAlleleFrequencyDetailFormatter(value, row, this.variantGrid);
-            //     detailHtml += "</div>";
-            // }
-
-            detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Molecular Consequence</h4></div>";
-            detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid.review, this.variantGrid._config);
-            detailHtml += "</div>";
-
-            detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
-            detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
-            detailHtml += "</div>";
-        }
-        result += detailHtml + "</div>";
-        return result;
     }
 
     vcfDataFormatter(value, row, field) {
@@ -881,31 +849,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             });
     }
 
-    onShare() {
-        const _this = this;
-        $("[data-toggle=popover]").popover({
-            content: function () {
-                const getUrlQueryParams = _this._getUrlQueryParams();
-                const query = ["limit=1000"];
-                for (const key in getUrlQueryParams.queryParams) {
-                    // Check sid has a proper value. For public projects sid is undefined. In that case, sid must be removed from the url
-                    if (key === "sid" && getUrlQueryParams.queryParams[key] === undefined) {
-                        delete getUrlQueryParams.queryParams["sid"];
-                    } else {
-                        query.push(key + "=" + getUrlQueryParams.queryParams[key]);
-                    }
-                }
-                return getUrlQueryParams.host + "?" + query.join("&");
-            }
-        }).on("show.bs.popover", function () {
-            $(this).data("bs.popover").tip().css("max-width", "none");
-        });
-    }
-
-    showLoading() {
-        $("#" + this.gridId).bootstrapTable("showLoading");
-    }
-
     onVariantCheck(event) {
         const index = parseInt(event.target.dataset.rowIndex);
 
@@ -1024,10 +967,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.filters}"
                 .leftContent="${this.renderToolbarLeftContent()}"
-                @columnChange="${this.onColumnChange}"
                 @download="${this.onDownload}"
-                @export="${this.onDownload}"
-                @sharelink="${this.onShare}">
+                @export="${this.onDownload}">
             </grid-toolbar>
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
