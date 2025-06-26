@@ -629,7 +629,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     `,
                     field: "interpretation",
                     rowspan: 1,
-                    colspan: 2,
+                    colspan: 1,
                     halign: "center"
                 },
                 {
@@ -671,21 +671,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 },
                 ...vcfDataColumns.vcf1,
                 ...vcfDataColumns.vcf2,
-                {
-                    title: "Select",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: (value, row, index) => {
-                        const checked = this._checkedVariants?.has(row[0].id) ? "checked" : "";
-                        return `<input class="check check-variant" type="checkbox" data-row-index="${index}" ${checked}>`;
-                    },
-                    align: "center",
-                    events: {
-                        "click button": event => this.onVariantCheck(event),
-                    },
-                    visible: false, // this._config.showSelectCheckbox,
-                    excludeFromExport: true // this is used in opencga-export
-                },
                 {
                     title: "Review",
                     rowspan: 1,
@@ -846,44 +831,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};
                 this.requestUpdate();
             });
-    }
-
-    onVariantCheck(event) {
-        const index = parseInt(event.target.dataset.rowIndex);
-
-        // Add or remove this pair of variants from checkedVariants list
-        this._rows[index].forEach(variant => {
-            if (event.target.checked) {
-                this._checkedVariants.set(variant.id, variant);
-            } else {
-                this._checkedVariants.delete(variant.id);
-            }
-        });
-
-        // Set 'Edit' button as enabled/disabled in 'Review' column
-        // Josemi NOTE 20240205 - Edit buton in column is not rendered when 'Review' column is hidden
-        const reviewButton = document.getElementById(`${this._prefix}${this._rows[index][0].id}VariantReviewButton`);
-        if (reviewButton) {
-            reviewButton.disabled = !event.currentTarget.checked;
-        }
-
-        // Set 'Edit' button as enabled/disabled in 'Actions' dropdown
-        // Josemi NOTE 20240205 - Edit buton in actions dropdown is not rendered when when actions column is hidden
-        const reviewActionButton = document.getElementById(`${this._prefix}${this._rows[index][0].id}VariantReviewActionButton`);
-        if (reviewActionButton) {
-            if (event.currentTarget.checked) {
-                reviewActionButton.classList.remove("disabled");
-            } else {
-                reviewActionButton.classList.add("disabled");
-            }
-        }
-
-        // Dispatch row check event
-        LitUtils.dispatchCustomEvent(this, "checkrow", null, {
-            checked: event.target.checked,
-            row: this._rows[index],
-            rows: Array.from(this._checkedVariants.values()),
-        });
     }
 
     onVariantReview(event, variants) {
