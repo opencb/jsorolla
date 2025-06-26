@@ -230,9 +230,11 @@ export default class VariantReview extends LitElement {
                 <div class="">
                     <span class="fw-bold lh-1">${this._variant.id}</span>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    ${consequenceTypes}
-                </div>
+                ${consequenceTypes.length > 0 ? html`
+                    <div class="d-flex align-items-center gap-2">
+                        ${consequenceTypes}
+                    </div>
+                ` : nothing}
             </div>
         `;
     }
