@@ -80,10 +80,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.toolbarSetting = {};
 
         this.gridId = this._prefix + "VariantBrowserGrid";
-        this.checkedVariants = new Map();
         this.review = false;
         this.active = true;
 
+        this._checkedVariants = new Map();
         this._selectedVariant = null; // used in the variant-view
         this._selectedVariants = null; // used in the variant-review
         this._selectedVariantsChecked = false;
@@ -134,11 +134,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             }
 
             // Update checked variants
-            this.checkedVariants = new Map();
+            this._checkedVariants = new Map();
             (this.clinicalAnalysis.interpretation?.primaryFindings || []).forEach(variant => {
-                this.checkedVariants.set(variant.id, variant);
+                this._checkedVariants.set(variant.id, variant);
             });
-            // this.gridCommons.checkedRows = this.checkedVariants;
 
             if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
                 if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples &&
@@ -677,7 +676,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row, index) => {
-                        const checked = this.checkedVariants?.has(row[0].id) ? "checked" : "";
+                        const checked = this._checkedVariants?.has(row[0].id) ? "checked" : "";
                         return `<input class="check check-variant" type="checkbox" data-row-index="${index}" ${checked}>`;
                     },
                     align: "center",
@@ -692,7 +691,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        return VariantInterpreterGridFormatter.newReviewFormatter(row[0], this.clinicalAnalysis, this.checkedVariants, this._config);
+                        return VariantInterpreterGridFormatter.newReviewFormatter(row[0], this.clinicalAnalysis, this._checkedVariants, this._config);
                     },
                     align: "center",
                     events: {
@@ -855,9 +854,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         // Add or remove this pair of variants from checkedVariants list
         this._rows[index].forEach(variant => {
             if (event.target.checked) {
-                this.checkedVariants.set(variant.id, variant);
+                this._checkedVariants.set(variant.id, variant);
             } else {
-                this.checkedVariants.delete(variant.id);
+                this._checkedVariants.delete(variant.id);
             }
         });
 
@@ -883,15 +882,15 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         LitUtils.dispatchCustomEvent(this, "checkrow", null, {
             checked: event.target.checked,
             row: this._rows[index],
-            rows: Array.from(this.checkedVariants.values()),
+            rows: Array.from(this._checkedVariants.values()),
         });
     }
 
     onVariantReview(event, variants) {
-        if (this.checkedVariants.has(variants[0].id)) {
+        if (this._checkedVariants.has(variants[0].id)) {
             this._selectedVariants = [
-                UtilsNew.objectClone(this.checkedVariants.get(variants[0].id)),
-                UtilsNew.objectClone(this.checkedVariants.get(variants[1].id)),
+                UtilsNew.objectClone(this._checkedVariants.get(variants[0].id)),
+                UtilsNew.objectClone(this._checkedVariants.get(variants[1].id)),
             ];
         } else {
             this._selectedVariants = [
@@ -899,7 +898,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 UtilsNew.objectClone(variants[1]),
             ];
         }
-        this._selectedVariantsChecked = this.checkedVariants.has(variants[0].id);
+        this._selectedVariantsChecked = this._checkedVariants.has(variants[0].id);
         this.gridCommons.changeActiveModal("review-variant");
     }
 
@@ -911,7 +910,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     onVariantReviewSave() {
         // 1. get the action to perform based on the selected variant state
         let action = "";
-        if (this._selectedVariantsChecked && !this.checkedVariants.has(this._selectedVariants[0].id)) {
+        if (this._selectedVariantsChecked && !this._checkedVariants.has(this._selectedVariants[0].id)) {
             // we have to update the variant.filters field to include the current filters
             action = "ADD";
             this._selectedVariants.forEach(variant => {
@@ -919,7 +918,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     ...this.filters,
                 };
             });
-        } else if (this._selectedVariantsChecked && this.checkedVariants.has(this._selectedVariants[0].id)) {
+        } else if (this._selectedVariantsChecked && this._checkedVariants.has(this._selectedVariants[0].id)) {
             action = "UPDATE";
         } else {
             action = "REMOVE";
