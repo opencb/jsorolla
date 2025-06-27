@@ -245,10 +245,12 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             "study"
         ];
         const variantIds = new Set(e.detail.variants.map(v => v.id));
-        this.query = {
+        this.preparedQuery = {
             ...UtilsNew.filterKeys(this.executedQuery, lockedFields),
             id: Array.from(variantIds).join(","),
         };
+        this.executedQuery = {...this.preparedQuery};
+        this.searchActive = false;
         this.notifyQueryChange();
         this.requestUpdate();
     }
@@ -284,7 +286,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     onVariantFilterSearch(e) {
         this.preparedQuery = {...e.detail.query};
         this.executedQuery = {...e.detail.query};
-        this.query = {...e.detail.query}; // We need to update the internal query to propagate to filters
+        this.searchActive = false;
         this.notifyQueryChange();
         this.requestUpdate();
     }
