@@ -301,24 +301,23 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
     onVariantFilterClear() {
         const lockedFields = this._config?.filter?.activeFilters?.lockedFields.map(key => key.id);
-        let _query = {
-            study: this.opencgaSession.study.fqn
-        };
+        const query = {};
 
-        // Reset filters default
+        // include fields from lockedFields into the new query object
         lockedFields.forEach(field => {
-            _query = {
-                ..._query,
-                [field]: this.query[field]
-            };
+            query[field] = this.query[field];
         });
 
-        // Check if panelLock is enabled
+        // check if panelLock is enabled: in this case we need to keep the panel and panelIntersection fields
+        // in the new query object
         if (this.clinicalAnalysis.panelLocked) {
-            _query.panel = this.query.panel;
-            _query.panelIntersection = true;
+            query.panel = this.query.panel;
+            query.panelIntersection = true;
         }
-        this.query = UtilsNew.objectClone(_query);
+
+        this.preparedQuery = query;
+        this.executedQuery = {...query};
+        this.searchActive = true;
         this.notifyQueryChange();
         this.requestUpdate();
     }
