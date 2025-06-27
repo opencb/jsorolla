@@ -305,8 +305,11 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     onVariantFilterSearch(e) {
-        this.preparedQuery = {...e.detail.query};
-        this.executedQuery = {...e.detail.query};
+        this.preparedQuery = {
+            ...this.getLockedFieldsQuery(),
+            ...e.detail.query,
+        };
+        this.executedQuery = {...this.preparedQuery};
         this.searchActive = false;
         this.notifyQueryChange();
         this.requestUpdate();
