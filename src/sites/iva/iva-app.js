@@ -730,6 +730,7 @@ class IvaApp extends LitElement {
             const [hashFragments, hashQuery] = window.location.hash.replace("#", "").split("?");
             const hashItems = hashFragments.split("/");
             let newHashFragmentUrl = "";
+            let newHashQuery = hashQuery || "";
 
             // 2.1. If the hash fragment only contains one or three items, it is a single tool URL
             if (hashItems.length === 1 || hashItems.length === 3) {
@@ -744,8 +745,13 @@ class IvaApp extends LitElement {
                 newHashFragmentUrl = `${hashItems[0]}/${tool}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
             }
 
-            // 2.3. reset hash including queries (if any)
-            window.location.hash = newHashFragmentUrl + (hashQuery ? `?${hashQuery}` : "");
+            // 2.3. if the current tool is the interpreter, we must clear the hash query
+            if (hashItems[0] === "interpreter" || hashItems[1] === "interpreter") {
+                newHashQuery = "";
+            }
+
+            // 2.4. reset hash including queries (if any)
+            window.location.hash = newHashFragmentUrl + (newHashQuery ? `?${newHashQuery}` : "");
 
             // 3. Reset queries from old studies
             this.queries = {};
