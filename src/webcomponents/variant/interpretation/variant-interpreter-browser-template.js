@@ -209,7 +209,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
     notifyQueryChange() {
         LitUtils.dispatchCustomEvent(this, "queryChange", null, {
-            query: this.query,
+            query: this.executedQuery,
         });
     }
 
