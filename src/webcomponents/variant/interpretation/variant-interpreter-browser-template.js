@@ -209,6 +209,25 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
     }
 
+    getLockedFieldsQuery() {
+        const lockedFields = this._config?.filter?.activeFilters?.lockedFields.map(key => key.id);
+        const query = {};
+
+        // include fields from lockedFields into the new query object
+        lockedFields.forEach(field => {
+            query[field] = this.query[field];
+        });
+
+        // check if panelLock is enabled: in this case we need to keep the panel and panelIntersection fields
+        // in the new query object
+        if (this.clinicalAnalysis.panelLocked) {
+            query.panel = this.query.panel;
+            query.panelIntersection = true;
+        }
+
+        return query;
+    }
+
     notifyQueryChange() {
         LitUtils.dispatchCustomEvent(this, "queryChange", null, {
             query: this.executedQuery,
