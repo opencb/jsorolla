@@ -116,7 +116,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
         // When refreshing AFTER saving variants we set the same query as before refreshing, check 'onSaveVariants'
         if (this.currentQueryBeforeSaveEvent) {
-            this.query = {...this.currentQueryBeforeSaveEvent};
+            this.preparedQuery = {...this.currentQueryBeforeSaveEvent};
+            this.executedQuery = {...this.preparedQuery};
+            this.searchActive = false;
             this.currentQueryBeforeEvent = null;
         }
     }
@@ -268,7 +270,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
     onSaveVariants(e) {
         // We save current query so we can execute the same query after refreshing, check 'clinicaAnalysisObserver'
-        this.currentQueryBeforeSaveEvent = this.query;
+        this.currentQueryBeforeSaveEvent = this.executedQuery;
 
         const comment = e.detail.comment;
         this.clinicalAnalysisManager.updateInterpretationVariants(comment, () => {
