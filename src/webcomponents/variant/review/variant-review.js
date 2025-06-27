@@ -226,12 +226,12 @@ export default class VariantReview extends LitElement {
         }
 
         return html`
-            <div class="alert alert-light flex-grow-1">
-                <div class="">
-                    <span class="fw-bold lh-1">${this._variant.id}</span>
+            <div class="alert alert-light flex-grow-1 d-flex justify-content-center flex-column">
+                <div class="lh-1">
+                    <span class="fw-bold">${this._variant.id}</span>
                 </div>
                 ${consequenceTypes.length > 0 ? html`
-                    <div class="d-flex align-items-center flex-wrap column-gap-2" style="max-width:900px;">
+                    <div class="mt-1 d-flex align-items-center flex-wrap column-gap-2" style="max-width:900px;">
                         ${consequenceTypes}
                     </div>
                 ` : nothing}
