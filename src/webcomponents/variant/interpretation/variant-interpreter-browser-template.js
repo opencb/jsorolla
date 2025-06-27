@@ -125,8 +125,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
     queryObserver() {
         if (this.opencgaSession && this.query) {
-            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-            this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            this.preparedQuery = {...this.query};
+            this.executedQuery = {...this.query};
             this.searchActive = false;
         }
     }
