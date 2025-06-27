@@ -420,35 +420,6 @@ export default class VariantInterpreterGrid extends LitElement {
         });
     }
 
-    // Grid formatters
-    // TODO: REMOVE
-    detailFormatter(value, row) {
-        let variant = row;
-        if (this.checkedVariants && this.checkedVariants.has(variant.id)) {
-            variant = this.checkedVariants.get(variant.id);
-        }
-        let result = "<div class='row' style='padding-bottom: 20px'>";
-        let detailHtml = "";
-        if (row?.annotation) {
-            detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Evidences</h4></div>";
-            detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, variant, this, this.query, this.review, this._config);
-            detailHtml += "</div>";
-
-            detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Reported Cases</h4></div>";
-            detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantGridFormatter.reportedVariantDetailFormatter(value, this.queriedVariants[row.id], this.opencgaSession);
-            detailHtml += "</div>";
-
-            detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
-            detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(value, row, this, this.query, this._config, this.opencgaSession.project.organism.assembly);
-            detailHtml += "</div>";
-        }
-        result += detailHtml + "</div>";
-        return result;
-    }
-
     vcfDataFormatter(value, row) {
         if (row.studies?.length > 0) {
             let source = "FILE";
