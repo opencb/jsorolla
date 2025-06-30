@@ -399,26 +399,28 @@ export default class VariantReview extends LitElement {
                                 showDeleteItemListButton: true,
                                 view: reference => {
                                     return html`
-                                        <div class="fw-bold">${reference.name || "-"}</div>
-                                        <div class="text-muted d-flex align-items-center flex-row flex-wrap gap-3 fs-7">
-                                            ${reference.date ? html`
-                                                <span class="text-nowrap d-flex align-items-center gap-1">
-                                                    <i class="fa fa-calendar fs-8"></i>
-                                                    <span>${UtilsNew.dateFormatter(reference.date)}</span>
-                                                </span>
-                                            ` : nothing}
-                                            ${reference.journal ? html`
-                                                <span class="text-nowrap d-flex align-items-center gap-1">
-                                                    <i class="fa fa-book fs-8"></i>
-                                                    <span>${reference.journal}</span>
-                                                </span>
-                                            ` : nothing}
-                                            ${reference.url ? html`
-                                                <span class="text-nowrap d-flex align-items-center gap-1">
-                                                    <i class="fa fa-link fs-8"></i>
-                                                    <span>${reference.url || "-"}</span>
-                                                </span>
-                                            ` : nothing}
+                                        <div class="mb-2">
+                                            <div class="fw-bold">${reference.name || "-"}</div>
+                                            <div class="text-muted d-flex align-items-center flex-row flex-wrap gap-3 fs-7">
+                                                ${reference.date ? html`
+                                                    <span class="text-nowrap d-flex align-items-center gap-1">
+                                                        <i class="fa fa-calendar fs-8"></i>
+                                                        <span>${UtilsNew.dateFormatter(reference.date)}</span>
+                                                    </span>
+                                                ` : nothing}
+                                                ${reference.journal ? html`
+                                                    <span class="text-nowrap d-flex align-items-center gap-1">
+                                                        <i class="fa fa-book fs-8"></i>
+                                                        <span>${reference.journal}</span>
+                                                    </span>
+                                                ` : nothing}
+                                                ${reference.url ? html`
+                                                    <span class="text-nowrap d-flex align-items-center gap-1">
+                                                        <i class="fa fa-link fs-8"></i>
+                                                        <span>${reference.url || "-"}</span>
+                                                    </span>
+                                                ` : nothing}
+                                            </div>
                                         </div>
                                     `;
                                 },
