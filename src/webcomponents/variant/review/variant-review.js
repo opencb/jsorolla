@@ -386,7 +386,7 @@ export default class VariantReview extends LitElement {
                 {
                     id: "references",
                     title: "References",
-                    icon: "fa-book",
+                    icon: "fa-bookmark",
                     elements: [
                         {
                             field: "references",
@@ -407,7 +407,8 @@ export default class VariantReview extends LitElement {
                                     field: "references[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add the reference identifier...",
+                                        placeholder: "12345678",
+                                        helpMessage: "Add a unique identifier for the reference, e.g. PMID, DOI, etc.",
                                         required: true,
                                     },
                                 },
@@ -416,7 +417,8 @@ export default class VariantReview extends LitElement {
                                     field: "references[].name",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add reference name...",
+                                        placeholder: "",
+                                        helpMessage: "Add a name to the reference, for example the publication title or the first author.",
                                     },
                                 },
                                 {
@@ -437,7 +439,8 @@ export default class VariantReview extends LitElement {
                                     field: "references[].url",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add reference URL...",
+                                        placeholder: "https://pubmed.ncbi.nlm.nih.gov/12345678",
+                                        helpMessage: "Add a URL to the reference, e.g. a PubMed link",
                                         required: true,
                                     },
                                 },
@@ -446,7 +449,7 @@ export default class VariantReview extends LitElement {
                                     field: "references[].journal",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Journal name...",
+                                        placeholder: "Nature, Science, etc.",
                                         helpMessage: "Add the Journal where the reference was published",
                                     },
                                 },
