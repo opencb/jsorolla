@@ -177,6 +177,10 @@ export default class VariantReview extends LitElement {
             // force to refresh the updated params object
             // this is to make sure that the current comment is displayed in the form
             this._updatedParams = {...this._updatedParams};
+        } else if (event.detail.param.startsWith("references")) {
+            // this is needed to update the references list
+            this._updatedParams.references = this._variant.references;
+            this._updatedParams = {...this._updatedParams};
         } else if (event.detail.param === "discussion.text") {
             this._updatedParams.discussion = {
                 text: this._variant.discussion?.text || "",
@@ -376,6 +380,77 @@ export default class VariantReview extends LitElement {
                                 placeholder: "Add your recommendation here...",
                                 rows: 10,
                             },
+                        },
+                    ],
+                },
+                {
+                    id: "references",
+                    title: "References",
+                    icon: "fa-book",
+                    elements: [
+                        {
+                            field: "references",
+                            type: "object-list",
+                            display: {
+                                disabled: () => !this._selected,
+                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                showAddBatchListButton: false,
+                                showEditItemListButton: true,
+                                showDeleteItemListButton: true,
+                                view: reference => {
+                                    return nothing;
+                                },
+                            },
+                            elements: [
+                                {
+                                    title: "ID",
+                                    field: "references[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add the reference identifier...",
+                                        required: true,
+                                    },
+                                },
+                                {
+                                    title: "Name",
+                                    field: "references[].name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add reference name...",
+                                    },
+                                },
+                                {
+                                    title: "Summary",
+                                    field: "references[].summary",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 5,
+                                    },
+                                },
+                                {
+                                    title: "Date",
+                                    field: "references[].date",
+                                    type: "input-date",
+                                },
+                                {
+                                    title: "URL",
+                                    field: "references[].url",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add reference URL...",
+                                        required: true,
+                                    },
+                                },
+                                {
+                                    title: "Journal",
+                                    field: "references[].journal",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Journal name...",
+                                        helpMessage: "Add the Journal where the reference was published",
+                                    },
+                                },
+                            ],
                         },
                     ],
                 },
