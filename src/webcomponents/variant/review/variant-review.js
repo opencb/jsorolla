@@ -181,6 +181,8 @@ export default class VariantReview extends LitElement {
             this._updatedParams.discussion = {
                 text: this._variant.discussion?.text || "",
             };
+        } else if (event.detail.param === "recommendation") {
+            this._updatedParams.recommendation = this._variant.recommendation || "";
         }
         this.requestUpdate();
         this.dispatchChange();
@@ -355,6 +357,23 @@ export default class VariantReview extends LitElement {
                             display: {
                                 disabled: () => !this._selected,
                                 placeholder: "Add your discussion here...",
+                                rows: 10,
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: "recommendation",
+                    title: "Recommendation",
+                    icon: "fa-notes-medical",
+                    elements: [
+                        {
+                            id: "recommendation",
+                            type: "input-text",
+                            field: "recommendation",
+                            display: {
+                                disabled: () => !this._selected,
+                                placeholder: "Add your recommendation here...",
                                 rows: 10,
                             },
                         },
