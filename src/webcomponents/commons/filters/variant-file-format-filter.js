@@ -22,7 +22,7 @@ export default class VariantFileFormatFilter extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -40,9 +40,22 @@ export default class VariantFileFormatFilter extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.sampleData = "";
         this._sampleData = {};
+
+        this.fields = [
+            {
+                id: "DP", name: "Depth"
+            },
+            {
+                id: "AF", name: "AF"
+            },
+            {
+                id: "EXT_VAF", name: "VAF"
+            }
+        ];
+        this.indexedFields = {};
 
         this._config = this.getDefaultConfig();
     }
@@ -58,12 +71,23 @@ export default class VariantFileFormatFilter extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this.depthIndex = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
-            .find(field => field.key === "DP" && field.source === "SAMPLE");
-        this.afIndex = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
-            .find(field => field.key === "AF" && field.source === "SAMPLE");
-        this.extVafIndex = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
-            .find(field => field.key === "EXT_VAF" && field.source === "SAMPLE");
+        // Parse custom fields and add them to the fields array
+        for (const dataFilter of this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers[0]?.dataFilters) {
+            if (dataFilter.source === "SAMPLE") {
+                const indexPosition = this.fields.findIndex(f => f.id === dataFilter.id);
+                if (indexPosition >= 0) {
+                    this.fields[indexPosition] = {id: dataFilter.id, name: dataFilter.name};
+                } else {
+                    this.fields.push({id: dataFilter.id, name: dataFilter.name});
+                }
+            }
+        }
+
+        // Search for the indexed fields
+        for (const field of this.fields) {
+            this.indexedFields[field.id] = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
+                .find(f => f.key === field.id && f.source === "SAMPLE");
+        }
         this._config = this.getDefaultConfig();
     }
 
@@ -71,20 +95,12 @@ export default class VariantFileFormatFilter extends LitElement {
         if (this.sampleData) {
             const sampleDataFilters = this.sampleData.split(";");
 
-            const depth = sampleDataFilters.find(filter => filter.startsWith("DP"))?.replace("DP", "");
-            depth ? this._sampleData.DP = depth : delete this._sampleData.DP;
-            this.depthIndex = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
-                .find(field => field.key === "DP" && field.source === "SAMPLE");
-
-            const af = sampleDataFilters.find(filter => filter.startsWith("AF"))?.replace("AF", "");
-            af ? this._sampleData.AF = af : delete this._sampleData.AF;
-            this.afIndex = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
-                .find(field => field.key === "AF" && field.source === "SAMPLE");
-
-            const extVaf = sampleDataFilters.find(filter => filter.startsWith("EXT_VAF"))?.replace("EXT_VAF", "");
-            extVaf ? this._sampleData.EXT_VAF = extVaf : delete this._sampleData.EXT_VAF;
-            this.extVafIndex = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
-                .find(field => field.key === "EXT_VAF" && field.source === "SAMPLE");
+            for (const field of this.fields) {
+                const filter = sampleDataFilters.find(filter => filter.startsWith(field.id))?.replace(field.id, "");
+                filter ? this._sampleData[field.id] = filter : delete this._sampleData[field.id];
+                this.indexedFields[field.id] = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
+                    .find(f => f.key === field.id && f.source === "SAMPLE");
+            }
 
             this._config = this.getDefaultConfig();
         } else {
@@ -116,6 +132,38 @@ export default class VariantFileFormatFilter extends LitElement {
     }
 
     getDefaultConfig() {
+        const elements = [];
+        for (const field of this.fields) {
+            // Check if the field is actually indexed, only indexed fields can be used for filtering
+            if (this.indexedFields[field.id]) {
+                if (this.indexedFields[field.id]?.type?.startsWith("RANGE_")) {
+                    elements.push({
+                        name: field.name,
+                        field: field.id,
+                        type: "input-number",
+                        comparators: this.indexedFields[field.id]?.type === "RANGE_LT" ? "<,>=" : "<=,>",
+                        allowedValues: this.indexedFields[field.id]?.thresholds,
+                        display: {
+                            defaultValue: "",
+                            visible: () => this.indexedFields[field.id]?.thresholds?.length > 0,
+                        }
+                    });
+                } else {
+                    // Categorical
+                    elements.push({
+                        name: field.name,
+                        field: field.id,
+                        type: "select",
+                        allowedValues: this.indexedFields[field.id]?.values,
+                        multiple: this.indexedFields[field.id]?.type === "CATEGORICAL_MULTI_VALUE",
+                        display: {
+                            defaultValue: "",
+                        },
+                    });
+                }
+            }
+        }
+
         return {
             title: "",
             icon: "",
@@ -134,41 +182,7 @@ export default class VariantFileFormatFilter extends LitElement {
                         titleHeader: "h4",
                         titleStyle: "margin: 5px 0"
                     },
-                    elements: [
-                        {
-                            name: "Depth",
-                            field: "DP",
-                            type: "input-number",
-                            comparators: this.depthIndex?.type === "RANGE_LT" ? "<,>=" : "<=,>",
-                            allowedValues: this.depthIndex?.thresholds,
-                            display: {
-                                defaultValue: "",
-                                visible: () => this.depthIndex?.thresholds?.length > 0,
-                            }
-                        },
-                        {
-                            name: "AF",
-                            field: "AF",
-                            type: "input-number",
-                            comparators: this.afIndex?.type === "RANGE_LT" ? "<,>=" : "<=,>",
-                            allowedValues: this.afIndex?.thresholds,
-                            display: {
-                                defaultValue: "",
-                                visible: () => this.afIndex?.thresholds?.length > 0,
-                            }
-                        },
-                        {
-                            name: "VAF",
-                            field: "EXT_VAF",
-                            type: "input-number",
-                            comparators: this.extVafIndex?.type === "RANGE_LT" ? "<,>=" : "<=,>",
-                            allowedValues: this.extVafIndex?.thresholds,
-                            display: {
-                                defaultValue: "",
-                                visible: () => this.extVafIndex?.thresholds?.length > 0,
-                            }
-                        }
-                    ]
+                    elements: elements
                 }
             ],
         };

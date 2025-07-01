@@ -10,7 +10,7 @@ on:
 jobs:
   build-jsorolla-workflow:
     name: "Build JSorolla"
-    runs-on: ubuntu-22.04
+    runs-on: ${{ vars.UBUNTU_VERSION }}
     outputs:
       version: ${{ steps.package.outputs.version }}
     steps:

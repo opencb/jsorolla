@@ -19,6 +19,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/data-form.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
 
 export default class FileFolderCreate extends LitElement {
 
@@ -97,6 +98,7 @@ export default class FileFolderCreate extends LitElement {
         const {name, ...otherFileData} = this._folder;
         const data = {
             ...otherFileData,
+            tags: otherFileData.tags ? otherFileData.tags.split(",").map(t => t.trim()) : [],
             path: `${this.path || ""}${name}`,
         };
 
@@ -155,9 +157,7 @@ export default class FileFolderCreate extends LitElement {
                             display: {
                                 defaultValue: `/${this.path}`,
                                 disabled: true,
-                                help: {
-                                    text: "Path where the folder will be created.",
-                                }
+                                helpMessage: "Path where the folder will be created.",
                             },
                         },
                         {
@@ -166,10 +166,37 @@ export default class FileFolderCreate extends LitElement {
                             required: true,
                             type: "input-text",
                             display: {
-                                help: {
-                                    text: "Name of the folder to be created.",
-                                },
-                            }
+                                helpMessage: "Name of the folder to be created.",
+                            },
+                        },
+                        {
+                            title: "Tags",
+                            field: "tags",
+                            type: "custom",
+                            display: {
+                                render: (tags, onFilterChange) => html`
+                                    <catalog-distinct-autocomplete
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .resource="${"FILE"}"
+                                        .value="${(tags || []).join(",")}"
+                                        .queryField="${"tags"}"
+                                        .distinctFields="${"tags"}"
+                                        .config="${{
+                                            freeTag: true,
+                                        }}"
+                                        @filterChange="${event => onFilterChange(event.detail.value)}">
+                                    </catalog-distinct-autocomplete>
+                                `,
+                            },
+                        },
+                        {
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                helpMessage: "Description of the folder.",
+                            },
                         },
                         {
                             title: "Resource",

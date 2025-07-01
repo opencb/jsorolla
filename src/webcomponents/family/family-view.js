@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utils-new.js";
-import Types from "../commons/types.js";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
+import {LitElement, html, nothing} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
 import "../commons/forms/data-form.js";
-import "../commons/image-viewer.js";
-import "../loading-spinner.js";
-import LitUtils from "../commons/utils/lit-utils";
+import "../commons/json-viewer.js";
+import "./family-summary.js";
+import "./opencga-family-relatedness-view.js";
 
 export default class FamilyView extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -37,23 +34,14 @@ export default class FamilyView extends LitElement {
 
     static get properties() {
         return {
-            family: {
-                type: Object,
+            opencgaSession: {
+                type: Object
             },
             familyId: {
-                type: String,
+                type: String
             },
-            individualId: {
-                type: String,
-            },
-            search: {
-                type: Boolean,
-            },
-            opencgaSession: {
-                type: Object,
-            },
-            settings: {
-                type: Object,
+            family: {
+                type: Object
             },
             displayConfig: {
                 type: Object,
@@ -62,301 +50,106 @@ export default class FamilyView extends LitElement {
     }
 
     #init() {
-        this.family = {};
-        this.search = false;
-
-        this.isLoading = false;
-        this.displayConfigDefault = {
-            buttonsVisible: false,
-            collapsable: true,
-            titleVisible: false,
-            titleWidth: 2,
-            defaultValue: "-",
-            pdf: false,
-        };
+        this.COMPONENT_ID = "family-view";
+        this._family = null;
         this._config = this.getDefaultConfig();
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
         }
-        if (changedProperties.has("individualId")) {
-            this.individualIdObserver();
+
+        if (changedProperties.has("family")) {
+            this.familyObserver();
         }
-        if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig
-            };
+
+        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
     familyIdObserver() {
-        if (this.familyId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-            };
-            let error;
-            this.#setLoading(true);
+        if (this.opencgaSession && this.familyId) {
             this.opencgaSession.opencgaClient.families()
-                .info(this.familyId, params)
-                .then(response => {
-                    this.family = response.responses[0].results[0];
+                .info(this.familyId, {
+                    study: this.opencgaSession.study.fqn,
                 })
-                .catch(reason => {
-                    this.family = {};
-                    error = reason;
-                    console.error(reason);
+                .then(restResponse => {
+                    this._family = restResponse.getResult(0);
+                    this.requestUpdate();
                 })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...params}}, error);
-                    this.#setLoading(false);
+                .catch(restResponse => {
+                    console.error(restResponse);
                 });
-        } else {
-            this.family = {};
         }
     }
 
-    individualIdObserver() {
-        if (this.individualId && this.opencgaSession) {
-            const params = {
-                members: this.individualId,
-                study: this.opencgaSession.study.fqn
-            };
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.families()
-                .search(params)
-                .then(response => {
-                    // We use the first family found
-                    this.family = response.responses[0].results[0];
-                })
-                .catch(reason => {
-                    this.family = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "familySearch", this.family, {query: {...params}}, error);
-                    this.#setLoading(false);
-                });
-        } else {
-            this.familyId = {};
-        }
-    }
-
-    onFilterChange(e) {
-        this.familyId = e.detail.value;
+    familyObserver() {
+        this._family = {...this.family};
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
-
-        if (!this.family?.id && this.search === false) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    No Family ID found.
-                </div>
-            `;
+        if (!this.opencgaSession || !this._family) {
+            return nothing;
         }
 
         return html`
             <data-form
-                .data="${this.family}"
-                .config="${this._config}">
+                .data="${this._family || {}}"
+                .config="${this._config || {}}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            title: "Summary",
-            icon: "",
-            display: this.displayConfig || this.displayConfigDefault,
+        return {
+            display: {
+                type: "pills",
+                pillsLeftColumnClass: "col-md-2",
+                pillsRightColumnClass: "col-md-10",
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
-                    title: "Search",
-                    display: {
-                        visible: family => !family?.id && this.search === true,
-                    },
-                    elements: [
-                        {
-                            title: "Family ID",
-                            // field: "familyId",
-                            type: "custom",
-                            display: {
-                                render: () => html `
-                                    <catalog-search-autocomplete
-                                        .value="${this.family?.id}"
-                                        .resource="${"FAMILY"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>
-                                `,
-                            }
-                        }
-                    ]
+                    id: "family-summary",
+                    name: "Overview",
+                    render: (family, active) => html`
+                        <family-summary
+                            .opencgaSession="${this.opencgaSession}"
+                            .active="${active}"
+                            .family="${family}"
+                            .settings="${OPENCGA_FAMILY_VIEW_SETTINGS}">
+                        </family-summary>
+                    `,
                 },
                 {
-                    title: "General",
-                    collapsed: false,
-                    display: {
-                        visible: family => family?.id,
-                    },
-                    elements: [
-                        {
-                            title: "Family ID",
-                            type: "complex",
-                            display: {
-                                template: "${id} (UUID: ${uuid})",
-                                style: {
-                                    id: {
-                                        "font-weight": "bold",
-                                    }
-                                },
-                            },
-                        },
-                        {
-                            title: "Family Name",
-                            field: "name"
-                        },
-                        {
-                            title: "Disorders",
-                            field: "disorders",
-                            type: "list",
-                            display: {
-                                contentLayout: "vertical",
-                                format: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
-                                defaultValue: "N/A"
-                            }
-                        },
-                        {
-                            title: "Phenotypes",
-                            field: "phenotypes",
-                            type: "list",
-                            display: {
-                                // visible: !this._config?.hiddenFields?.includes("phenotypes"),
-                                // contentLayout: "bullets",
-                                // render: phenotype => {
-                                //     let id = phenotype.id;
-                                //     if (phenotype.id.startsWith("HP:")) {
-                                //         id = html`<a class="text-decoration-none" href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
-                                //     }
-                                //     return html`${phenotype.name} (${id})`;
-                                // },
-                                contentLayout: "vertical",
-                                format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
-                                defaultValue: "N/A"
-                            }
-                        },
-                        {
-                            title: "Expected Size",
-                            field: "expectedSize"
-                        },
-                        {
-                            title: "Creation Date",
-                            field: "creationDate",
-                            display: {
-                                format: date => UtilsNew.dateFormatter(date)
-                            }
-                        },
-                        {
-                            title: "Description",
-                            field: "description",
-                        }
-                    ]
+                    id: "family-relatedness",
+                    name: "Relatedness",
+                    render: (family, active) => html`
+                        <opencga-family-relatedness-view
+                            .family="${family}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </opencga-family-relatedness-view>
+                    `,
                 },
                 {
-                    title: "Family Members",
-                    display: {
-                        visible: family => family?.id,
-                        defaultValue: "-"
-                    },
-                    elements: [
-                        {
-                            title: "List of Members:",
-                            field: "members",
-                            type: "table",
-                            display: {
-                                defaultValue: "-",
-                                columns: [
-                                    {
-                                        title: "Individual ID",
-                                        field: "id",
-                                        display: {
-                                            style: {
-                                                "font-weight": "bold"
-                                            }
-                                        }
-                                    },
-                                    {
-                                        title: "Sex",
-                                        field: "sex",
-                                        display: {
-                                            format: sex => sex.id
-                                        }
-                                    },
-                                    {
-                                        title: "Father ID",
-                                        field: "father.id",
-                                    },
-                                    {
-                                        title: "Mother ID",
-                                        field: "mother.id",
-                                    },
-                                    {
-                                        title: "Disorders",
-                                        field: "disorders",
-                                        type: "list",
-                                        display: {
-                                            format: disorder => CatalogGridFormatter.disorderFormatter([disorder])
-                                        }
-                                    },
-                                    {
-                                        title: "Phenotypes",
-                                        field: "phenotypes",
-                                        type: "list",
-                                        display: {
-                                            format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype])
-                                        }
-                                    },
-                                ]
-                            }
-                        },
-                        // {
-                        //     title: "Pedigree",
-                        //     type: "custom",
-                        //     display: {
-                        //         render: () => html`
-                        //             <image-viewer
-                        //                 .data="${this.family?.pedigreeGraph?.base64}">
-                        //             </image-viewer>
-                        //         `,
-                        //     }
-                        // },
-                        {
-                            title: "Pedigree",
-                            type: "image",
-                            field: "pedigreeGraph.base64",
-                        },
-                    ]
-                }
-            ]
-        });
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (family, active) => html`
+                        <json-viewer
+                            .data="${family}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
+                },
+                ...ExtensionsManager.getViews(this.COMPONENT_ID, this.opencgaSession),
+            ],
+        };
     }
 
 }
