@@ -1,6 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import "../../commons/forms/data-form.js";
 import "../../commons/view/detail-tabs.js";
+import "../clinical-analysis-review.js";
 
 export default class ClinicalAnalysisReport extends LitElement {
 
@@ -94,25 +95,24 @@ export default class ClinicalAnalysisReport extends LitElement {
             showTitle: false,
             items: [
                 {
-                    id: "report",
-                    name: "Report",
+                    id: "review",
+                    name: "Review",
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <data-form
-                            .data="${clinicalAnalysis}"
-                            .config="${this._template}">
-                        </data-form>
+                        <clinical-analysis-review
+                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </clinical-analysis-review>
                     `,
                 },
                 {
                     id: "preview",
                     name: "Preview",
                     render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <div class="report-preview">
-                            <h3>Report Preview</h3>
-                            <p>This is a preview of the clinical analysis report.</p>
-                            <!-- Add more preview content here -->
-                        </div>
+                        <data-form
+                            .data="${clinicalAnalysis}"
+                            .config="${this._template}">
+                        </data-form>
                     `,
                 },
             ],
