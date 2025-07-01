@@ -33,7 +33,6 @@ import "./variant-interpreter-methods.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
-import "../../clinical/clinical-analysis-review.js";
 import "../../clinical/interpretation/clinical-interpretation-update.js";
 import "../../clinical/report/clinical-analysis-report.js";
 
@@ -348,16 +347,10 @@ class VariantInterpreter extends LitElement {
                                 <tool-header
                                     title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
                                 </tool-header>
-                                <!--
-                                <clinical-analysis-review
-                                    @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
-                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .opencgaSession="${this.opencgaSession}">
-                                </clinical-analysis-review>
-                                -->
                                 <clinical-analysis-report
                                     .opencgaSession="${this.opencgaSession}"
-                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}">
                                 </clinical-analysis-report>
                             </div>
                         </div>
