@@ -29,8 +29,7 @@ export default class ClinicalAnalysisReport extends LitElement {
     }
 
     #init() {
-        this._templateFile = "RESOURCES:clinical:report:template.js";
-        this._template = null;
+        this._templates = [];
         this._config = this.getDefaultConfig();
     }
 
@@ -43,37 +42,51 @@ export default class ClinicalAnalysisReport extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        this._template = null;
+        this._templates = [];
         if (this.opencgaSession && this.clinicalAnalysis) {
+            // 1. fetch all .js files inside the clinical report templates folder
             this.opencgaSession.opencgaClient.files()
-                .download(this._templateFile, {
+                .search({
                     study: this.opencgaSession.study.fqn,
+                    directory: "RESOURCES:clinical:report:templates",
+                    include: "id,name",
                 })
                 .then(response => {
-                    // const content = response.responses[0].results[0].content;
-                    return this.loadTemplateFromFile(response, this._templateFile.endsWith(".js") ? "JAVASCRIPT" : "JSON");
+                    const files = (response.responses?.[0]?.results || []).filter(file => {
+                        return file.name.endsWith(".js");
+                    });
+                    // 2. download each file and load the templates
+                    return Promise.all(files.map(file => {
+                        return this.opencgaSession.opencgaClient.files()
+                            .download(file.id, {
+                                study: this.opencgaSession.study.fqn,
+                            })
+                            .then(fileContent => {
+                                return this.loadTemplateFromFile(file, fileContent);
+                            });
+                    }));
                 })
-                .then(template => {
-                    this._template = template;
+                .then(templates => {
+                    this._templates = templates;
                     this.requestUpdate();
                 })
                 .catch(error => {
-                    console.error("Error loading template file:", error);
+                    console.error("Error loading templates:", error);
                 });
         }
     }
 
-    loadTemplateFromFile(fileContent, format = "JSON") {
-        switch (format) {
-            case "JSON":
-                return Promise.resolve(JSON.parse(fileContent));
-            case "JAVASCRIPT":
-                const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
-                const fn = new AsyncFunction(`${fileContent} return getTemplate();`);
-                return Promise.resolve(fn())
-            default:
-                throw new Error(`Unsupported format: ${format}`);
-        }
+    loadTemplateFromFile(file, content) {
+        const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
+        const fn = new AsyncFunction(content);
+        return Promise.resolve(fn()).then(data => {
+            return {
+                name: data?.name || data?.title || file.name.replace(".js", ""),
+                description: data?.description || "",
+                version: data?.version || "",
+                template: data?.template || {}
+            };
+        });
     }
 
     render() {
