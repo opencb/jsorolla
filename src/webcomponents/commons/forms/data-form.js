@@ -1587,17 +1587,14 @@ export default class DataForm extends LitElement {
             // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
             const data = this.data[element.field][element.index];
             const searchContent = html `
-                <div class="row form-group" style="margin-left: 0;margin-right: 0">
-                    <!-- 1. Render the title -->
-                    ${element.display.title ? html`
+                <div class="form-group">
+                    ${element.display.search.title ? html`
                         <div>
                             <label class="control-label" style="padding-top: 0;">
-                                ${element.display.title}
+                                ${element.display.search.title}
                             </label>
                         </div>
-                    ` : null}
-                    <!-- 2. Todo: Render an icon -->
-                    <!-- 3. Render -->
+                    ` : nothing}
                     <div>
                         ${element.display.search.render(data, object => this.onObjectChange(element, object, {action: "AUTOCOMPLETE"}))}
                     </div>
