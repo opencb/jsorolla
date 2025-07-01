@@ -29,7 +29,7 @@ export default class ClinicalAnalysisReport extends LitElement {
     }
 
     #init() {
-        this._templates = [];
+        this._templates = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -42,13 +42,13 @@ export default class ClinicalAnalysisReport extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        this._templates = [];
+        this._templates = null;
         if (this.opencgaSession && this.clinicalAnalysis) {
             // 1. fetch all .js files inside the clinical report templates folder
             this.opencgaSession.opencgaClient.files()
                 .search({
                     study: this.opencgaSession.study.fqn,
-                    directory: "RESOURCES:clinical:report:templates",
+                    directory: "RESOURCES/clinical/report/templates",
                     include: "id,name",
                 })
                 .then(response => {
@@ -90,7 +90,7 @@ export default class ClinicalAnalysisReport extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession || !this.clinicalAnalysis || !this._template) {
+        if (!this.opencgaSession || !this.clinicalAnalysis || !this._templates) {
             return nothing;
         }
 
@@ -124,7 +124,7 @@ export default class ClinicalAnalysisReport extends LitElement {
                     render: (clinicalAnalysis, active, opencgaSession) => html`
                         <data-form
                             .data="${clinicalAnalysis}"
-                            .config="${this._template}">
+                            .config="${this._templates[0]?.template}">
                         </data-form>
                     `,
                 },
