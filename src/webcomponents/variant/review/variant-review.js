@@ -430,18 +430,17 @@ export default class VariantReview extends LitElement {
                                     field: "references[].id",
                                     type: "input-text",
                                     display: {
+                                        disabled: true,
                                         placeholder: "12345678",
-                                        helpMessage: "Add a unique identifier for the reference, e.g. PMID, DOI, etc.",
-                                        required: true,
                                     },
                                 },
                                 {
-                                    title: "Name",
+                                    title: "Title",
                                     field: "references[].name",
                                     type: "input-text",
                                     display: {
+                                        disabled: true,
                                         placeholder: "",
-                                        helpMessage: "Add a name to the reference, for example the publication title or the first author.",
                                     },
                                 },
                                 {
@@ -449,6 +448,7 @@ export default class VariantReview extends LitElement {
                                     field: "references[].summary",
                                     type: "input-text",
                                     display: {
+                                        disabled: true,
                                         rows: 5,
                                     },
                                 },
@@ -456,15 +456,17 @@ export default class VariantReview extends LitElement {
                                     title: "Date",
                                     field: "references[].date",
                                     type: "input-date",
+                                    display: {
+                                        disabled: true,
+                                    },
                                 },
                                 {
                                     title: "URL",
                                     field: "references[].url",
                                     type: "input-text",
                                     display: {
+                                        disabled: true,
                                         placeholder: "https://pubmed.ncbi.nlm.nih.gov/12345678",
-                                        helpMessage: "Add a URL to the reference, e.g. a PubMed link",
-                                        required: true,
                                     },
                                 },
                                 {
@@ -472,8 +474,8 @@ export default class VariantReview extends LitElement {
                                     field: "references[].journal",
                                     type: "input-text",
                                     display: {
+                                        disabled: true,
                                         placeholder: "Nature, Science, etc.",
-                                        helpMessage: "Add the Journal where the reference was published",
                                     },
                                 },
                             ],
