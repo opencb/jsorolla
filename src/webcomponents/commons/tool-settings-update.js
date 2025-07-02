@@ -77,7 +77,7 @@ export default class ToolSettingsUpdate extends LitElement {
     #initOriginalObjects() {
         this._study = this.study || this.opencgaSession.study;
         this._data = {
-            listStudies: [
+            studies: [
                 this._study.fqn,
             ],
             toolSettings: UtilsNew.objectClone(this.toolSettings || {}),
@@ -135,7 +135,7 @@ export default class ToolSettingsUpdate extends LitElement {
     onSubmit() {
         this.#setLoading(true);
         // 1. preare all the update promises
-        const toolSettingsUpdatePromises = this._data.listStudies.map(studyFqn => {
+        const toolSettingsUpdatePromises = this._data.studies.map(studyFqn => {
             const study = OpencgaCatalogUtils.getStudyInSession(this.opencgaSession, studyFqn);
             const updateParams = OpencgaCatalogUtils.getNewToolIVASettings(this.opencgaSession, study, this.toolName, this._data.toolSettings);
             return this.opencgaSession.opencgaClient.studies()
@@ -182,7 +182,7 @@ export default class ToolSettingsUpdate extends LitElement {
         return html`
             <data-form
                 .data="${this._data}"
-                .config="${this._config || {}}"
+                .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
@@ -213,7 +213,7 @@ export default class ToolSettingsUpdate extends LitElement {
                     elements: [
                         {
                             title: "Study",
-                            field: "listStudies",
+                            field: "studies",
                             type: "select",
                             multiple: true,
                             all: true,
