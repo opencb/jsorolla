@@ -153,7 +153,13 @@ export default class ClinicalAnalysisReport extends LitElement {
                         ${this._activeTemplate && active ? html`
                             <data-form
                                 .data="${clinicalAnalysis}"
-                                .config="${this._activeTemplate?.template}">
+                                .config="${{
+                                    ...this._activeTemplate?.template,
+                                    display: {
+                                        buttonsVisible: false,
+                                        ...this._activeTemplate?.template?.display,
+                                    },
+                                }}">
                             </data-form>
                         ` : nothing}
                     `,
