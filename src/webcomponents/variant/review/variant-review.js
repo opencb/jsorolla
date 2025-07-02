@@ -4,7 +4,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import "../../commons/forms/data-form.js";
-import "../../commons/filters/cellbase-search-autocomplete.js";
+import "../../commons/filters/pubmed-search.js";
 import "../annotation/cellbase-variant-annotation-summary.js";
 import "./variant-review-evidences-grid.js";
 
@@ -429,14 +429,12 @@ export default class VariantReview extends LitElement {
                                     // placeholder: "Search by ID, title, summary, date, URL or journal",
                                     render: (currentData, dataFormFilterChange) => {
                                         return html`
-                                            <cellbase-search-autocomplete
-                                                .resource="${"PUBLICATION"}"
-                                                .cellbaseClient="${this.opencgaSession.cellbaseClient}"
+                                            <pubmed-search
                                                 @filterChange="${event => {
                                                     console.log(event.detail.data);
                                                     // dataFormFilterChange(event.detail.data);
                                                 }}">
-                                            </cellbase-search-autocomplete>
+                                            </pubmed-search>
                                         `;
                                     },
                                 },
