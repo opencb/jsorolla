@@ -30,6 +30,7 @@ export default class ClinicalAnalysisReport extends LitElement {
 
     #init() {
         this._templates = null;
+        this._activeTemplate = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -43,6 +44,7 @@ export default class ClinicalAnalysisReport extends LitElement {
 
     clinicalAnalysisObserver() {
         this._templates = null;
+        this._activeTemplate = null;
         if (this.opencgaSession && this.clinicalAnalysis) {
             // 1. fetch all .js files inside the clinical report templates folder
             this.opencgaSession.opencgaClient.files()
@@ -68,6 +70,10 @@ export default class ClinicalAnalysisReport extends LitElement {
                 })
                 .then(templates => {
                     this._templates = templates;
+                    // if there are only one template, set it as the current active
+                    if (this._templates.length === 1) {
+                        this._activeTemplate = this._templates[0];
+                    }
                     this.requestUpdate();
                 })
                 .catch(error => {
@@ -87,6 +93,15 @@ export default class ClinicalAnalysisReport extends LitElement {
                 template: data?.template || {}
             };
         });
+    }
+
+    onTemplateChange(event) {
+        const selectedTemplate = this._templates.find(template => {
+            return template.name === event.target.value;
+        });
+        this._activeTemplate = selectedTemplate || null;
+        this._config = {...this._config}; // force refresh
+        this.requestUpdate();
     }
 
     render() {
@@ -122,10 +137,25 @@ export default class ClinicalAnalysisReport extends LitElement {
                     id: "preview",
                     name: "Preview",
                     render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <data-form
-                            .data="${clinicalAnalysis}"
-                            .config="${this._templates[0]?.template}">
-                        </data-form>
+                        ${this._templates && this._templates.length > 1 ? html`
+                            <div class="form-group mb-5">
+                                <label for="templateSelect">Select Template</label>
+                                <select class="form-control" @change="${event => this.onTemplateChange(event)}">
+                                    <option disabled selected value> -- select a template -- </option>
+                                    ${this._templates.map(template => html`
+                                        <option value="${template.name}" ?selected="${this._activeTemplate?.name === template.name}">
+                                            ${template.name}
+                                        </option>
+                                    `)}
+                                </select>
+                            </div>
+                        ` : nothing}
+                        ${this._activeTemplate && active ? html`
+                            <data-form
+                                .data="${clinicalAnalysis}"
+                                .config="${this._activeTemplate?.template}">
+                            </data-form>
+                        ` : nothing}
                     `,
                 },
             ],
