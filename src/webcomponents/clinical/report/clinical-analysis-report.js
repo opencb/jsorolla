@@ -128,15 +128,15 @@ export default class ClinicalAnalysisReport extends LitElement {
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => html`
                         <clinical-analysis-review
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .opencgaSession="${this.opencgaSession}">
+                            .clinicalAnalysis="${clinicalAnalysis}"
+                            .opencgaSession="${opencgaSession}">
                         </clinical-analysis-review>
                     `,
                 },
                 {
                     id: "preview",
                     name: "Preview",
-                    render: (clinicalAnalysis, active, opencgaSession) => html`
+                    render: (clinicalAnalysis, active) => html`
                         ${this._templates && this._templates.length > 1 ? html`
                             <div class="form-group mb-5">
                                 <label for="templateSelect">Select Template</label>
