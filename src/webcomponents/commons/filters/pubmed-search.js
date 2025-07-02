@@ -1,9 +1,9 @@
 import {LitElement, html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-import UtilsNew from "../../../core/utils-new";
+import UtilsNew from "../../../core/utils-new.js";
 import "../forms/select-token-filter.js";
 
-export default class PubmedSearchAutocomplete extends LitElement {
+export default class PubmedSearch extends LitElement {
 
     constructor() {
         super();
@@ -134,4 +134,4 @@ export default class PubmedSearchAutocomplete extends LitElement {
 
 }
 
-customElements.define("pubmed-search-autocomplete", PubmedSearchAutocomplete);
+customElements.define("pubmed-search", PubmedSearch);
