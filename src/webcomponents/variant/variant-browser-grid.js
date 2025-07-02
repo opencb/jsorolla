@@ -238,6 +238,8 @@ export default class VariantBrowserGrid extends LitElement {
                         .query(this.filters)
                         .then(response => {
                             variantResponse = response;
+
+                            // Prepare data for columns extensions
                             const rows = variantResponse.responses?.[0]?.results || [];
                             return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
                         })
