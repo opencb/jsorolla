@@ -572,4 +572,23 @@ export default class VariantUtils {
         }
     }
 
+    static getStatusColor(status) {
+        switch (status.toUpperCase()) {
+            case "NOT_REVIEWED":
+                return "text-secondary bg-secondary-subtle";
+            case "REVIEW_REQUESTED":
+                return "text-primary bg-primary-subtle";
+            case "REVIEWED":
+                return "text-white bg-primary";
+            case "DISCARDED":
+                return "text-white bg-danger";
+            case "REPORTED":
+                return "text-white bg-success";
+            case "ARTIFACT":
+                return "text-white bg-dark";
+            default:
+                return "";
+        }
+    }
+
 }
