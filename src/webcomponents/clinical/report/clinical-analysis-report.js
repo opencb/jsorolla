@@ -90,7 +90,7 @@ export default class ClinicalAnalysisReport extends LitElement {
                 title: data?.name || data?.title || file.name.replace(".js", ""),
                 description: data?.description || "",
                 version: data?.version || "",
-                template: data?.template || {}
+                config: data?.config || data?.template || {}
             };
         });
     }
@@ -154,10 +154,10 @@ export default class ClinicalAnalysisReport extends LitElement {
                             <data-form
                                 .data="${clinicalAnalysis}"
                                 .config="${{
-                                    ...this._activeTemplate?.template,
+                                    ...this._activeTemplate?.config,
                                     display: {
                                         buttonsVisible: false,
-                                        ...this._activeTemplate?.template?.display,
+                                        ...this._activeTemplate?.config?.display,
                                     },
                                 }}">
                             </data-form>
