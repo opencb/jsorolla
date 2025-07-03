@@ -401,21 +401,18 @@ export default class VariantReview extends LitElement {
                                     return html`
                                         <div class="mb-2">
                                             <div class="fw-bold">${reference.name || "-"}</div>
-                                            <div class="text-muted d-flex align-items-center flex-row flex-wrap gap-3 fs-7">
-                                                ${reference.date ? html`
-                                                    <span class="text-nowrap d-flex align-items-center gap-1">
-                                                        <i class="fa fa-calendar fs-8"></i>
-                                                        <span>${UtilsNew.dateFormatter(reference.date)}</span>
-                                                    </span>
-                                                ` : nothing}
+                                            <!--
+                                            <div class="text-secondary">${reference.authors?.join(", ") || "-"}</div>
+                                            -->
+                                            <div class="text-muted d-flex align-items-center flex-row flex-wrap gap-1 fs-7">
                                                 ${reference.journal ? html`
-                                                    <span class="text-nowrap d-flex align-items-center gap-1">
-                                                        <i class="fa fa-book fs-8"></i>
-                                                        <span>${reference.journal}</span>
-                                                    </span>
+                                                    <span>${reference.journal}.</span>
+                                                ` : nothing}
+                                                ${reference.date ? html`
+                                                    <span>${UtilsNew.dateFormatter(reference.date)}.</span>
                                                 ` : nothing}
                                                 ${reference.url ? html`
-                                                    <span class="text-nowrap d-flex align-items-center gap-1">
+                                                    <span class="text-nowrap d-flex align-items-center gap-1 ms-2">
                                                         <i class="fa fa-link fs-8"></i>
                                                         <span>${reference.url || "-"}</span>
                                                     </span>
@@ -425,14 +422,20 @@ export default class VariantReview extends LitElement {
                                     `;
                                 },
                                 search: {
-                                    title: "Search references",
-                                    // placeholder: "Search by ID, title, summary, date, URL or journal",
-                                    render: (currentData, dataFormFilterChange) => {
+                                    title: "Search references in PubMed",
+                                    render: (currentData, onSearch) => {
                                         return html`
                                             <pubmed-search
                                                 @filterChange="${event => {
-                                                    console.log(event.detail.data);
-                                                    // dataFormFilterChange(event.detail.data);
+                                                    onSearch({
+                                                        id: event.detail.value.id,
+                                                        name: event.detail.value.title, // TODO: rename to title
+                                                        summary: event.detail.value.summary || "",
+                                                        // authors: event.detail.value.authors || [],
+                                                        date: event.detail.value.date || "",
+                                                        url: `https://pubmed.ncbi.nlm.nih.gov/${event.detail.value.id}`,
+                                                        journal: event.detail.value.journal || "",
+                                                    });
                                                 }}">
                                             </pubmed-search>
                                         `;
@@ -446,7 +449,6 @@ export default class VariantReview extends LitElement {
                                     type: "input-text",
                                     display: {
                                         disabled: true,
-                                        placeholder: "12345678",
                                     },
                                 },
                                 {
@@ -455,7 +457,6 @@ export default class VariantReview extends LitElement {
                                     type: "input-text",
                                     display: {
                                         disabled: true,
-                                        placeholder: "",
                                     },
                                 },
                                 {
