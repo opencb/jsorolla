@@ -26,6 +26,7 @@ export default class PubmedSearch extends LitElement {
     }
 
     #init() {
+        this._term = "";
         this._results = null;
         this._searchActive = true;
         this._config = this.getDefaultConfig();
@@ -43,8 +44,6 @@ export default class PubmedSearch extends LitElement {
     }
 
     async searchPubmed(term) {
-        // https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=123456&retmode=json
-        // https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=123456,12345&retmode=json
         const termsResponse = await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${term}&retmode=json`);
         const termsData = await termsResponse.json();
         if (termsData?.esearchresult?.idlist?.length > 0) {
@@ -72,12 +71,12 @@ export default class PubmedSearch extends LitElement {
     }
 
     onSearch() {
-        const term = this.querySelector("input").value.trim();
-        if (term) {
-            this._results = null;
+        this._results = null;
+        this._term = this.querySelector("input").value.trim();
+        if (this._term) {
             this._searchActive = false;
             this.requestUpdate();
-            this.searchPubmed(term)
+            this.searchPubmed(this._term)
                 .then(results => {
                     this._results = results;
                 }).catch(error => {
@@ -109,22 +108,37 @@ export default class PubmedSearch extends LitElement {
         this.requestUpdate();
     }
 
-    renderResultItem(item) {
-        return html`
-            <div class="dropdown-item d-flex flex-column cursor-pointer" @click="${() => this.onSelectItem(item)}">
-                <div class="fw-bold">${item.title}</div>
-                <div class="text-secondary">
-                    ${item.authors.join(", ")}
+    renderResults() {
+        if (this._results.length === 0) {
+            return html`
+                <div class="d-flex flex-column gap-1 justify-content-center align-items-center py-3">
+                    <div class="text-center">
+                        <i class="fas fa-search fs-3"></i>
+                    </div>
+                    <div class="fw-bold fs-5">No results found.</div>
+                    <div class="text-muted text-center">
+                        Your search <b>${this._term}</b> did not match any article in PubMed.<br>Please try with a different PubMed ID or text.
+                    </div>
                 </div>
-                <div class="text-muted small">
-                    <span>${item.journal}.</span>
-                    <span>${item.date};</span>
-                    <span>${item.volumne ? `${item.volumne}` : ""}</span>
-                    <span>${item.issue ? `(${item.issue})` : ""}</span>
-                    <span>${item.pages ? `:${item.pages}` : ""}</span>
+            `;
+        }
+        return this._results.map(item => {
+            return html`
+                <div class="dropdown-item d-flex flex-column cursor-pointer" @click="${() => this.onSelectItem(item)}">
+                    <div class="fw-bold">${item.title}</div>
+                    <div class="text-secondary">
+                        ${item.authors.join(", ")}
+                    </div>
+                    <div class="text-muted small">
+                        <span>${item.journal}.</span>
+                        <span>${item.date};</span>
+                        <span>${item.volumne ? `${item.volumne}` : ""}</span>
+                        <span>${item.issue ? `(${item.issue})` : ""}</span>
+                        <span>${item.pages ? `:${item.pages}` : ""}</span>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        });
     }
 
     render() {
@@ -156,7 +170,7 @@ export default class PubmedSearch extends LitElement {
                 </div>
                 ${this._results ? html`
                     <div class="dropdown-menu show w-full overflow-y-auto shadow" style="max-height:320px;">
-                        ${this._results.map((item, index) => this.renderResultItem(item))}
+                        ${this.renderResults()}
                     </div>
                 ` : nothing}
             </div>
