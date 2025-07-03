@@ -109,7 +109,7 @@ export default class PubmedSearch extends LitElement {
 
     renderResultItem(item) {
         return html`
-            <div class="dropdown-item d-flex flex-column gap-1" @click="${() => null}">
+            <div class="dropdown-item d-flex flex-column" @click="${() => null}">
                 <div class="fw-bold">${item.title}</div>
                 <div class="text-secondary">
                     ${item.authors.join(", ")}
