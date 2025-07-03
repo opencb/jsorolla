@@ -1,7 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
-import "../forms/select-token-filter.js";
 
 export default class PubmedSearch extends LitElement {
 
@@ -27,6 +26,8 @@ export default class PubmedSearch extends LitElement {
     }
 
     #init() {
+        this._results = null;
+        this._searchActive = true;
         this._config = this.getDefaultConfig();
     }
 
@@ -47,17 +48,47 @@ export default class PubmedSearch extends LitElement {
         const termsResponse = await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${term}&retmode=json`);
         const termsData = await termsResponse.json();
         if (termsData?.esearchresult?.idlist?.length > 0) {
-            const ids = termsData.esearchresult.idlist;
+            const ids = termsData.esearchresult.idlist.slice(0, this._config.limit);
             const summariesResponse = await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${ids.join(",")}&retmode=json`);
             const summariesData = await summariesResponse.json();
             if (summariesData?.result) {
                 return ids.map(id => {
-                    return summariesData.result[id];
+                    const item = summariesData.result[id];
+                    return {
+                        id: item.uid,
+                        title: item.title || item.shorttitle || "No title available",
+                        journal: item.source || "-",
+                        volumne: item.volume || "",
+                        issue: item.issue || "",
+                        pages: item.pages || "",
+                        date: item.pubdate || item.sortpubdate || "",
+                        authors: (item.authors || []).map(author => author.name),
+                    };
                 });
             }
         }
         // no ids found, so return an empty array
         return [];
+    }
+
+    onSearch() {
+        const term = this.querySelector("input").value.trim();
+        if (term) {
+            this._results = null;
+            this._searchActive = false;
+            this.requestUpdate();
+            this.searchPubmed(term)
+                .then(results => {
+                    this._results = results;
+                }).catch(error => {
+                    console.error("Error fetching PubMed data:", error);
+                    this._results = null;
+                })
+                .finally(() => {
+                    this._searchActive = true;
+                    this.requestUpdate();
+                });
+        }
     }
 
     onFilterChange(e) {
@@ -76,59 +107,60 @@ export default class PubmedSearch extends LitElement {
         });
     }
 
+    renderResultItem(item) {
+        return html`
+            <div class="dropdown-item d-flex flex-column gap-1" @click="${() => null}">
+                <div class="fw-bold">${item.title}</div>
+                <div class="text-secondary">
+                    ${item.authors.join(", ")}
+                </div>
+                <div class="text-muted small">
+                    <span>${item.journal}.</span>
+                    <span>${item.date};</span>
+                    <span>${item.volumne ? `${item.volumne}` : ""}</span>
+                    <span>${item.issue ? `(${item.issue})` : ""}</span>
+                    <span>${item.pages ? `:${item.pages}` : ""}</span>
+                </div>
+            </div>
+        `;
+    }
+
     render() {
         return html`
-            <select-token-filter
-                .keyObject="${"id"}"
-                .config="${this._config}"
-                @filterChange="${e => this.onFilterChange(e)}">
-            </select-token-filter>
+            <div class="dropdown">
+                <div class="input-group">
+                    <!--
+                    <span class="input-group-text bg-white pe-2">
+                        <i class="fa ${this._config.icon} text-gray-700 py-1 fs-5"></i>
+                    </span>
+                    -->
+                    <input
+                        type="text"
+                        class="form-control border-start-0 px-2 lh-1"
+                        placeholder="${this._config.placeholder}"
+                    />
+                    <button class="btn btn-primary d-flex align-items-center gap-2 flex-shrink-0 ${!this._searchActive ? "disabled" : ""}" @click="${() => this.onSearch()}">
+                        ${this._searchActive ? html`
+                            <i class="fa fa-search"></i>
+                        ` : html`
+                            <span class="spinner-border spinner-border-sm"></span>
+                        `}
+                        <span>Search</span>
+                    </button>
+                </div>
+                ${this._results ? html`
+                    <div class="dropdown-menu show w-full overflow-y-auto shadow" style="max-height:320px;">
+                        ${this._results.map((item, index) => this.renderResultItem(item))}
+                    </div>
+                ` : nothing}
+            </div>
         `;
     }
 
     getDefaultConfig() {
         return {
-            disabled: false,
-            multiple: false,
-            freeTag: false,
-            limit: 10,
-            maxItems: 0, // No limit set
-            minimumInputLength: 3, // Only start searching when the user has input 3 or more characters
-            // filterResults: this.#filterResults,
-            // viewResultStyle: this.#viewResultStyle,
-            // viewResult: this.#viewResult,
-            // viewSelection: result => result[this.searchField],
-            source: async (params, success, failure) => {
-                // const page = params?.data?.page || 1;
-                // const queryParams = {
-                //     ...this.defaultQueryParams,
-                //     ...this.RESOURCES[this.resource].queryParams,
-                //     skip: (page - 1) * this._config.limit,
-                // };
-                if (params?.data?.term) {
-                    return this.searchPubmed(params.data.term)
-                        .then(response => {
-                            success(response);
-                        })
-                        .catch(error => {
-                            console.error(error);
-                            failure(error);
-                        });
-                }
-            },
-            processResults: (results, params) => {
-                return {
-                    results: results.map(item => {
-                        return {
-                            id: item.uid,
-                            title: item.title || item.shorttitle || "No title available",
-                            journal: item.fulljournalname || item.source || "No journal available",
-                            date: item.sortpubdate || item.pubdate || "",
-                            authors: (item.authors || []).map(author => author.name),
-                        };
-                    }),
-                };
-            },
+            limit: 20,
+            placeholder: "Type to search by PubMed ID or title...",
         };
     }
 
