@@ -518,7 +518,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center",
                     formatter: (value, row) => {
                         if (this._checkedVariants.has(row.id)) {
-                            return `<span class="badge bg-success">PRIMARY</span>`;
+                            return `<span class="badge text-primary bg-primary-subtle">PRIMARY</span>`;
                         }
                         return "-";
                     },
