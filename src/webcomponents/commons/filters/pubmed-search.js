@@ -95,6 +95,13 @@ export default class PubmedSearch extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterChange", item);
     }
 
+    onKeyDown(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            this.onSearch();
+        }
+    } 
+
     renderResultItem(item) {
         return html`
             <div class="dropdown-item d-flex flex-column cursor-pointer" @click="${() => this.onSelectItem(item)}">
@@ -117,15 +124,14 @@ export default class PubmedSearch extends LitElement {
         return html`
             <div class="dropdown">
                 <div class="input-group">
-                    <!--
                     <span class="input-group-text bg-white pe-2">
-                        <i class="fa ${this._config.icon} text-gray-700 py-1 fs-5"></i>
+                        <i class="fa fa-search text-gray-700 py-1 fs-6"></i>
                     </span>
-                    -->
                     <input
                         type="text"
                         class="form-control border-start-0 px-2 lh-1"
                         placeholder="${this._config.placeholder}"
+                        @keydown="${event => this.onKeyDown(event)}"
                     />
                     <button class="btn btn-primary d-flex align-items-center gap-2 flex-shrink-0 ${!this._searchActive ? "disabled" : ""}" @click="${() => this.onSearch()}">
                         ${this._searchActive ? html`
