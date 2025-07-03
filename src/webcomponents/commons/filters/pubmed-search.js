@@ -91,25 +91,13 @@ export default class PubmedSearch extends LitElement {
         }
     }
 
-    onFilterChange(e) {
-        const value = e.detail.value;
-        const data = e.detail.data.selected ? e.detail.data : {};
-        if (!UtilsNew.isEmpty(data)) {
-            // 1. To remove internal keys from select2 that are not part of the data model.
-            const internalKeys = ["selected", "text"];
-            internalKeys.forEach(key => delete data[key]);
-            // 2. To filter out entries with undefined values
-            Object.keys(data).forEach(key => typeof data[key] === "undefined" && delete data[key]);
-        }
-        // 3. To dispatch event with value autocompleted and data filtered
-        LitUtils.dispatchCustomEvent(this, "filterChange", value, {
-            data: data,
-        });
+    onSelectItem(item) {
+        LitUtils.dispatchCustomEvent(this, "filterChange", item);
     }
 
     renderResultItem(item) {
         return html`
-            <div class="dropdown-item d-flex flex-column" @click="${() => null}">
+            <div class="dropdown-item d-flex flex-column cursor-pointer" @click="${() => this.onSelectItem(item)}">
                 <div class="fw-bold">${item.title}</div>
                 <div class="text-secondary">
                     ${item.authors.join(", ")}
