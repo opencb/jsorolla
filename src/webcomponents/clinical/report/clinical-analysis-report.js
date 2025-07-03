@@ -65,11 +65,15 @@ export default class ClinicalAnalysisReport extends LitElement {
                             })
                             .then(fileContent => {
                                 return this.loadTemplateFromFile(file, fileContent);
+                            })
+                            .catch(error => {
+                                console.error(`Error loading template from file ${file.name}:`, error);
+                                return null; // Return null for failed templates
                             });
                     }));
                 })
                 .then(templates => {
-                    this._templates = templates;
+                    this._templates = templates.filter(Boolean); // Filter out invalid templates
                     // if there are only one template, set it as the current active
                     if (this._templates.length === 1) {
                         this._activeTemplate = this._templates[0];
