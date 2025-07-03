@@ -163,7 +163,7 @@ export default class ClinicalAnalysisReport extends LitElement {
                                     <option disabled selected value> -- select a template -- </option>
                                     ${this._templates.map(template => html`
                                         <option value="${template.title}" ?selected="${this._activeTemplate?.title === template.title}">
-                                            ${template.title}
+                                            ${template.title} ${template.version ? html` - ${template.version}` : nothing}
                                         </option>
                                     `)}
                                 </select>
