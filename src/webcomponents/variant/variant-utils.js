@@ -21,6 +21,18 @@ import VariantGridFormatter from "./variant-grid-formatter.js";
 
 export default class VariantUtils {
 
+    static VARIANT_STATUS_VALUES = [
+        "NOT_REVIEWED",
+        "REVIEW_REQUESTED",
+        "REVIEWED",
+        "DISCARDED",
+        "REPORTED",
+        "ARTIFACT",
+    ];
+
+    static VARIANT_CONFIDENCE_VALUES = ["LOW", "MEDIUM", "HIGH"];
+
+
     static jsonToTabConvert(variants, populationFrequenciesStudies, samples, nucleotideGenotype, fieldList) {
         const rows = [];
         let populationMap = {};

@@ -2,6 +2,7 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
+import VariantUtils from "../variant-utils.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/pubmed-search.js";
@@ -49,19 +50,6 @@ export default class VariantReview extends LitElement {
     }
 
     #init() {
-        this.STATUS_VALUES = [
-            "NOT_REVIEWED",
-            "REVIEW_REQUESTED",
-            "REVIEWED",
-            "DISCARDED",
-            "REPORTED",
-            "ARTIFACT",
-        ];
-        this.CONFIDENCE_VALUES = [
-            "LOW",
-            "MEDIUM",
-            "HIGH",
-        ];
         this._variant = null;
         this._selected = false;
         this._updatedParams = {};
@@ -269,7 +257,7 @@ export default class VariantReview extends LitElement {
                 <div class="d-flex align-items-center gap-2">
                     <label class="form-label mb-0 fw-bold">Status</label>
                     <select class="form-select form-select-sm" ?disabled="${!this._selected}" @change="${event => this.onStatusChange(event)}">
-                        ${this.STATUS_VALUES.map(status => html`
+                        ${VariantUtils.VARIANT_STATUS_VALUES.map(status => html`
                             <option value="${status}" ?selected="${this._variant?.status === status}">
                                 ${status}
                             </option>
@@ -279,7 +267,7 @@ export default class VariantReview extends LitElement {
                 <div class="d-flex align-items-center gap-2 ms-3">
                     <label class="form-label mb-0 fw-bold">Confidence</label>
                     <select class="form-select form-select-sm" ?disabled="${!this._selected}" @change="${event => this.onConfidenceChange(event)}">
-                        ${this.CONFIDENCE_VALUES.map(confidence => html`
+                        ${VariantUtils.VARIANT_CONFIDENCE_VALUES.map(confidence => html`
                             <option value="${confidence}" ?selected="${this._variant?.confidence?.value === confidence}">
                                 ${confidence}
                             </option>
