@@ -93,6 +93,7 @@ export default class PubmedSearch extends LitElement {
 
     onSelectItem(item) {
         LitUtils.dispatchCustomEvent(this, "filterChange", item);
+        this.onClear();
     }
 
     onKeyDown(event) {
@@ -101,6 +102,12 @@ export default class PubmedSearch extends LitElement {
             this.onSearch();
         }
     } 
+
+    onClear() {
+        this.querySelector("input").value = "";
+        this._results = null;
+        this.requestUpdate();
+    }
 
     renderResultItem(item) {
         return html`
@@ -129,10 +136,15 @@ export default class PubmedSearch extends LitElement {
                     </span>
                     <input
                         type="text"
-                        class="form-control border-start-0 px-2 lh-1"
+                        class="form-control border-start-0 border-end-0 px-2 lh-1"
                         placeholder="${this._config.placeholder}"
                         @keydown="${event => this.onKeyDown(event)}"
                     />
+                    ${this._results ? html`
+                        <span class="input-group-text bg-white px-2 cursor-pointer" @click="${() => this.onClear()}">
+                            <i class="fa fa-times text-gray-700 py-0 fs-5"></i>
+                        </span>
+                    ` : nothing}
                     <button class="btn btn-primary d-flex align-items-center gap-2 flex-shrink-0 ${!this._searchActive ? "disabled" : ""}" @click="${() => this.onSearch()}">
                         ${this._searchActive ? html`
                             <i class="fa fa-search"></i>
