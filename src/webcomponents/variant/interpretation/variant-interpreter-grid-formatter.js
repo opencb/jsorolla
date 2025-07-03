@@ -18,6 +18,7 @@ import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
+import VariantUtils from "../variant-utils.js";
 
 export default class VariantInterpreterGridFormatter {
 
@@ -689,7 +690,7 @@ export default class VariantInterpreterGridFormatter {
                     </div>
                 `: ""}
                 ${checked && variant?.status ? `
-                    <div class="text-secondary text-center my-2">
+                    <div class="badge ${VariantUtils.getStatusColor(variant.status || "")} user-select-none my-2">
                         <b>${variant.status}</b>
                     </div>
                 ` : ""}
