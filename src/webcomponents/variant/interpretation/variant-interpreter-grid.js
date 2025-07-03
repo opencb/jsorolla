@@ -512,6 +512,20 @@ export default class VariantInterpreterGrid extends LitElement {
         this._columns = [
             [
                 {
+                    id: "status",
+                    rowspan: 2,
+                    colspan: 1,
+                    align: "center",
+                    formatter: (value, row, index) => {
+                        if (this._checkedVariants.has(row.id)) {
+                            return `<span class="badge bg-success">PRIMARY</span>`;
+                        }
+                        return "-";
+                    },
+                    excludeFromExport: true,
+                    excludeFromSettings: true,
+                },
+                {
                     id: "id",
                     title: "Variant",
                     field: "id",
