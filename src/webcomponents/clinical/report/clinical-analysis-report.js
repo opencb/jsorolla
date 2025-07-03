@@ -154,6 +154,15 @@ export default class ClinicalAnalysisReport extends LitElement {
                                 </select>
                             </div>
                         ` : nothing}
+                        ${this._templates && this._templates.length === 0 ? html`
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <span>
+                                    No templates found in the folder <code>RESOURCES/clinical/report/templates</code> of this study. 
+                                    Please, contact your administrator to add templates.
+                                </span>
+                            </div>
+                        ` : nothing}
                         ${this._activeTemplate && active ? html`
                             <data-form
                                 .data="${clinicalAnalysis}"
