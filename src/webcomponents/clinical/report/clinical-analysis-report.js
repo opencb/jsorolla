@@ -87,7 +87,7 @@ export default class ClinicalAnalysisReport extends LitElement {
         const fn = new AsyncFunction(content);
         return Promise.resolve(fn()).then(data => {
             return {
-                name: data?.name || data?.title || file.name.replace(".js", ""),
+                title: data?.name || data?.title || file.name.replace(".js", ""),
                 description: data?.description || "",
                 version: data?.version || "",
                 template: data?.template || {}
@@ -97,7 +97,7 @@ export default class ClinicalAnalysisReport extends LitElement {
 
     onTemplateChange(event) {
         const selectedTemplate = this._templates.find(template => {
-            return template.name === event.target.value;
+            return template.title === event.target.value;
         });
         this._activeTemplate = selectedTemplate || null;
         this._config = {...this._config}; // force refresh
@@ -143,8 +143,8 @@ export default class ClinicalAnalysisReport extends LitElement {
                                 <select class="form-control" @change="${event => this.onTemplateChange(event)}">
                                     <option disabled selected value> -- select a template -- </option>
                                     ${this._templates.map(template => html`
-                                        <option value="${template.name}" ?selected="${this._activeTemplate?.name === template.name}">
-                                            ${template.name}
+                                        <option value="${template.title}" ?selected="${this._activeTemplate?.title === template.title}">
+                                            ${template.title}
                                         </option>
                                     `)}
                                 </select>
