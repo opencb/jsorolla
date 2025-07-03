@@ -30,6 +30,7 @@ export default class ClinicalAnalysisReport extends LitElement {
 
     #init() {
         this._templates = null;
+        this._invalidTemplates = [];
         this._activeTemplate = null;
         this._config = this.getDefaultConfig();
     }
@@ -44,6 +45,7 @@ export default class ClinicalAnalysisReport extends LitElement {
 
     clinicalAnalysisObserver() {
         this._templates = null;
+        this._invalidTemplates = [];
         this._activeTemplate = null;
         if (this.opencgaSession && this.clinicalAnalysis) {
             // 1. fetch all .js files inside the clinical report templates folder
@@ -68,6 +70,7 @@ export default class ClinicalAnalysisReport extends LitElement {
                             })
                             .catch(error => {
                                 console.error(`Error loading template from file ${file.name}:`, error);
+                                this._invalidTemplates.push(file.name);
                                 return null; // Return null for failed templates
                             });
                     }));
@@ -141,9 +144,21 @@ export default class ClinicalAnalysisReport extends LitElement {
                     id: "preview",
                     name: "Preview",
                     render: (clinicalAnalysis, active) => html`
+                        ${this._invalidTemplates?.length > 0 ? html`
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <span>
+                                    The following templates could not be loaded: 
+                                    ${this._invalidTemplates.map(name => html` <code>${name}</code>`)}. 
+                                    Please, contact your administrator.
+                                </span>
+                            </div>
+                        ` : nothing}
                         ${this._templates && this._templates.length > 1 ? html`
                             <div class="form-group mb-5">
-                                <label for="templateSelect">Select Template</label>
+                                <label for="templateSelect">
+                                    <b>Select Template</b>:
+                                </label>
                                 <select class="form-control" @change="${event => this.onTemplateChange(event)}">
                                     <option disabled selected value> -- select a template -- </option>
                                     ${this._templates.map(template => html`
