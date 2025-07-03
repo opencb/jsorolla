@@ -516,7 +516,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     align: "center",
-                    formatter: (value, row, index) => {
+                    formatter: (value, row) => {
                         if (this._checkedVariants.has(row.id)) {
                             return `<span class="badge bg-success">PRIMARY</span>`;
                         }
