@@ -524,6 +524,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     formatter: (value, row) => {
                         if (this._primaryFindings.has(row.id)) {
                             return `<span class="badge text-primary bg-primary-subtle">PRIMARY</span>`;
+                        } else if (this._secondaryFindings.has(row.id)) {
+                            return `<span class="badge text-secondary bg-secondary-subtle">SECONDARY</span>`;
                         }
                         return "-";
                     },
@@ -806,7 +808,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        const variant = this._primaryFindings.get(row.id);
+                        const variant = this._primaryFindings.get(row.id) || this._secondaryFindings.get(row.id);
                         return VariantInterpreterGridFormatter.exomiserScoresFormatter(value, variant);
                     },
                     align: "center",
@@ -831,8 +833,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        const checkedVariant = this._primaryFindings?.has(row.id) ? this._primaryFindings.get(row.id) : row;
-                        return VariantInterpreterGridFormatter.predictionFormatter(value, checkedVariant);
+                        const variant = this._primaryFindings.get(row.id) || this._secondaryFindings.get(row.id) || row;
+                        return VariantInterpreterGridFormatter.predictionFormatter(value, variant);
                     },
                     align: "center",
                     visible: (
@@ -846,7 +848,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        return VariantInterpreterGridFormatter.reviewFormatter(row, this.clinicalAnalysis, this._primaryFindings, this._config);
+                        const variant = this._primaryFindings.get(row.id) || this._secondaryFindings.get(row.id) || row;
+                        const checked = this._primaryFindings.has(row.id) || this._secondaryFindings.has(row.id);
+                        return VariantInterpreterGridFormatter.reviewFormatter(variant, this.clinicalAnalysis, checked, this._config);
                     },
                     align: "center",
                     events: {
@@ -1188,6 +1192,9 @@ export default class VariantInterpreterGrid extends LitElement {
         if (this._primaryFindings.has(row.id)) {
             this._selectedVariant = UtilsNew.objectClone(this._primaryFindings.get(row.id));
             this._selectedVariantChecked = true;
+        } else if (this._secondaryFindings.has(row.id)) {
+            this._selectedVariant = UtilsNew.objectClone(this._secondaryFindings.get(row.id));
+            this._selectedVariantChecked = true
         } else {
             this._selectedVariant = UtilsNew.objectClone(row);
             this._selectedVariantChecked = false;
