@@ -80,7 +80,7 @@ export default class VariantInterpreterGrid extends LitElement {
         this._rows = [];
         this._selectedVariant = null;
         this._selectedVariantChecked = false;
-        this._checkedVariants = new Map();
+        this._primaryFindings = new Map();
 
         this.toolbarConfig = {};
         this.toolbarSetting = {};
@@ -129,14 +129,11 @@ export default class VariantInterpreterGrid extends LitElement {
                 this.clinicalAnalysis.interpretation = {};
             }
 
-            this._checkedVariants = new Map();
-            if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length > 0) {
-                for (const variant of this.clinicalAnalysis.interpretation.primaryFindings) {
-                    this._checkedVariants.set(variant.id, variant);
-                }
-            } else {
-                this._checkedVariants.clear();
-            }
+            // fill primary findings map
+            this._primaryFindings = new Map();
+            (this.clinicalAnalysis?.interpretation?.primaryFindings || []).forEach(variant => {
+                this._primaryFindings.set(variant.id, variant);
+            });
 
             if (this.clinicalAnalysis.type?.toUpperCase() === "CANCER") {
                 if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples &&
@@ -517,7 +514,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     align: "center",
                     formatter: (value, row) => {
-                        if (this._checkedVariants.has(row.id)) {
+                        if (this._primaryFindings.has(row.id)) {
                             return `<span class="badge text-primary bg-primary-subtle">PRIMARY</span>`;
                         }
                         return "-";
@@ -801,7 +798,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        const variant = this._checkedVariants.get(row.id);
+                        const variant = this._primaryFindings.get(row.id);
                         return VariantInterpreterGridFormatter.exomiserScoresFormatter(value, variant);
                     },
                     align: "center",
@@ -826,7 +823,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        const checkedVariant = this._checkedVariants?.has(row.id) ? this._checkedVariants.get(row.id) : row;
+                        const checkedVariant = this._primaryFindings?.has(row.id) ? this._primaryFindings.get(row.id) : row;
                         return VariantInterpreterGridFormatter.predictionFormatter(value, checkedVariant);
                     },
                     align: "center",
@@ -841,7 +838,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        return VariantInterpreterGridFormatter.reviewFormatter(row, this.clinicalAnalysis, this._checkedVariants, this._config);
+                        return VariantInterpreterGridFormatter.reviewFormatter(row, this.clinicalAnalysis, this._primaryFindings, this._config);
                     },
                     align: "center",
                     events: {
@@ -1180,8 +1177,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onVariantReview(event, row) {
         // check if the variant is already selected
-        if (this._checkedVariants.has(row.id)) {
-            this._selectedVariant = UtilsNew.objectClone(this._checkedVariants.get(row.id));
+        if (this._primaryFindings.has(row.id)) {
+            this._selectedVariant = UtilsNew.objectClone(this._primaryFindings.get(row.id));
             this._selectedVariantChecked = true;
         } else {
             this._selectedVariant = UtilsNew.objectClone(row);
@@ -1198,13 +1195,13 @@ export default class VariantInterpreterGrid extends LitElement {
     onVariantReviewSave() {
         // 1. get the action to perform based on the selected variant state
         let action = "";
-        if (this._selectedVariantChecked && !this._checkedVariants.has(this._selectedVariant.id)) {
+        if (this._selectedVariantChecked && !this._primaryFindings.has(this._selectedVariant.id)) {
             // we have to update the variant.filters field to include the current filters
             action = "ADD";
             this._selectedVariant.filters = {
                 ...this.filters,
             };
-        } else if (this._selectedVariantChecked && this._checkedVariants.has(this._selectedVariant.id)) {
+        } else if (this._selectedVariantChecked && this._primaryFindings.has(this._selectedVariant.id)) {
             action = "UPDATE";
         } else {
             action = "REMOVE";
