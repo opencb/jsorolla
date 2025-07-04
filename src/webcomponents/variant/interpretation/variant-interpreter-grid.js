@@ -81,6 +81,7 @@ export default class VariantInterpreterGrid extends LitElement {
         this._selectedVariant = null;
         this._selectedVariantChecked = false;
         this._primaryFindings = new Map();
+        this._secondaryFindings = new Map();
 
         this.toolbarConfig = {};
         this.toolbarSetting = {};
@@ -124,15 +125,22 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        this._primaryFindings = new Map();
+        this._secondaryFindings = new Map();
+
         if (this.opencgaSession && this.clinicalAnalysis) {
             if (!this.clinicalAnalysis.interpretation) {
                 this.clinicalAnalysis.interpretation = {};
             }
 
             // fill primary findings map
-            this._primaryFindings = new Map();
             (this.clinicalAnalysis?.interpretation?.primaryFindings || []).forEach(variant => {
                 this._primaryFindings.set(variant.id, variant);
+            });
+
+            // fill secondary findings map
+            (this.clinicalAnalysis?.interpretation?.secondaryFindings || []).forEach(variant => {
+                this._secondaryFindings.set(variant.id, variant);
             });
 
             if (this.clinicalAnalysis.type?.toUpperCase() === "CANCER") {
