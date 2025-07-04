@@ -651,10 +651,8 @@ export default class VariantInterpreterGridFormatter {
         return "-";
     }
 
-    static reviewFormatter(row, clinicalAnalysis, checkedVariants, config) {
-        const disabled = clinicalAnalysis.locked || clinicalAnalysis.interpretation?.locked;
-        const checked = checkedVariants.has(row.id);
-        const variant = checked ? checkedVariants.get(row.id) : row;
+    static reviewFormatter(variant, clinicalAnalysis, checked = false, config = {}) {
+        const disabled = clinicalAnalysis?.locked || clinicalAnalysis?.interpretation?.locked;
 
         let discussionTooltipText = "";
         if (variant.discussion?.text) {
