@@ -69,12 +69,9 @@ export default class VariantReview extends LitElement {
             this.variantObserver();
         }
 
-        if (changedProperties.has("selected")) {
-            this._selected = !!this.selected;
-        }
-
         if (changedProperties.has("primaryFinding")) {
             this._primaryFinding = !!this.primaryFinding;
+            this._selected = true;
         }
 
         if (changedProperties.has("displayConfig") || changedProperties.has("selected") || changedProperties.has("reviewEvidences")) {
@@ -86,10 +83,9 @@ export default class VariantReview extends LitElement {
 
     updated() {
         // enable or disable the save button based on whether there are pending changes
-        const hasPendingChanges = Object.keys(this._updatedParams).length > 0 || this._selected !== this.selected;
         const buttonElement = this.closest(".modal-dialog")?.querySelector(`button[data-role="modal-save"]`);
         if (buttonElement) {
-            if (hasPendingChanges) {
+            if (this.hasUnsavedChanges()) {
                 buttonElement.removeAttribute("disabled");
             } else {
                 buttonElement.setAttribute("disabled", "true");
@@ -124,6 +120,7 @@ export default class VariantReview extends LitElement {
     dispatchChange() {
         LitUtils.dispatchCustomEvent(this, "variantChange", null, {
             selected: this._selected,
+            primaryFinding: this._primaryFinding,
             variant: {
                 ...this._variant,
                 comments: (this._variant?.comments || []).map(comment => ({
@@ -134,8 +131,28 @@ export default class VariantReview extends LitElement {
         });
     }
 
-    onSelectChange() {
-        this._selected = !this._selected;
+    hasUnsavedChanges() {
+        // 1. we have made changes in the updated params
+        if (Object.keys(this._updatedParams).length > 0) {
+            return true;
+        }
+        // 2. the selected state has changed
+        if (this._selected !== this.selected) {
+            return true;
+        }
+        // 3. the primary finding state has changed
+        if (this._primaryFinding !== this.primaryFinding) {
+            return true;
+        }
+        // other case, no changes
+        return false;
+    }
+
+    onSelectChange(event) {
+        // note: if the value is empty, it means that the variant is not selected, but we need to mark the _primaryFinding as true
+        // to make hasUnsavedChanges return the correct value
+        this._primaryFinding = event.currentTarget.value !== "SECONDARY_FINDING";
+        this._selected = !!event.currentTarget.value; // if the value is empty, it means that the variant is not selected
         this._config = this.getDefaultConfig();
         this.dispatchChange();
         this.requestUpdate();
@@ -246,7 +263,7 @@ export default class VariantReview extends LitElement {
         return html`
             <div class="alert ${this._selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-2">
                 <label class="form-label mb-0 fw-bold" style="white-space:nowrap;">Select as: </label>
-                <select class="form-select form-select-sm">
+                <select class="form-select form-select-sm" @change="${event => this.onSelectChange(event)}">
                     <option value="">Not selected</option>
                     <option value="PRIMARY_FINDING" ?selected="${this._selected && this._primaryFinding}">PIMARY_FINDING</option>
                     <option value="SECONDARY_FINDING" ?selected="${this._selected && !this._primaryFinding}">SECONDARY_FINDING</option>
@@ -295,10 +312,9 @@ export default class VariantReview extends LitElement {
         if (!this.opencgaSession || !this._variant) {
             return nothing;
         }
-        const hasPendingChanges = Object.keys(this._updatedParams).length > 0 || this._selected !== this.selected;
 
         return html`
-            ${hasPendingChanges ? html`
+            ${this.hasUnsavedChanges() ? html`
                 <div class="alert alert-warning d-flex align-items-center mb-2">
                     <i class="fa fa-exclamation-triangle"></i>
                     <span class="ms-2">There are pending changes on this review. Click on <b>Save Review</b> to save them.</span>
