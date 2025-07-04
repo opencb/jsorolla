@@ -80,6 +80,7 @@ export default class VariantInterpreterGrid extends LitElement {
         this._rows = [];
         this._selectedVariant = null;
         this._selectedVariantChecked = false;
+        this._selectedVariantPrimary = false; // true if the selected variant is a primary finding
         this._primaryFindings = new Map();
         this._secondaryFindings = new Map();
 
@@ -193,6 +194,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .variant="${this._selectedVariant}"
                         .selected="${this._selectedVariantChecked}"
+                        .primaryFinding="${this._selectedVariantPrimary}"
                         .reviewEvidences="${true}"
                         .settings="${{
                             geneSet: this._config?.geneSet,
@@ -1192,12 +1194,15 @@ export default class VariantInterpreterGrid extends LitElement {
         if (this._primaryFindings.has(row.id)) {
             this._selectedVariant = UtilsNew.objectClone(this._primaryFindings.get(row.id));
             this._selectedVariantChecked = true;
+            this._selectedVariantPrimary = true;
         } else if (this._secondaryFindings.has(row.id)) {
             this._selectedVariant = UtilsNew.objectClone(this._secondaryFindings.get(row.id));
             this._selectedVariantChecked = true
+            this._selectedVariantPrimary = false;
         } else {
             this._selectedVariant = UtilsNew.objectClone(row);
             this._selectedVariantChecked = false;
+            this._selectedVariantPrimary = true;
         }
         this.gridCommons.changeActiveModal("review-variant");
     }
@@ -1205,27 +1210,42 @@ export default class VariantInterpreterGrid extends LitElement {
     onVariantReviewChange(event) {
         this._selectedVariant = event.detail.variant;
         this._selectedVariantChecked = event.detail.selected;
+        this._selectedVariantPrimary = event.detail.primaryFinding;
     }
 
     onVariantReviewSave() {
         // 1. get the action to perform based on the selected variant state
         let action = "";
-        if (this._selectedVariantChecked && !this._primaryFindings.has(this._selectedVariant.id)) {
-            // we have to update the variant.filters field to include the current filters
-            action = "ADD";
-            this._selectedVariant.filters = {
-                ...this.filters,
-            };
-        } else if (this._selectedVariantChecked && this._primaryFindings.has(this._selectedVariant.id)) {
-            action = "UPDATE";
+        if (this._selectedVariantChecked) {
+            if (!this._primaryFindings.has(this._selectedVariant.id) && !this._secondaryFindings.has(this._selectedVariant.id)) {
+                // we have to update the variant.filters field to include the current filters
+                action = "ADD";
+                this._selectedVariant.filters = {
+                    ...this.filters,
+                };
+            } else {
+                action = "UPDATE";
+            }
         } else {
             action = "REMOVE";
         }
+        // if (this._selectedVariantChecke^ && !this._primaryFindings.has(this._selectedVariant.id)) {
+        //     // we have to update the variant.filters field to include the current filters
+        //     action = "ADD";
+        //     this._selectedVariant.filters = {
+        //         ...this.filters,
+        //     };
+        // } else if (this._selectedVariantChecked && this._primaryFindings.has(this._selectedVariant.id)) {
+        //     action = "UPDATE";
+        // } else {
+        //     action = "REMOVE";
+        // }
 
         // 2. emit the event with the selected variant and action
         LitUtils.dispatchCustomEvent(this, "variantReview", null, {
             id: this._selectedVariant.id,
             variant: this._selectedVariant,
+            primaryFinding: this._selectedVariantPrimary,
             action: action,
         });
 
