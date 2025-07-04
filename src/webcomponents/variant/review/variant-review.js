@@ -37,6 +37,9 @@ export default class VariantReview extends LitElement {
             selected: {
                 type: Boolean,
             },
+            primaryFinding: {
+                type: Boolean,
+            },
             reviewEvidences: {
                 type: Boolean,
             },
@@ -52,6 +55,7 @@ export default class VariantReview extends LitElement {
     #init() {
         this._variant = null;
         this._selected = false;
+        this._primaryFinding = true;
         this._updatedParams = {};
         this._config = this.getDefaultConfig();
     }
@@ -67,6 +71,10 @@ export default class VariantReview extends LitElement {
 
         if (changedProperties.has("selected")) {
             this._selected = !!this.selected;
+        }
+
+        if (changedProperties.has("primaryFinding")) {
+            this._primaryFinding = !!this.primaryFinding;
         }
 
         if (changedProperties.has("displayConfig") || changedProperties.has("selected") || changedProperties.has("reviewEvidences")) {
@@ -237,16 +245,12 @@ export default class VariantReview extends LitElement {
     renderVariantSelect() {
         return html`
             <div class="alert ${this._selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-2">
-                <label class="form-label mb-0">
-                    ${this._selected ? html`
-                        <span>Remove from <b>Primary Findings</b>.</span>    
-                    ` : html`
-                        <span>Select as <b>Primary Finding</b>.</span>
-                    `}
-                </label>
-                <button class="btn btn-sm ${this._selected ? "btn-primary" : "btn-light"} rounded-2" @click="${() => this.onSelectChange()}">
-                    <i class="fa fa-check lh-1 ${this._selected ? "opacity-100" : "opacity-0"}"></i>
-                </button>
+                <label class="form-label mb-0 fw-bold" style="white-space:nowrap;">Select as: </label>
+                <select class="form-select form-select-sm">
+                    <option value="">Not selected</option>
+                    <option value="PRIMARY_FINDING" ?selected="${this._selected && this._primaryFinding}">PIMARY_FINDING</option>
+                    <option value="SECONDARY_FINDING" ?selected="${this._selected && !this._primaryFinding}">SECONDARY_FINDING</option>
+                </select>
             </div>
         `;
     }
