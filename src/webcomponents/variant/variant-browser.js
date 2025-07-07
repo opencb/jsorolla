@@ -360,7 +360,16 @@ export default class VariantBrowser extends LitElement {
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: false,
                                 tooltip: tooltips.cohort,
-                                studies: this.opencgaSession?.project?.studies
+                                studies: this.opencgaSession?.project?.studies,
+                                quick: true,
+                            },
+                            {
+                                id: "cohort-select",
+                                title: "Cohort Alternate Stats",
+                                onlyCohortAll: false,
+                                tooltip: tooltips.cohort,
+                                studies: this.opencgaSession?.project?.studies,
+                                quick: true,
                             }
                         ]
                     },

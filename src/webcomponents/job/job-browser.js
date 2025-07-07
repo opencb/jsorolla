@@ -22,6 +22,7 @@ import "./job-grid.js";
 import "./job-detail.js";
 import "./job-detail-log.js";
 import "./job-view.js";
+import "./job-timeline-view.js";
 
 export default class JobBrowser extends LitElement {
 
@@ -157,6 +158,20 @@ export default class JobBrowser extends LitElement {
                             .opencgaSession="${params.opencgaSession}"
                             .config="${params.config.aggregation}">
                         </aggregation-stats>
+                    `,
+                },
+                {
+                    id: "monitor-plot",
+                    name: "Monitor Plot",
+                    icon: "fas fa-chart-bar",
+                    render: params => html`
+                        <job-timeline-view
+                            resource="${params.resource}"
+                            .query="${params.executedQuery}"
+                            .active="${params.active}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.aggregation}">
+                        </job-timeline-view>
                     `,
                 },
             ],
