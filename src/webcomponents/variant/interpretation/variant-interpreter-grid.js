@@ -519,15 +519,17 @@ export default class VariantInterpreterGrid extends LitElement {
         this._columns = [
             [
                 {
-                    id: "status",
+                    id: "category",
                     rowspan: 2,
                     colspan: 1,
                     align: "center",
                     formatter: (value, row) => {
-                        if (this._primaryFindings.has(row.id)) {
-                            return `<span class="badge text-primary bg-primary-subtle">PRIMARY</span>`;
-                        } else if (this._secondaryFindings.has(row.id)) {
-                            return `<span class="badge text-secondary bg-secondary-subtle">SECONDARY</span>`;
+                        if (this._primaryFindings.has(row.id) || this._secondaryFindings.has(row.id)) {
+                            const color = VariantUtils.getStatusColor(row.status);
+                            const text = this._primaryFindings.has(row.id) ? "PRIMARY" : "SECONDARY";
+                            return `
+                                <span class="badge ${color}">${text}</span>
+                            `;
                         }
                         return "-";
                     },
