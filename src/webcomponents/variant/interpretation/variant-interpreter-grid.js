@@ -1229,17 +1229,6 @@ export default class VariantInterpreterGrid extends LitElement {
         } else {
             action = "REMOVE";
         }
-        // if (this._selectedVariantChecke^ && !this._primaryFindings.has(this._selectedVariant.id)) {
-        //     // we have to update the variant.filters field to include the current filters
-        //     action = "ADD";
-        //     this._selectedVariant.filters = {
-        //         ...this.filters,
-        //     };
-        // } else if (this._selectedVariantChecked && this._primaryFindings.has(this._selectedVariant.id)) {
-        //     action = "UPDATE";
-        // } else {
-        //     action = "REMOVE";
-        // }
 
         // 2. emit the event with the selected variant and action
         LitUtils.dispatchCustomEvent(this, "variantReview", null, {
