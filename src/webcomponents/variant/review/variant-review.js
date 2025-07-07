@@ -4,6 +4,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import VariantUtils from "../variant-utils.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
+import "../../commons/image-loader.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/pubmed-search.js";
 import "../annotation/cellbase-variant-annotation-summary.js";
@@ -585,6 +586,17 @@ export default class VariantReview extends LitElement {
                             }}"
                             @evidenceReviewChange="${event => this.onEvidenceReviewChange(event)}">
                         </variant-review-evidences-grid>
+                    `,
+                },
+                {
+                    id: "images",
+                    title: "Images",
+                    icon: "fa-image",
+                    render: (variant, active) => html`
+                        <image-loader
+                            .images="${variant?.images || []}"
+                            .active="${active}">
+                        </image-loader>
                     `,
                 },
             ],
