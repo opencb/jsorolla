@@ -177,6 +177,13 @@ export default class VariantReview extends LitElement {
         this.requestUpdate();
     }
 
+    onImagesChange(event) {
+        this._variant.images = event.detail.value || [];
+        this._updatedParams.images = this._variant.images; // register images as updated params
+        this.dispatchChange();
+        this.requestUpdate();
+    }
+
     onFieldChange(event) {
         // if the updated field is comments, we need to force an update of the variant
         if (event.detail.param.startsWith("comments")) {
@@ -595,7 +602,8 @@ export default class VariantReview extends LitElement {
                     render: (variant, active) => html`
                         <image-loader
                             .images="${variant?.images || []}"
-                            .active="${active}">
+                            .active="${active}"
+                            @imagesChange="${event => this.onImagesChange(event)}"
                         </image-loader>
                     `,
                 },
