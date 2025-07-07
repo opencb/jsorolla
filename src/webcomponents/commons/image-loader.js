@@ -63,7 +63,6 @@ export default class ImageLoader extends LitElement {
             });
             Promise.all(allPromises)
                 .then(newImages => {
-                    console.log("New images loaded:", newImages);
                     LitUtils.dispatchCustomEvent(this, "imagesChange", [...this.images, ...newImages]);
                 })
                 .catch(error => {
