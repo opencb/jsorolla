@@ -71,7 +71,7 @@ export default class VariantGridFormatter {
 
         // 1. Get the variant ID and snpId
         const variantId = VariantFormatter.variantIdFormatter(id, variant, config?.alleleStringLengthMax || 20);
-        const snpId = VariantFormatter.snpFormatter(id, variant, index, assembly);
+        const snpIds = (VariantFormatter.snpFormatter(id, variant, index, assembly) || "").split(",").filter(Boolean);
 
         // 2. get highlight icons
         const iconHighlights = (config?.highlights || [])
@@ -90,12 +90,14 @@ export default class VariantGridFormatter {
                 <a class="link fw-bold" data-action="view" data-variant="${variant.id}">${variantId}</a>
                 ${iconHighlights.join("")}
             </div>
-            ${snpId ? `
+            ${snpIds.length > 0 ? `
                 <div class="mt-0">
-                    <a class="link text-secondary d-flex align-items-center gap-1" href="${BioinfoUtils.getEnsemblLink(snpId, "VARIANT", assembly)}" target="_blank">
-                        <span>${snpId}</span>
-                        <i class="fa fa-external-link-alt fs-8"></i>
-                    </a>
+                    ${snpIds.map(snp => `
+                        <a class="small link text-secondary d-flex align-items-center gap-1" href="${BioinfoUtils.getEnsemblLink(snp, "VARIANT", assembly)}" target="_blank">
+                            <span>${snp}</span>
+                            <i class="fa fa-external-link-alt fs-9"></i>
+                        </a>
+                    `).join("")}
                 </div>
             ` : ""}
         `;
