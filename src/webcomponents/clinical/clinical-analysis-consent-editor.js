@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
 import "../commons/forms/text-field-filter.js";
 
@@ -25,9 +24,7 @@ class ClinicalAnalysisConsentEditor extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -51,16 +48,10 @@ class ClinicalAnalysisConsentEditor extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this.updateParams = {};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this.updateParams = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
@@ -77,7 +68,10 @@ class ClinicalAnalysisConsentEditor extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
     }
 
@@ -95,7 +89,6 @@ class ClinicalAnalysisConsentEditor extends LitElement {
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
             this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
-            // this.requestUpdate();
         }
     }
 
@@ -132,6 +125,34 @@ class ClinicalAnalysisConsentEditor extends LitElement {
                 break;
         }
         this.requestUpdate();
+    }
+
+    onRun() {
+        if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
+            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, this.updateParams, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
+                    this.updateParams = {};
+                })
+                .catch(response => {
+                    console.error("An error occurred updating clinicalAnalysis: ", response);
+                });
+        }
+    }
+
+    render() {
+        if (!this.opencgaSession || !this.clinicalAnalysis) {
+            return nothing;
+        }
+
+        return html`
+            <data-form 
+                .data="${this.clinicalAnalysis}"
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @submit="${this.onRun}">
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
@@ -197,47 +218,7 @@ class ClinicalAnalysisConsentEditor extends LitElement {
                     ]
                 },
             ],
-            execute: (opencgaSession, clinicalAnalysis, params) => {
-            },
-            result: {
-                render: job => {
-                }
-            }
         };
-    }
-
-    onRun(e) {
-        if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
-            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, this.updateParams, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    console.log(response);
-                    this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
-                    this.updateParams = {};
-                    Swal.fire({
-                        title: "Success",
-                        icon: "success",
-                        html: "Case info updated succesfully"
-                    });
-                })
-                .catch(response => {
-                    console.error("An error occurred updating clinicalAnalysis: ", response);
-                });
-        }
-    }
-
-    render() {
-        if (!this.clinicalAnalysis) {
-            return "";
-        }
-
-        return html`
-            <data-form  .data="${this.clinicalAnalysis}"
-                        .config="${this._config}"
-                        @fieldChange="${e => this.onFieldChange(e)}"
-                        @clear="${this.onClear}"
-                        @submit="${this.onRun}">
-            </data-form>
-        `;
     }
 
 }
