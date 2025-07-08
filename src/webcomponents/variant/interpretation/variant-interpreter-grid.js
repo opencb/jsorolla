@@ -193,7 +193,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .variant="${this._selectedVariant}"
-                        .selected="${this._selectedVariantChecked}"
+                        .selected="${this._primaryFindings.has(this._selectedVariant.id) || this._secondaryFindings.has(this._selectedVariant.id)}"
                         .primaryFinding="${this._selectedVariantPrimary}"
                         .reviewEvidences="${true}"
                         .settings="${{
@@ -1198,17 +1198,16 @@ export default class VariantInterpreterGrid extends LitElement {
         // check if the variant is already selected
         if (this._primaryFindings.has(row.id)) {
             this._selectedVariant = UtilsNew.objectClone(this._primaryFindings.get(row.id));
-            this._selectedVariantChecked = true;
             this._selectedVariantPrimary = true;
         } else if (this._secondaryFindings.has(row.id)) {
             this._selectedVariant = UtilsNew.objectClone(this._secondaryFindings.get(row.id));
-            this._selectedVariantChecked = true
             this._selectedVariantPrimary = false;
         } else {
             this._selectedVariant = UtilsNew.objectClone(row);
-            this._selectedVariantChecked = false;
             this._selectedVariantPrimary = true;
         }
+        // when entering in the review modal, the variant will be displayed checked by default
+        this._selectedVariantChecked = true;
         this.gridCommons.changeActiveModal("review-variant");
     }
 
