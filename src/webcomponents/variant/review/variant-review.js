@@ -466,19 +466,21 @@ export default class VariantReview extends LitElement {
                                     title: "Search references in PubMed",
                                     render: (currentData, onSearch) => {
                                         return html`
-                                            <pubmed-search
-                                                @filterChange="${event => {
-                                                    onSearch({
-                                                        id: event.detail.value.id,
-                                                        title: event.detail.value.title,
-                                                        summary: event.detail.value.summary || "",
-                                                        authors: event.detail.value.authors || [],
-                                                        date: event.detail.value.date || "",
-                                                        url: `https://pubmed.ncbi.nlm.nih.gov/${event.detail.value.id}`,
-                                                        journal: event.detail.value.journal || "",
-                                                    });
-                                                }}">
-                                            </pubmed-search>
+                                            <div class="mb-2">
+                                                <pubmed-search
+                                                    @filterChange="${event => {
+                                                        onSearch({
+                                                            id: event.detail.value.id,
+                                                            title: event.detail.value.title,
+                                                            summary: event.detail.value.summary || "",
+                                                            authors: event.detail.value.authors || [],
+                                                            date: event.detail.value.date || "",
+                                                            url: `https://pubmed.ncbi.nlm.nih.gov/${event.detail.value.id}`,
+                                                            journal: event.detail.value.journal || "",
+                                                        });
+                                                    }}">
+                                                </pubmed-search>
+                                            </div>
                                         `;
                                     },
                                 },
@@ -498,6 +500,17 @@ export default class VariantReview extends LitElement {
                                     type: "input-text",
                                     display: {
                                         disabled: true,
+                                    },
+                                },
+                                {
+                                    title: "Authors",
+                                    field: "references[].authors",
+                                    type: "custom",
+                                    display: {
+                                        disabled: true,
+                                        render: authors => html`
+                                            <input type="text" class="form-control" .value="${authors?.join(", ") || ""}" disabled />
+                                        `,
                                     },
                                 },
                                 {
