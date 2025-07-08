@@ -56,7 +56,7 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
             this.reviewObserver();
         }
 
-        if (changedProperties.has("displayConfig")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
 
@@ -190,9 +190,11 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                         {
                             title: "Tier",
                             field: "tier",
-                            type: "input-text",
+                            type: "select",
+                            allowedValues: (this.opencgaSession?.study?.internal?.configuration?.clinical?.tiers || []).map(tier => {
+                                return tier.id;
+                            }),
                             display: {
-                                rows: 1,
                                 disabled: !this._review?.select,
                             },
                         },
