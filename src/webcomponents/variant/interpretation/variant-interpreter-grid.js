@@ -1223,11 +1223,17 @@ export default class VariantInterpreterGrid extends LitElement {
         let action = "";
         if (this._selectedVariantChecked) {
             if (!this._primaryFindings.has(this._selectedVariant.id) && !this._secondaryFindings.has(this._selectedVariant.id)) {
-                // we have to update the variant.filters field to include the current filters
                 action = "ADD";
-                this._selectedVariant.filters = {
-                    ...this.filters,
-                };
+                // check if the new filter field is available
+                if (this._selectedVariant.filter) {
+                    this._selectedVariant.filter = {
+                        query: {
+                            ...this.filters,
+                        },
+                        opencgaVersion: this.opencgaSession?.opencgaClient?.version || "",
+                        cellbaseVersion: this.opencgaSession?.cellbaseClient?.version || this.opencgaSession?.project?.cellbase?.version || "",
+                    };
+                }
             } else {
                 action = "UPDATE";
             }
