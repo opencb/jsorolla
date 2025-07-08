@@ -439,10 +439,12 @@ export default class VariantReview extends LitElement {
                                 view: reference => {
                                     return html`
                                         <div class="mb-2">
-                                            <div class="fw-bold">${reference.name || "-"}</div>
-                                            <!--
-                                            <div class="text-secondary">${reference.authors?.join(", ") || "-"}</div>
-                                            -->
+                                            <div class="fw-bold">
+                                                ${reference.title || reference.name || "-"}
+                                            </div>
+                                            <div class="text-secondary">
+                                                ${reference.authors?.join(", ") || "-"}
+                                            </div>
                                             <div class="text-muted d-flex align-items-center flex-row flex-wrap gap-1 fs-7">
                                                 ${reference.journal ? html`
                                                     <span>${reference.journal}.</span>
@@ -468,9 +470,9 @@ export default class VariantReview extends LitElement {
                                                 @filterChange="${event => {
                                                     onSearch({
                                                         id: event.detail.value.id,
-                                                        name: event.detail.value.title, // TODO: rename to title
+                                                        title: event.detail.value.title,
                                                         summary: event.detail.value.summary || "",
-                                                        // authors: event.detail.value.authors || [],
+                                                        authors: event.detail.value.authors || [],
                                                         date: event.detail.value.date || "",
                                                         url: `https://pubmed.ncbi.nlm.nih.gov/${event.detail.value.id}`,
                                                         journal: event.detail.value.journal || "",
@@ -492,7 +494,7 @@ export default class VariantReview extends LitElement {
                                 },
                                 {
                                     title: "Title",
-                                    field: "references[].name",
+                                    field: "references[].title",
                                     type: "input-text",
                                     display: {
                                         disabled: true,
