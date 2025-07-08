@@ -530,6 +530,16 @@ export default class ClinicalAnalysisReview extends LitElement {
                             allowedValues: ["READY_FOR_INTERPRETATION", " CLOSED", "READY_FOR_REPORT", "REJECTED"],
                         },
                         {
+                            title: "Methodology",
+                            field: "report.methodology",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 10,
+                                helpMessage: "Methodology used to generate the report.",
+                            },
+                        },
+                        {
                             title: "Discussion",
                             type: "input-text",
                             field: "report.discussion.text",
@@ -538,6 +548,16 @@ export default class ClinicalAnalysisReview extends LitElement {
                                 rows: 10,
                                 helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
 
+                            },
+                        },
+                        {
+                            title: "Recommendation",
+                            field: "report.recommendation",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 10,
+                                helpMessage: "Recommendation for the report. This will be included in the final report.",
                             },
                         },
                         {
