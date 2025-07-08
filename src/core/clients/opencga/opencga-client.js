@@ -39,6 +39,8 @@ import UtilsNew from "../../utils-new.js";
 export class OpenCGAClient {
 
     constructor(config) {
+        this.version = "";
+
         // this._config = config;
         this.setConfig(config);
         this.check();
@@ -77,8 +79,14 @@ export class OpenCGAClient {
         };
         try {
             this.about = await this.meta().about();
-            if (this.about.getResult(0)) {
-                globalEvent("hostInit", {host: "opencga", value: "v" + this.about.getResult(0)["Version"]});
+            const result = this.about?.response?.[0]?.result[0];
+
+            if (result) {
+                this.version = "v" + result["Version"];
+                globalEvent("hostInit", {
+                    host: "opencga",
+                    value: this.version,
+                });
             } else {
                 globalEvent("signingInError", {value: "Opencga host not available."});
                 globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
