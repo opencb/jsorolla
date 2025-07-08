@@ -116,8 +116,8 @@ export default class ImageLoader extends LitElement {
     getDefaultConfig() {
         return {
             title: "Drag and Drop or Click to upload an image",
-            description: "Select JPEG or PNG images to upload, up to 5MB.",
-            maxFileSize: 5 * 1024 * 1024, // 5MB
+            description: "Select JPEG or PNG images to upload, up to 1MB.",
+            maxFileSize: 1 * 1024 * 1024, // 1MB
         };
     }
 
