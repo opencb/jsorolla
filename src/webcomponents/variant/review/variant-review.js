@@ -367,6 +367,29 @@ export default class VariantReview extends LitElement {
                     `,
                 },
                 {
+                    id: "evidences",
+                    title: "Evidences",
+                    icon: "fa-list",
+                    display: {
+                        visible: () => !!this.reviewEvidences,
+                    },
+                    render: (variant, active) => html`
+                        <variant-review-evidences-grid
+                            .opencgaSession="${this.opencgaSession}"
+                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                            .variant="${variant}"
+                            .updatedEvidences="${this._updatedParams.evidences}"
+                            .active="${active}"
+                            .config="${{
+                                review: this._selected,
+                                geneSet: this.settings?.geneSet,
+                                consequenceType: this.settings?.consequenceType,
+                            }}"
+                            @evidenceReviewChange="${event => this.onEvidenceReviewChange(event)}">
+                        </variant-review-evidences-grid>
+                    `,
+                },
+                {
                     id: "discussion",
                     title: "Discussion",
                     icon: "fa-edit",
@@ -515,6 +538,18 @@ export default class VariantReview extends LitElement {
                     ],
                 },
                 {
+                    id: "images",
+                    title: "Images",
+                    icon: "fa-image",
+                    render: (variant, active) => html`
+                        <image-loader
+                            .images="${variant?.images || []}"
+                            .active="${active}"
+                            @imagesChange="${event => this.onImagesChange(event)}"
+                        </image-loader>
+                    `,
+                },
+                {
                     id: "comments",
                     title: "Comments",
                     icon: "fa-comments",
@@ -571,41 +606,6 @@ export default class VariantReview extends LitElement {
                             ]
                         },
                     ],
-                },
-                {
-                    id: "evidences",
-                    title: "Evidences",
-                    icon: "fa-list",
-                    display: {
-                        visible: () => !!this.reviewEvidences,
-                    },
-                    render: (variant, active) => html`
-                        <variant-review-evidences-grid
-                            .opencgaSession="${this.opencgaSession}"
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .variant="${variant}"
-                            .updatedEvidences="${this._updatedParams.evidences}"
-                            .active="${active}"
-                            .config="${{
-                                review: this._selected,
-                                geneSet: this.settings?.geneSet,
-                                consequenceType: this.settings?.consequenceType,
-                            }}"
-                            @evidenceReviewChange="${event => this.onEvidenceReviewChange(event)}">
-                        </variant-review-evidences-grid>
-                    `,
-                },
-                {
-                    id: "images",
-                    title: "Images",
-                    icon: "fa-image",
-                    render: (variant, active) => html`
-                        <image-loader
-                            .images="${variant?.images || []}"
-                            .active="${active}"
-                            @imagesChange="${event => this.onImagesChange(event)}"
-                        </image-loader>
-                    `,
                 },
             ],
         };
