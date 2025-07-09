@@ -524,11 +524,14 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     align: "center",
                     formatter: (value, row) => {
-                        const variant = this._primaryFindings.get(row.id) || this._secondaryFindings.get(row.id) || row;
-                        const color = VariantUtils.getStatusColor(variant.status);
-                        return `
-                            <div class="${color} rounded-circle" style="width:1.25rem;height:1.25rem;"></div>
-                        `;
+                        if (this._primaryFindings.has(row.id) || this._secondaryFindings.has(row.id)) {
+                            const variant = this._primaryFindings.get(row.id) || this._secondaryFindings.get(row.id) || row;
+                            const color = VariantUtils.getStatusColor(variant.status);
+                            return `
+                                <div class="${color} rounded-circle" style="width:1.25rem;height:1.25rem;"></div>
+                            `;
+                        }
+                        return "";
                     },
                     excludeFromExport: true,
                     excludeFromSettings: true,
