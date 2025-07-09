@@ -179,7 +179,10 @@ export default class VariantReview extends LitElement {
 
     onImagesChange(event) {
         this._variant.images = event.detail.value || [];
-        this._updatedParams.images = this._variant.images; // register images as updated params
+        this._updatedParams = {
+            ...this._updatedParams,
+            images: this._variant.images,
+        };
         this.dispatchChange();
         this.requestUpdate();
     }
