@@ -514,15 +514,6 @@ export default class VariantReview extends LitElement {
                                     },
                                 },
                                 {
-                                    title: "Summary",
-                                    field: "references[].summary",
-                                    type: "input-text",
-                                    display: {
-                                        disabled: true,
-                                        rows: 5,
-                                    },
-                                },
-                                {
                                     title: "Date",
                                     field: "references[].date",
                                     type: "input-date",
