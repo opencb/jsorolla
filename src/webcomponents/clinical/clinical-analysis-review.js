@@ -374,7 +374,7 @@ export default class ClinicalAnalysisReview extends LitElement {
                 pillsLeftColumnClass: "col-md-2",
                 buttonsVisible: false,
                 buttonOkText: "Save",
-                buttonClearText: ""
+                buttonClearText: "",
             },
             sections: [
                 {
@@ -475,7 +475,8 @@ export default class ClinicalAnalysisReview extends LitElement {
                     title: "Case Report",
                     display: {
                         titleStyle: "display:none",
-                        buttonsVisible: true
+                        buttonsVisible: true,
+                        defaultLayout: "vertical",
                     },
                     elements: [
                         {
@@ -506,8 +507,7 @@ export default class ClinicalAnalysisReview extends LitElement {
                                             .clinicalVariants="${variantsReported}"
                                             .opencgaSession="${this.opencgaSession}"
                                             .config=${{
-                                                showExport: true,
-                                                showSettings: false,
+                                                showToolbar: false,
                                                 showActions: false,
                                                 showEditReview: false,
                                             }}>
