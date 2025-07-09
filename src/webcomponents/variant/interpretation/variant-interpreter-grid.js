@@ -1260,7 +1260,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
     render() {
         return html`
-            ${this._config?.showToolbar ? html`}
+            ${this._config?.showToolbar ? html`
                 <grid-toolbar
                     .config="${this.toolbarConfig}"
                     .settings="${this.toolbarSetting}"
