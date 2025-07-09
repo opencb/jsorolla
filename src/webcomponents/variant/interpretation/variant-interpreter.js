@@ -500,18 +500,11 @@ class VariantInterpreter extends LitElement {
 
         return html`
             <div class="variant-interpreter-tool">
-                ${this.clinicalAnalysis?.id ? html`
-                    <tool-header
-                        icon="${this._config.icon}"
-                        .title="${this.renderToolbarTitle()}"
-                        .rhs="${this.renderToolbarRightContent()}">
-                    </tool-header>
-                ` : html`
-                    <tool-header
-                        .title="${this._config.title}"
-                        icon="${this._config.icon}">
-                    </tool-header>
-                `}
+                <tool-header
+                    .title="${this.clinicalAnalysis?.id || this.clinicalAnalysisId || "-"}"
+                    .icon="${this._config.icon}"
+                    .rightContent="${this.renderToolbarRightContent()}">
+                </tool-header>
 
                 <div class="container">
                     <div class="position-relative">
@@ -537,7 +530,7 @@ class VariantInterpreter extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Case Interpreter",
+            title: "",
             icon: "fas fa-user-md",
             tools: [
                 {
