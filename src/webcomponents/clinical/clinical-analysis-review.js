@@ -536,7 +536,6 @@ export default class ClinicalAnalysisReview extends LitElement {
                             defaultValue: "",
                             display: {
                                 rows: 10,
-                                helpMessage: "Methodology used to generate the report.",
                             },
                         },
                         {
@@ -557,7 +556,15 @@ export default class ClinicalAnalysisReview extends LitElement {
                             defaultValue: "",
                             display: {
                                 rows: 10,
-                                helpMessage: "Recommendation for the report. This will be included in the final report.",
+                            },
+                        },
+                        {
+                            title: "Limitations",
+                            field: "report.limitations",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 10,
                             },
                         },
                         {
