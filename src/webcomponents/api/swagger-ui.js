@@ -42,13 +42,17 @@ export default class SwaggerUi extends LitElement {
         const xetaMatch = this.opencgaSession.server.host.match(/xeta-\d{2}[a-zA-Z]{0,2}/i);
         let environment = "";
         if (taskMatch) {
-            environment = "/" + taskMatch[0];
+            environment = taskMatch[0];
         } else {
             if (xetaMatch) {
-                environment = "/" + xetaMatch[0];
+                environment = xetaMatch[0];
             }
         }
-        const serverUrl = this.opencgaSession.server.host + "/webservices/rest/v2/meta/openapi" + "?environment=" + environment;
+
+        let serverUrl = this.opencgaSession.server.host + "/webservices/rest/v2/meta/openapi?study=" + this.opencgaSession.study.fqn;
+        if (environment !== "") {
+            serverUrl += "&" + "environment=" + environment;
+        }
 
         // 2. Create an instance of the SwaggerUIBundle
         const ui = SwaggerUIBundle({
