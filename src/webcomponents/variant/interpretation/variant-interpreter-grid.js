@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
@@ -193,7 +193,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .variant="${this._selectedVariant}"
-                        .selected="${this._selectedVariantChecked}"
+                        .selected="${this._primaryFindings.has(this._selectedVariant.id) || this._secondaryFindings.has(this._selectedVariant.id)}"
                         .primaryFinding="${this._selectedVariantPrimary}"
                         .reviewEvidences="${true}"
                         .settings="${{
@@ -525,16 +525,13 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center",
                     formatter: (value, row) => {
                         if (this._primaryFindings.has(row.id) || this._secondaryFindings.has(row.id)) {
-                            // Note: secondary findings are not returned by the query, so we need to get the variant
-                            // from the primary and secondary findings maps.
-                            const variant = this._primaryFindings.get(row.id) || this._secondaryFindings.get(row.id);
+                            const variant = this._primaryFindings.get(row.id) || this._secondaryFindings.get(row.id) || row;
                             const color = VariantUtils.getStatusColor(variant.status);
-                            const text = this._primaryFindings.has(row.id) ? "PRIMARY" : "SECONDARY";
                             return `
-                                <span class="badge ${color}">${text}</span>
+                                <div class="${color} rounded-circle" style="width:1.25rem;height:1.25rem;"></div>
                             `;
                         }
-                        return "-";
+                        return "";
                     },
                     excludeFromExport: true,
                     excludeFromSettings: true,
@@ -917,7 +914,7 @@ export default class VariantInterpreterGrid extends LitElement {
             }
 
             if (samples.length > 0) {
-                _columns[0].splice(6, 0, {
+                _columns[0].splice(7, 0, {
                     id: "sampleGenotypes",
                     title: "Sample Genotypes",
                     rowspan: 1,
@@ -1198,17 +1195,16 @@ export default class VariantInterpreterGrid extends LitElement {
         // check if the variant is already selected
         if (this._primaryFindings.has(row.id)) {
             this._selectedVariant = UtilsNew.objectClone(this._primaryFindings.get(row.id));
-            this._selectedVariantChecked = true;
             this._selectedVariantPrimary = true;
         } else if (this._secondaryFindings.has(row.id)) {
             this._selectedVariant = UtilsNew.objectClone(this._secondaryFindings.get(row.id));
-            this._selectedVariantChecked = true
             this._selectedVariantPrimary = false;
         } else {
             this._selectedVariant = UtilsNew.objectClone(row);
-            this._selectedVariantChecked = false;
             this._selectedVariantPrimary = true;
         }
+        // when entering in the review modal, the variant will be displayed checked by default
+        this._selectedVariantChecked = true;
         this.gridCommons.changeActiveModal("review-variant");
     }
 
@@ -1223,11 +1219,17 @@ export default class VariantInterpreterGrid extends LitElement {
         let action = "";
         if (this._selectedVariantChecked) {
             if (!this._primaryFindings.has(this._selectedVariant.id) && !this._secondaryFindings.has(this._selectedVariant.id)) {
-                // we have to update the variant.filters field to include the current filters
                 action = "ADD";
-                this._selectedVariant.filters = {
-                    ...this.filters,
-                };
+                // check if the new filter field is available
+                if (this._selectedVariant.filter) {
+                    this._selectedVariant.filter = {
+                        query: {
+                            ...this.filters,
+                        },
+                        opencgaVersion: this.opencgaSession?.opencgaClient?.version || "",
+                        cellbaseVersion: this.opencgaSession?.cellbaseClient?.version || this.opencgaSession?.project?.cellbase?.version || "",
+                    };
+                }
             } else {
                 action = "UPDATE";
             }
@@ -1261,15 +1263,17 @@ export default class VariantInterpreterGrid extends LitElement {
 
     render() {
         return html`
-            <grid-toolbar
-                .config="${this.toolbarConfig}"
-                .settings="${this.toolbarSetting}"
-                .query="${this.filters}"
-                .opencgaSession="${this.opencgaSession}"
-                .leftContent="${this.renderToolbarLeftContent()}"
-                @download="${this.onDownload}"
-                @export="${this.onDownload}">
-            </grid-toolbar>
+            ${this._config?.showToolbar ? html`
+                <grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    .settings="${this.toolbarSetting}"
+                    .query="${this.filters}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
+                </grid-toolbar>
+            ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>

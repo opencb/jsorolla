@@ -1114,13 +1114,13 @@ export default class UtilsNew {
         }
     }
 
-    // convert a file object to base64 string
+    // convert a file object to DataURL string
     // reference: https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
-    static fileToBase64(file) {
+    static fileToDataURL(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.addEventListener("load", () => {
-                resolve(reader.result.split(",")[1]); // extract Base64 part
+                resolve(reader.result);
             });
             reader.addEventListener("error", error => reject(error));
             reader.readAsDataURL(file); // Reads file as a Data URL

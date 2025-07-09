@@ -32,6 +32,7 @@ export class CellBaseClient {
             this.indexedDBCache = new IndexedDBCache(this._config.cache.database);
             this._initCache();
         }
+        this.version = "";
         this.restClient = new RestClient();
         this.check();
     }
@@ -72,9 +73,10 @@ export class CellBaseClient {
                     const result = response?.response?.[0]?.result[0];
                     // Older versions of cellbase are using 'Version: ' as the key instead of 'Version' (Issue #185).
                     // To keep compatibility, we will check for both keys, but in the future only the newest key will be used.
+                    this.version = "v" + (result["Version"] || result["Version: "]);
                     globalEvent("hostInit", {
                         host: "cellbase",
-                        value: "v" + (result["Version"] || result["Version: "]),
+                        value: this.version,
                     });
                 })
                 .catch(e => {

@@ -374,7 +374,7 @@ export default class ClinicalAnalysisReview extends LitElement {
                 pillsLeftColumnClass: "col-md-2",
                 buttonsVisible: false,
                 buttonOkText: "Save",
-                buttonClearText: ""
+                buttonClearText: "",
             },
             sections: [
                 {
@@ -471,11 +471,12 @@ export default class ClinicalAnalysisReview extends LitElement {
                     ]
                 },
                 {
-                    id: "reportVariant",
-                    title: "Reported Variants",
+                    id: "caseReport",
+                    title: "Case Report",
                     display: {
                         titleStyle: "display:none",
-                        buttonsVisible: false,
+                        buttonsVisible: true,
+                        defaultLayout: "vertical",
                     },
                     elements: [
                         {
@@ -489,39 +490,32 @@ export default class ClinicalAnalysisReview extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
-                                    const variantsReported = data?.interpretation?.primaryFindings?.filter(
-                                        variant => variant?.status === "REPORTED");
-                                    return UtilsNew.isNotEmptyArray(variantsReported) ?
-                                        html`
-                                            <variant-interpreter-grid
-                                                review
-                                                .clinicalAnalysis=${this.clinicalAnalysis}
-                                                .clinicalVariants="${variantsReported}"
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .config=${
-                                                    {
-                                                        showExport: true,
-                                                        showSettings: false,
-                                                        showActions: false,
-                                                        showEditReview: false,
-                                                    }
-                                                }>
-                                            </variant-interpreter-grid>
-                                        `:
-                                        "No reported variants to display";
+                                    const variantsReported = (data?.interpretation?.primaryFindings || []).filter(variant => {
+                                        return variant?.status === "REPORTED";
+                                    });
+                                    if (variantsReported.length === 0) {
+                                        return html`
+                                            <div class="alert alert-warning mb-4" role="alert">
+                                                No variants have been reported yet.
+                                            </div>
+                                        `;
+                                    }
+                                    return html`
+                                        <variant-interpreter-grid
+                                            review
+                                            .clinicalAnalysis=${this.clinicalAnalysis}
+                                            .clinicalVariants="${variantsReported}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .config=${{
+                                                showToolbar: false,
+                                                showActions: false,
+                                                showEditReview: false,
+                                            }}>
+                                        </variant-interpreter-grid>
+                                    `;
                                 }
                             }
-                        }
-                    ]
-                },
-                {
-                    id: "finalSummary",
-                    title: "Final Summary",
-                    display: {
-                        titleStyle: "display:none",
-                        buttonsVisible: true
-                    },
-                    elements: [
+                        },
                         {
                             text: "Final Summary",
                             type: "title",
@@ -544,6 +538,33 @@ export default class ClinicalAnalysisReview extends LitElement {
                                 rows: 10,
                                 helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
 
+                            },
+                        },
+                        {
+                            title: "Recommendation",
+                            field: "report.recommendation",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 10,
+                            },
+                        },
+                        {
+                            title: "Methodology",
+                            field: "report.methodology",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 10,
+                            },
+                        },
+                        {
+                            title: "Limitations",
+                            field: "report.limitations",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 10,
                             },
                         },
                         {

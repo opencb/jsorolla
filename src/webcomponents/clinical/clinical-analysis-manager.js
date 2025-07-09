@@ -297,24 +297,6 @@ export default class ClinicalAnalysisManager {
             });
     }
 
-    // updateVariant(variant, interpretation, callback) {
-    //     this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretation.id, {primaryFindings: [variant]}, {
-    //         study: this.opencgaSession.study.fqn,
-    //         primaryFindingsAction: "REPLACE",
-    //     })
-    //         .then(() => {
-    //             NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
-    //                 // title: "Variant Updated",
-    //                 message: `Variant '${variant.id}' has been updated.`,
-    //             });
-    //             // callback(this.clinicalAnalysis);
-    //         })
-    //         .catch(response => {
-    //             // console.error("An error occurred deleting an interpretation: ", restResponse);
-    //             NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
-    //         });
-    // }
-
     updateVariants(variants, primaryFinding = true, action = "UPDATE") {
         const field = primaryFinding ? "primaryFindings" : "secondaryFindings";
         // prepare interpretation object for the update

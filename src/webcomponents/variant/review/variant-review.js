@@ -179,7 +179,10 @@ export default class VariantReview extends LitElement {
 
     onImagesChange(event) {
         this._variant.images = event.detail.value || [];
-        this._updatedParams.images = this._variant.images; // register images as updated params
+        this._updatedParams = {
+            ...this._updatedParams,
+            images: this._variant.images,
+        };
         this.dispatchChange();
         this.requestUpdate();
     }
@@ -222,45 +225,58 @@ export default class VariantReview extends LitElement {
     }
 
     renderVariantInfo() {
-        const consequenceTypes = [], negativeConsequenceTypes = [];
-        const soVisited = new Set();
-        // ctResults = {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes}
-        const ctRestuls = VariantGridFormatter._consequenceTypeDetailFormatterFilter(this._variant?.annotation?.consequenceTypes, this.settings);
-        (ctRestuls.selectedConsequenceTypes || []).forEach(ct => {
-            ct.sequenceOntologyTerms.forEach(so => {
-                if (!soVisited.has(so?.name)) {
-                    consequenceTypes.push(html`
-                        <span style="color:${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black"}">${so.name}</span>
-                    `);
-                    soVisited.add(so.name);
-                }
-            });
-        });
-        // filtered consequence types
-        if (ctRestuls.notSelectedConsequenceTypes?.length > 0) {
-            ctRestuls.notSelectedConsequenceTypes.forEach(ct => {
-                ct.sequenceOntologyTerms.forEach(so => {
-                    if (!soVisited.has(so?.name)) {
-                        negativeConsequenceTypes.push(so);
-                        soVisited.add(so.name);
-                    }
-                });
-            });
-            if (negativeConsequenceTypes.length > 0) {
-                consequenceTypes.push(html`
-                    <span class="text-secondary fst-italic">+${negativeConsequenceTypes.length} terms filtered</span>
-                `);
+        const displayConsequenceType = this.variant?.annotation?.displayConsequenceType;
+        const genes = new Set();
+        (this.variant?.annotation?.consequenceTypes || []).forEach(ct => {
+            if (ct.geneName) {
+                genes.add(ct.geneName);
             }
-        }
+        });
+
+        // const consequenceTypes = [], negativeConsequenceTypes = [];
+        // const soVisited = new Set();
+        // // ctResults = {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes}
+        // const ctRestuls = VariantGridFormatter._consequenceTypeDetailFormatterFilter(this._variant?.annotation?.consequenceTypes, this.settings);
+        // (ctRestuls.selectedConsequenceTypes || []).forEach(ct => {
+        //     ct.sequenceOntologyTerms.forEach(so => {
+        //         if (!soVisited.has(so?.name)) {
+        //             consequenceTypes.push(html`
+        //             `);
+        //             soVisited.add(so.name);
+        //         }
+        //     });
+        // });
+        // // filtered consequence types
+        // if (ctRestuls.notSelectedConsequenceTypes?.length > 0) {
+        //     ctRestuls.notSelectedConsequenceTypes.forEach(ct => {
+        //         ct.sequenceOntologyTerms.forEach(so => {
+        //             if (!soVisited.has(so?.name)) {
+        //                 negativeConsequenceTypes.push(so);
+        //                 soVisited.add(so.name);
+        //             }
+        //         });
+        //     });
+        //     if (negativeConsequenceTypes.length > 0) {
+        //         consequenceTypes.push(html`
+        //             <span class="text-secondary fst-italic">+${negativeConsequenceTypes.length} terms filtered</span>
+        //         `);
+        //     }
+        // }
 
         return html`
             <div class="alert alert-light flex-grow-1 d-flex justify-content-center flex-column">
                 <div class="lh-1">
                     <span class="fw-bold">${this._variant.id}</span>
+                    ${genes.size > 0 ? html`
+                        <span class="text-secondary">
+                            ${Array.from(genes).slice(0, 5).join(", ")}
+                            ${genes.size > 5 ? `... and ${genes.size - 5} more` : nothing}
+                        </span>
+                    ` : nothing}
                 </div>
-                ${consequenceTypes.length > 0 ? html`
+                ${displayConsequenceType ? html`
                     <div class="mt-1 d-flex align-items-center flex-wrap column-gap-2" style="max-width:900px;">
-                        ${consequenceTypes}
+                        <span style="color:${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[displayConsequenceType]] || "black"}">${displayConsequenceType}</span>
                     </div>
                 ` : nothing}
             </div>
@@ -273,7 +289,7 @@ export default class VariantReview extends LitElement {
                 <label class="form-label mb-0 fw-bold" style="white-space:nowrap;">Select as: </label>
                 <select class="form-select form-select-sm" @change="${event => this.onSelectChange(event)}">
                     <option value="">Not selected</option>
-                    <option value="PRIMARY_FINDING" ?selected="${this._selected && this._primaryFinding}">PIMARY_FINDING</option>
+                    <option value="PRIMARY_FINDING" ?selected="${this._selected && this._primaryFinding}">PRIMARY_FINDING</option>
                     <option value="SECONDARY_FINDING" ?selected="${this._selected && !this._primaryFinding}">SECONDARY_FINDING</option>
                 </select>
             </div>
@@ -367,6 +383,29 @@ export default class VariantReview extends LitElement {
                     `,
                 },
                 {
+                    id: "evidences",
+                    title: "Evidences",
+                    icon: "fa-list",
+                    display: {
+                        visible: () => !!this.reviewEvidences,
+                    },
+                    render: (variant, active) => html`
+                        <variant-review-evidences-grid
+                            .opencgaSession="${this.opencgaSession}"
+                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                            .variant="${variant}"
+                            .updatedEvidences="${this._updatedParams.evidences}"
+                            .active="${active}"
+                            .config="${{
+                                review: this._selected,
+                                geneSet: this.settings?.geneSet,
+                                consequenceType: this.settings?.consequenceType,
+                            }}"
+                            @evidenceReviewChange="${event => this.onEvidenceReviewChange(event)}">
+                        </variant-review-evidences-grid>
+                    `,
+                },
+                {
                     id: "discussion",
                     title: "Discussion",
                     icon: "fa-edit",
@@ -416,10 +455,12 @@ export default class VariantReview extends LitElement {
                                 view: reference => {
                                     return html`
                                         <div class="mb-2">
-                                            <div class="fw-bold">${reference.name || "-"}</div>
-                                            <!--
-                                            <div class="text-secondary">${reference.authors?.join(", ") || "-"}</div>
-                                            -->
+                                            <div class="fw-bold">
+                                                ${reference.title || reference.name || "-"}
+                                            </div>
+                                            <div class="text-secondary">
+                                                ${reference.authors?.join(", ") || "-"}
+                                            </div>
                                             <div class="text-muted d-flex align-items-center flex-row flex-wrap gap-1 fs-7">
                                                 ${reference.journal ? html`
                                                     <span>${reference.journal}.</span>
@@ -441,19 +482,21 @@ export default class VariantReview extends LitElement {
                                     title: "Search references in PubMed",
                                     render: (currentData, onSearch) => {
                                         return html`
-                                            <pubmed-search
-                                                @filterChange="${event => {
-                                                    onSearch({
-                                                        id: event.detail.value.id,
-                                                        name: event.detail.value.title, // TODO: rename to title
-                                                        summary: event.detail.value.summary || "",
-                                                        // authors: event.detail.value.authors || [],
-                                                        date: event.detail.value.date || "",
-                                                        url: `https://pubmed.ncbi.nlm.nih.gov/${event.detail.value.id}`,
-                                                        journal: event.detail.value.journal || "",
-                                                    });
-                                                }}">
-                                            </pubmed-search>
+                                            <div class="mb-2">
+                                                <pubmed-search
+                                                    @filterChange="${event => {
+                                                        onSearch({
+                                                            id: event.detail.value.id,
+                                                            title: event.detail.value.title,
+                                                            summary: event.detail.value.summary || "",
+                                                            authors: event.detail.value.authors || [],
+                                                            date: event.detail.value.date || "",
+                                                            url: `https://pubmed.ncbi.nlm.nih.gov/${event.detail.value.id}`,
+                                                            journal: event.detail.value.journal || "",
+                                                        });
+                                                    }}">
+                                                </pubmed-search>
+                                            </div>
                                         `;
                                     },
                                 },
@@ -469,19 +512,21 @@ export default class VariantReview extends LitElement {
                                 },
                                 {
                                     title: "Title",
-                                    field: "references[].name",
+                                    field: "references[].title",
                                     type: "input-text",
                                     display: {
                                         disabled: true,
                                     },
                                 },
                                 {
-                                    title: "Summary",
-                                    field: "references[].summary",
-                                    type: "input-text",
+                                    title: "Authors",
+                                    field: "references[].authors",
+                                    type: "custom",
                                     display: {
                                         disabled: true,
-                                        rows: 5,
+                                        render: authors => html`
+                                            <input type="text" class="form-control" .value="${authors?.join(", ") || ""}" disabled />
+                                        `,
                                     },
                                 },
                                 {
@@ -513,6 +558,18 @@ export default class VariantReview extends LitElement {
                             ],
                         },
                     ],
+                },
+                {
+                    id: "images",
+                    title: "Images",
+                    icon: "fa-image",
+                    render: (variant, active) => html`
+                        <image-loader
+                            .images="${variant?.images || []}"
+                            .active="${active}"
+                            @imagesChange="${event => this.onImagesChange(event)}"
+                        </image-loader>
+                    `,
                 },
                 {
                     id: "comments",
@@ -571,41 +628,6 @@ export default class VariantReview extends LitElement {
                             ]
                         },
                     ],
-                },
-                {
-                    id: "evidences",
-                    title: "Evidences",
-                    icon: "fa-list",
-                    display: {
-                        visible: () => !!this.reviewEvidences,
-                    },
-                    render: (variant, active) => html`
-                        <variant-review-evidences-grid
-                            .opencgaSession="${this.opencgaSession}"
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .variant="${variant}"
-                            .updatedEvidences="${this._updatedParams.evidences}"
-                            .active="${active}"
-                            .config="${{
-                                review: this._selected,
-                                geneSet: this.settings?.geneSet,
-                                consequenceType: this.settings?.consequenceType,
-                            }}"
-                            @evidenceReviewChange="${event => this.onEvidenceReviewChange(event)}">
-                        </variant-review-evidences-grid>
-                    `,
-                },
-                {
-                    id: "images",
-                    title: "Images",
-                    icon: "fa-image",
-                    render: (variant, active) => html`
-                        <image-loader
-                            .images="${variant?.images || []}"
-                            .active="${active}"
-                            @imagesChange="${event => this.onImagesChange(event)}"
-                        </image-loader>
-                    `,
                 },
             ],
         };
