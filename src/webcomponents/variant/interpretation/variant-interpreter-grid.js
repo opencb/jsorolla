@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
@@ -1260,15 +1260,17 @@ export default class VariantInterpreterGrid extends LitElement {
 
     render() {
         return html`
-            <grid-toolbar
-                .config="${this.toolbarConfig}"
-                .settings="${this.toolbarSetting}"
-                .query="${this.filters}"
-                .opencgaSession="${this.opencgaSession}"
-                .leftContent="${this.renderToolbarLeftContent()}"
-                @download="${this.onDownload}"
-                @export="${this.onDownload}">
-            </grid-toolbar>
+            ${this._config?.showToolbar ? html`}
+                <grid-toolbar
+                    .config="${this.toolbarConfig}"
+                    .settings="${this.toolbarSetting}"
+                    .query="${this.filters}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
+                    @download="${this.onDownload}"
+                    @export="${this.onDownload}">
+                </grid-toolbar>
+            ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
