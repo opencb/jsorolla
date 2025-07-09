@@ -59,7 +59,7 @@ export default class ImageLoader extends LitElement {
                 if (file.size > this._config.maxFileSize) {
                     return Promise.reject(new Error(`File ${file.name} exceeds the maximum size of 5MB.`));
                 }
-                return UtilsNew.fileToBase64(file);
+                return UtilsNew.fileToDataURL(file);
             });
             Promise.all(allPromises)
                 .then(newImages => {
@@ -76,12 +76,7 @@ export default class ImageLoader extends LitElement {
     }
 
     render() {
-        // return html`
-        //     <img
-        //         class="${this._config.className}"
-        //         src="data:${this.type || "image/png"};base64,${this.data}"
-        //         style="${this._config.style}" />
-        // `;
+        console.log(this.images);
         return html`
             <input
                 class="d-none"
@@ -110,6 +105,20 @@ export default class ImageLoader extends LitElement {
                     ` : nothing}
                 </div>
             </div>
+            ${this.images && this.images.length > 0 ? html`
+                <div class="mt-4">
+                    <h5 class="mb-3">Uploaded Images</h5>
+                    <div class="row g-3">
+                        ${this.images.map(image => html`
+                            <div class="col-2">
+                                <div class="d-flex align-items-center justify-content-center p-3 bg-white rounded-2 border" style="height:120px;">
+                                    <img src="${image}" style="max-width:100%;max-height:100%;" />
+                                </div>
+                            </div>
+                        `)}
+                    </div>
+                </div>
+            ` : nothing}
         `;
     }
 
