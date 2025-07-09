@@ -530,15 +530,6 @@ export default class ClinicalAnalysisReview extends LitElement {
                             allowedValues: ["READY_FOR_INTERPRETATION", " CLOSED", "READY_FOR_REPORT", "REJECTED"],
                         },
                         {
-                            title: "Methodology",
-                            field: "report.methodology",
-                            type: "input-text",
-                            defaultValue: "",
-                            display: {
-                                rows: 10,
-                            },
-                        },
-                        {
                             title: "Discussion",
                             type: "input-text",
                             field: "report.discussion.text",
@@ -552,6 +543,15 @@ export default class ClinicalAnalysisReview extends LitElement {
                         {
                             title: "Recommendation",
                             field: "report.recommendation",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 10,
+                            },
+                        },
+                        {
+                            title: "Methodology",
+                            field: "report.methodology",
                             type: "input-text",
                             defaultValue: "",
                             display: {
