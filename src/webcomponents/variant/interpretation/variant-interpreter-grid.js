@@ -524,17 +524,11 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     align: "center",
                     formatter: (value, row) => {
-                        if (this._primaryFindings.has(row.id) || this._secondaryFindings.has(row.id)) {
-                            // Note: secondary findings are not returned by the query, so we need to get the variant
-                            // from the primary and secondary findings maps.
-                            const variant = this._primaryFindings.get(row.id) || this._secondaryFindings.get(row.id);
-                            const color = VariantUtils.getStatusColor(variant.status);
-                            const text = this._primaryFindings.has(row.id) ? "PRIMARY" : "SECONDARY";
-                            return `
-                                <span class="badge ${color}">${text}</span>
-                            `;
-                        }
-                        return "-";
+                        const variant = this._primaryFindings.get(row.id) || this._secondaryFindings.get(row.id) || row;
+                        const color = VariantUtils.getStatusColor(variant.status);
+                        return `
+                            <div class="${color} rounded-circle" style="width:1.25rem;height:1.25rem;"></div>
+                        `;
                     },
                     excludeFromExport: true,
                     excludeFromSettings: true,
