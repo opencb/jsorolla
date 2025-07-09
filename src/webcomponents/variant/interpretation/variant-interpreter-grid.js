@@ -917,7 +917,7 @@ export default class VariantInterpreterGrid extends LitElement {
             }
 
             if (samples.length > 0) {
-                _columns[0].splice(6, 0, {
+                _columns[0].splice(7, 0, {
                     id: "sampleGenotypes",
                     title: "Sample Genotypes",
                     rowspan: 1,
