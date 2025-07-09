@@ -276,7 +276,7 @@ export default class VariantReview extends LitElement {
                 <label class="form-label mb-0 fw-bold" style="white-space:nowrap;">Select as: </label>
                 <select class="form-select form-select-sm" @change="${event => this.onSelectChange(event)}">
                     <option value="">Not selected</option>
-                    <option value="PRIMARY_FINDING" ?selected="${this._selected && this._primaryFinding}">PIMARY_FINDING</option>
+                    <option value="PRIMARY_FINDING" ?selected="${this._selected && this._primaryFinding}">PRIMARY_FINDING</option>
                     <option value="SECONDARY_FINDING" ?selected="${this._selected && !this._primaryFinding}">SECONDARY_FINDING</option>
                 </select>
             </div>
