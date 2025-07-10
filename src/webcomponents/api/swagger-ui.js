@@ -39,30 +39,16 @@ export default class SwaggerUi extends LitElement {
         // 1. extract the host and pathname from the OpenCGA server URL
         // host: test.app.zettagenomics.com
         // pathname: /task-xxxx/opencga
-        const { host, pathname } = URL.parse(this.opencgaSession.server.host);
-        // build the query parameters for the OpenAPI URL
+        const {host, pathname} = URL.parse(this.opencgaSession.server.host);
+
+        // Build the query parameters for the OpenAPI URL
         // We need to pass the study and the full path to the OpenCGA server
         const queryParams = new URLSearchParams({
-            study: this.opencgaSession.study.fqn,
             url: host + pathname.replace(/\/$/, ""),
+            study: this.opencgaSession.study.fqn,
         });
-        // 1. Get the OpenAPI URL. We need to append the environment to the URL ONLY if it is a task environment.
-        // Task environment name format supported are like task-0001, TASK-0002f, xeta-24os, etc.
-        // const taskMatch = this.opencgaSession.server.host.match(/task-[A-Za-z0-9]+/i);
-        // const xetaMatch = this.opencgaSession.server.host.match(/xeta-[A-Za-z0-9]+/i);
-        // let environment = "";
-        // if (taskMatch) {
-        //     environment = taskMatch[0];
-        // } else {
-        //     if (xetaMatch) {
-        //         environment = xetaMatch[0];
-        //     }
-        // }
 
-        // let serverUrl = this.opencgaSession.server.host + "/webservices/rest/v2/meta/openapi?study=" + this.opencgaSession.study.fqn;
-        // if (environment !== "") {
-        //     serverUrl += "&" + "environment=" + environment;
-        // }
+        // Construct the OpenAPI URL
         const serverUrl = `${this.opencgaSession.server.host}/webservices/rest/${this.opencgaSession.server.version || "v2"}/meta/openapi?${queryParams.toString()}`;
 
         // 2. Create an instance of the SwaggerUIBundle
