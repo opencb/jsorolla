@@ -15,13 +15,14 @@
  */
 
 import {html, LitElement, nothing} from "lit";
+import "./variant-summary-interpretation.js"
 import "./variant-summary-quality.js"
 import "./variant-summary-population.js"
 import "./variant-summary-info.js"
 import "./variant-summary-ct-selected.js"
 import "./variant-summary-ct-no-selected.js"
 import "./variant-summary-gene.js"
-import "./variant-summary-deleteriousness.js";
+// import "./variant-summary-deleteriousness.js";
 
 export default class VariantSummary extends LitElement {
 
@@ -102,6 +103,30 @@ export default class VariantSummary extends LitElement {
                 ...this.displayConfig,
             },
             sections: [
+                // 1. Interpretation summary, if available
+                {
+                    display: {},
+                    elements: [
+                        {
+                            id: "variant-summary-interpretation",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-interpretation
+                                                .variant="${variant}"
+                                                .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-interpretation>
+                                    `;
+                                }
+                            },
+                        },
+                    ],
+                },
                 // 1. Sammle Quality Summary
                 {
                     // title: "Sample Quality Summary",
@@ -182,6 +207,7 @@ export default class VariantSummary extends LitElement {
                                     },
                                 ]
                             },
+                            /*
                             {
                                 id: "",
                                 className: "",
@@ -190,6 +216,7 @@ export default class VariantSummary extends LitElement {
                                     className: "flex-grow-1",
                                 }],
                             },
+                             */
                         ]
                     },
                     elements: [
@@ -288,7 +315,7 @@ export default class VariantSummary extends LitElement {
                                 }
                             }
                         },
-                         */
+                        */
                         // - Conservation
                         // - Pubmed
                         // - Drug target
