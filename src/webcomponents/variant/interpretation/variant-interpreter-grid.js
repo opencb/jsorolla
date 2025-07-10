@@ -219,6 +219,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 render: () => html`
                     <variant-interpreter-view
                         .opencgaSession="${this.opencgaSession}"
+                        .settings="${this._config}"
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .toolId="${this.toolId}"
                         .variant="${this._selectedVariant}">

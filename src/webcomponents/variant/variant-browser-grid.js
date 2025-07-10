@@ -153,6 +153,7 @@ export default class VariantBrowserGrid extends LitElement {
                 render: () => html`
                     <variant-view
                         .variantId="${this.selectedVariantId}"
+                        .settings="${this._config}"
                         .opencgaSession="${this.opencgaSession}">
                     </variant-view>
                 `,
