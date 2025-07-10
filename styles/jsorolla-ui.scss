@@ -78,6 +78,19 @@ body {
     --bs-dropdown-border-radius: var(--bs-border-radius);
     --bs-dropdown-item-border-radius: var(--bs-border-radius-sm);
 }
+// override card
+.card {
+  border: 0;
+  transition: transform .3s cubic-bezier(.34,2,.6,1), box-shadow .2s ease, -webkit-transform .3s cubic-bezier(.34,2,.6,1);
+}
+
+card .card-header .card-title {
+  margin-top: 10px;
+}
+
+.card-title {
+  margin-bottom: .75rem;
+}
 
 // override button styles
 .btn-light {
