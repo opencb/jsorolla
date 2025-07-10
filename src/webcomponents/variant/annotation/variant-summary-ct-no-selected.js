@@ -94,7 +94,6 @@ export default class VariantSummaryCtNoSelected extends LitElement {
                 notSelected: notSelectedConsequenceTypes,
                 ...this.variant
             };
-            debugger
         }
     }
 

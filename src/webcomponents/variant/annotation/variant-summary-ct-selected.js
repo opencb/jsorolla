@@ -126,7 +126,6 @@ export default class VariantSummaryCtSelected extends LitElement {
                 selected: selectedConsequenceTypes,
                 ...this.variant
             };
-            debugger
         }
     }
 

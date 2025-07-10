@@ -198,7 +198,6 @@ export default class VariantSummaryInfo extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
-                                    debugger
                                     const consequenceTypeColor = this._consequenceTypeToColor?.[data.displayConsequenceType] || "black";
                                     return html`
                                         <div class="badge me-2"
