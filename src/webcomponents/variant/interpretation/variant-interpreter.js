@@ -400,12 +400,12 @@ class VariantInterpreter extends LitElement {
                             <div style="font-size:0.875em;">
                                 <strong>${this.clinicalAnalysis.interpretation.method.name}</strong>
                             </div>
-                        ` : null}
+                        ` : nothing}
                         <div class="text-secondary">
                             Primary Findings: <strong>${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? 0}</strong>
                         </div>
                     </div>
-                ` : null}
+                ` : nothing}
                 <div class="dropdown">
                     <button class="btn btn-light btn-lg dropdown-toggle" data-bs-toggle="dropdown" type="button">
                         <i class="fas fa-toolbox" aria-hidden="true"></i>
@@ -424,7 +424,7 @@ class VariantInterpreter extends LitElement {
                                 ${this.clinicalAnalysis?.interpretation?.locked ? "Unlock" : "Lock"} Interpretation
                             </a>
                         </li>
-                        ${this.clinicalAnalysis.secondaryInterpretations?.length > 0 ? html`
+                        ${this.clinicalAnalysis?.secondaryInterpretations?.length > 0 ? html`
                             <li><h6 class="dropdown-header">Set Primary Interpretation</h6></li>
                             ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
                                 <li>
@@ -434,13 +434,13 @@ class VariantInterpreter extends LitElement {
                                     </a>
                                 </li>
                             `)}
-                        ` : null}
+                        ` : nothing}
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">Case Actions</h6></li>
                         <li>
                             <a class="dropdown-item" style="cursor:pointer;" @click="${this.onClinicalAnalysisLock}">
-                                <i class="fas ${this.clinicalAnalysis.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
-                                ${this.clinicalAnalysis.locked ? "Unlock" : "Lock"} Case
+                                <i class="fas ${this.clinicalAnalysis?.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
+                                ${this.clinicalAnalysis?.locked ? "Unlock" : "Lock"} Case
                             </a>
                         </li>
                         <li>

@@ -207,6 +207,13 @@ export default class VariantReview extends LitElement {
             this._updatedParams.references = this._variant.references;
             this._updatedParams = {...this._updatedParams};
         } else if (event.detail.param === "discussion.text") {
+            if (this._variant.discussion?.text) {
+                this._variant.discussion.author = this.opencgaSession?.user?.id || "-";
+                this._variant.discussion.date = UtilsNew.getDatetime();
+            } else {
+                delete this._variant.discussion.author;
+                delete this._variant.discussion.date;
+            }
             this._updatedParams.discussion = {
                 text: this._variant.discussion?.text || "",
             };
