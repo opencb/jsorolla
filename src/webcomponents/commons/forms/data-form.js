@@ -1264,9 +1264,11 @@ export default class DataForm extends LitElement {
         const tableStyle = this._parseStyleField(element.display?.style) || "";
         const headerClassName = element.display?.headerClassName || "";
         const headerStyle = this._parseStyleField(element.display?.headerStyle) || "";
+        const headerCellClassName = element.display?.headerCellClassName || "";
         const headerVisible = this._getBooleanValue(element.display?.headerVisible, true);
         const errorMessage = this._getDefaultErrorMessage(element, section);
         const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
+        const rowId = element.display?.rowId ?? false;
 
         // 1. Check field exists, and it is an array. Also, check 'columns' is defined
         if (!array) {
@@ -1333,22 +1335,22 @@ export default class DataForm extends LitElement {
                     ${supraColumns.length > 0 ? html`
                         <tr>
                             ${supraColumns.map(elem => html`
-                                <th scope="col" rowspan="${subColumns.length && !elem.display?.columns?.length ? "2" : "1"}" colspan="${elem.display?.columns?.length || "1"}">${elem.title || elem.name}</th>
+                                <th class="${headerCellClassName}" scope="col" rowspan="${subColumns.length && !elem.display?.columns?.length ? "2" : "1"}" colspan="${elem.display?.columns?.length || "1"}">${elem.title || elem.name}</th>
                             `)}
                         </tr>
                     ` : nothing}
                     ${subColumns.length > 0 ? html`
                         <tr>
                             ${subColumns.map(elem => html`
-                                <th scope="col" rowspan="1" colspan="1">${elem.title || elem.name}</th>`
+                                <th class="${headerCellClassName}" scope="col" rowspan="1" colspan="1">${elem.title || elem.name}</th>`
                             )}
                         </tr>
                     ` : nothing}
                     </thead>` : nothing}
                 <tbody>
                 ${array
-                    .map(row => html`
-                        <tr scope="row">
+                    .map((row,rowIndex) => html`
+                        <tr scope="row" id="${rowId ? 'index-' + rowIndex : ''}">
                             ${columns.map(elem => {
                                 const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
                                 const elemStyle = this._parseStyleField(elem.display?.style);
@@ -1421,11 +1423,21 @@ export default class DataForm extends LitElement {
         let value = this.getValue(element.field);
         if (value) {
             if (Array.isArray(value)) {
+                /*
                 const _data = {};
                 for (const val of value) {
                     const k = val[element.display.data.key];
                     const v = val[element.display.data.value];
                     _data[k] = v;
+                }
+                data = _data;
+                 */
+                const _data = {};
+                for (const val of value) {
+                    for (const item of val.chartData) {
+                        const k = item.name;
+                        _data[k] = item.y;
+                    }
                 }
                 data = _data;
             } else {
