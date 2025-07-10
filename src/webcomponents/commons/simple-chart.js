@@ -217,6 +217,7 @@ export default class SimpleChart extends LitElement {
         Highcharts.chart(this._prefix, {
             chart: {
                 type: "pie",
+                height: this._config?.chart?.height || "",
                 plotBackgroundColor: null,
                 plotBorderWidth: null,
                 plotShadow: false,

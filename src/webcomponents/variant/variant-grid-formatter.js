@@ -252,6 +252,40 @@ export default class VariantGridFormatter {
             return row.studies[0].samples[0].data[index];
         }
     }
+    static typeGetColour(value) {
+        if (value) {
+            let displayLabel = value;
+            let color = "";
+            switch (value) {
+                case "SNP": // Deprecated
+                    displayLabel = "SNV";
+                    color = "black";
+                    break;
+                case "INDEL":
+                case "CNV": // Deprecated
+                case "COPY_NUMBER":
+                case "COPY_NUMBER_GAIN":
+                case "COPY_NUMBER_LOSS":
+                case "MNV":
+                    color = "darkorange";
+                    break;
+                case "SV":
+                case "INSERTION":
+                case "DELETION":
+                case "DUPLICATION":
+                case "TANDEM_DUPLICATION":
+                case "BREAKEND":
+                    color = "red";
+                    break;
+                default:
+                    color = "black";
+                    break;
+            }
+            return {displayLabel, color};
+        } else {
+            return [];
+        }
+    }
 
     static typeFormatter(value, row) {
         if (row) {
@@ -293,7 +327,7 @@ export default class VariantGridFormatter {
             let {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes} =
                 VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, gridCtSettings);
 
-            // If CT is passed in the query then we must make and AND with the selected transcript by the user.
+            // If CT is passed in the query then we must make an AND with the selected transcript by the user.
             // This means that only the selectedConsequenceTypes that ARE ALSO IN THE CT QUERY are displayed.
             if (ctQuery) {
                 const consequenceTypes = new Set();
@@ -444,7 +478,7 @@ export default class VariantGridFormatter {
             let isCtSelected = filter.consequenceType?.all || false;
             if (filter && isCtSelected === false) {
                 if (filter.consequenceType.maneTranscript) {
-                    isCtSelected = isCtSelected || transcriptFlags?.includes("MANE Select")|| transcriptFlags?.includes("MANE Plus Clinical");
+                    isCtSelected = isCtSelected || transcriptFlags?.includes("MANE Select") || transcriptFlags?.includes("MANE Plus Clinical");
                 }
                 if (filter.consequenceType.ensemblCanonicalTranscript) {
                     isCtSelected = isCtSelected || transcriptFlags?.includes("canonical");
@@ -838,15 +872,32 @@ export default class VariantGridFormatter {
                 }
             }
 
-            const color = (dscore >= 0.8) ? "red" : (dscore >= 0.5) ? "darkorange" : "black";
+            // const color = (dscore >= 0.8) ? "red" : (dscore >= 0.5) ? "darkorange" : "black";
+            /*
             return `
                 <div>
                     <span title="${transcriptId || "not found"}" style="color: ${color}">${dscore || "-"}</span>
                 </div>
             `;
+             */
+            const color = VariantGridFormatter.spliceAIColor(dscore);
+            return VariantGridFormatter.spliceAIDiv(transcriptId, color, dscore);
+
         } else {
             return "-";
         }
+    }
+
+    static spliceAIColor(dscore) {
+        return (dscore >= 0.8) ? "red" : (dscore >= 0.5) ? "darkorange" : "black";
+    }
+
+    static spliceAIDiv(transcriptId, color, dscore) {
+        return `
+            <div>
+                <span title="${transcriptId || "not found"}" style="color: ${color}">${dscore || "-"}</span>
+            </div>
+        `;
     }
 
     static populationFrequenciesInfoTooltipContent(populationFrequencies) {
