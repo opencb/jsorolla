@@ -15,9 +15,9 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import "./variant-summary-interpretation.js"
+// import "./variant-summary-interpretation.js"
 import "./variant-summary-quality.js"
-import "./variant-summary-population.js"
+// import "./variant-summary-population.js"
 import "./variant-summary-info.js"
 import "./variant-summary-ct-selected.js"
 import "./variant-summary-ct-no-selected.js"
@@ -107,6 +107,7 @@ export default class VariantSummary extends LitElement {
                 {
                     display: {},
                     elements: [
+                        /*
                         {
                             id: "variant-summary-interpretation",
                             type: "custom",
@@ -125,6 +126,7 @@ export default class VariantSummary extends LitElement {
                                 }
                             },
                         },
+                         */
                     ],
                 },
                 // 1. Sammle Quality Summary
