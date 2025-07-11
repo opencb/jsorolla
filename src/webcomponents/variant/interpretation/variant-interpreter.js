@@ -28,7 +28,6 @@ import "./variant-interpreter-qc.js";
 import "./variant-interpreter-browser.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
-import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
@@ -260,21 +259,6 @@ class VariantInterpreter extends LitElement {
                             .settings="${tool}"
                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                         </variant-interpreter-browser>
-                    `;
-                case "review":
-                    return html`
-                        <variant-interpreter-review
-                            .opencgaSession="${this.opencgaSession}"
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .cellbaseClient="${this.cellbaseClient}"
-                            .populationFrequencies="${this._config.populationFrequencies}"
-                            .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
-                            .consequenceTypes="${this._config.consequenceTypes}"
-                            .settings="${this._config?.tools?.find(t => t.id === "variant-browser") || {}}"
-                            @gene="${this.geneSelected}"
-                            @samplechange="${this.onSampleChange}"
-                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                        </variant-interpreter-review>
                     `;
                 case "report":
                     return html`
@@ -524,13 +508,6 @@ class VariantInterpreter extends LitElement {
                     title: "Sample Variant Browser",
                     description: "",
                     icon: "fa fa-search"
-                },
-                {
-                    id: "review",
-                    title: "Interpretation Review",
-                    description: "",
-                    icon: "fa fa-edit",
-                    visible: false,
                 },
                 {
                     id: "report",
