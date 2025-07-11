@@ -70,7 +70,7 @@ export default class WebUtils {
         return `${baseUrl}#${tool}/${opencgaSession.project.id}/${opencgaSession.study.id}${queryStr}`;
     }
 
-    static getInterpreterLink(opencgaSession, caseId = "") {
+    static getInterpreterLink(opencgaSession, query = {}) {
         const hashItems = [
             // ...window.location.hash.replace("#", "").split("/").slice(0, -3), // '#clinical/portal/project/study' --> ['clinical']
             "clinical",
@@ -78,8 +78,9 @@ export default class WebUtils {
             opencgaSession?.project?.id || "",
             opencgaSession?.study?.id || "",
         ];
+        const queryStr = Object.keys(query || {}).length > 0 ? "?" + (new URLSearchParams(query)).toString() : "";
 
-        return `#${hashItems.filter(Boolean).join("/")}${!!caseId ? "?id=" + caseId : ""}`;
+        return `#${hashItems.filter(Boolean).join("/")}${queryStr}`;
     }
 
     static getClinicalAnalysisPriorityColour(rank) {

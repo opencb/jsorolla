@@ -1252,15 +1252,14 @@ class IvaApp extends LitElement {
                 break;
             case "interpreter":
                 content = html`
-                    <div class="content">
-                        <variant-interpreter
-                            .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
-                            .clinicalAnalysisId="${this.queries["interpreter"]?.id}"
-                            .settings="${this.settings.VARIANT_INTERPRETER_SETTINGS}"
-                            @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
-                        </variant-interpreter>
-                    </div>
+                    <variant-interpreter
+                        .opencgaSession="${this.opencgaSession}"
+                        .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
+                        .clinicalAnalysisId="${this.queries["interpreter"]?.id}"
+                        .tool="${this.queries["interpreter"]?.tool}"
+                        .settings="${this.settings.VARIANT_INTERPRETER_SETTINGS}"
+                        @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
+                    </variant-interpreter>
                 `;
                 break;
             case "organization-admin":
