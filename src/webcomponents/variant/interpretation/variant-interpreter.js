@@ -98,9 +98,9 @@ class VariantInterpreter extends LitElement {
             this.clinicalAnalysisObserver();
         }
 
-        if (changedProperties.has("tool") || changedProperties.has("settings")) {
-            this.activeTool = this.tool || this._config?.tools?.[0]?.id || "";
-        }
+        // if (changedProperties.has("tool") || changedProperties.has("settings")) {
+        //     this.activeTool = this.tool || this._config?.tools?.[0]?.id || "";
+        // }
 
         super.update(changedProperties);
     }
@@ -119,7 +119,7 @@ class VariantInterpreter extends LitElement {
             // With each property change we must update config and create the columns again. No extra checks are needed.
             // this._config = {...this.getDefaultConfig(), ...this.config};
             this.clinicalAnalysis = null;
-            // this.#changeActiveTool(this._config?.tools[0].id);
+            this.onChangeActiveTool(this._config?.tools[0].id);
             this.requestUpdate();
 
             // To delete
@@ -157,17 +157,10 @@ class VariantInterpreter extends LitElement {
         this._config.tools = ExtensionsManager.injectInterpretationTools(this._config.tools);
     }
 
-    // #changeActiveTool(toolId) {
-    //     this.activeTool = toolId;
-    //     this.requestUpdate();
-    // }
-
-    // onClickSection(e) {
-    //     e.preventDefault();
-    //     if (e.currentTarget?.dataset?.tool && !e.currentTarget.className.split(" ").includes("disabled")) {
-    //         this.#changeActiveTool(e.currentTarget.dataset.tool);
-    //     }
-    // }
+    onChangeActiveTool(toolId) {
+        this.activeTool = toolId;
+        this.requestUpdate();
+    }
 
     onClinicalAnalysisUpdate() {
         return this.opencgaSession.opencgaClient.clinical()
@@ -407,7 +400,7 @@ class VariantInterpreter extends LitElement {
                 const isDisabled = !this.clinicalAnalysis && item.id !== "select" || item.disabled;
                 const active = this.activeTool === item.id;
                 tools.push(html`
-                    <a class="d-block w-full text-decoration-none" style="max-width:100px;">
+                    <a class="d-block w-full text-decoration-none" style="max-width:100px;" @click="${() => this.onChangeActiveTool(item.id)}">
                         <div class="d-flex flex-column align-items-center gap-1 ${active ? "text-primary": "text-secondary"} cursor-pointer w-full">
                             <div class="d-flex align-items-center justify-content-center ${active ? "bg-primary-subtle" : "bg-gray-100"} rounded-circle" style="width:40px;height:40px;">
                                 <i class="${item.icon} fs-5"></i>
