@@ -108,7 +108,7 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
             <div class="card p-3">
                 <div class="card-header border-0">
                     <h5 class="mb-2 fs-5 fw-bold d-flex">Clinical Significance</h5>
-                    <p class="text-secondary"></p>
+                    <p class="text-secondary">Clinical significance in the consequence types evidences</p>
 
                 </div>
                 <div class="card-body pt-0 pb-0">
@@ -123,7 +123,6 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                     Last updated
                 </div>
             </div>
-
         `;
     }
 
@@ -152,6 +151,7 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                             },
                         },
                         {
+                            // CAUTION 20250710 Vero : I believe this field is always false
                             id: "variants-fully-explain-phenotype",
                             title: "Selected evidences fully explaining phenotypes",
                             type: "custom",

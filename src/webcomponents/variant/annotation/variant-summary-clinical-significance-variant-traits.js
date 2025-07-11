@@ -43,15 +43,97 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
         this._chartId = "chart-clinical-significance-trait-association";
         this._chart = {};
 
-        this.groups = ["benign", "likely_benign", "uncertain_significance", "likely_pathogenic", "pathogenic", "conflicting"];
-        this.starsMapping = {
-            benign: 1,
-            likely_benign: 2,
-            uncertain_significance: 3,
-            likely_pathogenic: 4,
-            pathogenic: 5,
-            conflicting: 0
-        };
+        this._clinicalSignificanceGroups = [
+            "benign",
+            "likely benign",
+            "uncertain significance",
+            "likely pathogenic",
+            "pathogenic",
+            "other"
+        ];
+
+        this._starsGermline = [
+            { status: "practice guideline", stars: 4 },
+            { status: "reviewed by expert panel", stars: 3 },
+            { status: "criteria provided, multiple submitters, no conflicts", stars: 2 },
+            { status: "criteria provided, conflicting classifications", stars: 1 },
+            { status: "criteria provided, single submitter", stars: 1 },
+            { status: "CRITERIA_PROVIDED_SINGLE_SUBMITTER", stars: 1 },
+            { status: "no assertion criteria provided", stars: 0 },
+            { status: "no classification provided", stars: 0 },
+            { status: "no classification for the individual variant", stars: 0 }
+        ];
+
+        // According to this: https://www.ncbi.nlm.nih.gov/clinvar/docs/review_status/#revstat_web:
+        // Review status on submitted records (SCV)
+        this.starsSCV = [
+            {
+                stars: 4,
+                status: "practice guideline",
+                description: "There is a submitted record with a classification from a practice guideline"
+            },
+            {
+                stars: 3,
+                status: "reviewed by expert panel",
+                description: "There is a submitted record with a classification from an expert panel"
+            },
+            {
+                stars: 1,
+                status: "criteria provided, single submitter",
+                description: "There is a single submitted record with a classification, where assertion criteria and evidence for the classification (or a public contact) were provided."
+            },
+            {
+                stars: 0,
+                status: "no assertion criteria provided",
+                description: "There are one or more submitted records with a classification but without assertion criteria and evidence for the classification (or a public contact)."
+            },
+            {
+                stars: 0,
+                status: "no classification provided",
+                description: "There are one or more submitted records without a classification."
+            }
+        ];
+        // Review status on aggregate records (VCV and RCV)
+        // 1. Germline: the ones in stars mapping. 2. Somatic
+        this.starsSomatic = [
+            {
+                stars: 4,
+                status: "practice guideline",
+                description: "There is a submitted record with a classification from a practice guideline",
+                link: "https://www.ncbi.nlm.nih.gov/clinvar/docs/review_guidelines/"
+            },
+            {
+                stars: 3,
+                status: "reviewed by expert panel",
+                description: "There is a submitted record with a classification from an expert panel",
+                link: "https://www.ncbi.nlm.nih.gov/clinvar/docs/review_guidelines/"
+            },
+            {
+                stars: 2,
+                status: "criteria provided, multiple submitters",
+                description: "There are multiple submitted records with a somatic classification of clinical impact. Assertion criteria and evidence for the classification (or a public contact) were provided."
+            },
+            {
+                stars: 1,
+                status: "criteria provided, single submitter",
+                description: "There is a single submitted record with a classification, where assertion criteria and evidence for the classification (or a public contact) were provided."
+            },
+            {
+                stars: 0,
+                status: "no assertion criteria provided",
+                description: "There are one or more submitted records with a classification but without assertion criteria and evidence for the classification (or a public contact)."
+            },
+            {
+                stars: 0,
+                status: "no classification provided",
+                description: "There are one or more submitted records without a classification."
+            },
+            {
+                stars: 0,
+                status: "no classification for the individual variant",
+                description: "The variant was not classified directly in any submitted record; it was submitted to ClinVar only as part of a haplotype or a genotype."
+            }
+        ];
 
 
         this._config = this.getDefaultConfig();
@@ -72,59 +154,89 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
         }
     }
 
-    // Function to get subgroup from clinical significance string (lowercase)
-    #getGroups(cs) {
-        if (!cs) return "conflicting";
-        cs = cs.toLowerCase();
-        if (this.groups.includes(cs)) return cs;
-        return "conflicting";
+    #normalizeSignificance(sig) {
+        const map = {
+            benign: "benign",
+            likely_benign: "likely benign",
+            uncertain_significance: "uncertain significance",
+            likely_pathogenic: "likely pathogenic",
+            pathogenic: "pathogenic"
+        };
+        return map[sig] || "other";
     }
 
-    #getClinvarTraitAssociations(traitAssociation) {
+    #getClinvarTraitAssociations(traitAssociations) {
+        // 1. Define starLevels and categories
+        const starLevels = [4, 3, 2, 1, 0];
+        const categories = starLevels.map(star => "★".repeat(star) + "☆".repeat(5 - star));
 
-        // Define clinical significance groups for stacking
+        const countsByStars = {};
+        for (const star of starLevels) {
+            countsByStars[star] = {};
+            for (const sig of this._clinicalSignificanceGroups) {
+                countsByStars[star][sig] = 0;
+            }
+        }
 
-        // Process evidence to fill counts by group and stars
-        const counts = {};
-        // Initialize counts for each group and star rating (0-5 stars)
-        this.groups.forEach(g => counts[g] = [0, 0, 0, 0, 0, 0]); // 6 star levels: 0 to 5 stars
-        traitAssociation.forEach(ta => {
-            const clinicalSignificance = ta.variantClassification?.clinicalSignificance;
-            const group = this.#getGroups(clinicalSignificance);
-            const stars = this.starsMapping[this.#getGroups(clinicalSignificance)] || 0;
-            counts[group][stars]++;
-        });
+        const statusToStars = Object.fromEntries(
+            this._starsGermline.map(entry => [entry.status, entry.stars])
+        );
 
-        // Prepare Highcharts data series (stacked bar chart)
-        const starLabels = ['☆☆☆☆☆','★☆☆☆☆','★★☆☆☆','★★★☆☆','★★★★☆','★★★★★'];
-        const series = this.groups.map(group => ({
-            name: group.charAt(0).toUpperCase() + group.slice(1).replace(/_/g, ' '), // e.g. "Likely pathogenic"
-            data: counts[group]
+        for (const trait of traitAssociations) {
+            const sigRaw = trait.variantClassification?.clinicalSignificance || "other";
+            const sig = this.#normalizeSignificance(sigRaw);
+
+            const reviewProp = trait.additionalProperties?.find(p => p.name === "ReviewStatus_in_source_file");
+            const status = reviewProp?.value || "no classification provided";
+            const stars = statusToStars[status];
+
+            if (stars === undefined) continue;
+            countsByStars[stars][sig]++;
+        }
+
+        const series = this._clinicalSignificanceGroups.map(sig => ({
+            name: sig.charAt(0).toUpperCase() + sig.slice(1),
+            data: starLevels.map(star => countsByStars[star][sig])
         }));
 
         Highcharts.chart(`${this._chartId}`, {
             chart: {
-                type: 'bar',
-                height: 400,
+                type: 'bar'
             },
             title: {
-                text: ""
+                text: null,
             },
             xAxis: {
-                categories: starLabels,
-                title: { text: 'Review Stars' },
-                labels: { style: { fontSize: '14px' } }
+                categories: categories,
+                title: {
+                    text: 'Germline Review Stars'
+                }
             },
             yAxis: {
                 min: 0,
-                title: { text: 'Number of variant traits' },
-                allowDecimals: false
+                allowDecimals: false,
+                title: {
+                    text: 'Number of Traits',
+                    align: 'high'
+                },
+                labels: {
+                    formatter: function () {
+                        return Math.floor(this.value);
+                    }
+                }
             },
-            legend: { reversed: true },
-            plotOptions: { series: { stacking: 'normal' } },
-            series,
-            credits: { enabled: false }
+            legend: {
+                reversed: true
+            },
+            plotOptions: {
+                series: {
+                    stacking: 'normal'
+                }
+            },
+            series: series
         });
+
+
 
     }
 
@@ -136,8 +248,8 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
         return html`
             <div class="card p-3">
                 <div class="card-header border-0">
-                    <h5 class="mb-2 fs-5 fw-bold d-flex">ClinVar Stars Ratings by Clinical Significance</h5>
-                    <p class="text-secondary"></p>
+                    <h5 class="mb-2 fs-5 fw-bold d-flex">Clinvar Review by Clinical Significance</h5>
+                    <p class="text-secondary">ClinVar variant traits by germline review stars and clinical significance</p>
 
                 </div>
                 <div class="card-body pt-0 pb-0">
