@@ -63,6 +63,9 @@ class VariantInterpreter extends LitElement {
             cellbaseClient: {
                 type: Object
             },
+            tool: {
+                type: String,
+            },
             settings: {
                 type: Object
             }
@@ -95,6 +98,10 @@ class VariantInterpreter extends LitElement {
             this.clinicalAnalysisObserver();
         }
 
+        if (changedProperties.has("tool") || changedProperties.has("settings")) {
+            this.activeTool = this.tool || this._config?.tools?.[0]?.id || "";
+        }
+
         super.update(changedProperties);
     }
 
@@ -112,7 +119,7 @@ class VariantInterpreter extends LitElement {
             // With each property change we must update config and create the columns again. No extra checks are needed.
             // this._config = {...this.getDefaultConfig(), ...this.config};
             this.clinicalAnalysis = null;
-            this.#changeActiveTool(this._config?.tools[0].id);
+            // this.#changeActiveTool(this._config?.tools[0].id);
             this.requestUpdate();
 
             // To delete
@@ -150,17 +157,17 @@ class VariantInterpreter extends LitElement {
         this._config.tools = ExtensionsManager.injectInterpretationTools(this._config.tools);
     }
 
-    #changeActiveTool(toolId) {
-        this.activeTool = toolId;
-        this.requestUpdate();
-    }
+    // #changeActiveTool(toolId) {
+    //     this.activeTool = toolId;
+    //     this.requestUpdate();
+    // }
 
-    onClickSection(e) {
-        e.preventDefault();
-        if (e.currentTarget?.dataset?.tool && !e.currentTarget.className.split(" ").includes("disabled")) {
-            this.#changeActiveTool(e.currentTarget.dataset.tool);
-        }
-    }
+    // onClickSection(e) {
+    //     e.preventDefault();
+    //     if (e.currentTarget?.dataset?.tool && !e.currentTarget.className.split(" ").includes("disabled")) {
+    //         this.#changeActiveTool(e.currentTarget.dataset.tool);
+    //     }
+    // }
 
     onClinicalAnalysisUpdate() {
         return this.opencgaSession.opencgaClient.clinical()
@@ -239,31 +246,6 @@ class VariantInterpreter extends LitElement {
                 console.error(error);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             });
-    }
-
-    renderToolStep(item) {
-        if (typeof item.visible === "undefined" || !!item.visible) {
-            const isDisabled = !this.clinicalAnalysis && item.id !== "select" || item.disabled;
-            const isActive = this.activeTool === item.id;
-            return html`
-                <li class="nav-item text-center">
-                    <div class="nav-link">
-                        <a
-                            class="variant-interpreter-step ${isDisabled ? "disabled" : ""} ${isActive ? "active" : ""}"
-                            href="javascript: void 0"
-                            data-tool="${item.id}"
-                            @click="${this.onClickSection}">
-                            <i class="position-relative ${item.icon} fs-2 border border-secondary rounded-circle border-3 p-4"
-                                style="z-index:1;background-color:white">
-                            </i>
-                        </a>
-                    </div>
-                    <p>${item.title}</p>
-                </li>
-            `;
-        }
-        // Tool step not visible
-        return null;
     }
 
     renderTool(tool) {
@@ -375,11 +357,73 @@ class VariantInterpreter extends LitElement {
 
     renderToolbarTitle() {
         return `
-            ${this._config.title}
-            <span class="inverse">
-                Case ${this.clinicalAnalysis?.id}
-                ${this.clinicalAnalysis?.locked ? "<span class=\"fa fa-lock pe-1\"></span>" : ""}
-            </span>
+            ${this.clinicalAnalysis?.locked ? `<span class="fa fa-lock pe-1"></span>` : ""}
+            <span>${this.clinicalAnalysis?.id || this.clinicalAnalysisId || "-"}</span>
+        `;
+    }
+
+    renderToolbarSubtitle() {
+        if (this.clinicalAnalysis?.interpretation) {
+            return `
+                ${this.clinicalAnalysis.interpretation.locked ? `<span class="fa fa-lock pe-1"></span>` : ""}
+                <strong>${WebUtils.getDisplayName(this.clinicalAnalysis.interpretation)}</strong>
+            `;
+        }
+        return "";
+    }
+
+    renderToolbarCenterContent() {
+        // const tools = (this._config?.tools || []).map(item => {
+        //     if (typeof item.visible === "undefined" || !!item.visible) {
+        //         const isDisabled = !this.clinicalAnalysis && item.id !== "select" || item.disabled;
+        //         const active = this.activeTool === item.id;
+        //         return html`
+        //             <div class="pb-2 border-bottom border-3 ${active ? "border-primary" : "border-transparent"} w-full" style="max-width:140px;">
+        //             <div class="d-flex flex-column align-items-center gap-1 ${active ? "text-primary bg-primary-subtle": "text-secondary"} cursor-pointer rounded-3 p-2 w-full">
+        //                 <div class="d-flex">
+        //                     <i class="${item.icon} fs-3"></i>
+        //                 </div>
+        //                 <div class="text-center small ${active ? "fw-bold" : ""}">${item.title}</div>
+        //             </div>
+        //             </div>
+        //         `;
+        //     }
+        //     // tool step not visible
+        //     return nothing;
+        // });
+        const tools = [];
+        (this._config?.tools || [])
+            .filter(item => typeof item.visible === "undefined" || !!item.visible)
+            .forEach((item, index) => {
+                if (index > 0) {
+                    tools.push(html`
+                        <div class="bg-gray-200 flex-shrink-0" style="height:2px;width:32px;margin-top:19px;"></div>`
+                    );
+                }
+                // const url = WebUtils.getInterpreterLink(this.opencgaSession, {
+                //     id: this.clinicalAnalysis?.id || this.clinicalAnalysisId,
+                //     tool: item.id,
+                // });
+                const isDisabled = !this.clinicalAnalysis && item.id !== "select" || item.disabled;
+                const active = this.activeTool === item.id;
+                tools.push(html`
+                    <a class="d-block w-full text-decoration-none" style="max-width:100px;">
+                        <div class="d-flex flex-column align-items-center gap-1 ${active ? "text-primary": "text-secondary"} cursor-pointer w-full">
+                            <div class="d-flex align-items-center justify-content-center ${active ? "bg-primary-subtle" : "bg-gray-100"} rounded-circle" style="width:40px;height:40px;">
+                                <i class="${item.icon} fs-5"></i>
+                            </div>
+                            <div class="text-center small ${active ? "fw-bold" : ""}">${item.title}</div>
+                        </div>
+                    </a>
+                `);
+            });
+
+        return html`
+            <div class="d-flex align-items-center justify-content-center">
+                <div class="d-flex flex-nowrap gap-0 align-items-start justify-content-center flex-shrink-0 w-full">
+                    ${tools}
+                </div>
+            </div>
         `;
     }
 
@@ -390,7 +434,7 @@ class VariantInterpreter extends LitElement {
 
         return html`
             <div class="d-flex align-items-center">
-                ${this.clinicalAnalysis?.interpretation ? html`
+                ${false && this.clinicalAnalysis?.interpretation ? html`
                     <div class="d-flex flex-column align-items-center" style="margin-right:3rem;">
                         <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
                             ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock pe-1"></span>` : ""}
@@ -501,29 +545,17 @@ class VariantInterpreter extends LitElement {
         return html`
             <div class="variant-interpreter-tool">
                 <tool-header
-                    .title="${this.clinicalAnalysis?.id || this.clinicalAnalysisId || "-"}"
+                    .title="${this.renderToolbarTitle()}"
+                    .centerContent="${this.renderToolbarCenterContent()}"
                     .rightContent="${this.renderToolbarRightContent()}">
                 </tool-header>
 
-                <div class="container">
-                    <div class="position-relative">
-                        <div class="position-absolute   top-50 start-50 translate-middle" style="margin-top:4rem; width: 80%;">
-                            <hr class="border border-secondary border-2 opacity-75">
-                        </div>
-                    </div>
-                    <ul class="nav justify-content-around mx-auto p-2 flex-nowrap">
-                        ${(this._config?.tools || []).map(item => this.renderToolStep(item))}
-                    </ul>
-                </div>
-
-                <div id="${this._prefix}MainWindow" class="col-md-12 px-3">
+                <div class="px-3 py-4">
                     ${(this._config?.tools || []).map(tool => this.renderTool(tool))}
                 </div>
             </div>
 
             ${this.renderInterpretationUpdateModal()}
-
-            <div class="v-space"></div>
         `;
     }
 
@@ -534,7 +566,7 @@ class VariantInterpreter extends LitElement {
                     id: "select",
                     title: "Case Info",
                     description: "",
-                    icon: "fa fa-folder-open"
+                    icon: "fas fa-info"
                 },
                 {
                     id: "qc",
