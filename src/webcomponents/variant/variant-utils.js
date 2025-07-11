@@ -365,6 +365,50 @@ export default class VariantUtils {
         return rows;
     }
 
+    // Not sure if scores are currently used
+    static evidencesScoreStats(evidences) {
+        const scores = evidences
+            .map(e => e.score)
+            .filter(score => typeof score === 'number' && !isNaN(score));
+
+        const count = scores.length;
+        const sum = scores.reduce((acc, val) => acc + val, 0);
+        const avg = count > 0 ? sum / count : 0;
+        const min = Math.min(...scores);
+        const max = Math.max(...scores);
+
+        // Optional: standard deviation
+        const variance = scores.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) / count;
+        const stdDev = Math.sqrt(variance);
+
+        return {
+            average: avg.toFixed(2),
+            min: min.toFixed(2),
+            max: max.toFixed(2),
+            standardDeviation: stdDev.toFixed(2)
+        };
+    }
+
+    // Function to count clinical significance categories
+    static countClinicalSignificance(evidences) {
+        return evidences.reduce((acc, evidence) => {
+            const cs = evidence.classification?.clinicalSignificance.toLowerCase() || 'unknown';
+            acc[cs] = (acc[cs] || 0) + 1;
+            return acc;
+        }, {});
+    }
+
+    static mapClinicalSignificanceToColor(counts) {
+        return CLINICAL_SIGNIFICANCE
+            .filter(cs => counts[cs.id] > 0)
+            .map(cs => ({
+                name: cs.name,
+                y: counts[cs.id],
+                color: cs.color
+            }));
+    }
+
+
     static getClassificationByClinicalSignificance(variant) {
         const clinicalSignificanceMap = {};
         variant.evidences.forEach(({classification}) => {
