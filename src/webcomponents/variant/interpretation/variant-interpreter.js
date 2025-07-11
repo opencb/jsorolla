@@ -507,13 +507,13 @@ class VariantInterpreter extends LitElement {
                     id: "variant-browser",
                     title: "Sample Variant Browser",
                     description: "",
-                    icon: "fa fa-search"
+                    icon: "fas fa-dna"
                 },
                 {
                     id: "report",
                     title: "Observations",
                     description: "",
-                    icon: "fa fa-file-alt"
+                    icon: "far fa-file-alt"
                 },
             ]
         };
