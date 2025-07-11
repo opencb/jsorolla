@@ -106,92 +106,6 @@ export default class VariantSummary extends LitElement {
                 ...this.displayConfig,
             },
             sections: [
-                // 1. Interpretation summary, if available
-                // - Clinical Significance selected interpretation
-                // - Variant interpretation selected interpretation
-                // - ACMG Classification selected interpretation
-                // - User classification selected interpretation
-                /*
-                {
-                    display: {},
-                    elements: [
-                        {
-                            id: "variant-summary-interpretation",
-                            type: "custom",
-                            title: "",
-                            display: {
-                                containerClassName: "",
-                                titleClassName: "",
-                                titleStyle: "",
-                                render: variant => {
-                                    return html`
-                                        <variant-summary-interpretation
-                                            .variant="${variant}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </variant-summary-interpretation>
-                                    `;
-                                }
-                            },
-                        },
-                    ],
-                },
-                 */
-                // 2. Variant quality
-                {
-                    // title: "Sample Quality Summary",
-                    // description: "Information related to sample quality",
-                    display: {},
-                    elements: [
-                        {
-                            id: "variant-summary-quality",
-                            type: "custom",
-                            title: "",
-                            display: {
-                                containerClassName: "",
-                                titleClassName: "",
-                                titleStyle: "",
-                                render: variant => {
-                                    const samplesQuality = variant.studies.find(study => study.studyId === this.opencgaSession.study.fqn)
-                                    return html`
-                                        <variant-summary-quality
-                                            .samplesQuality="${samplesQuality}"
-                                            .variant="${variant}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </variant-summary-quality>
-                                    `;
-                                }
-                            }
-                        }
-                    ],
-                },
-                // 3. Population Summary
-                /*
-                {
-                    title: "Population Summary",
-                    description: "Information related to population",
-                    display: {},
-                    elements: [
-                        {
-                            id: "variant-summary-population",
-                            type: "custom",
-                            title: "",
-                            display: {
-                                containerClassName: "",
-                                titleClassName: "",
-                                titleStyle: "",
-                                render: variant => {
-                                    return html`
-                                        <variant-summary-population
-                                            .variant="${variant}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </variant-summary-population>
-                                    `;
-                                }
-                            }
-                        }
-                    ],
-                },
-                */
                 // 4. Clinical Significance
                 {
                     // title: "Clinical Significance",
@@ -378,6 +292,93 @@ export default class VariantSummary extends LitElement {
                         // - Drug target
                     ],
                 },
+                // 1. Interpretation summary, if available
+                // - Clinical Significance selected interpretation
+                // - Variant interpretation selected interpretation
+                // - ACMG Classification selected interpretation
+                // - User classification selected interpretation
+                /*
+                {
+                    display: {},
+                    elements: [
+                        {
+                            id: "variant-summary-interpretation",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-interpretation
+                                            .variant="${variant}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-interpretation>
+                                    `;
+                                }
+                            },
+                        },
+                    ],
+                },
+                 */
+                // 2. Variant quality
+                {
+                    // title: "Sample Quality Summary",
+                    // description: "Information related to sample quality",
+                    display: {},
+                    elements: [
+                        {
+                            id: "variant-summary-quality",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    const samplesQuality = variant.studies.find(study => study.studyId === this.opencgaSession.study.fqn)
+                                    return html`
+                                        <variant-summary-quality
+                                            .samplesQuality="${samplesQuality}"
+                                            .variant="${variant}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-quality>
+                                    `;
+                                }
+                            }
+                        }
+                    ],
+                },
+                // 3. Population Summary
+                /*
+                {
+                    title: "Population Summary",
+                    description: "Information related to population",
+                    display: {},
+                    elements: [
+                        {
+                            id: "variant-summary-population",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-population
+                                            .variant="${variant}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-population>
+                                    `;
+                                }
+                            }
+                        }
+                    ],
+                },
+                */
+
             ],
         };
     }
