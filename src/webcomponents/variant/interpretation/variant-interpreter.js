@@ -41,8 +41,7 @@ class VariantInterpreter extends LitElement {
     constructor() {
         super();
 
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -72,11 +71,11 @@ class VariantInterpreter extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.activeTool = "";
         this.clinicalAnalysisManager = null;
 
+        this.activeTool = "";
         this._config = this.getDefaultConfig();
         this.#updateInterpreterTools();
     }
@@ -84,10 +83,6 @@ class VariantInterpreter extends LitElement {
     update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
-        }
-
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
         }
 
         if (changedProperties.has("clinicalAnalysisId")) {
@@ -114,22 +109,6 @@ class VariantInterpreter extends LitElement {
         this._config.tools = UtilsNew.mergeArray(this._config.tools, this.settings?.tools, false, true);
     }
 
-    opencgaSessionObserver() {
-        if (this.opencgaSession?.study?.fqn) {
-            // With each property change we must update config and create the columns again. No extra checks are needed.
-            // this._config = {...this.getDefaultConfig(), ...this.config};
-            this.clinicalAnalysis = null;
-            this.requestUpdate();
-
-            // To delete
-            // this.clinicalAnalysisId = "NA12877";
-            // this.clinicalAnalysisId = "CA-2";
-            // this.clinicalAnalysisId = "C-TMV2OCT20_121978_S57_L005_TUMOR";
-            // this.clinicalAnalysisId = "C-MA6250";
-            // this.clinicalAnalysisIdObserver();
-        }
-    }
-
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession?.opencgaClient && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical()
@@ -152,14 +131,8 @@ class VariantInterpreter extends LitElement {
     }
 
     #updateInterpreterTools() {
-        // Inject interpreter tools from extensions
         this._config.tools = ExtensionsManager.injectInterpretationTools(this._config.tools);
     }
-
-    // onChangeActiveTool(toolId) {
-    //     this.activeTool = toolId;
-    //     this.requestUpdate();
-    // }
 
     onClinicalAnalysisUpdate() {
         return this.opencgaSession.opencgaClient.clinical()
@@ -365,24 +338,6 @@ class VariantInterpreter extends LitElement {
     }
 
     renderToolbarCenterContent() {
-        // const tools = (this._config?.tools || []).map(item => {
-        //     if (typeof item.visible === "undefined" || !!item.visible) {
-        //         const isDisabled = !this.clinicalAnalysis && item.id !== "select" || item.disabled;
-        //         const active = this.activeTool === item.id;
-        //         return html`
-        //             <div class="pb-2 border-bottom border-3 ${active ? "border-primary" : "border-transparent"} w-full" style="max-width:140px;">
-        //             <div class="d-flex flex-column align-items-center gap-1 ${active ? "text-primary bg-primary-subtle": "text-secondary"} cursor-pointer rounded-3 p-2 w-full">
-        //                 <div class="d-flex">
-        //                     <i class="${item.icon} fs-3"></i>
-        //                 </div>
-        //                 <div class="text-center small ${active ? "fw-bold" : ""}">${item.title}</div>
-        //             </div>
-        //             </div>
-        //         `;
-        //     }
-        //     // tool step not visible
-        //     return nothing;
-        // });
         const tools = [];
         (this._config?.tools || [])
             .filter(item => typeof item.visible === "undefined" || !!item.visible)
