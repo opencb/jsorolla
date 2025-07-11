@@ -62,7 +62,7 @@ class VariantInterpreter extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            tool: {
+            activeTool: {
                 type: String,
             },
             settings: {
@@ -75,7 +75,6 @@ class VariantInterpreter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.clinicalAnalysisManager = null;
 
-        this.activeTool = "";
         this._config = this.getDefaultConfig();
         this.#updateInterpreterTools();
     }
@@ -91,10 +90,6 @@ class VariantInterpreter extends LitElement {
 
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
-        }
-
-        if (changedProperties.has("tool") || changedProperties.has("settings")) {
-            this.activeTool = this.tool || this._config?.tools?.[0]?.id || "";
         }
 
         super.update(changedProperties);
@@ -128,6 +123,10 @@ class VariantInterpreter extends LitElement {
         if (this.clinicalAnalysis) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
+    }
+
+    getActiveToolId() {
+        return this.activeTool || this._config?.tools?.[0]?.id || "";
     }
 
     #updateInterpreterTools() {
@@ -214,7 +213,7 @@ class VariantInterpreter extends LitElement {
     }
 
     renderTool(tool) {
-        if (this.activeTool === tool.id) {
+        if (this.getActiveToolId() === tool.id) {
             switch (tool.id) {
                 case "select":
                     return html`
@@ -338,6 +337,7 @@ class VariantInterpreter extends LitElement {
     }
 
     renderToolbarCenterContent() {
+        const activeTool = this.getActiveToolId();
         const tools = [];
         (this._config?.tools || [])
             .filter(item => typeof item.visible === "undefined" || !!item.visible)
@@ -348,7 +348,7 @@ class VariantInterpreter extends LitElement {
                         <div class="bg-gray-200 flex-shrink-0" style="height:2px;width:32px;margin-top:19px;"></div>`
                     );
                 }
-                const active = this.activeTool === item.id;
+                const active = activeTool === item.id;
                 const url = WebUtils.getInterpreterLink(this.opencgaSession, {
                     id: this.clinicalAnalysis?.id || this.clinicalAnalysisId,
                     tool: item.id,
