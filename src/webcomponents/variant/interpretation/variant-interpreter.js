@@ -98,9 +98,9 @@ class VariantInterpreter extends LitElement {
             this.clinicalAnalysisObserver();
         }
 
-        // if (changedProperties.has("tool") || changedProperties.has("settings")) {
-        //     this.activeTool = this.tool || this._config?.tools?.[0]?.id || "";
-        // }
+        if (changedProperties.has("tool") || changedProperties.has("settings")) {
+            this.activeTool = this.tool || this._config?.tools?.[0]?.id || "";
+        }
 
         super.update(changedProperties);
     }
@@ -119,7 +119,6 @@ class VariantInterpreter extends LitElement {
             // With each property change we must update config and create the columns again. No extra checks are needed.
             // this._config = {...this.getDefaultConfig(), ...this.config};
             this.clinicalAnalysis = null;
-            this.onChangeActiveTool(this._config?.tools[0].id);
             this.requestUpdate();
 
             // To delete
@@ -157,10 +156,10 @@ class VariantInterpreter extends LitElement {
         this._config.tools = ExtensionsManager.injectInterpretationTools(this._config.tools);
     }
 
-    onChangeActiveTool(toolId) {
-        this.activeTool = toolId;
-        this.requestUpdate();
-    }
+    // onChangeActiveTool(toolId) {
+    //     this.activeTool = toolId;
+    //     this.requestUpdate();
+    // }
 
     onClinicalAnalysisUpdate() {
         return this.opencgaSession.opencgaClient.clinical()
@@ -388,19 +387,19 @@ class VariantInterpreter extends LitElement {
         (this._config?.tools || [])
             .filter(item => typeof item.visible === "undefined" || !!item.visible)
             .forEach((item, index) => {
+                // add separator between this tool only if it is not the first one
                 if (index > 0) {
                     tools.push(html`
                         <div class="bg-gray-200 flex-shrink-0" style="height:2px;width:32px;margin-top:19px;"></div>`
                     );
                 }
-                // const url = WebUtils.getInterpreterLink(this.opencgaSession, {
-                //     id: this.clinicalAnalysis?.id || this.clinicalAnalysisId,
-                //     tool: item.id,
-                // });
-                const isDisabled = !this.clinicalAnalysis && item.id !== "select" || item.disabled;
                 const active = this.activeTool === item.id;
+                const url = WebUtils.getInterpreterLink(this.opencgaSession, {
+                    id: this.clinicalAnalysis?.id || this.clinicalAnalysisId,
+                    tool: item.id,
+                });
                 tools.push(html`
-                    <a class="d-block w-full text-decoration-none" style="max-width:100px;" @click="${() => this.onChangeActiveTool(item.id)}">
+                    <a href="${url}" class="d-block w-full text-decoration-none" style="max-width:100px;">
                         <div class="d-flex flex-column align-items-center gap-1 ${active ? "text-primary": "text-secondary"} cursor-pointer w-full">
                             <div class="d-flex align-items-center justify-content-center ${active ? "bg-primary-subtle" : "bg-gray-100"} rounded-circle" style="width:40px;height:40px;">
                                 <i class="${item.icon} fs-5"></i>
