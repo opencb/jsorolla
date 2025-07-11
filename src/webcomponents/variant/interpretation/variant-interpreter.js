@@ -502,7 +502,6 @@ class VariantInterpreter extends LitElement {
             <div class="variant-interpreter-tool">
                 <tool-header
                     .title="${this.clinicalAnalysis?.id || this.clinicalAnalysisId || "-"}"
-                    .icon="${this._config.icon}"
                     .rightContent="${this.renderToolbarRightContent()}">
                 </tool-header>
 
@@ -530,8 +529,6 @@ class VariantInterpreter extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "",
-            icon: "fas fa-user-md",
             tools: [
                 {
                     id: "select",
