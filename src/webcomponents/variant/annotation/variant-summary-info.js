@@ -117,7 +117,6 @@ export default class VariantSummaryInfo extends LitElement {
                 mostSevere,
                 ...this.variant
             };
-            debugger
         }
     }
 
