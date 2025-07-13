@@ -16,12 +16,15 @@
 
 import {html, LitElement, nothing} from "lit";
 // import "./variant-summary-interpretation.js"
+import "./variant-summary-clinical-significance.js"
+import "./variant-summary-clinical-significance-variant-traits.js"
 import "./variant-summary-quality.js"
 // import "./variant-summary-population.js"
 import "./variant-summary-info.js"
 import "./variant-summary-ct-selected.js"
 import "./variant-summary-ct-no-selected.js"
 import "./variant-summary-gene.js"
+import VariantUtils from "../variant-utils.js";
 // import "./variant-summary-deleteriousness.js";
 
 export default class VariantSummary extends LitElement {
@@ -103,89 +106,7 @@ export default class VariantSummary extends LitElement {
                 ...this.displayConfig,
             },
             sections: [
-                // 1. Interpretation summary, if available
-                {
-                    display: {},
-                    elements: [
-                        /*
-                        {
-                            id: "variant-summary-interpretation",
-                            type: "custom",
-                            title: "",
-                            display: {
-                                containerClassName: "",
-                                titleClassName: "",
-                                titleStyle: "",
-                                render: variant => {
-                                    return html`
-                                        <variant-summary-interpretation
-                                                .variant="${variant}"
-                                                .opencgaSession="${this.opencgaSession}">
-                                        </variant-summary-interpretation>
-                                    `;
-                                }
-                            },
-                        },
-                         */
-                    ],
-                },
-                // 1. Sammle Quality Summary
-                {
-                    // title: "Sample Quality Summary",
-                    // description: "Information related to sample quality",
-                    display: {},
-                    elements: [
-                        {
-                            id: "variant-summary-quality",
-                            type: "custom",
-                            title: "",
-                            display: {
-                                containerClassName: "",
-                                titleClassName: "",
-                                titleStyle: "",
-                                render: variant => {
-                                    const samplesQuality = variant.studies.find(study => study.studyId === this.opencgaSession.study.fqn)
-                                    return html`
-                                        <variant-summary-quality
-                                            .samplesQuality="${samplesQuality}"
-                                            .variant="${variant}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </variant-summary-quality>
-                                    `;
-                                }
-                            }
-                        }
-                    ],
-                },
-                // 2. Population Summary
-                /*
-                {
-                    title: "Population Summary",
-                    description: "Information related to population",
-                    display: {},
-                    elements: [
-                        {
-                            id: "variant-summary-population",
-                            type: "custom",
-                            title: "",
-                            display: {
-                                containerClassName: "",
-                                titleClassName: "",
-                                titleStyle: "",
-                                render: variant => {
-                                    return html`
-                                        <variant-summary-population
-                                            .variant="${variant}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </variant-summary-population>
-                                    `;
-                                }
-                            }
-                        }
-                    ],
-                },
-                */
-                // 3. Clinical Significance
+                // 4. Clinical Significance
                 {
                     // title: "Clinical Significance",
                     display: {
@@ -206,6 +127,20 @@ export default class VariantSummary extends LitElement {
                                     {
                                         id: "variant-summary-ct-no-selected",
                                         className: "flex-grow-1",
+                                    },
+                                ]
+                            },
+                            {
+                                id: "",
+                                className: "d-flex flex-wrap",
+                                elements: [
+                                    {
+                                        id:"variant-summary-clinical-significance",
+                                        className: "w-50",
+                                    },
+                                    {
+                                        id:"variant-summary-clinical-significance-variant-traits",
+                                        className: "w-50",
                                     },
                                 ]
                             },
@@ -277,26 +212,59 @@ export default class VariantSummary extends LitElement {
                                 }
                             }
                         },
-                        // - Gene/Disease Association
-                        /*
+                        // - Clinical Significance
                         {
-                            id: "variant-summary-gene",
+                            id: "variant-summary-clinical-significance",
                             type: "custom",
-                            title: "Gene-Disease Association",
                             display: {
                                 containerClassName: "",
                                 titleClassName: "",
                                 titleStyle: "",
                                 render: variant => {
                                     return html`
-                                        <variant-summary-gene
-                                            .variant="${variant}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </variant-summary-gene>
+                                        <variant-summary-clinical-significance
+                                                .variant="${variant}">
+                                        </variant-summary-clinical-significance>
                                     `;
                                 }
-                            }
-                        }*/
+                            },
+                        },
+                        // - Variant trait association
+                        {
+                            id: "variant-summary-clinical-significance-variant-traits",
+                            type: "custom",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-clinical-significance-variant-traits
+                                                .variant="${variant}">
+                                        </variant-summary-clinical-significance-variant-traits>
+                                    `;
+                                }
+                            },
+                        },
+                        /*
+{
+    id: "variant-summary-gene",
+    type: "custom",
+    title: "Gene-Disease Association",
+    display: {
+        containerClassName: "",
+        titleClassName: "",
+        titleStyle: "",
+        render: variant => {
+            return html`
+                <variant-summary-gene
+                    .variant="${variant}"
+                    .opencgaSession="${this.opencgaSession}">
+                </variant-summary-gene>
+            `;
+        }
+    }
+}*/
                         /*
                         // - Deleteriousness
                         {
@@ -318,46 +286,99 @@ export default class VariantSummary extends LitElement {
                             }
                         },
                         */
+                        // - Gene/Disease Association
                         // - Conservation
                         // - Pubmed
                         // - Drug target
-                        // - Clinical Significance
                     ],
                 },
+                // 1. Interpretation summary, if available
+                // - Clinical Significance selected interpretation
+                // - Variant interpretation selected interpretation
+                // - ACMG Classification selected interpretation
+                // - User classification selected interpretation
                 /*
-                // 4. Interpretation - Clinical Evidences
                 {
-                    title: "Clinical Significance",
-                    display: {
-                        visible: null,// individual => individual?.id,
-                        layout: [
-                            {
-                                id: "",
-                                className: "row",
-                            },
-                            {
-                                id: "",
-                                className: "row",
-                                elements: [
-                                    {
-                                        id: "",
-                                        className: "col-md-6"
-                                    },
-                                    {
-                                        id: "",
-                                        className: "col-md-6"
-                                    }
-                                ]
-                            },
-                        ],
-                    },
+                    display: {},
                     elements: [
-                        // - Variant interpretation
-                        // - ACMG Classification
-                        // - User classification
-                    ]
+                        {
+                            id: "variant-summary-interpretation",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-interpretation
+                                            .variant="${variant}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-interpretation>
+                                    `;
+                                }
+                            },
+                        },
+                    ],
                 },
                  */
+                // 2. Variant quality
+                {
+                    // title: "Sample Quality Summary",
+                    // description: "Information related to sample quality",
+                    display: {},
+                    elements: [
+                        {
+                            id: "variant-summary-quality",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    const samplesQuality = variant.studies.find(study => study.studyId === this.opencgaSession.study.fqn)
+                                    return html`
+                                        <variant-summary-quality
+                                            .samplesQuality="${samplesQuality}"
+                                            .variant="${variant}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-quality>
+                                    `;
+                                }
+                            }
+                        }
+                    ],
+                },
+                // 3. Population Summary
+                /*
+                {
+                    title: "Population Summary",
+                    description: "Information related to population",
+                    display: {},
+                    elements: [
+                        {
+                            id: "variant-summary-population",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-population
+                                            .variant="${variant}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-population>
+                                    `;
+                                }
+                            }
+                        }
+                    ],
+                },
+                */
+
             ],
         };
     }

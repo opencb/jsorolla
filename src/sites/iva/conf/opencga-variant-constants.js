@@ -30,6 +30,7 @@ const BIOTYPES = [
 
 const VARIANT_TYPES = ["SNV", "INDEL", "MNV", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "SV"];
 
+/*
 const CLINICAL_SIGNIFICANCE = [
     {
         id: "benign", name: "Benign"
@@ -47,7 +48,8 @@ const CLINICAL_SIGNIFICANCE = [
         id: "pathogenic", name: "Pathogenic"
     }
 ];
-
+ */
+/*
 const CLINICAL_SIGNIFICANCE_SETTINGS = {
     NOT_ASSESSED: {id: "NA", code: 0, color: "black"},
     BENIGN: {id: "B", code: 1, color: "green"},
@@ -55,6 +57,40 @@ const CLINICAL_SIGNIFICANCE_SETTINGS = {
     UNCERTAIN_SIGNIFICANCE: {id: "US", code: 3, color: "darkorange"},
     LIKELY_PATHOGENIC: {id: "LP", code: 4, color: "darkred"},
     PATHOGENIC: {id: "P", code: 5, color: "red"}
+};
+ */
+
+// Colours extracted from:
+// https://www.ncbi.nlm.nih.gov/clinvar/?gr=1&term=DSG2[gene]&utm_source=ncbi_insights&utm_medium=referral&utm_campaign=clinvar-graphic-20220830
+// Color conflicts for small points and lines
+// https://projects.susielu.com/viz-palette?colors=[%22#084507%22,%22#1b9f00%22,%22#e9e803%22,%22#fc812a%22,%22#d04040%22]&backgroundColor=%22white%22&fontColor=%22black%22&mode=%22normal%22
+const CLINICAL_SIGNIFICANCE = [
+    {
+        id: "benign", name: "Benign", color: "#084507",
+    },
+    {
+        id: "likely_benign", name: "Likely benign", color: "#1b9f00",
+    },
+    {
+        id: "uncertain_significance", name: "Uncertain significance", color: "#e9e803",
+    },
+    {
+        id: "likely_pathogenic", name: "Likely pathogenic", color: "#fc812a"
+    },
+    {
+        id: "pathogenic", name: "Pathogenic", color: "#d04040",
+    },
+];
+
+// Colours extracted from
+// https://www.ncbi.nlm.nih.gov/clinvar/?gr=1&term=DSG2[gene]&utm_source=ncbi_insights&utm_medium=referral&utm_campaign=clinvar-graphic-20220830
+const CLINICAL_SIGNIFICANCE_SETTINGS = {
+    NOT_ASSESSED: {id: "NA", code: 0, color: "black"},
+    BENIGN: {id: "B", code: 1, color: "#084507"},
+    LIKELY_BENIGN: {id: "LB", code: 2, color: "#1b9f00"},
+    UNCERTAIN_SIGNIFICANCE: {id: "US", code: 3, color: "#e9e803"},
+    LIKELY_PATHOGENIC: {id: "LP", code: 4, color: "#fc812a"},
+    PATHOGENIC: {id: "P", code: 5, color: "#d04040"}
 };
 
 // const MODE_OF_INHERITANCE = ["AUTOSOMAL_DOMINANT", "AUTOSOMAL_RECESSIVE", "X_LINKED_DOMINANT", "X_LINKED_RECESSIVE", "Y_LINKED", "MITOCHONDRIAL"];
