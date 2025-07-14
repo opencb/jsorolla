@@ -33,7 +33,7 @@ import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
 import "../../clinical/interpretation/clinical-interpretation-update.js";
-import "../../clinical/report/clinical-analysis-report.js";
+import "../../clinical/report/clinical-report.js";
 
 class VariantInterpreter extends LitElement {
 
@@ -266,11 +266,11 @@ class VariantInterpreter extends LitElement {
                             <tool-header
                                 title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
                             </tool-header>
-                            <clinical-analysis-report
+                            <clinical-report
                                 .opencgaSession="${this.opencgaSession}"
                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                 @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}">
-                            </clinical-analysis-report>
+                            </clinical-report>
                         </div>
                     `;
                 default:
