@@ -3,7 +3,7 @@ import "../../commons/forms/data-form.js";
 import "../../commons/view/detail-tabs.js";
 import "../clinical-analysis-review.js";
 
-export default class ClinicalAnalysisReport extends LitElement {
+export default class ClinicalReport extends LitElement {
 
     constructor() {
         super();
@@ -198,4 +198,4 @@ export default class ClinicalAnalysisReport extends LitElement {
 
 }
 
-customElements.define("clinical-analysis-report", ClinicalAnalysisReport);
+customElements.define("clinical-report", ClinicalReport);
