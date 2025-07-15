@@ -1,0 +1,584 @@
+import {LitElement, html} from "lit";
+import UtilsNew from "../../../core/utils-new.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
+import FormUtils from "../../commons/forms/form-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
+import "../clinical-analysis-review-summary.js";
+import "../../variant/interpretation/variant-interpreter-grid.js";
+import "../../disease-panel/disease-panel-grid.js";
+import "../interpretation/clinical-interpretation-view.js";
+
+export default class ClinicalReportReview extends LitElement {
+
+    constructor() {
+        super();
+        this.#init();
+    }
+
+    createRenderRoot() {
+        return this;
+    }
+
+    static get properties() {
+        return {
+            clinicalAnalysis: {
+                type: Object
+            },
+            interpretationId: {
+                type: String
+            },
+            opencgaSession: {
+                type: Object
+            },
+            cellbaseClient: {
+                type: Object
+            },
+            config: {
+                type: Object
+            }
+        };
+    }
+
+    #init() {
+        this.updateCaseParams = {};
+        this.updateCaseComments = {};
+        this.updateInterpretationComments = [];
+        this._clinicalAnalysis = {};
+        this._config = this.getDefaultConfig();
+    }
+
+    connectedCallback() {
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+        super.connectedCallback();
+    }
+
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
+    }
+
+    clinicalAnalysisObserver() {
+        if (this.opencgaSession && this.clinicalAnalysis) {
+            this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
+            this._config = this.getDefaultConfig();
+            this.requestUpdate();
+        }
+    }
+
+    clinicalAnalysisIdObserver() {
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                })
+                .catch(response => {
+                    this.notifyError(response);
+                });
+        }
+    }
+
+    // Update comments case
+    updateOrDeleteCaseComments(notify) {
+        if (this.updateCaseComments?.updated?.length > 0) {
+            this.opencgaSession.opencgaClient.clinical()
+                .update(this.clinicalAnalysis.id, {comments: this.updateCaseComments.updated}, {commentsAction: "REPLACE", study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    if (notify && this.updateCaseComments?.deleted?.length === 0) {
+                        this.postUpdate(response);
+                    }
+                })
+                .catch(response => {
+                    this.notifyError(response);
+                });
+        }
+        if (this.updateCaseComments?.deleted?.length > 0) {
+            this.opencgaSession.opencgaClient.clinical()
+                .update(this.clinicalAnalysis.id, {comments: this.updateCaseComments.deleted}, {commentsAction: "REMOVE", study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    if (notify) {
+                        this.postUpdate(response);
+                    }
+                })
+                .catch(response => {
+                    this.notifyError(response);
+                });
+        }
+    }
+
+    updateOrDeleteInterpretationComments(clinicalAnalysisId, interpretationId, updateInterpretationComments, notify) {
+        if (updateInterpretationComments?.updated?.length > 0) {
+            this.opencgaSession.opencgaClient.clinical()
+                .updateInterpretation(clinicalAnalysisId, interpretationId,
+                    {comments: updateInterpretationComments.updated},
+                    {commentsAction: "REPLACE", study: this.opencgaSession.study.fqn}
+                ).then(response => {
+                    if (notify && this.updateInterpretationComments?.deleted?.length === 0) {
+                        this.postUpdate(response, "");
+                    }
+                })
+                .catch(response => {
+                    this.notifyError(response);
+                });
+        }
+        if (updateInterpretationComments?.deleted?.length > 0) {
+            this.opencgaSession.opencgaClient.clinical()
+                .updateInterpretation(clinicalAnalysisId, interpretationId,
+                    {comments: updateInterpretationComments.deleted},
+                    {commentsAction: "REMOVE", study: this.opencgaSession.study.fqn}
+                ).then(response => {
+                    if (notify) {
+                        this.postUpdate(response, "");
+                    }
+                })
+                .catch(response => {
+                    this.notifyError(response);
+                });
+        }
+    }
+
+    submitCaseComments() {
+        if (this.updateCaseComments?.added?.length > 0) {
+            this.updateOrDeleteCaseComments(false);
+            this.opencgaSession.opencgaClient.clinical()
+                .update(this.clinicalAnalysis.id, {comments: this.updateCaseComments.added}, {
+                    study: this.opencgaSession.study.fqn,
+                    // flagsAction: "SET",
+                    // panelsAction: "SET",
+                })
+                .then(response => {
+                    this.postUpdate(response);
+                })
+                .catch(response => {
+                    this.notifyError(response);
+                });
+        } else {
+            this.updateOrDeleteCaseComments(true);
+        }
+    }
+
+    // ClinicalReport
+    submitCaseFinalSummary() {
+        if (this.updateCaseParams && UtilsNew.isNotEmpty(this.updateCaseParams)) {
+            this.opencgaSession.opencgaClient.clinical()
+                .update(this.clinicalAnalysis.id, this.updateCaseParams, {
+                    study: this.opencgaSession.study.fqn,
+                    // flagsAction: "SET",
+                    // panelsAction: "SET",
+                })
+                .then(response => {
+                    this.postUpdate(response);
+                })
+                .catch(response => {
+                    // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
+                    this.notifyError(response);
+                });
+        }
+    }
+
+    submitInterpretationsComments() {
+        const clinicalAnalysisId = this.clinicalAnalysis.id;
+        this.updateInterpretationComments.forEach(updateInterpretationComments => {
+            const interpretationId = updateInterpretationComments.id;
+            if (updateInterpretationComments.added?.length > 0) {
+                this.updateOrDeleteInterpretationComments(clinicalAnalysisId, interpretationId, updateInterpretationComments, false);
+                this.opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysisId, interpretationId, {comments: updateInterpretationComments.added}, {
+                    study: this.opencgaSession.study.fqn,
+                }).then(response => {
+                    this.postUpdate(response, interpretationId);
+                }).catch(response => {
+                    this.notifyError(response);
+                });
+            } else {
+                this.updateOrDeleteInterpretationComments(clinicalAnalysisId, interpretationId, updateInterpretationComments, true);
+            }
+        });
+    }
+
+    notifyError(response) {
+        if (typeof response == "string") {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                message: response
+            });
+        } else {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+        }
+        console.error("An error occurred updating clinicalAnalysis: ", response);
+    }
+
+    postUpdate(response) {
+        // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+            message: "Updated successfully",
+        });
+
+        // Reset values after success update
+        this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
+        this.updateCaseParams = {};
+        this.updateInterpretationComments = [];
+        this._config = this.getDefaultConfig();
+
+        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+            // id: this.interpretation.id, // maybe this not would be necessary
+            clinicalAnalysis: this.clinicalAnalysis
+        });
+
+        this.requestUpdate();
+    }
+
+    onUpdateVariant(e) {
+        const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
+        rows.forEach(row => {
+            this.clinicalAnalysisManager.updateSingleVariant(row);
+        });
+        this.saveIntrepretationVariant();
+        this.requestUpdate();
+    }
+
+    saveIntrepretationVariant() {
+        this.clinicalAnalysisManager.updateInterpretationVariants(null, () => {
+            this.requestUpdate();
+            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                clinicalAnalysis: this.clinicalAnalysis,
+            }, null, {bubbles: true, composed: true});
+        });
+        this._config = this.getDefaultConfig();
+    }
+
+    onFieldChange(e, field) {
+        const param = field || e.detail.param;
+        switch (param) {
+            case "report.date":
+            case "status.id":
+            case "report.signedBy":
+                this.updateCaseParams = FormUtils.updateObjectParams(
+                    this._clinicalAnalysis,
+                    this.clinicalAnalysis,
+                    this.updateCaseParams,
+                    param,
+                    e.detail.value);
+                break;
+            case "report.discussion.text":
+                // Josemi (2022-07-29) added very basic implementation for saving discussion data
+                // This should be improved in the future allowing formUtils to handle more than two fields in updateObjectParams
+                this.clinicalAnalysis.report = {
+                    ...this.clinicalAnalysis.report,
+                    discussion: {
+                        text: e.detail.value,
+                        author: this.opencgaSession?.user?.id || "-",
+                        date: UtilsNew.getDatetime(),
+                    },
+                };
+                this.updateCaseParams = {
+                    ...this.updateCaseParams,
+                    report: {
+                        ...this.updateCaseParams?.report,
+                        discussion: this.clinicalAnalysis.report.discussion,
+                    },
+                };
+                break;
+        }
+    }
+
+    onCaseCommentChange(e) {
+        this.updateCaseComments = e.detail;
+    }
+
+    onInterpretationCommentChange(e) {
+        if (this.updateInterpretationComments.length > 0) {
+            const index = this.updateInterpretationComments.findIndex(i => i.id === e.detail?.id);
+            if (index >= 0) {
+                this.updateInterpretationComments[index] = e.detail;
+            } else {
+                this.updateInterpretationComments.push(e.detail);
+            }
+        } else {
+            this.updateInterpretationComments.push(e.detail);
+        }
+    }
+
+    onSubmit(e) {
+        // By Sections
+        switch (e.detail?.value) {
+            case "caseInfo":
+                this.submitCaseComments();
+                break;
+            case "interpretationSummary":
+                this.submitInterpretationsComments();
+                break;
+            case "finalSummary":
+                this.submitCaseFinalSummary();
+                break;
+            default:
+                break;
+        }
+    }
+
+    onDownloadPdf() {
+        // const pdfDocument = new PdfBuilder({}, {
+        //     content: [
+        //         "First paragraph",
+        //         "Another paragraph, this time a little bit longer to make sure, this line will be divided into at least two lines"
+        //     ]
+        // });
+        // pdfDocument.exportToPdf();
+    }
+
+    render() {
+        if (!this.clinicalAnalysis) {
+            return "";
+        }
+
+        return html`
+
+            <!--
+            Fixme 20240220: enable this button through pdf: true/false in config
+            <button class="btn btn-primary" style="margin-bottom:14px"
+                @click="$this.onDownloadPdf}">
+                <i class="fas fa-file-pdf"></i>
+                Export PDF (Beta)
+            </button>
+            -->
+            <data-form
+                .data="${this.clinicalAnalysis}"
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @submit=${e => this.onSubmit(e)}>
+            </data-form>`;
+    }
+
+    getDefaultConfig() {
+        const discussion = this.clinicalAnalysis?.report?.discussion || {};
+        return {
+            type: "pills",
+            display: {
+                pillsLeftColumnClass: "col-md-2",
+                buttonsVisible: false,
+                buttonOkText: "Save",
+                buttonClearText: "",
+            },
+            sections: [
+                {
+                    id: "caseInfo",
+                    title: "Case Info",
+                    display: {
+                        titleStyle: "display:none",
+                        buttonsVisible: true,
+                    },
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: data => {
+                                    const isLocked = interpretation => interpretation.locked? html`<i class="fas fa-lock"></i>`:"";
+                                    return html`
+                                        <div style="font-size:24px;font-weight: bold;margin-bottom: 12px">
+                                            <span>${isLocked(data)} Case Info</span>
+                                        </div>
+                                        <clinical-analysis-review-summary
+                                            .clinicalAnalysis="${data}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </clinical-analysis-review-summary>
+                                    `;
+                                }
+                            }
+                        },
+                        {
+                            text: "Case Panels",
+                            type: "title",
+                            display: {
+                                textStyle: "font-size:24px;font-weight: bold;",
+                            },
+                        },
+                        {
+                            type: "custom",
+                            display: {
+                                render: data => {
+                                    return !data.panels || UtilsNew.isNotEmptyArray(data?.panels) ?
+                                        html`
+                                            <disease-panel-grid
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .diseasePanels="${data?.panels}">
+                                            </disease-panel-grid>
+                                        `:
+                                        "No panel data to display";
+                                }
+                            }
+                        },
+                        {
+                            text: "Case Comments",
+                            type: "title",
+                            display: {
+                                textStyle: "font-size:24px;font-weight: bold;",
+                            },
+                        },
+                        {
+                            type: "custom",
+                            display: {
+                                render: data => html`
+                                    <clinical-analysis-comment-editor
+                                        .id=${data?.id}
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .comments="${data?.comments}"
+                                        .disabled="${!!this.clinicalAnalysis?.locked}"
+                                        @commentChange="${e => this.onCaseCommentChange(e)}">
+                                    </clinical-analysis-comment-editor>
+                                `
+                            }
+                        },
+                    ]
+                },
+                {
+                    id: "interpretationSummary",
+                    title: "Interpretation Info",
+                    display: {
+                        titleStyle: "display:none",
+                        buttonsVisible: true,
+                    },
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: data => html`
+                                    <clinical-interpretation-view
+                                        .clinicalAnalysis="${data}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @updaterow="${e => this.onUpdateVariant(e)}"
+                                        @commentChange="${e => this.onInterpretationCommentChange(e)}">
+                                    </clinical-interpretation-view>
+                                `
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "caseReport",
+                    title: "Case Report",
+                    display: {
+                        titleStyle: "display:none",
+                        buttonsVisible: true,
+                        defaultLayout: "vertical",
+                    },
+                    elements: [
+                        {
+                            text: "Reported Variants",
+                            type: "title",
+                            display: {
+                                textStyle: "font-size:24px;font-weight: bold;",
+                            },
+                        },
+                        {
+                            type: "custom",
+                            display: {
+                                render: data => {
+                                    const variantsReported = (data?.interpretation?.primaryFindings || []).filter(variant => {
+                                        return variant?.status === "REPORTED";
+                                    });
+                                    if (variantsReported.length === 0) {
+                                        return html`
+                                            <div class="alert alert-warning mb-4" role="alert">
+                                                No variants have been reported yet.
+                                            </div>
+                                        `;
+                                    }
+                                    return html`
+                                        <variant-interpreter-grid
+                                            review
+                                            .clinicalAnalysis=${this.clinicalAnalysis}
+                                            .clinicalVariants="${variantsReported}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .config=${{
+                                                showToolbar: false,
+                                                showActions: false,
+                                                showEditReview: false,
+                                            }}>
+                                        </variant-interpreter-grid>
+                                    `;
+                                }
+                            }
+                        },
+                        {
+                            text: "Final Summary",
+                            type: "title",
+                            display: {
+                                textStyle: "font-size:24px;font-weight: bold;",
+                            },
+                        },
+                        {
+                            title: "Case Status",
+                            field: "status.id",
+                            type: "select",
+                            allowedValues: ["READY_FOR_INTERPRETATION", " CLOSED", "READY_FOR_REPORT", "REJECTED"],
+                        },
+                        {
+                            title: "Discussion",
+                            type: "input-text",
+                            field: "report.discussion.text",
+                            defaultValue: "",
+                            display: {
+                                rows: 10,
+                                helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
+
+                            },
+                        },
+                        {
+                            title: "Recommendation",
+                            field: "report.recommendation",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 10,
+                            },
+                        },
+                        {
+                            title: "Methodology",
+                            field: "report.methodology",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 10,
+                            },
+                        },
+                        {
+                            title: "Limitations",
+                            field: "report.limitations",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 10,
+                            },
+                        },
+                        {
+                            title: "Analysed by",
+                            field: "analysts",
+                            type: "list",
+                            display: {
+                                contentLayout: "bullets",
+                                render: analyst => analyst.name,
+                            },
+                        },
+                        {
+                            title: "Signed off by",
+                            type: "input-text",
+                            field: "report.signedBy",
+                            defaultValue: "",
+                        },
+                        {
+                            title: "Date",
+                            type: "input-date",
+                            field: "report.date",
+                            display: {
+                                disabled: false,
+                            },
+                        },
+                    ]
+                },
+            ]
+        };
+    }
+
+}
+
+customElements.define("clinical-report-review", ClinicalReportReview);
+
