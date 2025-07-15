@@ -289,23 +289,6 @@ class VariantInterpreter extends LitElement {
         return null;
     }
 
-    renderToolbarTitle() {
-        return `
-            ${this.clinicalAnalysis?.locked ? `<span class="fa fa-lock pe-1"></span>` : ""}
-            <span>${this.clinicalAnalysis?.id || this.clinicalAnalysisId || "-"}</span>
-        `;
-    }
-
-    renderToolbarSubtitle() {
-        if (this.clinicalAnalysis?.interpretation) {
-            return `
-                ${this.clinicalAnalysis.interpretation.locked ? `<span class="fa fa-lock pe-1"></span>` : ""}
-                <strong>${WebUtils.getDisplayName(this.clinicalAnalysis.interpretation)}</strong>
-            `;
-        }
-        return "";
-    }
-
     renderToolbarCenterContent() {
         const activeTool = this.getActiveToolId();
         const tools = [];
@@ -462,7 +445,7 @@ class VariantInterpreter extends LitElement {
         return html`
             <div class="variant-interpreter-tool">
                 <tool-header
-                    .title="${this.renderToolbarTitle()}"
+                    .title="${this._config?.title}"
                     .centerContent="${this.renderToolbarCenterContent()}"
                     .rightContent="${this.renderToolbarRightContent()}">
                 </tool-header>
@@ -478,6 +461,7 @@ class VariantInterpreter extends LitElement {
 
     getDefaultConfig() {
         return {
+            title: "Case Interpreter",
             tools: [
                 {
                     id: "select",
