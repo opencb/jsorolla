@@ -262,16 +262,11 @@ class VariantInterpreter extends LitElement {
                     `;
                 case "report":
                     return html`
-                        <div class="">
-                            <tool-header
-                                title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
-                            </tool-header>
-                            <clinical-report
-                                .opencgaSession="${this.opencgaSession}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}">
-                            </clinical-report>
-                        </div>
+                        <clinical-report
+                            .opencgaSession="${this.opencgaSession}"
+                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                            @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}">
+                        </clinical-report>
                     `;
                 default:
                     // Check if a render function has been provided
