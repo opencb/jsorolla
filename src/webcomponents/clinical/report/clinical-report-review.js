@@ -1,13 +1,9 @@
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import "../clinical-analysis-review-summary.js";
-import "../../variant/interpretation/variant-interpreter-grid.js";
-import "../../disease-panel/disease-panel-grid.js";
-import "../interpretation/clinical-interpretation-view.js";
 
 export default class ClinicalReportReview extends LitElement {
 
@@ -315,37 +311,19 @@ export default class ClinicalReportReview extends LitElement {
         }
     }
 
-    onDownloadPdf() {
-        // const pdfDocument = new PdfBuilder({}, {
-        //     content: [
-        //         "First paragraph",
-        //         "Another paragraph, this time a little bit longer to make sure, this line will be divided into at least two lines"
-        //     ]
-        // });
-        // pdfDocument.exportToPdf();
-    }
-
     render() {
-        if (!this.clinicalAnalysis) {
-            return "";
+        if (!this.opencgaSession || !this.clinicalAnalysis) {
+            return nothing;
         }
 
         return html`
-
-            <!--
-            Fixme 20240220: enable this button through pdf: true/false in config
-            <button class="btn btn-primary" style="margin-bottom:14px"
-                @click="$this.onDownloadPdf}">
-                <i class="fas fa-file-pdf"></i>
-                Export PDF (Beta)
-            </button>
-            -->
             <data-form
                 .data="${this.clinicalAnalysis}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @submit=${e => this.onSubmit(e)}>
-            </data-form>`;
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
@@ -357,160 +335,68 @@ export default class ClinicalReportReview extends LitElement {
                 buttonsVisible: false,
                 buttonOkText: "Save",
                 buttonClearText: "",
+                defaultLayout: "vertical",
             },
             sections: [
                 {
-                    id: "caseInfo",
-                    title: "Case Info",
-                    display: {
-                        titleStyle: "display:none",
-                        buttonsVisible: true,
-                    },
-                    elements: [
-                        {
-                            type: "custom",
-                            display: {
-                                render: data => {
-                                    const isLocked = interpretation => interpretation.locked? html`<i class="fas fa-lock"></i>`:"";
-                                    return html`
-                                        <div style="font-size:24px;font-weight: bold;margin-bottom: 12px">
-                                            <span>${isLocked(data)} Case Info</span>
-                                        </div>
-                                        <clinical-analysis-review-summary
-                                            .clinicalAnalysis="${data}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </clinical-analysis-review-summary>
-                                    `;
-                                }
-                            }
-                        },
-                        {
-                            text: "Case Panels",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
-                            },
-                        },
-                        {
-                            type: "custom",
-                            display: {
-                                render: data => {
-                                    return !data.panels || UtilsNew.isNotEmptyArray(data?.panels) ?
-                                        html`
-                                            <disease-panel-grid
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .diseasePanels="${data?.panels}">
-                                            </disease-panel-grid>
-                                        `:
-                                        "No panel data to display";
-                                }
-                            }
-                        },
-                        {
-                            text: "Case Comments",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
-                            },
-                        },
-                        {
-                            type: "custom",
-                            display: {
-                                render: data => html`
-                                    <clinical-analysis-comment-editor
-                                        .id=${data?.id}
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .comments="${data?.comments}"
-                                        .disabled="${!!this.clinicalAnalysis?.locked}"
-                                        @commentChange="${e => this.onCaseCommentChange(e)}">
-                                    </clinical-analysis-comment-editor>
-                                `
-                            }
-                        },
-                    ]
-                },
-                {
-                    id: "interpretationSummary",
-                    title: "Interpretation Info",
-                    display: {
-                        titleStyle: "display:none",
-                        buttonsVisible: true,
-                    },
-                    elements: [
-                        {
-                            type: "custom",
-                            display: {
-                                render: data => html`
-                                    <clinical-interpretation-view
-                                        .clinicalAnalysis="${data}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @updaterow="${e => this.onUpdateVariant(e)}"
-                                        @commentChange="${e => this.onInterpretationCommentChange(e)}">
-                                    </clinical-interpretation-view>
-                                `
-                            }
-                        }
-                    ]
-                },
-                {
                     id: "caseReport",
-                    title: "Case Report",
+                    title: "Case Summary",
                     display: {
-                        titleStyle: "display:none",
                         buttonsVisible: true,
                         defaultLayout: "vertical",
                     },
                     elements: [
-                        {
-                            text: "Reported Variants",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
-                            },
-                        },
-                        {
-                            type: "custom",
-                            display: {
-                                render: data => {
-                                    const variantsReported = (data?.interpretation?.primaryFindings || []).filter(variant => {
-                                        return variant?.status === "REPORTED";
-                                    });
-                                    if (variantsReported.length === 0) {
-                                        return html`
-                                            <div class="alert alert-warning mb-4" role="alert">
-                                                No variants have been reported yet.
-                                            </div>
-                                        `;
-                                    }
-                                    return html`
-                                        <variant-interpreter-grid
-                                            review
-                                            .clinicalAnalysis=${this.clinicalAnalysis}
-                                            .clinicalVariants="${variantsReported}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .config=${{
-                                                showToolbar: false,
-                                                showActions: false,
-                                                showEditReview: false,
-                                            }}>
-                                        </variant-interpreter-grid>
-                                    `;
-                                }
-                            }
-                        },
-                        {
-                            text: "Final Summary",
-                            type: "title",
-                            display: {
-                                textStyle: "font-size:24px;font-weight: bold;",
-                            },
-                        },
-                        {
-                            title: "Case Status",
-                            field: "status.id",
-                            type: "select",
-                            allowedValues: ["READY_FOR_INTERPRETATION", " CLOSED", "READY_FOR_REPORT", "REJECTED"],
-                        },
+                    //    {
+                    //        text: "Reported Variants",
+                    //        type: "title",
+                    //        display: {
+                    //            textStyle: "font-size:24px;font-weight: bold;",
+                    //        },
+                    //    },
+                    //    {
+                    //        type: "custom",
+                    //        display: {
+                    //            render: data => {
+                    //                const variantsReported = (data?.interpretation?.primaryFindings || []).filter(variant => {
+                    //                    return variant?.status === "REPORTED";
+                    //                });
+                    //                if (variantsReported.length === 0) {
+                    //                    return html`
+                    //                        <div class="alert alert-warning mb-4" role="alert">
+                    //                            No variants have been reported yet.
+                    //                        </div>
+                    //                    `;
+                    //                }
+                    //                return html`
+                    //                    <variant-interpreter-grid
+                    //                        review
+                    //                        .clinicalAnalysis=${this.clinicalAnalysis}
+                    //                        .clinicalVariants="${variantsReported}"
+                    //                        .opencgaSession="${this.opencgaSession}"
+                    //                        .config=${{
+                    //                            showToolbar: false,
+                    //                            showActions: false,
+                    //                            showEditReview: false,
+                    //                        }}>
+                    //                    </variant-interpreter-grid>
+                    //                `;
+                    //            }
+                    //        }
+                    //    },
+                        // {
+                        //     title: "Case Status",
+                        //     field: "status.id",
+                        //     type: "select",
+                        //     allowedValues: ["READY_FOR_INTERPRETATION", " CLOSED", "READY_FOR_REPORT", "REJECTED"],
+                        // },
+
+                    ],
+                },
+                {
+                    id: "discussion",
+                    title: "Discussion",
+                    display: {},
+                    elements: [
                         {
                             title: "Discussion",
                             type: "input-text",
@@ -519,9 +405,15 @@ export default class ClinicalReportReview extends LitElement {
                             display: {
                                 rows: 10,
                                 helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
-
                             },
                         },
+                    ],
+                },
+                {
+                    id: "recommendation",
+                    title: "Recommendation",
+                    display: {},
+                    elements: [
                         {
                             title: "Recommendation",
                             field: "report.recommendation",
@@ -531,6 +423,13 @@ export default class ClinicalReportReview extends LitElement {
                                 rows: 10,
                             },
                         },
+                    ],
+                },
+                {
+                    id: "methodology",
+                    title: "Methodology",
+                    display: {},
+                    elements: [
                         {
                             title: "Methodology",
                             field: "report.methodology",
@@ -540,6 +439,13 @@ export default class ClinicalReportReview extends LitElement {
                                 rows: 10,
                             },
                         },
+                    ],
+                },
+                {
+                    id: "limitations",
+                    title: "Limitations",
+                    display: {},
+                    elements: [
                         {
                             title: "Limitations",
                             field: "report.limitations",
@@ -549,32 +455,15 @@ export default class ClinicalReportReview extends LitElement {
                                 rows: 10,
                             },
                         },
-                        {
-                            title: "Analysed by",
-                            field: "analysts",
-                            type: "list",
-                            display: {
-                                contentLayout: "bullets",
-                                render: analyst => analyst.name,
-                            },
-                        },
-                        {
-                            title: "Signed off by",
-                            type: "input-text",
-                            field: "report.signedBy",
-                            defaultValue: "",
-                        },
-                        {
-                            title: "Date",
-                            type: "input-date",
-                            field: "report.date",
-                            display: {
-                                disabled: false,
-                            },
-                        },
-                    ]
+                    ],
                 },
-            ]
+                {
+                    id: "signatures",
+                    title: "Signatures",
+                    display: {},
+                    elements: [],
+                },
+            ],
         };
     }
 
