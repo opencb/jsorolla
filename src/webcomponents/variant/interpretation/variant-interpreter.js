@@ -334,7 +334,7 @@ class VariantInterpreter extends LitElement {
 
         return html`
             <div class="d-flex align-items-center">
-                ${false && this.clinicalAnalysis?.interpretation ? html`
+                ${this.clinicalAnalysis?.interpretation ? html`
                     <div class="d-flex flex-column align-items-center" style="margin-right:3rem;">
                         <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
                             ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock pe-1"></span>` : ""}
