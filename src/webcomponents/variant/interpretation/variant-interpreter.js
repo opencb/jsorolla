@@ -489,7 +489,7 @@ class VariantInterpreter extends LitElement {
                 },
                 {
                     id: "variant-browser",
-                    title: "Sample Variant Browser",
+                    title: "Variant Browser",
                     description: "",
                     icon: "fas fa-dna"
                 },
