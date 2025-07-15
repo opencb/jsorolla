@@ -3,6 +3,7 @@ import "../../commons/forms/data-form.js";
 import "../../commons/view/detail-tabs.js";
 import "../clinical-analysis-review.js";
 import "./clinical-report-preview.js";
+import "./clinical-report-review.js";
 
 export default class ClinicalReport extends LitElement {
 
@@ -56,11 +57,11 @@ export default class ClinicalReport extends LitElement {
                     name: "Review",
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <clinical-analysis-review
+                        <clinical-report-review
                             .active="${active}"
                             .clinicalAnalysis="${clinicalAnalysis}"
                             .opencgaSession="${opencgaSession}">
-                        </clinical-analysis-review>
+                        </clinical-report-review>
                     `,
                 },
                 {
