@@ -307,7 +307,7 @@ class VariantInterpreter extends LitElement {
                     tool: item.id,
                 });
                 tools.push(html`
-                    <a href="${url}" class="d-block w-full text-decoration-none" style="max-width:100px;">
+                    <a href="${url}" class="d-block w-full text-decoration-none" style="max-width:120px;">
                         <div class="d-flex flex-column align-items-center gap-1 ${active ? "text-primary": "text-secondary"} cursor-pointer w-full">
                             <div class="d-flex align-items-center justify-content-center ${active ? "bg-primary-subtle" : "bg-gray-100"} rounded-circle" style="width:40px;height:40px;">
                                 <i class="${item.icon} fs-5"></i>
