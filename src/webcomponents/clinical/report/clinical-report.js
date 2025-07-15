@@ -4,6 +4,7 @@ import "../../commons/view/detail-tabs.js";
 import "../clinical-analysis-review.js";
 import "./clinical-report-preview.js";
 import "./clinical-report-review.js";
+import "./clinical-report-overview.js";
 
 export default class ClinicalReport extends LitElement {
 
@@ -53,9 +54,20 @@ export default class ClinicalReport extends LitElement {
             showTitle: false,
             items: [
                 {
-                    id: "review",
-                    name: "Review",
+                    id: "overview",
+                    name: "Overview",
                     active: true,
+                    render: (clinicalAnalysis, active, opencgaSession) => html`
+                        <clinical-report-overview
+                            .active="${active}"
+                            .clinicalAnalysis="${clinicalAnalysis}"
+                            .opencgaSession="${opencgaSession}">
+                        </clinical-report-overview>
+                    `,
+                },
+                {
+                    id: "review",
+                    name: "Review Tool",
                     render: (clinicalAnalysis, active, opencgaSession) => html`
                         <clinical-report-review
                             .active="${active}"
