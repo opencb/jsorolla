@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import "../../commons/forms/data-form.js";
+import "../../commons/empty-state.js";
 
 export default class ClinicalReportPreview extends LitElement {
 
@@ -135,13 +136,14 @@ export default class ClinicalReportPreview extends LitElement {
                 </div>
             ` : nothing}
             ${this._templates && this._templates.length === 0 ? html`
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                        <span>
-                        No templates found in the folder <code>RESOURCES/clinical/report/templates</code> of this study. 
-                        Please, contact your administrator to add templates.
-                    </span>
-                </div>
+                <empty-state
+                    .icon="${"fa-folder-open"}"
+                    .title="${"No Templates Available"}"
+                    .description="${html`
+                        <span>No templates found in the folder <code>RESOURCES/clinical/report/templates</code> of this study. </span>
+                        <span>Please, contact your administrator to add templates.</span>
+                    `}">
+                </empty-state>
             ` : nothing}
             ${this._activeTemplate && active ? html`
                 <data-form
