@@ -317,6 +317,10 @@ export default class ClinicalReportReview extends LitElement {
         }
 
         return html`
+            <div class="">
+                <h3>Reported Variants</h3>
+                <hr />
+            </div>
             <data-form
                 .data="${this.clinicalAnalysis}"
                 .config="${this._config}"
@@ -395,10 +399,10 @@ export default class ClinicalReportReview extends LitElement {
                 {
                     id: "discussion",
                     title: "Discussion",
+                    icon: "fa-edit",
                     display: {},
                     elements: [
                         {
-                            title: "Discussion",
                             type: "input-text",
                             field: "report.discussion.text",
                             defaultValue: "",
@@ -412,10 +416,10 @@ export default class ClinicalReportReview extends LitElement {
                 {
                     id: "recommendation",
                     title: "Recommendation",
+                    icon: "fa-notes-medical",
                     display: {},
                     elements: [
                         {
-                            title: "Recommendation",
                             field: "report.recommendation",
                             type: "input-text",
                             defaultValue: "",
@@ -428,10 +432,10 @@ export default class ClinicalReportReview extends LitElement {
                 {
                     id: "methodology",
                     title: "Methodology",
+                    icon: "fa-tasks",
                     display: {},
                     elements: [
                         {
-                            title: "Methodology",
                             field: "report.methodology",
                             type: "input-text",
                             defaultValue: "",
@@ -444,10 +448,10 @@ export default class ClinicalReportReview extends LitElement {
                 {
                     id: "limitations",
                     title: "Limitations",
+                    icon: "fa-exclamation-triangle",
                     display: {},
                     elements: [
                         {
-                            title: "Limitations",
                             field: "report.limitations",
                             type: "input-text",
                             defaultValue: "",
@@ -460,6 +464,7 @@ export default class ClinicalReportReview extends LitElement {
                 {
                     id: "signatures",
                     title: "Signatures",
+                    icon: "fa-signature",
                     display: {},
                     elements: [],
                 },
