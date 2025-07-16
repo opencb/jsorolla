@@ -127,7 +127,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         return html`
             <div class="mb-1 border-start border-4 border-primary">
                 <div class="my-1 mx-2"><b>${variant.id}</b> <i class="ps-3">${variant.annotation.displayConsequenceType || ""}</i></div>
-                <div class="my-1 mx-2 small">${geneNames.join(", ")}</div>
+                <div class="my-1 mx-2 small text-secondary">${geneNames.join(", ")}</div>
             </div>
         `;
     }
@@ -180,23 +180,27 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         <strong>View</strong>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end shadow" style="width:400px">
-                        ${findings.map(finding => html`
-                            <div class="my-1 mx-0">
-                                <span class="fw-bold">${finding.title}</span>
-                            </div>
-                            ${finding.variants?.length > 0 ? html`
-                                <div class="overflow-y-auto m-1" style="max-height:350px;">
-                                    ${finding.variants.map(variant => this.renderVariant(variant))}
-                                </div>
-                            ` : html`
-                                <div class="d-flex flex-column align-items-center py-4 px-4 bg-gray-100 rounded">
-                                    <div class="mb-2">
-                                        <i class="fas fa-list fs-2"></i>
+                        <div class="d-flex flex-column gap-1">
+                            ${findings.map(finding => html`
+                                <div class="">
+                                    <div class="my-1 mx-0">
+                                        <span class="fw-bold">${finding.title}</span>
                                     </div>
-                                    <div class="fw-bold lh-sm">No ${finding.title.toLowerCase()} saved.</div>
+                                    ${finding.variants?.length > 0 ? html`
+                                        <div class="overflow-y-auto m-1" style="max-height:350px;">
+                                            ${finding.variants.map(variant => this.renderVariant(variant))}
+                                        </div>
+                                    ` : html`
+                                        <div class="d-flex flex-column align-items-center py-4 px-4 bg-gray-100 rounded">
+                                            <div class="mb-2">
+                                                <i class="fas fa-list fs-2"></i>
+                                            </div>
+                                            <div class="fw-bold lh-sm">No ${finding.title.toLowerCase()} saved.</div>
+                                        </div>
+                                    `}
                                 </div>
-                            `}
-                        `)}
+                            `)}
+                        </div>
                         ${(findings[0].variants?.length || findings[1].variants?.length) ? html`
                             <hr class="dropdown-divider">
                             <div class="d-flex justify-content-end">
