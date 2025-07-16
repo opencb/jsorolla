@@ -346,55 +346,41 @@ class VariantInterpreter extends LitElement {
                         <i class="fas fa-toolbox" aria-hidden="true"></i>
                         <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><h6 class="dropdown-header">Interpretation Actions</h6></li>
-                        <li>
-                            <a class="dropdown-item" style="cursor:pointer" @click="${() => this.onInterpreationEdit()}">
-                                <i class="fas fa-edit pe-1"></i> Edit Interpretation
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" style="cursor:pointer;" @click="${() => this.onInterpretationLock()}">
-                                <i class="fas ${this.clinicalAnalysis?.interpretation?.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
-                                ${this.clinicalAnalysis?.interpretation?.locked ? "Unlock" : "Lock"} Interpretation
-                            </a>
-                        </li>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <h6 class="dropdown-header">Interpretation Actions</h6>
+                        <a class="dropdown-item cursor-pointer" @click="${() => this.onInterpreationEdit()}">
+                            <i class="fas fa-edit pe-1"></i> Edit Interpretation
+                        </a>
+                        <a class="dropdown-item cursor-pointer" @click="${() => this.onInterpretationLock()}">
+                            <i class="fas ${this.clinicalAnalysis?.interpretation?.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
+                            ${this.clinicalAnalysis?.interpretation?.locked ? "Unlock" : "Lock"} Interpretation
+                        </a>
                         ${this.clinicalAnalysis?.secondaryInterpretations?.length > 0 ? html`
-                            <li><h6 class="dropdown-header">Set Primary Interpretation</h6></li>
+                            <h6 class="dropdown-header">Set Primary Interpretation</h6>
                             ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
-                                <li>
-                                    <a class="dropdown-item" style="cursor:pointer;" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
-                                        <i class="fas ${item.locked ? "fa-lock" : "fa-unlock"} pe-1"></i>
-                                        ${item.id}
-                                    </a>
-                                </li>
+                                <a class="dropdown-item cursor-pointer" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                    <i class="fas ${item.locked ? "fa-lock" : "fa-unlock"} pe-1"></i>
+                                    ${item.id}
+                                </a>
                             `)}
                         ` : nothing}
-                        <li><hr class="dropdown-divider"></li>
-                        <li><h6 class="dropdown-header">Case Actions</h6></li>
-                        <li>
-                            <a class="dropdown-item" style="cursor:pointer;" @click="${this.onClinicalAnalysisLock}">
-                                <i class="fas ${this.clinicalAnalysis?.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
-                                ${this.clinicalAnalysis?.locked ? "Unlock" : "Lock"} Case
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" style="cursor:pointer" @click="${this.onClinicalAnalysisRefresh}">
-                                <i class="fas fa-sync pe-1"></i> Refresh Case
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" style="cursor:pointer;" @click="${this.onClinicalAnalysisDownload}">
-                                <i class="fas fa-download pe-1"></i> Download Case
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" href="${WebUtils.getLink(this.opencgaSession, "clinical", "clinical-analysis-portal")}" style="cursor:pointer;">
-                                <i class="fas fa-sign-out-alt pe-1"></i> Exit Interpreter
-                            </a>
-                        </li>
-                    </ul>
+                        <hr class="dropdown-divider">
+                        <h6 class="dropdown-header">Case Actions</h6>
+                        <a class="dropdown-item cursor-pointer" @click="${this.onClinicalAnalysisLock}">
+                            <i class="fas ${this.clinicalAnalysis?.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
+                            ${this.clinicalAnalysis?.locked ? "Unlock" : "Lock"} Case
+                        </a>
+                        <a class="dropdown-item cursor-pointer" @click="${this.onClinicalAnalysisRefresh}">
+                            <i class="fas fa-sync pe-1"></i> Refresh Case
+                        </a>
+                        <a class="dropdown-item cursor-pointer" @click="${this.onClinicalAnalysisDownload}">
+                            <i class="fas fa-download pe-1"></i> Download Case
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a class="dropdown-item cursor-pointer" href="${WebUtils.getLink(this.opencgaSession, "clinical", "clinical-analysis-portal")}">
+                            <i class="fas fa-sign-out-alt pe-1"></i> Exit Interpreter
+                        </a>
+                    </div>
                 </div>
             </div>
         `;
