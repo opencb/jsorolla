@@ -130,7 +130,16 @@ class VariantInterpreterBrowserToolbar extends LitElement {
     }
 
     render() {
-        const primaryFindings = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
+        const findings = [
+            {
+                title: "Primary Findings",
+                variants: this.clinicalAnalysis?.interpretation?.primaryFindings || [],
+            },
+            {
+                title: "Secondary Findings",
+                variants: this.clinicalAnalysis?.interpretation?.secondaryFindings || [],
+            },
+        ];
 
         return html`
             <div class="d-flex gap-1">
@@ -168,28 +177,30 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         <strong>View</strong>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end shadow" style="width:400px">
-                        <div class="my-1 mx-0">
-                            <span class="fw-bold">Primary Findings</span>
-                        </div>
-                        ${primaryFindings?.length > 0 ? html`
-                            <div class="overflow-y-auto m-1" style="max-height:350px;">
-                                ${primaryFindings.map(variant => this.renderVariant(variant))}
+                        ${findings.map(finding => html`
+                            <div class="my-1 mx-0">
+                                <span class="fw-bold">${finding.title}</span>
                             </div>
-                            <hr class="dropdown-divider">
-                            <div class="d-flex justify-content-end">
-                                <button class="btn btn-primary" @click="${this.onFilterPrimaryFindingVariants}">
-                                    <i class="fas fa-filter me-1"></i>
-                                    <span>Filter Variants</span>
-                                </button>
-                            </div>
-                        ` : html`
-                            <div class="d-flex flex-column align-items-center py-4 px-4 bg-gray-100 rounded">
-                                <div class="mb-2">
-                                    <i class="fas fa-list fs-2"></i>
+                            ${finding.variants?.length > 0 ? html`
+                                <div class="overflow-y-auto m-1" style="max-height:350px;">
+                                    ${finding.variants.map(variant => this.renderVariant(variant))}
                                 </div>
-                                <div class="fw-bold lh-sm">No primary findings saved.</div>
-                            </div>
-                        `}
+                            ` : html`
+                                <div class="d-flex flex-column align-items-center py-4 px-4 bg-gray-100 rounded">
+                                    <div class="mb-2">
+                                        <i class="fas fa-list fs-2"></i>
+                                    </div>
+                                    <div class="fw-bold lh-sm">No ${finding.title.toLowerCase()} saved.</div>
+                                </div>
+                            `}
+                        `)}
+                        <hr class="dropdown-divider">
+                        <div class="d-flex justify-content-end">
+                            <button class="btn btn-primary" @click="${this.onFilterPrimaryFindingVariants}">
+                                <i class="fas fa-filter me-1"></i>
+                                <span>Filter Variants</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
