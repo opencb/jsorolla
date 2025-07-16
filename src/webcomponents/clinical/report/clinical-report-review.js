@@ -4,6 +4,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import "./clinical-report-variants.js";
 
 export default class ClinicalReportReview extends LitElement {
 
@@ -316,9 +317,21 @@ export default class ClinicalReportReview extends LitElement {
             return nothing;
         }
 
+        // get only variants with status "REPORTED"
+        const reportedVariants = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).filter(variant => {
+            // return variant.status.id === "REPOR^ED";
+            return true;
+        });
+
         return html`
             <div class="">
                 <h3>Reported Variants</h3>
+                <clinical-report-variants
+                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .variants="${reportedVariants}"
+                    .config="${{}}">
+                </clinical-report-variants>
                 <hr />
             </div>
             <data-form
