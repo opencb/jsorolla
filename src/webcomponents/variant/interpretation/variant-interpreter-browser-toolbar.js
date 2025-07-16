@@ -146,7 +146,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
         return html`
             <div class="d-flex gap-1">
-                <div class="dropdown d-flex" id="${this._previx}InclusionVariants">
+                <div class="dropdown d-flex" id="${this._prefix}InclusionVariants">
                     <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <i class="fas fa-tasks pe-1"></i>
                         <strong>Inclusion Variants</strong>
@@ -174,7 +174,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         `}
                     </div>
                 </div>
-                <div class="dropdown d-flex" id="${this._previx}View">
+                <div class="dropdown d-flex" id="${this._prefix}View">
                     <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <i class="fas fa-eye pe-1"></i>
                         <strong>View</strong>
