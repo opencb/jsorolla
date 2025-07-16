@@ -197,13 +197,15 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                 </div>
                             `}
                         `)}
-                        <hr class="dropdown-divider">
-                        <div class="d-flex justify-content-end">
-                            <button class="btn btn-primary" @click="${this.onFilterPrimaryAndSecondaryFindingVariants}">
-                                <i class="fas fa-filter me-1"></i>
-                                <span>Filter Variants</span>
-                            </button>
-                        </div>
+                        ${(findings[0].variants?.length || findings[1].variants?.length) ? html`
+                            <hr class="dropdown-divider">
+                            <div class="d-flex justify-content-end">
+                                <button class="btn btn-primary" @click="${this.onFilterPrimaryAndSecondaryFindingVariants}">
+                                    <i class="fas fa-filter me-1"></i>
+                                    <span>Filter Variants</span>
+                                </button>
+                            </div>
+                        ` : nothing}
                     </div>
                 </div>
             </div>
