@@ -72,14 +72,9 @@ export default class WebUtils {
         return `#${hashItems.filter(Boolean).join("/")}${queryStr}`;
     }
 
-    static getIVALink(opencgaSession, tool, query = {}) {
+    static getIVALink(opencgaSession, app, tool, query = {}) {
         const baseUrl = (new URL(window.location.pathname, window.location.origin));
-        let queryStr = "";
-        // Check if query object has been provided
-        if (query) {
-            queryStr = "?" + (new URLSearchParams(query)).toString();
-        }
-        return `${baseUrl}#${tool}/${opencgaSession.project.id}/${opencgaSession.study.id}${queryStr}`;
+        return baseUrl + WebUtils.getLink(opencgaSession, app, tool, query);
     }
 
     static getInterpreterLink(opencgaSession, query = {}) {
