@@ -331,71 +331,17 @@ export default class ClinicalReportReview extends LitElement {
     }
 
     getDefaultConfig() {
-        const discussion = this.clinicalAnalysis?.report?.discussion || {};
         return {
             type: "pills",
             display: {
-                pillsLeftColumnClass: "col-md-2",
+                pillsLeftColumnClass: "col-md-1",
+                pillsRightColumnClass: "col-md-11",
                 buttonsVisible: false,
                 buttonOkText: "Save",
                 buttonClearText: "",
                 defaultLayout: "vertical",
             },
             sections: [
-                {
-                    id: "caseReport",
-                    title: "Case Summary",
-                    display: {
-                        buttonsVisible: true,
-                        defaultLayout: "vertical",
-                    },
-                    elements: [
-                    //    {
-                    //        text: "Reported Variants",
-                    //        type: "title",
-                    //        display: {
-                    //            textStyle: "font-size:24px;font-weight: bold;",
-                    //        },
-                    //    },
-                    //    {
-                    //        type: "custom",
-                    //        display: {
-                    //            render: data => {
-                    //                const variantsReported = (data?.interpretation?.primaryFindings || []).filter(variant => {
-                    //                    return variant?.status === "REPORTED";
-                    //                });
-                    //                if (variantsReported.length === 0) {
-                    //                    return html`
-                    //                        <div class="alert alert-warning mb-4" role="alert">
-                    //                            No variants have been reported yet.
-                    //                        </div>
-                    //                    `;
-                    //                }
-                    //                return html`
-                    //                    <variant-interpreter-grid
-                    //                        review
-                    //                        .clinicalAnalysis=${this.clinicalAnalysis}
-                    //                        .clinicalVariants="${variantsReported}"
-                    //                        .opencgaSession="${this.opencgaSession}"
-                    //                        .config=${{
-                    //                            showToolbar: false,
-                    //                            showActions: false,
-                    //                            showEditReview: false,
-                    //                        }}>
-                    //                    </variant-interpreter-grid>
-                    //                `;
-                    //            }
-                    //        }
-                    //    },
-                        // {
-                        //     title: "Case Status",
-                        //     field: "status.id",
-                        //     type: "select",
-                        //     allowedValues: ["READY_FOR_INTERPRETATION", " CLOSED", "READY_FOR_REPORT", "REJECTED"],
-                        // },
-
-                    ],
-                },
                 {
                     id: "discussion",
                     title: "Discussion",
@@ -408,7 +354,7 @@ export default class ClinicalReportReview extends LitElement {
                             defaultValue: "",
                             display: {
                                 rows: 10,
-                                helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
+                                // helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
                             },
                         },
                     ],
@@ -475,4 +421,3 @@ export default class ClinicalReportReview extends LitElement {
 }
 
 customElements.define("clinical-report-review", ClinicalReportReview);
-
