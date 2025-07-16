@@ -75,6 +75,10 @@ export default class ImageLoader extends LitElement {
         }
     }
 
+    onRemoveImage(image) {
+        LitUtils.dispatchCustomEvent(this, "imagesChange", this.images.filter(img => img !== image));
+    }
+
     render() {
         console.log(this.images);
         return html`
@@ -111,7 +115,10 @@ export default class ImageLoader extends LitElement {
                     <div class="row g-3">
                         ${this.images.map(image => html`
                             <div class="col-2">
-                                <div class="d-flex align-items-center justify-content-center p-3 bg-white rounded-2 border" style="height:120px;">
+                                <div class="d-flex align-items-center justify-content-center p-3 bg-white rounded-2 border position-relative" style="height:120px;">
+                                    <div class="position-absolute top-0 end-0 mt-1 me-1">
+                                        <button class="btn-close" @click="${() => this.onRemoveImage(image)}"></button>
+                                    </div>
                                     <img src="${image}" style="max-width:100%;max-height:100%;" />
                                 </div>
                             </div>

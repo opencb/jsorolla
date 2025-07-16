@@ -60,27 +60,25 @@ export default class WebUtils {
         return (resource && mapResourcePermissionId[resource] && mode) ? `${mode.toUpperCase()}_${mapResourcePermissionId[resource]}` : "";
     }
 
-    static getIVALink(opencgaSession, tool, query = {}) {
-        const baseUrl = (new URL(window.location.pathname, window.location.origin));
-        let queryStr = "";
-        // Check if query object has been provided
-        if (query) {
-            queryStr = "?" + (new URLSearchParams(query)).toString();
-        }
-        return `${baseUrl}#${tool}/${opencgaSession.project.id}/${opencgaSession.study.id}${queryStr}`;
-    }
-
-    static getInterpreterLink(opencgaSession, query = {}) {
+    static getLink(opencgaSession, app = null, tool = null, query = {}) {
         const hashItems = [
-            // ...window.location.hash.replace("#", "").split("/").slice(0, -3), // '#clinical/portal/project/study' --> ['clinical']
-            "clinical",
-            "interpreter",
+            app,
+            tool,
             opencgaSession?.project?.id || "",
             opencgaSession?.study?.id || "",
         ];
         const queryStr = Object.keys(query || {}).length > 0 ? "?" + (new URLSearchParams(query)).toString() : "";
 
         return `#${hashItems.filter(Boolean).join("/")}${queryStr}`;
+    }
+
+    static getIVALink(opencgaSession, app, tool, query = {}) {
+        const baseUrl = (new URL(window.location.pathname, window.location.origin));
+        return baseUrl + WebUtils.getLink(opencgaSession, app, tool, query);
+    }
+
+    static getInterpreterLink(opencgaSession, query = {}) {
+        return WebUtils.getLink(opencgaSession, "clinical", "interpreter", query);
     }
 
     static getClinicalAnalysisPriorityColour(rank) {

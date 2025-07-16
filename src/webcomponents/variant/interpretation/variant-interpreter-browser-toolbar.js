@@ -72,9 +72,12 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         this.querySelector(`div#${this._prefix}InclusionVariants div.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
-    onFilterPrimaryFindingVariants() {
+    onFilterPrimaryAndSecondaryFindingVariants() {
         LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
-            variants: this.clinicalAnalysis.interpretation.primaryFindings,
+            variants: [
+                ...(this.clinicalAnalysis.interpretation.primaryFindings || []),
+                ...(this.clinicalAnalysis.interpretation.secondaryFindings || []),
+            ],
         });
         // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
         // when user clicks the 'Filter' button in the View menu (primary findings).
@@ -118,23 +121,34 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         `;
     }
 
-    renderVariant(variant) {
+    renderVariant(variant, isPrimary = true) {
         const geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
 
         return html`
-            <div class="mb-1 border-start border-4 border-primary">
+            <div class="mb-1 border-start border-4 ${isPrimary ? "border-primary" : "border-secondary"}">
                 <div class="my-1 mx-2"><b>${variant.id}</b> <i class="ps-3">${variant.annotation.displayConsequenceType || ""}</i></div>
-                <div class="my-1 mx-2 small">${geneNames.join(", ")}</div>
+                <div class="my-1 mx-2 small text-secondary">${geneNames.join(", ")}</div>
             </div>
         `;
     }
 
     render() {
-        const primaryFindings = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
+        const findings = [
+            {
+                title: "Primary Findings",
+                isPrimary: true,
+                variants: this.clinicalAnalysis?.interpretation?.primaryFindings || [],
+            },
+            {
+                title: "Secondary Findings",
+                isPrimary: false,
+                variants: this.clinicalAnalysis?.interpretation?.secondaryFindings || [],
+            },
+        ];
 
         return html`
             <div class="d-flex gap-1">
-                <div class="dropdown d-flex" id="${this._previx}InclusionVariants">
+                <div class="dropdown d-flex" id="${this._prefix}InclusionVariants">
                     <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <i class="fas fa-tasks pe-1"></i>
                         <strong>Inclusion Variants</strong>
@@ -162,34 +176,42 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         `}
                     </div>
                 </div>
-                <div class="dropdown d-flex" id="${this._previx}View">
+                <div class="dropdown d-flex" id="${this._prefix}View">
                     <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <i class="fas fa-eye pe-1"></i>
                         <strong>View</strong>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end shadow" style="width:400px">
-                        <div class="my-1 mx-0">
-                            <span class="fw-bold">Primary Findings</span>
+                        <div class="d-flex flex-column gap-1">
+                            ${findings.map(finding => html`
+                                <div class="">
+                                    <div class="my-1 mx-0">
+                                        <span class="fw-bold">${finding.title}</span>
+                                    </div>
+                                    ${finding.variants?.length > 0 ? html`
+                                        <div class="overflow-y-auto m-1" style="max-height:350px;">
+                                            ${finding.variants.map(variant => this.renderVariant(variant, finding.isPrimary))}
+                                        </div>
+                                    ` : html`
+                                        <div class="d-flex flex-column align-items-center py-4 px-4 bg-gray-100 rounded">
+                                            <div class="mb-2">
+                                                <i class="fas fa-list fs-2"></i>
+                                            </div>
+                                            <div class="fw-bold lh-sm">No ${finding.title.toLowerCase()} saved.</div>
+                                        </div>
+                                    `}
+                                </div>
+                            `)}
                         </div>
-                        ${primaryFindings?.length > 0 ? html`
-                            <div class="overflow-y-auto m-1" style="max-height:350px;">
-                                ${primaryFindings.map(variant => this.renderVariant(variant))}
-                            </div>
+                        ${(findings[0].variants?.length || findings[1].variants?.length) ? html`
                             <hr class="dropdown-divider">
                             <div class="d-flex justify-content-end">
-                                <button class="btn btn-primary" @click="${this.onFilterPrimaryFindingVariants}">
+                                <button class="btn btn-primary" @click="${this.onFilterPrimaryAndSecondaryFindingVariants}">
                                     <i class="fas fa-filter me-1"></i>
                                     <span>Filter Variants</span>
                                 </button>
                             </div>
-                        ` : html`
-                            <div class="d-flex flex-column align-items-center py-4 px-4 bg-gray-100 rounded">
-                                <div class="mb-2">
-                                    <i class="fas fa-list fs-2"></i>
-                                </div>
-                                <div class="fw-bold lh-sm">No primary findings saved.</div>
-                            </div>
-                        `}
+                        ` : nothing}
                     </div>
                 </div>
             </div>

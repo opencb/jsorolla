@@ -32,8 +32,8 @@ import "./variant-interpreter-methods.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
-import "../../clinical/clinical-analysis-review.js";
 import "../../clinical/interpretation/clinical-interpretation-update.js";
+import "../../clinical/report/clinical-report.js";
 
 class VariantInterpreter extends LitElement {
 
@@ -262,16 +262,11 @@ class VariantInterpreter extends LitElement {
                     `;
                 case "report":
                     return html`
-                        <div class="">
-                            <tool-header
-                                title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
-                            </tool-header>
-                            <clinical-analysis-review
-                                @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .opencgaSession="${this.opencgaSession}">
-                            </clinical-analysis-review>
-                        </div>
+                        <clinical-report
+                            .opencgaSession="${this.opencgaSession}"
+                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                            @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}">
+                        </clinical-report>
                     `;
                 default:
                     // Check if a render function has been provided
@@ -287,23 +282,6 @@ class VariantInterpreter extends LitElement {
         }
         // This tool is not visible
         return null;
-    }
-
-    renderToolbarTitle() {
-        return `
-            ${this.clinicalAnalysis?.locked ? `<span class="fa fa-lock pe-1"></span>` : ""}
-            <span>${this.clinicalAnalysis?.id || this.clinicalAnalysisId || "-"}</span>
-        `;
-    }
-
-    renderToolbarSubtitle() {
-        if (this.clinicalAnalysis?.interpretation) {
-            return `
-                ${this.clinicalAnalysis.interpretation.locked ? `<span class="fa fa-lock pe-1"></span>` : ""}
-                <strong>${WebUtils.getDisplayName(this.clinicalAnalysis.interpretation)}</strong>
-            `;
-        }
-        return "";
     }
 
     renderToolbarCenterContent() {
@@ -324,7 +302,7 @@ class VariantInterpreter extends LitElement {
                     tool: item.id,
                 });
                 tools.push(html`
-                    <a href="${url}" class="d-block w-full text-decoration-none" style="max-width:100px;">
+                    <a href="${url}" class="d-block w-full text-decoration-none" style="max-width:120px;">
                         <div class="d-flex flex-column align-items-center gap-1 ${active ? "text-primary": "text-secondary"} cursor-pointer w-full">
                             <div class="d-flex align-items-center justify-content-center ${active ? "bg-primary-subtle" : "bg-gray-100"} rounded-circle" style="width:40px;height:40px;">
                                 <i class="${item.icon} fs-5"></i>
@@ -345,13 +323,9 @@ class VariantInterpreter extends LitElement {
     }
 
     renderToolbarRightContent() {
-        // Note: we have to maintain the URL structure, so if we are inside an app we have to maintain the app
-        const hashItems = window.location.hash.replace("#", "").split("/");
-        const exitUrl = "#" + [...hashItems.slice(0, -3), "clinical-analysis-portal", this.opencgaSession.project.id, this.opencgaSession.study.id].join("/");
-
         return html`
             <div class="d-flex align-items-center">
-                ${false && this.clinicalAnalysis?.interpretation ? html`
+                ${this.clinicalAnalysis?.interpretation ? html`
                     <div class="d-flex flex-column align-items-center" style="margin-right:3rem;">
                         <div style="font-size:1.5rem" title="${this.clinicalAnalysis.interpretation.description}">
                             ${this.clinicalAnalysis.interpretation.locked ? html`<span class="fa fa-lock pe-1"></span>` : ""}
@@ -372,55 +346,41 @@ class VariantInterpreter extends LitElement {
                         <i class="fas fa-toolbox" aria-hidden="true"></i>
                         <span style="margin-left:4px;margin-right:4px;font-weight:bold;">Actions</span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><h6 class="dropdown-header">Interpretation Actions</h6></li>
-                        <li>
-                            <a class="dropdown-item" style="cursor:pointer" @click="${() => this.onInterpreationEdit()}">
-                                <i class="fas fa-edit pe-1"></i> Edit Interpretation
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" style="cursor:pointer;" @click="${() => this.onInterpretationLock()}">
-                                <i class="fas ${this.clinicalAnalysis?.interpretation?.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
-                                ${this.clinicalAnalysis?.interpretation?.locked ? "Unlock" : "Lock"} Interpretation
-                            </a>
-                        </li>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <h6 class="dropdown-header">Interpretation Actions</h6>
+                        <a class="dropdown-item cursor-pointer" @click="${() => this.onInterpreationEdit()}">
+                            <i class="fas fa-edit pe-1"></i> Edit Interpretation
+                        </a>
+                        <a class="dropdown-item cursor-pointer" @click="${() => this.onInterpretationLock()}">
+                            <i class="fas ${this.clinicalAnalysis?.interpretation?.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
+                            ${this.clinicalAnalysis?.interpretation?.locked ? "Unlock" : "Lock"} Interpretation
+                        </a>
                         ${this.clinicalAnalysis?.secondaryInterpretations?.length > 0 ? html`
-                            <li><h6 class="dropdown-header">Set Primary Interpretation</h6></li>
+                            <h6 class="dropdown-header">Set Primary Interpretation</h6>
                             ${this.clinicalAnalysis.secondaryInterpretations.map(item => html`
-                                <li>
-                                    <a class="dropdown-item" style="cursor:pointer;" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
-                                        <i class="fas ${item.locked ? "fa-lock" : "fa-unlock"} pe-1"></i>
-                                        ${item.id}
-                                    </a>
-                                </li>
+                                <a class="dropdown-item cursor-pointer" data-id="${item.id}" @click="${this.onChangePrimaryInterpretation}">
+                                    <i class="fas ${item.locked ? "fa-lock" : "fa-unlock"} pe-1"></i>
+                                    ${item.id}
+                                </a>
                             `)}
                         ` : nothing}
-                        <li><hr class="dropdown-divider"></li>
-                        <li><h6 class="dropdown-header">Case Actions</h6></li>
-                        <li>
-                            <a class="dropdown-item" style="cursor:pointer;" @click="${this.onClinicalAnalysisLock}">
-                                <i class="fas ${this.clinicalAnalysis?.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
-                                ${this.clinicalAnalysis?.locked ? "Unlock" : "Lock"} Case
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" style="cursor:pointer" @click="${this.onClinicalAnalysisRefresh}">
-                                <i class="fas fa-sync pe-1"></i> Refresh Case
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" style="cursor:pointer;" @click="${this.onClinicalAnalysisDownload}">
-                                <i class="fas fa-download pe-1"></i> Download Case
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" href="${exitUrl}">
-                                <i class="fas fa-sign-out-alt pe-1"></i> Exit Interpreter
-                            </a>
-                        </li>
-                    </ul>
+                        <hr class="dropdown-divider">
+                        <h6 class="dropdown-header">Case Actions</h6>
+                        <a class="dropdown-item cursor-pointer" @click="${this.onClinicalAnalysisLock}">
+                            <i class="fas ${this.clinicalAnalysis?.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
+                            ${this.clinicalAnalysis?.locked ? "Unlock" : "Lock"} Case
+                        </a>
+                        <a class="dropdown-item cursor-pointer" @click="${this.onClinicalAnalysisRefresh}">
+                            <i class="fas fa-sync pe-1"></i> Refresh Case
+                        </a>
+                        <a class="dropdown-item cursor-pointer" @click="${this.onClinicalAnalysisDownload}">
+                            <i class="fas fa-download pe-1"></i> Download Case
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a class="dropdown-item cursor-pointer" href="${WebUtils.getLink(this.opencgaSession, "clinical", "clinical-analysis-portal")}">
+                            <i class="fas fa-sign-out-alt pe-1"></i> Exit Interpreter
+                        </a>
+                    </div>
                 </div>
             </div>
         `;
@@ -462,7 +422,7 @@ class VariantInterpreter extends LitElement {
         return html`
             <div class="variant-interpreter-tool">
                 <tool-header
-                    .title="${this.renderToolbarTitle()}"
+                    .title="${this._config?.title}"
                     .centerContent="${this.renderToolbarCenterContent()}"
                     .rightContent="${this.renderToolbarRightContent()}">
                 </tool-header>
@@ -478,6 +438,7 @@ class VariantInterpreter extends LitElement {
 
     getDefaultConfig() {
         return {
+            title: "Case Interpreter",
             tools: [
                 {
                     id: "select",
@@ -505,7 +466,7 @@ class VariantInterpreter extends LitElement {
                 },
                 {
                     id: "variant-browser",
-                    title: "Sample Variant Browser",
+                    title: "Variant Browser",
                     description: "",
                     icon: "fas fa-dna"
                 },
