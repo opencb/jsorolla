@@ -332,7 +332,6 @@ export default class ClinicalReportReview extends LitElement {
                     .variants="${reportedVariants}"
                     .config="${{}}">
                 </clinical-report-variants>
-                <hr />
             </div>
             <data-form
                 .data="${this.clinicalAnalysis}"
