@@ -72,9 +72,12 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         this.querySelector(`div#${this._prefix}InclusionVariants div.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
-    onFilterPrimaryFindingVariants() {
+    onFilterPrimaryAndSecondaryFindingVariants() {
         LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
-            variants: this.clinicalAnalysis.interpretation.primaryFindings,
+            variants: [
+                ...(this.clinicalAnalysis.interpretation.primaryFindings || []),
+                ...(this.clinicalAnalysis.interpretation.secondaryFindings || []),
+            ],
         });
         // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
         // when user clicks the 'Filter' button in the View menu (primary findings).
@@ -196,7 +199,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         `)}
                         <hr class="dropdown-divider">
                         <div class="d-flex justify-content-end">
-                            <button class="btn btn-primary" @click="${this.onFilterPrimaryFindingVariants}">
+                            <button class="btn btn-primary" @click="${this.onFilterPrimaryAndSecondaryFindingVariants}">
                                 <i class="fas fa-filter me-1"></i>
                                 <span>Filter Variants</span>
                             </button>
