@@ -155,11 +155,15 @@ card .card-header .card-title {
     border-spacing: 0 0.5rem;
     // overwrite the default styles of thead cells
     & thead {
-        & .th-inner {
+        & th {
             color: $gray-600;
             font-size: $font-size-sm;
             font-weight: $font-weight-medium;
             padding: 0 0.75rem!important;
+            vertical-align: bottom;;
+        }
+        & .th-inner {
+            padding: 0!important;
         }
         & tr:first-child th[rowspan="1"]::after {
             content: "";
