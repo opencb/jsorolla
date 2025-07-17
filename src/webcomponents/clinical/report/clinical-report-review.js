@@ -324,8 +324,8 @@ export default class ClinicalReportReview extends LitElement {
         });
 
         return html`
-            <div class="">
-                <h3>Reported Variants</h3>
+            <div class="mb-4">
+                <h3 class="fw-bold">Reported Variants</h3>
                 <clinical-report-variants
                     .clinicalAnalysis="${this.clinicalAnalysis}"
                     .opencgaSession="${this.opencgaSession}"
