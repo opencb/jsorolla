@@ -58,7 +58,9 @@ export default class ClinicalReportVariants extends LitElement {
         });
     }
 
-    onViewVariant(variantId) {
+    onViewVariant(event, variantId) {
+        event.preventDefault();
+        event.stopPropagation();
         this._selectedVariant = this.variants.find(variant => variant.id === variantId);
         if (this._selectedVariant) {
             this._gridCommons.changeActiveModal("view-variant");
@@ -71,10 +73,15 @@ export default class ClinicalReportVariants extends LitElement {
         }
 
         return html`
-            <data-form
-                .data="${this.variants}"
-                .config="${this._config}">
-            </data-form>
+            <div class="row">
+                <div class="col-6">
+                    <data-form
+                        .data="${this.variants}"
+                        .config="${this._config}">
+                    </data-form>
+                </div>
+                <div class="col-6"></div>
+            </div>
 
             ${this._gridCommons.renderModals()}
         `;
@@ -98,6 +105,7 @@ export default class ClinicalReportVariants extends LitElement {
                             type: "table",
                             display: {
                                 className: "table-borderless table-hover table-grid",
+                                bodyRowClassName: "cursor-pointer",
                                 defaultValue: "-",
                                 getData: variants => variants,
                                 columns: [
@@ -107,8 +115,8 @@ export default class ClinicalReportVariants extends LitElement {
                                         type: "custom",
                                         display: {
                                             render: id => html`
-                                                <a class="link fw-bold" @click="${() => this.onViewVariant(id)}">
-                                                    ${id}
+                                                <a class="link fw-bold" @click="${event => this.onViewVariant(event, id)}">
+                                                    <span>${id}</span>
                                                 </>
                                             `,
                                         },
