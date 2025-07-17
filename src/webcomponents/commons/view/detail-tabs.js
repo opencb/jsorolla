@@ -192,7 +192,7 @@ export default class DetailTabs extends LitElement {
 
         return html`
             ${this._config.title ? this.renderTitle() : null}
-            <div class="detail-tabs row">
+            <div class="detail-tabs">
                 ${!(this._config.hideTabsIfOnlyOneVisible && visibleTabsCount === 1) ? html`
                     <!-- TABS -->
                     ${this.mode === DetailTabs.TABS_MODE ? html`
