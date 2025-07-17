@@ -140,7 +140,7 @@ export default class ClinicalReportPreview extends LitElement {
                     .icon="${"fa-folder-open"}"
                     .title="${"No Templates Available"}"
                     .description="${html`
-                        <span>No templates found in the folder <code>RESOURCES/clinical/report/templates</code> of this study. </span>
+                        <span>No templates found in the folder <span class="fw-bold font-monospace small">RESOURCES/clinical/report/templates</span> of this study. </span>
                         <span>Please, contact your administrator to add templates.</span>
                     `}">
                 </empty-state>
