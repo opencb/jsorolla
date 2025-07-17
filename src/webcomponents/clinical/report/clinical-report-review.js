@@ -31,6 +31,9 @@ export default class ClinicalReportReview extends LitElement {
             cellbaseClient: {
                 type: Object
             },
+            active: {
+                type: Boolean,
+            },
             config: {
                 type: Object
             }
@@ -327,6 +330,7 @@ export default class ClinicalReportReview extends LitElement {
             <div class="mb-4">
                 <h3 class="fw-bold">Reported Variants</h3>
                 <clinical-report-variants
+                    .active="${this.active}"
                     .clinicalAnalysis="${this.clinicalAnalysis}"
                     .opencgaSession="${this.opencgaSession}"
                     .variants="${reportedVariants}"
