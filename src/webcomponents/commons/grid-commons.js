@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import WebUtils from "./utils/web-utils.js";
@@ -379,7 +380,7 @@ export default class GridCommons {
                 return ModalUtils.create(this.context, `GridModal${this.activeModal}`, modalConfig);
             }
         }
-        return null;
+        return nothing;
     }
 
     // checks if the current has the provided permission on the specified resource
