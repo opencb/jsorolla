@@ -1335,7 +1335,7 @@ export default class DataForm extends LitElement {
                     ${supraColumns.length > 0 ? html`
                         <tr>
                             ${supraColumns.map(elem => html`
-                                <th class="${headerCellClassName}" scope="col" rowspan="${subColumns.length && !elem.display?.columns?.length ? "2" : "1"}" colspan="${elem.display?.columns?.length || "1"}">${elem.title || elem.name}</th>
+                                <th class="${headerCellClassName}" scope="col" rowspan="${subColumns.length ? (!elem.display?.columns?.length ? "2" : "1") : ""}" colspan="${elem.display?.columns?.length || "1"}">${elem.title || elem.name}</th>
                             `)}
                         </tr>
                     ` : nothing}
