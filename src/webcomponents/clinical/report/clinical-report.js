@@ -53,7 +53,7 @@ export default class ClinicalReport extends LitElement {
         return {
             showTitle: false,
             display: {
-                classes: "justify-content-center",
+                classes: "justify-content-center mb-3",
             },
             items: [
                 {
