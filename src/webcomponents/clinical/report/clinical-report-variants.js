@@ -63,6 +63,8 @@ export default class ClinicalReportVariants extends LitElement {
                         {
                             type: "table",
                             display: {
+                                className: "table-borderless table-hover table-grid",
+                                defaultValue: "-",
                                 getData: variants => variants,
                                 columns: [
                                     {
@@ -72,6 +74,30 @@ export default class ClinicalReportVariants extends LitElement {
                                     {
                                         title: "Type",
                                         field: "type",
+                                    },
+                                    {
+                                        title: "Variant Review",
+                                        display: {
+                                            headerClassName: "text-center",
+                                            columns: [
+                                                {
+                                                    title: "Status",
+                                                    field: "status",
+                                                    display: {
+                                                        headerClassName: "text-center",
+                                                        bodyClassName: "text-center",
+                                                    },
+                                                },
+                                                {
+                                                    title: "Confidence",
+                                                    field: "confidence.value",
+                                                    display: {
+                                                        headerClassName: "text-center",
+                                                        bodyClassName: "text-center",
+                                                    },
+                                                },
+                                            ],
+                                        },
                                     },
                                 ],
                             },
