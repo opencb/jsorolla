@@ -42,6 +42,7 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
         this._variant = {};
         this._chartId = "chart-clinical-significance-trait-association";
         this._chart = {};
+        this._data = [];
 
         this._clinicalSignificanceGroups = [
             "benign",
@@ -49,7 +50,6 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
             "uncertain significance",
             "likely pathogenic",
             "pathogenic",
-            "other"
         ];
 
         this._starsGermline = [
@@ -64,78 +64,6 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
             { status: "no classification for the individual variant", stars: 0 }
         ];
 
-        // According to this: https://www.ncbi.nlm.nih.gov/clinvar/docs/review_status/#revstat_web:
-        // Review status on submitted records (SCV)
-        this.starsSCV = [
-            {
-                stars: 4,
-                status: "practice guideline",
-                description: "There is a submitted record with a classification from a practice guideline"
-            },
-            {
-                stars: 3,
-                status: "reviewed by expert panel",
-                description: "There is a submitted record with a classification from an expert panel"
-            },
-            {
-                stars: 1,
-                status: "criteria provided, single submitter",
-                description: "There is a single submitted record with a classification, where assertion criteria and evidence for the classification (or a public contact) were provided."
-            },
-            {
-                stars: 0,
-                status: "no assertion criteria provided",
-                description: "There are one or more submitted records with a classification but without assertion criteria and evidence for the classification (or a public contact)."
-            },
-            {
-                stars: 0,
-                status: "no classification provided",
-                description: "There are one or more submitted records without a classification."
-            }
-        ];
-        // Review status on aggregate records (VCV and RCV)
-        // 1. Germline: the ones in stars mapping. 2. Somatic
-        this.starsSomatic = [
-            {
-                stars: 4,
-                status: "practice guideline",
-                description: "There is a submitted record with a classification from a practice guideline",
-                link: "https://www.ncbi.nlm.nih.gov/clinvar/docs/review_guidelines/"
-            },
-            {
-                stars: 3,
-                status: "reviewed by expert panel",
-                description: "There is a submitted record with a classification from an expert panel",
-                link: "https://www.ncbi.nlm.nih.gov/clinvar/docs/review_guidelines/"
-            },
-            {
-                stars: 2,
-                status: "criteria provided, multiple submitters",
-                description: "There are multiple submitted records with a somatic classification of clinical impact. Assertion criteria and evidence for the classification (or a public contact) were provided."
-            },
-            {
-                stars: 1,
-                status: "criteria provided, single submitter",
-                description: "There is a single submitted record with a classification, where assertion criteria and evidence for the classification (or a public contact) were provided."
-            },
-            {
-                stars: 0,
-                status: "no assertion criteria provided",
-                description: "There are one or more submitted records with a classification but without assertion criteria and evidence for the classification (or a public contact)."
-            },
-            {
-                stars: 0,
-                status: "no classification provided",
-                description: "There are one or more submitted records without a classification."
-            },
-            {
-                stars: 0,
-                status: "no classification for the individual variant",
-                description: "The variant was not classified directly in any submitted record; it was submitted to ClinVar only as part of a haplotype or a genotype."
-            }
-        ];
-
-
         this._config = this.getDefaultConfig();
     }
 
@@ -148,96 +76,121 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
         super.update(changedProperties);
     }
 
+    updated() {
+        this.querySelector("data-form").updateComplete.then(() => {
+            this.#plotClinvarTraitAssociations(this._data);
+        });
+    }
+
     variantObserver() {
+        this._data = [];
         if (this.variant) {
             this._variant = {...this.variant};
         }
     }
 
-    #normalizeSignificance(sig) {
-        const map = {
-            benign: "benign",
-            likely_benign: "likely benign",
-            uncertain_significance: "uncertain significance",
-            likely_pathogenic: "likely pathogenic",
-            pathogenic: "pathogenic"
-        };
-        return map[sig] || "other";
+    // Helper: convert hex + alpha to rgba
+    #hexToRGBA(hex, alpha) {
+        const bigint = parseInt(hex.replace("#", ""), 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
 
-    #getClinvarTraitAssociations(traitAssociations) {
-        // 1. Define starLevels and categories
-        const starLevels = [4, 3, 2, 1, 0];
-        const categories = starLevels.map(star => "★".repeat(star) + "☆".repeat(5 - star));
+    #plotClinvarTraitAssociations(traitAssociations) {
+        const statusToStars = Object.fromEntries(this._starsGermline.map(entry => [entry.status, entry.stars]));
 
-        const countsByStars = {};
-        for (const star of starLevels) {
-            countsByStars[star] = {};
-            for (const sig of this._clinicalSignificanceGroups) {
-                countsByStars[star][sig] = 0;
+        const clinicalSignificanceGroups = CLINICAL_SIGNIFICANCE.map(g => g.id);
+        const starLevels = [0, 1, 2, 3, 4];
+
+
+        // Prepare counts: cs → stars → count
+        const countsByCSAndStar = {};
+        clinicalSignificanceGroups.forEach(cs => {
+            countsByCSAndStar[cs] = {};
+            starLevels.forEach(star => {
+                countsByCSAndStar[cs][star] = 0;
+            });
+        });
+
+        for (const trait of traitAssociations) {
+            const cs = trait.variantClassification?.clinicalSignificance; // Clinical significance
+            const review = trait.additionalProperties?.find(p => p.name === "ReviewStatus_in_source_file"); // Stars
+            const status = review?.value || "no classification provided";
+            const stars = statusToStars[status]; // Get the number of stars
+
+            if (stars !== undefined && countsByCSAndStar[cs]) {
+                countsByCSAndStar[cs][stars]++;
             }
         }
 
-        const statusToStars = Object.fromEntries(
-            this._starsGermline.map(entry => [entry.status, entry.stars])
-        );
-
-        for (const trait of traitAssociations) {
-            const sigRaw = trait.variantClassification?.clinicalSignificance || "other";
-            const sig = this.#normalizeSignificance(sigRaw);
-
-            const reviewProp = trait.additionalProperties?.find(p => p.name === "ReviewStatus_in_source_file");
-            const status = reviewProp?.value || "no classification provided";
-            const stars = statusToStars[status];
-
-            if (stars === undefined) continue;
-            countsByStars[stars][sig]++;
-        }
-
-        const series = this._clinicalSignificanceGroups.map(sig => ({
-            name: sig.charAt(0).toUpperCase() + sig.slice(1),
-            data: starLevels.map(star => countsByStars[star][sig])
+        const series = starLevels.map(star => ({
+            name: "★".repeat(star) + "☆".repeat(4 - star),
+            data: [],
+            stack: "stars",
+            showInLegend: true,
+            color: "#FFFFFF" // neutral legend color
         }));
+
+        clinicalSignificanceGroups.forEach((cs, i) => {
+            starLevels.forEach((star, starIndex) => {
+                const count = countsByCSAndStar[cs][star];
+                const baseColor = CLINICAL_SIGNIFICANCE.find(g => g.id === cs)?.color || "#cccccc";
+                const alpha = 0.2 + 0.2 * star;
+                const rgba = this.#hexToRGBA(baseColor, alpha);
+                series[starIndex].data.push({ y: count, color: rgba });
+            });
+        });
+
+
 
         Highcharts.chart(`${this._chartId}`, {
             chart: {
-                type: 'bar'
+                type: 'column'
             },
             title: {
                 text: null,
             },
             xAxis: {
-                categories: categories,
-                title: {
-                    text: 'Germline Review Stars'
-                }
+                categories: CLINICAL_SIGNIFICANCE.map(g => g.name),
+                labels: {
+                    style: { fontWeight: 'bold' },
+                    formatter: function () {
+                        const group = CLINICAL_SIGNIFICANCE[this.pos];
+                        return `<span style="color:${group.color}">${group.acronym}</span>`;
+                    },
+                    useHTML: true
+                },
+                title: { text: 'Clinical Significance' }
             },
             yAxis: {
                 min: 0,
                 allowDecimals: false,
-                title: {
-                    text: 'Number of Traits',
-                    align: 'high'
-                },
-                labels: {
-                    formatter: function () {
-                        return Math.floor(this.value);
-                    }
-                }
+                title: { text: 'Number of Traits' }
             },
             legend: {
-                reversed: true
+                reversed: false,
+                labelFormatter: function () {
+                    return `<span style="color:darkgoldenrod">${this.name}</span>`;
+                },
+                useHTML: true,
+            },
+            tooltip: {
+                shared: true,
+                formatter: function () {
+                    const header = `<b>${this.x}</b><br/>`;
+                    const lines = this.points.map(p =>
+                        `<span style="color:${p.color}">●</span>  ${p.series.name}:  <b>${p.y}</b>`
+                    );
+                    return header + lines.join("<br/>");
+                }
             },
             plotOptions: {
-                series: {
-                    stacking: 'normal'
-                }
+                column: { stacking: 'normal' }
             },
             series: series
         });
-
-
-
     }
 
     render() {
@@ -248,8 +201,8 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
         return html`
             <div class="card p-3">
                 <div class="card-header border-0">
-                    <h5 class="mb-2 fs-5 fw-bold d-flex">Clinvar Review by Clinical Significance</h5>
-                    <p class="text-secondary">ClinVar variant traits by germline review stars and clinical significance</p>
+                    <h5 class="mb-2 fs-5 fw-bold d-flex">Traits by Clinical Significance, Stacked by Clinvar Stars</h5>
+                    <p class="text-secondary">ClinVar variant traits by clinical significance and germline review stars</p>
 
                 </div>
                 <div class="card-body pt-0 pb-0">
@@ -257,7 +210,6 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
                         .data="${this._variant}"
                         .config="${this._config}">
                     </data-form>
-                    <div class="d-flex flex-wrap justify-content-between gap-3 p-3" id="${this._chartId}"></div>
                 </div>
                 <div class="card-footer text-muted">
                     <i class="far fa-clock me-2"></i>
@@ -285,18 +237,14 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
                             field: "annotation.traitAssociation",
                             display: {
                                 render: traitAssociation => {
-                                    // Init chart
-                                    this._chart = document.getElementById(`${this._chartId}`);
-                                    this._chart.innerHTML = "";
-                                    // Check if trait association exists
-                                    // Filter evidences from ClinVar source only
-                                    const clinvarTraitAssociations = traitAssociation.filter(e => e.source?.name?.toLowerCase() === 'clinvar');
-
-                                    if (clinvarTraitAssociations?.length === 0) {
-                                        this._chart.innerHTML = "No clinvar traits association data available to display."
-                                    } else {
-                                        this.#getClinvarTraitAssociations(clinvarTraitAssociations);
+                                    // Check if trait association exists. Filter evidences from ClinVar source only
+                                    this._data = traitAssociation.filter(e => e.source?.name?.toLowerCase() === 'clinvar');
+                                    if (this._data?.length === 0) {
+                                        return html`<div>No clinvar traits association data available to display</div>`;
                                     }
+                                    return html `
+                                        <div class="d-flex flex-wrap justify-content-between gap-3 p-3" id="${this._chartId}"></div>
+                                    `;
                                 }
                             },
                         },
