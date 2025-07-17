@@ -449,6 +449,29 @@ export default class VariantGridFormatter {
         return html;
     }
 
+    static _consequenceTypeManeFilter(cts) {
+        const maneConsequenceTypes = [];
+        const notManeConsequenceTypes = [];
+        const indexes = [];
+
+        cts.forEach((ct, i) => {
+            const transcriptFlags = ct.transcriptFlags ?? ct.transcriptAnnotationFlags;
+            if (ct.source === "ensembl" &&
+                (transcriptFlags?.includes("MANE Select") || transcriptFlags?.includes("MANE Plus Clinical"))) {
+                indexes.push(i);
+                maneConsequenceTypes.push(ct);
+            } else {
+                notManeConsequenceTypes.push(ct);
+            }
+        });
+
+        return {
+            maneConsequenceTypes,
+            notManeConsequenceTypes,
+            indexes
+        };
+    }
+
     static _consequenceTypeDetailFormatterFilter(cts, filter) {
         const selectedConsequenceTypes = [];
         const notSelectedConsequenceTypes = [];
