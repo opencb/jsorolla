@@ -1273,7 +1273,6 @@ export default class DataForm extends LitElement {
         const bodyCellClassName = element.display?.bodyCellClassName || "";
         const errorMessage = this._getDefaultErrorMessage(element, section);
         const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
-        const rowId = element.display?.rowId ?? false;
 
         // 1. Check field exists, and it is an array. Also, check 'columns' is defined
         if (!array) {
@@ -1357,8 +1356,8 @@ export default class DataForm extends LitElement {
                     ` : nothing}
                     </thead>` : nothing}
                 <tbody class="${bodyClassName}" style="${bodyStyle}">
-                ${array.map((row, rowIndex) => html`
-                    <tr id="${rowId ? 'index-' + rowIndex : ''}" class="${bodyRowClassName}">
+                ${array.map((row, index) => html`
+                    <tr data-row-index="${index}" class="${bodyRowClassName}">
                         ${columns.map(elem => {
                             // @deprecated: 'elem.display.className' and 'elem.display.cellClassName' are deprecated, use 'elem.display.bodyClassName' instead
                             const elemClassName = elem.display?.bodyClassName || elem.display?.className || elem.display?.cellClassName || "";
