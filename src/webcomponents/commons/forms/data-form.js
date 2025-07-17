@@ -1264,8 +1264,13 @@ export default class DataForm extends LitElement {
         const tableStyle = this._parseStyleField(element.display?.style) || "";
         const headerClassName = element.display?.headerClassName || "";
         const headerStyle = this._parseStyleField(element.display?.headerStyle) || "";
+        const headerRowClassName = element.display?.headerRowClassName || "";
         const headerCellClassName = element.display?.headerCellClassName || "";
         const headerVisible = this._getBooleanValue(element.display?.headerVisible, true);
+        const bodyClassName = element.display?.bodyClassName || "";
+        const bodyStyle = this._parseStyleField(element.display?.bodyStyle) || "";
+        const bodyRowClassName = element.display?.bodyRowClassName || "";
+        const bodyCellClassName = element.display?.bodyCellClassName || "";
         const errorMessage = this._getDefaultErrorMessage(element, section);
         const errorClassName = element.display?.errorClassName ?? element.display?.errorClasses ?? "text-danger";
         const rowId = element.display?.rowId ?? false;
@@ -1333,74 +1338,64 @@ export default class DataForm extends LitElement {
                 ${headerVisible ? html`
                     <thead class="${headerClassName}" style="${headerStyle}">
                     ${supraColumns.length > 0 ? html`
-                        <tr>
+                        <tr class="${headerRowClassName}">
                             ${supraColumns.map(elem => html`
-                                <th class="${headerCellClassName}" scope="col" rowspan="${subColumns.length ? (!elem.display?.columns?.length ? "2" : "1") : ""}" colspan="${elem.display?.columns?.length || "1"}">${elem.title || elem.name}</th>
+                                <th class="${headerCellClassName} ${elem.display?.headerClassName}" rowspan="${subColumns.length ? (!elem.display?.columns?.length ? "2" : "1") : ""}" colspan="${elem.display?.columns?.length || "1"}">
+                                    ${elem.title || elem.name}
+                                </th>
                             `)}
                         </tr>
                     ` : nothing}
                     ${subColumns.length > 0 ? html`
-                        <tr>
+                        <tr class="${headerRowClassName}">
                             ${subColumns.map(elem => html`
-                                <th class="${headerCellClassName}" scope="col" rowspan="1" colspan="1">${elem.title || elem.name}</th>`
-                            )}
+                                <th class="${headerCellClassName} ${elem?.display?.headerClassName}" rowspan="1" colspan="1">
+                                    ${elem.title || elem.name}
+                                </th>
+                            `)}
                         </tr>
                     ` : nothing}
                     </thead>` : nothing}
-                <tbody>
-                ${array
-                    .map((row,rowIndex) => html`
-                        <tr scope="row" id="${rowId ? 'index-' + rowIndex : ''}">
-                            ${columns.map(elem => {
-                                const elemClassName = elem.display?.className ?? elem.display?.classes ?? "";
-                                const elemStyle = this._parseStyleField(elem.display?.style);
+                <tbody class="${bodyClassName}" style="${bodyStyle}">
+                ${array.map((row, rowIndex) => html`
+                    <tr id="${rowId ? 'index-' + rowIndex : ''}" class="${bodyRowClassName}">
+                        ${columns.map(elem => {
+                            // @deprecated: 'elem.display.className' and 'elem.display.cellClassName' are deprecated, use 'elem.display.bodyClassName' instead
+                            const elemClassName = elem.display?.bodyClassName || elem.display?.className || elem.display?.cellClassName || "";
+                            const elemStyle = this._parseStyleField(elem.display?.style);
 
-                                // Check the element type
-                                let content;
-                                switch (elem.type) {
-                                    case "complex":
-                                        content = this._createComplexElement(elem, row);
-                                        break;
-                                    case "list":
-                                        content = this._createListElement(elem, row, section);
-                                        break;
-                                    case "image":
-                                        content = this._createImageElement(elem);
-                                        break;
-                                    case "custom":
-                                        // content = elem.display?.render(this.getValue(elem.field, row));
-                                        content = elem.display?.render(this.getValue(elem.field, row), value => this.onFilterChange(elem, value), this.updateParams, this.data, row);
-                                        break;
-                                    default:
-                                        content = this.getValue(elem.field, row, this._getDefaultValue(element, section), elem.display);
-                                }
+                            // Check the element type
+                            let content;
+                            switch (elem.type) {
+                                case "complex":
+                                    content = this._createComplexElement(elem, row);
+                                    break;
+                                case "list":
+                                    content = this._createListElement(elem, row, section);
+                                    break;
+                                case "image":
+                                    content = this._createImageElement(elem);
+                                    break;
+                                case "custom":
+                                    // content = elem.display?.render(this.getValue(elem.field, row));
+                                    content = elem.display?.render(this.getValue(elem.field, row), value => this.onFilterChange(elem, value), this.updateParams, this.data, row);
+                                    break;
+                                default:
+                                    content = this.getValue(elem.field, row, this._getDefaultValue(element, section), elem.display);
+                            }
 
-                                return html`
-                                    <td class="${elemClassName}" style="${elemStyle}">
-                                        ${content}
-                                    </td>
-                                `;
-                            })}
-                        </tr>
-                    `)}
+                            return html`
+                                <td class="${bodyCellClassName} ${elemClassName}" style="${elemStyle}">
+                                    ${content}
+                                </td>
+                            `;
+                        })}
+                    </tr>
+                `)}
                 </tbody>
             </table>
         `;
 
-        // const config = {
-        //     pagination: element.display?.pagination ?? false,
-        //     search: element.display?.search ?? false,
-        //     searchAlign: element.display?.searchAlign ?? "right",
-        //     showHeader: element.display?.showHeader ?? true,
-        // };
-        //
-        // const content = html `
-        //     <data-table
-        //         .data="${array}"
-        //         .columns="${element.display.columns}"
-        //         .config="${config}">
-        //     </data-table>
-        // `;
         return this._createElementTemplate(element, null, content);
     }
 
