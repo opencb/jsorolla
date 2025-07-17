@@ -125,7 +125,10 @@ export default class ClinicalReportVariants extends LitElement {
 
         return html`
             <data-form
-                .data="${this.variants}"
+                .data="${{
+                    variants: this.variants,
+                    selectedVariant: this._selectedVariant,
+                }}"
                 .config="${this._config}">
             </data-form>
 
@@ -160,11 +163,11 @@ export default class ClinicalReportVariants extends LitElement {
                     elements: [
                         {
                             type: "table",
+                            field: "variants",
                             display: {
                                 className: "table-borderless table-hover table-grid",
                                 bodyRowClassName: "cursor-pointer",
                                 defaultValue: "-",
-                                getData: variants => variants,
                                 columns: [
                                     {
                                         title: "ID",
