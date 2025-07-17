@@ -389,8 +389,8 @@ export default class VariantUtils {
         };
     }
 
-    // Function to count clinical significance categories
-    static countClinicalSignificance(evidences) {
+    // Function to count clinical significance categories in evidences
+    static countEvidencesPerClinicalSignificance(evidences) {
         return evidences.reduce((acc, evidence) => {
             const cs = evidence.classification?.clinicalSignificance.toLowerCase() || 'unknown';
             acc[cs] = (acc[cs] || 0) + 1;
@@ -398,11 +398,36 @@ export default class VariantUtils {
         }, {});
     }
 
+    // Function to count acmgs categories in evidences
+    static countEvidencesAcmg(evidences) {
+        return evidences.reduce((acc, evidence) => {
+            evidence.classification?.acmg?.forEach(acmg => {
+                const cls = acmg.classification;
+                if (cls) {
+                    acc[cls] = (acc[cls] || 0) + 1;
+                }
+            });
+            return acc;
+        }, {});
+    }
+
+
     static mapClinicalSignificanceToColor(counts) {
         return CLINICAL_SIGNIFICANCE
             .filter(cs => counts[cs.id] > 0)
             .map(cs => ({
                 name: cs.name,
+                y: counts[cs.id],
+                color: cs.color
+            }));
+    }
+
+    static mapAcmgToColor(counts) {
+        return ACMG_CRITERIA_COLOR
+            .filter(cs => counts[cs.id] > 0)
+            .map(cs => ({
+                name: cs.id,
+                strength: cs.strength,
                 y: counts[cs.id],
                 color: cs.color
             }));
