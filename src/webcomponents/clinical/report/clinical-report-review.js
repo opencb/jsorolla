@@ -328,7 +328,7 @@ export default class ClinicalReportReview extends LitElement {
 
         return html`
             <div class="mb-4">
-                <h3 class="fw-bold">Reported Variants</h3>
+                <h3 class="fw-bold mb-4">Reported Variants</h3>
                 <clinical-report-variants
                     .active="${this.active}"
                     .clinicalAnalysis="${this.clinicalAnalysis}"
@@ -338,7 +338,7 @@ export default class ClinicalReportReview extends LitElement {
                 </clinical-report-variants>
             </div>
             <div class="">
-                <h3 class="fw-bold">Case Review</h3>
+                <h3 class="fw-bold mb-4">Case Review</h3>
                 <data-form
                     .data="${this.clinicalAnalysis}"
                     .config="${this._config}"
