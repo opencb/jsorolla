@@ -19,7 +19,7 @@ import {html, LitElement, nothing} from "lit";
 import "./variant-summary-clinical-significance.js"
 import "./variant-summary-clinical-significance-variant-traits.js"
 import "./variant-summary-quality.js"
-// import "./variant-summary-population.js"
+import "./variant-summary-population.js"
 import "./variant-summary-info.js"
 import "./variant-summary-ct-selected.js"
 import "./variant-summary-ct-no-selected.js"
@@ -106,6 +106,33 @@ export default class VariantSummary extends LitElement {
                 ...this.displayConfig,
             },
             sections: [
+                // 3. Population Summary
+                {
+                    title: "Population Summary",
+                    description: "Information related to population",
+                    display: {},
+                    elements: [
+                        {
+                            id: "variant-summary-population",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-population
+                                            .variant="${variant}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-population>
+                                    `;
+                                }
+                            }
+                        }
+                    ],
+                },
+
                 // 4. Clinical Significance
                 {
                     // title: "Clinical Significance",
@@ -247,24 +274,25 @@ export default class VariantSummary extends LitElement {
                             },
                         },
                         /*
-{
-    id: "variant-summary-gene",
-    type: "custom",
-    title: "Gene-Disease Association",
-    display: {
-        containerClassName: "",
-        titleClassName: "",
-        titleStyle: "",
-        render: variant => {
-            return html`
-                <variant-summary-gene
-                    .variant="${variant}"
-                    .opencgaSession="${this.opencgaSession}">
-                </variant-summary-gene>
-            `;
-        }
-    }
-}*/
+                        {
+                            id: "variant-summary-gene",
+                            type: "custom",
+                            title: "Gene-Disease Association",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-gene
+                                            .variant="${variant}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-gene>
+                                    `;
+                                }
+                            }
+                        }
+                        */
                         /*
                         // - Deleteriousness
                         {
@@ -350,35 +378,6 @@ export default class VariantSummary extends LitElement {
                         }
                     ],
                 },
-                // 3. Population Summary
-                /*
-                {
-                    title: "Population Summary",
-                    description: "Information related to population",
-                    display: {},
-                    elements: [
-                        {
-                            id: "variant-summary-population",
-                            type: "custom",
-                            title: "",
-                            display: {
-                                containerClassName: "",
-                                titleClassName: "",
-                                titleStyle: "",
-                                render: variant => {
-                                    return html`
-                                        <variant-summary-population
-                                            .variant="${variant}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </variant-summary-population>
-                                    `;
-                                }
-                            }
-                        }
-                    ],
-                },
-                */
-
             ],
         };
     }
