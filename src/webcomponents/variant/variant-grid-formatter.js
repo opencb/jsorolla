@@ -1049,6 +1049,78 @@ export default class VariantGridFormatter {
         return htmlPopFreqTable;
     }
 
+    static classifyFrequency(freq) {
+        if (freq === null || freq === undefined || freq === 0) return "unobserved";
+        if (freq < 0.001) return "veryRare";
+        if (freq < 0.01) return "rare";
+        if (freq < 0.05) return "average";
+        return "common";
+    }
+
+    static categorizeFrequencies(data) {
+        const summary = {};
+
+        data.forEach(({study, altAlleleFreq}) => {
+            const category = VariantGridFormatter.classifyFrequency(altAlleleFreq);
+
+            if (!summary[study]) {
+                summary[study] = {
+                    unobserved: 0,
+                    veryRare: 0,
+                    rare: 0,
+                    average: 0,
+                    common: 0,
+                    total: 0
+                };
+            }
+
+            summary[study][category]++;
+            summary[study].total++;
+        });
+
+        return summary;
+    };
+
+    static applyLinearTransform(summary, minVisible = 5, maxVisible = 100) {
+        const transformed = {};
+
+        Object.entries(summary).forEach(([study, counts]) => {
+            const total = counts.total;
+            const values = [];
+
+            // Compute raw proportions (for min/max)
+            for (const [cat, count] of Object.entries(counts)) {
+                if (cat === "total") continue;
+                values.push(count / total);
+            }
+
+            const min = Math.min(...values);
+            const max = Math.max(...values);
+
+            transformed[study] = Object.entries(counts)
+                .filter(([cat]) => cat !== "total")
+                .map(([cat, count]) => {
+                    const val = count / total;
+                    const rawPercent = val * 100;
+
+                    const scaled =
+                        min === max ? 100 / (Object.keys(counts).length - 1) : minVisible + (val - min) * (maxVisible - minVisible) / (max - min);
+
+                    return {
+                        name: cat,
+                        y: parseFloat(scaled.toFixed(2)),
+                        color: POPULATION_FREQUENCIES.style[cat] || '#999',
+                        count,
+                        realPercent: parseFloat(rawPercent.toFixed(1))
+                    };
+                })
+                // 🔽 Only keep categories with > 0% actual representation
+                .filter(d => d.realPercent > 0);
+        });
+
+        return transformed;
+    };
+
     static _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
         let color;
         const freqFloat = Number.parseFloat(freq);
