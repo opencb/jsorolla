@@ -73,7 +73,7 @@ export default class ClinicalReportVariants extends LitElement {
     }
 
     updated(changedProperties) {
-        this.querySelector(`data-form`).updateComplete.then(() => {
+        this.querySelector(`data-form`)?.updateComplete?.then(() => {
             // 1. register events listeners when the user clicks on a table row
             if (changedProperties.has("variants") || changedProperties.has("active")) {
                 if (this.active && this.variants?.length > 0) {
