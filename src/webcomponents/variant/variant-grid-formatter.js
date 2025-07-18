@@ -287,11 +287,10 @@ export default class VariantGridFormatter {
         }
     }
 
-    static typeFormatter(value, row) {
-        if (row) {
-            let type = row.type;
+    static typeFormatter(value) {
+        if (value) {
             let color = "";
-            switch (row.type) {
+            switch (value) {
                 case "SNP": // Deprecated
                     type = "SNV";
                     color = "black";
@@ -316,7 +315,7 @@ export default class VariantGridFormatter {
                     color = "black";
                     break;
             }
-            return `<span style="color: ${color}">${type}</span>`;
+            return `<span style="color: ${color}">${value}</span>`;
         } else {
             return "-";
         }
