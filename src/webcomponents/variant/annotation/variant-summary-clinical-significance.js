@@ -131,7 +131,10 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
             series: [{
                 name: 'Clinical significance classification',
                 data: this._dataCS,
-            }]
+            }],
+            credits: {
+                enabled: false
+            },
         });
     }
 
@@ -168,7 +171,10 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
             series: [{
                 name: 'ACMG classification',
                 data: this._dataAcmg,
-            }]
+            }],
+            credits: {
+                enabled: false
+            },
         });
     }
 
