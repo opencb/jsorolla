@@ -3,7 +3,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import VariantUtils from "../variant-utils.js";
-import VariantGridFormatter from "../variant-grid-formatter.js";
+import ClinicalReportFormatter from "../../clinical/report/clinical-report-formatter.js";
 import "../../commons/image-loader.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/pubmed-search.js";
@@ -430,30 +430,7 @@ export default class VariantReview extends LitElement {
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: true,
                                 view: reference => {
-                                    return html`
-                                        <div class="mb-2">
-                                            <div class="fw-bold">
-                                                ${reference.title || reference.name || "-"}
-                                            </div>
-                                            <div class="text-secondary">
-                                                ${reference.authors?.join(", ") || "-"}
-                                            </div>
-                                            <div class="text-muted d-flex align-items-center flex-row flex-wrap gap-1 fs-7">
-                                                ${reference.journal ? html`
-                                                    <span>${reference.journal}.</span>
-                                                ` : nothing}
-                                                ${reference.date ? html`
-                                                    <span>${UtilsNew.dateFormatter(reference.date)}.</span>
-                                                ` : nothing}
-                                                ${reference.url ? html`
-                                                    <span class="text-nowrap d-flex align-items-center gap-1 ms-2">
-                                                        <i class="fa fa-link fs-8"></i>
-                                                        <span>${reference.url || "-"}</span>
-                                                    </span>
-                                                ` : nothing}
-                                            </div>
-                                        </div>
-                                    `;
+                                    return ClinicalReportFormatter.formatReference(reference);
                                 },
                                 search: {
                                     title: "Search references in PubMed",
