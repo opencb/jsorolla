@@ -151,8 +151,18 @@ export default class ClinicalReportVariants extends LitElement {
                         className: "col-7",
                     },
                     {
-                        id: "variant-detail",
                         className: "col-5",
+                        sections: [
+                            {
+                                id: "variant-detail-header",
+                                className: "mb-3",
+                            },
+                            {
+                                id: "variant-detail-content",
+                                className: "overflow-auto",
+                                style: "max-height: 400px;",
+                            },
+                        ],
                     },
                 ],
             },
@@ -240,11 +250,7 @@ export default class ClinicalReportVariants extends LitElement {
                     ],
                 },
                 {
-                    id: "variant-detail",
-                    display: {
-                        buttonsVisible: false,
-                        defaultLayout: "vertical",
-                    },
+                    id: "variant-detail-header",
                     elements: [
                         {
                             type: "text",
@@ -255,6 +261,15 @@ export default class ClinicalReportVariants extends LitElement {
                                 textClassName: "fw-bold fs-4",
                             },
                         },
+                    ],
+                },
+                {
+                    id: "variant-detail-content",
+                    display: {
+                        buttonsVisible: false,
+                        defaultLayout: "vertical",
+                    },
+                    elements: [
                         {
                             type: "text",
                             title: "Discussion",
