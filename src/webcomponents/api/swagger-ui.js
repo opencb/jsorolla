@@ -39,7 +39,7 @@ export default class SwaggerUi extends LitElement {
         // Build the query parameters for the OpenAPI URL
         // We need to pass the study and the full path to the OpenCGA server
         const queryParams = new URLSearchParams({
-            url: this.opencgaSession.server.host,
+            url: this.opencgaSession.server.host.replace(/\/$/, ""),
             study: this.opencgaSession.study.fqn,
         });
 
