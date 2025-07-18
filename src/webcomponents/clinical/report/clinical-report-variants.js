@@ -1,5 +1,5 @@
 import {LitElement, html, nothing} from "lit";
-import LitUtils from "../../commons/utils/lit-utils.js";
+import UtilsNew from "../../../core/utils-new.js";
 import GridCommons from "../../commons/grid-commons.js";
 import "../../variant/interpretation/variant-interpreter-view.js";
 
@@ -220,7 +220,31 @@ export default class ClinicalReportVariants extends LitElement {
                         buttonsVisible: false,
                         defaultLayout: "vertical",
                     },
-                    elements: [],
+                    elements: [
+                        {
+                            type: "text",
+                            text: data => {
+                                return `Variant ${data.selectedVariant?.id || "-"}`;
+                            },
+                            display: {
+                                textClassName: "fw-bold fs-4",
+                            },
+                        },
+                        {
+                            type: "text",
+                            title: "Discussion",
+                            text: data => {
+                                return data.selectedVariant?.discussion?.text || "-";
+                            },
+                        },
+                        {
+                            type: "text",
+                            title: "Recommendation",
+                            text: data => {
+                                return data.selectedVariant?.recommendation || "-";
+                            },
+                        },
+                    ],
                 },
             ],
         };
