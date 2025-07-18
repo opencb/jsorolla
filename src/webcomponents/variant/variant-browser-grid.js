@@ -551,7 +551,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "type",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => VariantGridFormatter.typeFormatter(value, row),
+                    formatter: value => VariantGridFormatter.typeFormatter(value),
                     visible: this.gridCommons.isColumnVisible("type"),
                 },
                 {
