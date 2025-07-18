@@ -337,12 +337,15 @@ export default class ClinicalReportReview extends LitElement {
                     .config="${{}}">
                 </clinical-report-variants>
             </div>
-            <data-form
-                .data="${this.clinicalAnalysis}"
-                .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @submit=${e => this.onSubmit(e)}>
-            </data-form>
+            <div class="">
+                <h3 class="fw-bold">Case Review</h3>
+                <data-form
+                    .data="${this.clinicalAnalysis}"
+                    .config="${this._config}"
+                    @fieldChange="${event => this.onFieldChange(event)}"
+                    @submit=${event => this.onSubmit(event)}>
+                </data-form>
+            </div>
         `;
     }
 
