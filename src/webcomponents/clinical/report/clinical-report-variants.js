@@ -1,7 +1,9 @@
 import {LitElement, html, nothing} from "lit";
+import UtilsNew from "../../../core/utils-new.js";
 import GridCommons from "../../commons/grid-commons.js";
 import ClinicalReportFormatter from "./clinical-report-formatter.js";
 import VariantUtils from "../../variant/variant-utils.js";
+import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 import "../../variant/interpretation/variant-interpreter-view.js";
 
 export default class ClinicalReportVariants extends LitElement {
@@ -175,6 +177,7 @@ export default class ClinicalReportVariants extends LitElement {
                                         field: "id",
                                         type: "custom",
                                         display: {
+                                            bodyClassName: "align-middle",
                                             render: id => html`
                                                 <a class="link fw-bold" @click="${event => this.onViewVariant(event, id)}">
                                                     <span>${id}</span>
@@ -185,6 +188,13 @@ export default class ClinicalReportVariants extends LitElement {
                                     {
                                         title: "Type",
                                         field: "type",
+                                        type: "custom",
+                                        display: {
+                                            bodyClassName: "align-middle",
+                                            render: type => {
+                                                return UtilsNew.renderHTML(VariantGridFormatter.typeFormatter(type));
+                                            },
+                                        },
                                     },
                                     {
                                         title: "Variant Review",
@@ -197,7 +207,7 @@ export default class ClinicalReportVariants extends LitElement {
                                                     type: "custom",
                                                     display: {
                                                         headerClassName: "text-center",
-                                                        bodyClassName: "text-center",
+                                                        bodyClassName: "text-center align-middle",
                                                         render: status => {
                                                             return html`
                                                                 <div class="badge ${VariantUtils.getStatusColor(status || "")} user-select-none my-2">
@@ -210,9 +220,15 @@ export default class ClinicalReportVariants extends LitElement {
                                                 {
                                                     title: "Confidence",
                                                     field: "confidence.value",
+                                                    type: "custom",
                                                     display: {
                                                         headerClassName: "text-center",
-                                                        bodyClassName: "text-center",
+                                                        bodyClassName: "text-center align-middle",
+                                                        render: confidence => {
+                                                            return html`
+                                                                <b>${confidence || "-"}</b>
+                                                            `;
+                                                        },
                                                     },
                                                 },
                                             ],
