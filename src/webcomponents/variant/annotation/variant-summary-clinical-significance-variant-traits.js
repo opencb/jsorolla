@@ -189,7 +189,10 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
             plotOptions: {
                 column: { stacking: 'normal' }
             },
-            series: series
+            series: series,
+            credits: {
+                enabled: false
+            },
         });
     }
 
