@@ -154,11 +154,11 @@ export default class ClinicalReportVariants extends LitElement {
                         className: "col-5",
                         sections: [
                             {
-                                id: "variant-detail-header",
+                                id: "variant-review-header",
                                 className: "mb-3",
                             },
                             {
-                                id: "variant-detail-content",
+                                id: "variant-review-content",
                                 className: "overflow-auto",
                                 style: "max-height: 400px;",
                             },
@@ -250,7 +250,7 @@ export default class ClinicalReportVariants extends LitElement {
                     ],
                 },
                 {
-                    id: "variant-detail-header",
+                    id: "variant-review-header",
                     elements: [
                         {
                             type: "text",
@@ -264,7 +264,7 @@ export default class ClinicalReportVariants extends LitElement {
                     ],
                 },
                 {
-                    id: "variant-detail-content",
+                    id: "variant-review-content",
                     display: {
                         buttonsVisible: false,
                         defaultLayout: "vertical",
