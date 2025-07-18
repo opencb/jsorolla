@@ -557,7 +557,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "type",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: value => VariantGridFormatter.typeFormatter(type),
+                    formatter: value => VariantGridFormatter.typeFormatter(value),
                     visible: !this._config.hideType && this.gridCommons.isColumnVisible("type"),
                 },
                 {
