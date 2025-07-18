@@ -1,6 +1,6 @@
 import {LitElement, html, nothing} from "lit";
-import UtilsNew from "../../../core/utils-new.js";
 import GridCommons from "../../commons/grid-commons.js";
+import ClinicalReportFormatter from "./clinical-report-formatter.js";
 import "../../variant/interpretation/variant-interpreter-view.js";
 
 export default class ClinicalReportVariants extends LitElement {
@@ -145,11 +145,11 @@ export default class ClinicalReportVariants extends LitElement {
                 layout: [
                     {
                         id: "variants-table",
-                        className: "col-8",
+                        className: "col-7",
                     },
                     {
                         id: "variant-detail",
-                        className: "col-4",
+                        className: "col-5",
                     },
                 ],
             },
@@ -254,30 +254,7 @@ export default class ClinicalReportVariants extends LitElement {
                                 showDeleteItemListButton: false,
                                 showAddItemListButton: false,
                                 view: reference => {
-                                    return html`
-                                        <div class="mb-2">
-                                            <div class="fw-bold">
-                                                ${reference.title || reference.name || "-"}
-                                            </div>
-                                            <div class="text-secondary">
-                                                ${reference.authors?.join(", ") || "-"}
-                                            </div>
-                                            <div class="text-muted d-flex align-items-center flex-row flex-wrap gap-1 fs-7">
-                                                ${reference.journal ? html`
-                                                    <span>${reference.journal}.</span>
-                                                ` : nothing}
-                                                ${reference.date ? html`
-                                                    <span>${UtilsNew.dateFormatter(reference.date)}.</span>
-                                                ` : nothing}
-                                                ${reference.url ? html`
-                                                    <span class="text-nowrap d-flex align-items-center gap-1 ms-2">
-                                                        <i class="fa fa-link fs-8"></i>
-                                                        <span>${reference.url || "-"}</span>
-                                                    </span>
-                                                ` : nothing}
-                                            </div>
-                                        </div>
-                                    `;
+                                    return ClinicalReportFormatter.formatReference(reference);
                                 },
                             },
                             elements: [],
