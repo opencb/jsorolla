@@ -1,6 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import GridCommons from "../../commons/grid-commons.js";
 import ClinicalReportFormatter from "./clinical-report-formatter.js";
+import VariantUtils from "../../variant/variant-utils.js";
 import "../../variant/interpretation/variant-interpreter-view.js";
 
 export default class ClinicalReportVariants extends LitElement {
@@ -193,9 +194,17 @@ export default class ClinicalReportVariants extends LitElement {
                                                 {
                                                     title: "Status",
                                                     field: "status",
+                                                    type: "custom",
                                                     display: {
                                                         headerClassName: "text-center",
                                                         bodyClassName: "text-center",
+                                                        render: status => {
+                                                            return html`
+                                                                <div class="badge ${VariantUtils.getStatusColor(status || "")} user-select-none my-2">
+                                                                    <b>${status}</b>
+                                                                </div>
+                                                            `;
+                                                        },
                                                     },
                                                 },
                                                 {
