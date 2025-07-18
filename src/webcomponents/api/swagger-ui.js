@@ -36,22 +36,17 @@ export default class SwaggerUi extends LitElement {
     }
 
     updated() {
-        // 1. extract the host and pathname from the OpenCGA server URL
-        // host: test.app.zettagenomics.com
-        // pathname: /task-xxxx/opencga
-        const {host, pathname} = URL.parse(this.opencgaSession.server.host);
-
         // Build the query parameters for the OpenAPI URL
         // We need to pass the study and the full path to the OpenCGA server
         const queryParams = new URLSearchParams({
-            url: host + pathname.replace(/\/$/, ""),
+            url: this.opencgaSession.server.host,
             study: this.opencgaSession.study.fqn,
         });
 
         // Construct the OpenAPI URL
         const serverUrl = `${this.opencgaSession.server.host}/webservices/rest/${this.opencgaSession.server.version || "v2"}/meta/openapi?${queryParams.toString()}`;
 
-        // 2. Create an instance of the SwaggerUIBundle
+        // Create an instance of the SwaggerUIBundle
         const ui = SwaggerUIBundle({
             url: serverUrl,
             dom_id: "#iva-swagger-ui",
@@ -65,7 +60,6 @@ export default class SwaggerUi extends LitElement {
             operationsSorter: "method",
             tryItOutEnabled: true,
             onComplete: () => {
-                // Default Bearer token
                 ui.preauthorizeApiKey("BearerAuth", "Bearer " + this.opencgaSession.token);
             }
         });
