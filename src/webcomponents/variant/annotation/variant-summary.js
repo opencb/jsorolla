@@ -108,8 +108,8 @@ export default class VariantSummary extends LitElement {
             sections: [
                 // 3. Population Summary
                 {
-                    title: "Population Summary",
-                    description: "Information related to population",
+                    // title: "Population Summary",
+                    // description: "Information related to population",
                     display: {},
                     elements: [
                         {
