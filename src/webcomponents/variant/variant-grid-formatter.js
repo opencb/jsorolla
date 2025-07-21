@@ -1058,24 +1058,28 @@ export default class VariantGridFormatter {
     }
 
     static categorizeFrequencies(data) {
+
         const summary = {};
 
-        data.forEach(({study, altAlleleFreq}) => {
-            const category = VariantGridFormatter.classifyFrequency(altAlleleFreq);
+        data.forEach(({study, population, altAlleleFreq}) => {
+            if (population !== "ALL") {
+                const category = VariantGridFormatter.classifyFrequency(altAlleleFreq);
 
-            if (!summary[study]) {
-                summary[study] = {
-                    unobserved: 0,
-                    veryRare: 0,
-                    rare: 0,
-                    average: 0,
-                    common: 0,
-                    total: 0
-                };
+                if (!summary[study]) {
+                    summary[study] = {
+                        unobserved: {counts: 0, subpopulations: []},
+                        veryRare: {counts: 0, subpopulations: []},
+                        rare: {counts: 0, subpopulations: []},
+                        average: {counts: 0, subpopulations: []},
+                        common: {counts: 0, subpopulations: []},
+                        total: 0,
+                    };
+                }
+
+                summary[study][category].counts++;
+                summary[study][category].subpopulations.push(population);
+                summary[study].total++;
             }
-
-            summary[study][category]++;
-            summary[study].total++;
         });
 
         return summary;
@@ -1083,38 +1087,47 @@ export default class VariantGridFormatter {
 
     static applyLinearTransform(summary, minVisible = 5, maxVisible = 100) {
         const transformed = {};
-
+        const PRETTY_LABELS = {
+            unobserved: "Unobserved",
+            veryRare: "Very Rare",
+            rare: "Rare",
+            average: "Average",
+            common: "Common"
+        };
         Object.entries(summary).forEach(([study, counts]) => {
             const total = counts.total;
             const values = [];
 
-            // Compute raw proportions (for min/max)
-            for (const [cat, count] of Object.entries(counts)) {
+            // Step 1: Compute raw proportions (for min/max scaling)
+            for (const [cat, obj] of Object.entries(counts)) {
                 if (cat === "total") continue;
-                values.push(count / total);
+                values.push(obj.counts / total);
             }
 
             const min = Math.min(...values);
             const max = Math.max(...values);
 
+            // Step 2: Build transformed structure
             transformed[study] = Object.entries(counts)
                 .filter(([cat]) => cat !== "total")
-                .map(([cat, count]) => {
-                    const val = count / total;
+                .map(([cat, obj]) => {
+                    const val = obj.counts / total;
                     const rawPercent = val * 100;
 
                     const scaled =
-                        min === max ? 100 / (Object.keys(counts).length - 1) : minVisible + (val - min) * (maxVisible - minVisible) / (max - min);
+                        min === max ?
+                            100 / (Object.keys(counts).length - 1) :
+                            minVisible + (val - min) * (maxVisible - minVisible) / (max - min);
 
                     return {
-                        name: cat,
+                        name: PRETTY_LABELS[cat] || cat,
                         y: parseFloat(scaled.toFixed(2)),
                         color: POPULATION_FREQUENCIES.style[cat] || '#999',
-                        count,
-                        realPercent: parseFloat(rawPercent.toFixed(1))
+                        count: obj.counts,
+                        realPercent: parseFloat(rawPercent.toFixed(1)),
+                        subpopulations: obj.subpopulations
                     };
                 })
-                // 🔽 Only keep categories with > 0% actual representation
                 .filter(d => d.realPercent > 0);
         });
 
