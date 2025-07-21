@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import VariantGridFormatter from "../variant-grid-formatter";
+import VariantGridFormatter from "../variant-grid-formatter.js";
 
 export default class VariantSummaryPopulation extends LitElement {
 
@@ -63,21 +63,26 @@ export default class VariantSummaryPopulation extends LitElement {
 
     updated(changedProperties) {
         this.querySelector("data-form").updateComplete.then(() => {
-            if (this.querySelector(`#${this._chartMAF1000G}`) &&
-                this.querySelector(`#${this._chartMAFGnomad}`)) {
-                this.#renderChartsMAF(`${this._chartMAF1000G}`, "1000G", this._dataMAFTransformed["1000G"], this._dataMAFSummary["1000G"].total);
-                this.#renderChartsMAF(`${this._chartMAFGnomad}`, "gnomAD", this._dataMAFTransformed["GNOMAD_GENOMES"], this._dataMAFSummary["GNOMAD_GENOMES"].total);
-            }
-            /*
-            if (this.querySelector(`#${this._chart1000G}`)) {
-                this.#renderChartGenotype1000G();
-            }
             if (this.querySelector(`#${this._chartMAF1000G}`)) {
-                this.#renderChartGenotypeGnomad();
-            }
-             */
-        });
+                if (this._dataMAFSummary["1000G"]?.total && this._dataMAFSummary["1000G"]?.total !== 0) {
+                    this.#renderChartsMAF(`${this._chartMAF1000G}`, "1000G", this._dataMAFTransformed["1000G"], this._dataMAFSummary["1000G"]?.total);
+                }
+                else {
+                    const target = this.querySelector(`div#${this._chartMAF1000G}`);
+                    target.innerHTML = "<div>No population data available</div>";
+                }
 
+            }
+            if (this.querySelector(`#${this._chartMAFGnomad}`)) {
+                if (this._dataMAFSummary["GNOMAD_GENOMES"]?.total && this._dataMAFSummary["GNOMAD_GENOMES"]?.total !== 0) {
+                    this.#renderChartsMAF(`${this._chartMAFGnomad}`, "gnomAD", this._dataMAFTransformed["GNOMAD_GENOMES"], this._dataMAFSummary["GNOMAD_GENOMES"]?.total);
+                }
+                else {
+                        const target = this.querySelector(`div#${this._chartMAFGnomad}`);
+                        target.innerHTML = "<div>No population data available</div>";
+                }
+            }
+        })
     }
 
 
@@ -96,35 +101,45 @@ export default class VariantSummaryPopulation extends LitElement {
             chart: {
                 type: 'pie',
                 backgroundColor: 'transparent',
+                height: 150,       // reduce vertical space
+                spacing: [0, 0, 0, 0], // top, right, bottom, left padding
+                margin: [0, 0, 0, 0],
             },
             title: {
                 text: `${title}`,
                 align: 'center',
                 verticalAlign: 'middle',
-                style: { fontSize: '16px' },
+                style: { fontSize: '14px' },
                 y: 30,
             },
             subtitle: {
                 text: `<span style="font-size:12px;">Total populations: ${totalPopulations}</span>`,
-                align: 'center',
-                verticalAlign: 'middle',
-                style: { fontSize: '12px' },
+                align: "center",
+                verticalAlign: "middle",
+                style: {fontSize: "12px"},
                 y: 52,
             },
             plotOptions: {
                 pie: {
-                    innerSize: '60%',
+                    innerSize: "60%",
                     startAngle: -90,
                     endAngle: 90,
-                    center: ['50%', '70%'],
+                    center: ["50%", "70%"],
                     dataLabels: {
                         enabled: true,
+                        distance: 15,
+                        style: {
+                            color: '#666', // light grey
+                            fontWeight: "normal",
+                            textOutline: "none",
+                            fontSize: "10px",
+                        },
                         formatter: function () {
-                            return `${this.point.name}<br>(${this.point.count})`;
+                            return this.point.name;
                         }
                     },
                     showInLegend: true
-                }
+                },
             },
             series: [{
                 name: title,
@@ -134,27 +149,24 @@ export default class VariantSummaryPopulation extends LitElement {
                 enabled: false
             },
             tooltip: {
-                pointFormat: '<b>{point.name}</b><br/>Proportion: {point.realPercent:.1f}%<br/>Count: {point.count}'
+                useHTML: true,
+                formatter: function () {
+                    const { name, count, realPercent, subpopulations } = this.point;
+                    const subpopsText = subpopulations?.length
+                        ? `<span>${subpopulations.join(', ')}</span>`
+                        : '<span>None</span>';
+
+                    return `
+                        <div class="">
+                            <div class="text-black mb-2"><b>${name}:</b> ${count} [${realPercent.toFixed(1)}%]</div>
+                            <div class="text-muted">${subpopsText}</div>
+                        </div>
+                    `;
+                }
             },
             legend: {
                 enabled: false
             },
-            /*
-            legend: {
-                layout: 'horizontal',
-                align: 'center',
-                verticalAlign: 'bottom',
-                itemMarginTop: 4,
-                itemStyle: {
-                    fontSize: '12px'
-                },
-                labelFormatter: function () {
-                    return `${this.name} [${this.count} / ${totalPopulations}] = ${this.realPercent.toFixed(1)}%`;
-                }
-            },
-
-             */
-
         });
     }
 
@@ -176,20 +188,22 @@ export default class VariantSummaryPopulation extends LitElement {
         return html`
             <div class="card p-3">
                 <div class="card-header border-0">
-                    <h5 class="mb-2 fs-5 fw-bold d-flex">Variant Alt Allele Frequency Distributions</h5>
-                    <p class="text-secondary">For population frequencies 1000G and gnomAD_GENOMES</p>
+                    <h5 class="mb-2 fs-5 fw-bold d-flex">Population Frequencies</h5>
+                    <p class="text-secondary">Variant alt allele frequency distributions for population frequencies 1000G and gnomAD_GENOMES</p>
 
                 </div>
-                <div class="card-body mb-2">
+                <div class="card-body">
                     <data-form
                         .data="${this.variant}"
                         .config="${this._config}">
                     </data-form>
                 </div>
+<!--
                 <div class="card-footer text-muted">
                     <i class="far fa-clock me-2"></i>
                     Last updated
                 </div>
+-->
             </div>
 
         `;
@@ -231,20 +245,25 @@ export default class VariantSummaryPopulation extends LitElement {
                                 rowId: true,
                                 defaultValue: "",
                                 render: populationFrequencies => {
-                                    this._dataMAF = {};
-                                    this._dataMAFSummary = VariantGridFormatter.categorizeFrequencies(populationFrequencies);
-                                    debugger
-                                    this._dataMAFTransformed = VariantGridFormatter.applyLinearTransform(this._dataMAFSummary);
-                                    debugger
-                                    if (!this._dataMAFTransformed || Object.keys(this._dataMAFTransformed).length === 0) {
-                                        // FIXME: display empty state
+                                    if (!populationFrequencies || populationFrequencies.length === 0)  {
                                         return html`
-                                            <div>No population data available</div>
+                                            <div class="d-flex align-items-center text-gray-600">
+                                                No population data associated to this variant
+                                            </div>
                                         `;
                                     }
+                                    this._dataMAF = {};
+                                    this._dataMAFSummary = VariantGridFormatter.categorizeFrequencies(populationFrequencies);
+                                    this._dataMAFTransformed = VariantGridFormatter.applyLinearTransform(this._dataMAFSummary);
                                     return html`
-                                        <div class="d-flex" id="${this._chartMAF1000G}" style="height: 300px; margin: auto;"></div>
-                                        <div class="d-flex" id="${this._chartMAFGnomad}" style="height: 300px; margin: auto;"></div>
+                                        <div class="d-flex">
+                                            <div>
+                                                <div class="d-flex" id="${this._chartMAF1000G}" style="margin: auto;"></div>
+                                            </div>
+                                            <div>
+                                                <div class="d-flex" id="${this._chartMAFGnomad}" style="margin: auto;"></div>
+                                            </div>
+                                        </div>
                                     `;
                                 }
                             },
