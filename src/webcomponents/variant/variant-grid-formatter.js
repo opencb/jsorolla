@@ -1058,42 +1058,55 @@ export default class VariantGridFormatter {
     }
 
     static categorizeFrequencies(data) {
+        const dataCohorts = {};
+        const dataAll = {};
 
-        const summary = {};
-
-        data.forEach(({study, population, altAlleleFreq}) => {
-            if (population !== "ALL") {
-                const category = VariantGridFormatter.classifyFrequency(altAlleleFreq);
-
-                if (!summary[study]) {
-                    summary[study] = {
-                        unobserved: {counts: 0, subpopulations: []},
-                        veryRare: {counts: 0, subpopulations: []},
-                        rare: {counts: 0, subpopulations: []},
-                        average: {counts: 0, subpopulations: []},
-                        common: {counts: 0, subpopulations: []},
-                        total: 0,
-                    };
-                }
-
-                summary[study][category].counts++;
-                summary[study][category].subpopulations.push(population);
-                summary[study].total++;
+        for (const {study, population, altAlleleFreq} of data) {
+            if (!dataCohorts[study]) {
+                dataCohorts[study] = {
+                    unobserved: {counts: 0, cohorts: []},
+                    veryRare: {counts: 0, cohorts: []},
+                    rare: {counts: 0, cohorts: []},
+                    average: {counts: 0, cohorts: []},
+                    common: {counts: 0, cohorts: []},
+                    total: 0
+                };
             }
-        });
 
-        return summary;
-    };
+            if (population === 'ALL') {
+                const category = VariantGridFormatter.classifyFrequency(altAlleleFreq);
+                const color = POPULATION_FREQUENCIES.style[category] || '#999';
+                dataAll[study] = {
+                    freq: altAlleleFreq,
+                    category,
+                    color
+                };
+                continue;
+            }
 
-    static applyLinearTransform(summary, minVisible = 5, maxVisible = 100) {
-        const transformed = {};
-        const PRETTY_LABELS = {
+            const category = VariantGridFormatter.classifyFrequency(altAlleleFreq);
+            dataCohorts[study][category].counts++;
+            dataCohorts[study][category].cohorts.push(population);
+            dataCohorts[study].total++;
+        }
+
+        return {dataCohorts, dataAll};
+    }
+
+    static prettifyFrequencyLabel(label) {
+        const prettyLables = {
             unobserved: "Unobserved",
             veryRare: "Very Rare",
             rare: "Rare",
             average: "Average",
             common: "Common"
         };
+        return prettyLables[label];
+    };
+
+    static applyLinearTransform(summary, minVisible = 5, maxVisible = 100) {
+        const transformed = {};
+
         Object.entries(summary).forEach(([study, counts]) => {
             const total = counts.total;
             const values = [];
@@ -1120,12 +1133,12 @@ export default class VariantGridFormatter {
                             minVisible + (val - min) * (maxVisible - minVisible) / (max - min);
 
                     return {
-                        name: PRETTY_LABELS[cat] || cat,
+                        name: VariantGridFormatter.prettifyFrequencyLabel(cat) || cat,
                         y: parseFloat(scaled.toFixed(2)),
                         color: POPULATION_FREQUENCIES.style[cat] || '#999',
                         count: obj.counts,
                         realPercent: parseFloat(rawPercent.toFixed(1)),
-                        subpopulations: obj.subpopulations
+                        cohorts: obj.cohorts
                     };
                 })
                 .filter(d => d.realPercent > 0);
