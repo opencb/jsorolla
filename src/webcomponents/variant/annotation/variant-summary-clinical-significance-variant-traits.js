@@ -147,7 +147,9 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
 
         Highcharts.chart(`${this._chartId}`, {
             chart: {
-                type: 'column'
+                type: 'column',
+                height: 225,
+                width: 500,
             },
             title: {
                 text: null,
@@ -171,10 +173,13 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
             },
             legend: {
                 reversed: false,
+                align: 'center',          // horizontal alignment (left|center|right)
+                verticalAlign: 'top',     // top of the chart
+                layout: 'horizontal',     // ensure it's horizontal (default)
+                useHTML: true,
                 labelFormatter: function () {
                     return `<span style="color:darkgoldenrod">${this.name}</span>`;
-                },
-                useHTML: true,
+                }
             },
             tooltip: {
                 shared: true,
@@ -214,10 +219,12 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
                         .config="${this._config}">
                     </data-form>
                 </div>
+                <!--
                 <div class="card-footer text-muted">
                     <i class="far fa-clock me-2"></i>
                     Last updated
                 </div>
+                -->
             </div>
 
         `;
@@ -235,7 +242,6 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
                     elements: [
                         {
                             id: "variant-traits-association",
-                            // title: "Clinical Significance",
                             type: "custom",
                             field: "annotation.traitAssociation",
                             display: {
@@ -246,7 +252,7 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
                                         return html`<div>No clinvar traits association data available to display</div>`;
                                     }
                                     return html `
-                                        <div class="d-flex flex-wrap justify-content-between gap-3 p-3" id="${this._chartId}"></div>
+                                        <div class="d-flex justify-content-start" id="${this._chartId}"></div>
                                     `;
                                 }
                             },

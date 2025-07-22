@@ -182,16 +182,16 @@ export default class VariantSummary extends LitElement {
                                 ]
                             },
                             {
-                                id: "",
-                                className: "d-flex flex-wrap",
+                                className: "d-flex align-items-stretch",
                                 elements: [
                                     {
                                         id:"variant-summary-clinical-significance",
-                                        className: "w-50",
+                                        style: "flex: 1 0 auto",
+                                        className: "me-2",
                                     },
                                     {
                                         id:"variant-summary-clinical-significance-variant-traits",
-                                        className: "w-50",
+                                        style: "flex: 1 0 auto",
                                     },
                                 ]
                             },
@@ -208,7 +208,6 @@ export default class VariantSummary extends LitElement {
                         ]
                     },
                     elements: [
-                        // - Variant Info
                         {
                             id: "variant-summary-info",
                             type: "custom",
@@ -276,7 +275,7 @@ export default class VariantSummary extends LitElement {
                                 render: variant => {
                                     return html`
                                         <variant-summary-clinical-significance
-                                                .variant="${variant}">
+                                           .variant="${variant}">
                                         </variant-summary-clinical-significance>
                                     `;
                                 }
@@ -293,7 +292,7 @@ export default class VariantSummary extends LitElement {
                                 render: variant => {
                                     return html`
                                         <variant-summary-clinical-significance-variant-traits
-                                                .variant="${variant}">
+                                           .variant="${variant}">
                                         </variant-summary-clinical-significance-variant-traits>
                                     `;
                                 }

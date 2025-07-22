@@ -117,9 +117,6 @@ export default class VariantSummaryQuality extends LitElement {
                 name: this._data[0].sampleId,
                 data: this._data[0].chartData,
             }],
-            credits: {
-                enabled: false
-            },
             tooltip: {
                 useHTML: true,
                 style: {
@@ -129,6 +126,9 @@ export default class VariantSummaryQuality extends LitElement {
                 },
             },
             legend: {
+                enabled: false
+            },
+            credits: {
                 enabled: false
             },
         });

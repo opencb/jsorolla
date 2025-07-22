@@ -102,36 +102,50 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
         Highcharts.chart(`${this._chartCSId}`, {
             chart: {
                 type: 'pie',
-                backgroundColor: null,
-                height: null,
+                backgroundColor: 'transparent',
+                height: 150,       // reduce vertical space
+                width: 300,
+                spacing: [0, 0, 0, 0], // top, right, bottom, left padding
+                margin: [0, 0, 0, 0],
             },
-            title: null,
+            title: {
+                text: "Clin.Sig.",
+                align: 'center',
+                verticalAlign: 'middle',
+                style: { fontSize: '14px' },
+                y: 29,
+            },
             plotOptions: {
                 pie: {
                     // size: '60%', // Donut size
-                    innerSize: '60%',
+                    innerSize: '70%',
                     startAngle: -90,
                     endAngle: 90,
-                    center: ['50%', '75%'],
+                    center: ['50%', '70%'],
                     dataLabels: {
                         enabled: true,
+                        distance: 15,
                         format: '{point.name}: {point.y}',
-                        distance: 20,
                         style: {
-                            color: '#000',
-                            fontSize: '12px',
-                            textOutline: 'none',
-                        }
+                            color: '#666', // light grey
+                            fontWeight: "normal",
+                            textOutline: "none",
+                            fontSize: "10px",
+                        },
                     }
                 }
-            },
-            tooltip: {
-                pointFormat: '<b>{point.y}</b> clinical significance classification(s)'
             },
             series: [{
                 name: 'Clinical significance classification',
                 data: this._dataCS,
             }],
+            tooltip: {
+                useHTML: true,
+                pointFormat: '<b>{point.y}</b> clinical significance classification(s)'
+            },
+            legend: {
+                enabled: false
+            },
             credits: {
                 enabled: false
             },
@@ -142,36 +156,46 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
         Highcharts.chart(`${this._chartAcmgId}`, {
             chart: {
                 type: 'pie',
-                backgroundColor: null,
-                height: null,
+                backgroundColor: 'transparent',
+                height: 150,       // reduce vertical space
+                width: 300,
+                spacing: [0, 0, 0, 0], // top, right, bottom, left padding
+                margin: [0, 0, 0, 0],
             },
-            title: null,
+            title: {
+                text: "ACMG",
+                align: 'center',
+                verticalAlign: 'middle',
+                style: { fontSize: '14px' },
+                y: 29,
+            },
             plotOptions: {
                 pie: {
                     // size: '60%', // Donut size
-                    innerSize: '60%',
+                    innerSize: '70%',
                     startAngle: -90,
                     endAngle: 90,
-                    center: ['50%', '75%'],
+                    center: ['50%', '70%'],
                     dataLabels: {
                         enabled: true,
+                        distance: 15,
                         format: '{point.name}: {point.y}',
-                        distance: 20,
                         style: {
-                            color: '#000',
-                            fontSize: '12px',
+                            color: '#666', // light grey
+                            fontSize: '10px',
                             textOutline: 'none',
-                        }
-                    }
+                        },
+                    },
                 }
-            },
-            tooltip: {
-                pointFormat: '<b>{point.y}</b> acmg classification(s) are {point.name} {point.strength}'
             },
             series: [{
                 name: 'ACMG classification',
                 data: this._dataAcmg,
             }],
+            tooltip: {
+                useHTML: true,
+                pointFormat: '<b>{point.y}</b> acmg classification(s) are {point.name} {point.strength}'
+            },
             credits: {
                 enabled: false
             },
@@ -198,10 +222,12 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                         @fieldChange="${event => this.onManeChange(event)}">
                     </data-form>
                 </div>
+                <!--
                 <div class="card-footer text-muted">
                     <i class="far fa-clock me-2"></i>
                     Last updated
                 </div>
+                -->
             </div>
         `;
     }
@@ -217,16 +243,14 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                     display: {
                         layout: [
                             {
-                                id: "",
-                                className: "d-flex flex-wrap",
                                 elements: [
                                     {
                                         id:"is-mane",
-                                        className: "w-50",
+                                        className: "",
                                     },
                                     {
                                         id:"total-evidences",
-                                        className: "w-50",
+                                        className: "",
                                     },
                                 ]
                             },
@@ -235,9 +259,15 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                     elements: [
                         {
                             id: "is-mane",
-                            title: "Mane",
-                            type: "checkbox",
+                            // title: "Mane",
+                            type: "toggle-buttons",
+                            allowedValues: ["MANE", "ALL"],
+                            defaultValue: "MANE",
                             field: "isMane",
+                            display: {
+                                width: "9",
+                                classesLabel: "btn btn-outline-dark px-2 py-0 fs-7"
+                            }
                         },
                         {
                             id: "total-evidences",
@@ -247,7 +277,7 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                             display: {
                                 render: evidences => {
                                     let selectedEvidences = evidences;
-                                    if (this._variant.isMane) {
+                                    if (this._variant.isMane === "MANE") {
                                         selectedEvidences = evidences.filter(evidence =>
                                             this._maneTranscriptIds.includes(evidence.genomicFeature?.transcriptId)
                                         );
@@ -261,20 +291,19 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                     ],
                 },
                 {
-                    id: "variant-summary-clinical-significance-charts",
+                    // id: "variant-summary-clinical-significance-charts",
                     display: {
                         layout: [
                             {
-                                id: "",
-                                className: "d-flex flex-wrap",
+                                className: "d-flex",
                                 elements: [
                                     {
                                         id:"evidences-clinical-significance-chart",
-                                        className: "w-50",
+                                        className: "",
                                     },
                                     {
                                         id:"evidences-acmg-chart",
-                                        className: "w-50",
+                                        className: "",
                                     },
                                 ]
                             },
