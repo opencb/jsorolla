@@ -172,7 +172,9 @@ export default class VariantSummaryInfo extends LitElement {
                             display: {
                                 render: id => {
                                     return html`
-                                        <div class="fw-bold">${id}</div>
+                                        <div class="fw-bold text-truncate" style="max-width:350px">
+                                            ${id}
+                                        </div>
                                     `;
                                 },
                             },
