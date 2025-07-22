@@ -109,7 +109,7 @@ export default class VariantSummary extends LitElement {
                 ...this.displayConfig,
             },
             sections: [
-                // 2. Variant quality
+                // 2. Section Variant quality
                 {
                     elements: [
                         {
@@ -132,7 +132,7 @@ export default class VariantSummary extends LitElement {
                         }
                     ],
                 },
-                // 3. Population Summary
+                // 3. Section Population Summary
                 {
                     display: {},
                     elements: [
@@ -156,28 +156,29 @@ export default class VariantSummary extends LitElement {
                         }
                     ],
                 },
-                // 4. Clinical Significance
+                // 4. Section Clinical Significance
                 {
                     // title: "Clinical Significance",
                     display: {
                         //visible: null,// individual => individual?.id,
                         layout: [
                             {
-                                id: "",
-                                className: "d-flex",
+                                className: "d-flex align-items-stretch",
                                 elements: [
                                     {
                                         id: "variant-summary-info",
-                                        className: "flex-grow-1",
+                                        style: "flex: 1 0 auto",
                                     },
                                     {
                                         id: "variant-summary-ct-selected",
-                                        className: "flex-grow-1",
+                                        style: "flex: 1 0 auto",
                                     },
+                                    /*
                                     {
                                         id: "variant-summary-ct-no-selected",
                                         className: "flex-grow-1",
                                     },
+                                     */
                                 ]
                             },
                             {
@@ -244,6 +245,7 @@ export default class VariantSummary extends LitElement {
                                 }
                             }
                         },
+                        /*
                         {
                             id: "variant-summary-ct-no-selected",
                             type: "custom",
@@ -262,6 +264,7 @@ export default class VariantSummary extends LitElement {
                                 }
                             }
                         },
+                         */
                         // - Clinical Significance
                         {
                             id: "variant-summary-clinical-significance",
