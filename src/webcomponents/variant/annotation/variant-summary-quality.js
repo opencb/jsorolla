@@ -141,8 +141,8 @@ export default class VariantSummaryQuality extends LitElement {
             const individual = this.clinicalAnalysis.family.members.find(m => m.samples[0].id === sampleEntry.sampleId);
             sex = UtilsNew.isEmpty(individual?.sex) ? "Not specified" : individual.sex?.id || individual.sex;
         } else {
-            sex = (!!this.clinicalAnalysis?.proband?.sex && this.clinicalAnalysis?.proband?.sex !== "UNKNOWN")
-                ? this.clinicalAnalysis.proband.sex
+            sex = (!!this.clinicalAnalysis?.proband?.sex && this.clinicalAnalysis?.proband?.sex.id !== "UNKNOWN")
+                ? this.clinicalAnalysis.proband.sex.id
                 : "";
         }
         return sex;
