@@ -50,6 +50,9 @@ export default class VariantSummary extends LitElement {
             clinical: {
                 type: Boolean,
             },
+            clinicalAnalysis: {
+                type: Object,
+            },
             settings: {
                 type: Object,
             },
@@ -106,10 +109,31 @@ export default class VariantSummary extends LitElement {
                 ...this.displayConfig,
             },
             sections: [
+                // 2. Variant quality
+                {
+                    elements: [
+                        {
+                            id: "variant-summary-quality",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                render: variant => {
+                                    const samplesQuality = variant.studies.find(study => study.studyId === this.opencgaSession.study.fqn)
+                                    return html`
+                                        <variant-summary-quality
+                                            .samplesQuality="${samplesQuality}"
+                                            .variant="${variant}"
+                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-quality>
+                                    `;
+                                }
+                            }
+                        }
+                    ],
+                },
                 // 3. Population Summary
                 {
-                    // title: "Population Summary",
-                    // description: "Information related to population",
                     display: {},
                     elements: [
                         {
@@ -132,7 +156,6 @@ export default class VariantSummary extends LitElement {
                         }
                     ],
                 },
-
                 // 4. Clinical Significance
                 {
                     // title: "Clinical Significance",
@@ -350,34 +373,6 @@ export default class VariantSummary extends LitElement {
                     ],
                 },
                  */
-                // 2. Variant quality
-                {
-                    // title: "Sample Quality Summary",
-                    // description: "Information related to sample quality",
-                    display: {},
-                    elements: [
-                        {
-                            id: "variant-summary-quality",
-                            type: "custom",
-                            title: "",
-                            display: {
-                                containerClassName: "",
-                                titleClassName: "",
-                                titleStyle: "",
-                                render: variant => {
-                                    const samplesQuality = variant.studies.find(study => study.studyId === this.opencgaSession.study.fqn)
-                                    return html`
-                                        <variant-summary-quality
-                                            .samplesQuality="${samplesQuality}"
-                                            .variant="${variant}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </variant-summary-quality>
-                                    `;
-                                }
-                            }
-                        }
-                    ],
-                },
             ],
         };
     }
