@@ -319,7 +319,7 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                                     // Reset CS data
                                     this._dataCS = [];
                                     // Filter evidences based on MANE status
-                                    const relevantEvidences = this._variant.isMane
+                                    const relevantEvidences = this._variant.isMane === "MANE"
                                         ? evidences.filter(evidence =>
                                             this._maneTranscriptIds.includes(evidence.genomicFeature?.transcriptId))
                                         : evidences;
@@ -335,8 +335,7 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                                     return html`
                                         <div
                                             class="d-flex"
-                                            id="${this._chartCSId}"
-                                            style="height: 200px; margin: auto;">
+                                            id="${this._chartCSId}">
                                         </div>
                                     `;
                                 }
@@ -353,7 +352,7 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                                     // Select relevant evidences based on MANE status
                                     const relevantEvidences = evidences.filter(evidence => {
                                         const transcriptId = evidence.genomicFeature?.transcriptId;
-                                        return this._variant.isMane
+                                        return this._variant.isMane === "MANE"
                                             ? this._maneTranscriptIds.includes(transcriptId)
                                             : transcriptId?.startsWith("ENST");
                                     });
@@ -370,7 +369,6 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                                         <div
                                             class="d-flex"
                                             id="${this._chartAcmgId}"
-                                            style="height: 200px; margin: auto;"
                                         ></div>
                                     `;
                                 }
