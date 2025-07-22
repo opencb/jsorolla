@@ -148,6 +148,7 @@ export default class VariantInterpreterView extends LitElement {
                         return html`
                             <variant-summary
                                 .variant="${variant}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
                                 .consequenceTypes="${CONSEQUENCE_TYPES}"
                                 .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
                                 .settings="${this.settings}"
