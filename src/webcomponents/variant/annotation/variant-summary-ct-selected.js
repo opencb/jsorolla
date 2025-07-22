@@ -169,7 +169,6 @@ export default class VariantSummaryCtSelected extends LitElement {
     }
 
     _renderConsequenceTypes(cts) {
-        debugger
         const transcripts = cts[this._selectedGene] || [];
         return html`
           <div class="d-flex">
