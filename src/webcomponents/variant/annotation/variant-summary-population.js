@@ -110,7 +110,7 @@ export default class VariantSummaryPopulation extends LitElement {
             },
             plotOptions: {
                 pie: {
-                    innerSize: "60%",
+                    innerSize: "70%",
                     startAngle: -90,
                     endAngle: 90,
                     center: ["50%", "70%"],
