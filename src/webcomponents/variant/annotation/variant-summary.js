@@ -18,6 +18,7 @@ import {html, LitElement, nothing} from "lit";
 // import "./variant-summary-interpretation.js"
 import "./variant-summary-clinical-significance.js"
 import "./variant-summary-clinical-significance-variant-traits.js"
+import "./variant-summary-cs-cosmic-variant-traits.js"
 import "./variant-summary-quality.js"
 import "./variant-summary-population.js"
 import "./variant-summary-info.js"
@@ -195,6 +196,21 @@ export default class VariantSummary extends LitElement {
                                     },
                                 ]
                             },
+                            {
+                                className: "d-flex align-items-stretch",
+                                elements: [
+                                    {
+                                        id:"variant-summary-cs-cosmic-variant-traits",
+                                        style: "flex: 1 0 auto",
+                                    },
+                                    /*
+                                    {
+                                        id:"variant-summary-clinical-significance-variant-traits",
+                                        style: "flex: 1 0 auto",
+                                    },
+                                     */
+                                ]
+                            },
                             /*
                             {
                                 id: "",
@@ -281,7 +297,7 @@ export default class VariantSummary extends LitElement {
                                 }
                             },
                         },
-                        // - Variant trait association
+                        // - Variant trait association clinvar
                         {
                             id: "variant-summary-clinical-significance-variant-traits",
                             type: "custom",
@@ -294,6 +310,23 @@ export default class VariantSummary extends LitElement {
                                         <variant-summary-clinical-significance-variant-traits
                                            .variant="${variant}">
                                         </variant-summary-clinical-significance-variant-traits>
+                                    `;
+                                }
+                            },
+                        },
+                        // - Variant trait association cosmic
+                        {
+                            id: "variant-summary-cs-cosmic-variant-traits",
+                            type: "custom",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-cs-cosmic-variant-traits
+                                           .variant="${variant}">
+                                        </variant-summary-cs-cosmic-variant-traits>
                                     `;
                                 }
                             },
