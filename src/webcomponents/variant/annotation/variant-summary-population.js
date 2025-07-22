@@ -99,14 +99,14 @@ export default class VariantSummaryPopulation extends LitElement {
                 align: 'center',
                 verticalAlign: 'middle',
                 style: { fontSize: '14px' },
-                y: 30,
+                y: 29,
             },
             subtitle: {
                 text: `<span style="font-size:12px;">Total sub-populations: ${this._dataCohorts[study].total}</span>`,
                 align: "center",
                 verticalAlign: "middle",
                 style: {fontSize: "12px"},
-                y: 52,
+                y: 51,
             },
             plotOptions: {
                 pie: {
@@ -247,7 +247,7 @@ export default class VariantSummaryPopulation extends LitElement {
                                     this._dataCohorts = dataCohorts;
                                     this._dataAll = dataAll;
                                     this._dataCohortsTransformed = VariantGridFormatter.applyLinearTransform(dataCohorts);
-                                    debugger
+
                                     return html`
                                         <div class="d-flex align-items-stretch">
                                             ${Object.keys(this._dataCohortsTransformed)
@@ -270,12 +270,16 @@ export default class VariantSummaryPopulation extends LitElement {
                                                                     <div class="me-2">(${all.freq.toFixed(4)})</div>
                                                                 </div>
                                                                 <div class="pt-2 text-secondary" style="word-break: break-word; white-space: normal;">
-                                                                    Max MAF <b>${dataMaxMin[study].maxMAF.value}%</b> in ${maxMore ? `populations` : `population`}
-                                                                    ${dataMaxMin[study].maxMAF.populations.join(", ")}
+                                                                    Max MAF <b>${dataMaxMin[study].maxMAF.value}%</b> in
+                                                                    ${maxMore ?
+                                                                        `${dataMaxMin[study].maxMAF.populations.length} populations` :
+                                                                        `population ${dataMaxMin[study].maxMAF.populations.join(", ")}` }
                                                                 </div>
                                                                 <div class="pt-2 text-secondary" style="word-break: break-word; white-space: normal;">
-                                                                    Min MAF <b>${dataMaxMin[study].minMAF.value}%</b> in ${minMore ? `populations` : `population`}
-                                                                    ${dataMaxMin[study].minMAF.populations.join(", ")}
+                                                                    Min MAF <b>${dataMaxMin[study].minMAF.value}%</b> in
+                                                                    ${minMore ?
+                                                                        `${dataMaxMin[study].minMAF.populations.length} populations` :
+                                                                        `population ${dataMaxMin[study].minMAF.populations.join(", ")}` }
                                                                 </div>
                                                             </div>
                                                             <!--Donut chart-->
