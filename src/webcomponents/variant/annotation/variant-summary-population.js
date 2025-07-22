@@ -250,37 +250,39 @@ export default class VariantSummaryPopulation extends LitElement {
                                     debugger
                                     return html`
                                         <div class="d-flex align-items-stretch">
-                                            ${Object.keys(this._dataCohortsTransformed).map(study => {
-                                                const chartId = `chart-${study}`;
-                                                const statsId = `stats-${study}`;
-                                                const all = this._dataAll[study];
-                                                const prettyCategory = VariantGridFormatter.prettifyFrequencyLabel(all.category);
-                                                const maxMore = dataMaxMin[study].maxMAF.populations.length > 1 || false;
-                                                const minMore = dataMaxMin[study].minMAF.populations.length > 1 || false;
-                                                return html`
-                                                    <div class="d-flex align-items-stretch" style="flex: 1 0 auto;">
-                                                        <!--Stats box-->
-                                                        <div class="ps-3" id="${statsId}" style="border-left: 1px solid #d9dada; flex: 0 1 auto">
-                                                            <div class="d-flex align-items-center text-dark">
-                                                                <div class="me-2" style="width: 10px;height: 10px;background: ${all.color};border-radius: 2px;"></div>
-                                                                <div class="me-2 fw-bold">Population ALL:</div>
-                                                                <div class="me-2">${prettyCategory}</div>
-                                                                <div class="me-2">(${all.freq.toFixed(4)})</div>
+                                            ${Object.keys(this._dataCohortsTransformed)
+                                                .filter(study => study !== "GNOMAD_EXOMES") // Exclude it here
+                                                .map(study => {
+                                                    const chartId = `chart-${study}`;
+                                                    const statsId = `stats-${study}`;
+                                                    const all = this._dataAll[study];
+                                                    const prettyCategory = VariantGridFormatter.prettifyFrequencyLabel(all.category);
+                                                    const maxMore = dataMaxMin[study].maxMAF.populations.length > 1 || false;
+                                                    const minMore = dataMaxMin[study].minMAF.populations.length > 1 || false;
+                                                    return html`
+                                                        <div class="d-flex align-items-stretch" style="flex: 1 0 auto;">
+                                                            <!--Stats box-->
+                                                            <div class="ps-3" id="${statsId}" style="border-left: 1px solid #d9dada; flex: 0 1 auto">
+                                                                <div class="d-flex align-items-center text-dark">
+                                                                    <div class="me-2" style="width: 10px;height: 10px;background: ${all.color};border-radius: 2px;"></div>
+                                                                    <div class="me-2 fw-bold">Population ALL:</div>
+                                                                    <div class="me-2">${prettyCategory}</div>
+                                                                    <div class="me-2">(${all.freq.toFixed(4)})</div>
+                                                                </div>
+                                                                <div class="pt-2 text-secondary" style="word-break: break-word; white-space: normal;">
+                                                                    Max MAF <b>${dataMaxMin[study].maxMAF.value}%</b> in ${maxMore ? `populations` : `population`}
+                                                                    ${dataMaxMin[study].maxMAF.populations.join(", ")}
+                                                                </div>
+                                                                <div class="pt-2 text-secondary" style="word-break: break-word; white-space: normal;">
+                                                                    Min MAF <b>${dataMaxMin[study].minMAF.value}%</b> in ${minMore ? `populations` : `population`}
+                                                                    ${dataMaxMin[study].minMAF.populations.join(", ")}
+                                                                </div>
                                                             </div>
-                                                            <div class="pt-2 text-secondary" style="word-break: break-word; white-space: normal;">
-                                                                Max MAF <b>${dataMaxMin[study].maxMAF.value}%</b> in ${maxMore ? `populations` : `population`}
-                                                                ${dataMaxMin[study].maxMAF.populations.join(", ")}
-                                                            </div>
-                                                            <div class="pt-2 text-secondary" style="word-break: break-word; white-space: normal;">
-                                                                Min MAF <b>${dataMaxMin[study].minMAF.value}%</b> in ${minMore ? `populations` : `population`}
-                                                                ${dataMaxMin[study].minMAF.populations.join(", ")}
-                                                            </div>
+                                                            <!--Donut chart-->
+                                                            <div class="" id="${chartId}" style="flex: 0 0 auto"></div>
                                                         </div>
-                                                        <!--Donut chart-->
-                                                        <div class="" id="${chartId}" style="flex: 0 0 auto"></div>
-                                                    </div>
-                                                `;
-                                            })}
+                                                    `;
+                                                })}
                                         </div>
                                     `;
                                 }
