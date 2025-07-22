@@ -1060,8 +1060,12 @@ export default class VariantGridFormatter {
     static categorizeFrequencies(data) {
         const dataCohorts = {};
         const dataAll = {};
+        const dataMaxMin = {};
 
-        for (const {study, population, altAlleleFreq} of data) {
+        for (const {study, population, refAlleleFreq, altAlleleFreq} of data) {
+
+            const maf = Math.min(refAlleleFreq, altAlleleFreq); // MAF
+
             if (!dataCohorts[study]) {
                 dataCohorts[study] = {
                     unobserved: {counts: 0, cohorts: []},
@@ -1074,23 +1078,47 @@ export default class VariantGridFormatter {
             }
 
             if (population === 'ALL') {
-                const category = VariantGridFormatter.classifyFrequency(altAlleleFreq);
+                const category = VariantGridFormatter.classifyFrequency(maf);
                 const color = POPULATION_FREQUENCIES.style[category] || '#999';
                 dataAll[study] = {
-                    freq: altAlleleFreq,
+                    freq: maf,
                     category,
                     color
                 };
                 continue;
             }
 
-            const category = VariantGridFormatter.classifyFrequency(altAlleleFreq);
+            const category = VariantGridFormatter.classifyFrequency(maf);
             dataCohorts[study][category].counts++;
             dataCohorts[study][category].cohorts.push(population);
             dataCohorts[study].total++;
+
+            // Compute max and min MAF and its population per study
+            const mafPercentage = Number((maf * 100).toFixed(4)); // MAF in %
+
+            if (!dataMaxMin[study]) {
+                dataMaxMin[study] = {
+                    maxMAF: {value: mafPercentage, populations: [population]},
+                    minMAF: {value: mafPercentage, populations: [population]},
+                };
+            } else {
+                const studyData = dataMaxMin[study];
+
+                if (mafPercentage > studyData.maxMAF.value) {
+                    studyData.maxMAF = {value: mafPercentage, populations: [population]};
+                } else if (mafPercentage === studyData.maxMAF.value) {
+                    studyData.maxMAF.populations.push(population);
+                }
+
+                if (mafPercentage < studyData.minMAF.value) {
+                    studyData.minMAF = {value: mafPercentage, populations: [population]};
+                } else if (mafPercentage === studyData.minMAF.value) {
+                    studyData.minMAF.populations.push(population);
+                }
+            }
         }
 
-        return {dataCohorts, dataAll};
+        return {dataCohorts, dataAll, dataMaxMin};
     }
 
     static prettifyFrequencyLabel(label) {
