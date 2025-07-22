@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import VariantUtils from "../variant-utils.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class VariantSummaryCSCosmicVariantTraits extends LitElement {
 
@@ -88,10 +88,6 @@ export default class VariantSummaryCSCosmicVariantTraits extends LitElement {
             return nothing;
         }
 
-        if (this._variantSummary.length === 0) {
-            return html`<div>No cosmic traits association data available to display</div>`;
-        }
-
 
         return html`
             <div class="card p-3">
@@ -101,10 +97,14 @@ export default class VariantSummaryCSCosmicVariantTraits extends LitElement {
 
                 </div>
                 <div class="card-body pt-0 pb-0">
-                    <data-form
-                        .data="${this._variantSummary[0]}"
-                        .config="${this._config}">
-                    </data-form>
+                    ${this._variantSummary.length === 0 ? html`
+                        <div>No cosmic traits association data available to display</div>
+                    ` : html `
+                        <data-form
+                                .data="${this._variantSummary[0]}"
+                                .config="${this._config}">
+                        </data-form>
+                    `}
                 </div>
                 <!--
                 <div class="card-footer text-muted">
@@ -167,7 +167,7 @@ export default class VariantSummaryCSCosmicVariantTraits extends LitElement {
                                 render: trait => {
                                     return html`
                                         <div class="">
-                                            <b>Primary site:</b> ${trait.primarySite} | <b>Histology:</b> ${trait.histology}
+                                            <b>Primary site:</b> ${UtilsNew.capitalizeWords(trait?.primarySite || "")} | <b>Histology:</b> ${UtilsNew.capitalizeWords(trait?.histology || "")}
                                         </div>
 
                                     `;
@@ -179,12 +179,15 @@ export default class VariantSummaryCSCosmicVariantTraits extends LitElement {
                             field: "somaticStatus",
                         },
                         {
-                            title: "FATHMM prediction/score",
+                            title: "FATHMM",
                             type: "custom",
                             display: {
                                 render: trait => {
                                     return html`
-                                    <div class=""><b>Prediction:</b> ${trait.fathmmPrediction} | <b>Score:</b> ${trait.fathmmScore}</div>
+                                    <div class="d-flex flex-column">
+                                        <div><b>Prediction:</b> ${trait.fathmmPrediction}</div>
+                                        <div><b>Score:</b> ${trait.fathmmScore}</div>
+                                    </div>
                                 `;
                                 },
                             },
