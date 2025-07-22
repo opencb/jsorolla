@@ -25,8 +25,8 @@ import "./variant-summary-info.js"
 import "./variant-summary-ct-selected.js"
 import "./variant-summary-ct-no-selected.js"
 import "./variant-summary-gene.js"
-import VariantUtils from "../variant-utils.js";
 // import "./variant-summary-deleteriousness.js";
+import "./variant-summary-conservation.js";
 
 export default class VariantSummary extends LitElement {
 
@@ -168,7 +168,7 @@ export default class VariantSummary extends LitElement {
                                 elements: [
                                     {
                                         id: "variant-summary-info",
-                                        style: "flex: 1 0 auto",
+                                        style: "flex: 0 0 auto",
                                     },
                                     {
                                         id: "variant-summary-ct-selected",
@@ -211,16 +211,22 @@ export default class VariantSummary extends LitElement {
                                      */
                                 ]
                             },
-                            /*
                             {
-                                id: "",
-                                className: "",
-                                elements: [{
-                                    id:"variant-summary-deleteriousness",
-                                    className: "flex-grow-1",
-                                }],
+                                className: "d-flex align-items-stretch",
+                                elements: [
+                                    /*
+                                    {
+                                        id:"variant-summary-deleteriousness",
+                                        style: "flex: 1 0 auto",
+
+                                    },
+                                     */
+                                    {
+                                        id:"variant-summary-conservation",
+                                        style: "flex: 1 0 auto",
+                                    }
+                                ],
                             },
-                             */
                         ]
                     },
                     elements: [
@@ -297,7 +303,7 @@ export default class VariantSummary extends LitElement {
                                 }
                             },
                         },
-                        // - Variant trait association clinvar
+                        // Variant trait association clinvar
                         {
                             id: "variant-summary-clinical-significance-variant-traits",
                             type: "custom",
@@ -314,7 +320,7 @@ export default class VariantSummary extends LitElement {
                                 }
                             },
                         },
-                        // - Variant trait association cosmic
+                        // Variant trait association cosmic
                         {
                             id: "variant-summary-cs-cosmic-variant-traits",
                             type: "custom",
@@ -351,8 +357,8 @@ export default class VariantSummary extends LitElement {
                             }
                         }
                         */
+                        // Deleteriousness
                         /*
-                        // - Deleteriousness
                         {
                             id: "variant-summary-deleteriousness",
                             type: "custom",
@@ -364,14 +370,32 @@ export default class VariantSummary extends LitElement {
                                 render: variant => {
                                     return html`
                                         <variant-summary-deleteriousness
-                                            .variant="${variant}"
-                                            .settings="${this.settings}">
+                                            .variant="${variant}">
                                         </variant-summary-deleteriousness>
                                     `;
                                 }
                             }
                         },
-                        */
+                         */
+                        // Conservation
+                        {
+                            id: "variant-summary-conservation",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-conservation
+                                            .variant="${variant}">
+                                        </variant-summary-conservation>
+                                    `;
+                                }
+                            }
+                        },
+
                         // - Gene/Disease Association
                         // - Conservation
                         // - Pubmed
