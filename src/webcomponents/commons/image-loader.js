@@ -80,7 +80,6 @@ export default class ImageLoader extends LitElement {
     }
 
     render() {
-        console.log(this.images);
         return html`
             <input
                 class="d-none"
