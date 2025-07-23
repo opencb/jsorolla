@@ -87,6 +87,10 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this._selectedVariant = null; // used in the variant-view
         this._selectedVariants = null; // used in the variant-review
         this._selectedVariantsChecked = false;
+        this._selectedVariantsPrimary = false;
+
+        this._primaryFindings = new Map();
+        this._secondaryFindings = new Map();
 
         this.gridCommons = null;
         this.clinicalAnalysisManager = null;
@@ -126,6 +130,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        this._primaryFindings = new Map();
+        this._secondaryFindings = new Map();
+
         if (this.opencgaSession && this.clinicalAnalysis) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
 
@@ -133,10 +140,14 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 this.clinicalAnalysis.interpretation = {};
             }
 
-            // Update checked variants
-            this._checkedVariants = new Map();
-            (this.clinicalAnalysis.interpretation?.primaryFindings || []).forEach(variant => {
-                this._checkedVariants.set(variant.id, variant);
+            // fill primary findings map
+            (this.clinicalAnalysis?.interpretation?.primaryFindings || []).forEach(variant => {
+                this._primaryFindings.set(variant.id, variant);
+            });
+
+            // fill secondary findings map
+            (this.clinicalAnalysis?.interpretation?.secondaryFindings || []).forEach(variant => {
+                this._secondaryFindings.set(variant.id, variant);
             });
 
             if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
@@ -412,7 +423,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
     renderLocalVariants() {
         // Generate rows from local clinical variants
-        // const variants = this.clinicalAnalysis.interpretation.primaryFindings;
         const variants = this.generateRowsFromVariants(this.clinicalVariants);
 
         this.table = $("#" + this.gridId);
@@ -676,7 +686,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        return VariantInterpreterGridFormatter.reviewFormatter(row[0], this.clinicalAnalysis, this._checkedVariants, this._config);
+                        const variant = this._primaryFindings.get(row.id) || this._secondaryFindings.get(row.id) || row;
+                        const checked = this._primaryFindings.has(row.id) || this._secondaryFindings.has(row.id);
+                        return VariantInterpreterGridFormatter.reviewFormatter(variant, this.clinicalAnalysis, checked, this._config);
                     },
                     align: "center",
                     events: {
