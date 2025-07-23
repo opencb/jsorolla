@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import "./clinical/clinical-analysis-case-configuration.js";
+import "./clinical/clinical-analysis-interpretation-configuration.js";
 import "./study-admin-users.js";
 import "./study-admin-permissions.js";
 import "./study-admin-variable.js";
@@ -171,6 +173,35 @@ export default class StudyAdmin extends LitElement {
                                     .toolParams="${{study: opencgaSession.study.id}}"
                                     .opencgaSession="${opencgaSession}">
                                 </variant-secondary-sample-index-configure-operation>
+                            `,
+                        },
+                    ],
+                },
+                {
+                    id: "clinical-configuration",
+                    name: "Clinical Configuration",
+                    description: "",
+                    submenu: [
+                        {
+                            id: "clinical-analysis-case-configuration",
+                            name: "Case Configuration",
+                            icon: "fas fa-key",
+                            render: opencgaSession => html`
+                                <clinical-analysis-case-configuration
+                                    .toolParams="${{study: opencgaSession.study.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </clinical-analysis-case-configuration>
+                            `,
+                        },
+                        {
+                            id: "clinical-analysis-interpretation-configuration",
+                            name: "Interpretation Analysis Configuration",
+                            icon: "fas fa-key",
+                            render: opencgaSession => html`
+                                <clinical-analysis-interpretation-configuration
+                                    .toolParams="${{study: opencgaSession.study.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </clinical-analysis-interpretation-configuration>
                             `,
                         },
                     ],
