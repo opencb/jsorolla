@@ -83,7 +83,6 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         this.review = false;
         this.active = true;
 
-        this._checkedVariants = new Map();
         this._selectedVariant = null; // used in the variant-view
         this._selectedVariants = null; // used in the variant-review
         this._selectedVariantsChecked = false;
