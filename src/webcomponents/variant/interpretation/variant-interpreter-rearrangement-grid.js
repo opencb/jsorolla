@@ -846,24 +846,35 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     }
 
     onVariantReview(event, variants) {
-        if (this._checkedVariants.has(variants[0].id)) {
-            this._selectedVariants = [
-                UtilsNew.objectClone(this._checkedVariants.get(variants[0].id)),
-                UtilsNew.objectClone(this._checkedVariants.get(variants[1].id)),
+        // check if the variant is already selected
+        if (this._primaryFindings.has(variants[0].id)) {
+            this._selectedVariant = [
+                UtilsNew.objectClone(this._primaryFindings.get(variants[0].id)),
+                UtilsNew.objectClone(this._primaryFindings.get(variants[1].id)),
             ];
+            this._selectedVariantsPrimary = true;
+        } else if (this._secondaryFindings.has(row.id)) {
+            this._selectedVariant = [
+                UtilsNew.objectClone(this._secondaryFindings.get(variants[0].id)),
+                UtilsNew.objectClone(this._secondaryFindings.get(variants[1].id)),
+            ];
+            this._selectedVariantsPrimary = false;
         } else {
             this._selectedVariants = [
                 UtilsNew.objectClone(variants[0]),
                 UtilsNew.objectClone(variants[1]),
             ];
+            this._selectedVariantsPrimary = true;
         }
-        this._selectedVariantsChecked = this._checkedVariants.has(variants[0].id);
+        // when entering in the review modal, the variant will be displayed checked by default
+        this._selectedVariantsChecked = true;
         this.gridCommons.changeActiveModal("review-variant");
     }
 
     onVariantReviewChange(event) {
         this._selectedVariants[0] = event.detail.variant;
         this._selectedVariantsChecked = event.detail.selected;
+        this._selectedVariantsPrimary = event.detail.primaryFinding;
     }
 
     onVariantReviewSave() {
