@@ -18,14 +18,15 @@ import {html, LitElement, nothing} from "lit";
 // import "./variant-summary-interpretation.js"
 import "./variant-summary-clinical-significance.js"
 import "./variant-summary-clinical-significance-variant-traits.js"
+import "./variant-summary-cs-cosmic-variant-traits.js"
 import "./variant-summary-quality.js"
-// import "./variant-summary-population.js"
+import "./variant-summary-population.js"
 import "./variant-summary-info.js"
 import "./variant-summary-ct-selected.js"
 import "./variant-summary-ct-no-selected.js"
 import "./variant-summary-gene.js"
-import VariantUtils from "../variant-utils.js";
 // import "./variant-summary-deleteriousness.js";
+import "./variant-summary-conservation.js";
 
 export default class VariantSummary extends LitElement {
 
@@ -49,6 +50,9 @@ export default class VariantSummary extends LitElement {
             },
             clinical: {
                 type: Boolean,
+            },
+            clinicalAnalysis: {
+                type: Object,
             },
             settings: {
                 type: Object,
@@ -106,58 +110,126 @@ export default class VariantSummary extends LitElement {
                 ...this.displayConfig,
             },
             sections: [
-                // 4. Clinical Significance
+                // 2. Section Variant quality
+                {
+                    elements: [
+                        {
+                            id: "variant-summary-quality",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                render: variant => {
+                                    const samplesQuality = variant.studies.find(study => study.studyId === this.opencgaSession.study.fqn)
+                                    return html`
+                                        <variant-summary-quality
+                                            .samplesQuality="${samplesQuality}"
+                                            .variant="${variant}"
+                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-quality>
+                                    `;
+                                }
+                            }
+                        }
+                    ],
+                },
+                // 3. Section Population Summary
+                {
+                    display: {},
+                    elements: [
+                        {
+                            id: "variant-summary-population",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-population
+                                            .variant="${variant}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-population>
+                                    `;
+                                }
+                            }
+                        }
+                    ],
+                },
+                // 4. Section Clinical Significance
                 {
                     // title: "Clinical Significance",
                     display: {
                         //visible: null,// individual => individual?.id,
                         layout: [
                             {
-                                id: "",
-                                className: "d-flex",
+                                className: "d-flex align-items-stretch",
                                 elements: [
                                     {
                                         id: "variant-summary-info",
-                                        className: "flex-grow-1",
+                                        style: "flex: 0 0 auto",
                                     },
                                     {
                                         id: "variant-summary-ct-selected",
-                                        className: "flex-grow-1",
+                                        style: "flex: 1 0 auto",
                                     },
+                                    /*
                                     {
                                         id: "variant-summary-ct-no-selected",
                                         className: "flex-grow-1",
                                     },
+                                     */
                                 ]
                             },
                             {
-                                id: "",
-                                className: "d-flex flex-wrap",
+                                className: "d-flex align-items-stretch",
                                 elements: [
                                     {
                                         id:"variant-summary-clinical-significance",
-                                        className: "w-50",
+                                        style: "flex: 1 0 auto",
+                                        className: "me-2",
                                     },
                                     {
                                         id:"variant-summary-clinical-significance-variant-traits",
-                                        className: "w-50",
+                                        style: "flex: 1 0 auto",
                                     },
                                 ]
                             },
-                            /*
                             {
-                                id: "",
-                                className: "",
-                                elements: [{
-                                    id:"variant-summary-deleteriousness",
-                                    className: "flex-grow-1",
-                                }],
+                                className: "d-flex align-items-stretch",
+                                elements: [
+                                    {
+                                        id:"variant-summary-cs-cosmic-variant-traits",
+                                        style: "flex: 1 0 auto",
+                                    },
+                                    /*
+                                    {
+                                        id:"variant-summary-clinical-significance-variant-traits",
+                                        style: "flex: 1 0 auto",
+                                    },
+                                     */
+                                ]
                             },
-                             */
+                            {
+                                className: "d-flex align-items-stretch",
+                                elements: [
+                                    /*
+                                    {
+                                        id:"variant-summary-deleteriousness",
+                                        style: "flex: 1 0 auto",
+
+                                    },
+                                     */
+                                    {
+                                        id:"variant-summary-conservation",
+                                        style: "flex: 1 0 auto",
+                                    }
+                                ],
+                            },
                         ]
                     },
                     elements: [
-                        // - Variant Info
                         {
                             id: "variant-summary-info",
                             type: "custom",
@@ -194,6 +266,7 @@ export default class VariantSummary extends LitElement {
                                 }
                             }
                         },
+                        /*
                         {
                             id: "variant-summary-ct-no-selected",
                             type: "custom",
@@ -212,6 +285,7 @@ export default class VariantSummary extends LitElement {
                                 }
                             }
                         },
+                         */
                         // - Clinical Significance
                         {
                             id: "variant-summary-clinical-significance",
@@ -223,13 +297,13 @@ export default class VariantSummary extends LitElement {
                                 render: variant => {
                                     return html`
                                         <variant-summary-clinical-significance
-                                                .variant="${variant}">
+                                           .variant="${variant}">
                                         </variant-summary-clinical-significance>
                                     `;
                                 }
                             },
                         },
-                        // - Variant trait association
+                        // Variant trait association clinvar
                         {
                             id: "variant-summary-clinical-significance-variant-traits",
                             type: "custom",
@@ -240,33 +314,51 @@ export default class VariantSummary extends LitElement {
                                 render: variant => {
                                     return html`
                                         <variant-summary-clinical-significance-variant-traits
-                                                .variant="${variant}">
+                                           .variant="${variant}">
                                         </variant-summary-clinical-significance-variant-traits>
                                     `;
                                 }
                             },
                         },
+                        // Variant trait association cosmic
+                        {
+                            id: "variant-summary-cs-cosmic-variant-traits",
+                            type: "custom",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-cs-cosmic-variant-traits
+                                           .variant="${variant}">
+                                        </variant-summary-cs-cosmic-variant-traits>
+                                    `;
+                                }
+                            },
+                        },
                         /*
-{
-    id: "variant-summary-gene",
-    type: "custom",
-    title: "Gene-Disease Association",
-    display: {
-        containerClassName: "",
-        titleClassName: "",
-        titleStyle: "",
-        render: variant => {
-            return html`
-                <variant-summary-gene
-                    .variant="${variant}"
-                    .opencgaSession="${this.opencgaSession}">
-                </variant-summary-gene>
-            `;
-        }
-    }
-}*/
+                        {
+                            id: "variant-summary-gene",
+                            type: "custom",
+                            title: "Gene-Disease Association",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-gene
+                                            .variant="${variant}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-gene>
+                                    `;
+                                }
+                            }
+                        }
+                        */
+                        // Deleteriousness
                         /*
-                        // - Deleteriousness
                         {
                             id: "variant-summary-deleteriousness",
                             type: "custom",
@@ -278,14 +370,32 @@ export default class VariantSummary extends LitElement {
                                 render: variant => {
                                     return html`
                                         <variant-summary-deleteriousness
-                                            .variant="${variant}"
-                                            .settings="${this.settings}">
+                                            .variant="${variant}">
                                         </variant-summary-deleteriousness>
                                     `;
                                 }
                             }
                         },
-                        */
+                         */
+                        // Conservation
+                        {
+                            id: "variant-summary-conservation",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-conservation
+                                            .variant="${variant}">
+                                        </variant-summary-conservation>
+                                    `;
+                                }
+                            }
+                        },
+
                         // - Gene/Disease Association
                         // - Conservation
                         // - Pubmed
@@ -322,63 +432,6 @@ export default class VariantSummary extends LitElement {
                     ],
                 },
                  */
-                // 2. Variant quality
-                {
-                    // title: "Sample Quality Summary",
-                    // description: "Information related to sample quality",
-                    display: {},
-                    elements: [
-                        {
-                            id: "variant-summary-quality",
-                            type: "custom",
-                            title: "",
-                            display: {
-                                containerClassName: "",
-                                titleClassName: "",
-                                titleStyle: "",
-                                render: variant => {
-                                    const samplesQuality = variant.studies.find(study => study.studyId === this.opencgaSession.study.fqn)
-                                    return html`
-                                        <variant-summary-quality
-                                            .samplesQuality="${samplesQuality}"
-                                            .variant="${variant}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </variant-summary-quality>
-                                    `;
-                                }
-                            }
-                        }
-                    ],
-                },
-                // 3. Population Summary
-                /*
-                {
-                    title: "Population Summary",
-                    description: "Information related to population",
-                    display: {},
-                    elements: [
-                        {
-                            id: "variant-summary-population",
-                            type: "custom",
-                            title: "",
-                            display: {
-                                containerClassName: "",
-                                titleClassName: "",
-                                titleStyle: "",
-                                render: variant => {
-                                    return html`
-                                        <variant-summary-population
-                                            .variant="${variant}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </variant-summary-population>
-                                    `;
-                                }
-                            }
-                        }
-                    ],
-                },
-                */
-
             ],
         };
     }

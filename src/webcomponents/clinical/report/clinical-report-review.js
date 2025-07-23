@@ -31,6 +31,9 @@ export default class ClinicalReportReview extends LitElement {
             cellbaseClient: {
                 type: Object
             },
+            active: {
+                type: Boolean,
+            },
             config: {
                 type: Object
             }
@@ -324,21 +327,25 @@ export default class ClinicalReportReview extends LitElement {
         });
 
         return html`
-            <div class="">
-                <h3>Reported Variants</h3>
+            <div class="mb-4">
+                <h3 class="fw-bold mb-4">Reported Variants</h3>
                 <clinical-report-variants
+                    .active="${this.active}"
                     .clinicalAnalysis="${this.clinicalAnalysis}"
                     .opencgaSession="${this.opencgaSession}"
                     .variants="${reportedVariants}"
                     .config="${{}}">
                 </clinical-report-variants>
             </div>
-            <data-form
-                .data="${this.clinicalAnalysis}"
-                .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @submit=${e => this.onSubmit(e)}>
-            </data-form>
+            <div class="">
+                <h3 class="fw-bold mb-4">Case Review</h3>
+                <data-form
+                    .data="${this.clinicalAnalysis}"
+                    .config="${this._config}"
+                    @fieldChange="${event => this.onFieldChange(event)}"
+                    @submit=${event => this.onSubmit(event)}>
+                </data-form>
+            </div>
         `;
     }
 

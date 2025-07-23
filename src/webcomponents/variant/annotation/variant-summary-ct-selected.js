@@ -15,7 +15,6 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import UtilsNew from "../../../core/utils-new";
 import VariantGridFormatter from "../variant-grid-formatter";
 
 export default class VariantSummaryCtSelected extends LitElement {
@@ -41,8 +40,8 @@ export default class VariantSummaryCtSelected extends LitElement {
         };
     }
 
+
     #init() {
-        this.COMPONENT_ID = "variant-summary-info";
         this._study = null;
         this._variant = {};
         this._consequenceTypeToColor = {};
@@ -106,27 +105,36 @@ export default class VariantSummaryCtSelected extends LitElement {
 
             // CAUTION 2: What I believe can be more accurate is:
             // 1. Get the list of consequence types selected in settings
+            /*
             const {selectedConsequenceTypes, notSelectedConsequenceTypes} =
                 VariantGridFormatter._consequenceTypeDetailFormatterFilter(
                     this.variant.annotation.consequenceTypes,
                     this.settings);
-
+            */
+            /*
             const mostSevereCT = this.variant.annotation.displayConsequenceType;
-
             const matchesMostSevere = ct =>
                 ct.sequenceOntologyTerms?.some(so => so.name === mostSevereCT);
-
             let mostSevere = this.variant.annotation.consequenceTypes.filter(matchesMostSevere) || [];
-            /*
             let selected = selectedConsequenceTypes.filter(matchesMostSevere) || [];
             let notSelected = notSelectedConsequenceTypes.filter(matchesMostSevere) || [];
              */
 
+            const {maneConsequenceTypes, notManeConsequenceTypes, indexes} = VariantGridFormatter._consequenceTypeManeFilter(this.variant.annotation.consequenceTypes);
+
             this._variant = {
-                selected: selectedConsequenceTypes,
+                // selected: selectedConsequenceTypes,
+                selectedGene: "",
+                selected: maneConsequenceTypes,
                 ...this.variant
             };
         }
+    }
+
+    _onSelectGene(e) {
+        this._variant.selectedGene = event.currentTarget.dataset.gene;
+        this._variant = {...this._variant};
+        this.requestUpdate();
     }
 
     _groupConsequenceTypesByGene(cts) {
@@ -139,63 +147,73 @@ export default class VariantSummaryCtSelected extends LitElement {
         }, {});
     }
 
-    _renderConsequenceTypes(cts) {
-        if (Object.entries(cts).length === 0) {
-            return html`
-                <div class="fs-4">0 transcripts</div>
-            `;
-        }
-
+    _renderGeneTabs(cts) {
         return html`
-            ${Object.entries(cts).map(([geneName, transcripts]) => html`
-                <div class="mb-3">
-                    <!-- Gene Name -->
-                    <!--<div class="fw-bold mb-1">Gene: ${geneName}</div>-->
-                    <div class="badge fs-6 mb-4 bg-dark bg-opacity-75 text-white">
+            <div class="d-flex flex-wrap mb-3">
+                ${Object.keys(cts).map(geneName => html`
+                    <span
+                        class="
+                            badge fs-6 me-2 mb-2
+                            ${this._selectedGene === geneName
+                                ? 'bg-dark bg-opacity-75 text-white'
+                                : 'bg-light text-muted border border-secondary-subtle'}
+                        "
+                        style="cursor: pointer;"
+                        data-gene=${geneName}
+                        @click=${e => this._onSelectGene(e)}>
                         ${geneName}
-                    </div>
+                    </span>
+                `)}
+            </div>
+        `;
+    }
 
-                    <!-- Transcripts for this gene -->
-                    ${transcripts.map(ct => html`
-                        <div class="mb-2">
-                            <!-- Transcript Flags -->
-                            <div class="d-flex">
-                                <div class="d-flex flex-wrap mb-2">
-                                    ${ct.transcriptFlags?.map(tf => html`
-                                        <span class="badge bg-light-subtle text-muted border border-secondary-subtle rounded-2 me-2">${tf}</span>
-                                    `)}
-                                </div>
-                                <!-- SO Terms -->
-                                <div class="d-flex flex-wrap mb-2">
-                                    ${(ct.sequenceOntologyTerms || []).map(term => {
-                                        const consequenceTypeColor = this._consequenceTypeToColor?.[term.name] || "black";
-                                        return html`
-                                            <span class="badge me-2"
-                                                  style="border: 1px solid ${consequenceTypeColor}; color: ${consequenceTypeColor};">${term.name}
-                                            </span>
-                                        `;
-                                    })}
-                                </div>
-                            </div>
+    _renderConsequenceTypes(cts) {
+        const transcripts = cts[this._selectedGene] || [];
+        return html`
+          <div class="d-flex">
+              ${transcripts.map(ct => html`
+                  <div class="d-flex align-items-start flex-column"> <!--border-bottom  mb-2 pb-2-->
+                      <div class="d-flex mb-2">
+                          <!-- SO Terms -->
+                          <div class="d-flex">
+                              ${(ct.sequenceOntologyTerms || []).map(term => {
+                                  const color = this._consequenceTypeToColor[term.name] || 'black';
+                                  return html`
+                                      <span class="badge me-2" style="border: 1px solid ${color}; color: ${color};">
+                                    ${term.name}
+                                  </span>
+                                  `;
+                              })}
+                          </div>
+                          <!-- Transcript Flags -->
+                          <div class="d-flex">
+                              ${(ct.transcriptFlags || []).map(tf => html`
+                                  <span class="badge bg-white text-muted border border-secondary-subtle rounded-2 me-2">${tf}</span>
+                              `)}
+                          </div>
+                      </div>
+                      <!-- HGVS or transcript ID -->
+                      <div class="d-flex flex-column">
+                          ${ct.hgvs?.length ? ct.hgvs.map(hgvs => html`
+                              <div class="d-flex mb-1 small text-muted">${hgvs}</div>
+                          `) : html`
+                              <div class="d-flex mb-1 small text-muted">${ct.transcriptId}</div>
+                          `}
+                      </div>
+                  </div>
+              `)}
+          </div>
+        `;
+    };
 
-                            <!-- HGVS -->
-                            <div class="d-flex flex-column">
-                                ${ct.hgvs?.map(hgvs => {
-                                    const [refseq, type] = hgvs.split(":");
-                                    return html`
-                                        <div class="d-flex mb-1 small">
-                                            <div style="min-width: 130px; white-space: nowrap;">
-                                                ${refseq}
-                                            </div>
-                                            <div class="ms-2"><b>${type}</b></div>
-                                        </div>
-                                    `;
-                                }) ?? nothing}
-                            </div>
-                        </div>
-                    `)}
-                </div>
-            `)}
+    _renderConsequenceTypesNew(cts) {
+        this._selectedGene = this._variant.selectedGene || Object.keys(cts)[0]; // set default gene
+        return html`
+            <div>
+                ${this._renderGeneTabs(cts)}
+                ${this._renderConsequenceTypes(cts)}
+            </div>
         `;
     }
 
@@ -209,7 +227,7 @@ export default class VariantSummaryCtSelected extends LitElement {
             <div class="card p-3 me-2">
                 <div class="card-header border-0">
                     <h5 class="mb-2 fs-5 fw-bold d-flex">Relevant transcripts</h5>
-                    <p class="text-secondary">According to your preferred transcript flags</p>
+                    <p class="text-secondary">Consequence types linked to transcripts flagged as MANE-selected and source Ensembl</p>
 
                 </div>
                 <div class="card-body pt-0 pb-0">
@@ -218,10 +236,12 @@ export default class VariantSummaryCtSelected extends LitElement {
                         .config="${this._config}">
                     </data-form>
                 </div>
+                <!--
                 <div class="card-footer text-muted">
                     <i class="far fa-clock me-2"></i>
                     Last updated
                 </div>
+                -->
             </div>
 
         `;
@@ -231,22 +251,20 @@ export default class VariantSummaryCtSelected extends LitElement {
         return {
             display: {
                 buttonsVisible: false,
-                className: "d-flex",
             },
             sections: [
                 {
                     id: "ct-selected",
-                    //title: "TITLE",
                     display: {},
                     elements: [
                         // Transcript selected and query ct
                         {
-                            field: "selected",
+                            // field: "selected",
                             type: "custom",
                             display: {
-                                render: selected => {
-                                    const ctsGroupByGene = this._groupConsequenceTypesByGene(selected);
-                                    return this._renderConsequenceTypes(ctsGroupByGene)
+                                render: variant => {
+                                    const ctsGroupByGene = this._groupConsequenceTypesByGene(variant.selected);
+                                    return this._renderConsequenceTypesNew(ctsGroupByGene)
                                 }
                             },
                         },

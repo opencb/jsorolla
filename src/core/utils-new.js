@@ -315,6 +315,11 @@ export default class UtilsNew {
         return first.toUpperCase() + rest.join("").toLowerCase();
     }
 
+    static capitalizeWords(str) {
+        return str
+            .toLowerCase()
+            .replace(/\b\w/g, char => char.toUpperCase());
+    }
     /*
      * This function creates a table (rows and columns) a given Object or array of Objects using the fields provided.
      * Id fields is not defined or empty then it uses the Object keys. Fields can contain arrays and nested arrays.

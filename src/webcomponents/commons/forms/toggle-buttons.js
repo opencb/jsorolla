@@ -42,6 +42,9 @@ export default class ToggleButtons extends LitElement {
             },
             classes: {
                 type: String
+            },
+            classesLabel: {
+                type: String,
             }
         };
     }
@@ -66,7 +69,7 @@ export default class ToggleButtons extends LitElement {
                 .checked="${value === this.value}"
                 .disabled="${this.disabled || item?.disabled}"
                 @click="${() => this.filterChange(value)}">
-            <label class="btn btn-outline-primary" for="${this._prefix}BtnRadio${value}">
+            <label class="${this.classesLabel || 'btn btn-outline-primary'}" for="${this._prefix}BtnRadio${value}">
                 ${item?.name ?? item?.text ?? item?.id ?? item}
             </label>
         `;

@@ -287,11 +287,10 @@ export default class VariantGridFormatter {
         }
     }
 
-    static typeFormatter(value, row) {
-        if (row) {
-            let type = row.type;
+    static typeFormatter(value) {
+        if (value) {
             let color = "";
-            switch (row.type) {
+            switch (value) {
                 case "SNP": // Deprecated
                     type = "SNV";
                     color = "black";
@@ -316,7 +315,7 @@ export default class VariantGridFormatter {
                     color = "black";
                     break;
             }
-            return `<span style="color: ${color}">${type}</span>`;
+            return `<span style="color: ${color}">${value}</span>`;
         } else {
             return "-";
         }
@@ -447,6 +446,29 @@ export default class VariantGridFormatter {
         html += "</tbody></table>";
 
         return html;
+    }
+
+    static _consequenceTypeManeFilter(cts) {
+        const maneConsequenceTypes = [];
+        const notManeConsequenceTypes = [];
+        const indexes = [];
+
+        cts.forEach((ct, i) => {
+            const transcriptFlags = ct.transcriptFlags ?? ct.transcriptAnnotationFlags;
+            if (ct.source === "ensembl" &&
+                (transcriptFlags?.includes("MANE Select") || transcriptFlags?.includes("MANE Plus Clinical"))) {
+                indexes.push(i);
+                maneConsequenceTypes.push(ct);
+            } else {
+                notManeConsequenceTypes.push(ct);
+            }
+        });
+
+        return {
+            maneConsequenceTypes,
+            notManeConsequenceTypes,
+            indexes
+        };
     }
 
     static _consequenceTypeDetailFormatterFilter(cts, filter) {
@@ -1026,6 +1048,132 @@ export default class VariantGridFormatter {
 
         return htmlPopFreqTable;
     }
+
+    static classifyFrequency(freq) {
+        if (freq === null || freq === undefined || freq === 0) return "unobserved";
+        if (freq < 0.001) return "veryRare";
+        if (freq < 0.01) return "rare";
+        if (freq < 0.05) return "average";
+        return "common";
+    }
+
+    static categorizeFrequencies(data) {
+        const dataCohorts = {};
+        const dataAll = {};
+        const dataMaxMin = {};
+
+        for (const {study, population, refAlleleFreq, altAlleleFreq} of data) {
+
+            const maf = Math.min(refAlleleFreq, altAlleleFreq); // MAF
+
+            if (!dataCohorts[study]) {
+                dataCohorts[study] = {
+                    unobserved: {counts: 0, cohorts: []},
+                    veryRare: {counts: 0, cohorts: []},
+                    rare: {counts: 0, cohorts: []},
+                    average: {counts: 0, cohorts: []},
+                    common: {counts: 0, cohorts: []},
+                    total: 0
+                };
+            }
+
+            if (population === 'ALL') {
+                const category = VariantGridFormatter.classifyFrequency(maf);
+                const color = POPULATION_FREQUENCIES.style[category] || '#999';
+                dataAll[study] = {
+                    freq: maf,
+                    category,
+                    color
+                };
+                continue;
+            }
+
+            const category = VariantGridFormatter.classifyFrequency(maf);
+            dataCohorts[study][category].counts++;
+            dataCohorts[study][category].cohorts.push(population);
+            dataCohorts[study].total++;
+
+            // Compute max and min MAF and its population per study
+            const mafPercentage = Number((maf * 100).toFixed(4)); // MAF in %
+
+            if (!dataMaxMin[study]) {
+                dataMaxMin[study] = {
+                    maxMAF: {value: mafPercentage, populations: [population]},
+                    minMAF: {value: mafPercentage, populations: [population]},
+                };
+            } else {
+                const studyData = dataMaxMin[study];
+
+                if (mafPercentage > studyData.maxMAF.value) {
+                    studyData.maxMAF = {value: mafPercentage, populations: [population]};
+                } else if (mafPercentage === studyData.maxMAF.value) {
+                    studyData.maxMAF.populations.push(population);
+                }
+
+                if (mafPercentage < studyData.minMAF.value) {
+                    studyData.minMAF = {value: mafPercentage, populations: [population]};
+                } else if (mafPercentage === studyData.minMAF.value) {
+                    studyData.minMAF.populations.push(population);
+                }
+            }
+        }
+
+        return {dataCohorts, dataAll, dataMaxMin};
+    }
+
+    static prettifyFrequencyLabel(label) {
+        const prettyLables = {
+            unobserved: "Unobserved",
+            veryRare: "Very Rare",
+            rare: "Rare",
+            average: "Average",
+            common: "Common"
+        };
+        return prettyLables[label];
+    };
+
+    static applyLinearTransform(summary, minVisible = 5, maxVisible = 100) {
+        const transformed = {};
+
+        Object.entries(summary).forEach(([study, counts]) => {
+            const total = counts.total;
+            const values = [];
+
+            // Step 1: Compute raw proportions (for min/max scaling)
+            for (const [cat, obj] of Object.entries(counts)) {
+                if (cat === "total") continue;
+                values.push(obj.counts / total);
+            }
+
+            const min = Math.min(...values);
+            const max = Math.max(...values);
+
+            // Step 2: Build transformed structure
+            transformed[study] = Object.entries(counts)
+                .filter(([cat]) => cat !== "total")
+                .map(([cat, obj]) => {
+                    const val = obj.counts / total;
+                    const rawPercent = val * 100;
+
+                    const scaled =
+                        min === max ?
+                            100 / (Object.keys(counts).length - 1) :
+                            minVisible + (val - min) * (maxVisible - minVisible) / (max - min);
+
+                    return {
+                        name: VariantGridFormatter.prettifyFrequencyLabel(cat) || cat,
+                        y: parseFloat(scaled.toFixed(2)),
+                        color: POPULATION_FREQUENCIES.style[cat] || '#999',
+                        count: obj.counts,
+                        realPercent: parseFloat(rawPercent.toFixed(1)),
+                        cohorts: obj.cohorts
+                    };
+                })
+                .filter(d => d.realPercent > 0);
+        });
+
+        return transformed;
+    };
 
     static _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
         let color;

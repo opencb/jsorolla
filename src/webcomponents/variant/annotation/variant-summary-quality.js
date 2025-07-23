@@ -16,6 +16,7 @@
 
 import {html, LitElement, nothing} from "lit";
 import VariantInterpreterGridFormatter from "../interpretation/variant-interpreter-grid-formatter.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class VariantSummaryQuality extends LitElement {
 
@@ -34,6 +35,9 @@ export default class VariantSummaryQuality extends LitElement {
             variant: {
                 type: Object,
             },
+            clinicalAnalysis: {
+                type: Object,
+            },
             opencgaSession: {
                 type: Object,
             },
@@ -41,61 +45,11 @@ export default class VariantSummaryQuality extends LitElement {
     }
 
     #init() {
-        this.COMPONENT_ID = "variant-summary-quality";
         this._study = null;
         this._config = this.getDefaultConfig();
+        this._chartId = "summary-sample-quality-chart";
+        this._data = [];
         this._samplesQuality = {};
-
-        this._defaultHighchartConfig = {
-            accessibility: {
-                point: {
-                    valueSuffix: '%'
-                }
-            },
-            plotOptions: {
-                pie: {
-                    //size: "200px",
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                    dataLabels: {
-                        enabled: true,
-                        format: '<b>{point.name}</b>: {point.percentage:.1f} %'
-                    }
-                },
-            },
-            series: [{
-                name: 'Reads',
-                color: '#ff0000',
-                colorByPoint: true,
-                data: [
-                    {
-                        name: 'Reference Allele',
-                        y: 1
-                    },
-                    {
-                        name: 'Alternate Allele',
-                        y: 1
-                    }
-                ]
-            }],
-            tooltip: {
-                pointFormat: '<b>{point.percentage:.1f}%</b> ({point.y} reads)'
-                // headerFormat: `
-                //     <span style="font-size:10px">{point.key}</span>
-                //     <table>
-                // `,
-                // pointFormat: `
-                //     <tr>
-                //         <td style="color:{series.color};padding:0">{series.name}: </td>
-                //         <td style="padding:0"><b>{point.y:.1f} </b></td>
-                //     </tr>
-                // `,
-                // footerFormat: `</table>`,
-                // shared: true,
-                // useHTML: true
-            }
-        };
-
     }
 
     update(changedProperties) {
@@ -106,12 +60,101 @@ export default class VariantSummaryQuality extends LitElement {
         super.update(changedProperties);
     }
 
+    updated(changedProperties) {
+        this.querySelector("#summary-sample-quality data-form").updateComplete.then(() => {
+            this.#renderChart();
+        });
+    }
+
+    #renderChart() {
+        Highcharts.chart(`${this._chartId}`, {
+            chart: {
+                type: 'pie',
+                backgroundColor: 'transparent',
+                height: 150,       // reduce vertical space
+                width: 300,
+                spacing: [0, 0, 0, 0], // top, right, bottom, left padding
+                margin: [0, 0, 0, 0],
+            },
+            title: {
+                text: "AD Ratio",
+                align: 'center',
+                verticalAlign: 'middle',
+                style: { fontSize: '14px' },
+                y: 29,
+            },
+            subtitle: {
+                text: `<span style="font-size:12px;">Sample Id: ${this._data[0].sampleId}</span>`,
+                align: "center",
+                verticalAlign: "middle",
+                style: {fontSize: "12px"},
+                y: 51,
+            },
+
+            plotOptions: {
+                pie: {
+                    innerSize: "70%",
+                    startAngle: -90,
+                    endAngle: 90,
+                    center: ["50%", "70%"],
+                    dataLabels: {
+                        enabled: true,
+                        distance: 15,
+                        style: {
+                            color: '#666', // light grey
+                            fontWeight: "normal",
+                            textOutline: "none",
+                            fontSize: "10px",
+                        },
+                        formatter: function () {
+                            return this.point.name;
+                        }
+                    },
+                    showInLegend: true
+                },
+            },
+            series: [{
+                name: this._data[0].sampleId,
+                data: this._data[0].chartData,
+            }],
+            tooltip: {
+                useHTML: true,
+                style: {
+                    minWidth: '250px',
+                    maxWidth: '250px',
+                    whiteSpace: 'normal', // Allows wrapping
+                },
+            },
+            legend: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            },
+        });
+    }
+
+    getSex(sampleEntry) {
+        let sex;
+        if (this.clinicalAnalysis?.type === "FAMILY") {
+            // we need to find the sex of each member of the family
+            const individual = this.clinicalAnalysis.family.members.find(m => m.samples[0].id === sampleEntry.sampleId);
+            sex = UtilsNew.isEmpty(individual?.sex) ? "Not specified" : individual.sex?.id || individual.sex;
+        } else {
+            sex = (!!this.clinicalAnalysis?.proband?.sex && this.clinicalAnalysis?.proband?.sex.id !== "UNKNOWN")
+                ? this.clinicalAnalysis.proband.sex.id
+                : "";
+        }
+        return sex;
+    }
+
     variantObserver() {
+        this._samplesQuality = {};
         const study = this.variant.studies.find(study => study.studyId === this.opencgaSession.study.fqn)
-        const { samples, sampleDataKeys, files} = study;
+        const {samples, sampleDataKeys, files} = study;
 
         // Precompute all relevant indices once
-        const keyIndices = ['GT', 'DP', 'VAF', 'BQ', 'AD'].reduce((acc, key) => {
+        const keyIndices = ['GT', 'DP', 'GQ', 'AD', 'EXT_VAF'].reduce((acc, key) => {
             acc[key] = sampleDataKeys.indexOf(key);
             return acc;
         }, {});
@@ -124,15 +167,16 @@ export default class VariantSummaryQuality extends LitElement {
             //const gt = VariantInterpreterGridFormatter.alleleGenotypeRenderer(this.variant, sample, "call");
 
             return {
-                    sampleId: sample.sampleId,
-                    GT: gt,
-                    Zig: this.getZygosity(gt),
-                    DP: data[keyIndices.DP] ?? "-",
-                    VAF: data[keyIndices.VAF] ?? "-",
-                    BQ: data[keyIndices.BQ] ?? "-",
-                    AD: data[keyIndices.AD] ?? "-",
-                    QUAL: fileData.QUAL ?? "-",
-                    FILTER: fileData.FILTER ?? "-"
+                sampleId: sample.sampleId,
+                sex: this.getSex(sample),
+                GT: gt,
+                Zig: VariantInterpreterGridFormatter.zygosityGenotypeRenderer(this.variant, sample, this.clinicalAnalaysis),
+                DP: data[keyIndices.DP] ?? "-",
+                GQ: data[keyIndices.GQ] ?? "-",
+                AD: data[keyIndices.AD] ?? "-",
+                EXT_VAF: data[keyIndices.EXT_VAF] ?? "-",
+                QUAL: fileData.QUAL ?? "-",
+                FILTER: fileData.FILTER ?? "-"
             }
         });
 
@@ -166,20 +210,6 @@ export default class VariantSummaryQuality extends LitElement {
         })
     }
 
-    getZygosity(gt) {
-        if (!gt || gt.includes('.')) return 'UNKNOWN'; // Missing data
-
-        const alleles = gt.replace('|', '/').split('/');
-
-        if (alleles.length !== 2) return 'UNKNOWN';
-
-        const [a1, a2] = alleles;
-
-        if (a1 === '0' && a2 === '0') return 'WT';
-        if (a1 === a2) return 'HOM';
-        return 'HET';
-    }
-
     render() {
         if (!this._samplesQuality) {
             return nothing;
@@ -192,16 +222,17 @@ export default class VariantSummaryQuality extends LitElement {
                     <p class="text-secondary">Description of sample quality</p>
 
                 </div>
-                <div class="card-body pt-0 pb-0">
+                <div class="card-body pt-0 pb-0" id="summary-sample-quality">
                     <data-form
                         .data="${this._samplesQuality}"
                         .config="${this._config}">
                     </data-form>
                 </div>
-                <div class="card-footer text-muted">
+                <!--<div class="card-footer text-muted">
                     <i class="far fa-clock me-2"></i>
                     Last updated
                 </div>
+                -->
             </div>
 
         `;
@@ -213,40 +244,40 @@ export default class VariantSummaryQuality extends LitElement {
                 buttonsVisible: false,
             },
             sections: [
-                /*
-                {
-                    // ToDo: Plot a pedigree chart for families
-                },
-                 */
+                /*{// ToDo: Plot a pedigree chart for families},*/
                 {
                     // title: "Section sample quality"
                     display: {
-                        className: "d-flex justify-content-between align-items-start",
-                        layout: {
-                            id: "",
-                            className: "",
-                            elements: [
-                                {
-                                    id: "sample-quality-summary",
-                                    className: ""
-                                },
-                                {
-                                    id: "allele-balance-chart",
-                                    className: ""
-                                }
-                            ]
-                        },
+                        className: "d-flex align-items-center",
+                        layout: [
+                            {
+                                style: "flex: 1 1 auto",
+                                elements: [
+                                    {
+                                        id: "sample-quality-summary",
+                                    },
+                                ],
+                            },
+                            {
+                                style: "flex: 1 1 auto",
+                                classes: "d-flex justify-content-center",
+                                elements: [
+                                    {
+                                        id: "allele-balance-chart",
+                                    }
+                                ],
+                            }
+                        ],
                     },
                     elements: [
-                        // Sample Quality Summary
+                        // 1. Sample Quality Summary
                         {
                             id: "sample-quality-summary",
                             type: "table",
                             field: "samples",
-                            // title: "Sample Quality Summary",
                             display: {
                                 className: "table table-borderless table-hover table-grid",
-                                headerCellClassName: "th-inner",
+                                style: "font-size: 11px",
                                 rowId: true,
                                 defaultValue: "No proband or sample selected.",
                                 columns: [
@@ -256,8 +287,15 @@ export default class VariantSummaryQuality extends LitElement {
                                         display: {
                                             defaultValue: "-",
                                             style: {
-                                                "font-weight": "bold"
+                                                "font-weight": "bold",
                                             }
+                                        },
+                                    },
+                                    {
+                                        title: "Sex",
+                                        field: "sex",
+                                        display: {
+                                            defaultValue: "-",
                                         },
                                     },
                                     {
@@ -277,24 +315,22 @@ export default class VariantSummaryQuality extends LitElement {
                                             defaultValue: "-",
                                             template: "${Zig}",
                                             className: {
-                                                "Zig": "badge bg-secondary-subtle text-secondary fs-6",
+                                                "Zig": "",
                                             },
                                         },
                                     },
                                     {
                                         title: "DP",
                                         field: "DP",
-                                        display: {
-                                            classes: "text-gray-800 fw-light",
-                                        },
                                     },
                                     {
-                                        title: "VAF",
-                                        field: "VAF",
+                                        title: "GQ",
+                                        field: "GQ",
                                     },
+
                                     {
-                                        title: "BQ",
-                                        field: "BQ",
+                                        title: "EXT_VAF",
+                                        field: "EXT_VAF",
                                     },
                                     {
                                         title: "AD",
@@ -323,25 +359,19 @@ export default class VariantSummaryQuality extends LitElement {
                                 ]
                             },
                         },
-                        // Allele Distribution
+                        // 2. Allele Distribution
                         {
                             id: "allele-balance-chart",
-                            title: "Allele Balance Chart",
-                            type: "chart",
+                            type: "custom",
                             field: "alleleDepthsChart",
-                            showLabel: false,
                             display: {
-                                highcharts: {
-                                    chart: {
-                                        type: "pie",
-                                        height: 300,
-                                    },
-                                    title: {
-                                        text: 'Variant Allele Balance',
-                                    },
-                                    tooltip: {
-                                        pointFormat: '<b>{point.percentage:.1f}%</b> ({point.y} reads)'
-                                    }
+                                render: alleleDepthsChart => {
+                                    this._data = JSON.parse(JSON.stringify(alleleDepthsChart));
+                                    return html`
+                                        <div class="d-flex align-items-stretch">
+                                            <div class="" id="${this._chartId}" style="flex: 0 0 auto"></div>
+                                        </div>
+                                    `;
                                 }
                             }
                         }

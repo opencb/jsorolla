@@ -138,10 +138,12 @@ export default class VariantSummaryInfo extends LitElement {
                         .config="${this._config}">
                     </data-form>
                 </div>
+                <!--
                 <div class="card-footer text-muted">
                     <i class="far fa-clock me-2"></i>
                     Last updated
                 </div>
+                -->
             </div>
 
         `;
@@ -170,7 +172,9 @@ export default class VariantSummaryInfo extends LitElement {
                             display: {
                                 render: id => {
                                     return html`
-                                        <div class="fw-bold">${id}</div>
+                                        <div class="fw-bold text-truncate" style="max-width:350px">
+                                            ${id}
+                                        </div>
                                     `;
                                 },
                             },

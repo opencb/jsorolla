@@ -52,6 +52,9 @@ export default class ClinicalReport extends LitElement {
     getDefaultConfig() {
         return {
             showTitle: false,
+            display: {
+                classes: "justify-content-center mb-3",
+            },
             items: [
                 {
                     id: "overview",
