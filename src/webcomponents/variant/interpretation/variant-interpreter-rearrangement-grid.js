@@ -880,39 +880,50 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     onVariantReviewSave() {
         // 1. get the action to perform based on the selected variant state
         let action = "";
-        if (this._selectedVariantsChecked && !this._checkedVariants.has(this._selectedVariants[0].id)) {
-            // we have to update the variant.filters field to include the current filters
-            action = "ADD";
-            this._selectedVariants.forEach(variant => {
-                variant.filters = {
-                    ...this.filters,
-                };
-            });
-        } else if (this._selectedVariantsChecked && this._checkedVariants.has(this._selectedVariants[0].id)) {
-            action = "UPDATE";
+        if (this._selectedVariantsChecked) {
+            if (!this._primaryFindings.has(this._selectedVariants[0].id) && !this._secondaryFindings.has(this._selectedVariants[0].id)) {
+                action = "ADD";
+                this._selectedVariants.forEach(variant => {
+                    if (variant.filter) {
+                        variant.filter = {
+                            query: {
+                                ...this.filters,
+                            },
+                            opencgaVersion: this.opencgaSession?.opencgaClient?.version || "",
+                            cellbaseVersion: this.opencgaSession?.cellbaseClient?.version || this.opencgaSession?.project?.cellbase?.version || "",
+                        };
+                    }
+                });
+            } else {
+                action = "UPDATE";
+            }
         } else {
             action = "REMOVE";
         }
 
-        // update second variant info
+        // update the second variant info
         if (action === "ADD" || action === "UPDATE") {
-            this._selectedVariants[1] = {
-                ...this._selectedVariants[1],
-                discussion: this._selectedVariants[0].discussion,
-                status: this._selectedVariants[0].status,
-                comments: this._selectedVariants[0].comments,
-                confidence: this._selectedVariants[0].confidence,
+            this._selectedVariant[1] = {
+                ...this._selectedVariant[1],
+                discussion: this._selectedVariant[0].discussion,
+                status: this._selectedVariant[0].status,
+                comments: this._selectedVariant[0].comments,
+                confidence: this._selectedVariant[0].confidence,
+                references: this._selectedVariant[0].references,
+                recommendation: this._selectedVariant[0].recommendation,
+                images: this._selectedVariant[0].images,
             };
         }
 
-        // Dispatch variant update
+        // 2. emit the event with the selected variant and action
         LitUtils.dispatchCustomEvent(this, "variantReview", null, {
             id: this._selectedVariants[0].id,
             variant: this._selectedVariants,
+            primaryFinding: this._selectedVariantsPrimary,
             action: action,
         });
 
-        // Reset variants review
+        // 3. clear selected variant to review
         this._selectedVariants = null;
         this.gridCommons.clearActiveModal();
     }
