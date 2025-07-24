@@ -115,15 +115,17 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
         // When refreshing AFTER saving variants we set the same query as before refreshing, check 'onSaveVariants'
         if (this.currentQueryBeforeSaveEvent) {
-            this.query = {...this.currentQueryBeforeSaveEvent};
+            this.preparedQuery = {...this.currentQueryBeforeSaveEvent};
+            this.executedQuery = {...this.preparedQuery};
+            this.searchActive = false;
             this.currentQueryBeforeEvent = null;
         }
     }
 
     queryObserver() {
         if (this.opencgaSession && this.query) {
-            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-            this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            this.preparedQuery = {...this.query};
+            this.executedQuery = {...this.query};
             this.searchActive = false;
         }
     }
@@ -206,9 +208,28 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
     }
 
+    getLockedFieldsQuery() {
+        const lockedFields = this._config?.filter?.activeFilters?.lockedFields.map(key => key.id);
+        const query = {};
+
+        // include fields from lockedFields into the new query object
+        lockedFields.forEach(field => {
+            query[field] = this.query[field];
+        });
+
+        // check if panelLock is enabled: in this case we need to keep the panel and panelIntersection fields
+        // in the new query object
+        if (this.clinicalAnalysis.panelLocked) {
+            query.panel = this.query.panel;
+            query.panelIntersection = true;
+        }
+
+        return query;
+    }
+
     notifyQueryChange() {
         LitUtils.dispatchCustomEvent(this, "queryChange", null, {
-            query: this.query,
+            query: this.executedQuery,
         });
     }
 
@@ -248,10 +269,12 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             "study"
         ];
         const variantIds = new Set(e.detail.variants.map(v => v.id));
-        this.query = {
+        this.preparedQuery = {
             ...UtilsNew.filterKeys(this.executedQuery, lockedFields),
             id: Array.from(variantIds).join(","),
         };
+        this.executedQuery = {...this.preparedQuery};
+        this.searchActive = false;
         this.notifyQueryChange();
         this.requestUpdate();
     }
@@ -262,9 +285,12 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     onVariantFilterSearch(e) {
-        this.preparedQuery = {...e.detail.query};
-        this.executedQuery = {...e.detail.query};
-        this.query = {...e.detail.query}; // We need to update the internal query to propagate to filters
+        this.preparedQuery = {
+            ...this.getLockedFieldsQuery(),
+            ...e.detail.query,
+        };
+        this.executedQuery = {...this.preparedQuery};
+        this.searchActive = false;
         this.notifyQueryChange();
         this.requestUpdate();
     }
@@ -278,25 +304,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     onVariantFilterClear() {
-        const lockedFields = this._config?.filter?.activeFilters?.lockedFields.map(key => key.id);
-        let _query = {
-            study: this.opencgaSession.study.fqn
-        };
-
-        // Reset filters default
-        lockedFields.forEach(field => {
-            _query = {
-                ..._query,
-                [field]: this.query[field]
-            };
-        });
-
-        // Check if panelLock is enabled
-        if (this.clinicalAnalysis.panelLocked) {
-            _query.panel = this.query.panel;
-            _query.panelIntersection = true;
-        }
-        this.query = UtilsNew.objectClone(_query);
+        this.preparedQuery = this.getLockedFieldsQuery();
+        this.executedQuery = {...this.preparedQuery};
+        this.searchActive = false;
         this.notifyQueryChange();
         this.requestUpdate();
     }
