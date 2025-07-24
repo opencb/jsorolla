@@ -19,6 +19,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
+import VariantUtils from "../variant-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
