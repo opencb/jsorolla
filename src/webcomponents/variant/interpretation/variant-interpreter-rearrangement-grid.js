@@ -923,15 +923,15 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
         // update the second variant info
         if (action === "ADD" || action === "UPDATE") {
-            this._selectedVariant[1] = {
-                ...this._selectedVariant[1],
-                discussion: this._selectedVariant[0].discussion,
-                status: this._selectedVariant[0].status,
-                comments: this._selectedVariant[0].comments,
-                confidence: this._selectedVariant[0].confidence,
-                references: this._selectedVariant[0].references,
-                recommendation: this._selectedVariant[0].recommendation,
-                images: this._selectedVariant[0].images,
+            this._selectedVariants[1] = {
+                ...this._selectedVariants[1],
+                discussion: this._selectedVariants[0].discussion,
+                status: this._selectedVariants[0].status,
+                comments: this._selectedVariants[0].comments,
+                confidence: this._selectedVariants[0].confidence,
+                references: this._selectedVariants[0].references,
+                recommendation: this._selectedVariants[0].recommendation,
+                images: this._selectedVariants[0].images,
             };
         }
 
