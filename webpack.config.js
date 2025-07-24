@@ -152,6 +152,7 @@ module.exports = {
                     "node_modules/backbone/backbone-min.js",
                     "node_modules/moment/min/moment.min.js",
                     "node_modules/highcharts/highcharts.js",
+                    "node_modules/highcharts/modules/heatmap.js",
                     "node_modules/highcharts/highcharts-more.js",
                     "node_modules/qtip2/dist/jquery.qtip.min.js",
                     "node_modules/cookies-js/dist/cookies.min.js",
