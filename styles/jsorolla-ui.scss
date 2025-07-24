@@ -92,6 +92,24 @@ card .card-header .card-title {
   margin-bottom: .75rem;
 }
 
+.card-footer {
+  border-top: 0;
+}
+
+.card .card-category, .card label {
+  font-size: .875rem;
+  font-weight: 400;
+  color: #9a9a9a;
+  margin-bottom: 0;
+}
+
+.card-divider {
+    height: 0.0625rem;
+    margin: 1rem 0px;
+    opacity: 0.25;
+    background-image: linear-gradient(to right, rgba(52, 71, 103, 0), rgba(52, 71, 103, 0.4), rgba(52, 71, 103, 0)) !important;
+}
+
 // override button styles
 .btn-light {
     --bs-btn-border-color: #{$gray-200};
