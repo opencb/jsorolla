@@ -15,7 +15,6 @@
  */
 
 import UtilsNew from "../../core/utils-new.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class ClinicalAnalysisManager {
@@ -24,27 +23,12 @@ export default class ClinicalAnalysisManager {
         this.ctx = context;
         this.clinicalAnalysis = clinicalAnalysis;
         this.opencgaSession = opencgaSession;
-
-        this.init();
-    }
-
-    init() {
-        this.state = {
-            addedVariants: [],
-            removedVariants: [],
-            updatedVariants: []
-        };
     }
 
     // Clear all changed variants.
     reset() {
-        this.init();
         this.clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
     }
-
-    // getStatuses() {
-    //     return ["READY_FOR_INTERPRETATION", "READY_FOR_REPORT", "CLOSED", "REJECTED"];
-    // }
 
     getProbandQc() {
         return this.clinicalAnalysis?.proband?.qualityControl;
@@ -58,54 +42,55 @@ export default class ClinicalAnalysisManager {
         return qc;
     }
 
-
+    // DEPRECATED
     addVariant(variant) {
-        // First, check if the variant was selected to be removed
-        let index = this.state.removedVariants.findIndex(v => v.id === variant.id);
-        if (index >= 0) {
-            this.state.removedVariants.splice(index, 1);
-        } else {
-            // Second, check variant is new and selected to be added
-            index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === variant.id);
-            if (index === -1) {
-                this.state.addedVariants.push(variant);
-            } else {
-                // Third, this cannot happen, variant must exist somewhere
-                console.error("There must be an error, variant " + variant.id + " seems to exist.");
-            }
-        }
-        this.state = {...this.state};
+        // // First, check if the variant was selected to be removed
+        // let index = this.state.removedVariants.findIndex(v => v.id === variant.id);
+        // if (index >= 0) {
+        //     this.state.removedVariants.splice(index, 1);
+        // } else {
+        //     // Second, check variant is new and selected to be added
+        //     index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === variant.id);
+        //     if (index === -1) {
+        //         this.state.addedVariants.push(variant);
+        //     } else {
+        //         // Third, this cannot happen, variant must exist somewhere
+        //         console.error("There must be an error, variant " + variant.id + " seems to exist.");
+        //     }
+        // }
+        // this.state = {...this.state};
     }
 
+    // DEPRECATED
     removeVariant(variant) {
-        // First, check if the variant was selected to be added
-        let index = this.state.addedVariants.findIndex(v => v.id === variant.id);
-        if (index >= 0) {
-            this.state.addedVariants.splice(index, 1);
-        } else {
-            // Second, check if the variant was added to be inserted but not inserted yet
-            index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === variant.id);
-            if (index >= 0) {
-                this.state.removedVariants.push(variant);
-            } else {
-                // Third, this cannot happen, variant must exist somewhere
-                console.error("There must be an error, variant " + variant.id + " seems to not exist.");
-            }
-        }
-        // Remove this variant from the list of updated variants (if has been added)
-        this.state.updatedVariants = this.state.updatedVariants.filter(v => v.id !== variant.id);
-        this.state = {...this.state};
+        // // First, check if the variant was selected to be added
+        // let index = this.state.addedVariants.findIndex(v => v.id === variant.id);
+        // if (index >= 0) {
+        //     this.state.addedVariants.splice(index, 1);
+        // } else {
+        //     // Second, check if the variant was added to be inserted but not inserted yet
+        //     index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === variant.id);
+        //     if (index >= 0) {
+        //         this.state.removedVariants.push(variant);
+        //     } else {
+        //         // Third, this cannot happen, variant must exist somewhere
+        //         console.error("There must be an error, variant " + variant.id + " seems to not exist.");
+        //     }
+        // }
+        // // Remove this variant from the list of updated variants (if has been added)
+        // this.state.updatedVariants = this.state.updatedVariants.filter(v => v.id !== variant.id);
+        // this.state = {...this.state};
     }
 
-    // TODO: rename this method
+    // DEPRECATED
     updateSingleVariant(variant) {
-        const index = this.state.updatedVariants.findIndex(v => v.id === variant.id);
-        if (index >= 0) {
-            this.state.updatedVariants[index] = variant; // Update variant value
-        } else {
-            this.state.updatedVariants.push(variant);
-        }
-        this.state = {...this.state};
+        // const index = this.state.updatedVariants.findIndex(v => v.id === variant.id);
+        // if (index >= 0) {
+        //     this.state.updatedVariants[index] = variant; // Update variant value
+        // } else {
+        //     this.state.updatedVariants.push(variant);
+        // }
+        // this.state = {...this.state};
     }
 
     setInterpretationAsPrimary(interpretationId, callback) {
@@ -126,82 +111,83 @@ export default class ClinicalAnalysisManager {
             });
     }
 
+    // DEPRECATED
     updateInterpretationVariants(comment, callback) {
-        if (this.state.addedVariants.length === 0 && this.state.removedVariants.length === 0 && this.state.updatedVariants.length === 0) {
-            // console.log("Nothing to do");
-            return;
-        }
+        // if (this.state.addedVariants.length === 0 && this.state.removedVariants.length === 0 && this.state.updatedVariants.length === 0) {
+        //     // console.log("Nothing to do");
+        //     return;
+        // }
 
-        // Prepare interpretation object for the update
-        const interpretation = {
-            primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings,
-            comments: [],
-        };
-        // Check if a comment is provided
-        if (comment?.message) {
-            interpretation.comments.push(comment);
-        }
+        // // Prepare interpretation object for the update
+        // const interpretation = {
+        //     primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings,
+        //     comments: [],
+        // };
+        // // Check if a comment is provided
+        // if (comment?.message) {
+        //     interpretation.comments.push(comment);
+        // }
 
-        // Add selected variants
-        if (this.state.addedVariants.length > 0) {
-            for (const addedVariant of this.state.addedVariants) {
-                const index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === addedVariant.id);
-                if (index === -1) {
-                    interpretation.primaryFindings.push(addedVariant);
-                } else {
-                    console.error("There must be an error, variant " + addedVariant.id + " already exist.");
-                }
-            }
-        }
+        // // Add selected variants
+        // if (this.state.addedVariants.length > 0) {
+        //     for (const addedVariant of this.state.addedVariants) {
+        //         const index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === addedVariant.id);
+        //         if (index === -1) {
+        //             interpretation.primaryFindings.push(addedVariant);
+        //         } else {
+        //             console.error("There must be an error, variant " + addedVariant.id + " already exist.");
+        //         }
+        //     }
+        // }
 
-        // Remove variants
-        if (this.state.removedVariants.length > 0) {
-            for (const removedVariant of this.state.removedVariants) {
-                const index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === removedVariant.id);
-                if (index >= 0) {
-                    interpretation.primaryFindings.splice(index, 1);
-                } else {
-                    console.error("There must be an error, variant " + removedVariant.id + " seems to not exist.");
-                }
-            }
-        }
+        // // Remove variants
+        // if (this.state.removedVariants.length > 0) {
+        //     for (const removedVariant of this.state.removedVariants) {
+        //         const index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === removedVariant.id);
+        //         if (index >= 0) {
+        //             interpretation.primaryFindings.splice(index, 1);
+        //         } else {
+        //             console.error("There must be an error, variant " + removedVariant.id + " seems to not exist.");
+        //         }
+        //     }
+        // }
 
-        // Update variants
-        if (this.state.updatedVariants.length > 0) {
-            this.state.updatedVariants.forEach(variant => {
-                const index = interpretation.primaryFindings.findIndex(v => v.id === variant.id);
-                if (index >= 0) {
-                    interpretation.primaryFindings[index] = variant; // Update variant
-                } else {
-                    console.error("There must be an error, variant " + variant.id + " seems to not exist.");
-                }
-            });
-        }
+        // // Update variants
+        // if (this.state.updatedVariants.length > 0) {
+        //     this.state.updatedVariants.forEach(variant => {
+        //         const index = interpretation.primaryFindings.findIndex(v => v.id === variant.id);
+        //         if (index >= 0) {
+        //             interpretation.primaryFindings[index] = variant; // Update variant
+        //         } else {
+        //             console.error("There must be an error, variant " + variant.id + " seems to not exist.");
+        //         }
+        //     });
+        // }
 
-        const interpretationId = this.clinicalAnalysis.interpretation.id;
-        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, interpretation, {
-            study: this.opencgaSession.study.fqn,
-            primaryFindingsAction: "SET",
-            // secondaryFindingsAction: "SET",
-        }).then(() => {
-            // Notify
-            NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
-                // title: "Interpretation saved",
-                message: "The interpretation has been updated.",
-            });
-            callback(this.clinicalAnalysis);
+        // const interpretationId = this.clinicalAnalysis.interpretation.id;
+        // this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, interpretation, {
+        //     study: this.opencgaSession.study.fqn,
+        //     primaryFindingsAction: "SET",
+        //     // secondaryFindingsAction: "SET",
+        // }).then(() => {
+        //     // Notify
+        //     NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
+        //         // title: "Interpretation saved",
+        //         message: "The interpretation has been updated.",
+        //     });
+        //     callback(this.clinicalAnalysis);
 
-            // Reset internal state
-            this.state = {
-                ...this.state,
-                addedVariants: [],
-                removedVariants: [],
-                updatedVariants: [],
-            };
-        }).catch(response => {
-            // console.error(response);
-            NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
-        });
+        //     // Reset internal state
+        //     this.state = {
+        //         ...this.state,
+        //         addedVariants: [],
+        //         removedVariants: [],
+        //         updatedVariants: [],
+        //     };
+        // }).catch(response => {
+        //     // console.error(response);
+        //     NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
+        // });
     }
 
     createInterpretation(interpretation, callback) {
