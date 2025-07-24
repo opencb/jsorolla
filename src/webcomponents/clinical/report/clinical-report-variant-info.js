@@ -70,6 +70,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                         style: "max-height: 90vh",
                     },
                 ],
+                ...this.displayConfig,
             },
             sections: [
                 {
