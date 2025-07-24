@@ -4,7 +4,9 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import "./clinical-report-variants.js";
+// import "./clinical-report-variants.js";
+import "./clinical-report-variant-card.js";
+
 
 export default class ClinicalReportReview extends LitElement {
 
@@ -315,27 +317,40 @@ export default class ClinicalReportReview extends LitElement {
         }
     }
 
+    renderReportedVariants() {
+        // get only variants with status "REPORTED"
+        const reportedVariants = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).filter(variant => {
+            // return variant.status.id === "REPORTED";
+            return true;
+        });
+
+        return html`
+            <div class="gap-4" style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));">
+                ${reportedVariants.map(variant => html`
+                    <clinical-report-variant-card
+                        .opencgaSession="${this.opencgaSession}"
+                        .variant="${variant}">
+                    </clinical-report-variant-card>
+                `)}
+            </div>
+        `;
+    }
+
     render() {
         if (!this.opencgaSession || !this.clinicalAnalysis) {
             return nothing;
         }
 
         // get only variants with status "REPORTED"
-        const reportedVariants = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).filter(variant => {
-            // return variant.status.id === "REPOR^ED";
-            return true;
-        });
+        // const reportedVariants = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).filter(variant => {
+        //     // return variant.status.id === "REPOR^ED";
+        //     return true;
+        // });
 
         return html`
             <div class="mb-4">
                 <h3 class="fw-bold mb-4">Reported Variants</h3>
-                <clinical-report-variants
-                    .active="${this.active}"
-                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .variants="${reportedVariants}"
-                    .config="${{}}">
-                </clinical-report-variants>
+                ${this.renderReportedVariants()}
             </div>
             <div class="">
                 <h3 class="fw-bold mb-4">Case Review</h3>
