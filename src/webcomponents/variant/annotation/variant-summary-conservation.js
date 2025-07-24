@@ -157,7 +157,7 @@ export default class VariantSummaryConservation extends LitElement {
             if (val > 0.5) return { color: "#f0ad4e", description: "Moderate" };
             return { color: "#13A574FF", description: "Low" };
         }
-        return { color: "#aaa", description: "Unknown" };
+        return { color: "#aaa", description: "Source not recognised" };
     }
 
     render() {
@@ -194,7 +194,7 @@ export default class VariantSummaryConservation extends LitElement {
         return {
             display: {
                 buttonsVisible: false,
-                className: "d-flex",
+                // className: "d-flex",
             },
             sections: [
                 {
