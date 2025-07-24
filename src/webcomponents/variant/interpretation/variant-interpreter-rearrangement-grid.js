@@ -213,8 +213,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .variant="${this._selectedVariants[0]}"
-                        .selected="${this._selectedVariantsChecked}"
-                        .reviewEvidences="${false}"
+                        .selected="${this._primaryFindings.has(this._selectedVariants[0].id) || this._secondaryFindings.has(this._selectedVariants[0].id)}"
+                        .primaryFinding="${this._selectedVariantsPrimary}"
+                        .reviewEvidences="${true}"
                         .settings="${{
                             geneSet: this._config?.geneSet,
                             consequenceType: this._config?.consequenceType,
@@ -847,13 +848,13 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     onVariantReview(event, variants) {
         // check if the variant is already selected
         if (this._primaryFindings.has(variants[0].id)) {
-            this._selectedVariant = [
+            this._selectedVariants = [
                 UtilsNew.objectClone(this._primaryFindings.get(variants[0].id)),
                 UtilsNew.objectClone(this._primaryFindings.get(variants[1].id)),
             ];
             this._selectedVariantsPrimary = true;
         } else if (this._secondaryFindings.has(row.id)) {
-            this._selectedVariant = [
+            this._selectedVariants = [
                 UtilsNew.objectClone(this._secondaryFindings.get(variants[0].id)),
                 UtilsNew.objectClone(this._secondaryFindings.get(variants[1].id)),
             ];
