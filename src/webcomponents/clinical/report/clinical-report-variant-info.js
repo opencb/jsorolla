@@ -81,7 +81,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                         {
                             type: "text",
                             text: data => {
-                                return `Variant ${data.selectedVariant?.id || "-"}`;
+                                return `Variant ${data?.id || "-"}`;
                             },
                             display: {
                                 textClassName: "fw-bold fs-4",
@@ -100,19 +100,19 @@ export default class ClinicalReportVariantInfo extends LitElement {
                             type: "text",
                             title: "Discussion",
                             text: data => {
-                                return data.selectedVariant?.discussion?.text || "-";
+                                return data?.discussion?.text || "-";
                             },
                         },
                         {
                             type: "text",
                             title: "Recommendation",
                             text: data => {
-                                return data.selectedVariant?.recommendation || "-";
+                                return data?.recommendation || "-";
                             },
                         },
                         {
                             title: "References",
-                            field: "selectedVariant.references",
+                            field: "references",
                             type: "object-list",
                             display: {
                                 showAddBatchListButton: false,
