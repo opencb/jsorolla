@@ -74,7 +74,6 @@ export default class VariantBrowserGrid extends LitElement {
         this.RESOURCE = "VARIANT";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
-        this.checkedVariants = new Map();
 
         // Set colors
         // eslint-disable-next-line no-undef
@@ -411,31 +410,6 @@ export default class VariantBrowserGrid extends LitElement {
             this.meta.context.populationFrequencies.style,
             this.meta.populationFrequenciesConfig,
         );
-    }
-
-    onCheck(e) {
-        const variantId = e.currentTarget.dataset.variantId;
-        const variant = this._rows.find(e => e.id === variantId);
-
-        if (e.currentTarget.checked) {
-            this.checkedVariants.set(variantId, variant);
-        } else {
-            this.checkedVariants.delete(variantId);
-        }
-
-        this.dispatchEvent(new CustomEvent("checkrow", {
-            detail: {
-                id: variantId,
-                row: variant,
-                checked: e.currentTarget.checked,
-                rows: Array.from(this.checkedVariants.values())
-            }
-        }));
-    }
-
-    checkFormatter(value, row) {
-        const checked = this.checkedVariants && this.checkedVariants.has(row.id) ? "checked" : "";
-        return `<input class="Check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked}>`;
     }
 
     _getDefaultColumns() {
