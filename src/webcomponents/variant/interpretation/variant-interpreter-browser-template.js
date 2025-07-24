@@ -239,30 +239,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
-    onCheckVariant(e) {
-        /* 
-        const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
-        rows.forEach(row => {
-            if (e.detail.checked) {
-                this.clinicalAnalysisManager.addVariant(row);
-            } else {
-                this.clinicalAnalysisManager.removeVariant(row);
-            }
-        });
-        this.requestUpdate();
-        */
-    }
-
-    onUpdateVariant(e) {
-        /* 
-        const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
-        rows.forEach(row => {
-            this.clinicalAnalysisManager.updateSingleVariant(row);
-        });
-        this.requestUpdate();
-        */
-    }
-
     onFilterVariants(e) {
         const lockedFields = [
             ...(this._config?.filter?.activeFilters?.lockedFields || []).map(key => key.id),
