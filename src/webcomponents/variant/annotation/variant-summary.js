@@ -168,7 +168,7 @@ export default class VariantSummary extends LitElement {
                                 elements: [
                                     {
                                         id: "variant-summary-info",
-                                        style: "flex: 0 0 auto",
+                                        style: "flex: 1 0 auto",
                                     },
                                     {
                                         id: "variant-summary-ct-selected",
@@ -389,7 +389,8 @@ export default class VariantSummary extends LitElement {
                                 render: variant => {
                                     return html`
                                         <variant-summary-conservation
-                                            .variant="${variant}">
+                                            .variant="${variant}"
+                                            .opencgaSession="${this.opencgaSession}">
                                         </variant-summary-conservation>
                                     `;
                                 }
