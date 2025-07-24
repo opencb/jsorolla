@@ -520,7 +520,7 @@ export default class VariantInterpreterGrid extends LitElement {
         this._columns = [
             [
                 {
-                    id: "category",
+                    id: "status",
                     rowspan: 2,
                     colspan: 1,
                     align: "center",
