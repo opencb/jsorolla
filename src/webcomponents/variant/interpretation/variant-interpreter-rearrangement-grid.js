@@ -216,7 +216,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         .variant="${this._selectedVariants[0]}"
                         .selected="${this._primaryFindings.has(this._selectedVariants[0].id) || this._secondaryFindings.has(this._selectedVariants[0].id)}"
                         .primaryFinding="${this._selectedVariantsPrimary}"
-                        .reviewEvidences="${true}"
+                        .reviewEvidences="${false}"
                         .settings="${{
                             geneSet: this._config?.geneSet,
                             consequenceType: this._config?.consequenceType,
