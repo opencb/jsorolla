@@ -939,6 +939,17 @@ export default class VariantGridFormatter {
         `;
     }
 
+    static conservationTooltipSummaryContent() {
+        return `
+            <div class="">
+                Thresholds for each qualitative description are:<br>
+                <b>(a) GERP</b>: Low for scores ≤ 3, Moderate for scores > 3, and High for scores above 4.4.<br>
+                <b>(b) phastCons</b>: Low for scores ≤ 0.5, Moderate for scores > 0.5, and High for scores above 0.9.<br>
+                <b>(c) phylop</b>: Low for scores ≤ 0.5, Moderate for scores > 0.5, and High for scores above 1.5.
+            </div>
+        `;
+    }
+
     // Creates the colored table with one row and as many columns as populations.
     static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
         const tooltipRows = (populations || [])
