@@ -16,9 +16,6 @@ export default class ClinicalReportVariantCard extends LitElement {
 
     static get properties() {
         return {
-            clinicalAnalysis: {
-                type: Object
-            },
             opencgaSession: {
                 type: Object
             },
@@ -44,15 +41,17 @@ export default class ClinicalReportVariantCard extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession || !this.clinicalAnalysis || !this.variant) {
+        if (!this.opencgaSession || !this.variant) {
             return nothing;
         }
 
         return html`
-            <data-form
-                .data="${this.variant}"
-                .config="${this._config}">
-            </data-form>
+            <div class="card shadow-sm">
+                <data-form
+                    .data="${this.variant}"
+                    .config="${this._config}">
+                </data-form>
+            </div>
         `;
     }
 
