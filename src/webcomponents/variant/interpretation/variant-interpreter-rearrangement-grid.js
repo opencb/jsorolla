@@ -853,7 +853,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 UtilsNew.objectClone(this._primaryFindings.get(variants[1].id)),
             ];
             this._selectedVariantsPrimary = true;
-        } else if (this._secondaryFindings.has(row.id)) {
+        } else if (this._secondaryFindings.has(variants[0].id)) {
             this._selectedVariants = [
                 UtilsNew.objectClone(this._secondaryFindings.get(variants[0].id)),
                 UtilsNew.objectClone(this._secondaryFindings.get(variants[1].id)),
