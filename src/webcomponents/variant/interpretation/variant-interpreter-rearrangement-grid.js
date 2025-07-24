@@ -706,8 +706,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: (value, row) => {
-                        const variant = this._primaryFindings.get(row.id) || this._secondaryFindings.get(row.id) || row;
-                        const checked = this._primaryFindings.has(row.id) || this._secondaryFindings.has(row.id);
+                        const variant = this._primaryFindings.get(row[0].id) || this._secondaryFindings.get(row[0].id) || row[0];
+                        const checked = this._primaryFindings.has(row[0].id) || this._secondaryFindings.has(row[0].id);
                         return VariantInterpreterGridFormatter.reviewFormatter(variant, this.clinicalAnalysis, checked, this._config);
                     },
                     align: "center",
