@@ -45,7 +45,7 @@ export default class VariantSummaryConservation extends LitElement {
         this._variant = {};
         this._sourceDateGroups = {};
         this._dateSummary = {};
-        this._chartDelId = "chart-deleteriousness";
+        this._chartConsId = "chart-conservation";
     }
 
     update(changedProperties) {
@@ -107,7 +107,7 @@ export default class VariantSummaryConservation extends LitElement {
 
         // 3. Date summary
         this._dateSummary = Object.entries(this._sourceDateGroups).map(([date, entries]) => {
-            return `${this._formatDate(date)}`; // ${entries.join(', ')} if we want to display the sources grouped
+            return `${this._formatDate(date)} (${entries.join(', ')} )`;
         });
 
         this._config = this.getDefaultConfig();
@@ -120,15 +120,6 @@ export default class VariantSummaryConservation extends LitElement {
         return `${y}-${m}-${d}`;
     }
 
-    _getDisplaySource(source) {
-        const mapping = {
-            gerp: "GERP++",
-            phastCons: "PhastCons",
-            phylop: "PhyloP"
-        };
-        return mapping[source] || source;
-    }
-
     _getGroupedCons (dataCons){
         const grouped = {};
         dataCons.forEach(({ source, score, color, description }) => {
@@ -138,23 +129,35 @@ export default class VariantSummaryConservation extends LitElement {
         return grouped;
     }
 
+    _getDisplaySource(source) {
+        const mapping = {
+            gerp: "GERP++",
+            phastCons: "PhastCons",
+            phylop: "PhyloP"
+        };
+        return mapping[source] || source;
+    }
+
+    // Map score to base color and description
     _colorDescriptionMap(source, score) {
-            if (source === "gerp") {
-                if (score > 4.4) return {color: "#d9534f", description: "High"}; // Highly conserved
-                if (score > 3) return {color: "#f0ad4e", description: "Moderate"}; // Moderately conserved
-                return {color: "#13A574FF", description: "Low"};
-            }
-            if (source === "phastCons") {
-                if (score > 0.9) return {color: "#d9534f", description: "High"}; // Highly conserved
-                if (score > 0.5) return {color: "#f0ad4e", description: "Moderate"}; // Moderately conserved
-                return {color: "#13A574FF", description: "Low"};
-            }
-            if (source === "phylop") {
-                if (score > 1.5) return {color: "#d9534f", description: "High"}; // Highly conserved
-                if (score > 0.5) return {color: "#f0ad4e", description: "Moderate"}; // Moderately conserved
-                return {color: "#13A574FF", description: "Low"};
-            }
-            return {color: "#aaa", description: `Source ${source} not processed`}
+        const val = parseFloat(score);
+        const src = source.toLowerCase();
+        if (src === "gerp") {
+            if (val > 4.4) return { color: "#d9534f", description: "High" };       // red
+            if (val > 3.0) return { color: "#f0ad4e", description: "Moderate" };   // orange
+            return { color: "#13A574FF", description: "Low" };                     // green
+        }
+        if (src === "phastcons") {
+            if (val > 0.9) return { color: "#d9534f", description: "High" };
+            if (val > 0.5) return { color: "#f0ad4e", description: "Moderate" };
+            return { color: "#13A574FF", description: "Low" };
+        }
+        if (src === "phylop") {
+            if (val > 1.5) return { color: "#d9534f", description: "High" };
+            if (val > 0.5) return { color: "#f0ad4e", description: "Moderate" };
+            return { color: "#13A574FF", description: "Low" };
+        }
+        return { color: "#aaa", description: "Unknown" };
     }
 
     render() {
@@ -210,18 +213,16 @@ export default class VariantSummaryConservation extends LitElement {
                                                 const { score, color, description } = scores[0]; // First score per method
                                                 return html`
                                                     <div class="d-flex flex-column">
-                                                        <!-- Method name -->
                                                         <div class="card-category" style="min-width: 100px;">${method}</div>
-                                                        <!-- score + description -->
                                                         <h3 class="d-flex">
-                                                                <div class="" style="color: ${color}">
-                                                                    ${score}
-                                                                </div>
+                                                            <div class="" style="color: ${color}">
+                                                                ${score}
+                                                            </div>
                                                             <!--
                                                                 <div class="text-secondary text-uppercase small fw-semibold">
                                                                     ${description}
                                                                 </div>
-                                                                -->
+                                                            -->
                                                         </h3>
                                                     </div>
                                                 `;
@@ -232,28 +233,17 @@ export default class VariantSummaryConservation extends LitElement {
                             },
                         },
                         /*
+                        // CAUTION 20250724 Vero: to discuss if for MNV or INDEL should be displayed as a heatmap
                         {
                             id: "conservation",
                             type: "custom",
-                            field: "dataCons",
                             display: {
                                 visible: variant => variant.type === "MNV" || variant.type === "INDEL",
-                                render: dataCons => {
+                                render: variant => {
+                                    // Render scores heatmap for MNV or INDEL
+                                    debugger
                                     return html`
-                                        <div>
-                                            <ul>
-                                                ${dataCons.map(c => html`
-                                                    <li style="margin: 4px 0;">
-                                                        <span class="fw-bold">
-                                                            ${c.source}:
-                                                        </span>
-                                                        <span style="color: ${c.color}">
-                                                            ${c.score}
-                                                        </span>
-                                                    </li>`
-                                    )}
-                                            </ul>
-                                        </div>
+                                        <div class="" id="${this._chartConsId}" style="flex: 0 0 auto"></div>
                                     `;
                                 },
                             },
@@ -263,9 +253,9 @@ export default class VariantSummaryConservation extends LitElement {
                             id: "conservation",
                             type: "custom",
                             display: {
-                                // EMPTY STATE: No conservation or different from SNV, MNV, INDEL
+                                // EMPTY STATE: No conservation or different from SNV
                                 visible: variant => {
-                                    return (variant.type !== "SNV" && variant.type !== "MNV" && variant.type !== "INDEL") ||
+                                    return variant.type !== "SNV" ||
                                         (!variant.annotation?.conservation || variant.annotation?.conservation?.length === 0);
                                 },
                                 render: variant => {
@@ -279,7 +269,7 @@ export default class VariantSummaryConservation extends LitElement {
                                     } else {
                                         return html`
                                             <div class="d-flex align-items-center text-gray-600">
-                                                Conservation summary only available for SNV, MNV, INDEL variant types.
+                                                Conservation summary is only available for SNV variant type.
                                             </div>
                                         `;
                                     }
