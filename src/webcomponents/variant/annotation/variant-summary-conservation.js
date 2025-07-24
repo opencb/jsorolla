@@ -15,6 +15,8 @@
  */
 
 import {html, LitElement, nothing} from "lit";
+import UtilsNew from "../../../core/utils-new.js";
+import VariantGridFormatter from "../variant-grid-formatter.js";
 
 export default class VariantSummaryConservation extends LitElement {
 
@@ -33,11 +35,16 @@ export default class VariantSummaryConservation extends LitElement {
             variant: {
                 type: Object,
             },
+            opencgaSession: {
+                type: Object,
+            },
         };
     }
 
     #init() {
         this._variant = {};
+        this._sourceDateGroups = {};
+        this._dateSummary = {};
         this._chartDelId = "chart-deleteriousness";
     }
 
@@ -46,20 +53,33 @@ export default class VariantSummaryConservation extends LitElement {
             this.variantObserver();
         }
 
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+
         super.update(changedProperties);
     }
 
+    updated() {
+        UtilsNew.initTooltip(this);
+    }
 
     variantObserver() {
         if (this.variant) {
             this._variant = {};
-            const dataCons =  (this.variant.annotation?.conservation || []).map(s => ({
-                source: s.source,
-                score: s.score?.toFixed(3),
-                color: this._colorMap(s.source, s.score)
-            }));
+            const dataCons =  (this.variant.annotation?.conservation || []).map(s => {
+                const {color, description} = this._colorDescriptionMap(s.source, s.score);
+                return {
+                    source: this._getDisplaySource(s.source),
+                    score: Number(s.score).toFixed(3),
+                    color: color,
+                    description: description,
+                }
+            });
+            // Group scores by phylop, gerp, phastcons
+            const groupedCons = this._getGroupedCons(dataCons);
             this._variant = {
-                dataCons: dataCons,
+                dataCons: groupedCons,
                 ...this.variant
             };
 
@@ -67,35 +87,90 @@ export default class VariantSummaryConservation extends LitElement {
         }
     }
 
-    _colorMap(source, score) {
+    opencgaSessionObserver() {
+        // 1. Extract conservation sources
+        const conservationSources = ['GERP++', 'PhastCons', 'PhyloP'];
+        const conservationEntries = (this.opencgaSession.project.cellbase.sources || [])
+            .filter(s => conservationSources.includes(s.name))
+            .map(s => ({
+                name: s.name,
+                version: s.version || null,
+                date: s.date
+            }));
+
+        // 2. Group by date
+        this._sourceDateGroups = conservationEntries.reduce((acc, { name, version, date }) => {
+            acc[date] = acc[date] || [];
+            acc[date].push(version ? `${name} (${version})` : name);
+            return acc;
+        }, {});
+
+        // 3. Date summary
+        this._dateSummary = Object.entries(this._sourceDateGroups).map(([date, entries]) => {
+            return `${this._formatDate(date)}`; // ${entries.join(', ')} if we want to display the sources grouped
+        });
+
+        this._config = this.getDefaultConfig();
+    }
+
+    _formatDate(rawDate) {
+        const y = rawDate.slice(0, 4);
+        const m = rawDate.slice(4, 6);
+        const d = rawDate.slice(6, 8);
+        return `${y}-${m}-${d}`;
+    }
+
+    _getDisplaySource(source) {
+        const mapping = {
+            gerp: "GERP++",
+            phastCons: "PhastCons",
+            phylop: "PhyloP"
+        };
+        return mapping[source] || source;
+    }
+
+    _getGroupedCons (dataCons){
+        const grouped = {};
+        dataCons.forEach(({ source, score, color, description }) => {
+            if (!grouped[source]) grouped[source] = [];
+            grouped[source].push({ score, color, description });
+        });
+        return grouped;
+    }
+
+    _colorDescriptionMap(source, score) {
             if (source === "gerp") {
-                if (score > 2) return "#d9534f"; // Highly conserved
-                if (score > 1) return "#f0ad4e"; // Moderately conserved
-                return "#13A574FF"; // Neutral
+                if (score > 4.4) return {color: "#d9534f", description: "High"}; // Highly conserved
+                if (score > 3) return {color: "#f0ad4e", description: "Moderate"}; // Moderately conserved
+                return {color: "#13A574FF", description: "Low"};
             }
             if (source === "phastCons") {
-                if (score > 0.8) return "#d9534f";
-                if (score > 0.5) return "#f0ad4e";
-                return "#13A574FF";
+                if (score > 0.9) return {color: "#d9534f", description: "High"}; // Highly conserved
+                if (score > 0.5) return {color: "#f0ad4e", description: "Moderate"}; // Moderately conserved
+                return {color: "#13A574FF", description: "Low"};
             }
             if (source === "phylop") {
-                if (score > 1.6) return "#d9534f";
-                if (score > 1.0) return "#f0ad4e";
-                return "#13A574FF";
+                if (score > 1.5) return {color: "#d9534f", description: "High"}; // Highly conserved
+                if (score > 0.5) return {color: "#f0ad4e", description: "Moderate"}; // Moderately conserved
+                return {color: "#13A574FF", description: "Low"};
             }
-            return "#aaa";
+            return {color: "#aaa", description: `Source ${source} not processed`}
     }
 
     render() {
-        if (!this._variant) {
+        if (!this.opencgaSession || !this._variant) {
             return nothing;
         }
-        debugger
+
         return html`
-            <div class="card p-3 me-2">
-                <div class="card-header border-0">
-                    <h5 class="mb-2 fs-5 fw-bold d-flex">Conservation</h5>
-                    <p class="text-secondary">Consequence types linked to transcripts flagged as MANE-selected and source Ensembl</p>
+            <div class="card p-3">
+                <div class="card-header border-0 d-flex align-items-center mb-2">
+                    <h5 class="fs-5 fw-bold me-2">
+                        Conservation
+                    </h5>
+                    <a tooltip-title="Conservation Scores" tooltip-text="${VariantGridFormatter.conservationTooltipSummaryContent()}">
+                        <i class="fa fa-info-circle text-primary"></i>
+                    </a>
                 </div>
                 <div class="card-body pt-0 pb-0" id="summary-conservation">
                     <data-form
@@ -103,12 +178,10 @@ export default class VariantSummaryConservation extends LitElement {
                         .config="${this._config}">
                     </data-form>
                 </div>
-                <!--
-                <div class="card-footer text-muted">
-                    <i class="far fa-clock me-2"></i>
-                    Last updated
+                <div class="card-divider"></div>
+                <div class="text-muted">
+                    <i class="far fa-clock me-2 text-gray-700"></i> Annotation date: ${this._dateSummary.join(' · ')}
                 </div>
-                -->
             </div>
 
         `;
@@ -128,8 +201,43 @@ export default class VariantSummaryConservation extends LitElement {
                         {
                             id: "conservation",
                             type: "custom",
+                            display: {
+                                visible: variant => variant.type === "SNV",
+                                render: variant => {
+                                    return html`
+                                        <div class="d-flex">
+                                            ${Object.entries(variant.dataCons).map(([method, scores]) => {
+                                                const { score, color, description } = scores[0]; // First score per method
+                                                return html`
+                                                    <div class="d-flex flex-column">
+                                                        <!-- Method name -->
+                                                        <div class="card-category" style="min-width: 100px;">${method}</div>
+                                                        <!-- score + description -->
+                                                        <h3 class="d-flex">
+                                                                <div class="" style="color: ${color}">
+                                                                    ${score}
+                                                                </div>
+                                                            <!--
+                                                                <div class="text-secondary text-uppercase small fw-semibold">
+                                                                    ${description}
+                                                                </div>
+                                                                -->
+                                                        </h3>
+                                                    </div>
+                                                `;
+                                            })}
+                                        </div>
+                                    `;
+                                },
+                            },
+                        },
+                        /*
+                        {
+                            id: "conservation",
+                            type: "custom",
                             field: "dataCons",
                             display: {
+                                visible: variant => variant.type === "MNV" || variant.type === "INDEL",
                                 render: dataCons => {
                                     return html`
                                         <div>
@@ -143,10 +251,38 @@ export default class VariantSummaryConservation extends LitElement {
                                                             ${c.score}
                                                         </span>
                                                     </li>`
-                                                )}
+                                    )}
                                             </ul>
                                         </div>
                                     `;
+                                },
+                            },
+                        },
+                         */
+                        {
+                            id: "conservation",
+                            type: "custom",
+                            display: {
+                                // EMPTY STATE: No conservation or different from SNV, MNV, INDEL
+                                visible: variant => {
+                                    return (variant.type !== "SNV" && variant.type !== "MNV" && variant.type !== "INDEL") ||
+                                        (!variant.annotation?.conservation || variant.annotation?.conservation?.length === 0);
+                                },
+                                render: variant => {
+                                    const conservation = variant.annotation?.conservation;
+                                    if (!conservation || conservation.length === 0) {
+                                        return html`
+                                            <div class="d-flex align-items-center text-gray-600">
+                                                No data conservation associated to this variant.
+                                            </div>
+                                        `;
+                                    } else {
+                                        return html`
+                                            <div class="d-flex align-items-center text-gray-600">
+                                                Conservation summary only available for SNV, MNV, INDEL variant types.
+                                            </div>
+                                        `;
+                                    }
                                 },
                             },
                         },
