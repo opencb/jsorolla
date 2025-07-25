@@ -68,7 +68,6 @@ export default class ClinicalReportVariantCard extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                className: "row",
                 buttonsVisible: false,
                 defaultLayout: "horizontal",
                 ...this.displayConfig,
