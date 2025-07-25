@@ -43,14 +43,14 @@ export default class ClinicalReportVariantCard extends LitElement {
 
     onVariantReviewInfo(event) {
         event.stopPropagation();
-        LitUtils.dispatchCustomEvent(this, "variantReviewInfo", {
+        LitUtils.dispatchCustomEvent(this, "variantReviewInfo", null, {
             variant: this.variant,
         });
     }
 
     onVariantReviewEdit(event) {
         event.stopPropagation();
-        LitUtils.dispatchCustomEvent(this, "variantReviewEdit", {
+        LitUtils.dispatchCustomEvent(this, "variantReviewEdit", null, {
             variant: this.variant,
         });
     }
