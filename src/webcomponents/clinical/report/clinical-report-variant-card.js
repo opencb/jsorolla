@@ -40,7 +40,11 @@ export default class ClinicalReportVariantCard extends LitElement {
         super.update(changedProperties);
     }
 
-    onViewVariant(event, variantId) {
+    onVariantInfo(event) {
+        event.stopPropagation();
+    }
+
+    onVariantReview(event) {
         event.stopPropagation();
     }
 
@@ -50,7 +54,7 @@ export default class ClinicalReportVariantCard extends LitElement {
         }
 
         return html`
-            <div class="card shadow-sm">
+            <div class="card shadow-sm border border-gray-200">
                 <div class="card-body">
                     <data-form
                         .data="${this.variant}"
@@ -77,14 +81,23 @@ export default class ClinicalReportVariantCard extends LitElement {
                     },
                     elements: [
                         {
-                            field: "id",
                             type: "custom",
                             display: {
-                                separationClass: "mb-1",
-                                render: id => html`
-                                    <a class="link fw-bold" @click="${event => this.onViewVariant(event, id)}">
-                                        <span class="fs-5">${id}</span>
-                                    </>
+                                separationClass: "mb-2",
+                                render: data => html`
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <a class="link fw-bold" @click="${event => this.onVariantInfo(event)}">
+                                                <span class="fs-5">${data.id}</span>
+                                            </a>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <button class="btn btn-sm btn-light" @click="${event => this.onVariantReview(event)}">
+                                                <i class="fa fa-edit pe-1"></i>
+                                                <span>Edit Review</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 `,
                             },
                         },
