@@ -310,6 +310,12 @@ export default class DataForm extends LitElement {
         return element?.display?.defaultLayout ?? section?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
     }
 
+    // note: this method gets the default separation class from the section or element display
+    // if no separation class is defined at element or section level, it will return the default one from the global config or "mb-3"
+    _getSeparationClass(element, section) {
+        return element?.display?.separationClass ?? section?.display?.separationClass ?? this.config?.display?.separationClass ?? "mb-3";
+    }
+
     _getElementWidth(element, section) {
         return element?.display?.width ?? section?.display?.elementWidth ?? this.config?.display?.elementWidth ?? null;
     }
@@ -599,7 +605,7 @@ export default class DataForm extends LitElement {
         }
 
         return html`
-            <div class="row mb-3">
+            <div class="row ${this._getSeparationClass(null, section)}">
                 <div class="${sectionWidth}">
                     ${section.title ? html`
                         <div class="mb-3">
@@ -752,7 +758,7 @@ export default class DataForm extends LitElement {
         // Check for horizontal layout
         if (layout === "horizontal") {
             return html`
-                <div class="row mb-3 ${elementContainerClassName}" style="${elementContainerStyle}">
+                <div class="row ${this._getSeparationClass(element, null)} ${elementContainerClassName}" style="${elementContainerStyle}">
                     ${title && titleVisible ? html`
                         <div class="col-md-${titleWidth} fw-bold ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
                             ${title} ${titleRequiredMark}
@@ -770,7 +776,7 @@ export default class DataForm extends LitElement {
             `;
         } else {
             return html`
-                <div class="row mb-3 ${elementContainerClassName}" style="${elementContainerStyle}">
+                <div class="row ${this._getSeparationClass(element, null)} ${elementContainerClassName}" style="${elementContainerStyle}">
                     <div class="col-md-${width}">
                         ${title && titleVisible ? html`
                             <label class="fw-bold form-label pt-0 ${titleClassName}" style="${titleStyle}">

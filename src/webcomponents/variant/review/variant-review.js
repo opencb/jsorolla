@@ -233,12 +233,7 @@ export default class VariantReview extends LitElement {
 
     renderVariantInfo() {
         const displayConsequenceType = this.variant?.annotation?.displayConsequenceType;
-        const genes = new Set();
-        (this.variant?.annotation?.consequenceTypes || []).forEach(ct => {
-            if (ct.geneName) {
-                genes.add(ct.geneName);
-            }
-        });
+        const genes = VariantUtils.getGenes(this.variant);
 
         return html`
             <div class="alert alert-light flex-grow-1 d-flex justify-content-center flex-column">

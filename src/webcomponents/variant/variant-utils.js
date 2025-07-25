@@ -660,4 +660,15 @@ export default class VariantUtils {
         }
     }
 
+    // returns a list of genes from the variant annotation
+    static getGenes(variant) {
+        const genes = new Set();
+        (variant?.annotation?.consequenceTypes || []).forEach(ct => {
+            if (ct.geneName) {
+                genes.add(ct.geneName);
+            }
+        });
+        return Array.from(genes);
+    }
+
 }

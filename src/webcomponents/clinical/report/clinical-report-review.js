@@ -4,9 +4,11 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-// import "./clinical-report-variants.js";
+import GridCommons from "../../commons/grid-commons.js";
+import WebUtils from "../../commons/utils/web-utils.js";
+import "../../variant/review/variant-review.js";
 import "./clinical-report-variant-card.js";
-
+import "./clinical-report-variant-info.js";
 
 export default class ClinicalReportReview extends LitElement {
 
@@ -24,297 +26,114 @@ export default class ClinicalReportReview extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            interpretationId: {
-                type: String
-            },
             opencgaSession: {
-                type: Object
-            },
-            cellbaseClient: {
                 type: Object
             },
             active: {
                 type: Boolean,
             },
-            config: {
-                type: Object
-            }
         };
     }
 
     #init() {
-        this.updateCaseParams = {};
-        this.updateCaseComments = {};
-        this.updateInterpretationComments = [];
-        this._clinicalAnalysis = {};
+        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
+
+        this._clinicalAnalysisManager = null;
+        this._selectedVariant = null;
+        this._gridCommons = new GridCommons(null, this, null);
+
+        // initialize available modals
+        this._gridCommons.registerModals({
+            // "view-variant": () => ({
+            //     display: {
+            //         scrollable: true,
+            //         title: `Variant ${this._selectedVariant.id}`,
+            //         size: "modal-3xl",
+            //         buttonsVisible: false,
+            //     },
+            //     render: () => html`
+            //         <variant-interpreter-view
+            //             .opencgaSession="${this.opencgaSession}"
+            //             .settings="${this._config}"
+            //             .clinicalAnalysis="${this.clinicalAnalysis}"
+            //             .toolId="${"variant-interpreter-report"}"
+            //             .variant="${this._selectedVariant}">
+            //         </variant-interpreter-view>
+            //     `,
+            // }),
+            "review-variant": () => ({
+                display: {
+                    scrollable: true,
+                    title: `${WebUtils.formatDisplayName(this.clinicalAnalysis.interpretation.id, this.clinicalAnalysis.interpretation.name)} - Review Variant`,
+                    size: "modal-3xl",
+                    buttonsVisible: true,
+                    buttonCancelText: "Cancel",
+                    buttonSaveText: "Save Review",
+                },
+                render: () => html`
+                    <variant-review
+                        .opencgaSession="${this.opencgaSession}"
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                        .variant="${this._selectedVariant}"
+                        .selected="${true}"
+                        .primaryFinding="${true}"
+                        .reviewEvidences="${true}"
+                        .settings="${{}}"
+                        @variantChange="${event => this.onVariantReviewChange(event)}">
+                    </variant-review>
+                `,
+                onCancel: () => {
+                    this.onVariantReviewCancel();
+                },
+                onSave: () => {
+                    this.onVariantReviewSave();
+                },
+            }),
+        });
     }
 
-    connectedCallback() {
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-        super.connectedCallback();
-    }
-
-    firstUpdated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
+
+        super.update(changedProperties);
     }
 
     clinicalAnalysisObserver() {
-        if (this.opencgaSession && this.clinicalAnalysis) {
-            this._clinicalAnalysis = UtilsNew.objectClone(this.clinicalAnalysis);
-            this._config = this.getDefaultConfig();
-            this.requestUpdate();
+        if (this.clinicalAnalysis) {
+            this._clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
         }
     }
 
-    clinicalAnalysisIdObserver() {
-        if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
-                })
-                .catch(response => {
-                    this.notifyError(response);
-                });
-        }
-    }
-
-    // Update comments case
-    updateOrDeleteCaseComments(notify) {
-        if (this.updateCaseComments?.updated?.length > 0) {
-            this.opencgaSession.opencgaClient.clinical()
-                .update(this.clinicalAnalysis.id, {comments: this.updateCaseComments.updated}, {commentsAction: "REPLACE", study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    if (notify && this.updateCaseComments?.deleted?.length === 0) {
-                        this.postUpdate(response);
-                    }
-                })
-                .catch(response => {
-                    this.notifyError(response);
-                });
-        }
-        if (this.updateCaseComments?.deleted?.length > 0) {
-            this.opencgaSession.opencgaClient.clinical()
-                .update(this.clinicalAnalysis.id, {comments: this.updateCaseComments.deleted}, {commentsAction: "REMOVE", study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    if (notify) {
-                        this.postUpdate(response);
-                    }
-                })
-                .catch(response => {
-                    this.notifyError(response);
-                });
-        }
-    }
-
-    updateOrDeleteInterpretationComments(clinicalAnalysisId, interpretationId, updateInterpretationComments, notify) {
-        if (updateInterpretationComments?.updated?.length > 0) {
-            this.opencgaSession.opencgaClient.clinical()
-                .updateInterpretation(clinicalAnalysisId, interpretationId,
-                    {comments: updateInterpretationComments.updated},
-                    {commentsAction: "REPLACE", study: this.opencgaSession.study.fqn}
-                ).then(response => {
-                    if (notify && this.updateInterpretationComments?.deleted?.length === 0) {
-                        this.postUpdate(response, "");
-                    }
-                })
-                .catch(response => {
-                    this.notifyError(response);
-                });
-        }
-        if (updateInterpretationComments?.deleted?.length > 0) {
-            this.opencgaSession.opencgaClient.clinical()
-                .updateInterpretation(clinicalAnalysisId, interpretationId,
-                    {comments: updateInterpretationComments.deleted},
-                    {commentsAction: "REMOVE", study: this.opencgaSession.study.fqn}
-                ).then(response => {
-                    if (notify) {
-                        this.postUpdate(response, "");
-                    }
-                })
-                .catch(response => {
-                    this.notifyError(response);
-                });
-        }
-    }
-
-    submitCaseComments() {
-        if (this.updateCaseComments?.added?.length > 0) {
-            this.updateOrDeleteCaseComments(false);
-            this.opencgaSession.opencgaClient.clinical()
-                .update(this.clinicalAnalysis.id, {comments: this.updateCaseComments.added}, {
-                    study: this.opencgaSession.study.fqn,
-                    // flagsAction: "SET",
-                    // panelsAction: "SET",
-                })
-                .then(response => {
-                    this.postUpdate(response);
-                })
-                .catch(response => {
-                    this.notifyError(response);
-                });
-        } else {
-            this.updateOrDeleteCaseComments(true);
-        }
-    }
-
-    // ClinicalReport
-    submitCaseFinalSummary() {
-        if (this.updateCaseParams && UtilsNew.isNotEmpty(this.updateCaseParams)) {
-            this.opencgaSession.opencgaClient.clinical()
-                .update(this.clinicalAnalysis.id, this.updateCaseParams, {
-                    study: this.opencgaSession.study.fqn,
-                    // flagsAction: "SET",
-                    // panelsAction: "SET",
-                })
-                .then(response => {
-                    this.postUpdate(response);
-                })
-                .catch(response => {
-                    // In this scenario notification does not raise any errors because none of the conditions shown in notificationManager.response are present.
-                    this.notifyError(response);
-                });
-        }
-    }
-
-    submitInterpretationsComments() {
-        const clinicalAnalysisId = this.clinicalAnalysis.id;
-        this.updateInterpretationComments.forEach(updateInterpretationComments => {
-            const interpretationId = updateInterpretationComments.id;
-            if (updateInterpretationComments.added?.length > 0) {
-                this.updateOrDeleteInterpretationComments(clinicalAnalysisId, interpretationId, updateInterpretationComments, false);
-                this.opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysisId, interpretationId, {comments: updateInterpretationComments.added}, {
-                    study: this.opencgaSession.study.fqn,
-                }).then(response => {
-                    this.postUpdate(response, interpretationId);
-                }).catch(response => {
-                    this.notifyError(response);
-                });
-            } else {
-                this.updateOrDeleteInterpretationComments(clinicalAnalysisId, interpretationId, updateInterpretationComments, true);
-            }
-        });
-    }
-
-    notifyError(response) {
-        if (typeof response == "string") {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                message: response
-            });
-        } else {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-        }
-        console.error("An error occurred updating clinicalAnalysis: ", response);
-    }
-
-    postUpdate(response) {
-        // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-            message: "Updated successfully",
-        });
-
-        // Reset values after success update
-        this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
-        this.updateCaseParams = {};
-        this.updateInterpretationComments = [];
-        this._config = this.getDefaultConfig();
-
-        LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-            // id: this.interpretation.id, // maybe this not would be necessary
-            clinicalAnalysis: this.clinicalAnalysis
-        });
-
+    onVariantReviewInfo(event) {
+        this._selectedVariant = event.detail.variant;
         this.requestUpdate();
-    }
 
-    onUpdateVariant(e) {
-        const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
-        rows.forEach(row => {
-            this.clinicalAnalysisManager.updateSingleVariant(row);
+        // when update is complete, show the offcanvas
+        this.updateComplete.then(() => {
+            const bsOffcanvas = new bootstrap.Offcanvas(`#${this._prefix}ReviewInfo`);
+            bsOffcanvas.show();
         });
-        this.saveIntrepretationVariant();
-        this.requestUpdate();
     }
 
-    saveIntrepretationVariant() {
-        this.clinicalAnalysisManager.updateInterpretationVariants(null, () => {
-            this.requestUpdate();
-            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-                clinicalAnalysis: this.clinicalAnalysis,
-            }, null, {bubbles: true, composed: true});
-        });
-        this._config = this.getDefaultConfig();
+    onVariantReviewEdit(event) {
+        this._selectedVariant = UtilsNew.objectClone(event.detail.variant);
+        this._gridCommons.changeActiveModal("review-variant");
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        switch (param) {
-            case "report.date":
-            case "status.id":
-            case "report.signedBy":
-                this.updateCaseParams = FormUtils.updateObjectParams(
-                    this._clinicalAnalysis,
-                    this.clinicalAnalysis,
-                    this.updateCaseParams,
-                    param,
-                    e.detail.value);
-                break;
-            case "report.discussion.text":
-                // Josemi (2022-07-29) added very basic implementation for saving discussion data
-                // This should be improved in the future allowing formUtils to handle more than two fields in updateObjectParams
-                this.clinicalAnalysis.report = {
-                    ...this.clinicalAnalysis.report,
-                    discussion: {
-                        text: e.detail.value,
-                        author: this.opencgaSession?.user?.id || "-",
-                        date: UtilsNew.getDatetime(),
-                    },
-                };
-                this.updateCaseParams = {
-                    ...this.updateCaseParams,
-                    report: {
-                        ...this.updateCaseParams?.report,
-                        discussion: this.clinicalAnalysis.report.discussion,
-                    },
-                };
-                break;
-        }
+    onVariantReviewChange(event) {
+        // TODO
     }
 
-    onCaseCommentChange(e) {
-        this.updateCaseComments = e.detail;
+    onVariantReviewCancel() {
+        this._selectedVariant = null;
+        this._gridCommons.clearActiveModal();
     }
 
-    onInterpretationCommentChange(e) {
-        if (this.updateInterpretationComments.length > 0) {
-            const index = this.updateInterpretationComments.findIndex(i => i.id === e.detail?.id);
-            if (index >= 0) {
-                this.updateInterpretationComments[index] = e.detail;
-            } else {
-                this.updateInterpretationComments.push(e.detail);
-            }
-        } else {
-            this.updateInterpretationComments.push(e.detail);
-        }
-    }
-
-    onSubmit(e) {
-        // By Sections
-        switch (e.detail?.value) {
-            case "caseInfo":
-                this.submitCaseComments();
-                break;
-            case "interpretationSummary":
-                this.submitInterpretationsComments();
-                break;
-            case "finalSummary":
-                this.submitCaseFinalSummary();
-                break;
-            default:
-                break;
-        }
+    onVariantReviewSave(event) {
+        // TODO
     }
 
     renderReportedVariants() {
@@ -325,11 +144,13 @@ export default class ClinicalReportReview extends LitElement {
         });
 
         return html`
-            <div class="gap-4" style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));">
+            <div class="gap-3" style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));">
                 ${reportedVariants.map(variant => html`
                     <clinical-report-variant-card
                         .opencgaSession="${this.opencgaSession}"
-                        .variant="${variant}">
+                        .variant="${variant}"
+                        @variantReviewInfo="${event => this.onVariantReviewInfo(event)}"
+                        @variantReviewEdit="${event => this.onVariantReviewEdit(event)}">
                     </clinical-report-variant-card>
                 `)}
             </div>
@@ -341,17 +162,12 @@ export default class ClinicalReportReview extends LitElement {
             return nothing;
         }
 
-        // get only variants with status "REPORTED"
-        // const reportedVariants = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).filter(variant => {
-        //     // return variant.status.id === "REPOR^ED";
-        //     return true;
-        // });
-
         return html`
-            <div class="mb-4">
+            <div class="mb-5">
                 <h3 class="fw-bold mb-4">Reported Variants</h3>
                 ${this.renderReportedVariants()}
             </div>
+
             <div class="">
                 <h3 class="fw-bold mb-4">Case Review</h3>
                 <data-form
@@ -361,6 +177,26 @@ export default class ClinicalReportReview extends LitElement {
                     @submit=${event => this.onSubmit(event)}>
                 </data-form>
             </div>
+
+            <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}ReviewInfo" style="width:600px;">
+                <div class="offcanvas-header p-4">
+                    ${this._selectedVariant ? html`
+                        <h4 class="offcanvas-title fw-bold">Variant ${this._selectedVariant?.id}</h4>
+                    ` : nothing}
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body px-4">
+                    ${this._selectedVariant ? html`
+                        <clinical-report-variant-info
+                            .opencgaSession="${this.opencgaSession}"
+                            .variant="${this._selectedVariant}"
+                            .active="${true}">
+                        </clinical-report-variant-info>
+                    ` : nothing}
+                </div>
+            </div>
+
+            ${this._gridCommons.renderModals()}
         `;
     }
 
