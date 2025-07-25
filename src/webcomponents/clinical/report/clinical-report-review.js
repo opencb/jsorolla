@@ -325,7 +325,7 @@ export default class ClinicalReportReview extends LitElement {
         });
 
         return html`
-            <div class="gap-4" style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));">
+            <div class="gap-3" style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));">
                 ${reportedVariants.map(variant => html`
                     <clinical-report-variant-card
                         .opencgaSession="${this.opencgaSession}"
@@ -342,7 +342,7 @@ export default class ClinicalReportReview extends LitElement {
         }
 
         return html`
-            <div class="mb-4">
+            <div class="mb-5">
                 <h3 class="fw-bold mb-4">Reported Variants</h3>
                 ${this.renderReportedVariants()}
             </div>
