@@ -112,7 +112,9 @@ export default class ClinicalReportReview extends LitElement {
             </div>
             <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}ReviewInfo" style="width:600px;">
                 <div class="offcanvas-header p-4">
-                    <h4 class="offcanvas-title fw-bold">Review</h4>
+                    ${this._selectedVariant ? html`
+                        <h4 class="offcanvas-title fw-bold">Variant ${this._selectedVariant?.id}</h4>
+                    ` : nothing}
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body px-4">
