@@ -2,6 +2,7 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import VariantUtils from "../../variant/variant-utils.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 export default class ClinicalReportVariantCard extends LitElement {
 
@@ -40,12 +41,18 @@ export default class ClinicalReportVariantCard extends LitElement {
         super.update(changedProperties);
     }
 
-    onVariantInfo(event) {
+    onVariantReviewInfo(event) {
         event.stopPropagation();
+        LitUtils.dispatchCustomEvent(this, "variantReviewInfo", {
+            variant: this.variant,
+        });
     }
 
-    onVariantReview(event) {
+    onVariantReviewEdit(event) {
         event.stopPropagation();
+        LitUtils.dispatchCustomEvent(this, "variantReviewEdit", {
+            variant: this.variant,
+        });
     }
 
     render() {
@@ -86,12 +93,12 @@ export default class ClinicalReportVariantCard extends LitElement {
                                 render: data => html`
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="d-flex align-items-center">
-                                            <a class="link fw-bold" @click="${event => this.onVariantInfo(event)}">
+                                            <a class="link fw-bold" @click="${event => this.onVariantReviewInfo(event)}">
                                                 <span class="fs-5">${data.id}</span>
                                             </a>
                                         </div>
                                         <div class="d-flex align-items-center gap-2">
-                                            <button class="btn btn-sm btn-light" @click="${event => this.onVariantReview(event)}">
+                                            <button class="btn btn-sm btn-light" @click="${event => this.onVariantReviewEdit(event)}">
                                                 <i class="fa fa-edit pe-1"></i>
                                                 <span>Edit Review</span>
                                             </button>
