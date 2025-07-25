@@ -59,37 +59,26 @@ export default class ClinicalReportVariantInfo extends LitElement {
             display: {
                 buttonsVisible: false,
                 defaultLayout: "vertical",
-                layout: [
-                    {
-                        id: "variant-header",
-                        className: "mb-3",
-                    },
-                    {
-                        id: "variant-content",
-                        className: "overflow-auto",
-                        style: "max-height: 90vh",
-                    },
-                ],
                 ...this.displayConfig,
             },
             sections: [
-                {
-                    id: "variant-header",
-                    display: {
-                        buttonsVisible: false,
-                    },
-                    elements: [
-                        {
-                            type: "text",
-                            text: data => {
-                                return `Variant ${data?.id || "-"}`;
-                            },
-                            display: {
-                                textClassName: "fw-bold fs-4",
-                            },
-                        },
-                    ],
-                },
+                // {
+                //     id: "variant-header",
+                //     display: {
+                //         buttonsVisible: false,
+                //     },
+                //     elements: [
+                //         {
+                //             type: "text",
+                //             text: data => {
+                //                 return `Variant ${data?.id || "-"}`;
+                //             },
+                //             display: {
+                //                 textClassName: "fw-bold fs-4",
+                //             },
+                //         },
+                //     ],
+                // },
                 {
                     id: "variant-content",
                     display: {
