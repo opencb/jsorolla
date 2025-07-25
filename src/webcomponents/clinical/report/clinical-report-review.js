@@ -6,7 +6,7 @@ import FormUtils from "../../commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 // import "./clinical-report-variants.js";
 import "./clinical-report-variant-card.js";
-
+import "./clinical-report-variant-info.js";
 
 export default class ClinicalReportReview extends LitElement {
 
@@ -34,8 +34,11 @@ export default class ClinicalReportReview extends LitElement {
     }
 
     #init() {
-        this._clinicalAnalysisManager = null;
+        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
+
+        this._clinicalAnalysisManager = null;
+        this._selectedVariant = null;
     }
 
     update(changedProperties) {
@@ -52,6 +55,21 @@ export default class ClinicalReportReview extends LitElement {
         }
     }
 
+    onVariantReviewInfo(event) {
+        this._selectedVariant = event.detail.variant;
+        this.requestUpdate();
+
+        // when update is complete, show the offcanvas
+        this.updateComplete.then(() => {
+            const bsOffcanvas = new bootstrap.Offcanvas(`#${this._prefix}ReviewInfo`);
+            bsOffcanvas.show();
+        });
+    }
+
+    onVariantReviewEdit(event) {
+        // TODO
+    }
+
     renderReportedVariants() {
         // get only variants with status "REPORTED"
         const reportedVariants = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).filter(variant => {
@@ -64,7 +82,9 @@ export default class ClinicalReportReview extends LitElement {
                 ${reportedVariants.map(variant => html`
                     <clinical-report-variant-card
                         .opencgaSession="${this.opencgaSession}"
-                        .variant="${variant}">
+                        .variant="${variant}"
+                        @variantReviewInfo="${event => this.onVariantReviewInfo(event)}"
+                        @variantReviewEdit="${event => this.onVariantReviewEdit(event)}">
                     </clinical-report-variant-card>
                 `)}
             </div>
@@ -89,6 +109,21 @@ export default class ClinicalReportReview extends LitElement {
                     @fieldChange="${event => this.onFieldChange(event)}"
                     @submit=${event => this.onSubmit(event)}>
                 </data-form>
+            </div>
+            <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}ReviewInfo" style="width:600px;">
+                <div class="offcanvas-header p-4">
+                    <h4 class="offcanvas-title fw-bold">Review</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body px-4">
+                    ${this._selectedVariant ? html`
+                        <clinical-report-variant-info
+                            .opencgaSession="${this.opencgaSession}"
+                            .variant="${this._selectedVariant}"
+                            .active="${true}">
+                        </clinical-report-variant-info>
+                    ` : nothing}
+                </div>
             </div>
         `;
     }
