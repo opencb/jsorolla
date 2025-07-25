@@ -6,7 +6,7 @@ import FormUtils from "../../commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
 import WebUtils from "../../commons/utils/web-utils.js";
-// import "./clinical-report-variants.js";
+import "../../variant/review/variant-review.js";
 import "./clinical-report-variant-card.js";
 import "./clinical-report-variant-info.js";
 
