@@ -40,6 +40,10 @@ export default class ClinicalReportVariantCard extends LitElement {
         super.update(changedProperties);
     }
 
+    onViewVariant(event, variantId) {
+        event.stopPropagation();
+    }
+
     render() {
         if (!this.opencgaSession || !this.variant) {
             return nothing;
@@ -47,10 +51,12 @@ export default class ClinicalReportVariantCard extends LitElement {
 
         return html`
             <div class="card shadow-sm">
-                <data-form
-                    .data="${this.variant}"
-                    .config="${this._config}">
-                </data-form>
+                <div class="card-body">
+                    <data-form
+                        .data="${this.variant}"
+                        .config="${this._config}">
+                    </data-form>
+                </div>
             </div>
         `;
     }
@@ -60,22 +66,24 @@ export default class ClinicalReportVariantCard extends LitElement {
             display: {
                 className: "row",
                 buttonsVisible: false,
-                defaultLayout: "vertical",
+                defaultLayout: "horizontal",
                 ...this.displayConfig,
             },
             sections: [
                 {
                     id: "variant",
+                    display: {
+                        separationClass: "mb-0",
+                    },
                     elements: [
                         {
-                            title: "ID",
                             field: "id",
                             type: "custom",
                             display: {
-                                bodyClassName: "align-middle",
+                                separationClass: "mb-1",
                                 render: id => html`
                                     <a class="link fw-bold" @click="${event => this.onViewVariant(event, id)}">
-                                        <span>${id}</span>
+                                        <span class="fs-5">${id}</span>
                                     </>
                                 `,
                             },
@@ -85,10 +93,34 @@ export default class ClinicalReportVariantCard extends LitElement {
                             field: "type",
                             type: "custom",
                             display: {
-                                bodyClassName: "align-middle",
+                                separationClass: "mb-1",
                                 render: type => {
                                     return UtilsNew.renderHTML(VariantGridFormatter.typeFormatter(type));
                                 },
+                            },
+                        },
+                        {
+                            title: "Genes",
+                            type: "custom",
+                            display: {
+                                separationClass: "mb-1",
+                                render: data => {
+                                    const genes = VariantUtils.getGenes(data);
+                                    return (genes.slice(0, 5).join(", ") || "-") + (genes.length > 5 ? `... and ${genes.length - 5} more` : "");
+                                },
+                            },
+                        },
+                        {
+                            title: "Consequence Type",
+                            field: "annotation.displayConsequenceType",
+                            type: "custom",
+                            display: {
+                                separationClass: "mb-0",
+                                render: displayConsequenceType => html`
+                                    <span style="color:${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[displayConsequenceType]] || "black"}">
+                                        ${displayConsequenceType || "-"}
+                                    </span>
+                                `,
                             },
                         },
                     ],
