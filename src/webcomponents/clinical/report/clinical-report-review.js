@@ -4,6 +4,8 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import GridCommons from "../../commons/grid-commons.js";
+import WebUtils from "../../commons/utils/web-utils.js";
 // import "./clinical-report-variants.js";
 import "./clinical-report-variant-card.js";
 import "./clinical-report-variant-info.js";
@@ -39,6 +41,56 @@ export default class ClinicalReportReview extends LitElement {
 
         this._clinicalAnalysisManager = null;
         this._selectedVariant = null;
+        this._gridCommons = new GridCommons(null, this, null);
+
+        // initialize available modals
+        this._gridCommons.registerModals({
+            // "view-variant": () => ({
+            //     display: {
+            //         scrollable: true,
+            //         title: `Variant ${this._selectedVariant.id}`,
+            //         size: "modal-3xl",
+            //         buttonsVisible: false,
+            //     },
+            //     render: () => html`
+            //         <variant-interpreter-view
+            //             .opencgaSession="${this.opencgaSession}"
+            //             .settings="${this._config}"
+            //             .clinicalAnalysis="${this.clinicalAnalysis}"
+            //             .toolId="${"variant-interpreter-report"}"
+            //             .variant="${this._selectedVariant}">
+            //         </variant-interpreter-view>
+            //     `,
+            // }),
+            "review-variant": () => ({
+                display: {
+                    scrollable: true,
+                    title: `${WebUtils.formatDisplayName(this.clinicalAnalysis.interpretation.id, this.clinicalAnalysis.interpretation.name)} - Review Variant`,
+                    size: "modal-3xl",
+                    buttonsVisible: true,
+                    buttonCancelText: "Cancel",
+                    buttonSaveText: "Save Review",
+                },
+                render: () => html`
+                    <variant-review
+                        .opencgaSession="${this.opencgaSession}"
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                        .variant="${this._selectedVariant}"
+                        .selected="${true}"
+                        .primaryFinding="${true}"
+                        .reviewEvidences="${true}"
+                        .settings="${{}}"
+                        @variantChange="${event => this.onVariantReviewChange(event)}">
+                    </variant-review>
+                `,
+                onCancel: () => {
+                    this.onVariantReviewCancel();
+                },
+                onSave: () => {
+                    this.onVariantReviewSave();
+                },
+            }),
+        });
     }
 
     update(changedProperties) {
@@ -67,6 +119,20 @@ export default class ClinicalReportReview extends LitElement {
     }
 
     onVariantReviewEdit(event) {
+        this._selectedVariant = UtilsNew.objectClone(event.detail.variant);
+        this._gridCommons.changeActiveModal("review-variant");
+    }
+
+    onVariantReviewChange(event) {
+        // TODO
+    }
+
+    onVariantReviewCancel() {
+        this._selectedVariant = null;
+        this._gridCommons.clearActiveModal();
+    }
+
+    onVariantReviewSave(event) {
         // TODO
     }
 
@@ -101,6 +167,7 @@ export default class ClinicalReportReview extends LitElement {
                 <h3 class="fw-bold mb-4">Reported Variants</h3>
                 ${this.renderReportedVariants()}
             </div>
+
             <div class="">
                 <h3 class="fw-bold mb-4">Case Review</h3>
                 <data-form
@@ -110,6 +177,7 @@ export default class ClinicalReportReview extends LitElement {
                     @submit=${event => this.onSubmit(event)}>
                 </data-form>
             </div>
+
             <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}ReviewInfo" style="width:600px;">
                 <div class="offcanvas-header p-4">
                     ${this._selectedVariant ? html`
@@ -127,6 +195,8 @@ export default class ClinicalReportReview extends LitElement {
                     ` : nothing}
                 </div>
             </div>
+
+            ${this._gridCommons.renderModals()}
         `;
     }
 
