@@ -2397,10 +2397,10 @@ export default class DataForm extends LitElement {
             ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
             <div class="row">
                 <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
-                    <div class="nav nav-pills flex-column">
+                    <div class="nav nav-pills flex-column gap-2 p-1 border bg-gray-100 rounded-3">
                         ${this._getVisibleSections().map((section, index) => {
                             const active = index === this.activeSection;
-                            const sectionClass = section.icon ? "d-flex align-items-center flex-column gap-2 mb-2" : "";
+                            const sectionClass = section.icon ? "d-flex align-items-center flex-column gap-2" : "";
                             return html`
                                 <a class="nav-link cursor-pointer ${sectionClass} ${active ? "active" : ""}" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
                                     ${section.icon ? html`
