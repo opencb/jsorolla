@@ -792,8 +792,13 @@ export default class VariantInterpreterGridFormatter {
             const status = primaryFindings.get(variant.id)?.status || secondaryFindings.get(variant.id)?.status || variant.status;
             if (status) {
                 const color = VariantUtils.getStatusColor(status);
+                const isPrimaryFinding = primaryFindings.has(variant.id);
+                const tooltipText = `
+                    <div><b>Status</b>: ${status}</div>
+                    <div><b>Finding</b>: ${isPrimaryFinding ? "Primary" : "Secondary"}</div>
+                `;
                 return `
-                    <div class="${color} rounded-circle" style="width:1.25rem;height:1.25rem;"></div>
+                    <a class="d-block ${color} rounded-circle" tooltip-title="Status" tooltip-text="${tooltipText}" style="width:1.25rem;height:1.25rem;"></a>
                 `;
             }
         }
