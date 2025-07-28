@@ -144,8 +144,7 @@ export default class ClinicalReportReview extends LitElement {
     renderReportedVariants() {
         // get only variants with status "REPORTED"
         const reportedVariants = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).filter(variant => {
-            // return variant.status.id === "REPORTED";
-            return true;
+            return variant.status.id === "REPORTED";
         });
 
         return html`
