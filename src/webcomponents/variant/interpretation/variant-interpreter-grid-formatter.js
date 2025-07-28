@@ -787,4 +787,17 @@ export default class VariantInterpreterGridFormatter {
             .join(separator);
     }
 
+    static statusFormatter(variant, primaryFindings, secondaryFindings) {
+        if (primaryFindings.has(variant.id) || secondaryFindings.has(variant.id)) {
+            const status = primaryFindings.get(variant.id)?.status || secondaryFindings.get(variant.id)?.status || variant.status;
+            if (status) {
+                const color = VariantUtils.getStatusColor(status);
+                return `
+                    <div class="${color} rounded-circle" style="width:1.25rem;height:1.25rem;"></div>
+                `;
+            }
+        }
+        return "";
+    }
+
 }
