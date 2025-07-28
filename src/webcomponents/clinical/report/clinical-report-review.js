@@ -149,6 +149,7 @@ export default class ClinicalReportReview extends LitElement {
                     <clinical-report-variant-card
                         .opencgaSession="${this.opencgaSession}"
                         .variant="${variant}"
+                        .selected="${this._selectedVariant?.id === variant.id}"
                         @variantReviewInfo="${event => this.onVariantReviewInfo(event)}"
                         @variantReviewEdit="${event => this.onVariantReviewEdit(event)}">
                     </clinical-report-variant-card>
