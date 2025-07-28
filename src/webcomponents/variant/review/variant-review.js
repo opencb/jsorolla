@@ -239,10 +239,10 @@ export default class VariantReview extends LitElement {
             <div class="alert alert-light flex-grow-1 d-flex justify-content-center flex-column">
                 <div class="d-flex gap-3">
                     <span class="fw-bold">${this._variant.id}</span>
-                    ${genes.size > 0 ? html`
+                    ${genes.length > 0 ? html`
                         <span class="text-secondary">
-                            ${Array.from(genes).slice(0, 5).join(", ")}
-                            ${genes.size > 5 ? `... and ${genes.size - 5} more` : nothing}
+                            ${genes.slice(0, 5).join(", ")}
+                            ${genes.length > 5 ? `... and ${genes.length - 5} more` : nothing}
                         </span>
                     ` : nothing}
                 </div>
