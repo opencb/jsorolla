@@ -567,14 +567,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     colspan: 1,
                     align: "center",
                     formatter: (value, row) => {
-                        if (this._primaryFindings.has(row[0].id) || this._secondaryFindings.has(row[0].id)) {
-                            const variant = this._primaryFindings.get(row[0].id) || this._secondaryFindings.get(row[0].id) || row[0];
-                            const color = VariantUtils.getStatusColor(variant.status);
-                            return `
-                                <div class="${color} rounded-circle" style="width:1.25rem;height:1.25rem;"></div>
-                            `;
-                        }
-                        return "";
+                        return VariantInterpreterGridFormatter.statusFormatter(row, this._primaryFindings, this._secondaryFindings);
                     },
                     excludeFromExport: true,
                     excludeFromSettings: true,

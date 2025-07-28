@@ -45,23 +45,23 @@ export default class ClinicalReportReview extends LitElement {
 
         // initialize available modals
         this._gridCommons.registerModals({
-            // "view-variant": () => ({
-            //     display: {
-            //         scrollable: true,
-            //         title: `Variant ${this._selectedVariant.id}`,
-            //         size: "modal-3xl",
-            //         buttonsVisible: false,
-            //     },
-            //     render: () => html`
-            //         <variant-interpreter-view
-            //             .opencgaSession="${this.opencgaSession}"
-            //             .settings="${this._config}"
-            //             .clinicalAnalysis="${this.clinicalAnalysis}"
-            //             .toolId="${"variant-interpreter-report"}"
-            //             .variant="${this._selectedVariant}">
-            //         </variant-interpreter-view>
-            //     `,
-            // }),
+            "view-variant": () => ({
+                display: {
+                    scrollable: true,
+                    title: `Variant ${this._selectedVariant.id}`,
+                    size: "modal-3xl",
+                    buttonsVisible: false,
+                },
+                render: () => html`
+                    <variant-interpreter-view
+                        .opencgaSession="${this.opencgaSession}"
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                        .toolId="${"variant-interpreter-report"}"
+                        .settings="${{}}"
+                        .variant="${this._selectedVariant}">
+                    </variant-interpreter-view>
+                `,
+            }),
             "review-variant": () => ({
                 display: {
                     scrollable: true,
@@ -107,6 +107,11 @@ export default class ClinicalReportReview extends LitElement {
         }
     }
 
+    onVariantInfo(event) {
+        this._selectedVariant = event.detail.variant;
+        this._gridCommons.changeActiveModal("view-variant");
+    }
+
     onVariantReviewInfo(event) {
         this._selectedVariant = event.detail.variant;
         this.requestUpdate();
@@ -118,7 +123,7 @@ export default class ClinicalReportReview extends LitElement {
         });
     }
 
-    onVariantReviewEdit(event) {
+    onVariantReviewUpdate(event) {
         this._selectedVariant = UtilsNew.objectClone(event.detail.variant);
         this._gridCommons.changeActiveModal("review-variant");
     }
@@ -149,8 +154,10 @@ export default class ClinicalReportReview extends LitElement {
                     <clinical-report-variant-card
                         .opencgaSession="${this.opencgaSession}"
                         .variant="${variant}"
+                        .selected="${this._selectedVariant?.id === variant.id}"
+                        @variantInfo="${event => this.onVariantInfo(event)}"
                         @variantReviewInfo="${event => this.onVariantReviewInfo(event)}"
-                        @variantReviewEdit="${event => this.onVariantReviewEdit(event)}">
+                        @variantReviewUpdate="${event => this.onVariantReviewUpdate(event)}">
                     </clinical-report-variant-card>
                 `)}
             </div>
