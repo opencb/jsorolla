@@ -23,6 +23,9 @@ export default class ClinicalReportVariantCard extends LitElement {
             variant: {
                 type: Object,
             },
+            selected: {
+                type: Boolean,
+            },
             displayConfig: {
                 type: Object
             }
@@ -61,7 +64,7 @@ export default class ClinicalReportVariantCard extends LitElement {
         }
 
         return html`
-            <div class="card shadow-sm border border-gray-200">
+            <div class="card shadow-sm border ${this.selected ? "bg-gray-100 border-primary" : "bg-white border-gray-200"}">
                 <div class="card-body">
                     <data-form
                         .data="${this.variant}"
