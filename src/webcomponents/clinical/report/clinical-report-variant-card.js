@@ -44,6 +44,13 @@ export default class ClinicalReportVariantCard extends LitElement {
         super.update(changedProperties);
     }
 
+    onVariantInfo(event) {
+        event.stopPropagation();
+        LitUtils.dispatchCustomEvent(this, "variantInfo", null, {
+            variant: this.variant,
+        });
+    }
+
     onVariantReviewInfo(event) {
         event.stopPropagation();
         LitUtils.dispatchCustomEvent(this, "variantReviewInfo", null, {
@@ -96,7 +103,7 @@ export default class ClinicalReportVariantCard extends LitElement {
                                 render: data => html`
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="d-flex align-items-center">
-                                            <a class="link fw-bold" @click="${event => null}">
+                                            <a class="link fw-bold" @click="${event => this.onVariantInfo(event)}">
                                                 <span class="fs-5">${data.id}</span>
                                             </a>
                                         </div>
