@@ -118,7 +118,7 @@ export default class ClinicalReportReview extends LitElement {
         });
     }
 
-    onVariantReviewEdit(event) {
+    onVariantReviewUpdate(event) {
         this._selectedVariant = UtilsNew.objectClone(event.detail.variant);
         this._gridCommons.changeActiveModal("review-variant");
     }
@@ -151,7 +151,7 @@ export default class ClinicalReportReview extends LitElement {
                         .variant="${variant}"
                         .selected="${this._selectedVariant?.id === variant.id}"
                         @variantReviewInfo="${event => this.onVariantReviewInfo(event)}"
-                        @variantReviewEdit="${event => this.onVariantReviewEdit(event)}">
+                        @variantReviewUpdate="${event => this.onVariantReviewUpdate(event)}">
                     </clinical-report-variant-card>
                 `)}
             </div>
