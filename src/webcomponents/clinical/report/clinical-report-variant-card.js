@@ -44,6 +44,14 @@ export default class ClinicalReportVariantCard extends LitElement {
         super.update(changedProperties);
     }
 
+    onClick(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        LitUtils.dispatchCustomEvent(this, "variantReviewInfo", null, {
+            variant: this.variant,
+        });
+    }
+
     onVariantReviewInfo(event) {
         event.stopPropagation();
         LitUtils.dispatchCustomEvent(this, "variantReviewInfo", null, {
@@ -64,7 +72,7 @@ export default class ClinicalReportVariantCard extends LitElement {
         }
 
         return html`
-            <div class="card shadow-sm border ${this.selected ? "bg-gray-100 border-primary" : "bg-white border-gray-200"}">
+            <div class="card shadow-sm border cursor-pointer ${this.selected ? "bg-gray-100 border-primary" : "bg-white border-gray-200"}" @click="${event => this.onClick(event)}">
                 <div class="card-body">
                     <data-form
                         .data="${this.variant}"
