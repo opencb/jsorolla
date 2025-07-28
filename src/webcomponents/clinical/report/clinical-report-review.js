@@ -229,7 +229,7 @@ export default class ClinicalReportReview extends LitElement {
                             field: "report.discussion.text",
                             defaultValue: "",
                             display: {
-                                rows: 10,
+                                rows: 20,
                                 // helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
                             },
                         },
@@ -246,7 +246,7 @@ export default class ClinicalReportReview extends LitElement {
                             type: "input-text",
                             defaultValue: "",
                             display: {
-                                rows: 10,
+                                rows: 20,
                             },
                         },
                     ],
@@ -262,7 +262,7 @@ export default class ClinicalReportReview extends LitElement {
                             type: "input-text",
                             defaultValue: "",
                             display: {
-                                rows: 10,
+                                rows: 20,
                             },
                         },
                     ],
@@ -278,7 +278,7 @@ export default class ClinicalReportReview extends LitElement {
                             type: "input-text",
                             defaultValue: "",
                             display: {
-                                rows: 10,
+                                rows: 20,
                             },
                         },
                     ],
