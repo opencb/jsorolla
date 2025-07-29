@@ -41,6 +41,8 @@ export default class ClinicalReportReview extends LitElement {
 
         this._clinicalAnalysisManager = null;
         this._selectedVariant = null;
+        this._selectedVariantPrimary = null;
+        this._selectedVariantChecked = null;
         this._gridCommons = new GridCommons(null, this, null);
 
         // initialize available modals
@@ -125,11 +127,15 @@ export default class ClinicalReportReview extends LitElement {
 
     onVariantReviewUpdate(event) {
         this._selectedVariant = UtilsNew.objectClone(event.detail.variant);
+        this._selectedVariantPrimary = true; // by default we only display primary findings in the review tool
+        this._selectedVariantChecked = true; // by default the variant is checked as it is a primary finding
         this._gridCommons.changeActiveModal("review-variant");
     }
 
     onVariantReviewChange(event) {
-        // TODO
+        this._selectedVariant = event.detail.variant;
+        this._selectedVariantPrimary = event.detail.primary;
+        this._selectedVariantChecked = event.detail.checked;
     }
 
     onVariantReviewCancel() {
