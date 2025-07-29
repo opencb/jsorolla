@@ -2,8 +2,6 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
-import FormUtils from "../../commons/forms/form-utils.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
 import WebUtils from "../../commons/utils/web-utils.js";
 import "../../variant/review/variant-review.js";
