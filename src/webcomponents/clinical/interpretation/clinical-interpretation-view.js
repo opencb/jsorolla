@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utils-new.js";
-import Types from "../../commons/types.js";
+import {LitElement, html, nothing} from "lit";
 import DetailTabs from "../../commons/view/detail-tabs.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
-import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
-import "../../variant/interpretation/variant-interpreter-grid.js";
+import "../../commons/forms/data-form.js";
+import "../../variant/interpretation/variant-interpreter-review.js";
 import "../../disease-panel/disease-panel-grid.js";
 import "./clinical-interpretation-summary.js";
 
@@ -40,134 +37,88 @@ export default class ClinicalInterpretationView extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            interpretationId: {
-                type: String
-            },
+            // interpretationId: {
+            //     type: String
+            // },
             opencgaSession: {
-                type: Object
-            },
-            cellbaseClient: {
                 type: Object
             },
             config: {
                 type: Object
-            }
+            },
         };
     }
 
     #init() {
-        this.interpretation = {};
         this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
-        super.connectedCallback();
-    }
-
-    update(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.interpretationObserver();
-        }
-        super.update(changedProperties);
-    }
-
-
-    interpretationObserver() {
-        // console.log("this is a clinicalAnalysis", this.clinicalAnalysis);
-
-    }
-
-    #renderInterpretationTabs() {
-        const renderInterpretation = interpretation => html`
-            <data-form
-                .data="${interpretation}"
-                .config="${this._config}">
-            </data-form>
-            `;
-
-        const secondaryInterpretations = this.clinicalAnalysis?.secondaryInterpretations.map(interpretation =>
-            ({
-                id: interpretation.id,
-                name: interpretation.id,
-                render: data => renderInterpretation(interpretation)
-            })
-        );
+    getTabsConfiguration() {
+        const secondaryInterpretations = this.clinicalAnalysis?.secondaryInterpretations || [];
         return {
+            hideTabsIfOnlyOneVisible: true,
             items: [
                 {
-                    id: "interpretationView",
+                    id: "primary-interpretation",
                     name: `${this.clinicalAnalysis.interpretation.id} (Primary)`,
                     active: true,
                     render: data => html`
                         <data-form
                             .data="${data?.interpretation}"
-                            .config="${this._config}">
+                            .config="${this._config || {}}">
                         </data-form>
-                    `
+                    `,
                 },
-                ...secondaryInterpretations
-            ]
+                ...secondaryInterpretations.map(interpretation => ({
+                    id: interpretation.id,
+                    name: interpretation.id,
+                    render: () => html`
+                        <data-form
+                            .data="${interpretation}"
+                            .config="${this._config || {}}">
+                        </data-form>
+                    `,
+                })),
+            ],
         };
     }
 
     render() {
-
-        // Interpretation
-        // Panels View
-        // Comments
-        // Variants
-
-        if (!this.clinicalAnalysis) {
-            return "";
-        }
-
-        if (!this.clinicalAnalysis?.secondaryInterpretations || UtilsNew.isEmptyArray(this.clinicalAnalysis?.secondaryInterpretations)) {
-            return html`
-                <data-form
-                    .data="${this.clinicalAnalysis?.interpretation}"
-                    .config="${this._config}">
-                </data-form>
-            `;
+        if (!this.clinicalAnalysis || !this.opencgaSession) {
+            return nothing;
         }
 
         return html`
             <detail-tabs
+                .opencgaSession="${this.opencgaSession}"
                 .data="${this.clinicalAnalysis}"
-                .config="${this.#renderInterpretationTabs()}"
                 .mode="${DetailTabs.PILLS_MODE}"
-                .opencgaSession="${this.opencgaSession}">
+                .config="${this.getTabsConfiguration()}">
             </detail-tabs>
         `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
+        return {
             display: {
                 buttonsVisible: false,
-                titleStyle: "display:none"
             },
             sections: [
                 {
-                    display: {
-                        // style: "background-color:#f3f3f3;border-left:4px solid #0c2f4c;padding:16px;",
-                    },
                     elements: [
                         {
                             type: "custom",
                             display: {
-                                render: data => {
-                                    const isLocked = interpretation => interpretation.locked? html`<i class="fas fa-lock"></i>`:"";
-                                    return html`
-                                            <div style="font-size:24px;font-weight: bold;margin-bottom: 12px">
-                                                <span>${isLocked(data)} Interpretation Info</span>
-                                            </div>
-                                            <clinical-interpretation-summary
-                                                .interpretation="${data}">
-                                            </clinical-interpretation-summary>
-                                        `;
-                                }
-                            }
+                                render: data => html`
+                                    <div style="font-size:24px;font-weight: bold;margin-bottom: 12px">
+                                        ${data?.locked ? html`<i class="fas fa-lock"></i>` : nothing}
+                                        <span>Interpretation Info</span>
+                                    </div>
+                                    <clinical-interpretation-summary
+                                        .interpretation="${data}">
+                                    </clinical-interpretation-summary>
+                                `,
+                            },
                         },
                         {
                             text: "Interpretation Panels",
@@ -179,15 +130,19 @@ export default class ClinicalInterpretationView extends LitElement {
                         {
                             type: "custom",
                             display: {
-                                render: data => {
-                                    return !data.panels || UtilsNew.isNotEmptyArray(data?.panels) ?
-                                        html`
-                                            <disease-panel-grid
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .diseasePanels="${data?.panels}">
-                                            </disease-panel-grid>
-                                        `: "No panel data to display";
-                                }
+                                render: data => html`
+                                    ${data?.panels?.length > 0 ? html`
+                                        <disease-panel-grid
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .diseasePanels="${data?.panels}">
+                                        </disease-panel-grid>
+                                    ` : html`
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <span>This interpretation does not have any panels associated.</span>
+                                        </div>
+                                    `}
+                                `,
                             }
                         },
                         {
@@ -200,14 +155,14 @@ export default class ClinicalInterpretationView extends LitElement {
                         {
                             type: "custom",
                             display: {
-                                render: data => html `
+                                render: data => html`
                                     <clinical-analysis-comment-editor
                                         .id=${data?.id}
                                         .opencgaSession="${this.opencgaSession}"
                                         .disabled="${!!this.clinicalAnalysis?.interpretation?.locked}"
                                         .comments="${data?.comments}">
                                     </clinical-analysis-comment-editor>
-                                `
+                                `,
                             }
                         },
                         {
@@ -221,32 +176,36 @@ export default class ClinicalInterpretationView extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
-                                    return !data.primaryFindings || UtilsNew.isNotEmptyArray(data?.primaryFindings) ?
-                                        html`
-                                            <variant-interpreter-grid
-                                                review
-                                                .clinicalAnalysis=${this.clinicalAnalysis}
-                                                .clinicalVariants="${data?.primaryFindings}"
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .config=${
-                                                    {
-                                                        showExport: true,
-                                                        showSettings: false
-                                                    }
-                                                }>
-                                            </variant-interpreter-grid>
-                                        `:"No variants data to display";
-                                }
+                                    if (data?.primaryFindings?.length === 0) {
+                                        return html`
+                                            <div class="alert alert-warning">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                <span>This interpretation does not have any variant marked as <b>Primary Findings</b>.</span>
+                                            </div>
+                                        `;
+                                    }
+                                    return html`
+                                        <variant-interpreter-review
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                            .variants="${data.primaryFindings}"
+                                            .gridConfig="${{
+                                                showSettings: false,
+                                                showActions: true,
+                                                showEditReview: true,
+                                                showSelectCheckbox: false,
+                                            }}">
+                                        </variant-interpreter-review>
+                                    `;
+                                },
                             }
                         }
                     ]
                 },
-            ]
-
-        });
+            ],
+        };
     }
 
 }
 
 customElements.define("clinical-interpretation-view", ClinicalInterpretationView);
-
