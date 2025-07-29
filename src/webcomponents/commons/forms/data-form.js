@@ -2402,19 +2402,18 @@ export default class DataForm extends LitElement {
         // generate pills
         const pills = this._getVisibleSections().map((section, index) => {
             const active = index === this.activeSection;
-            const sectionClass = section.icon ? "d-flex align-items-center flex-column gap-2" : "";
+            const sectionClassName = orientation === "horizontal" ? "d-flex justify-content-center" : (section?.icon ? "d-flex flex-column" : "");
+            const iconClassName = section?.icon && orientation === "vertical" ? "fs-4" : "fs-5";
+            const titleClassName = section?.icon && orientation === "vertical" ? "fs-8" : "";
+
             return html`
-                <a class="nav-link cursor-pointer ${sectionClass} ${active ? "active" : ""}" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                <a class="nav-link cursor-pointer ${sectionClassName} align-items-center gap-2 ${active ? "active" : ""}" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
                     ${section.icon ? html`
-                        <i class="fas lh-1 fs-4 ${section.icon}"></i>
-                        <span class="fw-bold lh-1 fs-8 text-center">
-                            ${section.title || section.name || ""}
-                        </span>
-                    ` : html`
-                        <span class="fw-bold">
-                            ${section.title || section.name || ""}
-                        </span>
-                    `}
+                        <i class="fas ${section.icon} lh-1 ${iconClassName}"></i>
+                    ` : nothing}
+                    <span class="fw-bold lh-1 text-center ${titleClassName}">
+                        ${section.title || section.name || ""}
+                    </span>
                 </a>
             `;
         });
