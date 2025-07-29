@@ -2388,18 +2388,18 @@ export default class DataForm extends LitElement {
     }
 
     renderContentAsPills(dismiss) {
-        const pillsOrientation = this.config.display?.pillsOrientation || this.config.pillsOrientation || "vertical";
+        const orientation = this.config.display?.pillsOrientation || this.config.pillsOrientation || "vertical";
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
         const buttonsLayout = this._getButtonsLayout();
         const notificationHtml = this.getFormNotificationHtml();
 
         // get classnames for displaying pills in vertical or horizontal orientation
-        const containerClassName = pillsOrientation === "vertical" ? "row" : "";
-        const pillsColumnClassName = pillsOrientation === "vertical" ? (this.config?.display?.pillsLeftColumnClass || "col-md-3") : "mb-4";
-        const contentColumnClassName = pillsOrientation === "vertical" ? (this.config?.display?.pillsRightColumnClass || "col-md-9") : "";
-        const pillsClassName = pillsOrientation === "vertical" ? "flex-column gap-2" : "nav-fill";
+        const containerClassName = orientation === "vertical" ? "row" : "";
+        const pillsColumnClassName = orientation === "vertical" ? (this.config?.display?.pillsLeftColumnClass || "col-md-3") : "mb-4";
+        const contentColumnClassName = orientation === "vertical" ? (this.config?.display?.pillsRightColumnClass || "col-md-9") : "";
+        const pillsClassName = orientation === "vertical" ? "flex-column gap-2" : "nav-fill";
 
-        // generate pills content
+        // generate pills
         const pills = this._getVisibleSections().map((section, index) => {
             const active = index === this.activeSection;
             const sectionClass = section.icon ? "d-flex align-items-center flex-column gap-2" : "";
