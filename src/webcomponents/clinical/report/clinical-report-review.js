@@ -144,7 +144,20 @@ export default class ClinicalReportReview extends LitElement {
     }
 
     onVariantReviewSave(event) {
-        // TODO
+        // 1. get the action to perform based on the selected variant state
+        const action = this._selectedVariantChecked ? "UPDATE" : "REMOVE";
+
+        // 2. call the updateVariants method to update the variant in the interpretation
+        this._clinicalAnalysisManager.updateVariants(this._selectedVariant, this._selectedVariantPrimary, action)
+            .then(() => {
+                LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                    clinicalAnalysis: this.clinicalAnalysis,
+                });
+            });
+
+        // 3. clear selected variant to review
+        this._selectedVariant = null;
+        this.gridCommons.clearActiveModal();
     }
 
     renderReportedVariants() {
