@@ -385,7 +385,6 @@ export class OpenCGAClient {
     // opencgaClient object itself.
     // @returns {Promise<any>}
     createSession() {
-        // const _this = this;
         return new Promise((resolve, reject) => {
             // check that a session exists
             // TODO should we check the session has not expired?
@@ -465,7 +464,6 @@ export class OpenCGAClient {
                                                             exclude: "samples",
                                                             limit: 100,
                                                         });
-
                                                     study.cohorts = cohortsResponse.responses[0].results
                                                         .filter(cohort => !cohort.attributes?.IVA?.ignore);
 
