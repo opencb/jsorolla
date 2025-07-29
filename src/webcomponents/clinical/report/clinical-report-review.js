@@ -208,8 +208,9 @@ export default class ClinicalReportReview extends LitElement {
 
     getDefaultConfig() {
         return {
-            type: "horizontal-pills",
+            type: "pills",
             display: {
+                pillsOrientation: "horizontal",
                 pillsLeftColumnClass: "col-md-1",
                 pillsRightColumnClass: "col-md-11",
                 buttonsVisible: false,
