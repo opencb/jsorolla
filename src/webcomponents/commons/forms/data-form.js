@@ -458,7 +458,7 @@ export default class DataForm extends LitElement {
         const layoutClassName = (layout === "horizontal") ? "form-horizontal" : "";
         const type = (this.config?.type || this.config?.display?.type || "").toUpperCase();
 
-        if (type === "TABS" || type === "PILLS" || type === "HORIZONTAL_PILLS" || type === "HORIZONTAL-PILLS") {
+        if (type === "TABS" || type === "PILLS") {
             // Render all sections but display only active section
             return html`
                 <div class="${layoutClassName} ${className}" style="${style}">
@@ -2388,37 +2388,47 @@ export default class DataForm extends LitElement {
     }
 
     renderContentAsPills(dismiss) {
+        const pillsOrientation = this.config.display?.pillsOrientation || this.config.pillsOrientation || "vertical";
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
         const buttonsLayout = this._getButtonsLayout();
         const notificationHtml = this.getFormNotificationHtml();
 
+        // get classnames for displaying pills in vertical or horizontal orientation
+        const containerClassName = pillsOrientation === "vertical" ? "row" : "";
+        const pillsColumnClassName = pillsOrientation === "vertical" ? (this.config?.display?.pillsLeftColumnClass || "col-md-3") : "mb-4";
+        const contentColumnClassName = pillsOrientation === "vertical" ? (this.config?.display?.pillsRightColumnClass || "col-md-9") : "";
+        const pillsClassName = pillsOrientation === "vertical" ? "flex-column gap-2" : "nav-fill";
+
+        // generate pills content
+        const pills = this._getVisibleSections().map((section, index) => {
+            const active = index === this.activeSection;
+            const sectionClass = section.icon ? "d-flex align-items-center flex-column gap-2" : "";
+            return html`
+                <a class="nav-link cursor-pointer ${sectionClass} ${active ? "active" : ""}" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                    ${section.icon ? html`
+                        <i class="fas lh-1 fs-4 ${section.icon}"></i>
+                        <span class="fw-bold lh-1 fs-8 text-center">
+                            ${section.title || section.name || ""}
+                        </span>
+                    ` : html`
+                        <span class="fw-bold">
+                            ${section.title || section.name || ""}
+                        </span>
+                    `}
+                </a>
+            `;
+        });
+
         return html`
             ${notificationHtml}
             ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
-            <div class="row">
-                <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
-                    <div class="nav nav-pills flex-column gap-2 p-1 border bg-gray-100 rounded-3">
-                        ${this._getVisibleSections().map((section, index) => {
-                            const active = index === this.activeSection;
-                            const sectionClass = section.icon ? "d-flex align-items-center flex-column gap-2" : "";
-                            return html`
-                                <a class="nav-link cursor-pointer ${sectionClass} ${active ? "active" : ""}" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                    ${section.icon ? html`
-                                        <i class="fas lh-1 fs-4 ${section.icon}"></i>
-                                        <span class="fw-bold lh-1 fs-8 text-center">
-                                            ${section.title || section.name || ""}
-                                        </span>
-                                    ` : html`
-                                        <span class="fw-bold">
-                                            ${section.title || section.name || ""}
-                                        </span>
-                                    `}
-                                </a>
-                            `;
-                        })}
+            <div class="${containerClassName}">
+                <div class="${pillsColumnClassName}">
+                    <div class="nav nav-pills p-1 border bg-gray-100 rounded-3 ${pillsClassName}">
+                        ${pills}
                     </div>
                 </div>
-                <div class="${this.config?.display?.pillsRightColumnClass || "col-md-9"}">
+                <div class="${contentColumnClassName}">
                     ${this.renderData()}
                 </div>
             </div>
@@ -2473,10 +2483,6 @@ export default class DataForm extends LitElement {
                 break;
             case "PILLS":
                 result = this.renderContentAsPills(dismiss);
-                break;
-            case "HORIZONTAL_PILLS":
-            case "HORIZONTAL-PILLS":
-                result = this.renderContentAsHorizontalPills(dismiss);
                 break;
         }
         return result;
