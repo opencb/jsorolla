@@ -2435,41 +2435,6 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    renderContentAsHorizontalPills(dismiss) {
-        const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
-        const buttonsLayout = this._getButtonsLayout();
-        const notificationHtml = this.getFormNotificationHtml();
-
-        return html`
-            ${notificationHtml}
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
-            <div class="nav nav-pills nav-fill mb-4 p-1 border bg-gray-100 rounded-3">
-                ${this._getVisibleSections().map((section, index) => {
-                    const active = index === this.activeSection;
-                    const sectionClass = section.icon ? "d-flex align-items-center flex-column gap-2" : "";
-                    return html`
-                        <a class="nav-link cursor-pointer ${sectionClass} ${active ? "active" : ""}" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                            ${section.icon ? html`
-                                <i class="fas lh-1 fs-4 ${section.icon}"></i>
-                                <span class="fw-bold lh-1 fs-8 text-center">
-                                    ${section.title || section.name || ""}
-                                </span>
-                            ` : html`
-                                <span class="fw-bold">
-                                    ${section.title || section.name || ""}
-                                </span>
-                            `}
-                        </a>
-                    `;
-                })}
-            </div>
-            <div class="">
-                ${this.renderData()}
-            </div>
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
-        `;
-    }
-
     renderContent(type, dismiss = "") {
         let result;
         switch (type?.toUpperCase()) {
