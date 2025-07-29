@@ -133,7 +133,7 @@ export default class ClinicalReportReview extends LitElement {
     onVariantReviewChange(event) {
         this._selectedVariant = event.detail.variant;
         this._selectedVariantPrimary = event.detail.primary;
-        this._selectedVariantChecked = event.detail.checked;
+        this._selectedVariantChecked = event.detail.selected;
     }
 
     onVariantReviewCancel() {
@@ -141,7 +141,7 @@ export default class ClinicalReportReview extends LitElement {
         this._gridCommons.clearActiveModal();
     }
 
-    onVariantReviewSave(event) {
+    onVariantReviewSave() {
         // 1. get the action to perform based on the selected variant state
         const action = this._selectedVariantChecked ? "UPDATE" : "REMOVE";
 
@@ -230,8 +230,8 @@ export default class ClinicalReportReview extends LitElement {
                 pillsOrientation: "horizontal",
                 pillsLeftColumnClass: "col-md-1",
                 pillsRightColumnClass: "col-md-11",
-                buttonsVisible: false,
-                buttonOkText: "Save",
+                buttonsVisible: true,
+                buttonOkText: "Save Review",
                 buttonClearText: "",
                 defaultLayout: "vertical",
             },
@@ -248,7 +248,6 @@ export default class ClinicalReportReview extends LitElement {
                             defaultValue: "",
                             display: {
                                 rows: 20,
-                                // helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
                             },
                         },
                     ],
