@@ -179,7 +179,7 @@ export default class ClinicalReportReview extends LitElement {
         this.opencgaSession.opencgaClient.clinical()
             .update(this.clinicalAnalysis.id, data, {
                 includeResult: true,
-                study: this.clinicalAnalysis.study,
+                study: this.opencgaSession.study.fqn,
             })
             .then(response => {
                 // dispatch the clinicalAnalysisUpdate event with the updated clinical analysis
