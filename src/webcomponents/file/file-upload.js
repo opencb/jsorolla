@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-distinct-autocomplete.js";
 import "../loading-spinner.js";
@@ -98,6 +99,7 @@ export default class FileUpload extends LitElement {
             fileName: this._file.fileName || this._file.file.name, // get the name from the uploaded file
             relativeFilePath: this._file.relativeFilePath.substring(1) || this.path,
             description: this._file.description || "",
+            resource: this._file.resource ?? false,
             tags: this._file.tags ? this._file.tags.split(",").map(t => t.trim()) : [],
         };
 
@@ -194,6 +196,17 @@ export default class FileUpload extends LitElement {
                                         @filterChange="${event => onFilterChange(event.detail.value)}">
                                     </catalog-distinct-autocomplete>
                                 `,
+                            },
+                        },
+                        {
+                            title: "Resource",
+                            field: "resource",
+                            type: "checkbox",
+                            display: {
+                                disabled: () => {
+                                    return !CatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
+                                },
+                                helpMessage: "If checked, the file will be created as a resource. This option is only available for study administrators.",
                             },
                         },
                         {

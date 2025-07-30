@@ -752,7 +752,7 @@ export default class OpencgaFileGrid extends LitElement {
                 this.onPathChange(file.path);
             } else {
                 this._selectedFile = file;
-                this.changeActiveActionModal("view");
+                this.gridCommons.changeActiveModal("view");
             }
         }
     }
