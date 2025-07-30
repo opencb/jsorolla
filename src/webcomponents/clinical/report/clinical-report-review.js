@@ -378,7 +378,17 @@ export default class ClinicalReportReview extends LitElement {
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: true,
                                 view: signature => {
-                                    return html``;
+                                    return html`
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="flex-shrink-0" style="width:120px;">
+
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class=""><b>Signed by:</b> ${signature.signedBy || "-"}</div>
+                                                <div class=""><b>Role:</b> ${signature.role || "-"}</div>
+                                            </div>
+                                        </div>
+                                    `;
                                 },
                             },
                             elements: [
