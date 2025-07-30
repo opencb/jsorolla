@@ -43,6 +43,7 @@ export default class ClinicalReportReview extends LitElement {
         this._selectedVariantPrimary = null;
         this._selectedVariantChecked = null;
         this._gridCommons = new GridCommons(null, this, null);
+        this._updatedParams = {};
         this._report = null;
 
         // initialize available modals
@@ -107,6 +108,8 @@ export default class ClinicalReportReview extends LitElement {
         if (this.clinicalAnalysis) {
             this._clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
             this._report = UtilsNew.objectClone(this.clinicalAnalysis.report || {}); // make sure we have a report object to work with
+            this._updatedParams = {};
+            this._config = this.getDefaultConfig();
         }
     }
 
@@ -162,7 +165,20 @@ export default class ClinicalReportReview extends LitElement {
     }
 
     onFieldChange(event) {
-        // TODO
+        // if the updated field is signatures, we need to force an update
+        if (event.detail.param.startsWith("signatures")) {
+            // when added the signature, we automatically populate the current date
+            if (event.detail.action === "ADD") {
+                const lastSignature = this._report.signatures[this._report.signatures.length - 1];
+                this._report.signatures[this._report.signatures.length - 1] = {
+                    ...lastSignature,
+                    date: UtilsNew.getDatetime(),
+                };
+            }
+            this._updatedParams.signatures = this._report.signatures || [];
+            this._updatedParams = {...this._updatedParams};
+        }
+        this.requestUpdate();
     }
 
     onSubmit() {
@@ -234,6 +250,7 @@ export default class ClinicalReportReview extends LitElement {
                 <data-form
                     .data="${this._report}"
                     .config="${this._config}"
+                    .updateParams="${this._updatedParams}"
                     @fieldChange="${event => this.onFieldChange(event)}"
                     @submit=${event => this.onSubmit(event)}>
                 </data-form>
@@ -343,7 +360,35 @@ export default class ClinicalReportReview extends LitElement {
                     title: "Signatures",
                     icon: "fa-signature",
                     display: {},
-                    elements: [],
+                    elements: [
+                        {
+                            field: "signatures",
+                            type: "object-list",
+                            display: {
+                                showAddBatchListButton: false,
+                                showEditItemListButton: true,
+                                showDeleteItemListButton: true,
+                                view: signature => {
+                                    return html``;
+                                },
+                            },
+                            elements: [
+                                {
+                                    field: "signatures[].signedBy",
+                                    title: "Signed By",
+                                    type: "select",
+                                    allowedValues: (this.clinicalAnalysis?.analysts || []).map(analyst => ({
+                                        id: analyst.id,
+                                    })),
+                                },
+                                {
+                                    field: "signatures[].role",
+                                    title: "Role",
+                                    type: "input-text",
+                                },
+                            ],
+                        }
+                    ],
                 },
             ],
         };
