@@ -181,6 +181,15 @@ export default class ClinicalReportReview extends LitElement {
         this.requestUpdate();
     }
 
+    onSignatureImageChange(event, onFieldChange) {
+        const files = event.target.files || event.dataTransfer.files || [];
+        if (files.length === 1) {
+            UtilsNew.fileToDataURL(files[0]).then(dataUrl => {
+                onFieldChange(dataUrl);
+            });
+        }
+    }
+
     onSubmit() {
         const data = {
             report: this._report,
@@ -375,7 +384,7 @@ export default class ClinicalReportReview extends LitElement {
                             elements: [
                                 {
                                     field: "signatures[].signedBy",
-                                    title: "Signed By",
+                                    title: "Select Analyst",
                                     type: "select",
                                     allowedValues: (this.clinicalAnalysis?.analysts || []).map(analyst => ({
                                         id: analyst.id,
@@ -385,6 +394,26 @@ export default class ClinicalReportReview extends LitElement {
                                     field: "signatures[].role",
                                     title: "Role",
                                     type: "input-text",
+                                },
+                                {
+                                    field: "signatures[].signature",
+                                    title: "Upload the signature",
+                                    type: "custom",
+                                    display: {
+                                        render: (signature, onFieldChange) => {
+                                            return html`
+                                                <input
+                                                    type="file"
+                                                    class="form-control"
+                                                    accept="image/*"
+                                                    @change="${event => this.onSignatureImageChange(event, onFieldChange)}"
+                                                />
+                                            `;
+                                        },
+                                        help: {
+                                            text: "Accepted formats: png, jpg, jpeg. Maximum size: 1MB.",
+                                        },
+                                    },
                                 },
                             ],
                         }
