@@ -7,6 +7,7 @@ import WebUtils from "../../commons/utils/web-utils.js";
 import "../../variant/review/variant-review.js";
 import "./clinical-report-variant-card.js";
 import "./clinical-report-variant-info.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class ClinicalReportReview extends LitElement {
 
@@ -42,6 +43,7 @@ export default class ClinicalReportReview extends LitElement {
         this._selectedVariantPrimary = null;
         this._selectedVariantChecked = null;
         this._gridCommons = new GridCommons(null, this, null);
+        this._report = null;
 
         // initialize available modals
         this._gridCommons.registerModals({
@@ -104,6 +106,7 @@ export default class ClinicalReportReview extends LitElement {
     clinicalAnalysisObserver() {
         if (this.clinicalAnalysis) {
             this._clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+            this._report = UtilsNew.objectClone(this.clinicalAnalysis.report || {}); // make sure we have a report object to work with
         }
     }
 
@@ -158,6 +161,41 @@ export default class ClinicalReportReview extends LitElement {
         this.gridCommons.clearActiveModal();
     }
 
+    onFieldChange(event) {
+        // TODO
+    }
+
+    onSubmit() {
+        const data = {
+            report: this._report,
+        };
+
+        // check if user has updated the discussion text
+        if (data.report.discussion?.text && data.report.discussion.text !== this.clinicalAnalysis.report?.discussion?.text) {
+            data.report.discussion.date = UtilsNew.getDatetime();
+            data.report.discussion.author = this.opencgaSession?.user?.id || "-";
+        }
+
+        this.opencgaSession.opencgaClient.clinical()
+            .update(this.clinicalAnalysis.id, data, {
+                includeResult: true,
+                study: this.clinicalAnalysis.study,
+            })
+            .then(response => {
+                // dispatch the clinicalAnalysisUpdate event with the updated clinical analysis
+                LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                    clinicalAnalysis: response.responses[0].results[0],
+                });
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "Clinical report updated successfully.",
+                });
+            })
+            .catch(response => {
+                console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
+    }
+
     renderReportedVariants() {
         // get only variants with status "REPORTED"
         const reportedVariants = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).filter(variant => {
@@ -194,7 +232,7 @@ export default class ClinicalReportReview extends LitElement {
             <div class="">
                 <h2 class="fw-bold mb-4">Case Review</h2>
                 <data-form
-                    .data="${this.clinicalAnalysis}"
+                    .data="${this._report}"
                     .config="${this._config}"
                     @fieldChange="${event => this.onFieldChange(event)}"
                     @submit=${event => this.onSubmit(event)}>
@@ -244,7 +282,7 @@ export default class ClinicalReportReview extends LitElement {
                     elements: [
                         {
                             type: "input-text",
-                            field: "report.discussion.text",
+                            field: "discussion.text",
                             defaultValue: "",
                             display: {
                                 rows: 20,
@@ -259,7 +297,7 @@ export default class ClinicalReportReview extends LitElement {
                     display: {},
                     elements: [
                         {
-                            field: "report.recommendation",
+                            field: "recommendation",
                             type: "input-text",
                             defaultValue: "",
                             display: {
@@ -275,7 +313,7 @@ export default class ClinicalReportReview extends LitElement {
                     display: {},
                     elements: [
                         {
-                            field: "report.methodology",
+                            field: "methodology",
                             type: "input-text",
                             defaultValue: "",
                             display: {
@@ -291,7 +329,7 @@ export default class ClinicalReportReview extends LitElement {
                     display: {},
                     elements: [
                         {
-                            field: "report.limitations",
+                            field: "limitations",
                             type: "input-text",
                             defaultValue: "",
                             display: {
