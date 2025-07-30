@@ -375,7 +375,7 @@ export default class ClinicalReportReview extends LitElement {
                             type: "object-list",
                             display: {
                                 showAddBatchListButton: false,
-                                showEditItemListButton: true,
+                                showEditItemListButton: false,
                                 showDeleteItemListButton: true,
                                 view: signature => {
                                     return html``;
