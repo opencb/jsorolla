@@ -18,6 +18,8 @@ import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/filters/acmg-filter.js";
+import "../../commons/forms/data-form.js";
+import "../../commons/forms/tags-input.js";
 
 export default class ClinicalVariantEvidenceReview extends LitElement {
 
@@ -276,6 +278,20 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
                                 rows: 5,
                                 helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
                                 disabled: !this._review?.select,
+                            },
+                        },
+                        {
+                            title: "Tags",
+                            field: "tags",
+                            type: "custom",
+                            display: {
+                                render: (tags, onFilterChange) => html`
+                                    <tags-input
+                                        .value="${tags || []}"
+                                        .disabled="${!this._review?.select}"
+                                        @filterChange="${e => onFilterChange(e.detail.value)}">
+                                    </tags-input>
+                                `,
                             },
                         },
                     ]
