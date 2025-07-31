@@ -389,9 +389,9 @@ export default class ClinicalReportReview extends LitElement {
                                 showDeleteItemListButton: true,
                                 view: signature => {
                                     return html`
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="flex-shrink-0" style="width:120px;">
-
+                                        <div class="d-flex align-items-center gap-4">
+                                            <div class="flex-shrink-0" style="width:200px;">
+                                                <img src="${signature.signature}" style="max-width:100%;max-height:100%;" />
                                             </div>
                                             <div class="flex-grow-1">
                                                 <div class=""><b>Signed by:</b> ${signature.signedBy || "-"}</div>
