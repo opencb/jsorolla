@@ -4,10 +4,10 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import GridCommons from "../../commons/grid-commons.js";
 import WebUtils from "../../commons/utils/web-utils.js";
-import "../../variant/review/variant-review.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
+import "../variant/clinical-variant-review.js";
 import "./clinical-report-variant-card.js";
 import "./clinical-report-variant-info.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class ClinicalReportReview extends LitElement {
 
@@ -75,7 +75,7 @@ export default class ClinicalReportReview extends LitElement {
                     buttonSaveText: "Save Review",
                 },
                 render: () => html`
-                    <variant-review
+                    <clinical-variant-review
                         .opencgaSession="${this.opencgaSession}"
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .variant="${this._selectedVariant}"
@@ -84,7 +84,7 @@ export default class ClinicalReportReview extends LitElement {
                         .reviewEvidences="${true}"
                         .settings="${{}}"
                         @variantChange="${event => this.onVariantReviewChange(event)}">
-                    </variant-review>
+                    </clinical-variant-review>
                 `,
                 onCancel: () => {
                     this.onVariantReviewCancel();
