@@ -161,7 +161,7 @@ export default class ClinicalReportReview extends LitElement {
 
         // 3. clear selected variant to review
         this._selectedVariant = null;
-        this.gridCommons.clearActiveModal();
+        this._gridCommons.clearActiveModal();
     }
 
     onFieldChange(event) {
