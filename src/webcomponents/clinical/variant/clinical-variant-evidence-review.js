@@ -199,6 +199,15 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
                             },
                         },
                         {
+                            title: "Score",
+                            field: "score",
+                            type: "input-num",
+                            display: {
+                                disabled: !this._review?.select,
+                                defaultValue: 0,
+                            },
+                        },
+                        {
                             title: "ACMG",
                             field: "acmg",
                             type: "object-list",
