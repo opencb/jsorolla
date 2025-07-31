@@ -62,23 +62,6 @@ export default class ClinicalReportVariantInfo extends LitElement {
                 ...this.displayConfig,
             },
             sections: [
-                // {
-                //     id: "variant-header",
-                //     display: {
-                //         buttonsVisible: false,
-                //     },
-                //     elements: [
-                //         {
-                //             type: "text",
-                //             text: data => {
-                //                 return `Variant ${data?.id || "-"}`;
-                //             },
-                //             display: {
-                //                 textClassName: "fw-bold fs-4",
-                //             },
-                //         },
-                //     ],
-                // },
                 {
                     id: "variant-content",
                     display: {
@@ -114,6 +97,24 @@ export default class ClinicalReportVariantInfo extends LitElement {
                                 },
                             },
                             elements: [],
+                        },
+                        {
+                            title: "Comments",
+                            field: "comments",
+                            type: "custom",
+                            display: {
+                                render: (comments) => {
+                                    if (!comments || comments.length === 0) {
+                                        return "-";
+                                    }
+
+                                    return html`
+                                        <div class="d-flex flex-column gap-2">
+                                            ${comments.map(comment => ClinicalReportFormatter.formatComment(comment))}
+                                        </div>
+                                    `;
+                                },
+                            }
                         },
                     ],
                 },
