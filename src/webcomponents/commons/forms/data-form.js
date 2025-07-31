@@ -313,7 +313,7 @@ export default class DataForm extends LitElement {
     // note: this method gets the default separation class from the section or element display
     // if no separation class is defined at element or section level, it will return the default one from the global config or "mb-3"
     _getSeparationClass(element, section) {
-        return element?.display?.separationClass ?? section?.display?.separationClass ?? this.config?.display?.separationClass ?? "mb-3";
+        return element?.display?.separationClassName ?? section?.display?.separationClassName ?? this.config?.display?.separationClassName ?? "mb-3";
     }
 
     _getElementWidth(element, section) {
@@ -2395,8 +2395,8 @@ export default class DataForm extends LitElement {
 
         // get classnames for displaying pills in vertical or horizontal orientation
         const containerClassName = orientation === "vertical" ? "row" : "";
-        const pillsColumnClassName = orientation === "vertical" ? (this.config?.display?.pillsLeftColumnClass || "col-md-3") : "mb-4";
-        const contentColumnClassName = orientation === "vertical" ? (this.config?.display?.pillsRightColumnClass || "col-md-9") : "";
+        const pillsColumnClassName = orientation === "vertical" ? (this.config?.display?.pillsLeftColumnClassName || this.config?.display?.pillsLeftColumnClass || "col-md-3") : "mb-4";
+        const contentColumnClassName = orientation === "vertical" ? (this.config?.display?.pillsRightColumnClassName || this.config?.display?.pillsRightColumnClass || "col-md-9") : "";
         const pillsClassName = orientation === "vertical" ? "flex-column gap-2" : "nav-fill";
 
         // generate pills
