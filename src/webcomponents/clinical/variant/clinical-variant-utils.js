@@ -1,7 +1,7 @@
 import {html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 
-export default class ClinicalReportFormatter {
+export default class ClinicalVariantUtils {
 
     static formatReference(reference) {
         return html`
