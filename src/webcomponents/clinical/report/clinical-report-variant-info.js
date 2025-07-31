@@ -57,6 +57,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
     getDefaultConfig() {
         return {
             display: {
+                separationClass: "mb-4",
                 buttonsVisible: false,
                 defaultLayout: "vertical",
                 ...this.displayConfig,
@@ -75,6 +76,9 @@ export default class ClinicalReportVariantInfo extends LitElement {
                             text: data => {
                                 return data?.discussion?.text || "-";
                             },
+                            display: {
+                                titleClassName: "fs-4",
+                            },
                         },
                         {
                             type: "text",
@@ -82,12 +86,16 @@ export default class ClinicalReportVariantInfo extends LitElement {
                             text: data => {
                                 return data?.recommendation || "-";
                             },
+                            display: {
+                                titleClassName: "fs-4",
+                            },
                         },
                         {
                             title: "References",
                             field: "references",
                             type: "object-list",
                             display: {
+                                titleClassName: "fs-4",
                                 showAddBatchListButton: false,
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: false,
@@ -103,6 +111,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                             field: "images",
                             type: "custom",
                             display: {
+                                titleClassName: "fs-4",
                                 render: (images) => {
                                     if (!images || images.length === 0) {
                                         return "-";
@@ -127,6 +136,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                             field: "comments",
                             type: "custom",
                             display: {
+                                titleClassName: "fs-4",
                                 render: (comments) => {
                                     if (!comments || comments.length === 0) {
                                         return "-";
