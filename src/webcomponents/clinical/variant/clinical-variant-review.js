@@ -2,15 +2,15 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
-import VariantUtils from "../variant-utils.js";
-import ClinicalReportFormatter from "../../clinical/report/clinical-report-formatter.js";
+import VariantUtils from "../../variant/variant-utils.js";
+import ClinicalReportFormatter from "../report/clinical-report-formatter.js";
 import "../../commons/image-loader.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/pubmed-search.js";
-import "../annotation/cellbase-variant-annotation-summary.js";
-import "./variant-review-evidences-grid.js";
+import "../../variant/annotation/cellbase-variant-annotation-summary.js";
+import "./clinical-variant-evidences-grid.js";
 
-export default class VariantReview extends LitElement {
+export default class ClinicalVariantReview extends LitElement {
 
     constructor() {
         super();
