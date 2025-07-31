@@ -19,7 +19,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/filters/acmg-filter.js";
 
-export default class ClinicalInterpretationVariantEvidenceReview extends LitElement {
+export default class ClinicalVariantEvidenceReview extends LitElement {
 
     constructor() {
         super();
@@ -277,5 +277,5 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
 
 }
 
-customElements.define("clinical-interpretation-variant-evidence-review", ClinicalInterpretationVariantEvidenceReview);
+customElements.define("clinical-variant-evidence-review", ClinicalVariantEvidenceReview);
 
