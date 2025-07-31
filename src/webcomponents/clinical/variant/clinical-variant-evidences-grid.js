@@ -4,8 +4,8 @@ import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
-import VariantGridFormatter from "../variant/variant-grid-formatter.js";
-import "..//interpretation/clinical-interpretation-variant-evidence-review.js";
+import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
+import "../interpretation/clinical-interpretation-variant-evidence-review.js";
 
 export default class ClinicalVariantEvidencesGrid extends LitElement {
 
