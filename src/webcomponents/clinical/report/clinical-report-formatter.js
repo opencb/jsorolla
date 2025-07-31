@@ -52,4 +52,11 @@ export default class ClinicalReportFormatter {
         `;
     }
 
+    static formatEvidence(evidence) {
+        return html`
+            <div class="card border border-1 border-gray-200 bg-white">
+            </div>
+        `;
+    }
+
 };

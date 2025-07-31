@@ -57,7 +57,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                separationClass: "mb-4",
+                separationClassName: "mb-4",
                 buttonsVisible: false,
                 defaultLayout: "vertical",
                 ...this.displayConfig,
@@ -70,6 +70,29 @@ export default class ClinicalReportVariantInfo extends LitElement {
                         defaultLayout: "vertical",
                     },
                     elements: [
+                        {
+                            type: "custom",
+                            title: "Evidences",
+                            field: "evidences",
+                            display: {
+                                titleClassName: "fs-4",
+                                render: (evidences) => {
+                                    // get only selected evidences
+                                    const selectedEvidences = (evidences || []).filter(evidence => {
+                                        return evidence?.review?.select;
+                                    });
+
+                                    if (selectedEvidences.length === 0) {
+                                        return "-";
+                                    }
+
+                                    return html`
+                                        <div class="d-flex flex-column gap-2">
+                                        </div>
+                                    `;
+                                },
+                            },
+                        },
                         {
                             type: "text",
                             title: "Discussion",
