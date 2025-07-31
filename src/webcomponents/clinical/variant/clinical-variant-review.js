@@ -584,4 +584,4 @@ export default class ClinicalVariantReview extends LitElement {
 
 }
 
-customElements.define("variant-review", VariantReview);
+customElements.define("clinical-variant-review", ClinicalVariantReview);
