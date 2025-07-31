@@ -5,7 +5,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
-import "../interpretation/clinical-interpretation-variant-evidence-review.js";
+import "./clinical-variant-evidence-review.js";
 
 export default class ClinicalVariantEvidencesGrid extends LitElement {
 
@@ -356,7 +356,7 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
                         <div class="d-flex flex-row align-items-center justify-content-between mb-4">
                             <h4 class="mb-0">Evidence Review</h4>
                         </div>    
-                        <clinical-interpretation-variant-evidence-review
+                        <clinical-variant-evidence-review
                             .opencgaSession="${this.opencgaSession}"
                             .review="${this._selectedEvidence?.review}"
                             .displayConfig="${{
@@ -367,7 +367,7 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
                             @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}"
                             @evidenceReviewSubmit="${e => this.onEvidenceReviewSave(e)}"
                             @evidenceReviewClear="${e => this.onEvidenceReviewCancel(e)}">
-                        </clinical-interpretation-variant-evidence-review>
+                        </clinical-variant-evidence-review>
                     </div>    
                 ` : nothing}
             </div>
