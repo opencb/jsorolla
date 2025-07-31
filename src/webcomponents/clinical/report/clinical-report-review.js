@@ -227,6 +227,16 @@ export default class ClinicalReportReview extends LitElement {
             return variant.status === "REPORTED";
         });
 
+        if (reportedVariants.length === 0) {
+            return html`
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle pe-1"></i>
+                    <span>No variants have been reported in the primary interpretation of this clinical analysis. </span>
+                    <span>Please, go to the <b>Variant Browser</b> step to report variants.</span>
+                </div>
+            `;
+        }
+
         return html`
             <div class="gap-3" style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));">
                 ${reportedVariants.map(variant => html`
