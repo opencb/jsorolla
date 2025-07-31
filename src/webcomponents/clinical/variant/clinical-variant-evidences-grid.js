@@ -4,11 +4,10 @@ import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
-import VariantGridFormatter from "../variant-grid-formatter.js";
-import VariantInterpreterGridFormatter from "../interpretation/variant-interpreter-grid-formatter.js";
-import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
+import VariantGridFormatter from "../variant/variant-grid-formatter.js";
+import "..//interpretation/clinical-interpretation-variant-evidence-review.js";
 
-export default class VariantReviewEvidencesGrid extends LitElement {
+export default class ClinicalVariantEvidencesGrid extends LitElement {
 
     constructor() {
         super();
@@ -514,4 +513,4 @@ export default class VariantReviewEvidencesGrid extends LitElement {
 
 }
 
-customElements.define("variant-review-evidences-grid", VariantReviewEvidencesGrid);
+customElements.define("clinical-variant-evidences-grid", ClinicalVariantEvidencesGrid);
