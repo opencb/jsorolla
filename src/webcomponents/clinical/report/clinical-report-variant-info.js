@@ -99,6 +99,30 @@ export default class ClinicalReportVariantInfo extends LitElement {
                             elements: [],
                         },
                         {
+                            title: "Images",
+                            field: "images",
+                            type: "custom",
+                            display: {
+                                render: (images) => {
+                                    if (!images || images.length === 0) {
+                                        return "-";
+                                    }
+
+                                    return html`
+                                        <div class="row">
+                                            ${images.map(image => html`
+                                                <div class="col-6">
+                                                    <div class="d-flex align-items-center justify-content-center p-3 bg-white rounded-2 border" style="height:160px;">
+                                                        <img src="${image}" style="max-width:100%;max-height:100%;" />
+                                                    </div>
+                                                </div>
+                                            `)}
+                                        </div>
+                                    `;
+                                },
+                            },
+                        },
+                        {
                             title: "Comments",
                             field: "comments",
                             type: "custom",
@@ -114,7 +138,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                                         </div>
                                     `;
                                 },
-                            }
+                            },
                         },
                     ],
                 },
