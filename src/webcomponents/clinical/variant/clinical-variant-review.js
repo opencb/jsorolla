@@ -362,7 +362,7 @@ export default class ClinicalVariantReview extends LitElement {
                         visible: () => !!this.reviewEvidences,
                     },
                     render: (variant, active) => html`
-                        <variant-review-evidences-grid
+                        <clinical-variant-evidences-grid
                             .opencgaSession="${this.opencgaSession}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .variant="${variant}"
@@ -374,7 +374,7 @@ export default class ClinicalVariantReview extends LitElement {
                                 consequenceType: this.settings?.consequenceType,
                             }}"
                             @evidenceReviewChange="${event => this.onEvidenceReviewChange(event)}">
-                        </variant-review-evidences-grid>
+                        </clinical-variant-evidences-grid>
                     `,
                 },
                 {
