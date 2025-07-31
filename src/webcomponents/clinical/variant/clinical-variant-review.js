@@ -3,7 +3,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import VariantUtils from "../../variant/variant-utils.js";
-import ClinicalReportFormatter from "../report/clinical-report-formatter.js";
+import ClinicalVariantUtils from "./clinical-variant-utils.js";
 import "../../commons/image-loader.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/pubmed-search.js";
@@ -425,7 +425,7 @@ export default class ClinicalVariantReview extends LitElement {
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: true,
                                 view: reference => {
-                                    return ClinicalReportFormatter.formatReference(reference);
+                                    return ClinicalVariantUtils.formatReference(reference);
                                 },
                                 search: {
                                     title: "Search references in PubMed",

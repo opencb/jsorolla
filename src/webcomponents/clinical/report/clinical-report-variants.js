@@ -1,7 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import GridCommons from "../../commons/grid-commons.js";
-import ClinicalReportFormatter from "./clinical-report-formatter.js";
+import ClinicalVariantUtils from "./clinical-report-formatter.js";
 import VariantUtils from "../../variant/variant-utils.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 import "../../variant/interpretation/variant-interpreter-view.js";
@@ -294,7 +294,7 @@ export default class ClinicalReportVariants extends LitElement {
                                 showDeleteItemListButton: false,
                                 showAddItemListButton: false,
                                 view: reference => {
-                                    return ClinicalReportFormatter.formatReference(reference);
+                                    return ClinicalVariantUtils.formatReference(reference);
                                 },
                             },
                             elements: [],

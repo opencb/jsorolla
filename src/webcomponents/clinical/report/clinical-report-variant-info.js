@@ -1,5 +1,5 @@
 import {LitElement, html, nothing} from "lit";
-import ClinicalReportFormatter from "./clinical-report-formatter.js";
+import ClinicalVariantUtils from "../variant/clinical-variant-utils.js";
 
 export default class ClinicalReportVariantInfo extends LitElement {
 
@@ -124,7 +124,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                                 showDeleteItemListButton: false,
                                 showAddItemListButton: false,
                                 view: reference => {
-                                    return ClinicalReportFormatter.formatReference(reference);
+                                    return ClinicalVariantUtils.formatReference(reference);
                                 },
                             },
                             elements: [],
@@ -167,7 +167,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
 
                                     return html`
                                         <div class="d-flex flex-column gap-2">
-                                            ${comments.map(comment => ClinicalReportFormatter.formatComment(comment))}
+                                            ${comments.map(comment => ClinicalVariantUtils.formatComment(comment))}
                                         </div>
                                     `;
                                 },
