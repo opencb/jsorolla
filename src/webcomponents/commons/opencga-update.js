@@ -274,6 +274,10 @@ export default class OpencgaUpdate extends LitElement {
                             //     // eslint-disable-next-line no-param-reassign
                             //     params.analyst= {id: params.analyst.id};
                             // }
+                            // we have to send only the comments that does not have an author field
+                            if (params.comments) {
+                                params.comments = params.comments.filter(comment => !comment.author);
+                            }
                         },
                     ];
                     break;
