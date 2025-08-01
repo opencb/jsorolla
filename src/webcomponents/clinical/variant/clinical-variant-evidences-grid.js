@@ -352,7 +352,7 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
                 </div>
                 ${this._config.review && this._selectedEvidence ? html`
                     <div class="border-start border-secondary opacity-25"></div>
-                    <div class="flex-shrink-0" style="width:400px;">
+                    <div class="flex-shrink-0" style="width:480px;">
                         <div class="d-flex flex-row align-items-center justify-content-between mb-4">
                             <h4 class="mb-0">Evidence Review</h4>
                         </div>    
