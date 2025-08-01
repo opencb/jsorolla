@@ -22,7 +22,6 @@ import "../../clinical/clinical-analysis-update.js";
 import "../../clinical/interpretation/clinical-interpretation-manager.js";
 import "../../clinical/clinical-analysis-consent-editor.js";
 import "../../clinical/clinical-analysis-audit-browser.js";
-import "../../clinical/clinical-analysis-summary.js";
 import "../../project/project-cellbase-info.js";
 import "../../commons/view/detail-tabs.js";
 import "../../individual/individual-summary.js";
@@ -212,23 +211,6 @@ class VariantInterpreterLanding extends LitElement {
                                     .opencgaSession="${opencgaSession}"
                                     .active="${active}">
                                 </clinical-analysis-audit-browser>
-                            </div>
-                        `;
-                    }
-                },
-                {
-                    id: "overview",
-                    name: "Overview",
-                    active: false,
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`
-                            <div class="col-md-10 offset-md-1">
-                                <tool-header title="Case Summary - ${clinicalAnalysis?.id || ""}"></tool-header>
-                                <clinical-analysis-summary
-                                    .clinicalAnalysis="${clinicalAnalysis}"
-                                    .active="${active}"
-                                    .opencgaSession="${opencgaSession}">
-                                </clinical-analysis-summary>
                             </div>
                         `;
                     }
