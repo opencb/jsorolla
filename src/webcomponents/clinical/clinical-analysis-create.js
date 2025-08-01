@@ -925,14 +925,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "object-list",
                             display: {
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
-                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                // collapsable: false,
-                                // maxNumItems: 5,
                                 showAddBatchListButton: false,
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: false,
                                 view: comment => {
-                                    return ClinicalVariantUtils.formatComment(comment);
+                                    return html`
+                                        <div class="w-full mb-3">
+                                            ${ClinicalVariantUtils.formatComment(comment)}
+                                        </div>
+                                    `;
                                 }
                             },
                             elements: [
