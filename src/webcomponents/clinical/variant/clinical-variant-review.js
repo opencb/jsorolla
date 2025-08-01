@@ -536,25 +536,7 @@ export default class ClinicalVariantReview extends LitElement {
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: false,
                                 view: comment => {
-                                    const tags = UtilsNew.commaSeparatedArray(comment.tags)
-                                        .join(", ") || "-";
-
-                                    return html`
-                                        <div style="margin-bottom:1rem;">
-                                            <div style="display:flex;margin-bottom:0.5rem;">
-                                                <div style="padding-right:1rem;">
-                                                    <i class="fas fa-comment-dots"></i>
-                                                </div>
-                                                <div style="font-weight:bold">
-                                                    ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
-                                                </div>
-                                            </div>
-                                            <div style="width:100%;">
-                                                <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
-                                                <div class="text-muted">Tags: ${tags}</div>
-                                            </div>
-                                        </div>
-                                    `;
+                                    return ClinicalVariantUtils.formatComment(comment);
                                 },
                             },
                             elements: [
