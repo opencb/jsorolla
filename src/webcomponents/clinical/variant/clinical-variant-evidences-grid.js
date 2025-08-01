@@ -353,21 +353,23 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
                 ${this._config.review && this._selectedEvidence ? html`
                     <div class="border-start border-secondary opacity-25"></div>
                     <div class="flex-shrink-0" style="width:480px;">
-                        <div class="d-flex flex-row align-items-center justify-content-between mb-4">
-                            <h4 class="mb-0">Evidence Review</h4>
-                        </div>    
-                        <clinical-variant-evidence-review
-                            .opencgaSession="${this.opencgaSession}"
-                            .review="${this._selectedEvidence?.review}"
-                            .displayConfig="${{
-                                defaultLayout: "vertical",
-                                buttonClearText: "Cancel",
-                                buttonOkText: "Save Evidence",
-                            }}"
-                            @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}"
-                            @evidenceReviewSubmit="${e => this.onEvidenceReviewSave(e)}"
-                            @evidenceReviewClear="${e => this.onEvidenceReviewCancel(e)}">
-                        </clinical-variant-evidence-review>
+                        <div class="sticky-top">
+                            <div class="d-flex flex-row align-items-center justify-content-between mb-4">
+                                <h4 class="mb-0">Evidence Review</h4>
+                            </div>    
+                            <clinical-variant-evidence-review
+                                .opencgaSession="${this.opencgaSession}"
+                                .review="${this._selectedEvidence?.review}"
+                                .displayConfig="${{
+                                    defaultLayout: "vertical",
+                                    buttonClearText: "Cancel",
+                                    buttonOkText: "Save Evidence",
+                                }}"
+                                @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}"
+                                @evidenceReviewSubmit="${e => this.onEvidenceReviewSave(e)}"
+                                @evidenceReviewClear="${e => this.onEvidenceReviewCancel(e)}">
+                            </clinical-variant-evidence-review>
+                        </div>
                     </div>    
                 ` : nothing}
             </div>

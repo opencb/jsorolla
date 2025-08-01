@@ -152,8 +152,8 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
                     },
                     {
                         id: "review-content",
-                        className: "overflow-y-auto px-1",
-                        style: "max-height: 400px;",
+                        // className: "overflow-y-auto px-1",
+                        // style: "max-height: 400px;",
                     },
                 ],
                 ...this.displayConfig,
