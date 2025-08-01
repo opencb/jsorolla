@@ -449,11 +449,12 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => {
-                        const buttonColor = this._updatedEvidences.has(row.index) ? "btn-warning" : (row?.review?.select ? "btn-primary" : "btn-light");
+                        const selected = !!row?.review?.select;
+                        const buttonColor = this._updatedEvidences.has(row.index) ? "btn-warning" : (selected ? "btn-primary" : "btn-light");
                         return `
                             <button class="mx-auto btn ${buttonColor} d-flex align-items-center gap-1 ${!this._config.review || this._selectedEvidence ? "disabled" : ""}">
                                 <i class="fa fa-edit"></i>
-                                <span>Review</span>
+                                <span>${selected ? "Update" : "Review"}</span>
                             </button>
                         `;
                     },
