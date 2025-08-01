@@ -536,7 +536,11 @@ export default class ClinicalVariantReview extends LitElement {
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: false,
                                 view: comment => {
-                                    return ClinicalVariantUtils.formatComment(comment);
+                                    return html`
+                                        <div class="w-full mb-3">
+                                            ${ClinicalVariantUtils.formatComment(comment)}
+                                        </div>
+                                    `;
                                 },
                             },
                             elements: [
