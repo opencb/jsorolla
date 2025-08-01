@@ -21,6 +21,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
+import "../commons/forms/tags-input.js";
 import "../commons/forms/select-token-filter.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/catalog-search-autocomplete.js";
@@ -323,15 +324,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     return familyMember;
                 }),
             };
-        }
-
-        if (data.comments) {
-            data.comments = data.comments
-                .filter(comment => !comment.author)
-                .map(comment => ({
-                    ...comment,
-                    tags: UtilsNew.commaSeparatedArray(comment.tags),
-                }));
         }
 
         // Clear dueDate field if not provided a valid value
@@ -974,9 +966,14 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 {
                                     title: "Tags",
                                     field: "comments[].tags",
-                                    type: "input-text",
+                                    type: "custom",
                                     display: {
-                                        placeholder: "Add tags..."
+                                        render: (tags, onFilterChange) => html`
+                                            <tags-input
+                                                .value="${tags || []}"
+                                                @filterChange="${event => onFilterChange(event.detail.value)}">
+                                            </tags-input>
+                                        `,
                                     }
                                 },
                             ]
