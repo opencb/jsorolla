@@ -167,7 +167,13 @@ export default class ClinicalReportVariantInfo extends LitElement {
 
                                     return html`
                                         <div class="d-flex flex-column gap-2">
-                                            ${comments.map(comment => ClinicalVariantUtils.formatComment(comment))}
+                                            ${comments.map(comment => html`
+                                                <div class="card border border-1 border-gray-200 bg-white">
+                                                    <div class="card-body">
+                                                        ${ClinicalVariantUtils.formatComment(comment)}
+                                                    </div>
+                                                </div>
+                                            `)}
                                         </div>
                                     `;
                                 },
