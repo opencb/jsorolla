@@ -18,6 +18,8 @@ import {html, LitElement} from "lit";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils";
+import "../commons/forms/data-form.js";
+import "../commons/forms/tags-input.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class WorkflowCreate extends LitElement {
@@ -75,17 +77,7 @@ export default class WorkflowCreate extends LitElement {
     }
 
     onFieldChange(e) {
-        let tags = [];
-        if (e.detail.data?.tags) {
-            // e.detail.data.tags = e.detail.data?.tags?.split(",") || [];
-            if (typeof e.detail.data?.tags === "string") {
-                tags = e.detail.data?.tags?.split(",") || [];
-            } else {
-                tags = e.detail.data?.tags || [];
-            }
-        }
-
-        this.workflow = {...e.detail.data, tags: tags};
+        this.workflow = {...e.detail.data};
         this.requestUpdate();
     }
 
@@ -184,12 +176,14 @@ export default class WorkflowCreate extends LitElement {
                         {
                             title: "Tags",
                             field: "tags",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                placeholder: "Add tags...",
-                                help: {
-                                    text: "Comma-separated tags",
-                                },
+                                render: (tags, onFilterChange) => html`
+                                    <tags-input
+                                        .value="${tags || []}"
+                                        @filterChange="${event => onFilterChange(event.detail.value)}">
+                                    </tags-input>
+                                `,
                             },
                         },
                         {
