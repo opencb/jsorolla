@@ -39,9 +39,6 @@ export default class WorkflowCreate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            mode: {
-                type: String
-            },
             displayConfig: {
                 type: Object
             }
@@ -50,16 +47,6 @@ export default class WorkflowCreate extends LitElement {
 
     #init() {
         this.workflow = {};
-        this.updatedFields = {};
-        this.mode = "";
-        this.displayConfigDefault = {
-            buttonsVisible: true,
-            buttonOkText: "Create",
-            titleWidth: 3,
-            with: "8",
-            defaultValue: "",
-            defaultLayout: "horizontal"
-        };
         this._config = this.getDefaultConfig();
     }
 
@@ -70,7 +57,6 @@ export default class WorkflowCreate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -87,7 +73,6 @@ export default class WorkflowCreate extends LitElement {
             message: "Are you sure to clear?",
             ok: () => {
                 this.workflow = {};
-                this._config = this.getDefaultConfig();
                 this.requestUpdate();
             },
         });
@@ -104,7 +89,6 @@ export default class WorkflowCreate extends LitElement {
             .create(this.workflow, params)
             .then(() => {
                 this.workflow = {};
-                this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Workflow Create",
                     message: "New workflow created correctly"
@@ -138,8 +122,14 @@ export default class WorkflowCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            mode: this.mode,
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                buttonsVisible: true,
+                buttonOkText: "Create",
+                titleWidth: 3,
+                defaultValue: "",
+                defaultLayout: "horizontal",
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
