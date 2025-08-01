@@ -201,15 +201,6 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
                             },
                         },
                         {
-                            title: "Score",
-                            field: "score",
-                            type: "input-num",
-                            display: {
-                                disabled: !this._review?.select,
-                                defaultValue: 0,
-                            },
-                        },
-                        {
                             title: "ACMG",
                             field: "acmg",
                             type: "object-list",
@@ -278,6 +269,15 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
                                 rows: 5,
                                 helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
                                 disabled: !this._review?.select,
+                            },
+                        },
+                        {
+                            title: "Score",
+                            field: "score",
+                            type: "input-num",
+                            display: {
+                                disabled: !this._review?.select,
+                                defaultValue: 0,
                             },
                         },
                         {
