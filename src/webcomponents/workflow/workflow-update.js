@@ -18,6 +18,8 @@ import {html, LitElement} from "lit";
 import Types from "../commons/types.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
+import "../commons/forms/data-form.js";
+import "../commons/forms/tags-input.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class WorkflowUpdate extends LitElement {
@@ -40,9 +42,6 @@ export default class WorkflowUpdate extends LitElement {
             active: {
                 type: Boolean,
             },
-            mode: {
-                type: String
-            },
             opencgaSession: {
                 type: Object
             },
@@ -54,8 +53,8 @@ export default class WorkflowUpdate extends LitElement {
 
     #init() {
         this._workflow = {};
+        this.active = true;
         this.workflowId = "";
-        this.mode = "";
         this.displayConfig = {
             titleWidth: 3,
             modalButtonClassName: "btn-primary btn-sm",
@@ -90,7 +89,7 @@ export default class WorkflowUpdate extends LitElement {
                 .resource="${"WORKFLOW"}"
                 .componentId="${this.workflowId}"
                 .opencgaSession="${this.opencgaSession}"
-                .active="${this.active || true}"
+                .active="${this.active}"
                 .config="${this._config}"
                 @componentIdObserver="${e => this.onWorkflowIdObserver(e)}">
             </opencga-update>
@@ -99,7 +98,6 @@ export default class WorkflowUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            mode: this.mode,
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
@@ -137,12 +135,14 @@ export default class WorkflowUpdate extends LitElement {
                         {
                             title: "Tags",
                             field: "tags",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                placeholder: "Add tags...",
-                                help: {
-                                    text: "Comma-separated tags",
-                                },
+                                render: (tags, onFilterChange) => html`
+                                    <tags-input
+                                        .value="${tags || []}"
+                                        @filterChange="${e => onFilterChange(e.detail.value)}">
+                                    </tags-input>
+                                `,
                             },
                         },
                         {
