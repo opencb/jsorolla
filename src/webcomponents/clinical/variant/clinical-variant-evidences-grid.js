@@ -78,6 +78,8 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
     }
 
     variantObserver() {
+        this._selectedEvidence = null;
+        this._selectedEvidenceIndex = null;
         this._updatedEvidences = new Set(); // reset the updated evidences
         this._applyTranscriptFilters = true; // reset the apply transcript filters flag
         // we need to prepare evidences to be filtered properly,
