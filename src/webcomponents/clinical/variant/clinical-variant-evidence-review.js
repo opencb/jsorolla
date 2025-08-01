@@ -145,10 +145,25 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
                 buttonOkText: "Save",
                 buttonClearText: "Clear",
                 buttonOkDisabled: review => !review?.select && review?.select === this.review?.select,
+                layout: [
+                    {
+                        id: "review-select",
+                        className: "",
+                    },
+                    {
+                        id: "review-content",
+                        className: "overflow-y-auto px-1",
+                        style: "max-height: 400px;",
+                    },
+                ],
                 ...this.displayConfig,
             },
             sections: [
                 {
+                    id: "review-select",
+                    display: {
+                        separationClassName: "mb-0",
+                    },
                     elements: [
                         {
                             field: "select",
@@ -174,6 +189,11 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
                                 },
                             },
                         },
+                    ],
+                },
+                {
+                    id: "review-content",
+                    elements: [
                         {
                             title: "Clinical Significance",
                             field: "clinicalSignificance",
