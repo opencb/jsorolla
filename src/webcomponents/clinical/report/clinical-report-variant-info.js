@@ -34,7 +34,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("displayConfig")) {
+        if (changedProperties.has("displayConfig") || changedProperties.has("variant")) {
             this._config = this.getDefaultConfig();
         }
 
@@ -55,6 +55,11 @@ export default class ClinicalReportVariantInfo extends LitElement {
     }
 
     getDefaultConfig() {
+        // get the evidences from the variant, filtering only those that are selected
+        const evidences = (this.variant?.evidences || []).filter(evidence => {
+            return evidence?.review?.select;
+        });
+
         return {
             display: {
                 separationClassName: "mb-4",
@@ -64,35 +69,81 @@ export default class ClinicalReportVariantInfo extends LitElement {
             },
             sections: [
                 {
-                    id: "variant-content",
+                    title: "Evidences",
                     display: {
-                        buttonsVisible: false,
-                        defaultLayout: "vertical",
+                        titleClassName: "fs-4 fw-bold",
+                        separationClassName: "mb-0",
+                    },
+                    elements: [],
+                },
+                ...evidences.map(evidence => ({
+                    display: {
+                        className: "border border-1 gorder-gray-200 rounded-2 p-3",
+                        defaultLayout: "horizontal",
                     },
                     elements: [
                         {
-                            type: "custom",
-                            title: "Evidences",
-                            field: "evidences",
+                            title: "Clinical Significance",
+                            type: "text",
+                            text: () => evidence?.review?.clinicalSignificance || "-",
                             display: {
-                                titleClassName: "fs-4",
-                                render: (evidences) => {
-                                    // get only selected evidences
-                                    const selectedEvidences = (evidences || []).filter(evidence => {
-                                        return evidence?.review?.select;
-                                    });
-
-                                    if (selectedEvidences.length === 0) {
+                                separationClassName: "mb-1",
+                            },
+                        },
+                        {
+                            title: "Tier",
+                            type: "text",
+                            text: () => evidence?.review?.tier || "-",
+                            display: {
+                                separationClassName: "mb-1",
+                            },
+                        },
+                        // {
+                        //     title: "ACMG Classification",
+                        // },
+                        {
+                            title: "Discussion",
+                            type: "text",
+                            text: () => evidence?.review?.discussion?.text || "-",
+                            display: {
+                                separationClassName: "mb-1",
+                            },
+                        },
+                        {
+                            title: "Score",
+                            type: "text",
+                            text: () => evidence?.review?.score ?? "-",
+                            display: {
+                                separationClassName: "mb-1",
+                            },
+                        },
+                        {
+                            title: "Tags",
+                            type: "custom",
+                            display: {
+                                separationClassName: "mb-0",
+                                render: () => {
+                                    if (!evidence?.review?.tags || evidence.review.tags.length === 0) {
                                         return "-";
                                     }
-
                                     return html`
-                                        <div class="d-flex flex-column gap-2">
+                                        <div class="d-flex flex-wrap gap-1">
+                                            ${evidence.review.tags.map(tag => html`
+                                                <span class="badge bg-secondary">${tag}</span>
+                                            `)}
                                         </div>
                                     `;
                                 },
                             },
                         },
+                    ],
+                })),
+                {
+                    display: {
+                        buttonsVisible: false,
+                        defaultLayout: "vertical",
+                    },
+                    elements: [
                         {
                             type: "text",
                             title: "Discussion",
