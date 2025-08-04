@@ -153,9 +153,40 @@ export default class ClinicalReportVariantInfo extends LitElement {
                                 separationClassName: "mb-1",
                             },
                         },
-                        // {
-                        //     title: "ACMG Classification",
-                        // },
+                        {
+                            title: "ACMG Classification",
+                            type: "table",
+                            display: {
+                                defaultValue: "No ACMG classification",
+                                // defaultLayout: "vertical",
+                                className: "table-grid",
+                                headerCellClassName: "bg-transparent",
+                                getData: () => evidence?.review?.acmg || {},
+                                separationClassName: "mb-1",
+                                columns: [
+                                    {
+                                        title: "Classification",
+                                        field: "classification",
+                                        type: "text",
+                                    },
+                                    {
+                                        title: "Strength",
+                                        field: "strength",
+                                        type: "text",
+                                    },
+                                    {
+                                        title: "Author",
+                                        field: "author",
+                                        type: "text",
+                                    },
+                                    {
+                                        title: "Comment",
+                                        field: "comment",
+                                        type: "text",
+                                    },
+                                ],
+                            },
+                        },
                         {
                             title: "Discussion",
                             type: "text",
