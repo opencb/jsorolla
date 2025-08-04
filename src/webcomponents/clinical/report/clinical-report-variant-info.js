@@ -225,37 +225,43 @@ export default class ClinicalReportVariantInfo extends LitElement {
                     ],
                 })),
                 {
+                    title: "Discussion",
                     display: {
-                        buttonsVisible: false,
-                        defaultLayout: "vertical",
+                        titleClassName: "fs-4",
                     },
                     elements: [
                         {
                             type: "text",
-                            title: "Discussion",
                             text: data => {
                                 return data?.discussion?.text || "-";
                             },
-                            display: {
-                                titleClassName: "fs-4",
-                            },
                         },
+                    ],
+                },
+                {
+                    title: "Recommendation",
+                    display: {
+                        titleClassName: "fs-4",
+                    },
+                    elements: [
                         {
                             type: "text",
-                            title: "Recommendation",
                             text: data => {
                                 return data?.recommendation || "-";
                             },
-                            display: {
-                                titleClassName: "fs-4",
-                            },
                         },
+                    ],
+                },
+                {
+                    title: "References",
+                    display: {
+                        titleClassName: "fs-4",
+                    },
+                    elements: [
                         {
-                            title: "References",
                             field: "references",
                             type: "object-list",
                             display: {
-                                titleClassName: "fs-4",
                                 showAddBatchListButton: false,
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: false,
@@ -266,12 +272,18 @@ export default class ClinicalReportVariantInfo extends LitElement {
                             },
                             elements: [],
                         },
+                    ],
+                },
+                {
+                    title: "Images",
+                    display: {
+                        titleClassName: "fs-4",
+                    },
+                    elements: [
                         {
-                            title: "Images",
                             field: "images",
                             type: "custom",
                             display: {
-                                titleClassName: "fs-4",
                                 render: (images) => {
                                     if (!images || images.length === 0) {
                                         return "-";
@@ -291,12 +303,18 @@ export default class ClinicalReportVariantInfo extends LitElement {
                                 },
                             },
                         },
+                    ],
+                },
+                {
+                    title: "Comments",
+                    display: {
+                        titleClassName: "fs-4",
+                    },
+                    elements: [
                         {
-                            title: "Comments",
                             field: "comments",
                             type: "custom",
                             display: {
-                                titleClassName: "fs-4",
                                 render: (comments) => {
                                     if (!comments || comments.length === 0) {
                                         return "-";
