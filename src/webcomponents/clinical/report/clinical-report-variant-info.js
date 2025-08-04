@@ -1,5 +1,7 @@
 import {LitElement, html, nothing} from "lit";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import ClinicalVariantUtils from "../variant/clinical-variant-utils.js";
+import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 
 export default class ClinicalReportVariantInfo extends LitElement {
 
@@ -83,6 +85,59 @@ export default class ClinicalReportVariantInfo extends LitElement {
                     },
                     elements: [
                         {
+                            title: "Gene",
+                            type: "custom",
+                            display: {
+                                separationClassName: "mb-1",
+                                render: () => html`
+                                    <a class="d-inline-flex gap-1 align-items-center text-decoration-none" href="${BioinfoUtils.getGeneNameLink(evidence.genomicFeature.geneName)}" target="_blank">
+                                        <span>${evidence.genomicFeature.geneName}</span>
+                                        <i class="fas fa-external-link-alt fs-8"></i>
+                                    </a>
+                                    ${evidence?.genomicFeature?.id ? html`
+                                        (<a class="d-inline-flex gap-1 align-items-center text-decoration-none" href="${BioinfoUtils.getGeneLink(evidence.genomicFeature.id)}" target="_blank">
+                                            <span>${evidence.genomicFeature.id || ""}</span>
+                                            <i class="fas fa-external-link-alt fs-8"></i>
+                                        </a>)
+                                    ` : nothing}
+                                `,
+                            },
+                        },
+                        {
+                            title: "Transcript",
+                            type: "custom",
+                            display: {
+                                separationClassName: "mb-1",
+                                render: () => html`
+                                    <a class="d-inline-flex gap-1 align-items-center text-decoration-none" href="${BioinfoUtils.getTranscriptLink(evidence.genomicFeature.transcriptId)}" target="_blank">
+                                        <span>${evidence.genomicFeature.transcriptId}</span>
+                                        <i class="fas fa-external-link-alt fs-8"></i>
+                                    </a>
+                                `,
+                            },
+                        },
+                        {
+                            title: "Consequence Type",
+                            type: "custom",
+                            display: {
+                                separationClassName: "mb-1",
+                                render: () => {
+                                    const items = (evidence?.genomicFeature?.consequenceTypes || []).map(so => {
+                                        const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
+                                        return html`
+                                            <div class="d-flex align-items-center gap-2" style="color:${color};">
+                                                <span>${so.name}</span>
+                                                <a href="${BioinfoUtils.getSequenceOntologyLink(so.accession)}" target="_blank">
+                                                    <i class="fas fa-external-link-alt fs-8"></i>
+                                                </a>
+                                            </div>
+                                        `;
+                                    });
+                                    return items?.length > 0 ? items : "-";
+                                },
+                            },
+                        },
+                        {
                             title: "Clinical Significance",
                             type: "text",
                             text: () => evidence?.review?.clinicalSignificance || "-",
@@ -112,7 +167,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                         {
                             title: "Score",
                             type: "text",
-                            text: () => evidence?.review?.score ?? "-",
+                            text: () => `${evidence?.review?.score ?? "-"}`,
                             display: {
                                 separationClassName: "mb-1",
                             },
