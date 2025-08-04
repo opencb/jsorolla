@@ -495,6 +495,15 @@ export default class ClinicalReportReview extends LitElement {
                             display: {
                                 titleClassName: "fw-bold fs-5",
                                 render: signatures => {
+                                    if (!signatures || signatures?.length === 0) {
+                                        return html`
+                                            <div class="alert alert-light">
+                                                <i class="fas fa-info-circle pe-1"></i>
+                                                <span>No signatures have been added yet.</span>
+                                            </div>
+                                        `;
+                                    }
+
                                     return html`
                                         <div class="d-flex flex-column gap-3">
                                             ${signatures.map(signature => this.renderSignature(signature))}
