@@ -191,6 +191,11 @@ export default class ClinicalReportReview extends LitElement {
         // reset the signature object to allow adding a new signature and request an update
         this._signature = {};
         this.requestUpdate();
+
+        // force to clear the input file
+        this.updateComplete.then(() => {
+            this.querySelector(`input[type="file"]`).value = "";
+        });
     }
 
     onSignatureRemove(signature) {
