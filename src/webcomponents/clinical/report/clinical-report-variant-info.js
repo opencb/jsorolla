@@ -227,7 +227,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                 {
                     title: "Discussion",
                     display: {
-                        titleClassName: "fs-4",
+                        titleClassName: "fs-4 fw-bold",
                     },
                     elements: [
                         {
@@ -241,7 +241,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                 {
                     title: "Recommendation",
                     display: {
-                        titleClassName: "fs-4",
+                        titleClassName: "fs-4 fw-bold",
                     },
                     elements: [
                         {
@@ -255,7 +255,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                 {
                     title: "References",
                     display: {
-                        titleClassName: "fs-4",
+                        titleClassName: "fs-4 fw-bold",
                     },
                     elements: [
                         {
@@ -277,7 +277,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                 {
                     title: "Images",
                     display: {
-                        titleClassName: "fs-4",
+                        titleClassName: "fs-4 fw-bold",
                     },
                     elements: [
                         {
@@ -308,7 +308,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                 {
                     title: "Comments",
                     display: {
-                        titleClassName: "fs-4",
+                        titleClassName: "fs-4 fw-bold",
                     },
                     elements: [
                         {
