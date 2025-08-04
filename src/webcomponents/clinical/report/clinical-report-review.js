@@ -497,9 +497,9 @@ export default class ClinicalReportReview extends LitElement {
                                 render: signatures => {
                                     if (!signatures || signatures?.length === 0) {
                                         return html`
-                                            <div class="alert alert-light">
-                                                <i class="fas fa-info-circle pe-1"></i>
-                                                <span>No signatures have been added yet.</span>
+                                            <div class="d-flex flex-column align-items-center justify-content-center p-5 border border-1 border-gray-200 rounded-3">
+                                                <i class="fas fa-signature fs-1 mb-1"></i>
+                                                <div class="text-center fs-5 text-secondary">No signatures have been added yet.</div>
                                             </div>
                                         `;
                                     }
