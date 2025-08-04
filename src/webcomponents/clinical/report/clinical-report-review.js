@@ -190,6 +190,17 @@ export default class ClinicalReportReview extends LitElement {
         }
     }
 
+    onSignatureAdd() {
+        // TODO
+    }
+
+    onSignatureRemove(signature) {
+        this._report.signatures = this._report.signatures.filter(s => s !== signature);
+        this._updatedParams.signatures = this._report.signatures || [];
+        this._updatedParams = {...this._updatedParams};
+        this.requestUpdate();
+    }
+
     onSubmit() {
         const data = {
             report: this._report,
@@ -249,6 +260,21 @@ export default class ClinicalReportReview extends LitElement {
                         @variantReviewUpdate="${event => this.onVariantReviewUpdate(event)}">
                     </clinical-report-variant-card>
                 `)}
+            </div>
+        `;
+    }
+
+    renderSignature(signature) {
+        return html`
+            <div class="d-flex align-items-center gap-5 border border-1 border-gray-200 p-3 rounded-2 position-relative">
+                <div class="flex-shrink-0" style="width:180px;">
+                    <img src="${signature.signature}" style="max-width:100%;max-height:100%;" />
+                </div>
+                <div class="flex-grow-1">
+                    <div class=""><b>Signed by:</b> ${signature.signedBy || "-"}</div>
+                    <div class=""><b>Role:</b> ${signature.role || "-"}</div>
+                </div>
+                <button class="btn-close position-absolute top-0 end-0 m-2" @click="${() => this.onSignatureRemove(signature)}"></button>
             </div>
         `;
     }
@@ -380,65 +406,74 @@ export default class ClinicalReportReview extends LitElement {
                     id: "signatures",
                     title: "Signatures",
                     icon: "fa-signature",
-                    display: {},
+                    display: {
+                        className: "row",
+                        layout: [
+                            {
+                                className: "col-6",
+                                elements: [
+                                    { id: "signature-signed-by" },
+                                    { id: "signature-role" },
+                                    { id: "signature-image" },
+                                ],
+                            },
+                            {
+                                className: "col-6",
+                                id: "signature-list",
+                            },
+                        ],
+                    },
                     elements: [
                         {
-                            field: "signatures",
-                            type: "object-list",
+                            id: "signature-signed-by",
+                            field: "newSignature.signedBy",
+                            title: "Select Analyst",
+                            type: "select",
+                            allowedValues: (this.clinicalAnalysis?.analysts || []).map(analyst => ({
+                                id: analyst.id,
+                            })),
+                        },
+                        {
+                            id: "signature-role",
+                            field: "newSignature.role",
+                            title: "Role",
+                            type: "input-text",
+                        },
+                        {
+                            id: "signature-image",
+                            field: "newSignature.signature",
+                            title: "Upload the signature",
+                            type: "custom",
                             display: {
-                                showAddBatchListButton: false,
-                                showEditItemListButton: false,
-                                showDeleteItemListButton: true,
-                                view: signature => {
+                                render: (signature, onFieldChange) => {
                                     return html`
-                                        <div class="d-flex align-items-center gap-4">
-                                            <div class="flex-shrink-0" style="width:200px;">
-                                                <img src="${signature.signature}" style="max-width:100%;max-height:100%;" />
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <div class=""><b>Signed by:</b> ${signature.signedBy || "-"}</div>
-                                                <div class=""><b>Role:</b> ${signature.role || "-"}</div>
-                                            </div>
+                                        <input
+                                            type="file"
+                                            class="form-control"
+                                            accept="image/*"
+                                            @change="${event => this.onSignatureImageChange(event, onFieldChange)}"
+                                        />
+                                    `;
+                                },
+                                help: {
+                                    text: "Accepted formats: png, jpg, jpeg. Maximum size: 1MB.",
+                                },
+                            },
+                        },
+                        {
+                            id: "signature-list",
+                            field: "signatures",
+                            type: "custom",
+                            display: {
+                                render: signatures => {
+                                    return html`
+                                        <div class="d-flex flex-column gap-3">
+                                            ${signatures.map(signature => this.renderSignature(signature))}
                                         </div>
                                     `;
                                 },
                             },
-                            elements: [
-                                {
-                                    field: "signatures[].signedBy",
-                                    title: "Select Analyst",
-                                    type: "select",
-                                    allowedValues: (this.clinicalAnalysis?.analysts || []).map(analyst => ({
-                                        id: analyst.id,
-                                    })),
-                                },
-                                {
-                                    field: "signatures[].role",
-                                    title: "Role",
-                                    type: "input-text",
-                                },
-                                {
-                                    field: "signatures[].signature",
-                                    title: "Upload the signature",
-                                    type: "custom",
-                                    display: {
-                                        render: (signature, onFieldChange) => {
-                                            return html`
-                                                <input
-                                                    type="file"
-                                                    class="form-control"
-                                                    accept="image/*"
-                                                    @change="${event => this.onSignatureImageChange(event, onFieldChange)}"
-                                                />
-                                            `;
-                                        },
-                                        help: {
-                                            text: "Accepted formats: png, jpg, jpeg. Maximum size: 1MB.",
-                                        },
-                                    },
-                                },
-                            ],
-                        }
+                        },
                     ],
                 },
             ],
