@@ -45,6 +45,7 @@ export default class ClinicalReportReview extends LitElement {
         this._gridCommons = new GridCommons(null, this, null);
         this._updatedParams = {};
         this._report = null;
+        this._signature = {}; // used to save new signature data
 
         // initialize available modals
         this._gridCommons.registerModals({
@@ -108,6 +109,7 @@ export default class ClinicalReportReview extends LitElement {
         if (this.clinicalAnalysis) {
             this._clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
             this._report = UtilsNew.objectClone(this.clinicalAnalysis.report || {}); // make sure we have a report object to work with
+            this._signature = {};
             this._updatedParams = {};
             this._config = this.getDefaultConfig();
         }
@@ -166,18 +168,18 @@ export default class ClinicalReportReview extends LitElement {
 
     onFieldChange(event) {
         // if the updated field is signatures, we need to force an update
-        if (event.detail.param.startsWith("signatures")) {
-            // when added the signature, we automatically populate the current date
-            if (event.detail.action === "ADD") {
-                const lastSignature = this._report.signatures[this._report.signatures.length - 1];
-                this._report.signatures[this._report.signatures.length - 1] = {
-                    ...lastSignature,
-                    date: UtilsNew.getDatetime(),
-                };
-            }
-            this._updatedParams.signatures = this._report.signatures || [];
-            this._updatedParams = {...this._updatedParams};
-        }
+        // if (event.detail.param.startsWith("signatures")) {
+        //     // when added the signature, we automatically populate the current date
+        //     if (event.detail.action === "ADD") {
+        //         const lastSignature = this._report.signatures[this._report.signatures.length - 1];
+        //         this._report.signatures[this._report.signatures.length - 1] = {
+        //             ...lastSignature,
+        //             date: UtilsNew.getDatetime(),
+        //         };
+        //     }
+        //     this._updatedParams.signatures = this._report.signatures || [];
+        //     this._updatedParams = {...this._updatedParams};
+        // }
         this.requestUpdate();
     }
 
@@ -191,13 +193,23 @@ export default class ClinicalReportReview extends LitElement {
     }
 
     onSignatureAdd() {
-        // TODO
+        if (!this._report.signatures) {
+            this._report.signatures = [];
+        }
+
+        // insert the new signature into the report object
+        this._report.signatures.push({
+            ...this._signature, // copy the signature data
+            date: UtilsNew.getDatetime(),
+        });
+
+        // reset the signature object to allow adding a new signature and request an update
+        this._signature = {};
+        this.requestUpdate();
     }
 
     onSignatureRemove(signature) {
         this._report.signatures = this._report.signatures.filter(s => s !== signature);
-        this._updatedParams.signatures = this._report.signatures || [];
-        this._updatedParams = {...this._updatedParams};
         this.requestUpdate();
     }
 
@@ -266,7 +278,7 @@ export default class ClinicalReportReview extends LitElement {
 
     renderSignature(signature) {
         return html`
-            <div class="d-flex align-items-center gap-5 bg-white border border-1 border-gray-200 p-4 rounded-3 position-relative">
+            <div class="d-flex align-items-center gap-5 bg-white border border-1 border-gray-200 p-3 rounded-3 position-relative">
                 <div class="flex-shrink-0" style="width:180px;">
                     <img src="${signature.signature}" style="max-width:100%;max-height:100%;" />
                 </div>
@@ -295,7 +307,10 @@ export default class ClinicalReportReview extends LitElement {
             <div class="">
                 <h2 class="fw-bold mb-4">Case Review</h2>
                 <data-form
-                    .data="${this._report}"
+                    .data="${{
+                        report: this._report,
+                        signature: this._signature,
+                    }}"
                     .config="${this._config}"
                     .updateParams="${this._updatedParams}"
                     @fieldChange="${event => this.onFieldChange(event)}"
@@ -348,7 +363,7 @@ export default class ClinicalReportReview extends LitElement {
                     elements: [
                         {
                             type: "input-text",
-                            field: "discussion.text",
+                            field: "report.discussion.text",
                             defaultValue: "",
                             display: {
                                 rows: 20,
@@ -363,7 +378,7 @@ export default class ClinicalReportReview extends LitElement {
                     display: {},
                     elements: [
                         {
-                            field: "recommendation",
+                            field: "report.recommendation",
                             type: "input-text",
                             defaultValue: "",
                             display: {
@@ -379,7 +394,7 @@ export default class ClinicalReportReview extends LitElement {
                     display: {},
                     elements: [
                         {
-                            field: "methodology",
+                            field: "report.methodology",
                             type: "input-text",
                             defaultValue: "",
                             display: {
@@ -395,7 +410,7 @@ export default class ClinicalReportReview extends LitElement {
                     display: {},
                     elements: [
                         {
-                            field: "limitations",
+                            field: "report.limitations",
                             type: "input-text",
                             defaultValue: "",
                             display: {
@@ -438,7 +453,7 @@ export default class ClinicalReportReview extends LitElement {
                         },
                         {
                             id: "signature-signed-by",
-                            field: "newSignature.signedBy",
+                            field: "signature.signedBy",
                             title: "Select Analyst",
                             type: "select",
                             allowedValues: (this.clinicalAnalysis?.analysts || []).map(analyst => ({
@@ -447,13 +462,13 @@ export default class ClinicalReportReview extends LitElement {
                         },
                         {
                             id: "signature-role",
-                            field: "newSignature.role",
+                            field: "signature.role",
                             title: "Role",
                             type: "input-text",
                         },
                         {
                             id: "signature-image",
-                            field: "newSignature.signature",
+                            field: "signature.signature",
                             title: "Upload the signature",
                             type: "custom",
                             display: {
@@ -489,7 +504,7 @@ export default class ClinicalReportReview extends LitElement {
                         },
                         {
                             id: "signature-list",
-                            field: "signatures",
+                            field: "report.signatures",
                             title: "Added Signatures",
                             type: "custom",
                             display: {
