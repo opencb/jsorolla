@@ -266,7 +266,7 @@ export default class ClinicalReportReview extends LitElement {
 
     renderSignature(signature) {
         return html`
-            <div class="d-flex align-items-center gap-5 bg-white border border-1 border-gray-200 p-4 rounded-2 position-relative">
+            <div class="d-flex align-items-center gap-5 bg-white border border-1 border-gray-200 p-4 rounded-3 position-relative">
                 <div class="flex-shrink-0" style="width:180px;">
                     <img src="${signature.signature}" style="max-width:100%;max-height:100%;" />
                 </div>
