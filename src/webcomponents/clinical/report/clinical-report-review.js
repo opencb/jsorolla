@@ -418,6 +418,7 @@ export default class ClinicalReportReview extends LitElement {
                                     { id: "signature-signed-by" },
                                     { id: "signature-role" },
                                     { id: "signature-image" },
+                                    { id: "signature-add-button" },
                                 ],
                             },
                             {
@@ -429,7 +430,7 @@ export default class ClinicalReportReview extends LitElement {
                     elements: [
                         {
                             id: "signature-add-title",
-                            text: "Add Signature",
+                            text: "Add New Signature",
                             type: "text",
                             display: {
                                 textClassName: "fw-bold fs-5",
@@ -472,9 +473,24 @@ export default class ClinicalReportReview extends LitElement {
                             },
                         },
                         {
+                            id: "signature-add-button",
+                            type: "custom",
+                            display: {
+                                render: () => {
+                                    return html`
+                                        <div class="d-grid">
+                                            <button class="btn btn-primary d-flex gap-2 justify-content-center align-items-center" @click="${() => this.onSignatureAdd()}">
+                                                <i class="fas fa-plus"></i> <span>Save Signature</span>
+                                            </button>
+                                        </div>
+                                    `;
+                                },
+                            },
+                        },
+                        {
                             id: "signature-list",
                             field: "signatures",
-                            title: "Added signatures",
+                            title: "Added Signatures",
                             type: "custom",
                             display: {
                                 titleClassName: "fw-bold fs-5",
