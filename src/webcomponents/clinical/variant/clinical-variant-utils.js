@@ -20,10 +20,10 @@ export default class ClinicalVariantUtils {
                         <span>${UtilsNew.dateFormatter(reference.date)}.</span>
                     ` : nothing}
                     ${reference.url ? html`
-                        <span class="text-nowrap d-flex align-items-center gap-1 ms-2">
+                        <a href="${reference.url}" class="text-muted text-decoration-none text-nowrap d-flex align-items-center gap-1 ms-2" target="_blank">
                             <i class="fa fa-link fs-8"></i>
                             <span>${reference.url || "-"}</span>
-                        </span>
+                        </a>
                     ` : nothing}
                 </div>
             </div>
