@@ -43,7 +43,6 @@ export default class ClinicalReportReview extends LitElement {
         this._selectedVariantPrimary = null;
         this._selectedVariantChecked = null;
         this._gridCommons = new GridCommons(null, this, null);
-        this._updatedParams = {};
         this._report = null;
         this._signature = {}; // used to save new signature data
 
@@ -110,7 +109,6 @@ export default class ClinicalReportReview extends LitElement {
             this._clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
             this._report = UtilsNew.objectClone(this.clinicalAnalysis.report || {}); // make sure we have a report object to work with
             this._signature = {};
-            this._updatedParams = {};
             this._config = this.getDefaultConfig();
         }
     }
@@ -167,19 +165,6 @@ export default class ClinicalReportReview extends LitElement {
     }
 
     onFieldChange(event) {
-        // if the updated field is signatures, we need to force an update
-        // if (event.detail.param.startsWith("signatures")) {
-        //     // when added the signature, we automatically populate the current date
-        //     if (event.detail.action === "ADD") {
-        //         const lastSignature = this._report.signatures[this._report.signatures.length - 1];
-        //         this._report.signatures[this._report.signatures.length - 1] = {
-        //             ...lastSignature,
-        //             date: UtilsNew.getDatetime(),
-        //         };
-        //     }
-        //     this._updatedParams.signatures = this._report.signatures || [];
-        //     this._updatedParams = {...this._updatedParams};
-        // }
         this.requestUpdate();
     }
 
@@ -312,7 +297,6 @@ export default class ClinicalReportReview extends LitElement {
                         signature: this._signature,
                     }}"
                     .config="${this._config}"
-                    .updateParams="${this._updatedParams}"
                     @fieldChange="${event => this.onFieldChange(event)}"
                     @submit=${event => this.onSubmit(event)}>
                 </data-form>
