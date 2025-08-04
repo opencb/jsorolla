@@ -76,7 +76,15 @@ export default class ClinicalReportVariantInfo extends LitElement {
                         titleClassName: "fs-4 fw-bold",
                         separationClassName: "mb-0",
                     },
-                    elements: [],
+                    elements: [
+                        {
+                            type: "text",
+                            text: "No evidences sected for this variant.",
+                            display: {
+                                visible: evidences.length === 0,
+                            },
+                        },
+                    ],
                 },
                 ...evidences.map(evidence => ({
                     display: {
