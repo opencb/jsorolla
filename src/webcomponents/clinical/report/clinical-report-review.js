@@ -266,7 +266,7 @@ export default class ClinicalReportReview extends LitElement {
 
     renderSignature(signature) {
         return html`
-            <div class="d-flex align-items-center gap-5 bg-white border border-1 border-gray-200 p-3 rounded-2 position-relative">
+            <div class="d-flex align-items-center gap-5 bg-white border border-1 border-gray-200 p-4 rounded-2 position-relative">
                 <div class="flex-shrink-0" style="width:180px;">
                     <img src="${signature.signature}" style="max-width:100%;max-height:100%;" />
                 </div>
@@ -274,7 +274,7 @@ export default class ClinicalReportReview extends LitElement {
                     <div class=""><b>Signed by:</b> ${signature.signedBy || "-"}</div>
                     <div class=""><b>Role:</b> ${signature.role || "-"}</div>
                 </div>
-                <button class="btn btn-light d-flex position-absolute top-0 end-0 m-2" @click="${() => this.onSignatureRemove(signature)}">
+                <button class="btn btn-light d-flex position-absolute top-0 end-0 m-3" @click="${() => this.onSignatureRemove(signature)}">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -414,6 +414,7 @@ export default class ClinicalReportReview extends LitElement {
                             {
                                 className: "col-6",
                                 elements: [
+                                    { id: "signature-add-title" },
                                     { id: "signature-signed-by" },
                                     { id: "signature-role" },
                                     { id: "signature-image" },
@@ -426,6 +427,14 @@ export default class ClinicalReportReview extends LitElement {
                         ],
                     },
                     elements: [
+                        {
+                            id: "signature-add-title",
+                            text: "Add Signature",
+                            type: "text",
+                            display: {
+                                textClassName: "fw-bold fs-5",
+                            },
+                        },
                         {
                             id: "signature-signed-by",
                             field: "newSignature.signedBy",
@@ -468,6 +477,7 @@ export default class ClinicalReportReview extends LitElement {
                             title: "Added signatures",
                             type: "custom",
                             display: {
+                                titleClassName: "fw-bold fs-5",
                                 render: signatures => {
                                     return html`
                                         <div class="d-flex flex-column gap-3">
