@@ -92,6 +92,10 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
     getDefaultConfig() {
         return {
             display: {
+                buttonsVisible: true,
+                buttonOkText: "Save Configuration",
+                buttonClearText: "",
+                defaultLayout: "horizontal",
                 ...this.displayConfig,
             },
             sections: [
