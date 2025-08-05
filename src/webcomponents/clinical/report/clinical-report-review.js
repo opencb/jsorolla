@@ -45,6 +45,7 @@ export default class ClinicalReportReview extends LitElement {
         this._gridCommons = new GridCommons(null, this, null);
         this._report = null;
         this._signature = {}; // used to save new signature data
+        this._analists = []; // used to store the analysts of the clinical analysis
 
         // initialize available modals
         this._gridCommons.registerModals({
@@ -109,8 +110,16 @@ export default class ClinicalReportReview extends LitElement {
             this._clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
             this._report = UtilsNew.objectClone(this.clinicalAnalysis.report || {}); // make sure we have a report object to work with
             this._signature = {};
+            this._analists = this.getAnalysts(); // get the list of analysts from the clinical analysis
             this._config = this.getDefaultConfig();
         }
+    }
+
+    getAnalysts() {
+        return (this.clinicalAnalysis?.analysts || []).map(analyst => ({
+            id: analyst.id,
+            disabled: (this._report?.signatures || []).some(signature => signature.signedBy === analyst.id),
+        }));
     }
 
     onVariantInfo(event) {
@@ -190,6 +199,7 @@ export default class ClinicalReportReview extends LitElement {
 
         // reset the signature object to allow adding a new signature and request an update
         this._signature = {};
+        this._analists = this.getAnalysts(); // refresh the analysts list to disable those who have already signed
         this.requestUpdate();
 
         // force to clear the input file
@@ -200,6 +210,7 @@ export default class ClinicalReportReview extends LitElement {
 
     onSignatureRemove(signature) {
         this._report.signatures = this._report.signatures.filter(s => s !== signature);
+        this._analists = this.getAnalysts(); // refresh the analysts list to disable those who have already signed
         this.requestUpdate();
     }
 
@@ -445,9 +456,7 @@ export default class ClinicalReportReview extends LitElement {
                             field: "signature.signedBy",
                             title: "Select Analyst",
                             type: "select",
-                            allowedValues: (this.clinicalAnalysis?.analysts || []).map(analyst => ({
-                                id: analyst.id,
-                            })),
+                            allowedValues: () => this._analists,
                         },
                         {
                             id: "signature-role",
