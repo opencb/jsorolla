@@ -52,7 +52,8 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this._studyConfiguration = this.opencgaSession.study?.internal?.configuration?.clinical || {};
+            // perform a deep clone to avoid modifying the original object
+            this._studyConfiguration = UtilsNew.objectClone(this.opencgaSession.study?.internal?.configuration?.clinical || {});
         }
 
         if (changedProperties.has("displayConfig")) {
