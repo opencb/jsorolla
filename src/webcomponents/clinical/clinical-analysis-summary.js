@@ -52,7 +52,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
     }
 
     #init() {
-        this._clinicalAnalysis = {};
+        this._clinicalAnalysis = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -90,7 +90,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        this._clinicalAnalysis = {...this.clinicalAnalysis};
+        this._clinicalAnalysis = this.clinicalAnalysis;
     }
 
     render() {
@@ -119,6 +119,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                     title: "Details",
                     display: {
                         titleWidth: 3,
+                        className: "p-3 border border-1 border-gray-200 rounded-3 bg-white",
                     },
                     elements: [
                         {
@@ -143,21 +144,21 @@ export default class ClinicalAnalysisSummary extends LitElement {
                         {
                             title: "Analysis Type",
                             field: "type",
-                            display: {
-                                visible: !this._config?.hiddenFields?.includes("type"),
-                            },
                         },
                         {
                             title: "Flags",
                             field: "flags",
-                            type: "list",
+                            type: "custom",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("flags"),
-                                separator: " ",
-                                contentLayout: "horizontal",
-                                template: "${id}",
-                                className: {
-                                    "id": "badge text-bg-secondary",
+                                render: flags => {
+                                    if (!flags || flags.length === 0) {
+                                        return html`<span class="text-muted">No flags added.</span>`;
+                                    }
+                                    return html`
+                                        <div class="d-flex flex-wrap gap-2">
+                                            ${flags.map(flag => html`<span class="badge bg-primary">${flag?.id}</span>`)}
+                                        </div>
+                                    `;
                                 },
                             }
                         },
@@ -176,20 +177,25 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             }
                         },
                         {
-                            title: "Description",
-                            field: "description",
-                            display: {
-                                errorMessage: "-",
-                            },
-                        },
-                        {
                             title: "Assigned To",
                             field: "analysts",
-                            type: "list",
+                            type: "custom",
                             display: {
-                                contentLayout: "bullets",
-                                visible: !this._config?.hiddenFields?.includes("analyst.assignee") && !this._config?.hiddenFields?.includes("analyst.id"),
-                                format: analyst => analyst.id,
+                                render: analysts => {
+                                    if (!analysts || analysts.length === 0) {
+                                        return html`<span class="text-muted">No analysts assigned.</span>`;
+                                    }
+                                    return html`
+                                        <div class="d-flex flex-wrap gap-2">
+                                            ${analysts.map(analyst => html`
+                                                <span class="d-flex align-items-center gap-2 badge bg-secondary">
+                                                    <i class="fa fa-user-md"></i>
+                                                    <span>${analyst?.id}</span>
+                                                </span>
+                                            `)}
+                                        </div>
+                                    `;
+                                },
                             },
                         },
                         {
