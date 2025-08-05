@@ -318,7 +318,7 @@ export default class ClinicalReportReview extends LitElement {
                 </data-form>
             </div>
 
-            <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}ReviewInfo" style="width:680px;">
+            <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}ReviewInfo" style="width:800px;">
                 <div class="offcanvas-header p-4">
                     ${this._selectedVariant ? html`
                         <h3 class="offcanvas-title fw-bold">
