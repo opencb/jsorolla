@@ -482,7 +482,7 @@ export default class ClinicalReportReview extends LitElement {
                             display: {
                                 render: () => {
                                     return html`
-                                        <div class="d-grid">
+                                        <div class="d-flex justify-content-end">
                                             <button class="btn btn-primary d-flex gap-2 justify-content-center align-items-center" @click="${() => this.onSignatureAdd()}">
                                                 <i class="fas fa-plus"></i> <span>Save Signature</span>
                                             </button>
