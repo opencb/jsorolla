@@ -157,7 +157,7 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
                             display: {
                                 collapsedUpdate: false,
                                 maxNumItems: 10,
-                                view: status => html`<div>${status.id} - ${status?.type}</div>`,
+                                view: priority => html`<div>${priority.id}</div>`,
                             },
                             elements: [
                                 {
