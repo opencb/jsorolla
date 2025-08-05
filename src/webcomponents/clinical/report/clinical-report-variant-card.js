@@ -71,7 +71,7 @@ export default class ClinicalReportVariantCard extends LitElement {
         }
 
         return html`
-            <div class="card shadow-sm border cursor-pointer ${this.selected ? "bg-gray-100 border-primary" : "bg-white border-gray-200"}" @click="${event => this.onVariantReviewInfo(event)}">
+            <div class="card rounded-3 shadow-sm border cursor-pointer ${this.selected ? "bg-gray-100 border-primary" : "bg-white border-gray-200"}" @click="${event => this.onVariantReviewInfo(event)}">
                 <div class="card-body">
                     <data-form
                         .data="${this.variant}"
@@ -93,13 +93,13 @@ export default class ClinicalReportVariantCard extends LitElement {
                 {
                     id: "variant",
                     display: {
-                        separationClass: "mb-0",
+                        separationClassName: "mb-0",
                     },
                     elements: [
                         {
                             type: "custom",
                             display: {
-                                separationClass: "mb-2",
+                                separationClassName: "mb-2",
                                 render: data => html`
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="d-flex align-items-center">
@@ -122,7 +122,7 @@ export default class ClinicalReportVariantCard extends LitElement {
                             field: "type",
                             type: "custom",
                             display: {
-                                separationClass: "mb-1",
+                                separationClassName: "mb-1",
                                 render: type => {
                                     return UtilsNew.renderHTML(VariantGridFormatter.typeFormatter(type));
                                 },
@@ -132,7 +132,7 @@ export default class ClinicalReportVariantCard extends LitElement {
                             title: "Genes",
                             type: "custom",
                             display: {
-                                separationClass: "mb-1",
+                                separationClassName: "mb-1",
                                 render: data => {
                                     const genes = VariantUtils.getGenes(data);
                                     return (genes.slice(0, 5).join(", ") || "-") + (genes.length > 5 ? `... and ${genes.length - 5} more` : "");
@@ -144,7 +144,7 @@ export default class ClinicalReportVariantCard extends LitElement {
                             field: "annotation.displayConsequenceType",
                             type: "custom",
                             display: {
-                                separationClass: "mb-0",
+                                separationClassName: "mb-0",
                                 render: displayConsequenceType => html`
                                     <span style="color:${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[displayConsequenceType]] || "black"}">
                                         ${displayConsequenceType || "-"}

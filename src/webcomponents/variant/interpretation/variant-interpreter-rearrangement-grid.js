@@ -19,16 +19,15 @@ import UtilsNew from "../../../core/utils-new.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
-import VariantUtils from "../variant-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import WebUtils from "../../commons/utils/web-utils.js";
+import "../../clinical/variant/clinical-variant-review.js";
 import "../../commons/grid-toolbar.js";
 import "../../loading-spinner.js";
 import "./variant-interpreter-grid-config.js";
 import "./variant-interpreter-rearrangement-view.js";
-import "../review/variant-review.js";
 
 export default class VariantInterpreterRearrangementGrid extends LitElement {
 
@@ -210,7 +209,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     buttonSaveText: "Save Review",
                 },
                 render: () => html`
-                    <variant-review
+                    <clinical-variant-review
                         .opencgaSession="${this.opencgaSession}"
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .variant="${this._selectedVariants[0]}"
@@ -222,7 +221,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                             consequenceType: this._config?.consequenceType,
                         }}"
                         @variantChange="${event => this.onVariantReviewChange(event)}">
-                    </variant-review>
+                    </clinical-variant-review>
                 `,
                 onCancel: () => {
                     this.onVariantReviewCancel();

@@ -2,11 +2,10 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
-import FormUtils from "../../commons/forms/form-utils.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
 import WebUtils from "../../commons/utils/web-utils.js";
-import "../../variant/review/variant-review.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
+import "../variant/clinical-variant-review.js";
 import "./clinical-report-variant-card.js";
 import "./clinical-report-variant-info.js";
 
@@ -41,7 +40,12 @@ export default class ClinicalReportReview extends LitElement {
 
         this._clinicalAnalysisManager = null;
         this._selectedVariant = null;
+        this._selectedVariantPrimary = null;
+        this._selectedVariantChecked = null;
         this._gridCommons = new GridCommons(null, this, null);
+        this._report = null;
+        this._signature = {}; // used to save new signature data
+        this._analists = []; // used to store the analysts of the clinical analysis
 
         // initialize available modals
         this._gridCommons.registerModals({
@@ -72,7 +76,7 @@ export default class ClinicalReportReview extends LitElement {
                     buttonSaveText: "Save Review",
                 },
                 render: () => html`
-                    <variant-review
+                    <clinical-variant-review
                         .opencgaSession="${this.opencgaSession}"
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .variant="${this._selectedVariant}"
@@ -81,7 +85,7 @@ export default class ClinicalReportReview extends LitElement {
                         .reviewEvidences="${true}"
                         .settings="${{}}"
                         @variantChange="${event => this.onVariantReviewChange(event)}">
-                    </variant-review>
+                    </clinical-variant-review>
                 `,
                 onCancel: () => {
                     this.onVariantReviewCancel();
@@ -104,7 +108,18 @@ export default class ClinicalReportReview extends LitElement {
     clinicalAnalysisObserver() {
         if (this.clinicalAnalysis) {
             this._clinicalAnalysisManager = new ClinicalAnalysisManager(this, this.clinicalAnalysis, this.opencgaSession);
+            this._report = UtilsNew.objectClone(this.clinicalAnalysis.report || {}); // make sure we have a report object to work with
+            this._signature = {};
+            this._analists = this.getAnalysts(); // get the list of analysts from the clinical analysis
+            this._config = this.getDefaultConfig();
         }
+    }
+
+    getAnalysts() {
+        return (this.clinicalAnalysis?.analysts || []).map(analyst => ({
+            id: analyst.id,
+            disabled: (this._report?.signatures || []).some(signature => signature.signedBy === analyst.id),
+        }));
     }
 
     onVariantInfo(event) {
@@ -125,11 +140,15 @@ export default class ClinicalReportReview extends LitElement {
 
     onVariantReviewUpdate(event) {
         this._selectedVariant = UtilsNew.objectClone(event.detail.variant);
+        this._selectedVariantPrimary = true; // by default we only display primary findings in the review tool
+        this._selectedVariantChecked = true; // by default the variant is checked as it is a primary finding
         this._gridCommons.changeActiveModal("review-variant");
     }
 
     onVariantReviewChange(event) {
-        // TODO
+        this._selectedVariant = event.detail.variant;
+        this._selectedVariantPrimary = event.detail.primary;
+        this._selectedVariantChecked = event.detail.selected;
     }
 
     onVariantReviewCancel() {
@@ -137,16 +156,110 @@ export default class ClinicalReportReview extends LitElement {
         this._gridCommons.clearActiveModal();
     }
 
-    onVariantReviewSave(event) {
-        // TODO
+    onVariantReviewSave() {
+        // 1. get the action to perform based on the selected variant state
+        const action = this._selectedVariantChecked ? "UPDATE" : "REMOVE";
+
+        // 2. call the updateVariants method to update the variant in the interpretation
+        this._clinicalAnalysisManager.updateVariants(this._selectedVariant, this._selectedVariantPrimary, action)
+            .then(() => {
+                LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                    clinicalAnalysis: this.clinicalAnalysis,
+                });
+            });
+
+        // 3. clear selected variant to review
+        this._selectedVariant = null;
+        this._gridCommons.clearActiveModal();
+    }
+
+    onFieldChange(event) {
+        this.requestUpdate();
+    }
+
+    onSignatureImageChange(event, onFieldChange) {
+        const files = event.target.files || event.dataTransfer.files || [];
+        if (files.length === 1) {
+            UtilsNew.fileToDataURL(files[0]).then(dataUrl => {
+                onFieldChange(dataUrl);
+            });
+        }
+    }
+
+    onSignatureAdd() {
+        if (!this._report.signatures) {
+            this._report.signatures = [];
+        }
+
+        // insert the new signature into the report object
+        this._report.signatures.push({
+            ...this._signature, // copy the signature data
+            date: UtilsNew.getDatetime(),
+        });
+
+        // reset the signature object to allow adding a new signature and request an update
+        this._signature = {};
+        this._analists = this.getAnalysts(); // refresh the analysts list to disable those who have already signed
+        this.requestUpdate();
+
+        // force to clear the input file
+        this.updateComplete.then(() => {
+            this.querySelector(`input[type="file"]`).value = "";
+        });
+    }
+
+    onSignatureRemove(signature) {
+        this._report.signatures = this._report.signatures.filter(s => s !== signature);
+        this._analists = this.getAnalysts(); // refresh the analysts list to disable those who have already signed
+        this.requestUpdate();
+    }
+
+    onSubmit() {
+        const data = {
+            report: this._report,
+        };
+
+        // check if user has updated the discussion text
+        if (data.report.discussion?.text && data.report.discussion.text !== this.clinicalAnalysis.report?.discussion?.text) {
+            data.report.discussion.date = UtilsNew.getDatetime();
+            data.report.discussion.author = this.opencgaSession?.user?.id || "-";
+        }
+
+        this.opencgaSession.opencgaClient.clinical()
+            .update(this.clinicalAnalysis.id, data, {
+                includeResult: true,
+                study: this.opencgaSession.study.fqn,
+            })
+            .then(response => {
+                // dispatch the clinicalAnalysisUpdate event with the updated clinical analysis
+                LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                    clinicalAnalysis: response.responses[0].results[0],
+                });
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "Clinical report updated successfully.",
+                });
+            })
+            .catch(response => {
+                console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
     }
 
     renderReportedVariants() {
         // get only variants with status "REPORTED"
         const reportedVariants = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).filter(variant => {
-            // return variant.status.id === "REPORTED";
-            return true;
+            return variant.status === "REPORTED";
         });
+
+        if (reportedVariants.length === 0) {
+            return html`
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle pe-1"></i>
+                    <span>No variants have been reported in the primary interpretation of this clinical analysis. </span>
+                    <span>Please, go to the <b>Variant Browser</b> step to report variants.</span>
+                </div>
+            `;
+        }
 
         return html`
             <div class="gap-3" style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));">
@@ -164,6 +277,23 @@ export default class ClinicalReportReview extends LitElement {
         `;
     }
 
+    renderSignature(signature) {
+        return html`
+            <div class="d-flex align-items-center gap-5 bg-white border border-1 border-gray-200 p-3 rounded-3 position-relative">
+                <div class="flex-shrink-0" style="width:120px;">
+                    <img src="${signature.signature}" style="max-width:100%;max-height:100%;" />
+                </div>
+                <div class="flex-grow-1">
+                    <div class=""><b>Signed by:</b> ${signature.signedBy || "-"}</div>
+                    <div class=""><b>Role:</b> ${signature.role || "-"}</div>
+                </div>
+                <button class="btn btn-light d-flex position-absolute top-0 end-0 m-3" @click="${() => this.onSignatureRemove(signature)}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+    }
+
     render() {
         if (!this.opencgaSession || !this.clinicalAnalysis) {
             return nothing;
@@ -171,24 +301,29 @@ export default class ClinicalReportReview extends LitElement {
 
         return html`
             <div class="mb-5">
-                <h3 class="fw-bold mb-4">Reported Variants</h3>
+                <h2 class="fw-bold mb-4">Reported Variants</h2>
                 ${this.renderReportedVariants()}
             </div>
 
             <div class="">
-                <h3 class="fw-bold mb-4">Case Review</h3>
+                <h2 class="fw-bold mb-4">Case Review</h2>
                 <data-form
-                    .data="${this.clinicalAnalysis}"
+                    .data="${{
+                        report: this._report,
+                        signature: this._signature,
+                    }}"
                     .config="${this._config}"
                     @fieldChange="${event => this.onFieldChange(event)}"
                     @submit=${event => this.onSubmit(event)}>
                 </data-form>
             </div>
 
-            <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}ReviewInfo" style="width:600px;">
+            <div class="offcanvas offcanvas-end bg-white" id="${this._prefix}ReviewInfo" style="width:800px;">
                 <div class="offcanvas-header p-4">
                     ${this._selectedVariant ? html`
-                        <h4 class="offcanvas-title fw-bold">Variant ${this._selectedVariant?.id}</h4>
+                        <h3 class="offcanvas-title fw-bold">
+                            Variant ${this._selectedVariant?.id}
+                        </h3>
                     ` : nothing}
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
@@ -211,10 +346,11 @@ export default class ClinicalReportReview extends LitElement {
         return {
             type: "pills",
             display: {
+                pillsOrientation: "horizontal",
                 pillsLeftColumnClass: "col-md-1",
                 pillsRightColumnClass: "col-md-11",
-                buttonsVisible: false,
-                buttonOkText: "Save",
+                buttonsVisible: true,
+                buttonOkText: "Save Review",
                 buttonClearText: "",
                 defaultLayout: "vertical",
             },
@@ -230,8 +366,7 @@ export default class ClinicalReportReview extends LitElement {
                             field: "report.discussion.text",
                             defaultValue: "",
                             display: {
-                                rows: 10,
-                                // helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
+                                rows: 20,
                             },
                         },
                     ],
@@ -247,7 +382,7 @@ export default class ClinicalReportReview extends LitElement {
                             type: "input-text",
                             defaultValue: "",
                             display: {
-                                rows: 10,
+                                rows: 20,
                             },
                         },
                     ],
@@ -263,7 +398,7 @@ export default class ClinicalReportReview extends LitElement {
                             type: "input-text",
                             defaultValue: "",
                             display: {
-                                rows: 10,
+                                rows: 20,
                             },
                         },
                     ],
@@ -279,7 +414,7 @@ export default class ClinicalReportReview extends LitElement {
                             type: "input-text",
                             defaultValue: "",
                             display: {
-                                rows: 10,
+                                rows: 20,
                             },
                         },
                     ],
@@ -288,8 +423,110 @@ export default class ClinicalReportReview extends LitElement {
                     id: "signatures",
                     title: "Signatures",
                     icon: "fa-signature",
-                    display: {},
-                    elements: [],
+                    display: {
+                        className: "row",
+                        layout: [
+                            {
+                                className: "col-6",
+                                elements: [
+                                    { id: "signature-add-title" },
+                                    { id: "signature-signed-by" },
+                                    { id: "signature-role" },
+                                    { id: "signature-image" },
+                                    { id: "signature-add-button" },
+                                ],
+                            },
+                            {
+                                className: "col-6",
+                                id: "signature-list",
+                            },
+                        ],
+                    },
+                    elements: [
+                        {
+                            id: "signature-add-title",
+                            text: "Add New Signature",
+                            type: "text",
+                            display: {
+                                textClassName: "fw-bold fs-5",
+                            },
+                        },
+                        {
+                            id: "signature-signed-by",
+                            field: "signature.signedBy",
+                            title: "Select Analyst",
+                            type: "select",
+                            allowedValues: () => this._analists,
+                        },
+                        {
+                            id: "signature-role",
+                            field: "signature.role",
+                            title: "Role",
+                            type: "input-text",
+                        },
+                        {
+                            id: "signature-image",
+                            field: "signature.signature",
+                            title: "Upload the signature",
+                            type: "custom",
+                            display: {
+                                render: (signature, onFieldChange) => {
+                                    return html`
+                                        <input
+                                            type="file"
+                                            class="form-control"
+                                            accept="image/*"
+                                            @change="${event => this.onSignatureImageChange(event, onFieldChange)}"
+                                        />
+                                    `;
+                                },
+                                help: {
+                                    text: "Accepted formats: png, jpg, jpeg. Maximum size: 1MB.",
+                                },
+                            },
+                        },
+                        {
+                            id: "signature-add-button",
+                            type: "custom",
+                            display: {
+                                render: () => {
+                                    const saveDisabled = !this._signature.signedBy || !this._signature.signature;
+                                    return html`
+                                        <div class="d-flex justify-content-end">
+                                            <button class="btn btn-primary d-flex gap-2 justify-content-center align-items-center" ?disabled="${saveDisabled}" @click="${() => this.onSignatureAdd()}">
+                                                <i class="fas fa-plus"></i> <span>Save Signature</span>
+                                            </button>
+                                        </div>
+                                    `;
+                                },
+                            },
+                        },
+                        {
+                            id: "signature-list",
+                            field: "report.signatures",
+                            title: "Added Signatures",
+                            type: "custom",
+                            display: {
+                                titleClassName: "fw-bold fs-5",
+                                render: signatures => {
+                                    if (!signatures || signatures?.length === 0) {
+                                        return html`
+                                            <div class="d-flex flex-column align-items-center justify-content-center p-5 border border-1 border-gray-200 rounded-3">
+                                                <i class="fas fa-signature fs-1 mb-1"></i>
+                                                <div class="text-center fs-5 text-secondary">No signatures have been added yet.</div>
+                                            </div>
+                                        `;
+                                    }
+
+                                    return html`
+                                        <div class="d-flex flex-column gap-3">
+                                            ${signatures.map(signature => this.renderSignature(signature))}
+                                        </div>
+                                    `;
+                                },
+                            },
+                        },
+                    ],
                 },
             ],
         };

@@ -313,7 +313,7 @@ export default class DataForm extends LitElement {
     // note: this method gets the default separation class from the section or element display
     // if no separation class is defined at element or section level, it will return the default one from the global config or "mb-3"
     _getSeparationClass(element, section) {
-        return element?.display?.separationClass ?? section?.display?.separationClass ?? this.config?.display?.separationClass ?? "mb-3";
+        return element?.display?.separationClassName ?? section?.display?.separationClassName ?? this.config?.display?.separationClassName ?? "mb-3";
     }
 
     _getElementWidth(element, section) {
@@ -456,9 +456,9 @@ export default class DataForm extends LitElement {
         const style = this._parseStyleField(this.config?.display?.style);
         const layout = this.config?.display?.defaultLayout || "";
         const layoutClassName = (layout === "horizontal") ? "form-horizontal" : "";
+        const type = (this.config?.type || this.config?.display?.type || "").toUpperCase();
 
-        if (this.config?.type === "tabs" || this.config?.display?.type === "tabs" ||
-            this.config?.type === "pills" || this.config?.display?.type === "pills") {
+        if (type === "TABS" || type === "PILLS") {
             // Render all sections but display only active section
             return html`
                 <div class="${layoutClassName} ${className}" style="${style}">
@@ -2388,37 +2388,46 @@ export default class DataForm extends LitElement {
     }
 
     renderContentAsPills(dismiss) {
+        const orientation = this.config.display?.pillsOrientation || this.config.pillsOrientation || "vertical";
         const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
         const buttonsLayout = this._getButtonsLayout();
         const notificationHtml = this.getFormNotificationHtml();
 
+        // get classnames for displaying pills in vertical or horizontal orientation
+        const containerClassName = orientation === "vertical" ? "row" : "";
+        const pillsColumnClassName = orientation === "vertical" ? (this.config?.display?.pillsLeftColumnClassName || this.config?.display?.pillsLeftColumnClass || "col-md-3") : "mb-4";
+        const contentColumnClassName = orientation === "vertical" ? (this.config?.display?.pillsRightColumnClassName || this.config?.display?.pillsRightColumnClass || "col-md-9") : "";
+        const pillsClassName = orientation === "vertical" ? "flex-column gap-2" : "nav-fill";
+
+        // generate pills
+        const pills = this._getVisibleSections().map((section, index) => {
+            const active = index === this.activeSection;
+            const sectionClassName = orientation === "horizontal" ? "d-flex justify-content-center" : (section?.icon ? "d-flex flex-column" : "");
+            const iconClassName = section?.icon && orientation === "vertical" ? "fs-4" : "fs-5";
+            const titleClassName = section?.icon && orientation === "vertical" ? "fs-8" : "";
+
+            return html`
+                <a class="nav-link cursor-pointer ${sectionClassName} align-items-center gap-2 ${active ? "active" : ""}" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                    ${section.icon ? html`
+                        <i class="fas ${section.icon} lh-1 ${iconClassName}"></i>
+                    ` : nothing}
+                    <span class="fw-bold lh-1 text-center ${titleClassName}">
+                        ${section.title || section.name || ""}
+                    </span>
+                </a>
+            `;
+        });
+
         return html`
             ${notificationHtml}
             ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
-            <div class="row">
-                <div class="${this.config?.display?.pillsLeftColumnClass || "col-md-3"}">
-                    <div class="nav nav-pills flex-column">
-                        ${this._getVisibleSections().map((section, index) => {
-                            const active = index === this.activeSection;
-                            const sectionClass = section.icon ? "d-flex align-items-center flex-column gap-2 mb-2" : "";
-                            return html`
-                                <a class="nav-link cursor-pointer ${sectionClass} ${active ? "active" : ""}" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                    ${section.icon ? html`
-                                        <i class="fas lh-1 fs-4 ${section.icon}"></i>
-                                        <span class="fw-bold lh-1 fs-8 text-center">
-                                            ${section.title || section.name || ""}
-                                        </span>
-                                    ` : html`
-                                        <span class="fw-bold">
-                                            ${section.title || section.name || ""}
-                                        </span>
-                                    `}
-                                </a>
-                            `;
-                        })}
+            <div class="${containerClassName}">
+                <div class="${pillsColumnClassName}">
+                    <div class="nav nav-pills p-1 border bg-gray-100 rounded-3 ${pillsClassName}">
+                        ${pills}
                     </div>
                 </div>
-                <div class="${this.config?.display?.pillsRightColumnClass || "col-md-9"}">
+                <div class="${contentColumnClassName}">
                     ${this.renderData()}
                 </div>
             </div>

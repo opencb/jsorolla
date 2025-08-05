@@ -83,7 +83,7 @@ export default class TextFieldFilter extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("value")) {
-            this.querySelector("#" + this._prefix + "-input").value = this.value ? this.value : "";
+            this.querySelector("#" + this._prefix + "-input").value = this.value ?? "";
         }
     }
 

@@ -2,15 +2,16 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
-import VariantUtils from "../variant-utils.js";
-import ClinicalReportFormatter from "../../clinical/report/clinical-report-formatter.js";
+import VariantUtils from "../../variant/variant-utils.js";
+import ClinicalVariantUtils from "./clinical-variant-utils.js";
 import "../../commons/image-loader.js";
 import "../../commons/forms/data-form.js";
+import "../../commons/forms/tags-input.js";
 import "../../commons/filters/pubmed-search.js";
-import "../annotation/cellbase-variant-annotation-summary.js";
-import "./variant-review-evidences-grid.js";
+import "../../variant/annotation/cellbase-variant-annotation-summary.js";
+import "./clinical-variant-evidences-grid.js";
 
-export default class VariantReview extends LitElement {
+export default class ClinicalVariantReview extends LitElement {
 
     constructor() {
         super();
@@ -362,7 +363,7 @@ export default class VariantReview extends LitElement {
                         visible: () => !!this.reviewEvidences,
                     },
                     render: (variant, active) => html`
-                        <variant-review-evidences-grid
+                        <clinical-variant-evidences-grid
                             .opencgaSession="${this.opencgaSession}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .variant="${variant}"
@@ -374,7 +375,7 @@ export default class VariantReview extends LitElement {
                                 consequenceType: this.settings?.consequenceType,
                             }}"
                             @evidenceReviewChange="${event => this.onEvidenceReviewChange(event)}">
-                        </variant-review-evidences-grid>
+                        </clinical-variant-evidences-grid>
                     `,
                 },
                 {
@@ -425,7 +426,7 @@ export default class VariantReview extends LitElement {
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: true,
                                 view: reference => {
-                                    return ClinicalReportFormatter.formatReference(reference);
+                                    return ClinicalVariantUtils.formatReference(reference);
                                 },
                                 search: {
                                     title: "Search references in PubMed",
@@ -535,23 +536,9 @@ export default class VariantReview extends LitElement {
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: false,
                                 view: comment => {
-                                    const tags = UtilsNew.commaSeparatedArray(comment.tags)
-                                        .join(", ") || "-";
-
                                     return html`
-                                        <div style="margin-bottom:1rem;">
-                                            <div style="display:flex;margin-bottom:0.5rem;">
-                                                <div style="padding-right:1rem;">
-                                                    <i class="fas fa-comment-dots"></i>
-                                                </div>
-                                                <div style="font-weight:bold">
-                                                    ${comment.author || "-"} - ${UtilsNew.dateFormatter(comment.date)}
-                                                </div>
-                                            </div>
-                                            <div style="width:100%;">
-                                                <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
-                                                <div class="text-muted">Tags: ${tags}</div>
-                                            </div>
+                                        <div class="w-full mb-3">
+                                            ${ClinicalVariantUtils.formatComment(comment)}
                                         </div>
                                     `;
                                 },
@@ -569,10 +556,15 @@ export default class VariantReview extends LitElement {
                                 {
                                     title: "Tags",
                                     field: "comments[].tags",
-                                    type: "input-text",
+                                    type: "custom",
                                     display: {
-                                        placeholder: "Add tags..."
-                                    }
+                                        render: (tags, onFilterChange) => html`
+                                            <tags-input
+                                                .value="${tags || []}"
+                                                @filterChange="${event => onFilterChange(event.detail.value)}">
+                                            </tags-input>
+                                        `,
+                                    },
                                 },
                             ]
                         },
@@ -584,4 +576,4 @@ export default class VariantReview extends LitElement {
 
 }
 
-customElements.define("variant-review", VariantReview);
+customElements.define("clinical-variant-review", ClinicalVariantReview);

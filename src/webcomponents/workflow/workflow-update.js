@@ -18,6 +18,8 @@ import {html, LitElement} from "lit";
 import Types from "../commons/types.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
+import "../commons/forms/data-form.js";
+import "../commons/forms/tags-input.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class WorkflowUpdate extends LitElement {
@@ -40,9 +42,6 @@ export default class WorkflowUpdate extends LitElement {
             active: {
                 type: Boolean,
             },
-            mode: {
-                type: String
-            },
             opencgaSession: {
                 type: Object
             },
@@ -54,25 +53,14 @@ export default class WorkflowUpdate extends LitElement {
 
     #init() {
         this._workflow = {};
+        this.active = true;
         this.workflowId = "";
-        this.mode = "";
-        this.displayConfig = {
-            titleWidth: 3,
-            modalButtonClassName: "btn-primary btn-sm",
-            titleVisible: false,
-            titleAlign: "left",
-            defaultLayout: "horizontal",
-            buttonsVisible: true,
-            buttonsWidth: 8,
-            buttonsAlign: "end",
-        };
 
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -80,7 +68,6 @@ export default class WorkflowUpdate extends LitElement {
 
     onWorkflowIdObserver(e) {
         this._workflow = UtilsNew.objectClone(e.detail.value);
-        this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
@@ -90,7 +77,7 @@ export default class WorkflowUpdate extends LitElement {
                 .resource="${"WORKFLOW"}"
                 .componentId="${this.workflowId}"
                 .opencgaSession="${this.opencgaSession}"
-                .active="${this.active || true}"
+                .active="${this.active}"
                 .config="${this._config}"
                 @componentIdObserver="${e => this.onWorkflowIdObserver(e)}">
             </opencga-update>
@@ -99,8 +86,15 @@ export default class WorkflowUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            mode: this.mode,
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                titleWidth: 3,
+                titleVisible: false,
+                titleAlign: "left",
+                defaultLayout: "horizontal",
+                buttonsVisible: true,
+                buttonsAlign: "end",
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
@@ -137,12 +131,14 @@ export default class WorkflowUpdate extends LitElement {
                         {
                             title: "Tags",
                             field: "tags",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                placeholder: "Add tags...",
-                                help: {
-                                    text: "Comma-separated tags",
-                                },
+                                render: (tags, onFilterChange) => html`
+                                    <tags-input
+                                        .value="${tags || []}"
+                                        @filterChange="${e => onFilterChange(e.detail.value)}">
+                                    </tags-input>
+                                `,
                             },
                         },
                         {

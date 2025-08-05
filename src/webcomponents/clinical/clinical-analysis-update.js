@@ -19,10 +19,12 @@ import UtilsNew from "../../core/utils-new.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
+import ClinicalVariantUtils from "./variant/clinical-variant-utils.js";
 import "./clinical-analysis-comment-editor.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 import "../commons/forms/data-form.js";
+import "../commons/forms/tags-input.js";
 import "../commons/filters/disease-panel-filter.js";
 import Types from "../commons/types";
 
@@ -466,31 +468,13 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                             type: "object-list",
                             display: {
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
-                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                // collapsable: false,
-                                // maxNumItems: 5,
                                 showAddBatchListButton: false,
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: false,
                                 view: comment => {
-                                    const tags = UtilsNew.commaSeparatedArray(comment.tags)
-                                        .join(", ") || "-";
-
-                                    return html `
-                                        <div style="margin-bottom:1rem;">
-                                            <div class="d-flex mb-1">
-                                                <div class="pe-2">
-                                                    <i class="fas fa-comment-dots"></i>
-                                                </div>
-                                                <div class="fw-bold">
-                                                    ${comment.author || this.opencgaSession?.user?.id || "-"} -
-                                                    ${UtilsNew.dateFormatter(comment.date || UtilsNew.getDatetime())}
-                                                </div>
-                                            </div>
-                                            <div class="w-100">
-                                                <div class="mb-2">${comment.message || "-"}</div>
-                                                <div class="text-body-secondary">Tags: ${tags}</div>
-                                            </div>
+                                    return html`
+                                        <div class="w-full mb-3">
+                                            ${ClinicalVariantUtils.formatComment(comment)}
                                         </div>
                                     `;
                                 }
@@ -508,9 +492,14 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                 {
                                     title: "Tags",
                                     field: "comments[].tags",
-                                    type: "input-text",
+                                    type: "custom",
                                     display: {
-                                        placeholder: "Add tags..."
+                                        render: (tags, onFilterChange) => html`
+                                            <tags-input
+                                                .value="${tags || []}"
+                                                @filterChange="${event => onFilterChange(event.detail.value)}">
+                                            </tags-input>
+                                        `,
                                     }
                                 },
                             ]

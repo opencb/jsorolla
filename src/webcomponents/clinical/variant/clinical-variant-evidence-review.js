@@ -18,8 +18,10 @@ import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/filters/acmg-filter.js";
+import "../../commons/forms/data-form.js";
+import "../../commons/forms/tags-input.js";
 
-export default class ClinicalInterpretationVariantEvidenceReview extends LitElement {
+export default class ClinicalVariantEvidenceReview extends LitElement {
 
     constructor() {
         super();
@@ -143,10 +145,25 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                 buttonOkText: "Save",
                 buttonClearText: "Clear",
                 buttonOkDisabled: review => !review?.select && review?.select === this.review?.select,
+                layout: [
+                    {
+                        id: "review-select",
+                        className: "",
+                    },
+                    {
+                        id: "review-content",
+                        // className: "overflow-y-auto px-1",
+                        // style: "max-height: 400px;",
+                    },
+                ],
                 ...this.displayConfig,
             },
             sections: [
                 {
+                    id: "review-select",
+                    display: {
+                        separationClassName: "mb-0",
+                    },
                     elements: [
                         {
                             field: "select",
@@ -172,6 +189,11 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                 },
                             },
                         },
+                    ],
+                },
+                {
+                    id: "review-content",
+                    elements: [
                         {
                             title: "Clinical Significance",
                             field: "clinicalSignificance",
@@ -269,6 +291,29 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
                                 disabled: !this._review?.select,
                             },
                         },
+                        {
+                            title: "Score",
+                            field: "score",
+                            type: "input-num",
+                            display: {
+                                disabled: !this._review?.select,
+                                defaultValue: 0,
+                            },
+                        },
+                        {
+                            title: "Tags",
+                            field: "tags",
+                            type: "custom",
+                            display: {
+                                render: (tags, onFilterChange) => html`
+                                    <tags-input
+                                        .value="${tags || []}"
+                                        .disabled="${!this._review?.select}"
+                                        @filterChange="${e => onFilterChange(e.detail.value)}">
+                                    </tags-input>
+                                `,
+                            },
+                        },
                     ]
                 }
             ],
@@ -277,5 +322,5 @@ export default class ClinicalInterpretationVariantEvidenceReview extends LitElem
 
 }
 
-customElements.define("clinical-interpretation-variant-evidence-review", ClinicalInterpretationVariantEvidenceReview);
+customElements.define("clinical-variant-evidence-review", ClinicalVariantEvidenceReview);
 

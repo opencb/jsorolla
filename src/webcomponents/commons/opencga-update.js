@@ -274,14 +274,9 @@ export default class OpencgaUpdate extends LitElement {
                             //     // eslint-disable-next-line no-param-reassign
                             //     params.analyst= {id: params.analyst.id};
                             // }
+                            // we have to send only the comments that does not have an author field
                             if (params.comments) {
-                                // eslint-disable-next-line no-param-reassign
-                                params.comments = params.comments
-                                    .filter(comment => !comment.author)
-                                    .map(comment => ({
-                                        ...comment,
-                                        tags: UtilsNew.commaSeparatedArray(comment.tags)
-                                    }));
+                                params.comments = params.comments.filter(comment => !comment.author);
                             }
                         },
                     ];
@@ -326,14 +321,6 @@ export default class OpencgaUpdate extends LitElement {
                 case "WORKFLOW":
                     this.endpoint = this.opencgaSession.opencgaClient.workflows();
                     this.resourceInfoParams = {};
-                    this.updateCustomisation = [
-                        params => {
-                            if (params.tags) {
-                                // eslint-disable-next-line no-param-reassign
-                                params.tags = params.tags?.split(",") || [];
-                            }
-                        },
-                    ];
                     break;
                 case "NOTE":
                     this.endpoint = this.component?.scope === "ORGANIZATION" ?

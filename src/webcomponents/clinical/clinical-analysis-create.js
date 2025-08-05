@@ -20,7 +20,10 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import UtilsNew from "../../core/utils-new.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter";
+import ClinicalVariantUtils from "./variant/clinical-variant-utils.js";
 import "../commons/forms/data-form.js";
+import "../commons/forms/tags-input.js";
 import "../commons/forms/select-token-filter.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/catalog-search-autocomplete.js";
@@ -28,7 +31,6 @@ import "../commons/image-viewer.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 import "./filters/clinical-analyst-filter.js";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 
 export default class ClinicalAnalysisCreate extends LitElement {
 
@@ -323,15 +325,6 @@ export default class ClinicalAnalysisCreate extends LitElement {
                     return familyMember;
                 }),
             };
-        }
-
-        if (data.comments) {
-            data.comments = data.comments
-                .filter(comment => !comment.author)
-                .map(comment => ({
-                    ...comment,
-                    tags: UtilsNew.commaSeparatedArray(comment.tags),
-                }));
         }
 
         // Clear dueDate field if not provided a valid value
@@ -932,33 +925,15 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             type: "object-list",
                             display: {
                                 disabled: clinicalAnalysis => !!clinicalAnalysis?.locked,
-                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                // collapsable: false,
-                                // maxNumItems: 5,
                                 showAddBatchListButton: false,
                                 showEditItemListButton: false,
                                 showDeleteItemListButton: false,
                                 view: comment => {
-                                    const tags = UtilsNew.commaSeparatedArray(comment.tags)
-                                        .join(", ") || "-";
-
-                                    return html `
-                                    <div style="margin-bottom:1rem;">
-                                        <div style="display:flex;margin-bottom:0.5rem;">
-                                            <div style="padding-right:1rem;">
-                                                <i class="fas fa-comment-dots"></i>
-                                            </div>
-                                            <div style="font-weight:bold">
-                                                ${comment.author || this.opencgaSession?.user?.id || "-"} -
-                                                ${UtilsNew.dateFormatter(comment.date || UtilsNew.getDatetime())}
-                                            </div>
+                                    return html`
+                                        <div class="w-full mb-3">
+                                            ${ClinicalVariantUtils.formatComment(comment)}
                                         </div>
-                                        <div style="width:100%;">
-                                            <div style="margin-bottom:0.5rem;">${comment.message || "-"}</div>
-                                            <div class="text-muted">Tags: ${tags}</div>
-                                        </div>
-                                    </div>
-                                `;
+                                    `;
                                 }
                             },
                             elements: [
@@ -974,9 +949,14 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 {
                                     title: "Tags",
                                     field: "comments[].tags",
-                                    type: "input-text",
+                                    type: "custom",
                                     display: {
-                                        placeholder: "Add tags..."
+                                        render: (tags, onFilterChange) => html`
+                                            <tags-input
+                                                .value="${tags || []}"
+                                                @filterChange="${event => onFilterChange(event.detail.value)}">
+                                            </tags-input>
+                                        `,
                                     }
                                 },
                             ]

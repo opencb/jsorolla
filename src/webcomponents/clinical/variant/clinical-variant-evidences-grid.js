@@ -4,11 +4,10 @@ import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
-import VariantGridFormatter from "../variant-grid-formatter.js";
-import VariantInterpreterGridFormatter from "../interpretation/variant-interpreter-grid-formatter.js";
-import "../../clinical/interpretation/clinical-interpretation-variant-evidence-review.js";
+import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
+import "./clinical-variant-evidence-review.js";
 
-export default class VariantReviewEvidencesGrid extends LitElement {
+export default class ClinicalVariantEvidencesGrid extends LitElement {
 
     constructor() {
         super();
@@ -79,6 +78,8 @@ export default class VariantReviewEvidencesGrid extends LitElement {
     }
 
     variantObserver() {
+        this._selectedEvidence = null;
+        this._selectedEvidenceIndex = null;
         this._updatedEvidences = new Set(); // reset the updated evidences
         this._applyTranscriptFilters = true; // reset the apply transcript filters flag
         // we need to prepare evidences to be filtered properly,
@@ -353,22 +354,24 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                 </div>
                 ${this._config.review && this._selectedEvidence ? html`
                     <div class="border-start border-secondary opacity-25"></div>
-                    <div class="flex-shrink-0" style="width:400px;">
-                        <div class="d-flex flex-row align-items-center justify-content-between mb-4">
-                            <h4 class="mb-0">Evidence Review</h4>
-                        </div>    
-                        <clinical-interpretation-variant-evidence-review
-                            .opencgaSession="${this.opencgaSession}"
-                            .review="${this._selectedEvidence?.review}"
-                            .displayConfig="${{
-                                defaultLayout: "vertical",
-                                buttonClearText: "Cancel",
-                                buttonOkText: "Save Evidence",
-                            }}"
-                            @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}"
-                            @evidenceReviewSubmit="${e => this.onEvidenceReviewSave(e)}"
-                            @evidenceReviewClear="${e => this.onEvidenceReviewCancel(e)}">
-                        </clinical-interpretation-variant-evidence-review>
+                    <div class="flex-shrink-0" style="width:480px;">
+                        <div class="sticky-top">
+                            <div class="d-flex flex-row align-items-center justify-content-between mb-4">
+                                <h4 class="mb-0">Evidence Review</h4>
+                            </div>    
+                            <clinical-variant-evidence-review
+                                .opencgaSession="${this.opencgaSession}"
+                                .review="${this._selectedEvidence?.review}"
+                                .displayConfig="${{
+                                    defaultLayout: "vertical",
+                                    buttonClearText: "Cancel",
+                                    buttonOkText: "Save Evidence",
+                                }}"
+                                @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}"
+                                @evidenceReviewSubmit="${e => this.onEvidenceReviewSave(e)}"
+                                @evidenceReviewClear="${e => this.onEvidenceReviewCancel(e)}">
+                            </clinical-variant-evidence-review>
+                        </div>
                     </div>    
                 ` : nothing}
             </div>
@@ -450,11 +453,12 @@ export default class VariantReviewEvidencesGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => {
-                        const buttonColor = this._updatedEvidences.has(row.index) ? "btn-warning" : (row?.review?.select ? "btn-primary" : "btn-light");
+                        const selected = !!row?.review?.select;
+                        const buttonColor = this._updatedEvidences.has(row.index) ? "btn-warning" : (selected ? "btn-primary" : "btn-light");
                         return `
                             <button class="mx-auto btn ${buttonColor} d-flex align-items-center gap-1 ${!this._config.review || this._selectedEvidence ? "disabled" : ""}">
                                 <i class="fa fa-edit"></i>
-                                <span>Review</span>
+                                <span>${selected ? "Update" : "Review"}</span>
                             </button>
                         `;
                     },
@@ -514,4 +518,4 @@ export default class VariantReviewEvidencesGrid extends LitElement {
 
 }
 
-customElements.define("variant-review-evidences-grid", VariantReviewEvidencesGrid);
+customElements.define("clinical-variant-evidences-grid", ClinicalVariantEvidencesGrid);

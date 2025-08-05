@@ -427,7 +427,7 @@ class VariantInterpreter extends LitElement {
                     .rightContent="${this.renderToolbarRightContent()}">
                 </tool-header>
 
-                <div class="px-3 py-4">
+                <div class="py-4">
                     ${(this._config?.tools || []).map(tool => this.renderTool(tool))}
                 </div>
             </div>
