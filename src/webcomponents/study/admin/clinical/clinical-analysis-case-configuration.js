@@ -114,7 +114,6 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
                             field: "status",
                             type: "object-list",
                             display: {
-                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: false,
                                 maxNumItems: 25,
                                 view: status => html`<div>${status.id} - ${status?.type}</div>`,
@@ -156,36 +155,44 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
                             field: "priorities",
                             type: "object-list",
                             display: {
-                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 collapsedUpdate: false,
                                 maxNumItems: 10,
                                 view: status => html`<div>${status.id} - ${status?.type}</div>`,
                             },
                             elements: [
                                 {
-                                    title: "Status ID",
-                                    field: "status[].id",
+                                    title: "Priority ID",
+                                    field: "priorities[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add phenotype ID...",
+                                        placeholder: "E.g. HIGH_PRIORITY",
+                                        helpMessage: "Unique identifier for the new priority. Users can use this ID to refer to the priority in the clinical workflow.",
                                     },
                                 },
                                 {
-                                    title: "Status Type",
-                                    field: "status[].type",
-                                    type: "select",
-                                    allowedValues: ["NOT_STARTED", "ACTIVE", "DONE", "CLOSED", "INCONCLUSIVE", "REJECTED"],
+                                    title: "Priority Rank",
+                                    field: "priorities[].rank",
+                                    type: "input-num",
                                     display: {
-                                        placeholder: "Select a status..."
+                                        helpMessage: "Rank of the priority. Lower numbers indicate higher priority. For example, 1 is the highest priority, so it should be used for urgent cases.",
+                                    },
+                                },
+                                {
+                                    title: "Use as default priority",
+                                    field: "priorities[].defaultPriority",
+                                    type: "toggle-switch",
+                                    display: {
+                                        helpMessage: "If enabled, this priority will be used as the default priority for new clinical analyses. Only one priority can be set as default.",
                                     },
                                 },
                                 {
                                     title: "Description",
-                                    field: "status[].description",
+                                    field: "priorities[].description",
                                     type: "input-text",
                                     display: {
                                         rows: 2,
-                                        placeholder: "Add a description..."
+                                        placeholder: "Add a description...",
+                                        helpMessage: "Provide a brief description of the priority. This will help users understand the purpose of this priority in the clinical workflow.",
                                     },
                                 },
                             ],
