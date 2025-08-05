@@ -63,6 +63,11 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
         super.update(changedProperties);
     }
 
+    onFieldChange() {
+        this._studyConfiguration = {...this._studyConfiguration};
+        this.requestUpdate();
+    }
+
     onSubmit() {
         // this.opencgaSession.opencgaClient.clinical()
         //     .updateClinicalConfiguration(this._toolParams.body, params)
@@ -85,6 +90,7 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
             <data-form
                 .data="${this._studyConfiguration}"
                 .config="${this._config}"
+                @fieldChange="${event => this.onFieldChange(event)}"
                 @submit="${event => this.onSubmit(event)}">
             </data-form>
         `;
@@ -119,7 +125,8 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
                                     field: "status[].id",
                                     type: "input-text",
                                     display: {
-                                        placeholder: "Add phenotype ID...",
+                                        placeholder: "E.g. PENDING_REVIEW",
+                                        helpMessage: "Unique identifier for the new status. Users can use this ID to refer to the status in the clinical workflow.",
                                     },
                                 },
                                 {
@@ -128,7 +135,8 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
                                     type: "select",
                                     allowedValues: ["NOT_STARTED", "ACTIVE", "DONE", "CLOSED", "INCONCLUSIVE", "REJECTED"],
                                     display: {
-                                        placeholder: "Select a status..."
+                                        placeholder: "Select a status type",
+                                        helpMessage: "Select a type of status from the list. This will determine how the status is interpreted in the clinical workflow.",
                                     },
                                 },
                                 {
@@ -137,7 +145,8 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         rows: 2,
-                                        placeholder: "Add a description..."
+                                        placeholder: "Add a description for this status...",
+                                        helpMessage: "Provide a brief description of the status. This will help users understand the purpose of this status in the clinical workflow.",
                                     },
                                 },
                             ],
