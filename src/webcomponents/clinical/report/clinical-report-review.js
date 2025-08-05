@@ -481,9 +481,10 @@ export default class ClinicalReportReview extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => {
+                                    const saveDisabled = !this._signature.signedBy || !this._signature.signature;
                                     return html`
                                         <div class="d-flex justify-content-end">
-                                            <button class="btn btn-primary d-flex gap-2 justify-content-center align-items-center" @click="${() => this.onSignatureAdd()}">
+                                            <button class="btn btn-primary d-flex gap-2 justify-content-center align-items-center" ?disabled="${saveDisabled}" @click="${() => this.onSignatureAdd()}">
                                                 <i class="fas fa-plus"></i> <span>Save Signature</span>
                                             </button>
                                         </div>
