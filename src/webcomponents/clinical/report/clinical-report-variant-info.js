@@ -88,7 +88,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                 },
                 ...evidences.map(evidence => ({
                     display: {
-                        className: "border border-1 gorder-gray-200 rounded-2 p-3",
+                        className: "border border-1 gorder-gray-200 rounded-3 p-3",
                         defaultLayout: "horizontal",
                     },
                     elements: [
@@ -300,8 +300,8 @@ export default class ClinicalReportVariantInfo extends LitElement {
                                     return html`
                                         <div class="row">
                                             ${images.map(image => html`
-                                                <div class="col-6">
-                                                    <div class="d-flex align-items-center justify-content-center p-3 bg-white rounded-2 border" style="height:160px;">
+                                                <div class="col-6 mb-4">
+                                                    <div class="d-flex align-items-center justify-content-center p-3 bg-white rounded-3 border" style="height:160px;">
                                                         <img src="${image}" style="max-width:100%;max-height:100%;" />
                                                     </div>
                                                 </div>
@@ -331,10 +331,8 @@ export default class ClinicalReportVariantInfo extends LitElement {
                                     return html`
                                         <div class="d-flex flex-column gap-2">
                                             ${comments.map(comment => html`
-                                                <div class="card border border-1 border-gray-200 bg-white">
-                                                    <div class="card-body">
-                                                        ${ClinicalVariantUtils.formatComment(comment)}
-                                                    </div>
+                                                <div class="p-3 border border-1 border-gray-200 rounded-3">
+                                                    ${ClinicalVariantUtils.formatComment(comment)}
                                                 </div>
                                             `)}
                                         </div>
