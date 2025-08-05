@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../../core/utils-new.js";
 import NotificationUtils from "../../../commons/utils/notification-utils.js";
 import LitUtils from "../../../commons/utils/lit-utils.js";
 import "../../../commons/forms/data-form.js";
 import "../../../commons/filters/catalog-search-autocomplete.js";
 import "../../../commons/filters/consequence-type-select-filter.js";
-import Types from "../../../commons/types";
 
 export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
 
@@ -47,62 +46,54 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
     }
 
     #init() {
-        this.displayConfig = {};
-
+        this._studyConfiguration = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
+            this._studyConfiguration = this.opencgaSession.study?.internal?.configuration?.clinical || {};
         }
+
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
-    opencgaSessionObserver() {
-        this.studyConfiguration = this.opencgaSession.study?.internal?.configuration?.clinical || {};
-        this._config = this.getDefaultConfig();
-        // this.requestUpdate();
-    }
-    //
-    // onComponentIdObserver(e) {
-    //     this._individual = UtilsNew.objectClone(e.detail.value);
-    //     this._config = this.getDefaultConfig();
-    //     this.requestUpdate();
-    // }
-
     onSubmit() {
-        debugger
-        this.opencgaSession.opencgaClient.clinical()
-            .updateClinicalConfiguration(this._toolParams.body, params)
-            .then(() => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: `${this.TITLE} Update`,
-                    message: `${this.TITLE} has been successfully updated`,
-                });
-                // If the configuration has been updated, dispatch a study update request
-                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", UtilsNew.objectClone(this._toolParams.study));
-            });
+        // this.opencgaSession.opencgaClient.clinical()
+        //     .updateClinicalConfiguration(this._toolParams.body, params)
+        //     .then(() => {
+        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+        //             title: `${this.TITLE} Update`,
+        //             message: `${this.TITLE} has been successfully updated`,
+        //         });
+        //         // If the configuration has been updated, dispatch a study update request
+        //         LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", UtilsNew.objectClone(this._toolParams.study));
+        //     });
     }
 
     render() {
+        if (!this.opencgaSession || !this.opencgaSession.study) {
+            return nothing;
+        }
+
         return html`
             <data-form
-                .data="${this.studyConfiguration}"
+                .data="${this._studyConfiguration}"
                 .config="${this._config}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                @submit="${event => this.onSubmit(event)}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
         return {
-            display: this.displayConfig,
+            display: {
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "Clinical Analysis Configuration",
