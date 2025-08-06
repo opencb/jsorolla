@@ -1779,8 +1779,10 @@ export default class DataForm extends LitElement {
                                             </div>
                                         </div>
                                         <div id="${element?.field}_${index}" class="mt-3 ps-3 border-start border-2 d-${index === this.editOpen ? "block" : "none"}">
-                                            ${this._createObjectElement(_element)}
-                                            <div class="d-flex flex-row-reverse mt-2">
+                                            <div class="mb-2">
+                                                ${this._createObjectElement(_element)}
+                                            </div>
+                                            <div class="d-flex flex-row-reverse">
                                                 <button class="btn btn-light d-flex align-items-center gap-2" @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
                                                     <span>Close Edition</span>
                                                 </button>
