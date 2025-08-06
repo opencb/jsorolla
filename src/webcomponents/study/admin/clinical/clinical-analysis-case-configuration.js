@@ -117,7 +117,12 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
                                 collapsedUpdate: false,
                                 itemAddText: "Add Status",
                                 maxNumItems: 25,
-                                view: status => html`<div>${status.id} - ${status?.type}</div>`,
+                                view: status => html`
+                                    <div class="d-flex flex-row align-items-center gap-2">
+                                        <span class="fw-bold">${status.id}</span>
+                                        <span class="badge bg-secondary">${status?.type}</span>
+                                    </div>
+                                `,
                             },
                             elements: [
                                 {
