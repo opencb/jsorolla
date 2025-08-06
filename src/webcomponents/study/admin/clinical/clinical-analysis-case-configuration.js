@@ -69,16 +69,22 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
     }
 
     onSubmit() {
-        // this.opencgaSession.opencgaClient.clinical()
-        //     .updateClinicalConfiguration(this._toolParams.body, params)
-        //     .then(() => {
-        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-        //             title: `${this.TITLE} Update`,
-        //             message: `${this.TITLE} has been successfully updated`,
-        //         });
-        //         // If the configuration has been updated, dispatch a study update request
-        //         LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", UtilsNew.objectClone(this._toolParams.study));
-        //     });
+        this.opencgaSession.opencgaClient.clinical()
+            .updateClinicalConfiguration(this._studyConfiguration, {
+                study: this.opencgaSession.study.fqn,
+            })
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `The Case configuration of study ${this.opencgaSession.study.name || this.opencgaSession.study.fqn} has been successfully updated`,
+                });
+
+                // If the configuration has been updated, dispatch a study update request
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest");
+            })
+            .catch(response => {
+                console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
     }
 
     render() {
