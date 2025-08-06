@@ -1759,19 +1759,19 @@ export default class DataForm extends LitElement {
                                 return html`
                                     <div class="list-group-item bg-white p-3">
                                         <div class="d-flex flex-row justify-content-between align-items-stretch">
-                                            <div>
+                                            <div class="d-flex flex-column justify-content-center">
                                                 ${element.display.view(item)}
                                             </div>
-                                            <div>
+                                            <div class="d-flex flex-row align-items-center gap-1">
                                                 ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
-                                                    <button type="button" title="Edit item" class="btn btn-sm btn-primary"
+                                                    <button title="Edit" class="btn btn-light"
                                                             ?disabled="${isDisabled}"
                                                             @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
-                                                        <i class="fas fa-edit"></i>
+                                                        <i class="fas fa-pen"></i>
                                                     </button>
                                                 ` : nothing}
                                                 ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
-                                                    <button type="button" title="Remove item from list" class="btn btn-sm btn-danger"
+                                                    <button title="Remove" class="btn btn-light"
                                                             ?disabled="${isDisabled}"
                                                             @click="${e => this.#removeFromObjectList(e, item, index, element)}">
                                                         <i class="fas fa-trash-alt"></i>
