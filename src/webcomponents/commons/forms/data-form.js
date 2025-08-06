@@ -1723,8 +1723,7 @@ export default class DataForm extends LitElement {
                         ` : nothing}
 
                         <div class="list-group">
-                        ${items?.slice(0, maxNumItems)
-                            .map((item, index) => {
+                            ${items?.slice(0, maxNumItems).map((item, index) => {
                                 const _element = JSON.parse(JSON.stringify(element));
                                 // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
                                 // items have a virtual element associated, this will allow to get the proper value later.
@@ -1789,8 +1788,8 @@ export default class DataForm extends LitElement {
                                         </div>
                                     </div>
                                 `;
-                            })
-                        }
+                            })}
+                        </div>
                     </div>
 
                     ${element.display.collapsed && items?.length > 0 ? html`
