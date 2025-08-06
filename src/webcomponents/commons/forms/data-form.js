@@ -1722,6 +1722,7 @@ export default class DataForm extends LitElement {
                             </div>
                         ` : nothing}
 
+                        <div class="list-group">
                         ${items?.slice(0, maxNumItems)
                             .map((item, index) => {
                                 const _element = JSON.parse(JSON.stringify(element));
@@ -1756,37 +1757,36 @@ export default class DataForm extends LitElement {
                                     }
                                 }
                                 return html`
-                                    <!--VIEW-->
-                                    <div class="d-flex justify-content-between mb-1">
-                                        <div>
-                                            ${element.display.view(item)}
+                                    <div class="list-group-item bg-white p-3">
+                                        <div class="d-flex flex-row justify-content-between align-items-stretch">
+                                            <div>
+                                                ${element.display.view(item)}
+                                            </div>
+                                            <div>
+                                                ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
+                                                    <button type="button" title="Edit item" class="btn btn-sm btn-primary"
+                                                            ?disabled="${isDisabled}"
+                                                            @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                ` : nothing}
+                                                ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
+                                                    <button type="button" title="Remove item from list" class="btn btn-sm btn-danger"
+                                                            ?disabled="${isDisabled}"
+                                                            @click="${e => this.#removeFromObjectList(e, item, index, element)}">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                ` : nothing}
+                                            </div>
                                         </div>
-                                        <div>
-                                            ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
-                                                <button type="button" title="Edit item" class="btn btn-sm btn-primary"
-                                                        ?disabled="${isDisabled}"
+                                        <div id="${element?.field}_${index}" class="ps-3 border-start border-2 d-${index === this.editOpen ? "block" : "none"}">
+                                            ${this._createObjectElement(_element)}
+                                            <div class="d-flex flex-row-reverse mb-1">
+                                                <button type="button" class="btn btn-sm btn-primary"
                                                         @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
-                                                    <i aria-hidden="true" class="fas fa-edit"></i>
+                                                    Close
                                                 </button>
-                                            ` : nothing}
-                                            ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
-                                                <button type="button" title="Remove item from list" class="btn btn-sm btn-danger"
-                                                        ?disabled="${isDisabled}"
-                                                        @click="${e => this.#removeFromObjectList(e, item, index, element)}">
-                                                    <i aria-hidden="true" class="fas fa-trash-alt"></i>
-                                                </button>
-                                            ` : nothing}
-                                        </div>
-                                    </div>
-                                    <!--FORM-->
-                                    <div id="${element?.field}_${index}"
-                                         class="ms-2 ps-3 border-start border-2 border-new d-${index === this.editOpen ? "block" : "none"}">
-                                        ${this._createObjectElement(_element)}
-                                        <div class="d-flex flex-row-reverse mb-1">
-                                            <button type="button" class="btn btn-sm btn-primary"
-                                                    @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
-                                                Close
-                                            </button>
+                                            </div>
                                         </div>
                                     </div>
                                 `;
