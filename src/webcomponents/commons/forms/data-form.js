@@ -1824,11 +1824,9 @@ export default class DataForm extends LitElement {
                     </div>
                     <div class="">
                         ${this._getBooleanValue(element.display.showAddItemListButton, true) ? html`
-                            <button class="btn btn-light"
-                                    ?disabled="${isDisabled}"
-                                    @click="${e => this.#addToObjectList(e, element)}">
+                            <button class="btn btn-light" ?disabled="${isDisabled}" @click="${e => this.#addToObjectList(e, element)}">
                                 <i class="fas fa-plus pe-1"></i>
-                                ${element.display?.itemAddText || "Add Item"}
+                                <span>${element.display?.itemAddText || "Add Item"}</span>
                             </button>
                         `: nothing}
                         ${this._getBooleanValue(element.display.showAddBatchListButton, false) ? html`
@@ -1840,11 +1838,9 @@ export default class DataForm extends LitElement {
                             </button>
                         `: nothing}
                         ${this._getBooleanValue(element.display.showResetListButton, false) ? html`
-                            <button type="button" class="btn btn-sm btn-primary" title="Discard changes in this list"
-                                    ?disabled="${isDisabled}"
-                                    @click="${e => this.#resetObjectList(e, element)}">
-                                <i aria-hidden="true" class="fas fa-undo pe-1"></i>
-                                Reset
+                            <button class="btn btn-light" ?disabled="${isDisabled}" @click="${e => this.#resetObjectList(e, element)}">
+                                <i class="fas fa-undo pe-1"></i>
+                                <span>${element.display?.itemResetText || "Reset"}</span>
                             </button>
                         `: nothing}
                     </div>
