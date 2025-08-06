@@ -288,7 +288,7 @@ export default class ClinicalReportReview extends LitElement {
                     <div class=""><b>Role:</b> ${signature.role || "-"}</div>
                 </div>
                 <button class="btn btn-light d-flex position-absolute top-0 end-0 m-3" @click="${() => this.onSignatureRemove(signature)}">
-                    <i class="fas fa-trash"></i>
+                    <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
         `;
