@@ -22,7 +22,7 @@ import "../../../commons/forms/data-form.js";
 import "../../../commons/filters/catalog-search-autocomplete.js";
 import "../../../commons/filters/consequence-type-select-filter.js";
 
-export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
+export default class ClinicalAnalysisCaseConfiguration extends LitElement {
 
     constructor() {
         super();
@@ -106,7 +106,7 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
         return {
             display: {
                 buttonsVisible: true,
-                buttonOkText: "Save Configuration",
+                buttonOkText: "Save Case Configuration",
                 buttonClearText: "",
                 defaultLayout: "horizontal",
                 ...this.displayConfig,
@@ -219,4 +219,4 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
 
 }
 
-customElements.define("clinical-analysis-case-configuration", ClinicalAnalysisConfigurationUpdate);
+customElements.define("clinical-analysis-case-configuration", ClinicalAnalysisCaseConfiguration);
