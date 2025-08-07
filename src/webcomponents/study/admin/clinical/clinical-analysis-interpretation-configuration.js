@@ -19,8 +19,6 @@ import UtilsNew from "../../../../core/utils-new.js";
 import NotificationUtils from "../../../commons/utils/notification-utils.js";
 import LitUtils from "../../../commons/utils/lit-utils.js";
 import "../../../commons/forms/data-form.js";
-import "../../../commons/filters/catalog-search-autocomplete.js";
-import "../../../commons/filters/consequence-type-select-filter.js";
 
 export default class ClinicalAnalysisInterpretationConfiguration extends LitElement {
 
