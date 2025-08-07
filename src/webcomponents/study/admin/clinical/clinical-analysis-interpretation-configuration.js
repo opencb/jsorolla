@@ -136,7 +136,7 @@ export default class ClinicalAnalysisInterpretationConfiguration extends LitElem
                             elements: [
                                 {
                                     title: "Status ID",
-                                    field: "status[].id",
+                                    field: "interpretation.status[].id",
                                     type: "input-text",
                                     display: {
                                         placeholder: "E.g. PENDING_REVIEW",
@@ -145,7 +145,7 @@ export default class ClinicalAnalysisInterpretationConfiguration extends LitElem
                                 },
                                 {
                                     title: "Status Type",
-                                    field: "status[].type",
+                                    field: "interpretation.status[].type",
                                     type: "select",
                                     allowedValues: ["NOT_STARTED", "ACTIVE", "DONE", "CLOSED", "INCONCLUSIVE", "REJECTED"],
                                     display: {
@@ -155,7 +155,7 @@ export default class ClinicalAnalysisInterpretationConfiguration extends LitElem
                                 },
                                 {
                                     title: "Description",
-                                    field: "status[].description",
+                                    field: "interpretation.status[].description",
                                     type: "input-text",
                                     display: {
                                         rows: 2,
