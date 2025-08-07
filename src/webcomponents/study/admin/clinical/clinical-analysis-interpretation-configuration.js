@@ -62,6 +62,16 @@ export default class ClinicalAnalysisInterpretationConfiguration extends LitElem
         super.update(changedProperties);
     }
 
+    onFieldChange(event) {
+        // only perform the update if the field is related to the interpretation status and we are adding or removing an item
+        if (event.detail?.param.startsWith("interpretation.status[]")) {
+            if (event.detail?.action === "ADD" || event.detail?.action === "REMOVE") {
+                this._studyConfiguration = {...this._studyConfiguration};
+                this.requestUpdate();
+            }
+        }
+    }
+
     onSubmit() {
         this.opencgaSession.opencgaClient.clinical()
             .updateClinicalConfiguration(this._studyConfiguration, {
@@ -69,11 +79,14 @@ export default class ClinicalAnalysisInterpretationConfiguration extends LitElem
             })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: `${this.TITLE} Update`,
-                    message: `${this.TITLE} has been successfully updated`,
+                    message: `The Interpretation configuration of study ${this.opencgaSession.study.name || this.opencgaSession.study.fqn} has been successfully updated`,
                 });
                 // If the configuration has been updated, dispatch a study update request
-                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", UtilsNew.objectClone(this._toolParams.study));
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest");
+            })
+            .catch(response => {
+                console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }
 
@@ -86,7 +99,8 @@ export default class ClinicalAnalysisInterpretationConfiguration extends LitElem
             <data-form
                 .data="${this._studyConfiguration}"
                 .config="${this._config}"
-                @submit="${this.onSubmit}">
+                @fieldChange="${event => this.onFieldChange(event)}"
+                @submit="${event => this.onSubmit(event)}">
             </data-form>
         `;
     }
