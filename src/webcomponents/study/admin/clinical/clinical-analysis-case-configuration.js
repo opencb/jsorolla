@@ -123,8 +123,8 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                                 maxNumItems: 25,
                                 view: status => html`
                                     <div class="d-flex flex-row align-items-center gap-2">
-                                        <span class="fw-bold">${status.id}</span>
-                                        <span class="badge bg-secondary">${status?.type}</span>
+                                        <span class="fw-bold">${status.id || ""}</span>
+                                        <span class="badge bg-secondary">${status.type}</span>
                                     </div>
                                 `,
                             },
@@ -170,7 +170,7 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                                 maxNumItems: 10,
                                 view: priority => html`
                                     <div class="d-flex flex-row align-items-center gap-2">
-                                        <span class="fw-bold">${priority.id}</span>
+                                        <span class="fw-bold">${priority.id || ""}</span>
                                         ${priority?.rank ? html`<span>(rank: ${priority.rank})</span>` : nothing}
                                         ${priority?.defaultPriority ? html`<span class="badge bg-primary">DEFAULT</span>` : nothing}
                                     </div>
@@ -244,6 +244,51 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                                         rows: 2,
                                         placeholder: "Add a description for this flag...",
                                         helpMessage: "Provide a brief description of the flag.",
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            title: "Tiers",
+                            field: "tiers",
+                            type: "object-list",
+                            display: {
+                                collapsedUpdate: false,
+                                itemAddText: "Add Tier",
+                                maxNumItems: 10,
+                                view: tier => html`
+                                    <div class="d-flex flex-row align-items-center gap-2">
+                                        <span class="fw-bold">${tier.id || ""}</span>
+                                        ${tier?.rank ? html`<span>(rank: ${tier.rank})</span>` : nothing}
+                                    </div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Tier ID",
+                                    field: "tiers[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "E.g. TIER_1",
+                                        helpMessage: "Unique identifier for the new tier. Users can use this ID to refer to the tier when reviewing evidences in the case interpreter.",
+                                    },
+                                },
+                                {
+                                    title: "Tier Rank",
+                                    field: "tiers[].rank",
+                                    type: "input-num",
+                                    display: {
+                                        helpMessage: "Rank of the tier. Lower numbers indicate higher tier. For example, 1 is the highest tier.",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "tiers[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description for this tier...",
+                                        helpMessage: "Provide a brief description of the tier.",
                                     },
                                 },
                             ],
