@@ -78,7 +78,7 @@ export default class StudyAdmin extends LitElement {
         return {
             name: "Study Admin",
             display: {
-                menuStyle: "width:240px;",
+                menuStyle: "width:280px;",
             },
             menu: [
                 {
