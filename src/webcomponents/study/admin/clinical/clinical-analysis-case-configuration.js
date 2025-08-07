@@ -116,7 +116,7 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                     title: "Clinical Case Configuration",
                     elements: [
                         {
-                            title: "Status",
+                            title: "Case Status",
                             field: "status",
                             type: "object-list",
                             display: {
@@ -163,7 +163,7 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                             ],
                         },
                         {
-                            title: "Priorities",
+                            title: "Case Priorities",
                             field: "priorities",
                             type: "object-list",
                             display: {
