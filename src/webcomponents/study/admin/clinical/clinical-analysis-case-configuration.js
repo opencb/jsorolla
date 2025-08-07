@@ -173,7 +173,7 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                                 view: priority => html`
                                     <div class="d-flex flex-row align-items-center gap-2">
                                         <span class="fw-bold">${priority.id}</span>
-                                        ${priotiry?.rank ? html`<span>(rank: ${priority.rank})</span>` : nothing}
+                                        ${priority?.rank ? html`<span>(rank: ${priority.rank})</span>` : nothing}
                                         ${priority?.defaultPriority ? html`<span class="badge bg-primary">DEFAULT</span>` : nothing}
                                     </div>
                                 `,
