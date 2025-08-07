@@ -106,14 +106,14 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
         return {
             display: {
                 buttonsVisible: true,
-                buttonOkText: "Save Case Configuration",
+                buttonOkText: "Save Interpretation Configuration",
                 buttonClearText: "",
                 defaultLayout: "horizontal",
                 ...this.displayConfig,
             },
             sections: [
                 {
-                    title: "Clinical Analysis Configuration",
+                    title: "Clinical Case Configuration",
                     elements: [
                         {
                             title: "Status",
