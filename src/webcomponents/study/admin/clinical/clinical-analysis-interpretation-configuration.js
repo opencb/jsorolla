@@ -119,7 +119,7 @@ export default class ClinicalAnalysisInterpretationConfiguration extends LitElem
                     title: "Clinical Interpretation Configuration",
                     elements: [
                         {
-                            title: "Status",
+                            title: "Interpretation Status",
                             field: "interpretation.status",
                             type: "object-list",
                             display: {
