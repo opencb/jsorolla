@@ -156,6 +156,11 @@ export default class ClinicalAnalysisInterpretationConfiguration extends LitElem
                             field: "interpretation.variantCallers",
                             type: "json-editor",
                         },
+                        {
+                            title: "Inclusion",
+                            field: "interpretation.inclusion",
+                            type: "json-editor",
+                        },
                     ],
                 },
             ],
