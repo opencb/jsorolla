@@ -1497,7 +1497,7 @@ export default class DataForm extends LitElement {
             readOnly: this._getBooleanValue(element.display?.readOnly, false),
             showDownloadButton: this._getBooleanValue(element.display?.showDownloadButton, false),
         };
-        const jsonParsed = (UtilsNew.isObject(json) || UtilsNew.isEmpty(json)) ? json : JSON.parse(json);
+        const jsonParsed = typeof json === "object" ? json : JSON.parse(json || "{}");
         const content = html`
             <json-editor
                 .data="${jsonParsed}"
