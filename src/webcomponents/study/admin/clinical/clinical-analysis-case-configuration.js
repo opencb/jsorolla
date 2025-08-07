@@ -216,12 +216,44 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                                 },
                             ],
                         },
+                        {
+                            title: "Case Flags",
+                            field: "flags",
+                            type: "object-list",
+                            display: {
+                                collapsedUpdate: false,
+                                itemAddText: "Add Flag",
+                                view: flag => html`
+                                    <span class="fw-bold">${flag.id || ""}</span>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Flag ID",
+                                    field: "flags[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "E.g. HIGH_RISK",
+                                        helpMessage: "Unique identifier for the new flag.",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "flags[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description for this flag...",
+                                        helpMessage: "Provide a brief description of the flag.",
+                                    },
+                                },
+                            ],
+                        },
                     ],
                 },
             ],
         };
     }
-
 
 }
 
