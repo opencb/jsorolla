@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../../core/utils-new.js";
 import NotificationUtils from "../../../commons/utils/notification-utils.js";
 import LitUtils from "../../../commons/utils/lit-utils.js";
@@ -22,7 +22,7 @@ import "../../../commons/forms/data-form.js";
 import "../../../commons/filters/catalog-search-autocomplete.js";
 import "../../../commons/filters/consequence-type-select-filter.js";
 
-export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
+export default class ClinicalAnalysisInterpretationConfiguration extends LitElement {
 
     constructor() {
         super();
@@ -39,96 +39,34 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            toolParams: {
+            displayConfig: {
                 type: Object,
-            },
-            title: {
-                type: String,
             },
         };
     }
 
     #init() {
-        this.TOOL = "ClinicalAnalysisConfigurationOperation";
-        this.TITLE = "Clinical Analysis Configuration Operation";
-        this.DESCRIPTION = "Executes a variant secondary sample index configure operation job";
-
-        this.studyId = "";
-        this.study = {};
-        this.studyConfiguration = {};
-        this.DEFAULT_TOOLPARAMS = {};
-        this._toolParams = {};
-        this.displayConfigDefault = {
-            buttonsLayout: "top",
-        };
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("toolParams") || changedProperties.has("opencgaSession")) {
-            // Note: 'study' is the id of the study, not the object.
-            // It is named 'study' for consistency with the endpoint query param
-            if (this.toolParams?.study && this.toolParams.study !== this._toolParams?.study) {
-                this.studyId = this.toolParams.study;
-                this.studyIdObserver();
-            } else {
-                this.#initToolParams();
-            }
+        if (changedProperties.has("opencgaSession")) {
+            // perform a deep clone to avoid modifying the original object
+            this._studyConfiguration = UtilsNew.objectClone(this.opencgaSession.study?.internal?.configuration?.clinical || {});
+        }
+
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
     }
 
-    studyIdObserver() {
-        if (this.studyId && this.opencgaSession) {
-            this.opencgaSession.opencgaClient.studies()
-                .info(this.studyId)
-                .then(response => {
-                    this.study = response.responses[0].results[0];
-                    this.#initToolParams();
-                    this.requestUpdate();
-                })
-                .catch(reason => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
-                });
-        }
-    }
-
-    #initToolParams() {
-        this.studyConfiguration = this.study?.internal?.configuration?.clinical || this.opencgaSession.study?.internal?.configuration?.clinical || {};
-        this._toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            ...this.toolParams,
-            study: this.study?.fqn || this.opencgaSession.study.fqn,
-            body: UtilsNew.objectClone(this.studyConfiguration),
-        };
-        this.config = this.getDefaultConfig();
-    }
-
-    onStudyChange(e) {
-        this.studyId = e.detail.value;
-        this.studyIdObserver();
-    }
-
-    check() {
-        if (!this._toolParams?.study) {
-            return {
-                message: "Study is a mandatory parameter, please select one."
-            };
-        }
-        return null;
-    }
-
-    onClear() {
-        this.#initToolParams();
-        this.requestUpdate();
-    }
-
     onSubmit() {
-        const params = {
-            study: this._toolParams.study,
-        };
         this.opencgaSession.opencgaClient.clinical()
-            .updateClinicalConfiguration(this._toolParams.body, params)
+            .updateClinicalConfiguration(this._studyConfiguration, {
+                study: this.opencgaSession.study.fqn,
+            })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: `${this.TITLE} Update`,
@@ -140,81 +78,86 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
     }
 
     render() {
-        if (this._toolParams.body) {
-            return html`
-                <data-form
-                    .data="${this._toolParams}"
-                    .config="${this.config}"
-                    @clear="${this.onClear}"
-                    @submit="${this.onSubmit}">
-                </data-form>
-            `;
+        if (!this.opencgaSession || !this.opencgaSession.study) {
+            return nothing;
         }
+
+        return html`
+            <data-form
+                .data="${this._studyConfiguration}"
+                .config="${this._config}"
+                @submit="${this.onSubmit}">
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
-        const sections = [
-            {
-                title: "Study Filter",
-                elements: [
-                    {
-                        title: "Study",
-                        field: "study",
-                        type: "custom",
-                        required: true,
-                        display: {
-                            render: study => {
-                                // CAUTION 20240901 Vero: refactor this to use this.allowedValues. Otherwise,
-                                //  if enabled, it will only display the studies within the current project.
-                                //  Disabled for now for consistency with the rest of study admin operations.
-                                return html`
-                                    <catalog-search-autocomplete
-                                        .value="${study}"
-                                        .resource="${"STUDY"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false, disabled: !!this.study}}"
-                                        @filterChange="${e => this.onStudyChange(e, "study")}">
-                                    </catalog-search-autocomplete>
-                                `;
-                            }
-                        },
-                    }
-                ],
-            },
-            {
-                title: "Configuration Parameters",
-                elements: [
-                    {
-                        title: "Clinical Analysis Configuration",
-                        field: "body",
-                        type: "custom",
-                        display: {
-                            render: (body, dataFormFilterChange) => {
-                                return html `
-                                    <json-editor
-                                        .data="${body}"
-                                        @fieldChange="${e => dataFormFilterChange(e.detail.value.json)}">
-                                    </json-editor>
-                                `;
-                            }
-                        }
-                    },
-                ],
-            }
-        ];
-
         return {
-            title: this.title ?? this.TITLE,
-            description: this.DESCRIPTION,
-            display: this.displayConfig || this.displayConfigDefault,
-            buttons: {
-                clearText: "Discard Changes",
-                okText: "Update",
+            display: {
+                buttonsVisible: true,
+                buttonOkText: "Save Interpretation Configuration",
+                buttonClearText: "",
+                defaultLayout: "horizontal",
+                ...this.displayConfig,
             },
-            sections: sections,
+            sections: [
+                {
+                    title: "Clinical Interpretation Configuration",
+                    elements: [
+                        {
+                            title: "Status",
+                            field: "interpretation.status",
+                            type: "object-list",
+                            display: {
+                                collapsedUpdate: false,
+                                itemAddText: "Add Status",
+                                maxNumItems: 25,
+                                view: status => html`
+                                    <div class="d-flex flex-row align-items-center gap-2">
+                                        <span class="fw-bold">${status.id}</span>
+                                        <span class="badge bg-secondary">${status?.type}</span>
+                                    </div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Status ID",
+                                    field: "status[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "E.g. PENDING_REVIEW",
+                                        helpMessage: "Unique identifier for the new status. Users can use this ID to refer to the status in the interpretation workflow.",
+                                    },
+                                },
+                                {
+                                    title: "Status Type",
+                                    field: "status[].type",
+                                    type: "select",
+                                    allowedValues: ["NOT_STARTED", "ACTIVE", "DONE", "CLOSED", "INCONCLUSIVE", "REJECTED"],
+                                    display: {
+                                        placeholder: "Select a status type",
+                                        helpMessage: "Select a type of status from the list. This will determine how the status is managed in the interpretation workflow.",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "status[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description for this status...",
+                                        helpMessage: "Provide a brief description of the status. This will help users understand the purpose of this status in the interpretation workflow.",
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+
         };
     }
 
 }
 
-customElements.define("clinical-analysis-interpretation-configuration", ClinicalAnalysisConfigurationUpdate);
+customElements.define("clinical-analysis-interpretation-configuration", ClinicalAnalysisInterpretationConfiguration);
