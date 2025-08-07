@@ -288,7 +288,7 @@ export default class ClinicalReportReview extends LitElement {
                     <div class=""><b>Role:</b> ${signature.role || "-"}</div>
                 </div>
                 <button class="btn btn-light d-flex position-absolute top-0 end-0 m-3" @click="${() => this.onSignatureRemove(signature)}">
-                    <i class="fas fa-trash"></i>
+                    <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
         `;
@@ -493,8 +493,8 @@ export default class ClinicalReportReview extends LitElement {
                                     const saveDisabled = !this._signature.signedBy || !this._signature.signature;
                                     return html`
                                         <div class="d-flex justify-content-end">
-                                            <button class="btn btn-primary d-flex gap-2 justify-content-center align-items-center" ?disabled="${saveDisabled}" @click="${() => this.onSignatureAdd()}">
-                                                <i class="fas fa-plus"></i> <span>Save Signature</span>
+                                            <button class="btn btn-light d-flex gap-2 justify-content-center align-items-center" ?disabled="${saveDisabled}" @click="${() => this.onSignatureAdd()}">
+                                                <i class="fas fa-plus"></i> <span>Add Signature</span>
                                             </button>
                                         </div>
                                     `;

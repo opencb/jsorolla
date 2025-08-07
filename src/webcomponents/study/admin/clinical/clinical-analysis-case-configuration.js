@@ -22,7 +22,7 @@ import "../../../commons/forms/data-form.js";
 import "../../../commons/filters/catalog-search-autocomplete.js";
 import "../../../commons/filters/consequence-type-select-filter.js";
 
-export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
+export default class ClinicalAnalysisCaseConfiguration extends LitElement {
 
     constructor() {
         super();
@@ -69,16 +69,22 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
     }
 
     onSubmit() {
-        // this.opencgaSession.opencgaClient.clinical()
-        //     .updateClinicalConfiguration(this._toolParams.body, params)
-        //     .then(() => {
-        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-        //             title: `${this.TITLE} Update`,
-        //             message: `${this.TITLE} has been successfully updated`,
-        //         });
-        //         // If the configuration has been updated, dispatch a study update request
-        //         LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", UtilsNew.objectClone(this._toolParams.study));
-        //     });
+        this.opencgaSession.opencgaClient.clinical()
+            .updateClinicalConfiguration(this._studyConfiguration, {
+                study: this.opencgaSession.study.fqn,
+            })
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `The Case configuration of study ${this.opencgaSession.study.name || this.opencgaSession.study.fqn} has been successfully updated`,
+                });
+
+                // If the configuration has been updated, dispatch a study update request
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest");
+            })
+            .catch(response => {
+                console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
     }
 
     render() {
@@ -100,7 +106,7 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
         return {
             display: {
                 buttonsVisible: true,
-                buttonOkText: "Save Configuration",
+                buttonOkText: "Save Case Configuration",
                 buttonClearText: "",
                 defaultLayout: "horizontal",
                 ...this.displayConfig,
@@ -115,8 +121,14 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
                             type: "object-list",
                             display: {
                                 collapsedUpdate: false,
+                                itemAddText: "Add Status",
                                 maxNumItems: 25,
-                                view: status => html`<div>${status.id} - ${status?.type}</div>`,
+                                view: status => html`
+                                    <div class="d-flex flex-row align-items-center gap-2">
+                                        <span class="fw-bold">${status.id}</span>
+                                        <span class="badge bg-secondary">${status?.type}</span>
+                                    </div>
+                                `,
                             },
                             elements: [
                                 {
@@ -156,6 +168,7 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
                             type: "object-list",
                             display: {
                                 collapsedUpdate: false,
+                                itemAddText: "Add Priority",
                                 maxNumItems: 10,
                                 view: priority => html`<div>${priority.id}</div>`,
                             },
@@ -206,4 +219,4 @@ export default class ClinicalAnalysisConfigurationUpdate extends LitElement {
 
 }
 
-customElements.define("clinical-analysis-case-configuration", ClinicalAnalysisConfigurationUpdate);
+customElements.define("clinical-analysis-case-configuration", ClinicalAnalysisCaseConfiguration);
