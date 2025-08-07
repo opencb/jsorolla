@@ -1494,13 +1494,15 @@ export default class DataForm extends LitElement {
     _createJsonEditorElement(element) {
         const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
         const config = {
-            readOnly: this._getBooleanValue(element.display?.readOnly, false)
+            readOnly: this._getBooleanValue(element.display?.readOnly, false),
+            showDownloadButton: this._getBooleanValue(element.display?.showDownloadButton, false),
         };
         const jsonParsed = (UtilsNew.isObject(json) || UtilsNew.isEmpty(json)) ? json : JSON.parse(json);
         const content = html`
             <json-editor
                 .data="${jsonParsed}"
-                .config="${config}">
+                .config="${config}"
+                @fieldChange="${event => this.onFilterChange(element, event.detail.value?.json)}">
             </json-editor>
         `;
 
