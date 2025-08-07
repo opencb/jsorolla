@@ -151,10 +151,14 @@ export default class ClinicalAnalysisInterpretationConfiguration extends LitElem
                                 },
                             ],
                         },
+                        {
+                            title: "Variant Callers",
+                            field: "interpretation.variantCallers",
+                            type: "json-editor",
+                        },
                     ],
                 },
             ],
-
         };
     }
 
