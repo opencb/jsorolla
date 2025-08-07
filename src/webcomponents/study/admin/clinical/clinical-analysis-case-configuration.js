@@ -223,6 +223,7 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                             display: {
                                 collapsedUpdate: false,
                                 itemAddText: "Add Flag",
+                                maxNumItems: 25,
                                 view: flag => html`
                                     <span class="fw-bold">${flag.id || ""}</span>
                                 `,
