@@ -163,6 +163,7 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                         },
                         {
                             title: "Case Priorities",
+                            description: "Configure the priorities that can be assigned to clinical cases. Each priority has a unique ID and uses a rank to determine its importance. Only one priority can be set as default.",
                             field: "priorities",
                             type: "object-list",
                             display: {
@@ -217,6 +218,7 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                         },
                         {
                             title: "Case Flags",
+                            description: "Configure the flags that can be assigned to clinical cases to highlight specific aspects of it.",
                             field: "flags",
                             type: "object-list",
                             display: {
@@ -251,6 +253,7 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                         },
                         {
                             title: "Tiers",
+                            description: "Configure the tiers that can be assigned to variant evidences in the case.",
                             field: "tiers",
                             type: "object-list",
                             display: {
