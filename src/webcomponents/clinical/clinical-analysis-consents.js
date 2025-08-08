@@ -17,10 +17,8 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
-import "../commons/forms/text-field-filter.js";
 
-
-class ClinicalAnalysisConsentEditor extends LitElement {
+class ClinicalAnalysisConsents extends LitElement {
 
     constructor() {
         super();
@@ -223,4 +221,4 @@ class ClinicalAnalysisConsentEditor extends LitElement {
 
 }
 
-customElements.define("clinical-analysis-consent-editor", ClinicalAnalysisConsentEditor);
+customElements.define("clinical-analysis-consents", ClinicalAnalysisConsents);
