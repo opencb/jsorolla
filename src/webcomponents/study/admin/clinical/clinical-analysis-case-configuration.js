@@ -115,6 +115,7 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                     elements: [
                         {
                             title: "Case Status",
+                            description: "Configure the status types that can be assigned to clinical cases. Each status has a unique ID and must be associated with a type.",
                             field: "status",
                             type: "object-list",
                             display: {
