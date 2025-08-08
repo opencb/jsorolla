@@ -118,6 +118,7 @@ export default class ClinicalAnalysisInterpretationConfiguration extends LitElem
                     elements: [
                         {
                             title: "Interpretation Status",
+                            description: "Configure the status types that can be assigned to clinical interpretations. Each status has a unique ID and must be associated with a type.",
                             field: "interpretation.status",
                             type: "object-list",
                             display: {
@@ -165,11 +166,13 @@ export default class ClinicalAnalysisInterpretationConfiguration extends LitElem
                         },
                         {
                             title: "Variant Callers",
+                            description: "Configure the variant callers that can be used in clinical interpretations.",
                             field: "interpretation.variantCallers",
                             type: "json-editor",
                         },
                         {
                             title: "Inclusion",
+                            description: "Configure the Variant Inclusion query that will be used to filter variants in the Variant Browser of the interpretation.",
                             field: "interpretation.inclusion",
                             type: "json-editor",
                         },
