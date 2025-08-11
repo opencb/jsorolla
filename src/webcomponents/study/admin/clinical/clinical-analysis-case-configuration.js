@@ -19,8 +19,6 @@ import UtilsNew from "../../../../core/utils-new.js";
 import NotificationUtils from "../../../commons/utils/notification-utils.js";
 import LitUtils from "../../../commons/utils/lit-utils.js";
 import "../../../commons/forms/data-form.js";
-import "../../../commons/filters/catalog-search-autocomplete.js";
-import "../../../commons/filters/consequence-type-select-filter.js";
 
 export default class ClinicalAnalysisCaseConfiguration extends LitElement {
 
@@ -106,17 +104,18 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
         return {
             display: {
                 buttonsVisible: true,
-                buttonOkText: "Save Case Configuration",
+                buttonOkText: "Save Interpretation Configuration",
                 buttonClearText: "",
                 defaultLayout: "horizontal",
                 ...this.displayConfig,
             },
             sections: [
                 {
-                    title: "Clinical Analysis Configuration",
+                    title: "Clinical Case Configuration",
                     elements: [
                         {
-                            title: "Status",
+                            title: "Case Status",
+                            description: "Configure the status types that can be assigned to clinical cases. Each status has a unique ID and must be associated with a type.",
                             field: "status",
                             type: "object-list",
                             display: {
@@ -125,8 +124,8 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                                 maxNumItems: 25,
                                 view: status => html`
                                     <div class="d-flex flex-row align-items-center gap-2">
-                                        <span class="fw-bold">${status.id}</span>
-                                        <span class="badge bg-secondary">${status?.type}</span>
+                                        <span class="fw-bold">${status.id || ""}</span>
+                                        <span class="badge bg-secondary">${status.type}</span>
                                     </div>
                                 `,
                             },
@@ -163,14 +162,21 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                             ],
                         },
                         {
-                            title: "Priorities",
+                            title: "Case Priorities",
+                            description: "Configure the priorities that can be assigned to clinical cases. Each priority has a unique ID and uses a rank to determine its importance. Only one priority can be set as default.",
                             field: "priorities",
                             type: "object-list",
                             display: {
                                 collapsedUpdate: false,
                                 itemAddText: "Add Priority",
                                 maxNumItems: 10,
-                                view: priority => html`<div>${priority.id}</div>`,
+                                view: priority => html`
+                                    <div class="d-flex flex-row align-items-center gap-2">
+                                        <span class="fw-bold">${priority.id || ""}</span>
+                                        ${priority?.rank ? html`<span>(rank: ${priority.rank})</span>` : nothing}
+                                        ${priority?.defaultPriority ? html`<span class="badge bg-primary">DEFAULT</span>` : nothing}
+                                    </div>
+                                `,
                             },
                             elements: [
                                 {
@@ -210,12 +216,138 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                                 },
                             ],
                         },
+                        {
+                            title: "Case Flags",
+                            description: "Configure the flags that can be assigned to clinical cases to highlight specific aspects of it.",
+                            field: "flags",
+                            type: "object-list",
+                            display: {
+                                collapsedUpdate: false,
+                                itemAddText: "Add Flag",
+                                maxNumItems: 25,
+                                view: flag => html`
+                                    <span class="fw-bold">${flag.id || ""}</span>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Flag ID",
+                                    field: "flags[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "E.g. HIGH_RISK",
+                                        helpMessage: "Unique identifier for the new flag.",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "flags[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description for this flag...",
+                                        helpMessage: "Provide a brief description of the flag.",
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            title: "Tiers",
+                            description: "Configure the tiers that can be assigned to variant evidences in the case.",
+                            field: "tiers",
+                            type: "object-list",
+                            display: {
+                                collapsedUpdate: false,
+                                itemAddText: "Add Tier",
+                                maxNumItems: 10,
+                                view: tier => html`
+                                    <div class="d-flex flex-row align-items-center gap-2">
+                                        <span class="fw-bold">${tier.id || ""}</span>
+                                        ${tier?.rank ? html`<span>(rank: ${tier.rank})</span>` : nothing}
+                                    </div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Tier ID",
+                                    field: "tiers[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "E.g. TIER_1",
+                                        helpMessage: "Unique identifier for the new tier. Users can use this ID to refer to the tier when reviewing evidences in the case interpreter.",
+                                    },
+                                },
+                                {
+                                    title: "Tier Rank",
+                                    field: "tiers[].rank",
+                                    type: "input-num",
+                                    display: {
+                                        helpMessage: "Rank of the tier. Lower numbers indicate higher tier. For example, 1 is the highest tier.",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "tiers[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description for this tier...",
+                                        helpMessage: "Provide a brief description of the tier.",
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            title: "Consents",
+                            description: "Configure the consents that can be assigned to clinical cases.",
+                            field: "consents",
+                            type: "object-list",
+                            display: {
+                                collapsedUpdate: false,
+                                itemAddText: "Add Consent",
+                                maxNumItems: 25,
+                                view: consent => html`
+                                    <div class="">
+                                        <span class="fw-bold">${consent.name || consent.id || ""}</span>
+                                    </div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Consent ID",
+                                    field: "consents[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "E.g. CONSENT_1",
+                                        helpMessage: "Unique identifier for the consent.",
+                                    },
+                                },
+                                {
+                                    title: "Consent Name",
+                                    field: "consents[].name",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "E.g. Consent for research",
+                                        helpMessage: "Name of the consent. This will be displayed in the clinical case.",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "consents[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description for this consent...",
+                                        helpMessage: "Provide a brief description of the consent. This will help users understand the purpose of this consent in the clinical workflow.",
+                                    },
+                                },
+                            ],
+                        },
                     ],
                 },
             ],
         };
     }
-
 
 }
 

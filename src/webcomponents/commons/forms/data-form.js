@@ -739,12 +739,17 @@ export default class DataForm extends LitElement {
 
         // Initialize title values
         let title = element.title ?? element.name; // element.name is deprecated --> use element.title
-        const titleClassName = element.display?.titleClassName ?? element.display?.labelClasses ?? "";
+        const titleClassName = element.display?.titleClassName ?? element.display?.labelClasses ?? "fw-bold";
         const titleStyle = element.display?.titleStyle ?? element.display?.labelStyle ?? "";
         const titleVisible = element.display?.titleVisible ?? element.showLabel ?? true;
         const titleWidth = title && titleVisible ? this._getElementTitleWidth(element, section) ?? this._getLabelWidth(element, section) : 0;
-        const titleAlign = element.display?.titleAlign ?? element.display?.labelAlign ?? "left";
         const titleRequiredMark = element.required ? html`<b class="text-danger ms-2">*</b>` : "";
+
+        // initialize description values
+        const description = element.description || null;
+        const descriptionVisible = element.display?.descriptionVisible ?? true;
+        const descriptionClassName = element.display?.descriptionClassName ?? "mt-2 text-secondary";
+        const descriptionStyle = element.display?.descriptionStyle ?? "";
 
         // Help message
         const helpMessage = this._getHelpMessage(element);
@@ -760,8 +765,15 @@ export default class DataForm extends LitElement {
             return html`
                 <div class="row ${this._getSeparationClass(element, null)} ${elementContainerClassName}" style="${elementContainerStyle}">
                     ${title && titleVisible ? html`
-                        <div class="col-md-${titleWidth} fw-bold ${titleClassName}" style="text-align:${titleAlign};${titleStyle}">
-                            ${title} ${titleRequiredMark}
+                        <div class="col-md-${titleWidth}">
+                            <div class="${titleClassName}" style="${titleStyle}">
+                                ${title} ${titleRequiredMark}
+                            </div>
+                            ${description && descriptionVisible ? html`
+                                <div class="${descriptionClassName}" style="${descriptionStyle}">
+                                    <span>${description}</span>
+                                </div>
+                            ` : nothing}
                         </div>
                     ` : nothing}
                     <div class="col-md-${(width - titleWidth)}">
@@ -779,9 +791,14 @@ export default class DataForm extends LitElement {
                 <div class="row ${this._getSeparationClass(element, null)} ${elementContainerClassName}" style="${elementContainerStyle}">
                     <div class="col-md-${width}">
                         ${title && titleVisible ? html`
-                            <label class="fw-bold form-label pt-0 ${titleClassName}" style="${titleStyle}">
+                            <div class="fw-bold form-label pt-0 ${titleClassName}" style="${titleStyle}">
                                 ${title} ${titleRequiredMark}
-                            </label>
+                            </div>
+                        ` : nothing}
+                        ${description && descriptionVisible ? html`
+                            <div class="${descriptionClassName}" style="${descriptionStyle}">
+                                <span>${description}</span>
+                            </div>
                         ` : nothing}
                         ${content}
                     </div>
@@ -1494,13 +1511,15 @@ export default class DataForm extends LitElement {
     _createJsonEditorElement(element) {
         const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
         const config = {
-            readOnly: this._getBooleanValue(element.display?.readOnly, false)
+            readOnly: this._getBooleanValue(element.display?.readOnly, false),
+            showDownloadButton: this._getBooleanValue(element.display?.showDownloadButton, false),
         };
-        const jsonParsed = (UtilsNew.isObject(json) || UtilsNew.isEmpty(json)) ? json : JSON.parse(json);
+        const jsonParsed = typeof json === "object" ? json : JSON.parse(json || "{}");
         const content = html`
             <json-editor
                 .data="${jsonParsed}"
-                .config="${config}">
+                .config="${config}"
+                @fieldChange="${event => this.onFilterChange(element, event.detail.value?.json)}">
             </json-editor>
         `;
 

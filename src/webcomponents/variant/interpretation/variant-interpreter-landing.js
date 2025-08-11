@@ -20,7 +20,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import {guardPage} from "../../commons/html-utils.js";
 import "../../clinical/clinical-analysis-update.js";
 import "../../clinical/interpretation/clinical-interpretation-manager.js";
-import "../../clinical/clinical-analysis-consent-editor.js";
+import "../../clinical/clinical-analysis-consents.js";
 import "../../clinical/clinical-analysis-audit-browser.js";
 import "../../project/project-cellbase-info.js";
 import "../../commons/view/detail-tabs.js";
@@ -189,11 +189,12 @@ class VariantInterpreterLanding extends LitElement {
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
                             <div class="col-md-10 offset-md-1">
-                                <tool-header title="Consent - ${clinicalAnalysis?.proband.id || ""}"></tool-header>
-                                <clinical-analysis-consent-editor
+                                <tool-header title="Consents - ${clinicalAnalysis?.proband.id || ""}"></tool-header>
+                                <clinical-analysis-consents
+                                    .active="${active}"
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .opencgaSession="${opencgaSession}">
-                                </clinical-analysis-consent-editor>
+                                </clinical-analysis-consents>
                             </div>
                         `;
                     }
