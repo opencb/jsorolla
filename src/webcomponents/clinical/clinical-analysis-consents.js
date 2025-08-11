@@ -78,25 +78,6 @@ class ClinicalAnalysisConsents extends LitElement {
     onFieldChange() {
         this._consents = {...this._consents};
         this.requestUpdate();
-        // switch (e.detail.param) {
-        //     case "consent.primaryFindings":
-        //     case "consent.secondaryFindings":
-        //     case "consent.carrierFindings":
-        //     case "consent.researchFindings":
-        //         let field = e.detail.param.split(".")[1];
-        //         this.updateParams.consent = {...this.clinicalAnalysis.consent};
-        //         if (this._clinicalAnalysis?.consent[field] !== e.detail.value && e.detail.value) {
-        //             this.clinicalAnalysis.consent[field] = e.detail.value;
-        //             this.updateParams.consent[field] = e.detail.value;
-        //         } else {
-        //             delete this.updateParams.consent[field];
-        //         }
-        //         if (UtilsNew.isEmpty(this.updateParams.consent)) {
-        //             delete this.updateParams.consent;
-        //         }
-        //         break;
-        // }
-        // this.requestUpdate();
     }
 
     onSubmit() {
