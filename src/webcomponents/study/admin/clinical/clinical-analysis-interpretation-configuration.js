@@ -60,16 +60,9 @@ export default class ClinicalAnalysisInterpretationConfiguration extends LitElem
         super.update(changedProperties);
     }
 
-    onFieldChange(event) {
+    onFieldChange() {
         this._studyConfiguration = {...this._studyConfiguration};
         this.requestUpdate();
-        // // only perform the update if the field is related to the interpretation status and we are adding or removing an item
-        // if (event.detail?.param.startsWith("interpretation.status[]")) {
-        //     if (event.detail?.action === "ADD" || event.detail?.action === "REMOVE") {
-        //         this._studyConfiguration = {...this._studyConfiguration};
-        //     }
-        //     this.requestUpdate();
-        // }
     }
 
     onSubmit() {
