@@ -139,7 +139,7 @@ class ClinicalAnalysisConsents extends LitElement {
             },
             sections: consents.map(consent => ({
                 display: {
-                    className: "d-flex align-items-center justify-content-between gap-4 p-3 rounded-2 bg-white border border-gray-200",
+                    className: "d-flex align-items-center justify-content-between gap-4 p-3 rounded-3 bg-white border border-gray-200",
                     layout: [
                         {
                             className: "flex-grow-1 d-flex flex-column gap-0",
