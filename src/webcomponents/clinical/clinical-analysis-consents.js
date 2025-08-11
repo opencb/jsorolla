@@ -133,7 +133,7 @@ class ClinicalAnalysisConsents extends LitElement {
             display: {
                 buttonsVisible: true,
                 buttonOkText: "Save Consents",
-                buttonCancelText: "",
+                buttonClearText: "",
                 defaultLayout: "horizontal",
                 ...this.displayConfig,
             },
