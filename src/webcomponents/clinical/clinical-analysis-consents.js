@@ -137,18 +137,54 @@ class ClinicalAnalysisConsents extends LitElement {
                 defaultLayout: "horizontal",
                 ...this.displayConfig,
             },
-            sections: [
-                {
-                    elements: consents.map(consent => ({
-                        name: consent.name,
-                        description: consent.description || "",
+            sections: consents.map(consent => ({
+                display: {
+                    className: "d-flex align-items-center justify-content-between gap-4 p-3 rounded-2 bg-white border border-gray-200",
+                    layout: [
+                        {
+                            className: "flex-grow-1 d-flex flex-column gap-0",
+                            elements: [
+                                {id: "title"},
+                                {id: "description"},
+                            ],
+                        },
+                        {
+                            className: "flex-shrink-0",
+                            id: "buttons",
+                        },
+                    ],
+                },
+                elements: [
+                    {
+                        id: "title",
+                        text: consent.name,
+                        type: "text",
+                        display: {
+                            textClassName: "fw-bold",
+                            separationClassName: "mb-0",
+                        },
+                    },
+                    {
+                        id: "description",
+                        text: consent.description || "",
+                        type: "text",
+                        display: {
+                            textClassName: "text-secondary",
+                            separationClassName: "mb-0",
+                            visible: !!consent.description,
+                        },
+                    },
+                    {
+                        id: "buttons",
                         field: consent.id,
                         type: "toggle-buttons",
                         allowedValues: ["YES", "NO", "UNKNOWN"],
-                        display: {},
-                    })),
-                },
-            ],
+                        display: {
+                            separationClassName: "mb-0",
+                        },
+                    },
+                ],
+            })),
         };
     }
 
