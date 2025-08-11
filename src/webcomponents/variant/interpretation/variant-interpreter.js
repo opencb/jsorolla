@@ -97,9 +97,20 @@ class VariantInterpreter extends LitElement {
     settingsObserver() {
         // 1. Restore configuration from default config
         this._config = this.getDefaultConfig();
+
         // 2. Merge with interpreter tools from extensions
         this.#updateInterpreterTools();
+
         // 3. Use settings to decide which tools are visible
+        // IMPORTANT: we have to rename the 'select' tool to 'info' in the settings, as the 'select' does not exist anymore
+        // this should be performed by a migration script, but in the meantime we have to do it here to avoid breaking changes
+        if (this.settings?.tools) {
+            this.settings.tools.forEach(tool => {
+                if (tool.id === "select") {
+                    tool.id = "info";
+                }
+            });
+        }
         this._config.tools = UtilsNew.mergeArray(this._config.tools, this.settings?.tools, false, true);
     }
 
@@ -214,6 +225,7 @@ class VariantInterpreter extends LitElement {
     renderTool(tool) {
         if (this.getActiveToolId() === tool.id) {
             switch (tool.id) {
+                case "select":
                 case "info":
                     return html`
                         <clinical-analysis-info
@@ -441,6 +453,8 @@ class VariantInterpreter extends LitElement {
             title: "Case Interpreter",
             tools: [
                 {
+                    // Note: 'select' tool is renamed to 'info' in the settings
+                    // we have included a tiny 
                     id: "info",
                     title: "Case Info",
                     description: "",
