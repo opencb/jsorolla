@@ -15,7 +15,8 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import UtilsNew from "../../core/utils-new.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/forms/data-form.js";
 
 class ClinicalAnalysisConsents extends LitElement {
@@ -64,10 +65,19 @@ class ClinicalAnalysisConsents extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        // TODO: clone the consents object to avoid modifying the original object
+        this._consents = {}; // Reset consents
+        if (this.clinicalAnalysis) {
+            // we have to conver the array of consents to an object, where the key is the consent id
+            // and the value is the consent value (YES, NO, UNKNOWN)
+            this._consents = Object.fromEntries((this.clinicalAnalysis.consent?.consents || []).map(consent => {
+                return [consent.id, consent.value || "UNKNOWN"];
+            }));
+        }
     }
 
-    onFieldChange(e) {
+    onFieldChange() {
+        this._consents = {...this._consents};
+        this.requestUpdate();
         // switch (e.detail.param) {
         //     case "consent.primaryFindings":
         //     case "consent.secondaryFindings":
@@ -90,16 +100,35 @@ class ClinicalAnalysisConsents extends LitElement {
     }
 
     onSubmit() {
-        // if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
-        //     this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, this.updateParams, {study: this.opencgaSession.study.fqn})
-        //         .then(response => {
-        //             this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
-        //             this.updateParams = {};
-        //         })
-        //         .catch(response => {
-        //             console.error("An error occurred updating clinicalAnalysis: ", response);
-        //         });
-        // }
+        // we have to convert the consents object back to an array
+        const data = {
+            consent: {
+                consents: this.opencgaSession.study.internal.configuration.clinical.consents.map(consent => {
+                    return {
+                        id: consent.id,
+                        value: this._consents[consent.id] || "UNKNOWN", // Default to "UNKNOWN" if not set
+                    };
+                }),
+            },
+        };
+
+        this.opencgaSession.opencgaClient.clinical()
+            .update(this.clinicalAnalysis.id, data, {
+                study: this.opencgaSession.study.fqn,
+            })
+            .then(response => {
+                // dispatch the clinicalAnalysisUpdate event with the updated clinical analysis
+                LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                    clinicalAnalysis: response.responses[0].results[0],
+                });
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "Case consents updated successfully.",
+                });
+            })
+            .catch(response => {
+                console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
     }
 
     render() {
@@ -109,7 +138,7 @@ class ClinicalAnalysisConsents extends LitElement {
 
         return html`
             <data-form 
-                .data="${this.clinicalAnalysis}"
+                .data="${this._consents}"
                 .config="${this._config}"
                 @fieldChange="${event => this.onFieldChange(event)}"
                 @submit="${event => this.onSubmit(event)}">
@@ -118,55 +147,22 @@ class ClinicalAnalysisConsents extends LitElement {
     }
 
     getDefaultConfig() {
+        const consents = this.opencgaSession?.study?.internal?.configuration?.clinical?.consents || [];
         return {
             display: {
-                showTitle: false,
-                infoIcon: "",
-                labelAlign: "left",
-                labelWidth: "3",
                 defaultLayout: "horizontal",
                 ...this.displayConfig,
             },
             sections: [
                 {
-                    elements: [
-                        {
-                            name: "Primary Findings",
-                            field: "consent.primaryFindings",
-                            type: "toggle-buttons",
-                            allowedValues: ["YES", "NO", "UNKNOWN"],
-                            display: {
-                                width: "9",
-                            }
-                        },
-                        {
-                            name: "Secondary Findings",
-                            field: "consent.secondaryFindings",
-                            type: "toggle-buttons",
-                            allowedValues: ["YES", "NO", "UNKNOWN"],
-                            display: {
-                                width: "9",
-                            }
-                        },
-                        {
-                            name: "Carrier Findings",
-                            field: "consent.carrierFindings",
-                            type: "toggle-buttons",
-                            allowedValues: ["YES", "NO", "UNKNOWN"],
-                            display: {
-                                width: "9",
-                            }
-                        },
-                        {
-                            name: "Research Findings",
-                            field: "consent.researchFindings",
-                            type: "toggle-buttons",
-                            allowedValues: ["YES", "NO", "UNKNOWN"],
-                            display: {
-                                width: "9",
-                            }
-                        },
-                    ]
+                    elements: consents.map(consent => ({
+                        name: consent.name,
+                        description: consent.description || "",
+                        field: consent.id,
+                        type: "toggle-buttons",
+                        allowedValues: ["YES", "NO", "UNKNOWN"],
+                        display: {},
+                    })),
                 },
             ],
         };
