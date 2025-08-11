@@ -65,8 +65,8 @@ export default class ClinicalAnalysisInterpretationConfiguration extends LitElem
         if (event.detail?.param.startsWith("interpretation.status[]")) {
             if (event.detail?.action === "ADD" || event.detail?.action === "REMOVE") {
                 this._studyConfiguration = {...this._studyConfiguration};
-                this.requestUpdate();
             }
+            this.requestUpdate();
         }
     }
 
