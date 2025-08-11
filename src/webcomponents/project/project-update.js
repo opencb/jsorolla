@@ -168,7 +168,6 @@ export default class ProjectUpdate extends LitElement {
         const params = {
             includeResult: true
         };
-        let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.projects()
             .update(this.project?.fqn, this.updateParams, params)
@@ -180,14 +179,13 @@ export default class ProjectUpdate extends LitElement {
                     title: "Project Update",
                     message: "Project updated correctly"
                 });
-                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", this._project, {}, error);
+                LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", this._project, {});
+                LitUtils.dispatchCustomEvent(this, "projectUpdate", null);
             })
             .catch(reason => {
-                error = reason;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                // LitUtils.dispatchCustomEvent(this, "projectUpdate", project, {}, error);
                 this.#setLoading(false);
             });
     }
@@ -227,11 +225,11 @@ export default class ProjectUpdate extends LitElement {
                             name: "Project ID",
                             field: "id",
                             type: "input-text",
-                            required: true,
                             display: {
-                                placeholder: "Add a short ID...",
                                 disabled: true,
-                                helpMessage: this.project?.creationDate? "Created on " + UtilsNew.dateFormatter(this.project?.creationDate):"No creation date",
+                                help: {
+                                    text: this.project?.creationDate ? "Created on " + UtilsNew.dateFormatter(this.project?.creationDate) : "No creation date"
+                                },
                             },
                         },
                         {
@@ -246,8 +244,9 @@ export default class ProjectUpdate extends LitElement {
                             name: "Species",
                             field: "organism.scientificName",
                             type: "input-text",
-                            required: true,
+                            required: false,
                             display: {
+                                disabled: true,
                                 placeholder: "e.g. Homo sapiens, ...",
                             }
                         },
@@ -255,8 +254,9 @@ export default class ProjectUpdate extends LitElement {
                             name: "Species Assembly",
                             field: "organism.assembly",
                             type: "input-text",
-                            required: true,
+                            required: false,
                             display: {
+                                disabled: true,
                                 placeholder: "e.g. GRCh38",
                             }
                         },
@@ -272,17 +272,25 @@ export default class ProjectUpdate extends LitElement {
                                     title: "URL",
                                     field: "cellbase.url",
                                     type: "input-text",
-                                    display: {
-                                        placeholder: "Add an URL",
-
-                                    }
                                 },
                                 {
                                     title: "Version",
                                     field: "cellbase.version",
                                     type: "input-text",
+                                },
+                                {
+                                    title: "Data Release",
+                                    field: "cellbase.dataRelease",
+                                    type: "input-text",
+                                },
+                                {
+                                    title: "API Key",
+                                    field: "cellbase.apiKey",
+                                    type: "input-text",
                                     display: {
-                                        placeholder: "Add version",
+                                        help: {
+                                            text: "Add your CellBase API key (optional)",
+                                        }
                                     }
                                 },
                             ]

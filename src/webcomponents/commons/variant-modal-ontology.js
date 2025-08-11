@@ -97,7 +97,7 @@ export default class VariantModalOntology extends LitElement {
             order: "ASCENDING",
             skip: !isParent? 0:skip,
             limit: 50,
-            assembly: "GRCh38",
+            // assembly: "GRCh38",
         };
         return this.cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
     }

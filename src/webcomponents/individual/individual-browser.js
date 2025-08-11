@@ -16,25 +16,16 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import "./qc/individual-qc-inferred-sex.js";
-import "./qc/individual-qc-mendelian-errors.js";
-import "../clinical/clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
-import "../commons/json-viewer.js";
-import "../commons/facet-filter.js";
-import "../commons/opencb-facet-results.js";
-import "./individual-view.js";
+import "../commons/aggregation-stats.js";
 import "./individual-grid.js";
-import "./individual-detail.js";
-
 
 export default class IndividualBrowser extends LitElement {
 
     constructor() {
         super();
 
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -43,10 +34,10 @@ export default class IndividualBrowser extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            query: {
                 type: Object
             },
-            query: {
+            opencgaSession: {
                 type: Object
             },
             settings: {
@@ -55,7 +46,7 @@ export default class IndividualBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "individual-browser";
         this._config = this.getDefaultConfig();
     }
@@ -90,21 +81,21 @@ export default class IndividualBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
-
-        this.requestUpdate();
     }
 
     onSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onIndividualUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
         if (!this.opencgaSession) {
-            return html`<div>Not valid session</div>`;
+            return nothing;
         }
 
         return html`
@@ -121,11 +112,10 @@ export default class IndividualBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "Individual Browser",
-            icon: "fab fa-searchengin",
             views: [
                 {
                     id: "table-tab",
-                    name: "Table result",
+                    name: "Table",
                     icon: "fa fa-table",
                     active: true,
                     render: params => html`
@@ -136,35 +126,28 @@ export default class IndividualBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .query="${params.executedQuery}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e)}"
+                            @queryComplete="${e => params.onQueryComplete(e)}"
                             @individualUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </individual-grid>
-                        ${params?.detail ? html`
-                            <individual-detail
-                                .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}"
-                                .individualId="${params.detail?.id}">
-                            </individual-detail>
-                        ` : nothing}
-                    `
+                    `,
                 },
                 {
                     id: "facet-tab",
-                    name: "Aggregation stats",
+                    name: "Aggregation Stats",
                     icon: "fas fa-chart-bar",
                     render: params => html`
-                        <opencb-facet-results
+                        <aggregation-stats
                             resource="${params.resource}"
-                            .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
                             .active="${params.active}"
-                            .query="${params.facetQuery}"
-                            .data="${params.facetResults}">
-                        </opencb-facet-results>`
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.aggregation}">
+                        </aggregation-stats>
+                    `,
                 }
             ],
             filter: {
-                searchButton: false,
                 sections: [
                     {
                         title: "Section title",
@@ -172,73 +155,87 @@ export default class IndividualBrowser extends LitElement {
                         filters: [
                             {
                                 id: "id",
-                                name: "Individual ID",
+                                title: "Individual ID",
                                 type: "string",
                                 placeholder: "LP-1234,LP-2345...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "samples",
-                                name: "Sample ID",
+                                title: "Sample ID",
                                 type: "string",
                                 placeholder: "HG01879, HG01880, HG01881...",
-                                description: ""
+                                description: "",
+                                quick: true,
+                            },
+                            {
+                                id: "familyIds",
+                                title: "Family ID",
+                                type: "string",
+                                placeholder: "HG01879, HG01880, HG01881...",
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "father",
-                                name: "Father ID",
+                                title: "Father ID",
                                 type: "string",
                                 placeholder: "LP-1234,LP-2345...",
                                 description: ""
                             },
                             {
                                 id: "mother",
-                                name: "Mother ID",
+                                title: "Mother ID",
                                 type: "string",
                                 placeholder: "LP-1234,LP-2345...",
                                 description: ""
                             },
                             {
                                 id: "disorders",
-                                name: "Disorder",
+                                title: "Disorder",
                                 placeholder: "Intellectual disability,Arthrogryposis...",
                                 multiple: true,
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "phenotypes",
-                                name: "Phenotype",
+                                title: "Phenotype",
                                 placeholder: "Full-text search, e.g. *melanoma*",
                                 multiple: true,
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "sex",
-                                name: "Sex",
+                                title: "Sex",
                                 multiple: true,
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                             {
                                 id: "karyotypicSex",
-                                name: "Karyotypic Sex",
+                                title: "Karyotypic Sex",
                                 multiple: true,
                                 description: ""
                             },
                             {
                                 id: "ethnicity",
-                                name: "Ethnicity",
+                                title: "Ethnicity",
                                 type: "string",
                                 placeholder: "White caucasian,asiatic...",
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                             {
                                 id: "date",
-                                name: "Date",
+                                title: "Date",
                                 description: ""
                             },
                             {
                                 id: "annotations",
-                                name: "Individual Annotations",
+                                title: "Individual Annotations",
                                 description: ""
                             }
                         ]
@@ -259,269 +256,125 @@ export default class IndividualBrowser extends LitElement {
                         showSelectCheckbox: false
                     }
                 },
-                detail: {
-                    title: "Individual",
-                    showTitle: true,
-                    display: {
-                        titleClass: "mt-4",
-                        contentClass: "p-3"
-                    },
-                    items: [
-                        {
-                            id: "individual-view",
-                            name: "Overview",
-                            active: true,
-                            render: (individual, active, opencgaSession) => html`
-                                <individual-view
-                                    .individual="${individual}"
-                                    .opencgaSession="${opencgaSession}">
-                                </individual-view>
-                            `,
-                        },
-                        {
-                            id: "clinical-analysis-grid",
-                            name: "Clinical Analysis",
-                            render: (individual, active, opencgaSession) => {
-                                const config = {
-                                    readOnlyMode: true
-                                };
-                                return html`
-                                    <p class="alert"> <i class="fas fa-info-circle align-middle"></i> Clinical Analysis in which the individual is the proband.</p>
-                                    <clinical-analysis-grid
-                                        .query="${{"proband": individual.id}}"
-                                        .config=${config}
-                                        .opencgaSession="${opencgaSession}">
-                                    </clinical-analysis-grid>
-                                `;
-                            }
-                        },
-                        {
-                            id: "individual-inferred-sex",
-                            name: "Inferred Sex",
-                            render: (individual, active, opencgaSession) => html`
-                                <individual-qc-inferred-sex
-                                    .individual="${individual}"
-                                    .opencgaSession="${opencgaSession}">
-                                </individual-qc-inferred-sex>
-                            `,
-                        },
-                        {
-                            id: "individual-mendelian-error",
-                            name: "Mendelian Error",
-                            render: (individual, active, opencgaSession) => html`
-                                <individual-qc-mendelian-errors
-                                    .individual="${individual}"
-                                    .opencgaSession="${opencgaSession}">
-                                </individual-qc-mendelian-errors>
-                            `
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (individual, active) => html`
-                                <json-viewer
-                                    .data="${individual}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        }
-                    ]
-                }
             },
             aggregation: {
-                default: ["creationYear>>creationMonth", "status", "ethnicity", "population", "lifeStatus", "phenotypes", "sex", "numSamples[0..10]:1"],
-                render: params => html `
-                    <facet-filter
-                        .config="${params.config.aggregation}"
-                        .selectedFacet="${params.selectedFacet}"
-                        @facetQueryChange="${params.onFacetQueryChange}">
-                    </facet-filter>`,
-                result: {
-                    numColumns: 2
+                default: ["disorders", "creationYear[MONTH]"],
+                display: {
+                    showNested: false
                 },
                 sections: [
                     {
                         name: "Individual Attributes",
                         fields: [
                             {
-                                id: "studyId",
-                                name: "Study id",
-                                type: "string",
-                                description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
+                                id: "creationDate",
+                                name: "Creation Date",
+                                type: "date",
+                                allowedValues: ["YEAR", "MONTH", "DAY"],
+                                multiple: false,
+                                description: "Creation date, you can use 'day', 'month' or 'year' to group by"
                             },
-                            {
-                                id: "creationYear",
-                                name: "Creation Year",
-                                type: "string",
-                                description: "Creation year"
-                            },
-                            {
-                                id: "creationMonth",
-                                name: "Creation Month",
-                                type: "category",
-                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
-                                description: "Creation month (JANUARY, FEBRUARY...)"
-                            },
-                            {
-                                id: "creationDay",
-                                name: "Creation Day",
-                                type: "category",
-                                allowedValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"],
-                                description: "Creation day"
-                            },
-                            {
-                                id: "creationDayOfWeek",
-                                name: "Creation Day Of Week",
-                                type: "category",
-                                allowedValues: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
-                                description: "Creation day of week (MONDAY, TUESDAY...)"
-                            },
-                            {
-                                id: "status",
-                                name: "Status",
-                                type: "category",
-                                allowedValues: ["READY", "DELETED"],
-                                description: "Status"
-                            },
-                            {
-                                id: "release",
-                                name: "Release",
-                                type: "string",
-                                description: "Release"
-                            },
+                            // {
+                            //     id: "status",
+                            //     name: "Status",
+                            //     type: "category",
+                            //     allowedValues: ["READY", "DELETED"],
+                            //     description: "Status"
+                            // },
                             {
                                 id: "version",
                                 name: "Version",
                                 type: "string",
                                 description: "Version"
                             },
+                            // {
+                            //     id: "locationCity",
+                            //     name: "Location City",
+                            //     type: "string",
+                            //     description: "Location city"
+                            // },
+                            // {
+                            //     id: "locationState",
+                            //     name: "Location State",
+                            //     type: "string",
+                            //     description: "Location state"
+                            // },
+                            // {
+                            //     id: "locationCountry",
+                            //     name: "Location Country",
+                            //     type: "string",
+                            //     description: "Location country"
+                            // },
                             {
-                                id: "hasFather",
-                                name: "Has Father",
-                                type: "category",
-                                allowedValues: ["true", "false"],
-                                description: "Has father"
+                                id: "dateOfBirth",
+                                name: "Date Of Birth",
+                                type: "date",
+                                allowedValues: ["YEAR", "MONTH", "DAY"],
+                                multiple: false,
+                                description: "Date of birth, you can use 'day', 'month' or 'year' to group by"
                             },
                             {
-                                id: "hasMother",
-                                name: "Has Mother",
-                                type: "category",
-                                allowedValues: ["true", "false"],
-                                description: "Has mother"
-                            },
-                            {
-                                id: "locationCity",
-                                name: "Location City",
-                                type: "string",
-                                description: "Location city"
-                            },
-                            {
-                                id: "locationState",
-                                name: "Location State",
-                                type: "string",
-                                description: "Location state"
-                            },
-                            {
-                                id: "locationCountry",
-                                name: "Location Country",
-                                type: "string",
-                                description: "Location country"
-                            },
-                            {
-                                id: "yearOfBirth",
-                                name: "Year Of Birth",
-                                type: "string",
-                                description: "Year of birth"
-                            },
-                            {
-                                id: "monthOfBirth",
-                                name: "Month Of Birth",
-                                type: "category",
-                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
-                                description: "Month of birth (JANUARY, FEBRUARY...)"
-                            },
-                            {
-                                id: "dayOfBirth",
-                                name: "Day Of Birth",
-                                type: "category",
-                                allowedValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"],
-                                description: "Day of birth"
-                            },
-                            {
-                                id: "sex",
+                                id: "sex.id",
                                 name: "Sex",
                                 type: "string",
                                 description: "Sex"
                             },
                             {
                                 id: "karyotypicSex",
-                                name: "Laryotypic Sex",
+                                name: "Karyotypic Sex",
                                 type: "string",
                                 description: "Karyotypic sex"
                             },
                             {
-                                id: "ethnicity",
+                                id: "ethnicity.id",
                                 name: "Ethnicity",
                                 type: "string",
                                 description: "Ethnicity"
                             },
                             {
-                                id: "population",
+                                id: "population.id",
                                 name: "Population",
                                 type: "string",
                                 description: "Population"
                             },
                             {
-                                id: "lifeStatus",
-                                name: "Life Status",
-                                type: "category",
-                                allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
-                                description: "Life status"
-                            },
-                            {
-                                id: "phenotypes",
+                                id: "phenotypes.id",
                                 name: "Phenotypes",
                                 type: "string",
                                 description: "Phenotypes"
                             },
                             {
-                                id: "disorders",
+                                id: "disorders.id",
                                 name: "Disorders",
                                 type: "string",
                                 description: "Disorders"
                             },
                             {
-                                id: "numSamples",
-                                name: "Number Of Samples",
-                                type: "number",
-                                description: "Number Of Samples"
-                            },
-                            {
                                 id: "parentalConsanguinity",
                                 name: "Parental Consanguinity",
-                                type: "category",
-                                allowedValues: ["true", "false"],
+                                type: "string",
+                                // allowedValues: ["true", "false"],
                                 description: "Parental consanguinity"
                             },
-                            {
-                                id: "annotations",
-                                name: "Annotations",
-                                type: "string",
-                                description: "Annotations, e.g: key1=value(,key2=value)"
-                            }
+                            // {
+                            //     id: "annotations",
+                            //     name: "Annotations",
+                            //     type: "string",
+                            //     description: "Annotations, e.g: key1=value(,key2=value)"
+                            // }
                         ]
                     },
-                    {
-                        name: "Advanced",
-                        fields: [
-                            {
-                                id: "field",
-                                name: "Field",
-                                type: "string",
-                                description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
-                            }
-                        ]
-                    }
+                    // {
+                    //     name: "Advanced",
+                    //     fields: [
+                    //         {
+                    //             id: "field",
+                    //             name: "Field",
+                    //             type: "string",
+                    //             description: "List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.: studies>>biotype;type;numSamples[0..10]:1"
+                    //         }
+                    //     ]
+                    // }
                 ]
             },
             annotations: {}

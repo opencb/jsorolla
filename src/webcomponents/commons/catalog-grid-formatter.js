@@ -16,8 +16,45 @@
 
 import UtilsNew from "../../core/utils-new.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
+import WebUtils from "./utils/web-utils.js";
+import GridCommons from "./grid-commons.js";
 
 export default class CatalogGridFormatter {
+
+    static JOB_STATUS = {
+        PENDING: {
+            className: "text-primary",
+            icon: "far fa-clock",
+        },
+        QUEUED: {
+            className: "text-primary",
+            icon: "far fa-clock",
+        },
+        RUNNING: {
+            className: "text-primary",
+            icon: "fas fa-sync-alt anim-rotate",
+        },
+        DONE: {
+            className: "text-success",
+            icon: "fas fa-check-circle",
+        },
+        ERROR: {
+            className: "text-danger",
+            icon: "fas fa-exclamation-circle",
+        },
+        UNKNOWN: {
+            className: "text-danger",
+            icon: "fas fa-exclamation-circle",
+        },
+        ABORTED: {
+            className: "text-warning",
+            icon: "fas fa-ban",
+        },
+        DELETED: {
+            className: "text-primary",
+            icon: "fas fa-trash-alt",
+        },
+    }
 
     static userStatusFormatter(status, config) {
         const _config = config || [];
@@ -38,11 +75,8 @@ export default class CatalogGridFormatter {
     }
 
     static phenotypesFormatter(phenotypes) {
-        if (!phenotypes || phenotypes.length === 0) {
-            return "-";
-        }
         const status = ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"];
-        const phenotypesHtml = phenotypes
+        const phenotypesItems = (phenotypes || [])
             .sort((a, b) => status.indexOf(a.status) - status.indexOf(b.status))
             .map(phenotype => {
                 const result = [];
@@ -54,135 +88,90 @@ export default class CatalogGridFormatter {
                     const ontologyLink = BioinfoUtils.getOntologyLink(phenotype.id);
                     if (ontologyLink.startsWith("http")) {
                         result.push(`
-                            <a target="_blank" href="${ontologyLink}"> (${phenotype.id})</a>
+                            (<a class="link d-inline-flex align-items-center gap-1" target="_blank" href="${ontologyLink}">
+                                <span>${phenotype.id}</span>
+                                <i class="fa fa-external-link-alt fs-8"></i>
+                            </a>)
                         `);
                     } else {
                         result.push(`(${phenotype.id})`);
                     }
                 }
-                // Add phenotype status if exists
-                // if (phenotype.status) {
-                //     result.push(`(${phenotype.status})`);
-                // }
-                return `<div style="margin: 2px 0; white-space: nowrap">${result.join(" ")}</div>`;
+                return `
+                    <div style="white-space:nowrap;">${result.join(" ")}</div>
+                `;
             });
-
-        if (phenotypesHtml?.length > 0) {
-            let html = "<div>";
-            for (let i = 0; i < phenotypesHtml.length; i++) {
-                // Display first 3 phenotypes
-                if (i < 3) {
-                    html += phenotypesHtml[i];
-                } else {
-                    html += `<a tooltip-title="Phenotypes" tooltip-text='${phenotypesHtml.join("")}'>... view all phenotypes (${phenotypesHtml.length})</a>`;
-                    break;
-                }
-            }
-            html += "</div>";
-            return html;
-        } else {
-            // TODO Think about this
-            return `-`;
-        }
+        return GridCommons.generateExpandCollapseContent(phenotypesItems, 3);
     }
 
     static disorderFormatter(disorders) {
-        let html = "-";
-        if (disorders?.length > 0) {
-            html = "<div>";
-            for (const disorder of disorders) {
-                if (disorder?.id) {
-                    // Default value if the disorder ID does not include ':' (source:ID)
-                    let idHtml = disorder.id;
-                    // We try to get a HTTP link
-                    const ontologyLink = BioinfoUtils.getOntologyLink(disorder.id);
-                    if (ontologyLink.startsWith("http")) {
-                        // We have identified the ontology source and created a link
-                        idHtml = `<a class="text-decoration-none" href="${ontologyLink}" target="_blank">${disorder.id}</a>`;
-                    }
-                    if (disorder.name && disorder.name !== disorder.id) {
-                        html += `
-                            <div style="margin: 2px 0; white-space: nowrap">
-                                <span data-cy="disorder-name">${disorder.name}</span> (<span data-cy="disorder-id">${idHtml}</span>)
-                            </div>`;
-                    } else {
-                        html += `
-                            <div style="margin: 2px 0; white-space: nowrap">
-                                <span data-cy="disorder-id">${idHtml}</span>
-                            </div>
-                        `;
-                    }
+        const disordersItems = (disorders || []).map(disorder => {
+            if (disorder?.id) {
+                // Default value if the disorder ID does not include ':' (source:ID)
+                let idHtml = disorder.id;
+                // We try to get a HTTP link
+                const ontologyLink = BioinfoUtils.getOntologyLink(disorder.id);
+                if (ontologyLink.startsWith("http")) {
+                    // We have identified the ontology source and created a link
+                    idHtml = `
+                        <a class="link d-inline-flex align-items-center gap-1" href="${ontologyLink}" target="_blank">
+                            <span>${disorder.id}</span>
+                            <i class="fa fa-external-link-alt fs-8"></i>
+                        </a>
+                    `;
                 }
-            }
-            html += "</div>";
-        }
-        return html;
-    }
-
-    static panelFormatter(panels) {
-        let panelHtml = "-";
-        if (panels?.length > 0) {
-            panelHtml = "";
-            for (const panel of panels) {
-                if (panel.source?.project?.toUpperCase() === "PANELAPP") {
-                    panelHtml += `
-                        <div class="my-1 mx-0">
-                            <a class="text-decoration-none" href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
-                                ${panel.name} (${panel.source.project} v${panel.source.version})
-                            </a>
+                if (disorder.name && disorder.name !== disorder.id) {
+                    return `
+                        <div class="" style="white-space: nowrap">
+                            <span data-cy="disorder-name">${disorder.name}</span> (<span data-cy="disorder-id">${idHtml}</span>)
                         </div>
                     `;
                 } else {
-                    panelHtml += `
-                        <div class="my-1 mx-0">${panel.id}</div>
+                    return `
+                        <div class="" style="white-space: nowrap">
+                            <span data-cy="disorder-id">${idHtml}</span>
+                        </div>
                     `;
                 }
             }
-        }
-        return panelHtml;
+            return "";
+        });
+        return GridCommons.generateExpandCollapseContent(disordersItems, 3);
+    }
+
+    static panelFormatter(panels) {
+        const panelsItems = (panels || []).map(panel => {
+            if (panel.source?.project?.toUpperCase() === "PANELAPP") {
+                return `
+                    <a class="link d-flex align-items-center gap-1" href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" target="_blank">
+                        <span>${panel.name} (${panel.source.project} v${panel.source.version})</span>
+                        <i class="fa fa-external-link-alt fs-8"></i>
+                    </a>
+                `;
+            } else {
+                return `
+                    <div class="">${panel.id}</div>
+                `;
+            }
+        });
+        return GridCommons.generateExpandCollapseContent(panelsItems, 3);
     }
 
     //  Formats the files for the Catalog grids
     // @param {Array} files Either a list of fileIds or file objects
-    // @param {Array} extensions A list of file extensions. If it is defined, only the file with extensions are returned.
-    // @param {String} key The property to map onto in case `files` is an array of objects.
+    // @param {Array} extensions A list of file extensions. Default '*'
     // @returns {string} html code
-    static fileFormatter(files, extensions, key) {
-        let bamAndVcfFiles = [];
-        if (files?.length > 0) {
-            if (extensions?.length > 0) {
-                files.forEach(file => {
-                    const f = key ? file[key] : file;
-                    for (const extension of extensions) {
-                        if (f.endsWith(extension)) {
-                            bamAndVcfFiles.push(f);
-                            break;
-                        }
-                    }
-                });
-            } else {
-                bamAndVcfFiles = key ? files.map(file => file[key]) : files;
-            }
-
-            if (bamAndVcfFiles?.length > 0) {
-                let html = `<div class="text-nowrap">`;
-                for (let i = 0; i < bamAndVcfFiles.length; i++) {
-                    // Display first 3 files
-                    if (i < 3) {
-                        html += `
-                            <div class="text-dark " style="font-size: 13px; margin: 2px 0">${bamAndVcfFiles[i]}</div>
-                        `;
-                    } else {
-                        html += `<a class="text-link" style="cursor:pointer" tooltip-title="Files" tooltip-text='${bamAndVcfFiles.join("<br>")}'>... view all files (${bamAndVcfFiles.length})</a>`;
-                        break;
-                    }
-                }
-                html += "</div>";
-                return html;
-            }
-        } else {
-            return "-";
-        }
+    static fileFormatter(files, extensions = "*") {
+        const items = (files || [])
+            .filter(file => extensions === "*" || extensions.some(ext => (file?.id || file?.name || file).endsWith(ext)))
+            .map(file => {
+                return `
+                    <a class="link d-block fw-bold" data-action="view-file" data-file="${file?.id || file}">
+                        ${file?.name || (file?.id || file).split(":").pop()}
+                    </a>
+                `;
+            });
+        return GridCommons.generateExpandCollapseContent(items, 3);
     }
 
     static dateFormatter(value, row) {
@@ -192,22 +181,31 @@ export default class CatalogGridFormatter {
         return "-";
     }
 
-    static caseFormatter(clinicalAnalysisArray, row, individualId, opencgaSession) {
-        if (clinicalAnalysisArray?.length > 0) {
-            let result = "";
-            for (const clinicalAnalysis of clinicalAnalysisArray) {
-                result += `
-                    <div class="my-1 mx-0">
-                        <a title="Go to Case Interpreter" class="text-nowrap text-decoration-none" href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
-                            <i aria-hidden="true" class="fas fa-user-md"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
-                        </a>
-                    </div>
-                `;
-            }
-            return `<div class="d-grid gap-2 d-md-flex flex-column">${result}</div>`;
-        } else {
-            return "-";
+    static modifiedAndCreateDateFormatter(value, row) {
+        if (row) {
+            return `
+                <div class="" title="${row.version ? `Version ${row.version}` : ""}">
+                    <span class="my-1">${UtilsNew.dateFormatter(row.modificationDate)}</span>
+                    <span class="d-block text-secondary my-1">${UtilsNew.dateFormatter(row.creationDate)}</span>
+                </div>
+            `;
         }
+        return "-";
+    }
+
+    static caseFormatter(clinicalAnalysisArray, row, individualId, opencgaSession) {
+        const items = (clinicalAnalysisArray || []).map(clinicalAnalysis => {
+            // const caseUrl = WebUtils.getInterpreterLink(opencgaSession, clinicalAnalysis.id);
+            return `
+                <div class="text-nowrap">
+                    <a class="link fw-bold" data-action="view-clinical-analysis" data-clinical-analysis="${clinicalAnalysis.id}">
+                        <span>${clinicalAnalysis.id}</span>
+                    </a>
+                    <span class="text-secondary ms-1">${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}</span>
+                </div>
+            `;
+        });
+        return GridCommons.generateExpandCollapseContent(items, 3);
     }
 
     static customAnnotationFormatter(annotationSets, selectedVariableSetId, selectedVariables) {
@@ -249,6 +247,42 @@ export default class CatalogGridFormatter {
         }
         html += `</div>`;
         return html;
+    }
+
+    static tagsFormatter(tags) {
+        if (tags?.length > 0) {
+            return `
+                <div class="d-flex gap-1 flex-wrap" style="max-width:15rem;">
+                    ${tags.map(tag => `<span class="badge bg-primary">${tag}</span>`).join(" ")}
+                </div>
+            `;
+        }
+        return "-";
+    }
+
+    static jobStatusFormatter(status, job, appendDescription = false) {
+        const statusConfig = CatalogGridFormatter.JOB_STATUS[status.id] || null;
+        if (statusConfig) {
+            const content = `
+                <span class="fw-bold" style="text-wrap:nowrap;">
+                    <i class="${statusConfig.icon}"></i> ${status.id}
+                </span>
+                ${status?.description && appendDescription ? `<span class="">: ${status?.description}</span>` : ""}
+            `;
+            // if not appendDescription, we return the status with the description as a tooltip
+            if (!appendDescription && status?.description) {
+                const errorEvent = job?.execution?.events.find(event => event.type === "ERROR");
+                const tooltipText = errorEvent ? `${status.description}<br><br>${errorEvent.message}` : status.description;
+                return `
+                    <a class="${statusConfig.className} text-decoration-none" tooltip-title="${status.id}" tooltip-text="${tooltipText}">
+                        ${content}
+                    </a>
+                `;
+            } else {
+                return `<div class="${statusConfig.className}">${content}</div>`;
+            }
+        }
+        return "-";
     }
 
 }

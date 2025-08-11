@@ -19,12 +19,12 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import PolymerUtils from "../PolymerUtils.js";
-import "../commons/opencb-grid-toolbar.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import ModalUtils from "../commons/modal/modal-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import WebUtils from "../commons/utils/web-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import "../commons/grid-toolbar.js";
+import "./cohort-create.js";
+import "./cohort-update.js";
+import "./cohort-view.js";
 
 export default class CohortGrid extends LitElement {
 
@@ -62,9 +62,11 @@ export default class CohortGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "cohort-grid";
+        this.RESOURCE = "COHORT";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
+        this._selectedCohort = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -95,58 +97,77 @@ export default class CohortGrid extends LitElement {
 
         // Settings for the grid toolbar
         this.toolbarSetting = {
-            // buttons: ["columns", "download"],
             ...this._config,
         };
 
         // Config for the grid toolbar
         this.toolbarConfig = {
             toolId: this.toolId,
-            resource: "COHORT",
+            resource: this.RESOURCE,
             columns: this._getDefaultColumns(),
-            create: {
-                display: {
-                    modalTitle: "Cohort Create",
-                    modalDraggable: true,
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
-                },
-                render: () => html `
-                    <cohort-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
-                    </cohort-create>
-                `
-            },
-            // Uncomment in case we need to change defaults
-            // export: {
-            //     display: {
-            //         modalTitle: "Cohort Export",
-            //     },
-            //     render: () => html`
-            //         <opencga-export
-            //             .config="${this._config}"
-            //             .query=${this.query}
-            //             .opencgaSession="${this.opencgaSession}"
-            //             @export="${this.onExport}"
-            //             @changeExportField="${this.onChangeExportField}">
-            //         </opencga-export>`
-            // },
-            // settings: {
-            //     display: {
-            //         modalTitle: "Cohort Settings",
-            //     },
-            //     render: () => html `
-            //         <catalog-browser-grid-config
-            //             .opencgaSession="${this.opencgaSession}"
-            //             .gridColumns="${this._columns}"
-            //             .config="${this._config}"
-            //             @configChange="${this.onGridConfigChange}">
-            //         </catalog-browser-grid-config>`
-            // }
         };
 
-        this.permissionID = WebUtils.getPermissionID(this.toolbarConfig.resource, "WRITE");
+        this.gridCommons.registerModals({
+            "view-cohort": () => ({
+                display: {
+                    modalTitle: `Cohort ${this._selectedCohort?.id}`,
+                    modalSize: "modal-2xl",
+                    modalCyDataName: "cohort-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <cohort-view
+                        .cohortId="${this._selectedCohort?.id}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </cohort-view>
+                `,
+            }),
+            "create-cohort": {
+                display: {
+                    modalTitle: "Create Cohort",
+                    modalSize: "modal-lg",
+                    modalCyDataName: "cohort-create",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <cohort-create
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @cohortCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </cohort-create>
+                `,
+            },
+            "update-cohort": () => ({
+                display: {
+                    modalTitle: `Update Cohort ${this._selectedCohort?.id}`,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "cohort-update",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <cohort-update
+                        .cohortId="${this._selectedCohort?.id}"
+                        .active="${true}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @cohortUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </cohort-update>
+                `,
+            }),
+        });
     }
 
     renderTable() {
@@ -161,8 +182,9 @@ export default class CohortGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
+            classes: "table table-borderless table-hover table-grid",
+            buttonsClass: "light",
             columns: this._getDefaultColumns(),
-            // data: this.cohorts,
             sidePagination: "server",
             // Josemi Note 2024-01-18: we have added the ajax function for local cohorts also to support executing async calls
             // when getting additional data from columns extensions.
@@ -190,16 +212,12 @@ export default class CohortGrid extends LitElement {
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            gridContext: this,
-            // formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            paginationVAlign: "bottom",
+            formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+            },
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            }
+            onPostBody: data => this.gridCommons.onLoadSuccess({rows: data, total: data.length}),
         });
     }
 
@@ -209,10 +227,9 @@ export default class CohortGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "table-light",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
-                method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
@@ -220,10 +237,10 @@ export default class CohortGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
-                showExport: this._config.showExport,
-                detailView: this._config.detailView,
+                paginationVAlign: "bottom",
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+                },
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let cohorstResponse = null;
@@ -235,6 +252,7 @@ export default class CohortGrid extends LitElement {
                         include: "id,creationDate,status,type,numSamples,annotationSets",
                         ...this.query
                     };
+
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.opencgaSession.opencgaClient.cohorts()
@@ -249,57 +267,20 @@ export default class CohortGrid extends LitElement {
                         .catch(e => {
                             console.error(e);
                             params.error(e);
+                        })
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: cohorstResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            $(PolymerUtils.getElementById(this._prefix + "CohortBrowserGrid")).bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            $(PolymerUtils.getElementById(this._prefix + "CohortBrowserGrid")).bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
-                },
-                onCheck: row => {
-                    this.gridCommons.onCheck(row.id, row);
-                },
-                onCheckAll: rows => {
-                    this.gridCommons.onCheckAll(rows);
-                },
-                onUncheck: row => {
-                    this.gridCommons.onUncheck(row.id, row);
-                },
-                onUncheckAll: rows => {
-                    this.gridCommons.onUncheckAll(rows);
-                },
-                onLoadSuccess: data => {
-                    this.gridCommons.onLoadSuccess(data, 1);
-                },
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data),
+                onLoadError: (event, response) => this.gridCommons.onLoadError(event, response)
             });
-        }
-    }
-
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
-    async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
-        switch (action) {
-            case "edit":
-                this.cohortUpdateId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
-                break;
         }
     }
 
@@ -311,28 +292,38 @@ export default class CohortGrid extends LitElement {
                 field: "id",
                 formatter: (cohortId, cohort) => {
                     return `
-                        <div>
-                            <span style="font-weight: bold; margin: 5px 0">${cohortId}</span>
-                            ${cohort.name ? `<span class="d-block text-secondary" style="margin: 5px 0">${cohort.name}</span>` : ""}
-                        </div>`;
+                        <a class="link fw-bold my-1" data-action="view">${cohortId}</div>
+                        ${cohort.name ? `<div class="text-secondary my-1">${cohort.name}</div>` : ""}
+                    `;
                 },
-                halign: "center",
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
                 id: "numSamples",
                 title: "Number of Samples",
                 field: "numSamples",
-                halign: "center",
                 visible: this.gridCommons.isColumnVisible("numSamples")
             },
             {
                 id: "creationDate",
-                title: "Creation Date",
+                title: "Modification / Creation Date",
                 field: "creationDate",
-                formatter: CatalogGridFormatter.dateFormatter,
-                halign: "center",
+                formatter: (value, row) => CatalogGridFormatter.modifiedAndCreateDateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("creationDate")
+            },
+            {
+                id: "actions",
+                align: "right",
+                formatter: () => this.actionsFormatter(),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                visible: this._config.showActions,
+                excludeFromExport: true,
+                excludeFromSettings: true,
             },
         ];
 
@@ -340,58 +331,45 @@ export default class CohortGrid extends LitElement {
             this.gridCommons.addColumnsFromAnnotations(this._columns, CatalogGridFormatter.customAnnotationFormatter, this._config);
         }
 
-        if (this.opencgaSession && this._config.showActions) {
-            this._columns.push({
-                id: "actions",
-                title: "Actions",
-                field: "actions",
-                align: "center",
-                formatter: () => {
-                    const hasWritePermission = OpencgaCatalogUtils.getStudyEffectivePermission(
-                        this.opencgaSession.study,
-                        this.opencgaSession.user.id,
-                        this.permissionID,
-                        this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
-                    return `
-                        <div class="d-inline-block dropdown">
-                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
-                                <span>Actions</span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "" : "disabled"}" href="javascript: void 0">
-                                        <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                                    </a>
-                                </li>
-                                <li>
-                                    <a data-action="delete" class="dropdown-item btn force-text-left disabled" href="javascript: void 0">
-                                        <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    `;
-                },
-                events: {
-                    "click a": this.onActionClick.bind(this),
-                },
-                visible: this.gridCommons.isColumnVisible("actions"),
-            });
-        }
-
-        if (this._config.multiSelection) {
-            this._columns.unshift({
-                field: "state",
-                checkbox: true,
-                class: "cursor-pointer",
-                eligible: false
-            });
-        }
-
-        // _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
-        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
+    }
+
+    actionsFormatter() {
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        return `
+            <div class="d-inline-block dropdown">
+                <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a data-action="view" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-eye me-1"></i> View
+                    </a>
+                    <hr class="dropdown-divider">
+                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </a>
+                    <a data-action="delete" class="dropdown-item disabled">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </a>
+                </div>
+            </div>
+        `;
+    }
+
+    onActionClick(event, cohort) {
+        const action = event.target.dataset.action?.toLowerCase();
+        switch (action) {
+            case "view":
+                this._selectedCohort = cohort;
+                this.gridCommons.changeActiveModal("view-cohort");
+                break;
+            case "edit":
+                this._selectedCohort = cohort;
+                this.gridCommons.changeActiveModal("update-cohort");
+                break;
+        }
     }
 
     async onDownload(e) {
@@ -445,45 +423,44 @@ export default class CohortGrid extends LitElement {
             });
     }
 
-    renderModalUpdate() {
-        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-            display: {
-                modalTitle: `Cohort Update: ${this.cohortUpdateId}`,
-                modalDraggable: true,
-                modalSize: "modal-lg",
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
+    }
+
+    getRightToolbar() {
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        return [
+            {
+                icon: "fa-plus",
+                title: "Create Cohort",
+                disabled: !hasWritePermission,
+                onClick: () => this.gridCommons.changeActiveModal("create-cohort"),
             },
-            render: active => html`
-                <cohort-update
-                    .cohortId="${this.cohortUpdateId}"
-                    .active="${active}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}">
-                </cohort-update>
-            `,
-        });
+        ];
     }
 
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
+                <grid-toolbar
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @cohortCreate="${this.renderTable}">
-                </opencb-grid-toolbar>
+                    @export="${this.onDownload}">
+                </grid-toolbar>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${this.renderModalUpdate()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
@@ -492,14 +469,10 @@ export default class CohortGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            multiSelection: false,
-            showSelectCheckbox: false,
-            detailView: false,
 
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],

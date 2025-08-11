@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
-import {guardPage} from "./html-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import NotificationUtils from "./utils/notification-utils.js";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import NotificationUtils from "./utils/notification-utils.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "./utils/lit-utils.js";
+import {guardPage} from "./html-utils.js";
 import "./tool-settings-editor.js";
 
 export default class ToolSettingsUpdate extends LitElement {
@@ -52,14 +52,11 @@ export default class ToolSettingsUpdate extends LitElement {
     }
 
     #init() {
-        this._study = {};
         this.isLoading = false;
-        this._studyFqnList = [];
-        this._activeTab = {
-            0: "default",
-            1: "backup",
-        };
-        this._config = {};
+        this._data = {};
+        this._study = {};
+        this._availableStudies = [];
+        this._config = this.getDefaultConfig();
     }
 
     #setLoading(value) {
@@ -67,36 +64,6 @@ export default class ToolSettingsUpdate extends LitElement {
         this.requestUpdate();
     }
 
-    #initOriginalObjects() {
-        this._study = this.study || this.opencgaSession.study;
-        this._data = {
-            listStudies: [this._study.fqn],
-            toolSettings: {},
-        };
-
-        this.allowedValues = [];
-        if (this.opencgaSession?.projects) {
-            // Prepare allowedValues for the select options menu
-            for (const project of this.opencgaSession.projects) {
-                const fields = [];
-                for (const study of project.studies) {
-                    if (OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id)) {
-                        fields.push({
-                            id: study.fqn,
-                            name: study.fqn,
-                            disabled: study.fqn === this.opencgaSession.study.fqn
-                        });
-                    }
-                }
-                if (fields.length > 0) {
-                    this.allowedValues.push({name: `Project '${project.name}'`, fields: fields});
-                }
-            }
-        }
-        this._config = this.getDefaultConfig();
-    }
-
-    // --- LIT LIFE CYCLE
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("study")) {
             this.#initOriginalObjects();
@@ -104,21 +71,50 @@ export default class ToolSettingsUpdate extends LitElement {
         if (changedProperties.has("toolSettings")) {
             this.toolSettingsObserver();
         }
-        if (changedProperties.has("config")) {
-            this.configObserver();
-        }
         super.update(changedProperties);
     }
 
-    // --- OBSERVERS ---
+    #initOriginalObjects() {
+        this._study = this.study || this.opencgaSession.study;
+        this._data = {
+            studies: [
+                this._study.fqn,
+            ],
+            toolSettings: UtilsNew.objectClone(this.toolSettings || {}),
+        };
+        this._availableStudies = [];
+        // Read Projects and Study to prepare the allowed values in the Study select menu
+        if (this.opencgaSession?.projects) {
+            // Prepare allowedValues for the select options menu
+            this.opencgaSession.projects.forEach(project => {
+                const studies = [];
+                (project.studies || []).forEach(study => {
+                    if (OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id)) {
+                        studies.push({
+                            id: study.fqn,
+                            name: study.fqn,
+                            disabled: study.fqn === this.opencgaSession.study.fqn,
+                        });
+                    }
+                });
+                if (studies.length > 0) {
+                    this._availableStudies.push({
+                        name: `Project '${project.name}'`,
+                        fields: studies,
+                    });
+                }
+            });
+        }
+        this._config = this.getDefaultConfig();
+    }
+
     toolSettingsObserver() {
         this._data.toolSettings = UtilsNew.objectClone(this.toolSettings);
     }
 
-    // --- EVENTS ---
-    onFieldChange(e) {
-        if (e.detail.value?.json) {
-            this._data.toolSettings = UtilsNew.objectClone(e.detail.value?.json);
+    onFieldChange(event) {
+        if (event.detail.value?.json) {
+            this._data.toolSettings = UtilsNew.objectClone(event.detail.value?.json);
         }
         // Shallow copy just for refreshing the memory direction of this._study
         this._data = {...this._data};
@@ -137,39 +133,48 @@ export default class ToolSettingsUpdate extends LitElement {
     }
 
     onSubmit() {
-        // 1. Prepare query params
-        const params = {
-            includeResult: true,
-        };
-        // 2. Query
         this.#setLoading(true);
-        const _toolSettingsUpdatePromises = this._data.listStudies.map(studyFqn => {
-            // Get new study tool settings
+        // 1. preare all the update promises
+        const toolSettingsUpdatePromises = this._data.studies.map(studyFqn => {
             const study = OpencgaCatalogUtils.getStudyInSession(this.opencgaSession, studyFqn);
             const updateParams = OpencgaCatalogUtils.getNewToolIVASettings(this.opencgaSession, study, this.toolName, this._data.toolSettings);
-
             return this.opencgaSession.opencgaClient.studies()
-                .update(studyFqn, updateParams, params)
-                .then(() => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        title: `${this.toolName} Settings Update in study ${studyFqn}`,
-                        message: `${this.toolName} settings updated correctly`,
-                    });
+                .update(studyFqn, updateParams, {
+                    includeResult: true,
                 })
-                .catch(error => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                .then(() => {
+                    // // 1. Dispatch success notification
+                    // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    //     title: `${this.toolName} Settings Update`,
+                    //     message: `${this.toolName} settings updated correctly`,
+                    // });
+                    // // 2. Dispatch study update event
+                    // LitUtils.dispatchCustomEvent(this, "studyUpdateRequest",
+                    //     UtilsNew.objectClone(response.responses[0].results[0].fqn)
+                    // );
+                })
+                .catch(reason => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                 });
         });
-        // 2. Execute all changes and refresh session
-        Promise.all(_toolSettingsUpdatePromises)
+        // 2. execute all changes and refresh session
+        Promise.all(toolSettingsUpdatePromises)
+            .then(() => {
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", {});
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `${this.toolName} settings updated correctly.`,
+                });
+            })
             .finally(() => {
                 this.#setLoading(false);
-                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", {});
             });
     }
 
-    // --- RENDER ---
     render() {
+        if (!this.opencgaSession) {
+            return nothing;
+        }
+
         if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
             return guardPage("No permission to view this page");
         }
@@ -179,7 +184,7 @@ export default class ToolSettingsUpdate extends LitElement {
                 .data="${this._data}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
+                @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>
         `;
@@ -187,7 +192,6 @@ export default class ToolSettingsUpdate extends LitElement {
 
     getDefaultConfig() {
         return {
-            id: "",
             display: {
                 width: 12,
                 titleVisible: false,
@@ -195,7 +199,6 @@ export default class ToolSettingsUpdate extends LitElement {
                 titleWidth: 4,
                 buttonsVisible: true,
                 buttonsLayout: "top",
-                // buttonOkDisabled: () => this._listStudies?.length === 0
             },
             buttons: {
                 clearText: "Discard Changes",
@@ -205,23 +208,19 @@ export default class ToolSettingsUpdate extends LitElement {
                 {
                     title: "Tool Configuration",
                     display: {
-                        // titleHeader: "",
-                        // titleStyle: "",
                         descriptionClassName: "d-block text-secondary",
-                        // descriptionStyle: "",
-                        // visible: () =>
                     },
                     elements: [
                         {
                             title: "Study",
-                            field: "listStudies",
+                            field: "studies",
                             type: "select",
                             multiple: true,
                             all: true,
                             required: true,
-                            save: value => value?.split(",") || [], // Array when select and multiple
-                            defaultValue: `${this._study.fqn}`,
-                            allowedValues: this.allowedValues,
+                            save: value => value?.split(",") || [],
+                            defaultValue: this._study.fqn,
+                            allowedValues: this._availableStudies,
                             display: {
                                 placeholder: "Select study or studies..."
                             },
@@ -232,27 +231,21 @@ export default class ToolSettingsUpdate extends LitElement {
                     title: "Settings",
                     type: "tabs",
                     display: {
-                        // titleHeader: "",
-                        // titleStyle: "",
                         descriptionClassName: "d-block text-secondary",
-                        // descriptionStyle: "",
-                        // visible: () =>
                     },
                     elements: [
                         {
                             type: "custom",
                             field: "toolSettings",
                             display: {
-                                render: toolSettings => {
-                                    return html `
-                                        <tool-settings-editor
-                                            .toolSettings="${toolSettings}"
-                                            .toolName="${this.toolName}"
-                                            .study="${this._study}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </tool-settings-editor>
-                                    `;
-                                },
+                                render: toolSettings => html`
+                                    <tool-settings-editor
+                                        .toolSettings="${toolSettings}"
+                                        .toolName="${this.toolName}"
+                                        .study="${this._study}"
+                                        .opencgaSession="${this.opencgaSession}">
+                                    </tool-settings-editor>
+                                `,
                             },
                         },
                     ],

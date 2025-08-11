@@ -1,7 +1,5 @@
 import Utils from "../utils.js";
 import UtilsNew from "../utils-new.js";
-
-
 export default class Region {
 
     constructor(args) {
@@ -10,17 +8,14 @@ export default class Region {
         this.end = null;
 
         this.chromosomeAlias = ["chromosome", "sequenceName"];
-        if (_.isObject(args)) {
+        if (typeof args === "object") {
             this.load(args);
-        } else if (_.isString(args)) {
+        } else if (typeof args === "string") {
             this.parse(args);
         }
     }
 
     load(obj) {
-        if (_.isString(obj)) {
-            return this.parse(obj);
-        }
         this.chromosome = this._checkChromosomeAlias(obj) || this.chromosome;
 
         if (typeof obj.position !== "undefined") {
@@ -33,9 +28,6 @@ export default class Region {
     }
 
     parse(str) {
-        if (_.isObject(str)) {
-            this.load(str);
-        }
         const pattern = /^([a-zA-Z0-9_])+\:([0-9])+\-([0-9])+$/;
         const pattern2 = /^([a-zA-Z0-9_])+\:([0-9])+$/;
         if (pattern.test(str) || pattern2.test(str)) {
@@ -56,8 +48,8 @@ export default class Region {
     }
 
     multiParse(str) {
-        if (_.isObject(str)) {
-            this.load(obj);
+        if (typeof str === "object") {
+            this.load(str);
         }
         const pattern = /^([a-zA-Z0-9_])+\:([0-9])+\-([0-9])+(,([a-zA-Z0-9_])+\:([0-9])+\-([0-9])+)*$/;
         const pattern2 = /^\[([a-zA-Z0-9_])+\:([0-9])+\-([0-9])+(,([a-zA-Z0-9_])+\:([0-9])+\-([0-9])+)*\]$/;
@@ -109,5 +101,3 @@ export default class Region {
     }
 
 }
-
-

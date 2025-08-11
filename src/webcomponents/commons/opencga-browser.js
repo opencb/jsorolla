@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
+import WebUtils from "./utils/web-utils.js";
 import {guardPage} from "./html-utils.js";
 import "./opencga-browser-filter.js";
-import "./opencga-facet-result-view.js";
-import "./opencga-active-filters.js";
-import "./opencb-facet-results.js";
-import "./facet-filter.js";
 import "../loading-spinner.js";
 import "./tool-header.js";
+import "./grid-notifications.js";
 
 export default class OpencgaBrowser extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -45,9 +44,9 @@ export default class OpencgaBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
+            // cellbaseClient: {
+            //     type: Object
+            // },
             query: {
                 type: Object
             },
@@ -66,12 +65,14 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     #init() {
-        this._prefix = "facet" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
 
         this.query = {};
         this.preparedQuery = {};
         this.executedQuery = {};
+        this.searchActive = true;
+        this.notifications = [];
 
         this.activeView = "";
 
@@ -83,7 +84,6 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     firstUpdated() {
-        $(".bootstrap-select", this).selectpicker();
         UtilsNew.initTooltip(this);
     }
 
@@ -91,19 +91,15 @@ export default class OpencgaBrowser extends LitElement {
         if (changedProperties.has("config")) {
             this.configObserver();
         }
-
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-
         if (changedProperties.has("query") || changedProperties.has("opencgaSession")) {
             this.queryObserver();
         }
-
-        if (changedProperties.has("selectedFacet")) {
-            this.facetQueryBuilder();
-        }
-
+        // if (changedProperties.has("selectedFacet")) {
+        //     this.facetQueryBuilder();
+        // }
         super.update(changedProperties);
     }
 
@@ -112,6 +108,7 @@ export default class OpencgaBrowser extends LitElement {
             this.preparedQuery = {...this._config?.filter?.defaultFilter};
             this.executedQuery = {...this._config?.filter?.defaultFilter};
             this.detail = null;
+            this.searchActive = false;
 
             this.facetQuery = null;
             this.preparedFacetQueryFormatted = null;
@@ -128,6 +125,7 @@ export default class OpencgaBrowser extends LitElement {
                 // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
                 LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
                 this.detail = null;
+                this.searchActive = false;
             }
         }
     }
@@ -146,93 +144,44 @@ export default class OpencgaBrowser extends LitElement {
         }
     }
 
-    facetQueryBuilder() {
-        this.facetQuery = null;
-
-        if (Object.keys(this.selectedFacet).length) {
-            this.executedFacetQueryFormatted = {...this.preparedFacetQueryFormatted};
-
-            this.facetQuery = {
-                ...this.preparedQuery,
-                study: this.opencgaSession.study.fqn,
-                field: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
-            };
-            this.changeView("facet-tab");
-        }
-    }
-
     notifySearch(query) {
         LitUtils.dispatchCustomEvent(this, "querySearch", undefined, {
             query: query
         });
     }
 
-    onRun() {
-        // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in opencga-browser
-        // queryObserver() here stops the repetition of the remote request by checking if it has changed
-        // TODO do the same with facetQuery
-        this.executedQuery = {...this.preparedQuery};
-        this.detail = null;
-        // updates this.queries in iva-app
-        this.notifySearch(this.preparedQuery);
-
-        this.facetQueryBuilder();
-        this.requestUpdate();
-    }
-
-    changeView(id) {
+    onChangeView(id) {
         this.activeView = id;
         this.requestUpdate();
     }
 
-    onQueryFilterChange(e) {
-        this.preparedQuery = e.detail.query;
+    onQueryComplete(event) {
+        this.notifications = WebUtils.getResponseEvents(event.detail.response);
+        this.searchActive = true;
         this.requestUpdate();
     }
 
-    onQueryFilterSearch(e) {
-        this.preparedQuery = {...e.detail};
-        this.executedQuery = {...e.detail};
+    onQuerySearch(e) {
+        this.preparedQuery = {...e.detail.query};
+        this.executedQuery = {...e.detail.query};
+        this.searchActive = false;
         this.detail = null;
         this.notifySearch(this.preparedQuery);
         this.requestUpdate();
     }
 
-    onActiveFilterChange(e) {
-        this.preparedQuery = {...e.detail};
-        this.executedQuery = {...e.detail};
-        this.detail = null;
-        this.notifySearch(this.preparedQuery);
-        this.facetQueryBuilder();
-        this.requestUpdate();
-    }
-
-    onActiveFilterClear() {
+    onQueryClear() {
         this.preparedQuery = {};
         this.executedQuery = {};
+        this.searchActive = false;
         this.detail = null;
         this.notifySearch(this.preparedQuery);
-        this.facetQueryBuilder();
         this.requestUpdate();
     }
 
-    onFacetQueryChange(e) {
-        this.preparedFacetQueryFormatted = e.detail.value;
-        // this.facetQueryBuilder();
+    onQueryChange(e) {
+        this.preparedQuery = e.detail.query;
         this.requestUpdate();
-    }
-
-    onActiveFacetChange(e) {
-        this.selectedFacet = {...e.detail};
-        this.preparedFacetQueryFormatted = {...e.detail};
-        // this.onRun(); // TODO the query should be repeated every action on active-filter (delete, clear, load from Saved filter)
-        this.facetQueryBuilder();
-        this.requestUpdate();
-    }
-
-    onActiveFacetClear() {
-        this.selectedFacet = {};
-        this.onRun();
     }
 
     onClickRow(e) {
@@ -251,7 +200,7 @@ export default class OpencgaBrowser extends LitElement {
         }
 
         return this._config.views.map(view => html`
-            <div id="${view.id}" class="content-tab ${this.activeView === view.id ? "active" : ""}">
+            <div id="${view.id}" class="${this.activeView === view.id ? "d-block" : "d-none"}">
                 ${view.render({
                     opencgaSession: this.opencgaSession,
                     config: this._config,
@@ -264,71 +213,32 @@ export default class OpencgaBrowser extends LitElement {
                     active: this.activeView === view.id,
                     onClickRow: event => this.onClickRow(event),
                     onComponentUpdate: event => this.onComponentUpdate(event),
+                    onQueryComplete: event => this.onQueryComplete(event),
+                    onQuerySearch: event => this.onQuerySearch(event),
                 })}
             </div>
         `);
     }
 
-    renderfilter() {
-        if (this._config.filter.render) {
-            // TODO can this be deleted?
-            return html`
-                <div class="tab-pane fade show active" id="filters_tab" role="tabpanel" >
-                    ${this._config.filter.render({
-                        opencgaSession: this.opencgaSession,
-                        config: this._config,
-                        query: this.preparedQuery,
-                        onQueryFilterChange: this.onQueryFilterChange,
-                        onQueryFilterSearch: this.onQueryFilterSearch,
-                    })}
+    renderHeaderRightContent() {
+        return html`
+            <div class="d-flex gap-1 align-items-stretch">
+                <!-- View buttons -->
+                <div class="d-flex align-items-center border bg-gray-100 rounded-2">
+                    ${(this._config.views || []).map(view => html`
+                        <button
+                            class="${`btn ${this.activeView === view.id ? "active bg-primary text-white" : ""}`}"
+                            @click="${() => this.onChangeView(view.id)}">
+                            <i class="fa ${view.icon} me-2"></i>
+                            <strong>${view.name}</strong>
+                        </button>
+                    `)}
                 </div>
-            `;
-        } else {
-            return html`
-                <div class="tab-pane active" id="filters_tab" role="tabpanel" >
-                    <opencga-browser-filter
-                        .query="${this.preparedQuery}"
-                        .resource="${this.resource}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .cellbaseClient="${this.cellbaseClient}"
-                        .config="${this._config.filter}"
-                        @queryChange="${this.onQueryFilterChange}"
-                        @querySearch="${this.onQueryFilterSearch}">
-                    </opencga-browser-filter>
-                </div>
-            `;
-        }
-    }
-
-    renderAggregation() {
-        if (typeof this._config?.aggregation?.render !== "function") {
-            return html`${nothing}`;
-        }
-
-        return html `
-            <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
-                ${this._config.aggregation.render({
-                    config: this._config,
-                    selectedFacet: this.selectedFacet,
-                    onFacetQueryChange: this.onFacetQueryChange,
-                })}
-            </div>
-        `;
-    }
-
-    renderButtonViews() {
-        return html `
-            <div class="d-flex gap-1 mb-3" role="toolbar" aria-label="toolbar">
-                ${(this._config.views || []).map(view => html`
-                    <button
-                        type="button"
-                        class="btn btn-success ${this.activeView === view.id ? "active" : ""}"
-                        ?disabled=${view.disabled}
-                        @click="${() => this.changeView(view.id)}">
-                        <i class="${view.icon ?? "fa fa-table"} pe-1" aria-hidden="true"></i>
-                        <strong>${view.name}</strong>
-                    </button>
-                `)}
+                <div class="w-px bg-gray-200 mx-1"></div>
+                <grid-notifications
+                    class="d-flex align-items-stretch"
+                    .notifications="${this.notifications || []}">
+                </grid-notifications>
             </div>
         `;
     }
@@ -341,81 +251,24 @@ export default class OpencgaBrowser extends LitElement {
         return html`
             ${this._config.showHeader ? html`
                 <tool-header
-                    .title="${this._config.title}"
-                    .icon="${this._config.icon}">
+                    .title="${this._config.title || ""}"
+                    .rightContent="${this.renderHeaderRightContent()}">
                 </tool-header>
-            ` : null}
-            <div class="d-flex gap-4" style="padding-right:21px">
-                <div class="col-2">
-                    <div class="d-grid gap-2 pb-3">
-                        <button type="button" class="btn btn-primary" @click="${this.onRun}">
-                            <i class="fa fa-search mx-1" aria-hidden="true"></i>
-                            <span class="fw-bold fs-5">${this._config.searchButtonText || "Search"}</span>
-                        </button>
-                    </div>
-                    <ul class="nav nav-tabs mb-3" id="filterTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active fw-bold"
-                                href="#filters_tab"
-                                aria-controls="filters_tab"
-                                aria-current="page"
-                                aria-selected="true"
-                                role="tab"
-                                type="button"
-                                data-bs-target="#filters_tab"
-                                data-bs-toggle="tab"><span class="fw-bold fs-5">Filters</span>
-                            </button>
-                        </li>
-                        ${this._config.aggregation ? html`
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-bold"
-                                    href="#facet_tab"
-                                    aria-controls="facet_tab"
-                                    aria-current="facet_tab"
-                                    aria-selected="facet_tab"
-                                    role="tab"
-                                    type="button"
-                                    data-bs-toggle="tab"
-                                    data-bs-target="#facet_tab"><span class="fw-bold fs-5">Aggregation</span>
-                                </button>
-                            </li>
-                        ` : null}
-                    </ul>
-                    <div class="tab-content">
-                        ${this.renderfilter()}
-                        ${this.renderAggregation()}
-                    </div>
-                </div>
-                <div class="col-10">
-                    ${this.renderButtonViews()}
-                    <div>
-                        <opencga-active-filters
-                            facetActive
-                            .resource="${this.resource}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .defaultStudy="${this.opencgaSession?.study?.fqn}"
-                            .query="${this.preparedQuery}"
-                            .executedQuery="${this.executedQuery}"
-                            .facetQuery="${this.preparedFacetQueryFormatted}"
-                            .executedFacetQuery="${this.executedFacetQueryFormatted}"
-                            .alias="${this.activeFilterAlias}"
-                            .config="${this._config?.filter?.activeFilters}"
-                            .filters="${this._config?.filter?.examples}"
-                            .defaultFilter="${this._config?.filter?.defaultFilter}"
-                            @activeFilterChange="${this.onActiveFilterChange}"
-                            @activeFilterClear="${this.onActiveFilterClear}"
-                            @activeFacetChange="${this.onActiveFacetChange}"
-                            @activeFacetClear="${this.onActiveFacetClear}">
-                        </opencga-active-filters>
+            ` : nothing}
 
-                        <div class="main-view">
-                            ${this.renderView()}
-                        </div>
-                        <!-- Other option: return an {string, TemplateResult} map -->
-                        <div class="v-space"></div>
-                    </div>
-                </div>
-            </div>
+            <opencga-browser-filter
+                .preparedQuery="${this.preparedQuery}"
+                .executedQuery="${this.executedQuery}"
+                .resource="${this.resource}"
+                .opencgaSession="${this.opencgaSession}"
+                .searchActive="${!!this.searchActive}"
+                .config="${this._config.filter}"
+                @queryClear="${this.onQueryClear}"
+                @queryChange="${this.onQueryChange}"
+                @querySearch="${this.onQuerySearch}">
+            </opencga-browser-filter>
+
+            ${this.renderView()}
         `;
     }
 

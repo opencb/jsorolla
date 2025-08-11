@@ -20,10 +20,12 @@ import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import ModalUtils from "../commons/modal/modal-utils.js";
-import "../commons/opencb-grid-toolbar.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import "../commons/grid-toolbar.js";
 import "./note-create.js";
 import "./note-update.js";
+import "./note-view.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 
 export default class NoteGrid extends LitElement {
 
@@ -61,9 +63,11 @@ export default class NoteGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "note-grid";
+        this.RESOURCE = "NOTE";
+        this.active = true;
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
-        this.active = true;
+        this._selectedNode = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -100,21 +104,71 @@ export default class NoteGrid extends LitElement {
             toolId: this.toolId,
             resource: "NOTE",
             columns: this._getDefaultColumns(),
-            create: {
+        };
+
+        this.gridCommons.registerModals({
+            "create-note": {
                 display: {
-                    modalTitle: "Note Create",
+                    modalTitle: "Create Note",
+                    modalSize: "modal-lg",
+                    modalCyDataName: "note-create",
                     modalDraggable: true,
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
                 },
                 render: () => html`
                     <note-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @noteCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
                     </note-create>
                 `,
             },
-        };
+            "update-note": () => ({
+                display: {
+                    modalTitle: `Update Note ${this._selectedNote?.id}`,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "note-update",
+                    modalDraggable: true,
+                },
+                render: active => html`
+                    <note-update
+                        .noteId="${this._selectedNote?.id}"
+                        .noteScope="${this._selectedNote?.scope}"
+                        .active="${active}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @noteUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </note-update>
+                `,
+            }),
+            "view-note": () => ({
+                display: {
+                    modalTitle: `Note ${this._selectedNote?.id}`,
+                    modalSize: "modal-xl",
+                    modalCyDataName: "note-view",
+                    modalDraggable: true,
+                },
+                render: active => html`
+                    <note-view
+                        .noteId="${this._selectedNote?.id}"
+                        .noteScope="${this._selectedNote?.scope}"
+                        .active="${active}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </note-view>
+                `,
+            }),
+        });
     }
 
     fetchNote(query) {
@@ -149,10 +203,9 @@ export default class NoteGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "table-light",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
-                method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
@@ -161,10 +214,10 @@ export default class NoteGrid extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
-                detailView: !!this.detailFormatter,
-                gridContext: this,
+                paginationVAlign: "bottom",
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+                },
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
                     let notesResponse = null;
@@ -191,40 +244,19 @@ export default class NoteGrid extends LitElement {
                         .catch(error => {
                             console.error(error);
                             params.error(error);
+                        })
+                        .finally(() => {
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: notesResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: (row, element) => {
-                    // We detail view is active we expand the row automatically.
-                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (this._config.detailView) {
-                        if (element[0].innerHTML.includes("fa-plus")) {
-                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
-                        } else {
-                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
-                        }
-                    }
-                },
-                onCheck: row => {
-                    this.gridCommons.onCheck(row.id, row);
-                },
-                onCheckAll: rows => {
-                    this.gridCommons.onCheckAll(rows);
-                },
-                onUncheck: row => {
-                    this.gridCommons.onUncheck(row.id, row);
-                },
-                onUncheckAll: rows => {
-                    this.gridCommons.onUncheckAll(rows);
-                },
-                onLoadSuccess: data => {
-                    this.gridCommons.onLoadSuccess(data, 1);
-                },
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data),
+                onLoadError: (event, response) => this.gridCommons.onLoadError(event, response),
             });
         }
     }
@@ -233,10 +265,9 @@ export default class NoteGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            theadClasses: "table-light",
+            classes: "table table-borderless table-hover table-grid",
             buttonsClass: "light",
             columns: this._getDefaultColumns(),
-            // data: this.notes,
             sidePagination: "server",
             // Josemi Note 2024-01-18: we have added the ajax function for local variants also to support executing async calls
             // when getting additional data from columns extensions.
@@ -259,20 +290,17 @@ export default class NoteGrid extends LitElement {
             },
             iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
             icons: GridCommons.GRID_ICONS,
-
             // Set table properties, these are read from config property
             uniqueId: "id",
             pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
-            detailView: this._config.detailView,
-            gridContext: this,
+            paginationVAlign: "bottom",
+            formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+            },
             loadingTemplate: () => GridCommons.loadingFormatter(),
-            onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            }
+            onPostBody: data => this.gridCommons.onLoadSuccess({rows: data, total: data.length}),
         });
     }
 
@@ -280,9 +308,21 @@ export default class NoteGrid extends LitElement {
         this._columns = [
             {
                 id: "id",
-                title: "Note ID",
+                title: "Note",
                 field: "id",
+                formatter: noteId => {
+                    return `<a class="link fw-bold" data-action="view">${noteId}</a>`;
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
                 visible: this.gridCommons.isColumnVisible("id")
+            },
+            {
+                id: "type",
+                title: "Note Type",
+                field: "type",
+                visible: this.gridCommons.isColumnVisible("type"),
             },
             {
                 id: "userId",
@@ -315,9 +355,8 @@ export default class NoteGrid extends LitElement {
                 id: "visibility",
                 title: "Visibility",
                 field: "visibility",
-                align: "center",
-                width: "5",
-                widthUnit: "%",
+                // width: "5",
+                // widthUnit: "%",
                 formatter: field => {
                     return `<i class="fas ${field === "PUBLIC" ? "fa-globe-americas" : "fa-lock"}"></i>`;
                 },
@@ -327,36 +366,29 @@ export default class NoteGrid extends LitElement {
                 id: "dates",
                 title: "Modification / Creation Date",
                 field: "Dates",
-                halign: this.displayConfigDefault?.header?.horizontalAlign,
-                valign: "middle",
-                formatter: (field, note) => {
-                    return `
-                        <div class="fw-bold">${UtilsNew.dateFormatter(note.modificationDate)}</div>
-                        <div class="text-body-secondary">${UtilsNew.dateFormatter(note.creationDate)}</div>
-                    `;
-                },
+                // halign: this.displayConfigDefault?.header?.horizontalAlign,
+                // valign: "middle",
+                formatter: (value, row) => CatalogGridFormatter.modifiedAndCreateDateFormatter(value, row),
                 visible: this.gridCommons.isColumnVisible("dates")
+            },
+            {
+                id: "actions",
+                align: "right",
+                formatter: (value, row) => this.actionsFormatter(row),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                visible: this._config.showActions,
+                excludeFromSettings: true,
+                excludeFromExport: true,
             },
         ];
 
-        if (this.opencgaSession && this._config.showActions) {
-            this._columns.push({
-                id: "actions",
-                title: "Actions",
-                field: "actions",
-                align: "center",
-                formatter: (value, row) => this.actionsFormatter(value, row),
-                events: {
-                    "click a": this.onActionClick.bind(this),
-                },
-                // visible: !this._config.columns?.hidden?.includes("actions")
-            });
-        }
-        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
+        this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
     }
 
-    actionsFormatter(value, row) {
+    actionsFormatter(row) {
         const user = this.opencgaSession?.user?.id;
         let hasAdminPermissions = false;
         // Case 1: user is an admin organization or owner. In this case, he has permission to perform any action
@@ -370,41 +402,31 @@ export default class NoteGrid extends LitElement {
                 hasAdminPermissions = true;
             }
         }
-
         return `
             <div class="d-inline-block dropdown">
-                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-toolbox" aria-hidden="true"></i>
-                    <span>Actions</span>
+                <button class="btn" type="button" data-bs-toggle="dropdown" data-cy="actions-button">
+                    <i class="fas fa-ellipsis-v"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a data-action="copy-json" href="javascript: void 0" class="dropdown-item">
-                            <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
-                        </a>
-                    </li>
-                    <li>
-                        <a data-action="download-json" href="javascript: void 0" class="dropdown-item">
-                            <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a data-action="edit" href="javascript: void 0" class="dropdown-item ${hasAdminPermissions ? "" : "disabled"}">
-                            <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                        </a>
-                    </li>
-                    <li>
-                        <a data-action="delete" href="javascript: void 0" class="dropdown-item ${hasAdminPermissions ? "" : "disabled"}">
-                            <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                        </a>
-                    </li>
-                </ul>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a data-action="view" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-eye me-1"></i> View
+                    </a>
+                    <a data-action="copy-json" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-copy me-1" aria-hidden="true"></i> Copy JSON
+                    </a>
+                    <a data-action="download-json" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-download"></i> Download JSON
+                    </a>
+                    <hr class="dropdown-divider">
+                    <a data-action="edit" class="dropdown-item ${hasAdminPermissions ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </a>
+                    <a data-action="delete" class="dropdown-item ${hasAdminPermissions ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </a>
+                </div>
             </div>
         `;
-    }
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
     }
 
     onDeleteNote(note) {
@@ -435,17 +457,19 @@ export default class NoteGrid extends LitElement {
         });
     }
 
-    async onActionClick(e, _, row) {
-        const action = e.target.dataset.action?.toLowerCase() || e.detail.action;
+    onActionClick(event, note) {
+        const action = event.target?.dataset?.action?.toLowerCase() || event.detail.action;
         switch (action) {
+            case "view":
+                this._selectedNote = note;
+                this.gridCommons.changeActiveModal("view-note");
+                break;
             case "edit":
-                this.noteUpdate = row;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
+                this._selectedNote = note;
+                this.gridCommons.changeActiveModal("update-note");
                 break;
             case "copy-json":
-                this.fetchNote({id: row.id, scope: row.scope})
+                this.fetchNote({id: note.id, scope: note.scope})
                     .then(response => {
                         UtilsNew.copyToClipboard(JSON.stringify(response.responses[0].results[0], null, "\t"));
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -458,9 +482,9 @@ export default class NoteGrid extends LitElement {
                     });
                 break;
             case "download-json":
-                this.fetchNote({id: row.id, scope: row.scope})
+                this.fetchNote({id: note.id, scope: note.scope})
                     .then(response => {
-                        UtilsNew.downloadData([JSON.stringify(response.responses[0].results[0], null, "\t")], row.id + ".json");
+                        UtilsNew.downloadData([JSON.stringify(response.responses[0].results[0], null, "\t")], note.id + ".json");
                     })
                     .catch(error => {
                         console.error(error);
@@ -468,50 +492,48 @@ export default class NoteGrid extends LitElement {
                     });
                 break;
             case "delete":
-                this.onDeleteNote(row);
+                this.onDeleteNote(note);
                 break;
         }
     }
 
-    renderModalUpdate() {
-        return ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-            display: {
-                modalTitle: `Note Update: ${this.noteUpdate?.id}`,
-                modalDraggable: true,
-                modalCyDataName: "modal-update",
-                modalSize: "modal-lg"
+    getRightToolbar() {
+        const isOrganizationAdmin = CatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, this.opencgaSession?.user?.id);
+        const isStudyAdmin = CatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
+        return [
+            {
+                icon: "fa-plus",
+                title: "Create Note",
+                disabled: !isOrganizationAdmin && !isStudyAdmin,
+                onClick: () => this.gridCommons.changeActiveModal("create-note"),
             },
-            render: active => html`
-                <note-update
-                    .noteId="${this.noteUpdate?.id}"
-                    .noteScope="${this.noteUpdate?.scope}"
-                    .active="${active}"
-                    .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                    .opencgaSession="${this.opencgaSession}">
-                </note-update>
-            `,
-        });
+        ];
+    }
+
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
     }
 
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
+                <grid-toolbar
                     .query="${this.filters}"
                     .opencgaSession="${this.opencgaSession}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .settings="${this.toolbarSetting}"
-                    .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @noteCreate="${this.renderTable}">
-                </opencb-grid-toolbar>
+                    .config="${this.toolbarConfig}">
+                </grid-toolbar>
             ` : nothing}
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow" data-cy="sb-grid">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${ifDefined(this.gridId)}"></table>
             </div>
 
-            ${this.renderModalUpdate()}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
@@ -520,12 +542,10 @@ export default class NoteGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            multiSelection: false,
-            showSelectCheckbox: false,
+
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
             showExport: false,
             showSettings: true,
             exportTabs: ["download", "link", "code"],

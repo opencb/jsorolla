@@ -10,7 +10,7 @@ on:
 jobs:
   release-workflow:
     name: "Create GitHub Release"
-    runs-on: ubuntu-22.04
+    runs-on: ${{ vars.UBUNTU_VERSION }}
     steps:
       - uses: actions/download-artifact@v4gi
         with:

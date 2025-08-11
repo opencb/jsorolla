@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
-import {guardPage} from "./html-utils.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import NotificationUtils from "./utils/notification-utils.js";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
+import NotificationUtils from "./utils/notification-utils.js";
 import LitUtils from "./utils/lit-utils.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import {guardPage} from "./html-utils.js";
 
 export default class ToolSettingsRestore extends LitElement {
 
-    // --- CONSTRUCTOR ---
     constructor() {
         super();
 
@@ -34,7 +33,6 @@ export default class ToolSettingsRestore extends LitElement {
         return this;
     }
 
-    // --- PROPERTIES ---
     static get properties() {
         return {
             study: {
@@ -46,15 +44,13 @@ export default class ToolSettingsRestore extends LitElement {
         };
     }
 
-    // --- PRIVATE METHODS ---
     #init() {
-        this._study = {};
         this.isLoading = false;
-        this._activeTab = {
-            0: "default",
-            1: "backup",
-        };
-        this._config = {};
+        this._data = {};
+        this._study = {};
+        this._availableStudies = [];
+        this._availableTabs = ["default", "backup"];
+        this._config = this.getDefaultConfig();
     }
 
     #setLoading(value) {
@@ -62,35 +58,6 @@ export default class ToolSettingsRestore extends LitElement {
         this.requestUpdate();
     }
 
-    #initOriginalObjects() {
-        this._study = this.study || this.opencgaSession.study;
-        this._data = {
-            listStudies: [UtilsNew.objectClone(this._study.fqn)],
-        };
-
-        this.allowedValues = [];
-        if (this.opencgaSession?.projects) {
-            // Prepare allowedValues for the select options menu
-            for (const project of this.opencgaSession.projects) {
-                const fields = [];
-                for (const study of project.studies) {
-                    if (OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id)) {
-                        fields.push({
-                            id: study.fqn,
-                            name: study.fqn,
-                            disabled: study.fqn === this.opencgaSession.study.fqn
-                        });
-                    }
-                }
-                if (fields.length > 0) {
-                    this.allowedValues.push({name: `Project '${project.name}'`, fields: fields});
-                }
-            }
-        }
-        this._config = this.getDefaultConfig();
-    }
-
-    // --- UPDATE ---
     update(changedProperties) {
         if (changedProperties.has("study") || changedProperties.has("opencgaSession")) {
             this.#initOriginalObjects();
@@ -98,7 +65,47 @@ export default class ToolSettingsRestore extends LitElement {
         super.update(changedProperties);
     }
 
-    // --- EVENTS ---
+    #initOriginalObjects() {
+        // The original settings and study are maintained. A copy is used for previewing the ongoing changes in json
+        // this._study = UtilsNew.objectClone(this.study);
+        // this._studyFqnList = this.opencgaSession?.study?.fqn ? [this.opencgaSession.study.fqn] : [];
+        // this._config = {
+        //     ...this.getDefaultConfig(),
+        //     // ...this.config,
+        // };
+        this._study = this.study || this.opencgaSession?.study || {};
+        this._data = {
+            studies: [
+                this._study.fqn,
+            ],
+        };
+        // Read Projects and Study to prepare the Study select dropdown
+        this._availableStudies = [];
+        if (this.opencgaSession?.projects) {
+            // Prepare allowedValues for the select options menu
+            this.opencgaSession.projects.forEach(project => {
+                const studies = [];
+                (project.studies || []).forEach(study => {
+                    if (OpencgaCatalogUtils.isAdmin(study, this.opencgaSession.user.id)) {
+                        studies.push({
+                            id: study.fqn,
+                            name: study.fqn,
+                            disabled: study.fqn === this.opencgaSession.study.fqn
+                        });
+                    }
+                });
+                if (studies.length > 0) {
+                    this._availableStudies.push({
+                        name: `Project '${project.name}'`,
+                        fields: studies,
+                    });
+                }
+            });
+        }
+        // Refresh configuration object to read new this.allowedValues array.
+        this._config = this.getDefaultConfig();
+    }
+
     onFieldChange() {
         this._data = {...this._data};
         this.requestUpdate();
@@ -117,60 +124,63 @@ export default class ToolSettingsRestore extends LitElement {
 
     onSubmit(e) {
         // 1. Prepare query params
-        const activeTab = this._activeTab[e.detail.value];
-        const params = {
-            includeResult: true,
-        };
+        const activeTab = this._availableTabs[e.detail.value];
         // 2. Query
         this.#setLoading(true);
-        const _toolSettingsRestorePromises = this._data.listStudies.map(studyFqn => {
+        const toolSettingsRestorePromises = this._data.studies.map(studyFqn => {
             // 2.1. Retrieve the backup or default tool settings of each study
             const study = OpencgaCatalogUtils.getStudyInSession(this.opencgaSession, studyFqn);
             const allToolSettings = OpencgaCatalogUtils.getRestoreIVASettings(this.opencgaSession, study, activeTab);
             // 2.2 Return the query
             return this.opencgaSession.opencgaClient.studies()
-                .update(studyFqn, allToolSettings, params)
+                .update(studyFqn, allToolSettings, {
+                    includeResults: true,
+                })
                 .then(() => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        title: `${UtilsNew.capitalize(activeTab)} Settings Restore in study ${studyFqn}`,
-                        message: `${UtilsNew.capitalize(activeTab)} settings restored correctly`,
-                    });
+                    // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    //     title: `${UtilsNew.capitalize(activeTab)} Settings Restore in study ${studyFqn}`,
+                    //     message: `${UtilsNew.capitalize(activeTab)} settings restored correctly`,
+                    // });
                 })
                 .catch(reason => {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
                 });
         });
-        // 2. Execute all changes and refresh session
-        Promise.all(_toolSettingsRestorePromises)
+        // 3. Execute all changes and refresh session
+        Promise.all(toolSettingsRestorePromises)
+            .then(() => {
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", {});
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `${UtilsNew.capitalize(activeTab)} settings restored correctly in all selected studies.`,
+                });
+            })
             .finally(() => {
                 this.#setLoading(false);
-                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", {});
             });
     }
 
-    // --- RENDER ---
     render() {
+        if (!this.opencgaSession) {
+            return nothing;
+        }
+
         if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
             return guardPage("No permission to view this page");
         }
 
-        return html `
+        return html`
             <data-form
                 .data="${this._data}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
+                @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>
         `;
     }
 
-    // --- DEFAULT CONFIG ---
     getDefaultConfig() {
         return {
-            id: "",
-            title: "",
-            icon: "",
             type: "tabs",
             display: {
                 width: 12,
@@ -189,23 +199,19 @@ export default class ToolSettingsRestore extends LitElement {
                 {
                     title: "Reset default settings",
                     display: {
-                        // titleHeader: "",
-                        // titleStyle: "",
                         descriptionClassName: "d-block text-secondary",
-                        // descriptionStyle: "",
-                        // visible: () =>
                     },
                     elements: [
                         {
                             title: "Study",
-                            field: "listStudies",
+                            field: "studies",
                             type: "select",
                             multiple: true,
                             all: true,
                             required: true,
                             save: value => value?.split(",") || [], // Array when select and multiple
-                            defaultValue: `${this._study.fqn}`,
-                            allowedValues: this.allowedValues,
+                            defaultValue: this._study?.fqn,
+                            allowedValues: this._availableStudies,
                             display: {
                                 placeholder: "Select study or studies..."
                             },
@@ -215,20 +221,17 @@ export default class ToolSettingsRestore extends LitElement {
                             type: "custom",
                             display: {
                                 defaultLayout: "vertical",
-                                render: () => {
-                                    return html `
-                                        <div class="pt-3 pe-3">
-                                            <tool-settings-editor
-                                                .toolSettings="${UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings)}"
-                                                .selectSettings="${true}"
-                                                .readOnly="${true}"
-                                                .study="${this._study}"
-                                                .opencgaSession="${this.opencgaSession}">
-                                            </tool-settings-editor>
-                                        </div>
-
-                                    `;
-                                },
+                                render: () => html`
+                                    <div class="pt-3 pe-3">
+                                        <tool-settings-editor
+                                            .toolSettings="${UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings)}"
+                                            .selectSettings="${true}"
+                                            .readOnly="${true}"
+                                            .study="${this._study}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </tool-settings-editor>
+                                    </div>
+                                `,
                             },
                         },
                     ],
@@ -236,51 +239,44 @@ export default class ToolSettingsRestore extends LitElement {
                 {
                     title: "Restore backup settings",
                     display: {
-                        // titleHeader: "",
-                        // titleStyle: "",
-                        // visible: study => !!study?.attributes[SETTINGS_NAME + "_BACKUP"]?.settings,
                         descriptionClassName: "form-text",
-                        // descriptionStyle: "",
-                        // visible: () =>
                     },
                     elements: [
                         {
                             type: "notification",
                             text: "No backup avaliable",
                             display: {
-                                visible: !this._study?.attributes[SETTINGS_NAME + "_BACKUP"]?.settings,
+                                visible: !this._study?.attributes?.[SETTINGS_NAME + "_BACKUP"]?.settings,
                                 notificationType: "warning",
                             },
                         },
                         {
                             title: "Study",
-                            field: "listStudies",
+                            field: "studies",
                             type: "select",
                             multiple: true,
                             all: true,
                             required: true,
-                            save: value => value?.split(",") || [], // Array when select and multiple
-                            defaultValue: `${this._study.fqn}`,
-                            allowedValues: this.allowedValues,
+                            save: value => value?.split(",") || [], 
+                            defaultValue: this._study?.fqn,
+                            allowedValues: this._availableStudies,
                             display: {
-                                visible: !!this._study?.attributes[SETTINGS_NAME + "_BACKUP"]?.settings,
+                                visible: !!this._study?.attributes?.[SETTINGS_NAME + "_BACKUP"]?.settings,
                                 placeholder: "Select study or studies..."
                             },
                         },
                         {
                             type: "custom",
                             display: {
-                                visible: !!this._study?.attributes[SETTINGS_NAME + "_BACKUP"]?.settings,
-                                render: () => {
-                                    return html `
-                                        <tool-settings-editor
-                                            .toolSettings="${UtilsNew.objectClone(this._study.attributes[SETTINGS_NAME + "_BACKUP"].settings)}"
-                                            .readOnly="${true}"
-                                            .study="${this._study}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </tool-settings-editor>
-                                    `;
-                                },
+                                visible: !!this._study?.attributes?.[SETTINGS_NAME + "_BACKUP"]?.settings,
+                                render: () => html`
+                                    <tool-settings-editor
+                                        .toolSettings="${UtilsNew.objectClone(this._study.attributes[SETTINGS_NAME + "_BACKUP"].settings)}"
+                                        .readOnly="${true}"
+                                        .study="${this._study}"
+                                        .opencgaSession="${this.opencgaSession}">
+                                    </tool-settings-editor>
+                                `,
                             },
                         },
                     ],

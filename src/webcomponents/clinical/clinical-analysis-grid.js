@@ -15,15 +15,18 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import ModalUtils from "../commons/modal/modal-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
-import "../commons/opencb-grid-toolbar.js";
+import "../commons/grid-toolbar.js";
+import "../individual/individual-view.js"
+import "../family/family-view.js";
+import "./clinical-analysis-view.js";
+import "./clinical-analysis-create.js";
+import "./clinical-analysis-update.js";
 
 export default class ClinicalAnalysisGrid extends LitElement {
 
@@ -59,9 +62,13 @@ export default class ClinicalAnalysisGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "clinical-analysis-grid";
+        this.RESOURCE = "CLINICAL_ANALYSIS";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
+        this._selectedClinicalAnalysis = null;
+        this._selectedIndividualId = null;
+        this._selectedFamilyId = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -93,30 +100,110 @@ export default class ClinicalAnalysisGrid extends LitElement {
         // Settings for the grid toolbar
         this.toolbarSetting = {
             ...this._config,
-            newButtonLink: "#clinical-analysis-create/",
-            // columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
         };
 
         // Config for the grid toolbar
         this.toolbarConfig = {
             toolId: this.toolId,
-            resource: "CLINICAL_ANALYSIS",
+            resource: this.RESOURCE,
             columns: this._getDefaultColumns(),
-            create: {
+        };
+
+        this.gridCommons.registerModals({
+            "view-clinical-analysis": () => ({
                 display: {
-                    modalTitle: "Clinical Analysis Create",
+                    modalTitle: `Clinical Analysis ${this._selectedClinicalAnalysis?.id}`,
+                    modalSize: "modal-3xl",
+                    modalCyDataName: "modal-clinical-analysis-view",
                     modalDraggable: true,
-                    modalCyDataName: "modal-create",
-                    modalSize: "modal-lg"
                 },
-                render: () => html `
-                    <clinical-analysis-create
-                        .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
+                render: () => html`
+                    <clinical-analysis-view
+                        .clinicalAnalysisId="${this._selectedClinicalAnalysis?.id}"
+                        .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
+                    </clinical-analysis-view>
+                `,
+            }),
+            "create-clinical-analysis": {
+                display: {
+                    modalTitle: "Create Clinical Analysis",
+                    modalSize: "modal-lg",
+                    modalCyDataName: "modal-clinical-analysis-create",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <clinical-analysis-create
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @clinicalAnalysisCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
                     </clinical-analysis-create>
                 `,
-            }
-        };
+            },
+            "update-clinical-analysis": () => ({
+                display: {
+                    modalTitle: `Update Clinical Analysis ${this._selectedClinicalAnalysis?.id}`,
+                    modalSize: "modal-lg",
+                    modalCyDataName: "modal-clinical-analysis-update",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <clinical-analysis-update
+                        .clinicalAnalysisId="${this._selectedClinicalAnalysis?.id}"
+                        .active="${true}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonsLayout: "upper",
+                        }}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @clinicalAnalysisUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </clinical-analysis-update>
+                `,
+            }),
+            "view-individual": () => ({
+                display: {
+                    modalTitle: `Individual ${this._selectedIndividualId}`,
+                    modalSize: "modal-3xl",
+                    modalCyDataName: "modal-individual-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <individual-view
+                        .individualId="${this._selectedIndividualId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </individual-view>
+                `,
+            }),
+            "view-family": () => ({
+                display: {
+                    modalTitle: `Family ${this._selectedFamilyId}`,
+                    modalSize: "modal-3xl",
+                    modalCyDataName: "modal-family-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <family-view
+                        .familyId="${this._selectedFamilyId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </family-view>
+                `,
+            }),
+        });
+    }
+
+    fetchData(query) {
+        return this.opencgaSession.opencgaClient.clinical().search(query);
     }
 
     renderRemoteTable() {
@@ -129,27 +216,23 @@ export default class ClinicalAnalysisGrid extends LitElement {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                theadClasses: "table-light",
+                classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
                 columns: this._columns,
-                method: "get",
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
                 uniqueId: "id",
-                // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
-                showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                gridContext: this,
-                // formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                paginationVAlign: "bottom",
+                formatShowingRows: (pageFrom, pageTo, totalRows) => {
+                    return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
+                },
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
-                    let response = null;
+                    let clinicalAnalysisResponse = null;
                     this.filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
@@ -163,87 +246,207 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     // Store the current filters
                     this.lastFilters = {...this.filters};
                     this.fetchData(this.filters)
-                        .then(res => {
-                            response = res;
+                        .then(response => {
+                            clinicalAnalysisResponse = response;
                             // Prepare data for columns extensions
-                            const rows = response.responses?.[0]?.results || [];
+                            const rows = clinicalAnalysisResponse.responses?.[0]?.results || [];
                             return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
                         })
                         .then(() => {
-                            params.success(response);
+                            params.success(clinicalAnalysisResponse);
                         })
                         .catch(error => {
-                            response = error;
+                            console.error(error);
                             params.error(error);
                         })
                         .finally(() => {
-                            LitUtils.dispatchCustomEvent(this, "queryComplete", response);
+                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                                response: clinicalAnalysisResponse,
+                            });
                         });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                     return result.response;
                 },
-                onClickRow: (row, selectedElement) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onCheck: row => {
-                    this.gridCommons.onCheck(row.id, row);
-                },
-                onCheckAll: rows => {
-                    this.gridCommons.onCheckAll(rows);
-                },
-                onUncheck: row => {
-                    this.gridCommons.onUncheck(row.id, row);
-                },
-                onUncheckAll: rows => {
-                    this.gridCommons.onUncheckAll(rows);
-                },
-                onLoadSuccess: data => {
-                    this.gridCommons.onLoadSuccess(data, 1);
-                },
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPostBody: () => {}
+                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data),
+                onLoadError: (event, response) => this.gridCommons.onLoadError(event, response),
             });
         }
     }
 
-    fetchData(query) {
-        return this.opencgaSession.opencgaClient.clinical().search(query);
+    removeRowTable(clinicalAnalysisId) {
+        const data = this.table.bootstrapTable("getData");
+        this.table.bootstrapTable("remove", {
+            field: "id",
+            values: [clinicalAnalysisId]
+        });
+        if (data?.length === 0) {
+            this.table.bootstrapTable("prevPage");
+            this.table.bootstrapTable("refresh");
+        }
     }
 
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
+    _getDefaultColumns() {
+        this._columns = [
+            {
+                id: "icon",
+                field: "interpreter",
+                formatter: (_, row) => {
+                    return `
+                        <a class="btn btn-lg cursor-pointer" href="${WebUtils.getInterpreterLink(this.opencgaSession, row.id)}">
+                            <i class="fas fa-sign-in-alt me-1"></i>
+                        </a>
+                    `;
+                },
+                align: "center",
+                width: 20,
+                excludeFromSettings: true,
+            },
+            {
+                id: "caseId",
+                title: "Case",
+                field: "id",
+                valign: "middle",
+                formatter: (value, row) => this.caseFormatter(value, row),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                visible: this.gridCommons.isColumnVisible("caseId")
+            },
+            {
+                id: "probandId",
+                title: "Proband (Sample) / Family",
+                field: "proband",
+                valign: "middle",
+                formatter: (value, row) => this.probandFormatter(value, row),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                visible: this.gridCommons.isColumnVisible("probandId")
+            },
+            {
+                id: "disorderId",
+                title: "Disorder",
+                field: "disorder",
+                valign: "middle",
+                formatter: (value, row) => CatalogGridFormatter.disorderFormatter([value], row),
+                visible: this.gridCommons.isColumnVisible("disorderId")
+            },
+            {
+                id: "panels",
+                title: "Panels",
+                field: "panels",
+                valign: "middle",
+                formatter: (value, row) => CatalogGridFormatter.panelFormatter(value),
+                visible: this.gridCommons.isColumnVisible("panels")
+            },
+
+            {
+                id: "interpretation",
+                title: "Interpretation Stats",
+                field: "interpretation",
+                valign: "middle",
+                formatter: (value, row) => this.interpretationFormatter(value, row),
+                visible: this.gridCommons.isColumnVisible("interpretation")
+            },
+            {
+                id: "status",
+                title: "Status",
+                field: "status",
+                valign: "middle",
+                formatter: (value, row) => this.statusFormatter(value, row),
+                visible: this.gridCommons.isColumnVisible("status"),
+            },
+            {
+                id: "priority",
+                title: "Priority",
+                field: "priority",
+                valign: "middle",
+                formatter: (value, row) => this.priorityFormatter(value, row),
+                visible: this.gridCommons.isColumnVisible("priority"),
+            },
+            {
+                id: "analysts",
+                title: "Analysts",
+                field: "analysts",
+                valign: "middle",
+                formatter: value => this.analystsFormatter(value),
+                visible: this.gridCommons.isColumnVisible("analysts"),
+            },
+
+            {
+                id: "dates",
+                title: "Due / Creation Date",
+                field: "Dates",
+                valign: "middle",
+                formatter: (field, clinicalAnalysis) => {
+                    const dueDateString = UtilsNew.dateFormatter(clinicalAnalysis.dueDate);
+                    const dueDate = new Date(dueDateString);
+                    const currentDate = new Date();
+                    let dueDateClass = null;
+                    if (currentDate > dueDate) {
+                        dueDateClass = "text-danger";
+                    }
+                    return `
+                        <div class="${dueDateClass}">${dueDateString}</div>
+                        <div class="text-body-secondary">${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}</div>
+                    `;
+                },
+                visible: this.gridCommons.isColumnVisible("dates"),
+            },
+            {
+                id: "interpreter",
+                title: "Interpreter",
+                field: "interpreter",
+                formatter: (_, row) => {
+                    return `
+                        <a class="btn btn-primary cursor-pointer" href="${WebUtils.getInterpreterLink(this.opencgaSession, row.id)}">
+                            <i class="fas fa-sign-in-alt me-1"></i>
+                            <span>Enter</span>
+                        </a>
+                    `;
+                },
+                visible: this.gridCommons.isColumnVisible("interpreter")
+            },
+            {
+                id: "actions",
+                align: "right",
+                formatter: (value, row) => this.actionsFormatter(value, row),
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
+                },
+                excludeFromSettings: true,
+                visible: this._config.showActions,
+            },
+        ];
+
+        this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
+        return this._columns;
     }
 
     caseFormatter(value, row) {
-        if (row?.id) {
-            const url = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`;
-            return `
-                <div class="mt-1 me-0">
-                    <a class="text-decoration-none" title="Go to Case Interpreter" href="${url}" data-cy="case-id">
-                        ${row.id}
-                        ${row.locked ? "<i class=\"fas fa-lock\" aria-hidden=\"true\" style=\"padding-left:4px;\"></i>" : ""}
-                    </a>
-                </div>
-                <div class="mt-1 me-0"  data-cy="case-type">
-                    <span class="form-text">${row.type}</span>
-                </div>
-            `;
-        }
-        return "-";
+        return `
+            <div class="d-flex align-items-center gap-2">
+                <a class="link fw-bold" data-action="view">${row.id}</a>
+                ${row.locked ? `<i class="fas fa-lock fs-7"></i>` : ""}
+            </div>
+            <div class="text-secondary" data-cy="case-type">${row.type}</div>
+        `;
     }
 
     probandFormatter(value, row) {
         if (row.proband) {
-            const samplesHtml = row.proband?.samples?.map(sample => `<span data-cy="proband-sample-id">${sample.id}</span>`)?.join("");
+            const samplesHtml = row.proband?.samples?.map(sample => `<span>${sample.id}</span>`)?.join(", ");
             return `
-                <div class="mt-1 me-0">
-                    <span data-cy="proband-id" class="fw-bold mt-1 me-0">${row.proband?.id || "-"}</span>
-                    <span data-cy="proband-id" class="text-body-secondary d-inline m-1">(${samplesHtml})</span>
+                <div class="my-1">
+                    <a class="link fw-bold" data-action="view-individual" data-individual="${row.proband.id}">${row.proband?.id}</a>
+                    <span class="text-secondary ms-1">(${samplesHtml})</span>
                 </div>
                 ${row.family?.id ? `
-                    <div>
-                        <span data-cy="family-id" class="mt-1 me-0">${row.family.id}</span>
-                        <span data-cy="proband-id" class="text-body-secondary d-inline m-1">(${row.family.members?.length || 0} members)</span>
+                    <div class="my-1">
+                        <a class="link fw-bold" data-action="view-family" data-family="${row.family.id}">${row.family.id}</a>
+                        <span class="text-secondary ms-1">(${row.family.members?.length || 0} members)</span>
                     </div>
                 ` : ""}
             `;
@@ -293,419 +496,171 @@ export default class ClinicalAnalysisGrid extends LitElement {
             }
         }
 
-        const interpretationUrl = `#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}`;
+        const url = WebUtils.getInterpreterLink(this.opencgaSession, row.id);
         return `
-            <a class="text-decoration-none" data-action="interpreter" title="Go to Case Interpreter" href="${interpretationUrl}">
+            <a class="text-decoration-none" data-action="interpreter" title="Go to Case Interpreter" href="${url}">
                 ${html}
             </a>
         `;
     }
 
     priorityFormatter(value, row) {
-        // TODO remove this code as soon as new OpenCGA configuration is in place
-        const _priorities = this.opencgaSession?.study?.internal?.configuration?.clinical?.priorities || [];
-
-        const hasWriteAccess = OpencgaCatalogUtils.getStudyEffectivePermission(
-            this.opencgaSession.study,
-            this.opencgaSession.user.id,
-            "WRITE_CLINICAL_ANALYSIS",
-            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
-        const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // priority is editable
-        // Dropdown button styles and classes
-        const btnClassName = "btn btn-light btn-block dropdown-toggle";
-        const btnStyle = "display:inline-flex;align-items:center;";
-
-        // Current priority
-        const currentPriorityText = value?.id ?? value ?? "-";
-        const currentPriorityColor = WebUtils.getClinicalAnalysisPriorityColour(value?.rank);
-
-        return `
-            <div class="dropdown">
-                <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" style="${btnStyle}" ${isEditable ? "" : "disabled"}>
-                    <span class="badge ${currentPriorityColor} me-2 top-0">
-                        ${currentPriorityText}
-                    </span>
-                </button>
-                ${isEditable ? `
-                    <ul class="dropdown-menu">
-                        ${_priorities.map(priority => `
-                            <li>
-                                <a class="d-flex dropdown-item py-2" data-action="priorityChange" data-priority="${priority.id}" style="cursor:pointer;">
-                                    <div class="flex-grow-1">
-                                        <div>
-                                            <span class="badge ${WebUtils.getClinicalAnalysisPriorityColour(priority?.rank)}">
-                                                ${priority.id}
-                                            </span>
-                                        </div>
-                                        <div class="small text-secondary">${priority.description}</div>
-                                    </div>
-                                    ${priority.id === value?.id ? `<i class="fas fa-check"></i>` : ""}
-                                </a>
-                            </li>
-                        `).join("")}
-                    </ul>
-                ` : ""}
-            </div>
-        `;
+        const priority = (this.opencgaSession?.study?.internal?.configuration?.clinical?.priorities || []).find(priority => {
+            return priority.id === value?.id;
+        });
+        if (priority) {
+            return `
+                <a class="badge ${WebUtils.getClinicalAnalysisPriorityColour(priority.rank)} text-decoration-none" tooltip-title="Priority" tooltip-text="${priority.description}">
+                    ${priority.id}
+                </a>
+            `;
+        }
+        return "-";
     }
 
     statusFormatter(value, row) {
-        const status = this.opencgaSession.study?.internal?.configuration?.clinical?.status || [];
-        const hasWriteAccess = OpencgaCatalogUtils.getStudyEffectivePermission(
-            this.opencgaSession.study,
-            this.opencgaSession.user.id,
-            "WRITE_CLINICAL_ANALYSIS",
-            this.opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions);
-        const isEditable = !this._config.readOnlyMode && hasWriteAccess && !row.locked; // status is editable
+        const status = (this.opencgaSession.study?.internal?.configuration?.clinical?.status || []).find(status => {
+            return status.id === value?.id;
+        });
+        if (status) {
+            return `
+                <a class="text-decoration-none text-body fw-bold" tooltip-title="Status" tooltip-text="${status.description}">
+                    ${status.id}
+                </a>
+            `;
+        }
+        return "-";
+    }
 
-        const currentStatus = value.id || value.name || "-"; // Get current status
+    analystsFormatter(analysts) {
+        const items = (analysts || []).map(analyst => {
+            if (analyst?.id) {
+                return `
+                    <div style="white-space: nowrap">
+                        <span data-cy="analyst-id">${analyst.id}</span>
+                    </div>
+                `;
+            }
+            return "";
+        });
+        return items.join("") || "-"
+    }
 
-        // Dropdown button styles and classes
-        // const btnClassName = "d-inline-flex align-items-center btn btn-light dropdown-toggle";
-        const btnClassName = "d-flex justify-content-between align-items-center btn btn-light dropdown-toggle w-100";
-        // const btnStyle = "display:inline-flex;align-items:center;";
-
+    actionsFormatter(value, row) {
+        const session = this.opencgaSession;
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        const hasDeletePermission = this.gridCommons.hasPermission("DELETE") && !row.locked && row.analysts?.some(analyst => analyst.id === session.user.id);
         return `
-            <div class="dropdown">
-                <button class="${btnClassName}" type="button" data-bs-toggle="dropdown" ${isEditable ? "" : "disabled"}>
-                    <span class='me-auto'">${currentStatus}</span>
+            <div class="dropdown d-inline-block">
+                <button class="btn" data-bs-toggle="dropdown" data-cy="actions-button">
+                    <i class="fas fa-ellipsis-v"></i>
                 </button>
-                ${isEditable ? `
-                    <ul class="dropdown-menu">
-                        ${status.map(({id, description}) => `
-                            <li>
-                                <a class="d-flex dropdown-item py-2" data-action="statusChange" data-status="${id}" style="cursor:pointer;">
-                                    <div class="flex-grow-1">
-                                        <div class="${id === currentStatus ? "fw-bold" : ""}">${id}</div>
-                                        <div class="small text-secondary">${description}</div>
-                                    </div>
-                                    ${id === currentStatus ? `<i class="fas fa-check"></i>` : ""}
-                                </a>
-                            </li>
-                        `).join("")}
-                    </ul>
-                `: ""}
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a data-action="view" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-eye me-1"></i> View
+                    </a>
+                    <a data-action="interpreter" class="dropdown-item" href="${WebUtils.getInterpreterLink(session, row.id)}">
+                        <i class="fas fa-user-md me-1"></i> Case Interpreter
+                    </a>
+                    <a data-action="download" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-download me-1"></i> Download JSON
+                    </a>
+                    <hr class="dropdown-divider">
+                    <a data-action="lock" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                        <i class="fas ${row.locked ? "fa-unlock" : "fa-lock"} me-1"></i> ${row.locked ? "Unlock" : "Lock"}
+                    </a>
+                    <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </a>
+                    <a data-action="delete" class="dropdown-item ${hasDeletePermission ? "cursor-pointer" : "disabled"}">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </a>
+                </div>
             </div>
         `;
     }
 
-    analystsFormatter(analysts) {
-        let html = "-";
-        if (!analysts?.length) {
-            return html;
-        }
-
-        if (analysts?.length > 0) {
-            html = "<div>";
-            analysts.forEach(analyst => {
-                if (analyst?.id) {
-                    html += `
-                        <div style="margin: 2px 0; white-space: nowrap">
-                            <span data-cy="analyst-id">${analyst.id}</span>
-                        </div>
-                    `;
-                }
-            });
-            html += "</div>";
-        }
-        return html;
-    }
-
-    removeRowTable(clinicalAnalysisId) {
-        const data = this.table.bootstrapTable("getData");
-        this.table.bootstrapTable("remove", {
-            field: "id",
-            values: [clinicalAnalysisId]
-        });
-        if (data?.length === 0) {
-            this.table.bootstrapTable("prevPage");
-            this.table.bootstrapTable("refresh");
-        }
-    }
-
-    async onActionClick(e, _, row) {
-        const action = e.currentTarget?.dataset?.action?.toLowerCase() || e.detail?.action;
+    onActionClick(event, clinicalAnalysis) {
+        const action = event.currentTarget?.dataset?.action?.toLowerCase();
         switch (action) {
+            case "view":
+                this._selectedClinicalAnalysis = clinicalAnalysis;
+                this.gridCommons.changeActiveModal("view-clinical-analysis");
+                break;
             case "edit":
-                this.clinicalAnalysisUpdateId = row.id;
-                this.requestUpdate();
-                await this.updateComplete;
-                ModalUtils.show(`${this._prefix}UpdateModal`);
+                this._selectedClinicalAnalysis = clinicalAnalysis;
+                this.gridCommons.changeActiveModal("update-clinical-analysis");
                 break;
             case "delete":
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-                    title: `Delete case '${row.id}'`,
-                    message: `Are you sure you want to delete case <b>'${row.id}'</b>?`,
-                    display: {
-                        okButtonText: "Yes, delete it",
-                    },
-                    ok: () => {
-                        const clinicalAnalysisId = row.id;
-                        this.opencgaSession.opencgaClient.clinical()
-                            .delete(clinicalAnalysisId, {
-                                study: this.opencgaSession.study.fqn,
-                                force: row.interpretation?.primaryFindings?.length === 0 // Only empty Cases can be deleted for now
-                            })
-                            .then(response => {
-                                if (response.getResultEvents("ERROR").length) {
-                                    return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                                }
-                                // Display confirmation message and update the table
-                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                                    message: `Case '${clinicalAnalysisId}' has been deleted.`,
-                                });
-                                LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                                this.removeRowTable(clinicalAnalysisId);
-                            })
-                            .catch(response => {
-                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                            });
-                    },
-                });
+                this.onDelete(clinicalAnalysis);
                 break;
-            case "lock": // Lock or unlock de case
-                const updateParams = {
-                    locked: !row.locked,
-                };
-                return this.opencgaSession.opencgaClient.clinical()
-                    .update(row.id, updateParams, {
-                        study: this.opencgaSession.study.fqn
-                    })
-                    .then(() => {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                            message: `Case '${row.id}' has been ${row.locked ? "unlocked" : "locked"}.`,
-                        });
-                        LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                        this.renderRemoteTable();
-                    })
-                    .catch(response => {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                    });
+            case "lock":
+                this.onLockOrUnlock(clinicalAnalysis);
+                break;
             case "download":
-                this.fetchData({id: row.id, study: this.opencgaSession.study.fqn})
+                this.fetchData({
+                    id: clinicalAnalysis.id,
+                    study: this.opencgaSession.study.fqn,
+                })
                     .then(restResponse => this.download(restResponse))
                     .catch(error => console.error(error));
                 break;
-            case "statuschange":
-                const {status} = e.currentTarget.dataset;
-                this.opencgaSession.opencgaClient.clinical()
-                    .update(row.id, {status: {id: status}}, {study: this.opencgaSession.study.fqn})
-                    .then(response => {
-                        if (!response.getResultEvents("ERROR").length) {
-                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                                message: `Status of case '${row.id}' has been changed to '${status}'.`,
-                            });
-                            LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                            this.renderRemoteTable();
-                        } else {
-                            // console.error(response);
-                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                        }
-                    })
-                    .catch(response => {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                    });
+            case "view-individual":
+                this._selectedIndividualId = clinicalAnalysis.proband.id;
+                this.gridCommons.changeActiveModal("view-individual");
                 break;
-            case "prioritychange":
-                const {priority} = e.currentTarget.dataset;
-                this.opencgaSession.opencgaClient.clinical()
-                    .update(row.id, {priority}, {study: this.opencgaSession.study.fqn})
-                    .then(response => {
-                        if (!response.getResultEvents("ERROR").length) {
-                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                                message: `Priority of case '${row.id}' has been changed to '${priority}'.`,
-                            });
-                            LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
-                            this.renderRemoteTable();
-                        } else {
-                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                        }
-                    })
-                    .catch(response => {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                    });
-                break;
-            default:
+            case "view-family":
+                this._selectedFamilyId = clinicalAnalysis.family.id;
+                this.gridCommons.changeActiveModal("view-family");
                 break;
         }
     }
 
-    _getDefaultColumns() {
-        this._columns = [
-            {
-                id: "caseId",
-                title: "Case",
-                field: "id",
-                halign: "center",
-                valign: "middle",
-                formatter: (value, row) => this.caseFormatter(value, row),
-                visible: this.gridCommons.isColumnVisible("caseId")
+    onDelete(clinicalAnalysis) {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: `Delete case '${clinicalAnalysis.id}'`,
+            message: `Are you sure you want to delete case <b>'${clinicalAnalysis.id}'</b>?`,
+            display: {
+                okButtonText: "Yes, delete it",
             },
-            {
-                id: "probandId",
-                title: "Proband (Sample) and Family",
-                field: "proband",
-                halign: "center",
-                valign: "middle",
-                formatter: (value, row) => this.probandFormatter(value, row),
-                visible: this.gridCommons.isColumnVisible("probandId")
+            ok: () => {
+                this.opencgaSession.opencgaClient.clinical()
+                    .delete(clinicalAnalysis.id, {
+                        study: this.opencgaSession.study.fqn,
+                        force: clinicalAnalysis.interpretation?.primaryFindings?.length === 0 // Only empty Cases can be deleted for now
+                    })
+                    .then(response => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                            message: `Case '${clinicalAnalysis.id}' has been deleted.`,
+                        });
+                        // LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+                        this.table.bootstrapTable("refresh");
+                    })
+                    .catch(response => {
+                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                    });
             },
-            {
-                id: "disorderId",
-                title: "Clinical Condition / Panel",
-                field: "disorder",
-                halign: "center",
-                valign: "middle",
-                formatter: (value, row) => {
-                    const panelHtml = row.panels?.length > 0 ? CatalogGridFormatter.panelFormatter(row.panels) : "-";
-                    return `
-                        <div class="mb-1">${CatalogGridFormatter.disorderFormatter([value], row)}</div>
-                        <div class="mb-1">${panelHtml}</div>
-                    `;
-                },
-                visible: this.gridCommons.isColumnVisible("disorderId")
-            },
-            {
-                id: "interpretation",
-                title: "Interpretation",
-                field: "interpretation",
-                halign: "center",
-                valign: "middle",
-                formatter: (value, row) => this.interpretationFormatter(value, row),
-                visible: this.gridCommons.isColumnVisible("interpretation")
-            },
-            {
-                id: "status",
-                title: "Status",
-                field: "status",
-                halign: "center",
-                valign: "middle",
-                formatter: this.statusFormatter.bind(this),
-                events: {
-                    "click a": this.onActionClick.bind(this)
-                },
-                visible: this.gridCommons.isColumnVisible("status")
-            },
-            {
-                id: "priority",
-                title: "Priority",
-                field: "priority",
-                align: "center",
-                halign: "center",
-                valign: "middle",
-                formatter: this.priorityFormatter.bind(this),
-                events: {
-                    "click a": this.onActionClick.bind(this)
-                },
-                visible: this.gridCommons.isColumnVisible("priority")
-            },
-            {
-                id: "analysts",
-                title: "Analysts",
-                field: "analysts",
-                formatter: value => this.analystsFormatter(value),
-                halign: "center",
-                valign: "middle",
-                visible: this.gridCommons.isColumnVisible("analysts")
-            },
+        });
+    }
 
-            {
-                id: "dates",
-                title: "Due / Creation Date",
-                field: "Dates",
-                halign: "center",
-                valign: "middle",
-                formatter: (field, clinicalAnalysis) => {
-                    const dueDateString = UtilsNew.dateFormatter(clinicalAnalysis.dueDate);
-                    const dueDate = new Date(dueDateString);
-                    const currentDate = new Date();
-                    let dueDateClass = null;
-                    if (currentDate > dueDate) {
-                        dueDateClass = "text-danger";
-                    }
-                    return `
-                        <div class="${dueDateClass}">${dueDateString}</div>
-                        <div class="text-body-secondary">${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}</div>
-                    `;
-                },
-                visible: this.gridCommons.isColumnVisible("dates")
-            },
-        ];
-
-        if (this.opencgaSession && this._config.showActions) {
-            this._columns.push({
-                id: "actions",
-                title: "Actions",
-                field: "actions",
-                valign: "middle",
-                align: "center",
-                formatter: (value, row) => {
-                    const session = this.opencgaSession;
-                    const url = `#interpreter/${session.project.id}/${session.study.id}/${row.id}`;
-                    const hasWriteAccess = OpencgaCatalogUtils.getStudyEffectivePermission(
-                        session.study,
-                        session.user.id,
-                        "WRITE_CLINICAL_ANALYSIS",
-                        session?.organization?.configuration?.optimizations?.simplifyPermissions);
-                    const hasAdminAccess = hasWriteAccess ? "" : "disabled";
-                    const lockActionIcon = row.locked ? "fa-unlock" : "fa-lock";
-                    const lockActionText = row.locked ? "Unlock" : "Lock";
-                    const isOwnOrIsLocked = row.locked || !row.analysts?.some(analyst => analyst.id === this.opencgaSession?.user?.id) ? "disabled" : "";
-
-                    return `
-                        <div class="dropdown d-inline-block">
-                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-toolbox me-1" aria-hidden="true"></i>
-                                <span>Actions</span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <!-- Open the case in the case interpreter -->
-                                <li>
-                                    <a data-action="interpreter" class="dropdown-item" href="${url}">
-                                       <i class="fas fa-user-md me-1" aria-hidden="true"></i> Case Interpreter
-                                    </a>
-                                </li>
-                                <!-- Download the case -->
-                                <li>
-                                    <a data-action="download" class="dropdown-item" href="javascript: void 0">
-                                       <i class="fas fa-download me-1" aria-hidden="true"></i> Download
-                                    </a>
-                                </li>
-                                <!-- Perfom write operations to the case -->
-                                ${hasWriteAccess ? `
-                                    <li><hr class="dropdown-divider"></li>
-                                    <!-- Lock or unlock the case -->
-                                    <li>
-                                        <a data-action="lock" class="dropdown-item">
-                                            <i class="fas ${lockActionIcon} me-1" aria-hidden="true"></i> ${lockActionText}
-                                        </a>
-                                    </li>
-                                    <!-- Edit the case -->
-                                    <li>
-                                        <a data-action="edit" class="btn force-text-left ${hasAdminAccess}" href="javascript: void 0">
-                                            <i class="fas fa-edit me-1" aria-hidden="true"></i> Edit ...
-                                        </a>
-                                    </li>
-                                    <!-- Delete the case -->
-                                    <li>
-                                        <a data-action="delete" class="dropdown-item ${isOwnOrIsLocked}" href="javascript: void 0">
-                                            <i class="fas fa-trash me-1" aria-hidden="true"></i> Delete
-                                        </a>
-                                    </li>
-                                ` : ""}
-                            </ul>
-                        </div>
-                    `;
-                },
-                events: {
-                    "click a": this.onActionClick.bind(this)
-                },
-                visible: this.gridCommons.isColumnVisible("actions"),
+    onLockOrUnlock(clinicalAnalysis) {
+        const updateParams = {
+            locked: !clinicalAnalysis.locked,
+        };
+        this.opencgaSession.opencgaClient.clinical()
+            .update(clinicalAnalysis.id, updateParams, {
+                study: this.opencgaSession.study.fqn
+            })
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `Case '${clinicalAnalysis.id}' has been ${clinicalAnalysis.locked ? "unlocked" : "locked"}.`,
+                });
+                // LitUtils.dispatchCustomEvent(this, "rowUpdate", row);
+                this.table.bootstrapTable("refresh");
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
-        }
-
-        this._columns = this.gridCommons.addColumnsFromExtensions(this._columns, this.COMPONENT_ID);
-        return this._columns;
     }
 
     async onDownload(e) {
@@ -763,42 +718,43 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
     }
 
+    renderToolbarLeftContent() {
+        return html`
+            <span id="${this.gridId + "PaginationInfo"}"></span>
+        `;
+    }
+
+    getRightToolbar() {
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+        return [
+            {
+                icon: "fa-plus",
+                title: "Create Clinical Analysis",
+                disabled: !hasWritePermission,
+                onClick: () => this.gridCommons.changeActiveModal("create-clinical-analysis"),
+            },
+        ];
+    }
+
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar
+                <grid-toolbar
                     .opencgaSession="${this.opencgaSession}"
+                    .leftContent="${this.renderToolbarLeftContent()}"
+                    .rightToolbar="${this.getRightToolbar()}"
                     .settings="${this.toolbarSetting}"
                     .config="${this.toolbarConfig}"
-                    @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}"
-                    @export="${this.onDownload}"
-                    @actionClick="${e => this.onActionClick(e)}"
-                    @clinicalAnalysisCreate="${this.renderRemoteTable}">
-                </opencb-grid-toolbar>
+                    @export="${this.onDownload}">
+                </grid-toolbar>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
 
-            ${ModalUtils.create(this, `${this._prefix}UpdateModal`, {
-                display: {
-                    modalTitle: `Clinical Analysis Update: ${this.clinicalAnalysisUpdateId}`,
-                    modalDraggable: true,
-                    modalSize: "modal-lg"
-                },
-                render: active => {
-                    return html `
-                        <clinical-analysis-update
-                            .clinicalAnalysisId="${this.clinicalAnalysisUpdateId}"
-                            .active="${active}"
-                            .displayConfig="${{mode: "page", type: "tabs", buttonsLayout: "upper"}}"
-                            .opencgaSession="${this.opencgaSession}">
-                        </clinical-analysis-update>
-                    `;
-                }
-            })}
+            ${this.gridCommons.renderModals()}
         `;
     }
 
@@ -808,22 +764,13 @@ export default class ClinicalAnalysisGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
-            showSelectCheckbox: false,
-            multiSelection: false,
-            detailView: false,
 
             showToolbar: true,
             showActions: true,
 
-            showCreate: true,
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],
-            highlights: [],
-
-            showReviewCase: true,
-            showInterpretation: true,
-            showReport: true,
         };
     }
 

@@ -55,6 +55,19 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         this.variableMap = {};
     }
 
+    firstUpdated() {
+        // Note: this is a workaround to show/hide the modal-backdrop when the modal is shown/hidden
+        // this is needed when this modal is rendered inside an offcanvas
+        if (this.variableSets?.length) {
+            this.querySelector(".modal").addEventListener("show.bs.modal", () => {
+                this.querySelector(".modal-backdrop").classList.remove("d-none");
+            });
+            this.querySelector(".modal").addEventListener("hide.bs.modal", () => {
+                this.querySelector(".modal-backdrop").classList.add("d-none");
+            });
+        }
+    }
+
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
@@ -83,9 +96,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         }
     }
 
-    /**
-     * It builds the variable this.selectedVariables from the serialized string this.selectedVariablesText
-     */
+    // It builds the variable this.selectedVariables from the serialized string this.selectedVariablesText
     selectedVariablesTextObserver() {
         this.selectedVariables = {};
 
@@ -109,9 +120,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         }
     }
 
-    /**
-     * It serializes this.selectedVariables in a single string and fire the event
-     */
+    // It serializes this.selectedVariables in a single string and fire the event
     selectedVariablesSerializer() {
         const selected = [];
 
@@ -572,22 +581,35 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
     }
 
     render() {
-        return this.variableSets?.length ? html`
-            <button type="button" class="btn btn-light" @click="${this.showModal}">Annotation</button>
-            ${ModalUtils.create(this, this._prefix + "AnnotationFilterModal", {
-            display: {
-                modalTitle: "Annotation Filter",
-                modalDraggable: true,
-                modalCyDataName: "modal-annotation-filter",
-                modalSize: "modal-xl",
-                modalbtnsVisible: true,
-                btnCancelVisible: false,
-                okButtonText: "OK",
-            },
-            render: () => this.renderBody(),
-        })}
-        ` : html`
-            <p>No variableSets defined in the study</p>
+        if (!this.variableSets?.length) {
+            return html`
+                <div>No variableSets defined in the study</div>
+            `;
+        }
+
+        return html`
+            <button type="button" class="btn btn-light" @click="${this.showModal}">
+                Annotation
+            </button>
+            <div class="modal-backdrop show d-none"></div>
+            <div class="modal fade annotation-modal" id="${this._prefix}AnnotationFilterModal" tabindex="-1" data-bs-backdrop="false">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content container">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Annotation Filter</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            ${this.renderBody()}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
     }
 

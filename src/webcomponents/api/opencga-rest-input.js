@@ -415,19 +415,19 @@ export default class OpencgaRestInput extends LitElement {
         this.endpoint.parameters
             .filter(parameter => parameter.param === "path")
             .forEach(parameter => {
-                url = url.replace(`{${parameter.name}}`, this.data.param[parameter.name]);
+                url = url.replace(`{${parameter.name}}`, this.data?.param?.[parameter.name]);
             });
 
         // Add QUERY params
         this.endpoint.parameters
-            .filter(parameter => (parameter.param === "query" && parameter.name !== "study") && this.data.param[parameter.name])
+            .filter(parameter => (parameter.param === "query" && parameter.name !== "study") && this.data?.param?.[parameter.name])
             .forEach(parameter => {
                 url += `&${parameter.name}=${this.data.param[parameter.name]}`;
             });
 
         // check if QUERY is required and it is not exist in the data
         this.endpoint.parameters
-            .filter(parameter => (parameter.param === "query" && parameter.required) && typeof this.data.param[parameter.name] === "undefined")
+            .filter(parameter => (parameter.param === "query" && parameter.required) && typeof this.data?.param?.[parameter.name] === "undefined")
             .forEach(parameter => {
                 url += `&${parameter.name}=${parameter.defaultValue}`;
             });
@@ -482,6 +482,7 @@ export default class OpencgaRestInput extends LitElement {
                 // buttonsVisible: this.endpoint.method === "POST" && RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession),
                 // buttonClearText: "Clear",
                 // buttonOkText: "Try it out!",
+                buttonsVisible: false,
             },
             sections: [
                 {
@@ -509,6 +510,7 @@ export default class OpencgaRestInput extends LitElement {
                 // buttonsVisible: this.endpoint.method === "POST" && RestUtils.isNotEndPointAdmin(this.endpoint) || RestUtils.isAdministrator(this.opencgaSession),
                 // buttonClearText: "Clear",
                 // buttonOkText: "Try it out!",
+                buttonsVisible: false,
             },
             sections: [{
                 display: {

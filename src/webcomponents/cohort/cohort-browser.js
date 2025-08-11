@@ -15,19 +15,17 @@
  */
 
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "./cohort-grid.js";
-import "./cohort-detail.js";
 
 export default class CohortBrowser extends LitElement {
 
     constructor() {
         super();
 
-        // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -36,10 +34,10 @@ export default class CohortBrowser extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            query: {
                 type: Object
             },
-            query: {
+            opencgaSession: {
                 type: Object
             },
             settings: {
@@ -48,7 +46,7 @@ export default class CohortBrowser extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this.COMPONENT_ID = "cohort-browser";
         this._config = this.getDefaultConfig();
     }
@@ -83,37 +81,41 @@ export default class CohortBrowser extends LitElement {
             ...this._config.filter?.result?.grid,
             ...this.opencgaSession.user?.configs?.IVA?.settings?.[this.COMPONENT_ID]?.grid
         });
-
-        this.requestUpdate();
     }
 
     onSettingsUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     onCohortUpdate() {
         this.settingsObserver();
+        this.requestUpdate();
     }
 
     render() {
-        return this.opencgaSession && this._config ? html`
+        if (!this.opencgaSession) {
+            return nothing;
+        }
+
+        return html`
             <opencga-browser
                 resource="COHORT"
                 .opencgaSession="${this.opencgaSession}"
                 .query="${this.query}"
                 .config="${this._config}"
                 @cohortUpdate="${this.onCohortUpdate}">
-            </opencga-browser>` : "";
+            </opencga-browser>
+        `;
     }
 
     getDefaultConfig() {
         return {
-            title: "Cohort Browser",
-            icon: "fab fa-searchengin",
+            title: "Cohort Manager",
             views: [
                 {
                     id: "table-tab",
-                    name: "Table result",
+                    name: "Table",
                     icon: "fa fa-table",
                     active: true,
                     render: params => html `
@@ -125,35 +127,28 @@ export default class CohortBrowser extends LitElement {
                             .config="${params.config.filter.result.grid}"
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
-                            @selectrow="${e => params.onClickRow(e)}"
+                            @queryComplete="${e => params.onQueryComplete(e)}"
                             @cohortUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </cohort-grid>
-                        ${params?.detail ? html`
-                            <cohort-detail
-                                .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}"
-                                .cohortId="${params.detail?.id}">
-                            </cohort-detail>
-                        ` : nothing}
                     `,
                 },
                 {
                     id: "facet-tab",
-                    name: "Aggregation stats",
+                    name: "Aggregation Stats",
                     icon: "fas fa-chart-bar",
                     render: params => html`
-                        <opencb-facet-results
+                        <aggregation-stats
                             resource="${params.resource}"
-                            .opencgaSession="${params.opencgaSession}"
+                            .query="${params.executedQuery}"
                             .active="${params.active}"
-                            .query="${params.facetQuery}"
-                            .data="${params.facetResults}">
-                        </opencb-facet-results>`
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.aggregation}">
+                        </aggregation-stats>
+                    `
                 }
             ],
             filter: {
-                searchButton: false,
                 sections: [
                     {
                         title: "Section title",
@@ -161,33 +156,36 @@ export default class CohortBrowser extends LitElement {
                         filters: [
                             {
                                 id: "id",
-                                name: "Cohort ID",
+                                title: "Cohort ID",
                                 type: "string",
                                 placeholder: "Start typing...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "samples",
-                                name: "Samples",
+                                title: "Samples",
                                 type: "string",
                                 placeholder: "HG01879, HG01880, HG01881...",
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "type",
-                                name: "Type",
+                                title: "Type",
                                 type: "string",
                                 multiple: true,
-                                description: ""
+                                description: "",
+                                quick: true,
                             },
                             {
                                 id: "date",
-                                name: "Date",
+                                title: "Date",
                                 description: ""
                             },
                             {
                                 id: "annotations",
-                                name: "Cohort annotations",
+                                title: "Cohort annotations",
                                 placeholder: "Full-text search, e.g. *melanoma*",
                                 description: ""
                             }
@@ -198,103 +196,23 @@ export default class CohortBrowser extends LitElement {
                 result: {
                     grid: {}
                 },
-                detail: {
-                    title: "Cohort",
-                    showTitle: true,
-                    display: {
-                        titleClass: "mt-4",
-                        contentClass: "p-3"
-                    },
-                    items: [
-                        {
-                            id: "cohort-view",
-                            name: "Overview",
-                            active: true,
-                            render: (cohort, active, opencgaSession) => {
-                                return html`
-                                    <cohort-view
-                                        .opencgaSession="${opencgaSession}"
-                                        .cohort="${cohort}">
-                                    </cohort-view>
-                                `;
-                            }
-                        },
-                        {
-                            id: "sample-view",
-                            name: "Samples",
-                            render: (cohort, active, opencgaSession) => {
-                                return html`
-                                    <sample-grid
-                                        .opencgaSession="${opencgaSession}"
-                                        .query="${{cohortIds: cohort.id}}"
-                                        .config="${{showSelectCheckbox: false}}"
-                                        .active="${active}">
-                                    </sample-grid>
-                                `;
-                            }
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (cohort, active, opencgaSession) => {
-                                return html`
-                                    <json-viewer
-                                        .data="${cohort}"
-                                        .active="${active}">
-                                    </json-viewer>
-                                `;
-                            }
-                        }
-                    ]
-                }
             },
             aggregation: {
-                default: ["creationYear>>creationMonth", "status", "numSamples[0..10]:1"],
-                render: params => html `
-                    <facet-filter
-                        .config="${params.config.aggregation}"
-                        .selectedFacet="${params.selectedFacet}"
-                        @facetQueryChange="${params.onFacetQueryChange}">
-                    </facet-filter>`,
-                result: {
-                    numColumns: 2
+                default: ["creationYear[MONTH]", "numSamples[0..10]:1"],
+                display: {
+                    showNested: false
                 },
                 sections: [
                     {
                         name: "Cohort Attributes",
                         filters: [
                             {
-                                id: "studyId",
-                                name: "Study id",
-                                type: "string",
-                                description: "Study [[user@]project:]study where study and project can be either the ID or UUID"
-                            },
-                            {
-                                id: "creationYear",
-                                name: "Creation Year",
-                                type: "string",
-                                description: "Creation year"
-                            },
-                            {
-                                id: "creationMonth",
-                                name: "Creation Month",
-                                type: "category",
-                                allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
-                                description: "Creation month (JANUARY, FEBRUARY...)"
-                            },
-                            {
-                                id: "creationDay",
-                                name: "Creation Day",
-                                type: "category",
-                                allowedValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"],
-                                description: "Creation day"
-                            },
-                            {
-                                id: "creationDayOfWeek",
-                                name: "Creation Day Of Week",
-                                type: "category",
-                                allowedValues: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
-                                description: "Creation day of week (MONDAY, TUESDAY...)"
+                                id: "creationDate",
+                                name: "Creation Date",
+                                type: "date",
+                                allowedValues: ["YEAR", "MONTH", "DAY"],
+                                multiple: false,
+                                description: "Creation date, you can use 'day', 'month' or 'year' to group by"
                             },
                             {
                                 id: "status",
@@ -302,12 +220,6 @@ export default class CohortBrowser extends LitElement {
                                 type: "category",
                                 allowedValues: ["READY", "DELETED", "NONE", "CALCULATING", "INVALID"],
                                 description: "Status"
-                            },
-                            {
-                                id: "release",
-                                name: "Release",
-                                type: "string",
-                                description: "Release"
                             },
                             {
                                 id: "type",
@@ -322,12 +234,12 @@ export default class CohortBrowser extends LitElement {
                                 type: "number",
                                 description: "Number of samples"
                             },
-                            {
-                                id: "annotations",
-                                name: "Aannotations",
-                                type: "string",
-                                description: "Annotations, e.g: key1=value(,key2=value)"
-                            }
+                            // {
+                            //     id: "annotations",
+                            //     name: "Aannotations",
+                            //     type: "string",
+                            //     description: "Annotations, e.g: key1=value(,key2=value)"
+                            // }
                         ]
                     },
                     {

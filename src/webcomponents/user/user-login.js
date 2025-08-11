@@ -99,9 +99,17 @@ export default class UserLogin extends LitElement {
                                 token: token
                             }, null);
 
-                            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                                message: `Welcome back, <b>${user}</b>. Your session is valid until ${validTimeSessionId}`,
-                            });
+                            // Check if there are any non-info events such as warnings or errors, ewg. password expiring soon
+                            const nonInfoEvents = response.responses[0].events?.filter(ev => ev.type === "WARNING" || ev.type === "ERROR");
+                            if (nonInfoEvents?.length > 0) {
+                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
+                                    message: nonInfoEvents.map(event => event.message).join("<br>"),
+                                });
+                            } else {
+                                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                                    message: `Welcome back, <b>${user}</b>. Your session is valid until ${validTimeSessionId}`,
+                                });
+                            }
                         }
                     } else if (response) {
                         // Sometimes response is an instance of an Error, for example when the connection is lost before submitting the login.
@@ -140,47 +148,35 @@ export default class UserLogin extends LitElement {
 
     render() {
         return html`
-            <div class="container-fluid" style="max-width:480px;">
-                <div class="card">
-                    <div class="card-body">
-                        <label for="user" class="form-label fw-bold">User ID</label>
-                        <div class="input-group mb-3 ${this.hasEmptyUser ? "is-invalid" : ""}">
-                            <span class="input-group-text" id="username">
-                                <i class="fa fa-user fa-lg"></i>
-                            </span>
-                            <input id="user" class="form-control" type="text" placeholder="User ID"
-                                @keyup="${e => this.onKeyUp(e)}">
-                        </div>
-                        <label for="pass" class="form-label fw-bold">Password</label>
-                        <div class="form-group ${this.hasEmptyPassword ? "is-invalid" : ""}">
-                            <div class="input-group mb-3">
-                                <span id="username" class="input-group-text" >
-                                    <i class="fa fa-key fa-lg"></i>
-                                </span>
-                                <input id="password" class="form-control" type="password" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
-                            </div>
-                        </div>
-                        ${(this.opencgaSession?.opencgaClient?._config?.organizations?.length > 1) ? html`
-                            <div class="form-group">
-                                <label for="organization" class="form-label fw-bold">Organization</label>
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text">
-                                        <i class="fa fa-building fa-lg"></i>
-                                    </span>
-                                    <select class="form-select" id="organization">
-                                        ${this.opencgaSession?.opencgaClient?._config?.organizations.map(organization => html`
-                                            <option value="${organization}">${organization}</option>
-                                        `)}
-                                    </select>
-                                </div>
-                            </div>
-                        ` : nothing}
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-primary btn-block" @click="${e => this.onSubmit(e)}">
-                                <strong>Sign In</strong>
-                            </button>
-                        </div>
+            <div style="max-width:480px;">
+                <div class="input-group mb-3 ${this.hasEmptyUser ? "is-invalid" : ""}">
+                    <span class="input-group-text bg-white pe-2">
+                        <i class="fa fa-user text-gray-700 py-1 fs-5"></i>
+                    </span>
+                    <input id="user" class="form-control border-start-0 px-2 lh-1" type="text" placeholder="User ID" @keyup="${e => this.onKeyUp(e)}">
+                </div>
+                <div class="input-group mb-3 ${this.hasEmptyPassword ? "is-invalid" : ""}">
+                    <span class="input-group-text bg-white pe-2">
+                        <i class="fa fa-key text-gray-700 py-1 fs-5"></i>
+                    </span>
+                    <input id="password" class="form-control border-start-0 px-2 lh-1" type="password" placeholder="Password" @keyup="${e => this.onKeyUp(e)}">
+                </div>
+                ${(this.opencgaSession?.opencgaClient?._config?.organizations?.length > 1) ? html`
+                    <div class="input-group mb-3">
+                        <span class="input-group-text bg-white pe-2">
+                            <i class="fa fa-building text-gray-700 py-1 fs-5"></i>
+                        </span>
+                        <select class="form-select border-start-0 px-2 lh-1" id="organization">
+                            ${this.opencgaSession.opencgaClient._config.organizations.map(organization => html`
+                                <option value="${organization}">${organization}</option>
+                            `)}
+                        </select>
                     </div>
+                ` : nothing}
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary btn-block fs-5" @click="${e => this.onSubmit(e)}">
+                        <strong>Sign In</strong>
+                    </button>
                 </div>
             </div>
         `;
