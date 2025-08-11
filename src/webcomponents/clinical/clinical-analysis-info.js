@@ -15,19 +15,19 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utils-new.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
-import {guardPage} from "../../commons/html-utils.js";
-import "../../clinical/clinical-analysis-update.js";
-import "../../clinical/interpretation/clinical-interpretation-manager.js";
-import "../../clinical/clinical-analysis-consents.js";
-import "../../clinical/clinical-analysis-audit-browser.js";
-import "../../project/project-cellbase-info.js";
-import "../../commons/view/detail-tabs.js";
-import "../../individual/individual-summary.js";
-import "../../loading-spinner.js";
+import UtilsNew from "../../core/utils-new.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import {guardPage} from "../commons/html-utils.js";
+import "./clinical-analysis-update.js";
+import "./clinical-analysis-consents.js";
+import "./clinical-analysis-audit-browser.js";
+import "./interpretation/clinical-interpretation-manager.js";
+import "../project/project-cellbase-info.js";
+import "../commons/view/detail-tabs.js";
+import "../individual/individual-summary.js";
+import "../loading-spinner.js";
 
-class VariantInterpreterLanding extends LitElement {
+class ClinicalAnalysisInfo extends LitElement {
 
     constructor() {
         super();
@@ -222,4 +222,4 @@ class VariantInterpreterLanding extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-landing", VariantInterpreterLanding);
+customElements.define("clinical-analysis-info", ClinicalAnalysisInfo);
