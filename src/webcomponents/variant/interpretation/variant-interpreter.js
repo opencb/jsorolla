@@ -214,7 +214,7 @@ class VariantInterpreter extends LitElement {
     renderTool(tool) {
         if (this.getActiveToolId() === tool.id) {
             switch (tool.id) {
-                case "select":
+                case "info":
                     return html`
                         <clinical-analysis-info
                             .opencgaSession="${this.opencgaSession}"
@@ -441,7 +441,7 @@ class VariantInterpreter extends LitElement {
             title: "Case Interpreter",
             tools: [
                 {
-                    id: "select",
+                    id: "info",
                     title: "Case Info",
                     description: "",
                     icon: "fas fa-info"
