@@ -131,6 +131,9 @@ class ClinicalAnalysisConsents extends LitElement {
         const consents = this.opencgaSession?.study?.internal?.configuration?.clinical?.consents || [];
         return {
             display: {
+                buttonsVisible: true,
+                buttonOkText: "Save Consents",
+                buttonCancelText: "",
                 defaultLayout: "horizontal",
                 ...this.displayConfig,
             },
