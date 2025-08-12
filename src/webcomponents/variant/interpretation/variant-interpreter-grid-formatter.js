@@ -123,9 +123,9 @@ export default class VariantInterpreterGridFormatter {
                 `;
             }
         }
-        return `<a class='predictionTooltip text-decoration-none'>
-                    ${clinicalSignificanceHtml}
-                </a>`;
+        return `
+            <a class="text-decoration-none">${clinicalSignificanceHtml}</a>
+        `;
     }
 
     /*
