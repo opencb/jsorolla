@@ -306,8 +306,6 @@ export default class ClinicalVariantReview extends LitElement {
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <label class="form-label mb-0 fw-bold">Confidence</label>
-                    <select class="form-select form-select-sm" ?disabled="${!this._selected}" @change="${event => this.onConfidenceChange(event)}">
-                    </select>
                     <div class="dropdown">
                         <button class="btn btn-light bg-white dropdown-toggle d-flex align-items-center gap-1" ?disabled="${!this._selected}" data-bs-toggle="dropdown">
                             ${this.renderVariantConfidenceItem(this._variant?.confidence?.value || "LOW")}
