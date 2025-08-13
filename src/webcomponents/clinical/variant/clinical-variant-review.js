@@ -280,32 +280,35 @@ export default class ClinicalVariantReview extends LitElement {
 
     renderVariantStatus() {
         return html`
-            <div class="alert alert-light d-flex align-items-center">
-                <div class="d-flex align-items-center gap-2">
-                    <label class="form-label mb-0 fw-bold">Status</label>
-                    <div class="dropdown">
-                        <button class="btn btn-light bg-white dropdown-toggle d-flex align-items-center gap-1" ?disabled="${!this._selected}" data-bs-toggle="dropdown">
-                            ${this.renderVariantStatusItem(this._variant?.status || "NOT_REVIEWED")}
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end">
-                            ${VariantUtils.VARIANT_STATUS_VALUES.map(status => html`
-                                <div class="dropdown-item ${this._variant?.status === status ? "active" : "cursor-pointer"}" @click="${() => this.onStatusChange(status)}">
-                                    ${this.renderVariantStatusItem(status)}
-                                </div>
-                            `)}
-                        </div>
+            <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 fw-bold">Status</label>
+                <div class="dropdown">
+                    <button class="btn btn-light bg-white dropdown-toggle d-flex align-items-center gap-1" ?disabled="${!this._selected}" data-bs-toggle="dropdown">
+                        ${this.renderVariantStatusItem(this._variant?.status || "NOT_REVIEWED")}
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        ${VariantUtils.VARIANT_STATUS_VALUES.map(status => html`
+                            <div class="dropdown-item ${this._variant?.status === status ? "active" : "cursor-pointer"}" @click="${() => this.onStatusChange(status)}">
+                                ${this.renderVariantStatusItem(status)}
+                            </div>
+                        `)}
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-2 ms-3">
-                    <label class="form-label mb-0 fw-bold">Confidence</label>
-                    <select class="form-select form-select-sm" ?disabled="${!this._selected}" @change="${event => this.onConfidenceChange(event)}">
-                        ${VariantUtils.VARIANT_CONFIDENCE_VALUES.map(confidence => html`
-                            <option value="${confidence}" ?selected="${this._variant?.confidence?.value === confidence}">
-                                ${confidence}
-                            </option>
-                        `)}
-                    </select>
-                </div>
+            </div>
+        `;
+    }
+
+    renderVariantConfidence() {
+        return html`
+            <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 fw-bold">Confidence</label>
+                <select class="form-select form-select-sm" ?disabled="${!this._selected}" @change="${event => this.onConfidenceChange(event)}">
+                    ${VariantUtils.VARIANT_CONFIDENCE_VALUES.map(confidence => html`
+                        <option value="${confidence}" ?selected="${this._variant?.confidence?.value === confidence}">
+                            ${confidence}
+                        </option>
+                    `)}
+                </select>
             </div>
         `;
     }
@@ -334,7 +337,10 @@ export default class ClinicalVariantReview extends LitElement {
             <div class="d-flex gap-2 mb-2 w-full">
                 ${this.renderVariantInfo()}
                 ${this.renderVariantSelect()}
-                ${this.renderVariantStatus()}
+                <div class="alert alert-light d-flex align-items-center gap-3">
+                    ${this.renderVariantStatus()}
+                    ${this.renderVariantConfidence()}
+                </div>
             </div>
             <data-form
                 .data="${this._variant}"
