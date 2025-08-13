@@ -150,11 +150,11 @@ export default class ClinicalVariantReview extends LitElement {
         return false;
     }
 
-    onSelectChange(event) {
+    onSelectChange(value) {
         // note: if the value is empty, it means that the variant is not selected, but we need to mark the _primaryFinding as true
         // to make hasUnsavedChanges return the correct value
-        this._primaryFinding = event.currentTarget.value !== "SECONDARY_FINDING";
-        this._selected = !!event.currentTarget.value; // if the value is empty, it means that the variant is not selected
+        this._primaryFinding = value !== "SECONDARY_FINDING";
+        this._selected = !!value; // if the value is empty, it means that the variant is not selected
         this._config = this.getDefaultConfig();
         this.dispatchChange();
         this.requestUpdate();
@@ -257,14 +257,27 @@ export default class ClinicalVariantReview extends LitElement {
     }
 
     renderVariantSelect() {
+        const values = [
+            {id: "", text: "Not selected", active: !this._selected},
+            {id: "PRIMARY_FINDING", text: "PRIMARY_FINDING", active: this._selected && this._primaryFinding},
+            {id: "SECONDARY_FINDING", text: "SECONDARY_FINDING", active: this._selected && !this._primaryFinding},
+        ];
+
         return html`
             <div class="alert ${this._selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-2">
                 <label class="form-label mb-0 fw-bold" style="white-space:nowrap;">Select as: </label>
-                <select class="form-select form-select-sm" @change="${event => this.onSelectChange(event)}">
-                    <option value="">Not selected</option>
-                    <option value="PRIMARY_FINDING" ?selected="${this._selected && this._primaryFinding}">PRIMARY_FINDING</option>
-                    <option value="SECONDARY_FINDING" ?selected="${this._selected && !this._primaryFinding}">SECONDARY_FINDING</option>
-                </select>
+                <div class="dropdown">
+                    <button class="btn btn-light bg-white dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown">
+                        <div class="lh-1 py-1">${values.find(v => v.active)?.text || "Not selected"}</div>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        ${values.map(value => html`
+                            <div class="dropdown-item ${value.active ? "active" : "cursor-pointer"}" @click="${() => this.onSelectChange(value.id)}">
+                                <div class="lh-1 py-1">${value.text || "Not selected"}</div>
+                            </div>
+                        `)}
+                    </div>
+                </div>
             </div>
         `;
     }
