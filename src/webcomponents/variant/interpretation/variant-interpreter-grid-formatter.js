@@ -683,7 +683,7 @@ export default class VariantInterpreterGridFormatter {
                     <div class="d-flex justify-content-center">
                         <button class="d-flex align-items-center btn btn-sm ${checked ? "btn-primary" : "btn-light"} ${disabled ? "disabled" : ""}" data-variant="${variant.id}">
                             <i class="fa fa-edit pe-2"></i>
-                            <span style="white-space:nowrap;">${checked ? "Update" : "Select"}</span>
+                            <span class="fw-bold" style="white-space:nowrap;">${checked ? "Update" : "Select"}</span>
                         </button>
                     </div>
                 `: ""}
