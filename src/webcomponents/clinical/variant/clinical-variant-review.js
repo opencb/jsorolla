@@ -167,13 +167,13 @@ export default class ClinicalVariantReview extends LitElement {
         this.requestUpdate();
     }
 
-    onConfidenceChange(event) {
+    onConfidenceChange(confidence) {
         this._variant.confidence = {
-            value: event.currentTarget.value,
+            value: confidence,
             author: this.opencgaSession?.user?.id,
             date: UtilsNew.getDatetime(),
         };
-        this._updatedParams = FormUtils.getUpdatedFields(this.variant, this._updatedParams, "confidence.value", event.currentTarget.value);
+        this._updatedParams = FormUtils.getUpdatedFields(this.variant, this._updatedParams, "confidence.value", confidence);
         this.dispatchChange();
         this.requestUpdate();
     }
@@ -278,6 +278,14 @@ export default class ClinicalVariantReview extends LitElement {
         `;
     }
 
+    renderVariantConfidenceItem(confidence) {
+        return html`
+            <div class="d-flex align-items-center gap-2">
+                <div class="lh-1 py-1">${confidence}</div>
+            </div>
+        `;
+    }
+
     renderVariantStatusAndConfidence() {
         return html`
             <div class="alert alert-light d-flex align-items-center gap-3">
@@ -299,12 +307,20 @@ export default class ClinicalVariantReview extends LitElement {
                 <div class="d-flex align-items-center gap-2">
                     <label class="form-label mb-0 fw-bold">Confidence</label>
                     <select class="form-select form-select-sm" ?disabled="${!this._selected}" @change="${event => this.onConfidenceChange(event)}">
-                        ${VariantUtils.VARIANT_CONFIDENCE_VALUES.map(confidence => html`
-                            <option value="${confidence}" ?selected="${this._variant?.confidence?.value === confidence}">
-                                ${confidence}
-                            </option>
-                        `)}
                     </select>
+                    <div class="dropdown">
+                        <button class="btn btn-light bg-white dropdown-toggle d-flex align-items-center gap-1" ?disabled="${!this._selected}" data-bs-toggle="dropdown">
+                            ${this.renderVariantConfidenceItem(this._variant?.confidence?.value || "LOW")}
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            ${VariantUtils.VARIANT_CONFIDENCE_VALUES.map(confidence => html`
+                                <div class="dropdown-item ${this._variant?.confidence?.value === confidence ? "active" : "cursor-pointer"}" @click="${() => this.onConfidenceChange(confidence)}">
+                                    ${this.renderVariantConfidenceItem(confidence)}
+                                </div>
+                            `)}
+                        </div>
+                    </div>
+
                 </div>
             </div>
         `;
