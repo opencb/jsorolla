@@ -204,10 +204,14 @@ export default class VariantAnnotationClinicalView extends LitElement {
                 `;
                 break;
             case "cosmic":
-                data = row?.additionalProperties?.filter(item => item.id === "FATHMM_PREDICTION");
+                const prediction = row?.additionalProperties?.filter(item => item.id === "FATHMM_PREDICTION");
+                const score = row?.additionalProperties?.filter(item => item.id === "FATHMM_SCORE");
+                debugger
                 result = `
                     <div>
-                        <label>FATHMM Prediction:</label><span style="padding-left: 5px">${Number.parseFloat(data?.[0]?.value) || "NA"}</span>
+                        <label>FATHMM Prediction:</label>
+                        <span style="padding-left: 5px">${prediction[0]?.value || "N/A"}</span>
+                        <span style="padding-left: 5px">${Number.parseFloat(score[0]?.value) || "NA"}</span>
                     </div>
                 `;
                 break;
