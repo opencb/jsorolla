@@ -284,7 +284,7 @@ export default class ClinicalVariantReview extends LitElement {
                 <div class="d-flex align-items-center gap-2">
                     <label class="form-label mb-0 fw-bold">Status</label>
                     <div class="dropdown">
-                        <button class="btn btn-light bg-white dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown">
+                        <button class="btn btn-light bg-white dropdown-toggle d-flex align-items-center gap-1" ?disabled="${!this._selected}" data-bs-toggle="dropdown">
                             ${this.renderVariantStatusItem(this._variant?.status || "NOT_REVIEWED")}
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
