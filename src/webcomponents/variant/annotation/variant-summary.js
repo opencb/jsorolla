@@ -25,7 +25,7 @@ import "./variant-summary-info.js"
 import "./variant-summary-ct-selected.js"
 import "./variant-summary-ct-no-selected.js"
 import "./variant-summary-gene.js"
-// import "./variant-summary-deleteriousness.js";
+import "./variant-summary-deleteriousness.js";
 import "./variant-summary-conservation.js";
 
 export default class VariantSummary extends LitElement {
@@ -118,6 +118,7 @@ export default class VariantSummary extends LitElement {
                             type: "custom",
                             title: "",
                             display: {
+                                separationClassName: "",
                                 render: variant => {
                                     const samplesQuality = variant.studies.find(study => study.studyId === this.opencgaSession.study.fqn)
                                     return html`
@@ -135,13 +136,13 @@ export default class VariantSummary extends LitElement {
                 },
                 // 3. Section Population Summary
                 {
-                    display: {},
                     elements: [
                         {
                             id: "variant-summary-population",
                             type: "custom",
                             title: "",
                             display: {
+                                separationClassName: "",
                                 containerClassName: "",
                                 titleClassName: "",
                                 titleStyle: "",
@@ -163,6 +164,20 @@ export default class VariantSummary extends LitElement {
                     display: {
                         //visible: null,// individual => individual?.id,
                         layout: [
+                            {
+                                className: "d-flex align-items-stretch",
+                                elements: [
+                                    {
+                                        id:"variant-summary-deleteriousness",
+                                        style: "flex: 1 0 auto",
+
+                                    },
+                                    {
+                                        id:"variant-summary-conservation",
+                                        style: "flex: 1 0 auto",
+                                    }
+                                ],
+                            },
                             {
                                 className: "d-flex align-items-stretch",
                                 elements: [
@@ -210,22 +225,6 @@ export default class VariantSummary extends LitElement {
                                     },
                                      */
                                 ]
-                            },
-                            {
-                                className: "d-flex align-items-stretch",
-                                elements: [
-                                    /*
-                                    {
-                                        id:"variant-summary-deleteriousness",
-                                        style: "flex: 1 0 auto",
-
-                                    },
-                                     */
-                                    {
-                                        id:"variant-summary-conservation",
-                                        style: "flex: 1 0 auto",
-                                    }
-                                ],
                             },
                         ]
                     },
@@ -358,7 +357,6 @@ export default class VariantSummary extends LitElement {
                         }
                         */
                         // Deleteriousness
-                        /*
                         {
                             id: "variant-summary-deleteriousness",
                             type: "custom",
@@ -370,13 +368,14 @@ export default class VariantSummary extends LitElement {
                                 render: variant => {
                                     return html`
                                         <variant-summary-deleteriousness
-                                            .variant="${variant}">
+                                            .variant="${variant}"
+                                            .settings="${this.settings}"
+                                            .opencgaSession="${this.opencgaSession}">
                                         </variant-summary-deleteriousness>
                                     `;
                                 }
                             }
                         },
-                         */
                         // Conservation
                         {
                             id: "variant-summary-conservation",

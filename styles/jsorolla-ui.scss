@@ -78,6 +78,18 @@ body {
     --bs-dropdown-border-radius: var(--bs-border-radius);
     --bs-dropdown-item-border-radius: var(--bs-border-radius-sm);
 }
+
+// qtip custom
+.qtip-custom-no-maxwidth{
+  max-width: none !important;
+}
+
+.qtip.custom-scroll {
+  max-height: 300px;  /* or whatever max height you want */
+  overflow-y: auto;   /* vertical scrollbar */
+  padding-right: 5px; /* space for scrollbar */
+}
+
 // override card
 .card {
   border: 0;

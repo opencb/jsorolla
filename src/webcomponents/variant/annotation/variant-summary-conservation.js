@@ -60,7 +60,7 @@ export default class VariantSummaryConservation extends LitElement {
         super.update(changedProperties);
     }
 
-    updated() {
+    updated(changedProperties) {
         UtilsNew.initTooltip(this);
     }
 
@@ -167,12 +167,12 @@ export default class VariantSummaryConservation extends LitElement {
 
         return html`
             <div class="card p-3">
-                <div class="card-header border-0 d-flex align-items-center mb-2">
+                <div class="card-header border-0 d-flex justify-content-between mb-2">
                     <h5 class="fs-5 fw-bold me-2">
                         Conservation
                     </h5>
                     <a tooltip-title="Conservation Scores" tooltip-text="${VariantGridFormatter.conservationTooltipSummaryContent()}">
-                        <i class="fa fa-info-circle text-primary"></i>
+                        <i class="fa fa-info-circle text-info"></i>
                     </a>
                 </div>
                 <div class="card-body pt-0 pb-0" id="summary-conservation">
@@ -182,8 +182,8 @@ export default class VariantSummaryConservation extends LitElement {
                     </data-form>
                 </div>
                 <div class="card-divider"></div>
-                <div class="text-muted">
-                    <i class="far fa-clock me-2 text-gray-700"></i> Annotation date: ${this._dateSummary.join(' · ')}
+                <div class="text-muted fw-light fs-7">
+                    <i class="far fa-clock me-2 text-gray-700"></i> ${this._dateSummary.join(' · ')}
                 </div>
             </div>
 
@@ -199,12 +199,15 @@ export default class VariantSummaryConservation extends LitElement {
             sections: [
                 {
                     id: "ct-conservation",
-                    display: {},
+                    display: {
+                        separationClassName: "",
+                    },
                     elements: [
                         {
                             id: "conservation",
                             type: "custom",
                             display: {
+                                separationClassName: "",
                                 visible: variant => variant.type === "SNV",
                                 render: variant => {
                                     return html`
@@ -214,7 +217,7 @@ export default class VariantSummaryConservation extends LitElement {
                                                 return html`
                                                     <div class="d-flex flex-column">
                                                         <div class="card-category" style="min-width: 100px;">${method}</div>
-                                                        <h3 class="d-flex">
+                                                        <h4 class="d-flex">
                                                             <div class="" style="color: ${color}">
                                                                 ${score}
                                                             </div>
@@ -223,7 +226,7 @@ export default class VariantSummaryConservation extends LitElement {
                                                                     ${description}
                                                                 </div>
                                                             -->
-                                                        </h3>
+                                                        </h4>
                                                     </div>
                                                 `;
                                             })}
@@ -263,7 +266,7 @@ export default class VariantSummaryConservation extends LitElement {
                                     if (!conservation || conservation.length === 0) {
                                         return html`
                                             <div class="d-flex align-items-center text-gray-600">
-                                                No data conservation associated to this variant.
+                                                No conservation data associated to this variant.
                                             </div>
                                         `;
                                     } else {

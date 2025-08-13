@@ -40,6 +40,7 @@ export default class VariantSummaryCSCosmicVariantTraits extends LitElement {
     #init() {
         this._variant = {};
         this._data = [];
+        this._chartId = "summary-variant-cosmic-chart";
 
         this._config = this.getDefaultConfig();
     }
@@ -53,34 +54,113 @@ export default class VariantSummaryCSCosmicVariantTraits extends LitElement {
         super.update(changedProperties);
     }
 
-    variantObserver() {
-        if (this.variant) {
-            this._variantSummary = (this.variant.annotation?.traitAssociation || [])
-                .filter(t => t.source?.name?.toLowerCase() === 'cosmic')
-                .map(t => this._summarize(t));
-        }
+    updated(changedProperties) {
+        UtilsNew.initTooltip(this);
+        this.querySelector("#summary-cosmic-traits data-form").updateComplete.then(() => {
+            Object.keys(this._variantSummary).forEach((gene, idx) => {
+                    this.#renderChart(gene, idx)
+            });
+        });
     }
 
-    _summarize(trait) {
-        const somaticInfo = trait.somaticInformation || {};
+    variantObserver() {
+        if (this.variant) {
+            this._variantSummary = this._summarize();
+        }
+        debugger
+    }
 
-        return {
-            cosmicId: trait.id,
-            legacyId: trait.additionalProperties?.find(p => p.id === "COSM_ID")?.value || "—",
-            url: trait.url,
-            // Caution Vero 20250722: gene id and name can not be distinguished.
-            // It would be good to link to external and to obtain the uniprot id.
-            geneSymbol: trait.genomicFeatures?.find(f => f.featureType === 'gene')?.xrefs?.symbol || "—",
-            transcript: trait.genomicFeatures?.find(f => f.featureType === 'transcript')?.xrefs?.symbol || "—",
-            primarySite: somaticInfo.primarySite || "—",
-            histology: somaticInfo.primaryHistology || "—",
-            sampleSource: somaticInfo.sampleSource || "—",
-            tumourOrigin: somaticInfo.tumourOrigin || "—",
-            somaticStatus: trait.additionalProperties?.find(p => p.id === "MUTATION_SOMATIC_STATUS")?.value || "—",
-            fathmmScore: trait.additionalProperties?.find(p => p.id === "FATHMM_SCORE")?.value || "—",
-            fathmmPrediction: trait.additionalProperties?.find(p => p.id === "FATHMM_PREDICTION")?.value || "—",
-            pmids: (trait.bibliography || []).map(p => p.replace('PMID:', '')) || "—",
+    _mapFathmmColor(pred) {
+        const map = {
+            "PATHOGENIC": "#d73027",
+            "NEUTRAL": "#4575b4",
+            "UNKNOWN": "#999999"
         };
+        return map[pred?.toUpperCase()] || "#cccccc";
+    }
+
+    _summarize() {
+        // Aggregate data per gene and tumour site
+        const geneSiteData = {};
+        (this.variant.annotation?.traitAssociation || [])
+            .filter(t => t.source?.name?.toLowerCase() === 'cosmic')
+            .forEach(t => {
+                const geneFeature = t.genomicFeatures.find(g => g.featureType === "gene" && isNaN(g.xrefs.symbol));
+                const gene = geneFeature ? geneFeature.xrefs.symbol : "Unknown";
+                const site = t.somaticInformation.primarySite || "Unknown";
+                const histology = t.somaticInformation.primaryHistology || "Unknown";
+                const transcriptFeature = t.genomicFeatures.find(g => g.featureType === "transcript");
+                const transcriptId = transcriptFeature ? transcriptFeature.xrefs.symbol : "Unknown";
+
+                const fathmmPrediction = (t.additionalProperties.find(p => p.id === "FATHMM_PREDICTION") || {}).value || "Unknown";
+                const fathmmScore = (t.additionalProperties.find(p => p.id === "FATHMM_SCORE") || {}).value || "N/A";
+
+                const key = `${gene}||${site}||${fathmmPrediction}||${histology}`;
+                if (!geneSiteData[gene]) geneSiteData[gene] = {};
+                if (!geneSiteData[gene][key]) {
+                    geneSiteData[gene][key] = {
+                        name: site,
+                        weight: 0,
+                        color: this._mapFathmmColor(fathmmPrediction),
+                        histology,
+                        fathmmPrediction,
+                        fathmmScore,
+                        transcripts: new Set()
+                    };
+                }
+                geneSiteData[gene][key].weight++;
+                geneSiteData[gene][key].transcripts.add(transcriptId);
+            });
+        debugger
+
+        const cleanedGeneSiteData = Object.fromEntries(
+            Object.entries(geneSiteData).filter(([key]) => key !== "Unknown")
+        );
+        return cleanedGeneSiteData;
+
+    }
+
+    #renderChart(gene, idx) {
+        debugger
+        const containerId = `container-${idx}`;
+        const div = document.createElement("div");
+        div.id = containerId;
+        div.style.height = "300px";
+        document.querySelector(`#${this._chartId}`).appendChild(div);
+
+        const data = Object.values(this._variantSummary[gene]).map(d => ({
+            name: d.name,
+            weight: d.weight,
+            color: d.color,
+            histology: d.histology,
+            fathmmPrediction: d.fathmmPrediction,
+            fathmmScore: d.fathmmScore,
+            transcriptIds: Array.from(d.transcripts)
+        }));
+
+        Highcharts.chart(containerId, {
+            series: [{
+                type: 'wordcloud',
+                data,
+                name: 'Transcript count'
+            }],
+            title: { text: `Tumour Sites for Gene: ${gene}` },
+            tooltip: {
+                useHTML: true,
+                pointFormatter: function() {
+                    return `<b>${this.name}</b><br/>
+                        Histology: ${this.histology}<br/>
+                        Transcripts: ${this.weight}<br/>
+                        FATHMM Prediction: ${this.fathmmPrediction}<br/>
+                        FATHMM Score: ${this.fathmmScore}<br/>
+                        Transcript IDs: ${this.transcriptIds.join(", ")}
+                    `;
+                }
+            },
+            credits: {
+                enabled: false
+            },
+        });
     }
 
     render() {
@@ -93,15 +173,13 @@ export default class VariantSummaryCSCosmicVariantTraits extends LitElement {
             <div class="card p-3">
                 <div class="card-header border-0">
                     <h5 class="mb-2 fs-5 fw-bold d-flex">Cosmic trait Associations</h5>
-                    <p class="text-secondary"></p>
-
                 </div>
-                <div class="card-body pt-0 pb-0">
-                    ${this._variantSummary.length === 0 ? html`
+                <div class="card-body pt-0 pb-0"  id="summary-cosmic-traits">
+                    ${Object.keys(this._variantSummary).length === 0 ? html`
                         <div>No cosmic traits association data available to display</div>
                     ` : html `
                         <data-form
-                                .data="${this._variantSummary[0]}"
+                                .data="${this._variantSummary}"
                                 .config="${this._config}">
                         </data-form>
                     `}
@@ -125,93 +203,23 @@ export default class VariantSummaryCSCosmicVariantTraits extends LitElement {
             },
             sections: [
                 {
-                    id: "variant-traits",
+                    id: "variant-traits-cosmic",
                     elements: [
                         {
-                            title: "COSMIC ID",
                             type: "custom",
                             display: {
-                                render: trait => {
+                                render: () => {
                                     return html`
-                                        <div class="header">
-                                            <a href=${trait.url} target="_blank">${trait.cosmicId}</a>
-                                            ${trait.legacyId ? html`<span> (${trait.legacyId})</span>` : ''}
-                                        </div>
+                                        <div class="d-flex justify-content-center align-items-center" id="${this._chartId}" style="flex: 1 0 auto"></div>
                                     `;
                                 }
                             }
-                        },
-                        {
-                            title: "Gene",
-                            field: "geneSymbol",
-                            display: {
-                                render: trait => {
-                                    7939
-                                    return html`
-                                        <div class="header">
-                                            <a href=https://www.alliancegenome.org/gene/HGNC:${trait.geneSymbol} target="_blank">${trait.geneSymbol}</a>
-                                            ${trait.geneSymbol ? html`<span> (${trait.geneSymbol})</span>` : ''}
-                                        </div>
-                                    `;
-                                }
-                            }
-                        },
-                        {
-                            title: "Sample Source",
-                            field: "sampleSource",
-                        },
-                        {
-                            title: "Tumour type",
-                            type: "custom",
-                            display: {
-                                render: trait => {
-                                    return html`
-                                        <div class="">
-                                            <b>Primary site:</b> ${UtilsNew.capitalizeWords(trait?.primarySite || "")} | <b>Histology:</b> ${UtilsNew.capitalizeWords(trait?.histology || "")}
-                                        </div>
-
-                                    `;
-                                }
-                            }
-                        },
-                        {
-                            title: "Somatic Status",
-                            field: "somaticStatus",
-                        },
-                        {
-                            title: "FATHMM",
-                            type: "custom",
-                            display: {
-                                render: trait => {
-                                    return html`
-                                    <div class="d-flex flex-column">
-                                        <div><b>Prediction:</b> ${trait.fathmmPrediction}</div>
-                                        <div><b>Score:</b> ${trait.fathmmScore}</div>
-                                    </div>
-                                `;
-                                },
-                            },
-                        },
-                        {
-                            title: "Literature Evidence",
-                            field: "literatureEvidence",
-                            type: "custom",
-                            display: {
-                                render: trait => {
-                                    return html`
-                                    ${trait?.pmids.length ? (trait?.pmids || []).map(pmid => html`
-                                        <a href="https://pubmed.ncbi.nlm.nih.gov/${pmid}" target="_blank">PMID:${pmid}</a>
-                                    `) : html`—`}
-                                `;
-                                },
-                            },
                         },
                     ],
                 },
             ],
         };
     }
-
 }
 
 customElements.define("variant-summary-cs-cosmic-variant-traits", VariantSummaryCSCosmicVariantTraits);

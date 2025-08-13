@@ -219,8 +219,6 @@ export default class VariantSummaryQuality extends LitElement {
             <div class="card p-3">
                 <div class="card-header border-0">
                     <h5 class="mb-2 fs-5 fw-bold d-flex">Sample Quality</h5>
-                    <p class="text-secondary">Description of sample quality</p>
-
                 </div>
                 <div class="card-body pt-0 pb-0" id="summary-sample-quality">
                     <data-form
@@ -248,6 +246,7 @@ export default class VariantSummaryQuality extends LitElement {
                 {
                     // title: "Section sample quality"
                     display: {
+                        separationClassName: "",
                         className: "d-flex align-items-center",
                         layout: [
                             {
@@ -276,6 +275,7 @@ export default class VariantSummaryQuality extends LitElement {
                             type: "table",
                             field: "samples",
                             display: {
+                                separationClassName: "",
                                 className: "table table-borderless table-hover table-grid",
                                 style: "font-size: 11px",
                                 rowId: true,
@@ -365,6 +365,7 @@ export default class VariantSummaryQuality extends LitElement {
                             type: "custom",
                             field: "alleleDepthsChart",
                             display: {
+                                separationClassName: "",
                                 render: alleleDepthsChart => {
                                     this._data = JSON.parse(JSON.stringify(alleleDepthsChart));
                                     return html`

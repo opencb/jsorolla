@@ -939,15 +939,51 @@ export default class VariantGridFormatter {
         `;
     }
 
-    static conservationTooltipSummaryContent() {
+    static populationTooltipSummaryContent() {
         return `
-            <div class="">
-                Thresholds for each qualitative description are:<br>
-                <b>(a) GERP</b>: Low for scores ≤ 3, Moderate for scores > 3, and High for scores above 4.4.<br>
-                <b>(b) phastCons</b>: Low for scores ≤ 0.5, Moderate for scores > 0.5, and High for scores above 0.9.<br>
-                <b>(c) phylop</b>: Low for scores ≤ 0.5, Moderate for scores > 0.5, and High for scores above 1.5.
+            <div class="fs-6 lh-base">
+                Variant alt allele frequency distributions for population frequencies 1000G and gnomAD_GENOMES
             </div>
         `;
+    }
+
+    static conservationTooltipSummaryContent() {
+        return `
+            <div class="fs-6 lh-base">
+                <strong>Thresholds for each qualitative description:</strong>
+                <ul style="padding-left: 20px; margin-top: 5px;">
+                    <li><b>GERP++:</b> Low for scores ≤ 3, Moderate for scores &gt; 3, and High for scores &gt; 4.4.</li>
+                    <li><b>PhastCons:</b> Low for scores ≤ 0.5, Moderate for scores &gt; 0.5, and High for scores &gt; 0.9.</li>
+                    <li><b>Phylop:</b> Low for scores ≤ 0.5, Moderate for scores &gt; 0.5, and High for scores &gt; 1.5.</li>
+                </ul>
+            </div>
+        `;
+    }
+
+    static deleteriousTooltipSummaryContent(chartDelId) {
+        return `
+            <div class="fs-6 lh-base">
+                Deleterious scores linked to transcripts flagged as MANE-selected and source Ensembl<br>. <strong>Thresholds for each qualitative description:</strong>
+                <ul style="padding-left: 20px; margin-top: 5px;">
+                    <li><b>SIFT:</b> Deleterious for scores &le; 0.05, Tolerated for scores &gt; 0.05</li>
+                    <li><b>PolyPhen-2:</b> Probably damaging for scores &gt; 0.85, Possibly damaging for scores &gt; 0.15, and Benign otherwise.</li>
+                    <li><b>REVEL:</b> Likely pathogenic for scores &ge; 0.75, Potentially pathogenic for scores &ge; 0.5, and Benign otherwise.</li>
+                    <li><b>CADD Scaled:</b> Top 0.1% for scores &ge; 30, Top 1% for scores &gt; 20, Top 5% for scores &ge; 15, Top 10% for scores &ge; 10, and Bottom 90% for scores &lt; 10.</li>
+                    <li><b>SpliceAI:</b> High for scores &ge; 0.8, Moderate for scores &ge; 0.5, and Low otherwise</li>
+                </ul>
+            </div>
+        `;
+    }
+
+    static getDeleteriousPredictorDisplayName(key) {
+        const deleteriousPredictorDisplay = {
+            "sift": "SIFT",
+            "polyphen": "PolyPhen-2",
+            "revel": "REVEL",
+            "cadd_scaled": "CADD Scaled", // changed to underscore if your keys have underscores
+            "spliceai": "SpliceAI"
+        };
+        return deleteriousPredictorDisplay[key] ?? key;
     }
 
     // Creates the colored table with one row and as many columns as populations.

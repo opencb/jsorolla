@@ -16,6 +16,7 @@
 
 import {html, LitElement, nothing} from "lit";
 import VariantGridFormatter from "../variant-grid-formatter.js";
+import UtilsNew from "../../../core/utils-new";
 
 export default class VariantSummaryPopulation extends LitElement {
 
@@ -46,17 +47,23 @@ export default class VariantSummaryPopulation extends LitElement {
         this._dataAll = {};
         this._dataCohorts = {};
         this._dataCohortsTransformed = {};
+        this._dateSummary = {};
     }
 
     update(changedProperties) {
-        if (changedProperties.has("variant") || changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("variant")) {
             this.variantObserver();
+        }
+
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
         }
 
         super.update(changedProperties);
     }
 
     updated(changedProperties) {
+        UtilsNew.initTooltip(this);
         this.querySelector("#summary-population data-form").updateComplete.then(() => {
             Object.keys(this._dataCohortsTransformed).forEach(study => {
                 (this._dataCohorts[study]?.total && this._dataCohorts[study]?.total !== 0) ?
@@ -73,6 +80,41 @@ export default class VariantSummaryPopulation extends LitElement {
         //3. Population-Specific Flags / Tags
         //4. Summary Statistics per Population Group
         this._variant = {...this.variant};
+    }
+
+    opencgaSessionObserver() {
+        // 1. Extract conservation sources
+        const sources = ['gnomAD'];
+        debugger
+
+        const entries = (this.opencgaSession.project.cellbase.sources || [])
+            .filter(s => sources.includes(s.name))
+            .map(s => ({
+                name: s.name,
+                version: s.version || null,
+                date: s.date
+            }));
+
+        // 2. Group by date
+        this._sourceDateGroups = entries.reduce((acc, { name, version, date }) => {
+            acc[date] = acc[date] || [];
+            acc[date].push(version ? `${name} (${version})` : name);
+            return acc;
+        }, {});
+
+        // 3. Date summary
+        this._dateSummary = Object.entries(this._sourceDateGroups).map(([date, entries]) => {
+            return `${this._formatDate(date)} (${entries.join(', ')} )`;
+        });
+
+        this._config = this.getDefaultConfig();
+    }
+
+    _formatDate(rawDate) {
+        const y = rawDate.slice(0, 4);
+        const m = rawDate.slice(4, 6);
+        const d = rawDate.slice(6, 8);
+        return `${y}-${m}-${d}`;
     }
 
     #renderCharts(study) {
@@ -179,22 +221,22 @@ export default class VariantSummaryPopulation extends LitElement {
         }
         return html`
             <div class="card p-3">
-                <div class="card-header border-0">
-                    <h5 class="mb-2 fs-5 fw-bold d-flex">Population Frequencies</h5>
-                    <p class="text-secondary">Variant alt allele frequency distributions for population frequencies 1000G and gnomAD_GENOMES</p>
+                <div class="card-header border-0 d-flex justify-content-between mb-2">
+                    <h5 class="mb-2 fs-5 fw-bold">Population Frequencies</h5>
+                    <a tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationTooltipSummaryContent()}">
+                        <i class="fa fa-info-circle text-info"></i>
+                    </a>
                 </div>
-                <div class="card-body" id="summary-population">
+                <div class="card-body pt-0 pb-0" id="summary-population">
                     <data-form
                         .data="${this.variant}"
                         .config="${this._config}">
                     </data-form>
                 </div>
-<!--
-                <div class="card-footer text-muted">
-                    <i class="far fa-clock me-2"></i>
-                    Last updated
+                <div class="card-divider"></div>
+                <div class="text-muted fw-light fs-7">
+                    <i class="far fa-clock me-2 text-gray-700"></i> ${this._dateSummary.join(' · ')}
                 </div>
--->
             </div>
 
         `;
@@ -208,6 +250,7 @@ export default class VariantSummaryPopulation extends LitElement {
             sections: [
                 {
                     display: {
+                        separationClassName: "",
                         className: "",
                         layout: {
                             id: "",
@@ -231,6 +274,7 @@ export default class VariantSummaryPopulation extends LitElement {
                             field: "annotation.populationFrequencies",
                             // title: "Sample Quality Summary",
                             display: {
+                                separationClassName: "",
                                 className: "",
                                 headerCellClassName: "",
                                 rowId: true,
@@ -260,7 +304,7 @@ export default class VariantSummaryPopulation extends LitElement {
                                                     const maxMore = dataMaxMin[study].maxMAF.populations.length > 1 || false;
                                                     const minMore = dataMaxMin[study].minMAF.populations.length > 1 || false;
                                                     return html`
-                                                        <div class="d-flex align-items-stretch" style="flex: 1 0 auto;">
+                                                        <div class="d-flex align-items-center" style="flex: 1 0 auto;">
                                                             <!--Stats box-->
                                                             <div class="ps-3" id="${statsId}" style="border-left: 1px solid #d9dada; flex: 0 1 auto">
                                                                 <div class="d-flex align-items-center text-dark">
@@ -283,7 +327,7 @@ export default class VariantSummaryPopulation extends LitElement {
                                                                 </div>
                                                             </div>
                                                             <!--Donut chart-->
-                                                            <div class="" id="${chartId}" style="flex: 0 0 auto"></div>
+                                                            <div class="d-flex justify-content-center align-items-center" id="${chartId}" style="flex: 1 0 auto"></div>
                                                         </div>
                                                     `;
                                                 })}

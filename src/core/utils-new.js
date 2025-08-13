@@ -270,7 +270,9 @@ export default class UtilsNew {
             pad2(date.getSeconds());
     }
 
-    static initTooltip(scope) {
+    static initTooltip(scope, onRender, customClasses = "") {
+        let chartInstance = null; // store chart for reflow
+
         $("a[tooltip-title], span[tooltip-title], table[tooltip-title], td[tooltip-title]", scope).each(function () {
             $(this).qtip({
                 content: {
@@ -284,13 +286,30 @@ export default class UtilsNew {
                     my: $(this).attr("tooltip-position-my") ?? "top left",
                     at: $(this).attr("tooltip-position-at") ?? "bottom right"
                 },
-                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow"},
+                style: {width: true, classes: `qtip-light qtip-rounded qtip-shadow ${customClasses}`.trim()},
                 // show: {delay: 200},
                 show: {
                     delay: 200,
                     event: "click mouseenter"
                 },
-                hide: {fixed: true, delay: 300}
+                hide: {fixed: true, delay: 300},
+                events: {
+                    /*
+                    render: function (event, api) {
+                        if (typeof onRender === "function") {
+                            onRender(event, api, this);
+                        }
+                    }
+                     */
+                    show: function (event, api) {
+                        if (typeof onRender === "function" && !chartInstance) {
+                            chartInstance = onRender(event, api, this);
+                        }
+                        if (chartInstance) {
+                            chartInstance.reflow(); // force resize
+                        }
+                    }
+                }
             });
         });
     }
