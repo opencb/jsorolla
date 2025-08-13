@@ -160,9 +160,9 @@ export default class ClinicalVariantReview extends LitElement {
         this.requestUpdate();
     }
 
-    onStatusChange(event) {
-        this._variant.status = event.currentTarget.value;
-        this._updatedParams = FormUtils.getUpdatedFields(this.variant, this._updatedParams, "status", event.currentTarget.value);
+    onStatusChange(status) {
+        this._variant.status = status;
+        this._updatedParams = FormUtils.getUpdatedFields(this.variant, this._updatedParams, "status", status);
         this.dispatchChange();
         this.requestUpdate();
     }
@@ -269,18 +269,32 @@ export default class ClinicalVariantReview extends LitElement {
         `;
     }
 
+    renderVariantStatusItem(status) {
+        return html`
+            <div class="d-flex align-items-center gap-2">
+                <div class="d-block ${VariantUtils.getStatusColor(status)} rounded-circle border border-white" style="width:1rem;height:1rem;"></div>
+                <div class="lh-1 py-1">${status}</div>
+            </div>
+        `;
+    }
+
     renderVariantStatus() {
         return html`
             <div class="alert alert-light d-flex align-items-center">
                 <div class="d-flex align-items-center gap-2">
                     <label class="form-label mb-0 fw-bold">Status</label>
-                    <select class="form-select form-select-sm" ?disabled="${!this._selected}" @change="${event => this.onStatusChange(event)}">
-                        ${VariantUtils.VARIANT_STATUS_VALUES.map(status => html`
-                            <option value="${status}" ?selected="${this._variant?.status === status}">
-                                ${status}
-                            </option>
-                        `)}
-                    </select>
+                    <div class="dropdown">
+                        <button class="btn btn-light bg-white dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown">
+                            ${this.renderVariantStatusItem(this._variant?.status || "NOT_REVIEWED")}
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            ${VariantUtils.VARIANT_STATUS_VALUES.map(status => html`
+                                <div class="dropdown-item ${this._variant?.status === status ? "active" : "cursor-pointer"}" @click="${() => this.onStatusChange(status)}">
+                                    ${this.renderVariantStatusItem(status)}
+                                </div>
+                            `)}
+                        </div>
+                    </div>
                 </div>
                 <div class="d-flex align-items-center gap-2 ms-3">
                     <label class="form-label mb-0 fw-bold">Confidence</label>
