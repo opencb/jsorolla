@@ -237,7 +237,7 @@ export default class ClinicalVariantReview extends LitElement {
         const genes = VariantUtils.getGenes(this.variant);
 
         return html`
-            <div class="alert alert-light flex-grow-1 d-flex justify-content-center flex-column">
+            <div class="alert alert-light bg-white flex-grow-1 d-flex justify-content-center flex-column">
                 <div class="d-flex gap-3">
                     <span class="fw-bold">${this._variant.id}</span>
                     ${genes.length > 0 ? html`
@@ -264,7 +264,7 @@ export default class ClinicalVariantReview extends LitElement {
         ];
 
         return html`
-            <div class="alert ${this._selected ? "alert-primary" : "alert-light"} d-flex align-items-center justify-content-between gap-2">
+            <div class="alert ${this._selected ? "alert-primary" : "alert-light bg-white"} d-flex align-items-center justify-content-between gap-2">
                 <label class="form-label mb-0 fw-bold" style="white-space:nowrap;">Select as: </label>
                 <div class="dropdown">
                     <button class="btn btn-light bg-white dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown">
@@ -301,7 +301,7 @@ export default class ClinicalVariantReview extends LitElement {
 
     renderVariantStatusAndConfidence() {
         return html`
-            <div class="alert alert-light d-flex align-items-center gap-3">
+            <div class="alert alert-light bg-white d-flex align-items-center gap-3">
                 <div class="d-flex align-items-center gap-2">
                     <label class="form-label mb-0 fw-bold">Status</label>
                     <div class="dropdown">
