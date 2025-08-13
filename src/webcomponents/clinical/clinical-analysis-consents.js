@@ -15,7 +15,8 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import UtilsNew from "../../core/utils-new.js";
+import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/forms/data-form.js";
 
 class ClinicalAnalysisConsents extends LitElement {
@@ -64,42 +65,51 @@ class ClinicalAnalysisConsents extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        // TODO: clone the consents object to avoid modifying the original object
+        this._consents = {}; // Reset consents
+        if (this.clinicalAnalysis) {
+            // we have to conver the array of consents to an object, where the key is the consent id
+            // and the value is the consent value (YES, NO, UNKNOWN)
+            this._consents = Object.fromEntries((this.clinicalAnalysis.consent?.consents || []).map(consent => {
+                return [consent.id, consent.value || "UNKNOWN"];
+            }));
+        }
     }
 
-    onFieldChange(e) {
-        // switch (e.detail.param) {
-        //     case "consent.primaryFindings":
-        //     case "consent.secondaryFindings":
-        //     case "consent.carrierFindings":
-        //     case "consent.researchFindings":
-        //         let field = e.detail.param.split(".")[1];
-        //         this.updateParams.consent = {...this.clinicalAnalysis.consent};
-        //         if (this._clinicalAnalysis?.consent[field] !== e.detail.value && e.detail.value) {
-        //             this.clinicalAnalysis.consent[field] = e.detail.value;
-        //             this.updateParams.consent[field] = e.detail.value;
-        //         } else {
-        //             delete this.updateParams.consent[field];
-        //         }
-        //         if (UtilsNew.isEmpty(this.updateParams.consent)) {
-        //             delete this.updateParams.consent;
-        //         }
-        //         break;
-        // }
-        // this.requestUpdate();
+    onFieldChange() {
+        this._consents = {...this._consents};
+        this.requestUpdate();
     }
 
     onSubmit() {
-        // if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
-        //     this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, this.updateParams, {study: this.opencgaSession.study.fqn})
-        //         .then(response => {
-        //             this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
-        //             this.updateParams = {};
-        //         })
-        //         .catch(response => {
-        //             console.error("An error occurred updating clinicalAnalysis: ", response);
-        //         });
-        // }
+        // we have to convert the consents object back to an array
+        const data = {
+            consent: {
+                consents: this.opencgaSession.study.internal.configuration.clinical.consents.map(consent => {
+                    return {
+                        id: consent.id,
+                        value: this._consents[consent.id] || "UNKNOWN", // Default to "UNKNOWN" if not set
+                    };
+                }),
+            },
+        };
+
+        this.opencgaSession.opencgaClient.clinical()
+            .update(this.clinicalAnalysis.id, data, {
+                study: this.opencgaSession.study.fqn,
+            })
+            .then(response => {
+                // dispatch the clinicalAnalysisUpdate event with the updated clinical analysis
+                LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                    clinicalAnalysis: response.responses[0].results[0],
+                });
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "Case consents updated successfully.",
+                });
+            })
+            .catch(response => {
+                console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
     }
 
     render() {
@@ -109,7 +119,7 @@ class ClinicalAnalysisConsents extends LitElement {
 
         return html`
             <data-form 
-                .data="${this.clinicalAnalysis}"
+                .data="${this._consents}"
                 .config="${this._config}"
                 @fieldChange="${event => this.onFieldChange(event)}"
                 @submit="${event => this.onSubmit(event)}">
@@ -118,57 +128,63 @@ class ClinicalAnalysisConsents extends LitElement {
     }
 
     getDefaultConfig() {
+        const consents = this.opencgaSession?.study?.internal?.configuration?.clinical?.consents || [];
         return {
             display: {
-                showTitle: false,
-                infoIcon: "",
-                labelAlign: "left",
-                labelWidth: "3",
+                buttonsVisible: true,
+                buttonOkText: "Save Consents",
+                buttonClearText: "",
                 defaultLayout: "horizontal",
                 ...this.displayConfig,
             },
-            sections: [
-                {
-                    elements: [
+            sections: consents.map(consent => ({
+                display: {
+                    className: "d-flex align-items-center justify-content-between gap-4 p-3 rounded-3 bg-white border border-gray-200",
+                    layout: [
                         {
-                            name: "Primary Findings",
-                            field: "consent.primaryFindings",
-                            type: "toggle-buttons",
-                            allowedValues: ["YES", "NO", "UNKNOWN"],
-                            display: {
-                                width: "9",
-                            }
+                            className: "flex-grow-1 d-flex flex-column gap-0",
+                            elements: [
+                                {id: "title"},
+                                {id: "description"},
+                            ],
                         },
                         {
-                            name: "Secondary Findings",
-                            field: "consent.secondaryFindings",
-                            type: "toggle-buttons",
-                            allowedValues: ["YES", "NO", "UNKNOWN"],
-                            display: {
-                                width: "9",
-                            }
+                            className: "flex-shrink-0",
+                            id: "buttons",
                         },
-                        {
-                            name: "Carrier Findings",
-                            field: "consent.carrierFindings",
-                            type: "toggle-buttons",
-                            allowedValues: ["YES", "NO", "UNKNOWN"],
-                            display: {
-                                width: "9",
-                            }
-                        },
-                        {
-                            name: "Research Findings",
-                            field: "consent.researchFindings",
-                            type: "toggle-buttons",
-                            allowedValues: ["YES", "NO", "UNKNOWN"],
-                            display: {
-                                width: "9",
-                            }
-                        },
-                    ]
+                    ],
                 },
-            ],
+                elements: [
+                    {
+                        id: "title",
+                        text: consent.name,
+                        type: "text",
+                        display: {
+                            textClassName: "fw-bold",
+                            separationClassName: "mb-0",
+                        },
+                    },
+                    {
+                        id: "description",
+                        text: consent.description || "",
+                        type: "text",
+                        display: {
+                            textClassName: "text-secondary",
+                            separationClassName: "mb-0",
+                            visible: !!consent.description,
+                        },
+                    },
+                    {
+                        id: "buttons",
+                        field: consent.id,
+                        type: "toggle-buttons",
+                        allowedValues: ["YES", "NO", "UNKNOWN"],
+                        display: {
+                            separationClassName: "mb-0",
+                        },
+                    },
+                ],
+            })),
         };
     }
 

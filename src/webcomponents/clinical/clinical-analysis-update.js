@@ -20,7 +20,6 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import ClinicalVariantUtils from "./variant/clinical-variant-utils.js";
-import "./clinical-analysis-comment-editor.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 import "../commons/forms/data-form.js";

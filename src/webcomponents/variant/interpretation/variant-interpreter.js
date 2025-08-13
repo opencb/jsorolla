@@ -23,7 +23,6 @@ import ModalUtils from "../../commons/modal/modal-utils.js";
 import ExtensionsManager from "../../extensions-manager.js";
 import {guardPage} from "../../commons/html-utils.js";
 import "../../commons/tool-header.js";
-import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
 import "./variant-interpreter-browser.js";
 import "./variant-interpreter-browser-rd.js";
@@ -32,6 +31,7 @@ import "./variant-interpreter-methods.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
+import "../../clinical/clinical-analysis-info.js"
 import "../../clinical/interpretation/clinical-interpretation-update.js";
 import "../../clinical/report/clinical-report.js";
 
@@ -97,9 +97,20 @@ class VariantInterpreter extends LitElement {
     settingsObserver() {
         // 1. Restore configuration from default config
         this._config = this.getDefaultConfig();
+
         // 2. Merge with interpreter tools from extensions
         this.#updateInterpreterTools();
+
         // 3. Use settings to decide which tools are visible
+        // IMPORTANT: we have to rename the 'select' tool to 'info' in the settings, as the 'select' does not exist anymore
+        // this should be performed by a migration script, but in the meantime we have to do it here to avoid breaking changes
+        if (this.settings?.tools) {
+            this.settings.tools.forEach(tool => {
+                if (tool.id === "select") {
+                    tool.id = "info";
+                }
+            });
+        }
         this._config.tools = UtilsNew.mergeArray(this._config.tools, this.settings?.tools, false, true);
     }
 
@@ -215,14 +226,15 @@ class VariantInterpreter extends LitElement {
         if (this.getActiveToolId() === tool.id) {
             switch (tool.id) {
                 case "select":
+                case "info":
                     return html`
-                        <variant-interpreter-landing
+                        <clinical-analysis-info
                             .opencgaSession="${this.opencgaSession}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .config="${tool}"
                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                             @selectClinicalAnalysis="${this.onClinicalAnalysis}">
-                        </variant-interpreter-landing>
+                        </clinical-analysis-info>
                     `;
                 case "qc":
                     return html`
@@ -441,7 +453,9 @@ class VariantInterpreter extends LitElement {
             title: "Case Interpreter",
             tools: [
                 {
-                    id: "select",
+                    // Note: 'select' tool is renamed to 'info' in the settings
+                    // we have included a tiny 
+                    id: "info",
                     title: "Case Info",
                     description: "",
                     icon: "fas fa-info"

@@ -1718,7 +1718,6 @@ export default class DataForm extends LitElement {
 
         // Render all existing items
         if (!items || items?.length === 0) {
-            // border-warning is similar to darkorange
             const view = html`
                 <div class="pb-1 ${isUpdated? "pb-1 ps-3 mb-4 border-start border-2 border-updated" :""}">
                     <span>${element.display?.itemsNotFoundText || "No items found."}</span>
@@ -1741,7 +1740,7 @@ export default class DataForm extends LitElement {
                             </div>
                         ` : nothing}
 
-                        <div class="list-group">
+                        <div class="list-group rounded-3">
                             ${items?.slice(0, maxNumItems).map((item, index) => {
                                 const _element = JSON.parse(JSON.stringify(element));
                                 // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
