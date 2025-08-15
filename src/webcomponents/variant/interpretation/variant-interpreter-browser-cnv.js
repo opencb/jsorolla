@@ -17,10 +17,6 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
-import "./exomiser/variant-interpreter-exomiser-view.js";
-import "../variant-samples.js";
-import "../variant-notes.js";
-import "../../visualization/protein-lollipop-variant-view.js";
 
 class VariantInterpreterBrowserCNV extends LitElement {
 
@@ -286,6 +282,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
                                 tooltip: tooltips.sample,
+                                quick: true
                             },
                             {
                                 id: "variant-file",
@@ -319,7 +316,7 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         filters: [
                             {
                                 id: "region",
-                                title: "Genomic Location",
+                                title: "Genomic Region",
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Regions will be intersected with selected panels.",
@@ -328,12 +325,14 @@ class VariantInterpreterBrowserCNV extends LitElement {
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs (gene, ...)",
+                                title: "Feature ID",
+                                description: "Select a feature from the list (gene, SNP, etc.)",
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Feature regions will be intersected with selected panels.",
                                 },
                                 tooltip: tooltips.feature,
+                                quick: true
                             },
                             {
                                 id: "biotype",
@@ -358,13 +357,14 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         filters: [
                             {
                                 id: "diseasePanels",
-                                title: "Disease Panels",
+                                title: "Disease Panel",
                                 disabled: () => this.clinicalAnalysis.panelLocked,
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Case Panel is locked, you are not allowed to change selected panel(s)."
                                 },
-                                tooltip: tooltips.diseasePanels
+                                tooltip: tooltips.diseasePanels,
+                                quick: true
                             },
                         ],
                     },
@@ -433,113 +433,6 @@ class VariantInterpreterBrowserCNV extends LitElement {
                         variantTypes: ["COPY_NUMBER", "CNV"],
                     }
                 },
-                detail: {
-                    title: "Selected Variant:",
-                    showTitle: true,
-                    items: [
-                        {
-                            id: "annotationSummary",
-                            name: "Summary",
-                            active: true,
-                            render: variant => html`
-                                <cellbase-variant-annotation-summary
-                                    .variantAnnotation="${variant?.annotation}"
-                                    .consequenceTypes="${CONSEQUENCE_TYPES}"
-                                    .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
-                                    .assembly=${this.opencgaSession.project.organism.assembly}>
-                                </cellbase-variant-annotation-summary>
-                            `,
-                        },
-                        {
-                            id: "fileMetrics",
-                            name: "File Metrics",
-                            render: (variant, active, opencgaSession) => html`
-                                <opencga-variant-file-metrics
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variant}"
-                                    .files="${this.clinicalAnalysis}">
-                                </opencga-variant-file-metrics>
-                            `,
-                        },
-                        {
-                            id: "cohortStats",
-                            name: "Cohort Stats",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-cohort-stats
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variant}"
-                                    .active="${active}">
-                                </variant-cohort-stats>
-                            `,
-                        },
-                        {
-                            id: "samples",
-                            name: "Samples",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-samples
-                                    .opencgaSession="${opencgaSession}"
-                                    .variantId="${variant.id}"
-                                    .active="${active}">
-                                </variant-samples>
-                            `,
-                        },
-                        {
-                            id: "notes",
-                            name: "Notes",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-notes
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variant}"
-                                    .active="${active}">
-                                </variant-notes>
-                            `,
-                        },
-                        {
-                            id: "protein",
-                            name: "Protein (Beta)",
-                            render: (variant, active, opencgaSession) => html`
-                                <protein-lollipop-variant-view
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variant}"
-                                    .query="${this.query}"
-                                    .active="${active}">
-                                </protein-lollipop-variant-view>
-                            `,
-                        },
-                        {
-                            id: "beacon",
-                            name: "Beacon",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-beacon-network
-                                    .variant="${variant?.id}"
-                                    .assembly="${opencgaSession.project.organism.assembly}"
-                                    .config="${this.beaconConfig}"
-                                    .active="${active}">
-                                </variant-beacon-network>
-                            `,
-                        },
-                        {
-                            id: "exomiser",
-                            name: "Exomiser",
-                            visible: () => {
-                                return this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser";
-                            },
-                            render: (variant, active) => html`
-                                <variant-interpreter-exomiser-view
-                                    .variant="${variant}"
-                                    .active="${active}">
-                                </variant-interpreter-exomiser-view>
-                            `,
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (variant, active) => html`
-                                <json-viewer .data="${variant}" .active="${active}"></json-viewer>
-                            `,
-                        }
-                    ]
-                }
             },
             aggregation: {}
         };

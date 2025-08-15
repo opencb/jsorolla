@@ -15,14 +15,9 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../../webcomponents/family/family-grid.js";
-import "../../../webcomponents/family/family-detail.js";
-import "../../../webcomponents/family/family-view.js";
-import "../../../webcomponents/family/family-create.js";
-import "../../../webcomponents/family/family-update.js";
-import "../../../webcomponents/commons/json-viewer.js";
 
 class FamilyBrowserGridTest extends LitElement {
 
@@ -52,7 +47,6 @@ class FamilyBrowserGridTest extends LitElement {
             "families-platinum.json",
         ];
         this._data = null;
-        this._selectedRow = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -69,11 +63,9 @@ class FamilyBrowserGridTest extends LitElement {
             const allPromises = this.FILES.map(file => {
                 return UtilsNew.importJSONFile(`./test-data/${this.testDataVersion}/${file}`);
             });
-
             Promise.all(allPromises)
                 .then(data => {
                     this._data = data[0];
-                    this._selectedRow = this._data[0];
                     this.mutate();
                     this.requestUpdate();
                 })
@@ -95,70 +87,28 @@ class FamilyBrowserGridTest extends LitElement {
         this.requestUpdate();
     }
 
-    onSelectRow(e) {
-        this._selectedRow = e.detail.row;
-        this.requestUpdate();
-    }
-
     render() {
         if (!this._data) {
-            return "Loading...";
+            return nothing;
         }
 
         return html`
-            <div data-cy="family-browser">
-                <h2 style="font-weight: bold;">
-                    Family Browser Grid (${this.FILES[0]})
-                </h2>
-                <family-grid
-                    .toolId="${this.COMPONENT_ID}"
-                    .families="${this._data}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.grid}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}"
-                    @selectrow="${e => this.onSelectRow(e)}">
-                </family-grid>
-                <family-detail
-                    .family="${this._selectedRow}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config.detail}">
-                </family-detail>
-            </div>
+            <h2 class="fw-bold">
+                Family Browser Grid (${this.FILES[0]})
+            </h2>
+            <family-grid
+                .toolId="${this.COMPONENT_ID}"
+                .families="${this._data}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config.grid}"
+                @settingsUpdate="${() => this.onSettingsUpdate()}">
+            </family-grid>
         `;
     }
 
     getDefaultConfig() {
         return {
             grid: {},
-            detail: {
-                title: "Family",
-                showTitle: true,
-                items: [
-                    {
-                        id: "family-view",
-                        name: "Overview",
-                        active: true,
-                        render: (family, active, opencgaSession) => html`
-                            <family-view
-                                .opencgaSession="${opencgaSession}"
-                                .family="${family}"
-                                @settingsUpdate="${() => this.onSettingsUpdate()}"
-                                .settings="${{}}">
-                            </family-view>
-                        `,
-                    },
-                    {
-                        id: "json-view",
-                        name: "JSON Data",
-                        render: (family, active) => html`
-                            <json-viewer
-                                .data="${family}"
-                                .active="${active}">
-                            </json-viewer>
-                        `,
-                    }
-                ],
-            },
         };
     }
 

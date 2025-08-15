@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
-import "../../family/family-view.js";
 import "../../variant/annotation/cellbase-population-frequency-grid.js";
 import "../../variant/annotation/variant-annotation-clinical-view.js";
 import "./rga-variant-individual.js";
@@ -699,11 +698,11 @@ export default class RgaVariantView extends LitElement {
 
         return html`
             <div class="container-fluid">
-                <opencb-grid-toolbar
+                <grid-toolbar
                     .config="${this.toolbarConfig}"
                     @columnChange="${this.onColumnChange}"
                     @download="${this.onDownload}">
-                </opencb-grid-toolbar>
+                </grid-toolbar>
 
                 <div id="${this._prefix}GridTableDiv" class="row" data-cy="variant-view-grid">
                     <table id="${this.gridId}"></table>

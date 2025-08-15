@@ -128,16 +128,32 @@ body {
     border-radius: 0;
 }
 
+// additional modal sizes
+.modal-2xl {
+    --bs-modal-width: 1400px;
+}
+.modal-3xl {
+    --bs-modal-width: 1600px;
+}
+
 // table for grids styles
 .table-grid {
     border-collapse: separate;
     border-spacing: 0 0.5rem;
     // overwrite the default styles of thead cells
-    & thead .th-inner {
-        color: $gray-600;
-        font-size: $font-size-sm;
-        font-weight: $font-weight-medium;
-        padding: 0 0.75rem!important;
+    & thead {
+        & .th-inner {
+            color: $gray-600;
+            font-size: $font-size-sm;
+            font-weight: $font-weight-medium;
+            padding: 0 0.75rem!important;
+        }
+        & tr:first-child th[rowspan="1"]::after {
+            content: "";
+            display: block;
+            border-bottom: #{$border-width} solid #{$border-color};
+            margin: 4px 4px 0 4px;
+        }
     }
     // overwrite the default styles of tbody cells
     & tbody tr {
@@ -146,7 +162,7 @@ body {
     }
     & tbody tr td {
         background-color: inherit;
-        padding: 0.5rem 0.75rem;
+        padding: 0.75rem 0.75rem;
         &:first-child {
             border-top-left-radius: $border-radius;
             border-bottom-left-radius: $border-radius;
@@ -161,6 +177,23 @@ body {
 // fix the dropdown hidden in a bootstrap table
 .force-overflow .fixed-table-body {
     overflow: visible !important;
+}
+
+// fix the position of the table loading
+.fixed-table-loading {
+    border-radius: #{$border-radius};
+    top: auto !important;
+    bottom: auto !important;
+}
+
+// custom link style
+.link {
+    color: #{$primary};
+    cursor: pointer;
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 // additional color utilities
@@ -305,4 +338,29 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
     .qtip:has(.population-freq-tooltip) {
         max-width: 500px !important;
     }
+}
+
+@supports selector(:has(*)) {
+  .qtip:has(.tooltip-xl) {
+    max-width: 600px !important;
+  }
+}
+
+@supports selector(:has(*)) {
+  .qtip:has(.tooltip-2xl) {
+    max-width: 800px !important;
+  }
+}
+
+// Customization for SwaggerUI
+.markdown p span {
+    display: inline-block;
+    padding: 0.2em 0.6em;
+    font-size: 0.9em;
+    font-weight: bold;
+    line-height: 1;
+    color: #ffffff;
+    background-color: #1b1b1b;
+    border-radius: 0.5em;
+    vertical-align: middle;
 }

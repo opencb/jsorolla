@@ -16,16 +16,9 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import "./qc/individual-qc-inferred-sex.js";
-import "./qc/individual-qc-mendelian-errors.js";
-import "../clinical/clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
 import "../commons/aggregation-stats.js";
-import "../commons/json-viewer.js";
-import "./individual-view.js";
 import "./individual-grid.js";
-import "./individual-detail.js";
-
 
 export default class IndividualBrowser extends LitElement {
 
@@ -134,17 +127,9 @@ export default class IndividualBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .active="${true}"
                             @queryComplete="${e => params.onQueryComplete(e)}"
-                            @selectrow="${e => params.onClickRow(e)}"
                             @individualUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </individual-grid>
-                        ${params?.detail ? html`
-                            <individual-detail
-                                .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}"
-                                .individualId="${params.detail?.id}">
-                            </individual-detail>
-                        ` : nothing}
                     `,
                 },
                 {
@@ -185,6 +170,14 @@ export default class IndividualBrowser extends LitElement {
                                 quick: true,
                             },
                             {
+                                id: "familyIds",
+                                title: "Family ID",
+                                type: "string",
+                                placeholder: "HG01879, HG01880, HG01881...",
+                                description: "",
+                                quick: true,
+                            },
+                            {
                                 id: "father",
                                 title: "Father ID",
                                 type: "string",
@@ -218,7 +211,8 @@ export default class IndividualBrowser extends LitElement {
                                 id: "sex",
                                 title: "Sex",
                                 multiple: true,
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                             {
                                 id: "karyotypicSex",
@@ -231,7 +225,8 @@ export default class IndividualBrowser extends LitElement {
                                 title: "Ethnicity",
                                 type: "string",
                                 placeholder: "White caucasian,asiatic...",
-                                description: ""
+                                description: "",
+                                quick: true
                             },
                             {
                                 id: "date",
@@ -261,74 +256,6 @@ export default class IndividualBrowser extends LitElement {
                         showSelectCheckbox: false
                     }
                 },
-                detail: {
-                    title: "Individual",
-                    showTitle: true,
-                    display: {
-                        titleClass: "mt-4",
-                        contentClass: "p-3"
-                    },
-                    items: [
-                        {
-                            id: "individual-view",
-                            name: "Overview",
-                            active: true,
-                            render: (individual, active, opencgaSession) => html`
-                                <individual-view
-                                    .individual="${individual}"
-                                    .opencgaSession="${opencgaSession}">
-                                </individual-view>
-                            `,
-                        },
-                        {
-                            id: "clinical-analysis-grid",
-                            name: "Clinical Analysis",
-                            render: (individual, active, opencgaSession) => {
-                                const config = {
-                                    readOnlyMode: true
-                                };
-                                return html`
-                                    <p class="alert"> <i class="fas fa-info-circle align-middle"></i> Clinical Analysis in which the individual is the proband.</p>
-                                    <clinical-analysis-grid
-                                        .query="${{"proband": individual.id}}"
-                                        .config=${config}
-                                        .opencgaSession="${opencgaSession}">
-                                    </clinical-analysis-grid>
-                                `;
-                            }
-                        },
-                        {
-                            id: "individual-inferred-sex",
-                            name: "Inferred Sex",
-                            render: (individual, active, opencgaSession) => html`
-                                <individual-qc-inferred-sex
-                                    .individual="${individual}"
-                                    .opencgaSession="${opencgaSession}">
-                                </individual-qc-inferred-sex>
-                            `,
-                        },
-                        {
-                            id: "individual-mendelian-error",
-                            name: "Mendelian Error",
-                            render: (individual, active, opencgaSession) => html`
-                                <individual-qc-mendelian-errors
-                                    .individual="${individual}"
-                                    .opencgaSession="${opencgaSession}">
-                                </individual-qc-mendelian-errors>
-                            `
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (individual, active) => html`
-                                <json-viewer
-                                    .data="${individual}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        }
-                    ]
-                }
             },
             aggregation: {
                 default: ["disorders", "creationYear[MONTH]"],

@@ -42,16 +42,10 @@ export default class WorkflowImport extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            mode: {
-                type: String
-            },
         };
     }
 
     #init() {
-        this.workflow = {};
-        this.mode = "";
-
         this._config = this.getDefaultConfig();
     }
 
@@ -60,11 +54,8 @@ export default class WorkflowImport extends LitElement {
         this.requestUpdate();
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.fetchRepositories("nf-core");
-        }
-        super.update(changedProperties);
+    firstUpdated() {
+        this.fetchRepositories("nf-core");
     }
 
     onAdd(e, row) {
@@ -92,35 +83,15 @@ export default class WorkflowImport extends LitElement {
     }
 
     async fetchRepositories(org) {
-        const url = `https://api.github.com/orgs/${org}/repos`;
-        const headers = {
-            // 'Authorization': `token ${token}`,
-            "Accept": "application/vnd.github.v3+json"
-        };
-
         this.repositories = [];
-        let page = 1;
+
         try {
-            while (true) {
-                const response = await fetch(`${url}?page=${page}&per_page=100`, {headers});
-                if (!response?.ok) {
-                    throw new Error(`Error fetching repositories: ${response?.statusText}`);
-                }
-
-                let data = await response.json();
-                data = data
-                    .filter(repo => repo.name !== "tools")
-                    .filter(repo => !repo.archived);
-                    // Note (Nacho 21/03/25): filter commented to show PacVar repository
-                    // .filter(repo => repo.topics.includes("nf-core") && repo.topics.includes("workflow"));
-                if (data.length === 0) {
-                    break;
-                } // No more repositories
-
-                this.repositories = this.repositories.concat(data);
-                page++;
+            const response = await fetch("https://raw.githubusercontent.com/nf-core/website/refs/heads/main/public/pipelines.json");
+            if (response.ok) {
+                const data = await response.json();
+                this.repositories = data?.remote_workflows || [];
+                console.log(this.repositories)
             }
-            this.requestUpdate();
         } catch (error) {
             console.error(error);
         }
@@ -160,11 +131,6 @@ export default class WorkflowImport extends LitElement {
                         id: "stargazers_count",
                         name: "Stars",
                         order: "desc"
-                    },
-                    {
-                        id: "updated_at",
-                        name: "Recently updated",
-                        order: "desc"
                     }
                 ]
             },
@@ -172,16 +138,16 @@ export default class WorkflowImport extends LitElement {
                 options: []
             },
             table: {
-                showHeader: false,
+                showHeader: true,
                 options: {
                     classes: "table table-hover table-borderless",
                     theadClasses: "table-light",
                     buttonsClass: "light",
                     iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                     icons: GridCommons.GRID_ICONS,
-                    pagination: false,
-                    pageSize: 100,
-                    pageList: [100],
+                    pagination: true,
+                    pageSize: 50,
+                    pageList: [25, 50, 100],
                     detailView: false,
                     rowStyle: "",
                 },
@@ -189,72 +155,66 @@ export default class WorkflowImport extends LitElement {
                     {
                         title: "Name",
                         field: "full_name",
-                        rowspan: 1,
-                        colspan: 1,
                         formatter: (value, row) => {
                             return `
-                            <div>
-                                <div class="my-2">${value}
-                                    <a href="${row.homepage}"  target="_blank"><i class="fas fa-external-link-alt ps-2"></i></a>
+                                <div class="d-flex flex-column gap-1">
+                                    <div>
+                                        ${value} <a href="${row.homepage}"  target="_blank"><i class="fas fa-external-link-alt ps-2"></i></a>
+                                    </div>
+                                    <div class="d-block text-secondary">${row.description}</div>
                                 </div>
-                                <div class="d-block text-secondary my-1">${row.description}</div>
-                            </div>
-                        `;
+                            `;
                         },
                         width: "50",
                         widthUnit: "%"
                     },
-                    // {
-                    //     title: "Topics",
-                    //     field: "topics",
-                    //     rowspan: 1,
-                    //     colspan: 1,
-                    // },
                     {
-                        title: "Stars",
-                        field: "stargazers_count",
-                        rowspan: 1,
-                        colspan: 1,
+                        title: "Version",
+                        field: "releases",
                         formatter: value => {
                             return `
-                            <div>
-                                <a>
-                                    <span>
-                                        <i class="fas fa-star pe-2" aria-hidden="true" style="color: darkgoldenrod"></i>${value}
-                                    </span>
-                                </a>
-                            </div>
-                        `;
+                                <div class="d-flex flex-column gap-1">
+                                    <div>
+                                        ${value[0]?.tag_name}
+                                    </div>
+                                    <div class="d-block text-secondary">Published at ${UtilsNew.dateFormatter(value[0].published_at)}</div>
+                                </div>
+                            `;
                         }
                     },
                     {
-                        title: "Default branch",
+                        title: "Default Branch",
                         field: "default_branch",
-                        rowspan: 1,
-                        colspan: 1,
                         formatter: (value, row) => {
                             return `
-                            <div>
-                                <div class="my-2">
-                                    <span>Branch: ${value}</span>
-                                    <a href="${row.html_url}" target="_blank"><i class="fab fa-github fa-lg ps-2"></i></a>
+                                <div class="d-flex flex-column gap-1">
+                                    <div>
+                                        <span>Branch: ${value}</span>
+                                        <a href="${row.html_url}" target="_blank"><i class="fab fa-github fa-lg ps-1"></i></a>
+                                    </div>
+                                    <div class="d-block text-secondary">Updated at ${UtilsNew.dateFormatter(row.updated_at)}</div>
                                 </div>
-                                <div class="d-block text-secondary">Updated ${UtilsNew.dateFormatter(row.updated_at)}</div>
-                            </div>
-                        `;
+                            `;
+                        }
+                    },
+                    {
+                        title: "Stars",
+                        field: "stargazers_count",
+                        formatter: value => {
+                            return `
+                                <div style="text-wrap:nowrap;">
+                                    <i class="fas fa-star" aria-hidden="true" style="color: darkgoldenrod"></i> ${value}
+                                </div>
+                            `;
                         }
                     },
                     {
                         title: "Add",
                         field: "add",
-                        rowspan: 1,
-                        colspan: 1,
                         formatter: () => {
                             return `
-                            <button type="button" class="btn btn-primary">
-                                Add
-                            </button>
-                        `;
+                                <button type="button" class="btn btn-primary">Add</button>
+                            `;
                         },
                         events: {
                             "click button": (e, value, row) => this.onAdd(e, row)

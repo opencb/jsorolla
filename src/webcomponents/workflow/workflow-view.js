@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
-import UtilsNew from "../../core/utils-new.js";
-import Types from "../commons/types.js";
-import LitUtils from "../commons/utils/lit-utils.js";
+import {LitElement, html, nothing} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
 import "../commons/forms/data-form.js";
-import "../commons/filters/catalog-search-autocomplete.js";
-import "../loading-spinner.js";
+import "../commons/json-viewer.js";
+import "./workflow-scripts-view.js";
+import "./workflow-jobs.js";
+import "./workflow-summary.js";
 
 export default class WorkflowView extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -36,17 +35,14 @@ export default class WorkflowView extends LitElement {
 
     static get properties() {
         return {
-            workflow: {
-                type: Object,
+            opencgaSession: {
+                type: Object
             },
             workflowId: {
-                type: String,
+                type: String
             },
-            search: {
-                type: Boolean,
-            },
-            opencgaSession: {
-                type: Object,
+            workflow: {
+                type: Object
             },
             displayConfig: {
                 type: Object,
@@ -55,294 +51,116 @@ export default class WorkflowView extends LitElement {
     }
 
     #init() {
-        this.workflow = {};
-        this.search = false;
-
-        this.isLoading = false;
-        this.displayConfigDefault = {
-            collapsable: true,
-            titleVisible: false,
-            titleWidth: 2,
-            defaultValue: "-",
-            defaultLayout: "horizontal",
-            buttonsVisible: false,
-            pdf: false,
-        };
+        this.COMPONENT_ID = "workflow-view";
+        this._workflow = null;
         this._config = this.getDefaultConfig();
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
     update(changedProperties) {
-        // to update disorders if it has more than one
-        // if (changedProperties.has("workflow")) {
-        //     this._config = this.getDefaultConfig();
-        // }
         if (changedProperties.has("workflowId")) {
             this.workflowIdObserver();
         }
-        if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig
-            };
+
+        if (changedProperties.has("workflow")) {
+            this.workflowObserver();
+        }
+
+        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
     workflowIdObserver() {
-        if (this.workflowId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-            };
-            let error;
-            this.#setLoading(true);
+        this._workflow = null;
+        if (this.opencgaSession && this.workflowId) {
             this.opencgaSession.opencgaClient.workflows()
-                .info(this.workflowId, params)
+                .info(this.workflowId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
-                    this.workflow = response.responses[0].results[0];
+                    this._workflow = response.getResult(0);
+                    this.requestUpdate();
                 })
-                .catch(reason => {
-                    this.workflow = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "workflowSearch", this.workflow, {}, error);
-                    this.#setLoading(false);
+                .catch(response => {
+                    console.error(response);
                 });
-        } else {
-            this.workflow = {};
         }
     }
 
-    onFilterChange(e) {
-        this.workflowId = e.detail.value;
+    workflowObserver() {
+        this._workflow = {...this.workflow};
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
-
-        if (!this.workflow?.id && this.search === false) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    Workflow ID not found.
-                </div>
-            `;
+        if (!this.opencgaSession || !this._workflow) {
+            return nothing;
         }
 
         return html`
             <data-form
-                .data="${this.workflow}"
-                .config="${this._config}">
+                .data="${this._workflow}"
+                .config="${this._config || {}}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            title: "Summary",
-            icon: "",
-            display: this.displayConfig || this.displayConfigDefault,
+        return {
+            display: {
+                type: "pills",
+                pillsLeftColumnClass: "col-md-2",
+                pillsRightColumnClass: "col-md-10",
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
-                    title: "Search",
-                    display: {
-                        visible: workflow => !workflow?.id && this.search === true,
-                    },
-                    elements: [
-                        {
-                            title: "Workflow ID",
-                            // field: "workflowId",
-                            type: "custom",
-                            display: {
-                                render: () => html `
-                                    <catalog-search-autocomplete
-                                        .value="${this.sample?.id}"
-                                        .resource="${"WORKFLOW"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>`,
-                            },
-                        },
-                    ],
-                },
-                {
-                    title: "General Information",
-                    collapsed: false,
-                    display: {
-                        visible: workflow => workflow?.id,
-                    },
-                    elements: [
-                        {
-                            title: "Workflow ID",
-                            // type: "custom",
-                            type: "complex",
-                            display: {
-                                // render: data => `
-                                //     <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})
-                                // `,
-                                template: "${id} (UUID: ${uuid})",
-                                // transform: {
-                                //     id: id => id.toLowerCase(),
-                                // },
-                                style: {
-                                    id: {
-                                        "font-weight": "bold",
-                                    }
-                                }
-                            },
-                        },
-                        {
-                            id: "name",
-                            title: "Name",
-                            field: "name",
-                        },
-                        {
-                            title: "Version",
-                            field: "version",
-                        },
-                        {
-                            id: "type",
-                            title: "Type",
-                            field: "type",
-                        },
-                        {
-                            title: "Draft",
-                            field: "draft",
-                            type: "checkbox",
-                            display: {
-                                disabled: true,
-                            },
-                        },
-                        {
-                            title: "Minimum Requirements",
-                            field: "minimumRequirements",
-                            type: "object",
-                            elements: [
-                                {
-                                    title: "Min CPU cores",
-                                    field: "minimumRequirements.cpu",
-                                },
-                                {
-                                    title: "Min memory",
-                                    field: "minimumRequirements.memory",
-                                },
-                            ]
-                        },
-                        {
-                            title: "Status",
-                            type: "complex",
-                            display: {
-                                // render: field => field ? `${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
-                                template: "${internal.status.name} (${internal.status.date})",
-                                format: {
-                                    "internal.status.date": date => UtilsNew.dateFormatter(date)
-                                }
-                            },
-                        },
-                        {
-                            title: "Description",
-                            field: "description",
-                        },
-                        {
-                            title: "Creation Date",
-                            field: "creationDate",
-                            display: {
-                                // render: field => field ? UtilsNew.dateFormatter(field) : "-"
-                                format: date => UtilsNew.dateFormatter(date)
-                            },
-                        },
-                        {
-                            title: "Modification Date",
-                            field: "modificationDate",
-                            // type: "custom",
-                            display: {
-                                format: modificationDate => UtilsNew.dateFormatter(modificationDate),
-                            },
-                        },
-                        {
-                            title: "Description",
-                            field: "description",
-                        },
-                    ],
-                },
-                {
-                    title: "Input Variables",
-                    text: `
-                        Optional variables that can be used in the workflow, these are NOT necessary for the workflow to run.
-                        The variables will be ONLY used to create automatic forms.
+                    id: "workflow-summary",
+                    name: "Overview",
+                    render: (workflow, active) => html`
+                        <workflow-summary
+                            .workflow="${workflow}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </workflow-summary>
                     `,
-                    elements: [
-                        {
-                            title: "Variables",
-                            field: "variables",
-                            type: "table",
-                            display: {
-                                defaultValue: "No input parameters are currently configured.",
-                                columns: [
-                                    {
-                                        title: "ID",
-                                        field: "id",
-                                    },
-                                    {
-                                        title: "Name",
-                                        field: "name",
-                                    },
-                                    {
-                                        title: "Required",
-                                        field: "required",
-                                    },
-                                    {
-                                        title: "Default Value",
-                                        field: "defaultValue",
-                                    },
-                                    {
-                                        title: "Description",
-                                        field: "description",
-                                    },
-                                ],
-                            },
-                        },
-                    ],
                 },
-                /*
                 {
-                    title: "Scripts",
-                    elements: [
-                        {
-                            title: "Scripts",
-                            field: "scripts",
-                            type: "list",
-                            display: {
-                                defaultValue: "No scripts are currently available.",
-                                contentLayout: "vertical",
-                                format: script => {
-                                    return `
-                                        <h5 class="card-title">${script.fileName} ${script.main ? `(main)`: ``}</h5>
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <p class="card-text">${script.content}</p>
-                                            </div>
-                                        </div>
-                                    `;
-                                }
-                            },
-                        },
-                    ],
+                    id: "workflow-scripts",
+                    name: "Scripts",
+                    render: (workflow, active) => html`
+                        <workflow-scripts-view
+                            .active="${active}"
+                            .workflow="${workflow}">
+                        </workflow-scripts-view>
+                    `,
                 },
-                 */
+                {
+                    id: "workflow-jobs",
+                    name: "Jobs",
+                    render: (workflow, active) => html`
+                        <workflow-jobs
+                            .workflow="${workflow}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </workflow-jobs>
+                    `,
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (workflow, active) => html`
+                        <json-viewer
+                            .data="${workflow}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
+                },
+                ...ExtensionsManager.getViews(this.COMPONENT_ID, this.opencgaSession),
             ],
-        });
+        };
     }
 
 }
