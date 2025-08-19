@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement, nothing} from "lit";
+import { html, LitElement, nothing } from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
@@ -136,14 +136,14 @@ export default class WorkflowGrid extends LitElement {
                     <workflow-create
                         .opencgaSession="${this.opencgaSession}"
                         .displayConfig="${{
-                            type: "tabs",
-                            buttonClearText: "Cancel",
-                            buttonsLayout: "upper"
-                        }}"
+                        type: "tabs",
+                        buttonClearText: "Cancel",
+                        buttonsLayout: "upper"
+                    }}"
                         @workflowCreate="${() => {
-                            this.gridCommons.clearActiveModal();
-                            this.table.bootstrapTable("refresh");
-                        }}">
+                        this.gridCommons.clearActiveModal();
+                        this.table.bootstrapTable("refresh");
+                    }}">
                     </workflow-create>
                 `,
             },
@@ -158,9 +158,9 @@ export default class WorkflowGrid extends LitElement {
                     <workflow-import
                         .opencgaSession="${this.opencgaSession}"
                         @workflowImport="${() => {
-                            // this.gridCommons.clearActiveModal();
-                            this.table.bootstrapTable("refresh");
-                        }}">
+                        // this.gridCommons.clearActiveModal();
+                        this.table.bootstrapTable("refresh");
+                    }}">
                     </workflow-import>
                 `,
             },
@@ -173,8 +173,8 @@ export default class WorkflowGrid extends LitElement {
                 render: () => html`
                     <workflow-analysis
                         .toolParams="${{
-                            id: this._selectedWorkflow?.id,
-                        }}"
+                        id: this._selectedWorkflow?.id,
+                    }}"
                         .search="${false}"
                         .opencgaSession="${this.opencgaSession}">
                     </workflow-analysis>
@@ -190,15 +190,15 @@ export default class WorkflowGrid extends LitElement {
                     <workflow-update
                         .workflowId="${this._selectedWorkflow?.id}"
                         .displayConfig="${{
-                            type: "tabs",
-                            buttonClearText: "Cancel",
-                            buttonsLayout: "upper"
-                        }}"
+                        type: "tabs",
+                        buttonClearText: "Cancel",
+                        buttonsLayout: "upper"
+                    }}"
                         .opencgaSession="${this.opencgaSession}"
                         @workflowUpdate="${() => {
-                            this.gridCommons.clearActiveModal();
-                            this.table.bootstrapTable("refresh");
-                        }}">
+                        this.gridCommons.clearActiveModal();
+                        this.table.bootstrapTable("refresh");
+                    }}">
                     </workflow-update>
                 `,
             }),
@@ -319,7 +319,7 @@ export default class WorkflowGrid extends LitElement {
             pageList: this._config.pageList,
             loadingTemplate: () => GridCommons.loadingFormatter(),
             onPostBody: data => {
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length});
+                this.gridCommons.onLoadSuccess({ rows: data, total: data.length });
             },
         });
     }
@@ -331,7 +331,7 @@ export default class WorkflowGrid extends LitElement {
                 title: "Workflow",
                 field: "id",
                 formatter: (workflowId, workflow) => {
-                    return`
+                    return `
                         <a class="fw-bold link my-1" data-action="view">${workflowId}</a>
                         <div class="text-secondary my-1">version ${workflow.version}</div>
                     `;
@@ -358,49 +358,88 @@ export default class WorkflowGrid extends LitElement {
                 title: "Type",
                 field: "type",
                 formatter: type => {
-                    const typeConfig = this._config.workflowType.find(t => t.id === type);
-                    return`
-                        <span class="badge" style="background-color: ${typeConfig.displayColor}">
-                            ${typeConfig.displayLabel}
+                    return `
+                        <span>
+                            ${type || "Unknown"}
                         </span>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("type")
             },
             {
+                id: "scope",
+                title: "Scope",
+                field: "scope",
+                formatter: scope => {
+                    const scopeConfig = this._config.workflowType.find(t => t.id === scope);
+                    return `
+                        <span class="badge fs-7" style="background-color: ${scopeConfig?.displayColor || "black"};">
+                            ${scopeConfig?.displayLabel || "Unknown"}
+                        </span>
+                    `;
+                },
+                visible: this.gridCommons.isColumnVisible("scope")
+            },
+            {
                 id: "tags",
                 title: "Tags",
                 field: "tags",
-                formatter: tags => tags?.join(", ") || "-",
+                formatter: tags => {
+                    return `
+                        <span>
+                            ${tags?.join(", ") || "-"}
+                        </span>
+                    `;
+                },
                 visible: this.gridCommons.isColumnVisible("tags")
             },
             {
-                id: "repository",
-                title: "GitHub Repository",
-                field: "repository",
-                formatter: repository => {
-                    return `
-                        <div class="">
-                            ${repository?.id ? `
-                                <a class="link d-inline-flex align-items-center gap-1" href="https://github.com/${repository.id}" target="_blank">
-                                    <span>${repository.id} v${repository.version}</span>
-                                    <i class="fa fa-external-link-alt fs-8"></i>
-                                </a>
-                            ` : "-"}
-                        </div>
+                id: "executor",
+                title: "Executor",
+                formatter: (_, userTool) => {
+                    if (userTool.type === "WORKFLOW") {
+                        const repository = userTool?.workflow?.repository;
+                        return `
+                            <div class="">
+                                ${repository?.name ? `
+                                    <div>
+                                        <a class="link d-inline-flex align-items-center gap-1" href="https://github.com/${repository.name}" target="_blank">
+                                            <span>${repository.name} v${repository.tag}</span>
+                                            <i class="fa fa-external-link-alt fs-8"></i>
+                                        </a>
+                                    </div>
+                                    <div class="text-secondary my-1">${userTool.workflow.manager.id} v${userTool.workflow.manager.version}</div>
+                                ` : "-"}
+                            </div>
+                        `;
+                    } else {
+                        const docker = userTool?.docker;
+                        return `
+                            <div class="">
+                                ${docker?.name ? `
+                                    <div>
+                                        <a class="link d-inline-flex align-items-center gap-1" href="https://github.com/${docker.name}" target="_blank">
+                                            <span>${docker.name} v${docker.tag}</span>
+                                            <i class="fa fa-external-link-alt fs-8"></i>
+                                        </a>
+                                    </div>
+                                ` : "-"}
+                            </div>
                     `;
+                    }
+
                 },
                 visible: this.gridCommons.isColumnVisible("repository")
             },
-            {
-                id: "scripts",
-                title: "Scripts",
-                field: "scripts",
-                formatter: scripts => {
-                    return (scripts || []).map(script => `<div>${script.fileName}</div>`).join("") || "-";
-                },
-                visible: this.gridCommons.isColumnVisible("scripts")
-            },
+            // {
+            //     id: "scripts",
+            //     title: "Scripts",
+            //     field: "scripts",
+            //     formatter: scripts => {
+            //         return (scripts || []).map(script => `<div>${script.fileName}</div>`).join("") || "-";
+            //     },
+            //     visible: this.gridCommons.isColumnVisible("scripts")
+            // },
             {
                 id: "minimumRequirements",
                 title: "Minimum Requirements",
@@ -553,7 +592,7 @@ export default class WorkflowGrid extends LitElement {
     }
 
     async onDownload(e) {
-        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        this.toolbarConfig = { ...this.toolbarConfig, downloading: true };
         this.requestUpdate();
         await this.updateComplete;
 
@@ -587,7 +626,7 @@ export default class WorkflowGrid extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
-                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.toolbarConfig = { ...this.toolbarConfig, downloading: false };
                 this.requestUpdate();
             });
     }
