@@ -77,8 +77,11 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
     }
 
     updated() {
-        this.querySelector("data-form").updateComplete.then(() => {
-            this.#plotClinvarTraitAssociations(this._data);
+        this.querySelector("#summary-cs-clinvar data-form").updateComplete.then(() => {
+            const chartContainer = this.querySelector(`#${this._chartId}`);
+            if (chartContainer) {
+                this.#plotClinvarTraitAssociations(this._data);
+            }
         });
     }
 
@@ -213,7 +216,7 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
                     <p class="text-secondary">ClinVar variant traits by clinical significance and germline review stars</p>
 
                 </div>
-                <div class="card-body pt-0 pb-0">
+                <div class="card-body pt-0 pb-0" id="summary-cs-clinvar">
                     <data-form
                         .data="${this._variant}"
                         .config="${this._config}">
