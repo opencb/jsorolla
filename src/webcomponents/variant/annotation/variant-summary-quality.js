@@ -17,6 +17,8 @@
 import {html, LitElement, nothing} from "lit";
 import VariantInterpreterGridFormatter from "../interpretation/variant-interpreter-grid-formatter.js";
 import UtilsNew from "../../../core/utils-new.js";
+import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
+import genotype from "lodash";
 
 export default class VariantSummaryQuality extends LitElement {
 
@@ -62,8 +64,81 @@ export default class VariantSummaryQuality extends LitElement {
 
     updated(changedProperties) {
         this.querySelector("#summary-sample-quality data-form").updateComplete.then(() => {
-            this.#renderChart();
+            const chartContainer = this.querySelector(`#${this._chartId}`);
+            if (chartContainer) {
+                this.#renderChart();
+            }
         });
+    }
+
+    variantObserver() {
+        this._samplesQuality = {};
+        const study = this.variant?.studies.find(s => s.studyId === this.opencgaSession?.study?.fqn);
+
+        // Precompute all relevant indices once
+        const { samples = [], sampleDataKeys = [], files = [] } = study;
+        const keyIndices = ['GT', 'DP', 'GQ', 'AD', 'EXT_VAF'].reduce((acc, key) => {
+            acc[key] = sampleDataKeys.indexOf(key);
+            return acc;
+        }, {});
+
+        const formatField = (value, transform = v => v) =>
+            (value === "." || value == null) ? "N/A" : transform(value);
+
+        // Table with sample quality information
+        this._samplesQuality.samples = samples.map(sample => {
+            const { data, sampleId, fileIndex } = sample;
+            const fileData = files?.[fileIndex]?.data ?? {};
+            const individualInfo = this._getIndividual(sample);
+
+            const probandSample = this.clinicalAnalysis?.proband?.samples?.find(s => s.id === sampleId);
+            const sampleType = probandSample?.somatic ?? false;
+
+            const gt = data?.[keyIndices.GT] ?? "-";
+            const zig = VariantInterpreterGridFormatter.zygosityGenotypeRenderer(this.variant, sample, this.clinicalAnalysis);
+
+            return {
+                sample: { sampleId, sampleType: sampleType },
+                individual: individualInfo,
+                genotype: { gt, zig },
+                DP: formatField(data?.[keyIndices.DP]),
+                GQ: formatField(data?.[keyIndices.GQ]),
+                AD: formatField(data?.[keyIndices.AD]),
+                EXT_VAF: formatField(data?.[keyIndices.EXT_VAF], v => Number(v).toFixed(3)),
+                QUAL: formatField(fileData?.QUAL),
+                FILTER: formatField(fileData?.FILTER)
+            };
+        });
+
+        // Piechart with proband AD proportion
+        this._samplesQuality.alleleDepthsChart = samples.map(({ data, sampleId }) => {
+            const adString = data?.[keyIndices.AD];
+            let pieData;
+
+            if (adString && adString !== ".") {
+                const [ref, alt] = adString.split(",").map(Number);
+                const total = ref + alt;
+                const refPercent = total ? (ref / total) * 100 : 0;
+                const altPercent = total ? (alt / total) * 100 : 0;
+                pieData = [
+                    { name: "Ref Allele", y: refPercent },
+                    { name: "Alt Allele", y: altPercent }
+                ];
+            } else {
+                pieData = [];
+            }
+
+            return { sampleId, chartData: pieData };
+        });
+    }
+
+    _getIndividual(sampleEntry) {
+        const individual = (this.clinicalAnalysis?.type === "FAMILY") ?
+            this.clinicalAnalysis.family.members.find(m => m.samples[0].id === sampleEntry.sampleId) :
+            this.clinicalAnalysis.proband;
+        const id = individual.id;
+        const sex = CatalogGridFormatter.sexFormatter(individual.sex, individual);
+        return {id, sex};
     }
 
     #renderChart() {
@@ -84,7 +159,7 @@ export default class VariantSummaryQuality extends LitElement {
                 y: 29,
             },
             subtitle: {
-                text: `<span style="font-size:12px;">Sample Id: ${this._data[0].sampleId}</span>`,
+                text: `<span class="text-truncate" style="font-size:12px; max-width: 200px">Sample Id: ${this._samplesQuality.alleleDepthsChart[0].sampleId}</span>`,
                 align: "center",
                 verticalAlign: "middle",
                 style: {fontSize: "12px"},
@@ -114,8 +189,8 @@ export default class VariantSummaryQuality extends LitElement {
                 },
             },
             series: [{
-                name: this._data[0].sampleId,
-                data: this._data[0].chartData,
+                name: this._samplesQuality.alleleDepthsChart[0].sampleId,
+                data: this._samplesQuality.alleleDepthsChart[0].chartData,
             }],
             tooltip: {
                 useHTML: true,
@@ -134,86 +209,11 @@ export default class VariantSummaryQuality extends LitElement {
         });
     }
 
-    getSex(sampleEntry) {
-        let sex;
-        if (this.clinicalAnalysis?.type === "FAMILY") {
-            // we need to find the sex of each member of the family
-            const individual = this.clinicalAnalysis.family.members.find(m => m.samples[0].id === sampleEntry.sampleId);
-            sex = UtilsNew.isEmpty(individual?.sex) ? "Not specified" : individual.sex?.id || individual.sex;
-        } else {
-            sex = (!!this.clinicalAnalysis?.proband?.sex && this.clinicalAnalysis?.proband?.sex.id !== "UNKNOWN")
-                ? this.clinicalAnalysis.proband.sex.id
-                : "";
-        }
-        return sex;
-    }
-
-    variantObserver() {
-        this._samplesQuality = {};
-        const study = this.variant.studies.find(study => study.studyId === this.opencgaSession.study.fqn)
-        const {samples, sampleDataKeys, files} = study;
-
-        // Precompute all relevant indices once
-        const keyIndices = ['GT', 'DP', 'GQ', 'AD', 'EXT_VAF'].reduce((acc, key) => {
-            acc[key] = sampleDataKeys.indexOf(key);
-            return acc;
-        }, {});
-
-        this._samplesQuality.samples = samples.map(sample => {
-            const data = sample.data;
-            const fileData = files?.[sample.fileIndex]?.data ?? {};
-
-            const gt = data[keyIndices.GT] ?? "-";
-            //const gt = VariantInterpreterGridFormatter.alleleGenotypeRenderer(this.variant, sample, "call");
-
-            return {
-                sampleId: sample.sampleId,
-                sex: this.getSex(sample),
-                GT: gt,
-                Zig: VariantInterpreterGridFormatter.zygosityGenotypeRenderer(this.variant, sample, this.clinicalAnalaysis),
-                DP: data[keyIndices.DP] ?? "-",
-                GQ: data[keyIndices.GQ] ?? "-",
-                AD: data[keyIndices.AD] ?? "-",
-                EXT_VAF: data[keyIndices.EXT_VAF] ?? "-",
-                QUAL: fileData.QUAL ?? "-",
-                FILTER: fileData.FILTER ?? "-"
-            }
-        });
-
-        this._samplesQuality.alleleDepthsChart = samples.map(sample => {
-            const data = sample.data;
-            const adString = data[keyIndices.AD] ?? ".";
-            let pieData;
-
-            if (adString && adString !== ".") {
-                const [ref, alt] = adString
-                    .split(',')
-                    .map(Number);
-                const total = ref + alt;
-                const refPercent = total > 0 ? (ref / total) * 100 : 0;
-                const altPercent = total > 0 ? (alt / total) * 100 : 0;
-                pieData = [
-                    {name: 'Ref Allele', y: refPercent},
-                    {name: 'Alt Allele', y: altPercent}
-                ];
-            } else {
-                pieData = [
-                    { name: 'Ref Allele', y: 0 },
-                    { name: 'Alt Allele', y: 0 }
-                ];
-            }
-
-            return {
-                sampleId: sample.sampleId,
-                chartData: pieData
-            };
-        })
-    }
-
     render() {
         if (!this._samplesQuality) {
             return nothing;
         }
+
         // const data = this._variant.studies.find(s => s.studyId === this.opencgaSession.study.fqn).
         return html`
             <div class="card p-3">
@@ -232,7 +232,6 @@ export default class VariantSummaryQuality extends LitElement {
                 </div>
                 -->
             </div>
-
         `;
     }
 
@@ -258,7 +257,7 @@ export default class VariantSummaryQuality extends LitElement {
                                 ],
                             },
                             {
-                                style: "flex: 1 1 auto",
+                                style: "flex: 0 1 auto",
                                 classes: "d-flex justify-content-center",
                                 elements: [
                                     {
@@ -277,68 +276,89 @@ export default class VariantSummaryQuality extends LitElement {
                             display: {
                                 separationClassName: "",
                                 className: "table table-borderless table-hover table-grid",
-                                style: "font-size: 11px",
+                                style: "font-size: 12px",
                                 rowId: true,
                                 defaultValue: "No proband or sample selected.",
                                 columns: [
                                     {
-                                        title: "Individual/Sample",
-                                        field: "sampleId",
+                                        title: "Sample",
+                                        type: "custom",
+                                        field: "sample",
                                         display: {
                                             defaultValue: "-",
-                                            style: {
-                                                "font-weight": "bold",
-                                            }
+                                            render: sample => {
+                                                return html`
+                                                    <div class="fw-bold text-truncate" style="max-width:350px">
+                                                        ${sample.sampleId}
+                                                    </div>
+                                                    <div class="text-secondary">
+                                                        ${sample.sampleType ? "SOMATIC" : ""}
+                                                    </div>
+                                                `;
+                                            },
                                         },
                                     },
                                     {
-                                        title: "Sex",
-                                        field: "sex",
+                                        title: "Individual/Sex",
+                                        field: "individual",
+                                        type: "custom",
                                         display: {
-                                            defaultValue: "-",
+                                            render: individual => {
+                                                return html`
+                                                    <div class="d-flex flex-column">
+                                                        <div class="fw-bold me-2">${individual.id}</div>
+                                                        <div class="text-secondary">${individual.sex}</div>
+                                                    </div>
+                                                `;
+                                            },
                                         },
                                     },
                                     {
-                                        title: "GENOTYPE",
-                                        field: "GT",
-                                        display: {
-                                            defaultValue: "-",
-                                        },
-                                    },
-                                    {
-                                        title: "ZYGOSITY",
-                                        field: "Zig",
-                                        // Caution Vero 2025-07-03: default type plus className adds the className to
-                                        // the td and to a child span div. In the badge case, the effect is not pleasant.
+                                        title: "Genotype/Zygosity",
                                         type: "complex",
                                         display: {
                                             defaultValue: "-",
-                                            template: "${Zig}",
+                                            template: "${genotype.gt} ${genotype.zig}",
                                             className: {
-                                                "Zig": "",
+                                                "genotype.gt": "text-secondary me-2"
                                             },
                                         },
                                     },
                                     {
                                         title: "DP",
                                         field: "DP",
+                                        display: {
+                                            className: "text-secondary"
+                                        }
                                     },
                                     {
                                         title: "GQ",
                                         field: "GQ",
+                                        display: {
+                                            className: "text-secondary"
+                                        }
                                     },
 
                                     {
-                                        title: "EXT_VAF",
+                                        title: "VAF",
                                         field: "EXT_VAF",
+                                        display: {
+                                            className: "text-secondary"
+                                        }
                                     },
                                     {
                                         title: "AD",
                                         field: "AD",
+                                        display: {
+                                            className: "text-secondary"
+                                        }
                                     },
                                     {
                                         title: "QUAL",
                                         field: "QUAL",
+                                        display: {
+                                            className: "text-secondary"
+                                        }
                                     },
                                     {
                                         title: "FILTER",
@@ -347,12 +367,12 @@ export default class VariantSummaryQuality extends LitElement {
                                         // the td and to a child span div. In the badge case, the effect is not pleasant.
                                         type: "complex",
                                         display: {
-                                            defaultValue: "-",
+                                            defaultValue: "N/A",
                                             template: "${FILTER}",
                                             className: {
                                                 "FILTER": (filter) => filter === "PASS"
-                                                    ? "badge bg-success-subtle text-success fs-6"
-                                                    : "badge bg-secondary-subtle text-secondary fs-6",
+                                                    ? "badge bg-success-subtle text-success fs-7"
+                                                    : "badge bg-secondary-subtle text-secondary fs-7",
                                             },
                                         },
                                     },
@@ -367,12 +387,11 @@ export default class VariantSummaryQuality extends LitElement {
                             display: {
                                 separationClassName: "",
                                 render: alleleDepthsChart => {
-                                    this._data = JSON.parse(JSON.stringify(alleleDepthsChart));
-                                    return html`
-                                        <div class="d-flex align-items-stretch">
-                                            <div class="" id="${this._chartId}" style="flex: 0 0 auto"></div>
-                                        </div>
-                                    `;
+                                    return (alleleDepthsChart[0].chartData.length > 0) ? html`
+                                            <div class="d-flex align-items-center">
+                                                <div class="" id="${this._chartId}" style="flex: 0 0 auto"></div>
+                                            </div>
+                                    ` : nothing;
                                 }
                             }
                         }
