@@ -448,27 +448,18 @@ export default class VariantGridFormatter {
         return html;
     }
 
-    static _consequenceTypeManeFilter(cts) {
-        const maneConsequenceTypes = [];
-        const notManeConsequenceTypes = [];
-        const indexes = [];
-
-        cts.forEach((ct, i) => {
-            const transcriptFlags = ct.transcriptFlags ?? ct.transcriptAnnotationFlags;
-            if (ct.source === "ensembl" &&
-                (transcriptFlags?.includes("MANE Select") || transcriptFlags?.includes("MANE Plus Clinical"))) {
-                indexes.push(i);
-                maneConsequenceTypes.push(ct);
-            } else {
-                notManeConsequenceTypes.push(ct);
-            }
-        });
-
-        return {
-            maneConsequenceTypes,
-            notManeConsequenceTypes,
-            indexes
+    static _consequenceTypeManeFilter(cts, bothSources = false) {
+        const isMane = ct => {
+            const flags = ct.transcriptFlags ?? ct.transcriptAnnotationFlags;
+            const hasManeFlag = flags?.includes("MANE Select") || flags?.includes("MANE Plus Clinical");
+            return bothSources ? hasManeFlag : ct.source === "ensembl" && hasManeFlag;
         };
+
+        const maneConsequenceTypes = cts.filter(isMane);
+        const notManeConsequenceTypes = cts.filter(ct => !isMane(ct));
+        const indexes = maneConsequenceTypes.map(ct => cts.indexOf(ct));
+
+        return {maneConsequenceTypes, notManeConsequenceTypes, indexes};
     }
 
     static _consequenceTypeDetailFormatterFilter(cts, filter) {
