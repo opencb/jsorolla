@@ -105,23 +105,14 @@ export default class VariantSummaryDeleteriousness extends LitElement {
 
     variantObserver() {
         if (this.variant) {
-            // 1. Get the list of consequence types selected in settings
-            // TODO: DeleteMe and use the only MANE one. Just for testing
-            const { selectedConsequenceTypes } =
-            VariantGridFormatter._consequenceTypeDetailFormatterFilter(
-                this.variant.annotation.consequenceTypes,
-                this.settings
-            ) || [];
-
             this._variant = {};
             // 1. Get consequenceTypes transcriptId where transcript flags contain "MANE" and source="ensembl"
-            /*
-            const { maneConsequenceTypes } = VariantGridFormatter._consequenceTypeManeFilter(
-                this.variant.annotation.consequenceTypes) || [];
-            */
+            const { maneConsequenceTypes, indexes } = VariantGridFormatter._consequenceTypeManeFilter(
+                this.variant.annotation.consequenceTypes, true) || [];
+
             // 2. Deleteriousness full heatmap
             let dataDel = [];
-            selectedConsequenceTypes.forEach((ct, index) => {
+            (this.variant.annotation?.consequenceTypes || []).forEach((ct, index) => {
                 const scores = this._extractData(ct, index);
                 const hasValidScore = Object.values(scores).some(metric => metric?.rawScore !== null);
                 if (hasValidScore) {
@@ -129,15 +120,23 @@ export default class VariantSummaryDeleteriousness extends LitElement {
                         id: ct.transcriptId,
                         scores: scores,
                         index: index,
+                        isMane: indexes.includes(index),
                     })
                 }
             });
 
-            // 3. Summary predictors
+            // 3. Put MANE transcripts first
+            dataDel.sort((a, b) => {
+                if (a.isMane && !b.isMane) return -1;
+                if (!a.isMane && b.isMane) return 1;
+                return 0;
+            });
+
+            // 4. Summary predictors
             const summaryDel = this._summarizePredictors(dataDel);
 
             this._variant = {
-                selected: selectedConsequenceTypes,
+                selected: maneConsequenceTypes,
                 dataDel: dataDel,
                 summaryDel: summaryDel,
                 ...this.variant
@@ -157,6 +156,7 @@ export default class VariantSummaryDeleteriousness extends LitElement {
         };
 
         // Substitution Scores
+        // Caution Vero 20250820 - Not all the ct have proteinVariantAnnotation
         const substitutionScores = ct.proteinVariantAnnotation?.substitutionScores ?? [];
 
         substitutionScores.forEach(({ score, source, description }) => {
@@ -211,18 +211,22 @@ export default class VariantSummaryDeleteriousness extends LitElement {
     _getQualitativeValueFallback(source, score) {
         switch (source.toLowerCase()) {
             case "sift":
+                console.log("fallback sift")
                 // https://ionreporter.thermofisher.com/ionreporter/help/GUID-2097F236-C8A2-4E67-862D-0FB5875979AC.html
                 return score <= 0.05 ? "Deleterious" : "Tolerated";
             case "polyphen":
+                console.log("fallback polyphen")
                 // https://ionreporter.thermofisher.com/ionreporter/help/GUID-57A60D00-0654-4F80-A8F9-F6B6A48D0278.html
                 if (score > 0.85) return "Probably Damaging";
                 if (score > 0.15) return "Possibly Damaging";
                 return "Benign";
             case "revel":
+                console.log("fallback revel")
                 if (score >= 0.75) return "Likely Pathogenic";
                 if (score >= 0.5) return "Potentially Pathogenic";
                 return "Benign";
             case "cadd_scaled":
+                console.log("fallback cadd")
                 // "Predicted to be within the..."
                 if (score >= 30) return "Top 0.1%"; // Extremely deleterious
                 if (score >= 20) return "Top 1%"; // Highly deleterious
@@ -230,6 +234,7 @@ export default class VariantSummaryDeleteriousness extends LitElement {
                 if (score >= 10) return "Top 10%"; // Possibly deleterious
                 if (score < 10) return "Bottom 90%"; // Likely Benign
             case "spliceai":
+                console.log("fallback spliceai")
                 if (score >= 0.8) return "High";
                 if (score >= 0.5) return "Moderate";
                 //if (score >= 0.2) return 'Low';
@@ -240,97 +245,17 @@ export default class VariantSummaryDeleteriousness extends LitElement {
         }
     }
 
-    #renderDelHeatmap() {
-        const predictors = ['sift', 'polyphen', 'revel', 'cadd_scaled', 'spliceai'];
+    _addAlpha(hexColor, alpha) {
+        // Expand shorthand hex (#03F -> #0033FF)
+        let c = hexColor.replace(/^#([a-f\d])([a-f\d])([a-f\d])$/i,
+            (m, r, g, b) => '#' + r + r + g + g + b + b);
 
-        const heatmapData = [];
-        const rowHeightPx = 14;
-        const labelSize = 10;
-        const numRows = this._variant.dataDel.length;
+        const bigint = parseInt(c.slice(1), 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
 
-        this._variant.dataDel.forEach((transcript, rowIndex) => {
-            predictors.forEach((predictor, colIndex) => {
-                const score = transcript.scores[predictor];
-                heatmapData.push({
-                    x: colIndex,
-                    y: rowIndex,
-                    value: 1,
-                    color: score?.color || '#eeeeee',
-                    custom: {
-                        label: score?.qualitative || "No data",
-                        rawScore: score?.score != null ? score.score : "N/A"
-                    }
-                });
-            });
-        });
-
-        Highcharts.chart(`${this._chartDelId}`, {
-            chart: {
-                type: 'heatmap',
-                plotBorderWidth: 0,
-                height: numRows * rowHeightPx + 80,  // enough height for rows + padding
-                width: predictors.length * 40 + 400, // room for squares + labels
-                marginLeft: 150, // <-- ensure transcript IDs are visible
-                marginRight: 10,
-                marginTop: 50,
-                marginBottom: 30,
-                spacing: [0, 0, 0, 0]
-            },
-            title: {text: null},
-            xAxis: {
-                categories: predictors,
-                title: { text: null },
-                opposite: true,
-                labels: {
-                    rotation: 0,
-                    align: 'center',
-                    style: { fontSize: labelSize },
-                },
-            },
-            yAxis: {
-                categories: this._variant.dataDel.map(v => v.id),
-                title: null,
-                reversed: true,
-                labels: {
-                    style: { fontSize: labelSize,  whiteSpace: 'nowrap'  }
-                },
-                lineWidth: 0,
-                tickLength: 0,
-                gridLineWidth: 0,
-            },
-            colorAxis: {
-                min: 0,
-                max: 1,
-                visible: false,
-            },
-            tooltip: {
-                formatter: function () {
-                    const transcript = this.series.yAxis.categories[this.point.y];
-                    const predictor = this.series.xAxis.categories[this.point.x];
-                    const label = this.point.custom.label;
-                    const rawScore = this.point.custom.rawScore;
-                    return `<b>${transcript}</b><br>${predictor}<br>Score: ${rawScore}<br>${label}`;
-                }
-            },
-            plotOptions: {
-                series: {
-                    borderWidth: 1,
-                    borderColor: '#ffffff',
-                    pointPadding: 0,
-                    colsize: 1,
-                    rowsize: 1,
-                }
-            },
-            series: [{
-                name: 'Scores',
-                data: heatmapData,
-                dataLabels: {
-                    enabled: false
-                }
-            }],
-            legend: {enabled: false},
-            credits: {enabled: false},
-        });
+        return `rgba(${r},${g},${b},${alpha})`;
     }
 
     _summarizePredictors(data) {
@@ -353,69 +278,214 @@ export default class VariantSummaryDeleteriousness extends LitElement {
                     else {
                         summary[predictor] = {
                             qualitative: "N/A",
-                            color: "#888888"
+                            color: "#9ba3ac" // text-gray-400
                         };
                     }
                 } else {
-                    // Transcript-specific
+                    // Transcript-specific: get the worst score
+                    /*
                     const entries = data
                         .map(d => d.scores[predictor])
-                        .filter(s => s.qualitative !== null && s.color !== "");
+                        .filter(s => s.score !== null && s.qualitative !== null);
+                     */
+                    const entries = data
+                        .map(d => ({
+                            id: d.id,
+                            ...d.scores[predictor]
+                        }))
+                        .filter(e => e.score !== null && e.qualitative !== null);
 
                     if (entries.length === 0) {
-                        summary[predictor] = { qualitative: "N/A", color: "#888888" };
+                        summary[predictor] = { qualitative: "N/A", color: "#9ba3ac" };
                         return;
                     }
 
-                    const total = entries.length;
-                    const redCount = entries.filter(e => e.color === "#d9534f").length;
-                    const greenCount = entries.filter(e => e.color === "#13a574").length;
-                    const yellowCount = entries.filter(e => e.color === "#f7b233").length;
-                    const darkYellowCount = entries.filter(e => e.color === "#dd7a16").length;
+                    // Sort by score severity (higher = worse for most predictors like CADD, PolyPhen, REVEL)
+                    // If SIFT is included, treat as special case: lower = worse
+                    const isSift = predictor === "sift";
+                    const worst = entries.reduce((prev, curr) => {
+                        if (isSift) {
+                            // For SIFT: lower score means more deleterious
+                            return curr.score < prev.score ? curr : prev;
+                        } else {
+                            return curr.score > prev.score ? curr : prev;
+                        }
+                    });
 
-                    let finalColor = "";
-                    if (greenCount === total) {
-                        finalColor = "#13a574";
-                    } else if (redCount > total / 2) {
-                        finalColor = "#d9534f";
-                    } else if (redCount > 0 || darkYellowCount > 0) {
-                        finalColor = "#dd7a16";
-                    } else if (yellowCount > 0) {
-                        finalColor = "#f7b233";
-                    } else {
-                        finalColor = "#13a574";
-                    }
-
-                    // Pick a qualitative value from the original matching finalColor
-                    let match = entries.find(e => e.color === finalColor);
-                    if (!match && finalColor === "#dd7a16" && redCount > 0) {
-                        match = entries.find(e => e.color === "#d9534f");
-                    }
-                    debugger
                     summary[predictor] = {
-                        qualitative: match ? UtilsNew.capitalizeWords(match.qualitative) : null,
-                        color: finalColor
+                        qualitative: UtilsNew.capitalizeWords(worst.qualitative),
+                        color: worst.color,
+                        score: worst.score
                     };
+                    // Overwrite worst score across transcripts per predictor
+                    const worstTranscript = data.find(t => t.id === worst.id);
+                    if (worstTranscript) {
+                        worstTranscript.scores[predictor].isWorst = true;
+                    }
                 }
             });
 
             return summary;
     }
 
+    #renderDelHeatmap() {
+        const predictors = ['sift', 'polyphen', 'revel', 'cadd_scaled', 'spliceai'];
+
+        const heatmapData = [];
+        const rowHeightPx = 20;
+        const labelSize = 10;
+        const numRows = this._variant.dataDel.length;
+
+        this._variant.dataDel.forEach((transcript, rowIndex) => {
+            predictors.forEach((predictor, colIndex) => {
+                const score = transcript.scores[predictor];
+                heatmapData.push({
+                    x: colIndex,
+                    y: rowIndex,
+                    value: 1,
+                    // color: score?.color || '#eeeeee',
+                    color: score?.color ? this._addAlpha(score.color, 1) : 'rgba(213, 217, 220, 0.4)', // text-gray-200
+                    custom: {
+                        label: score?.qualitative || "N/A",
+                        rawScore: score?.score != null ? score.score.toFixed(3) : "",
+                        isWorst: score?.isWorst || false,
+                    }
+                });
+            });
+        });
+
+        Highcharts.chart(`${this._chartDelId}`, {
+            chart: {
+                type: 'heatmap',
+                plotBorderWidth: 0,
+                height: numRows * rowHeightPx + 80,  // enough height for rows + padding
+                width: predictors.length * 40 + 400, // room for squares + labels
+                marginLeft: 150, // <-- ensure transcript IDs are visible
+                marginRight: 10,
+                marginTop: 50,
+                marginBottom: 30,
+                spacing: [0, 0, 0, 0]
+            },
+            title: {text: null},
+            xAxis: {
+                categories: predictors.map(p => VariantGridFormatter.getDeleteriousPredictorDisplayName(p)),
+                title: { text: null },
+                opposite: true,
+                lineWidth: 0,
+                tickLength: 0,
+                labels: {
+                    rotation: 0,
+                    align: 'center',
+                    style: { fontSize: labelSize },
+                },
+            },
+            yAxis: {
+                categories: this._variant.dataDel.map(v => v.id),
+                title: null,
+                reversed: true,
+                labels: {
+                    useHTML: true,   // <-- important so <b> works
+                    style: {fontSize: `${labelSize}px`, whiteSpace: 'nowrap'},
+                    formatter:  row => {
+                        const transcript = this._variant.dataDel.find(t => t.id === row.value);
+                        if (transcript?.id) {
+                            return transcript.isMane ? `<b>${transcript.id}</b>` : transcript.id;
+                        } else {
+                            return row.value;
+                        }
+                    }
+                },
+                lineWidth: 0,
+                tickLength: 0,
+                gridLineWidth: 0,
+            },
+            colorAxis: {
+                min: 0,
+                max: 1,
+                visible: false,
+            },
+            tooltip: {
+                formatter: function () {
+                    const label = this.point.custom.label;
+                    return `${label}`;
+                }
+            },
+            plotOptions: {
+                series: {
+                    borderWidth: 1,
+                    borderColor: '#ffffff',
+                    pointPadding: 0,
+                    colsize: 1,
+                    rowsize: 1,
+                    /*
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.custom.rawScore}',   // show the raw score
+                        style: {
+                            color: '#f3f4f5', // text-gray-100
+                            textOutline: 'none',
+                            fontSize: '10px',
+                            fontWeight: '400',
+                        }
+                    },
+                     */
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function () {
+                            const { rawScore, isWorst } = this.point.custom || {};
+                            return `
+                                <span style="
+                                    color:${isWorst ? '#191c1f' : '#f3f4f5'};
+                                    letter-spacing:0.7px;
+                                    font-weight:${isWorst ? 'normal' : 'normal'};">
+                                        ${rawScore}
+                                </span>
+                            `;
+                        },
+                        style: {
+                            textOutline: 'none',
+                            fontSize: '10px',
+                            fontWeight: '200',
+                        }
+                    }
+                }
+            },
+            series: [{
+                name: 'Scores',
+                data: heatmapData,
+            }],
+            legend: {enabled: false},
+            credits: {enabled: false},
+        });
+    }
+
     render() {
         if (!this._variant) {
             return nothing;
         }
+        const wrapperId = `${this._chartDelId}-wrapper`;
+
+        // Create the tooltip HTML with a scrollable wrapper
+        const tooltipHTML = `
+            <div id="${wrapperId}" style="max-height:300px; overflow-y:auto; padding:5px;">
+                <div id='${this._chartDelId}' style="min-width:300px;"></div>
+            </div>
+        `;
 
         return html`
             <div class="card p-3 me-2">
-                <div class="card-header border-0 d-flex justify-content-between mb-2">
+                <div class="card-header border-0 d-flex align-items-center justify-content-between mb-2">
                     <h5 class="fs-5 fw-bold me-2">
                         Deleteriousness
                     </h5>
+                    <div>
+                    <a tooltip-title="Deleterious scores per transcript" tooltip-text="${tooltipHTML}">
+                        <i class="fas fa-border-all me-2 text-info"></i>
+                    </a>
                     <a tooltip-title="Deleterious Scores" tooltip-text="${VariantGridFormatter.deleteriousTooltipSummaryContent()}">
                         <i class="fa fa-info-circle text-info"></i>
                     </a>
+                    </div>
                 </div>
                 <div class="card-body pt-0 pb-0" id="summary-deleteriousness">
                     <data-form
@@ -450,24 +520,32 @@ export default class VariantSummaryDeleteriousness extends LitElement {
                             display: {
                                 separationClassName: "",
                                 render: summaryDel => {
+                                    /*
+                                    // Unique wrapper ID to avoid conflicts
+                                    const wrapperId = `${this._chartDelId}-wrapper`;
+
+                                    // Create the tooltip HTML with a scrollable wrapper
+                                    const tooltipHTML = `
+                                        <div id="${wrapperId}" style="max-height:300px; overflow-y:auto; padding:5px;">
+                                            <div id='${this._chartDelId}' style="min-width:300px;"></div>
+                                        </div>
+                                    `;
+                                     */
                                     return html`
-                                        <a tooltip-title="Heatmap"
-                                           tooltip-text="<div id='${this._chartDelId}' style='width:100%;height:100%;min-width:300px;min-height:200px;'></div>">
-                                            <div class="d-flex justify-content-between">
-                                                ${Object.entries(summaryDel).map(([predictor, value]) => {
-                                                    return html`
-                                                        <div class="d-flex flex-column me-2">
-                                                            <div class="card-category">${VariantGridFormatter.getDeleteriousPredictorDisplayName(predictor)}</div>
-                                                            <h4 class="d-flex flex-column">
-                                                                <div style="color: ${value?.color}">
-                                                                    ${value?.qualitative}
-                                                                </div>
-                                                            </h4>
+                                        <div class="d-flex justify-content-between">
+                                            ${Object.entries(summaryDel).map(([predictor, value]) => html`
+                                                <div class="d-flex flex-column me-2">
+                                                    <div class="card-category">
+                                                        ${VariantGridFormatter.getDeleteriousPredictorDisplayName(predictor)}
+                                                    </div>
+                                                    <h4 class="d-flex flex-column">
+                                                        <div style="color: ${value?.color}">
+                                                            ${value?.qualitative}
                                                         </div>
-                                                    `;
-                                                })}
-                                            </div>
-                                        </a>
+                                                    </h4>
+                                                </div>
+                                            `)}
+                                        </div>
                                     `;
                                 },
                             },
