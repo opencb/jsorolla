@@ -206,7 +206,6 @@ export default class VariantAnnotationClinicalView extends LitElement {
             case "cosmic":
                 const prediction = row?.additionalProperties?.filter(item => item.id === "FATHMM_PREDICTION");
                 const score = row?.additionalProperties?.filter(item => item.id === "FATHMM_SCORE");
-                debugger
                 result = `
                     <div>
                         <label>FATHMM Prediction:</label>
