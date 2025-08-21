@@ -85,7 +85,6 @@ export default class VariantSummaryPopulation extends LitElement {
     opencgaSessionObserver() {
         // 1. Extract conservation sources
         const sources = ['gnomAD'];
-        debugger
 
         const entries = (this.opencgaSession.project.cellbase.sources || [])
             .filter(s => sources.includes(s.name))
@@ -137,18 +136,18 @@ export default class VariantSummaryPopulation extends LitElement {
                 margin: [0, 0, 0, 0],
             },
             title: {
-                text: title,
+                text: `${this._dataCohorts[study].total}`,
                 align: 'center',
                 verticalAlign: 'middle',
-                style: { fontSize: '14px' },
-                y: 29,
+                style: { fontSize: '24px' },
+                y: 32,
             },
             subtitle: {
-                text: `<span style="font-size:12px;">Total sub-populations: ${this._dataCohorts[study].total}</span>`,
+                text: `<span style="font-size:12px;">Sub-Populations</span>`,
                 align: "center",
                 verticalAlign: "middle",
                 style: {fontSize: "12px"},
-                y: 51,
+                y: 48,
             },
             plotOptions: {
                 pie: {
@@ -189,12 +188,15 @@ export default class VariantSummaryPopulation extends LitElement {
                 formatter: function () {
                     const { name, count, realPercent, cohorts } = this.point;
                     const cohortsLabels = cohorts?.length
-                        ? `<span>${cohorts.join(', ')}</span>`
+                        ? `<span>${cohorts.join(', ')}</span>` // newline for each cohort
                         : '<span>None</span>';
 
                     return `
                         <div class="d-flex flex-column flex-wrap">
-                            <div class="text-black mb-2"><b>${name}:</b> ${count} [${realPercent.toFixed(1)}%]</div>
+                            <div class="text-secondary mb-2">
+                                <b>${name.toUpperCase()}:</b> in <b>${count}</b> sub-populations
+                                <i>(${realPercent.toFixed(1)}% of the total sub-populations)</i>
+                            </div>
                             <div class="text-muted">${cohortsLabels}</div>
                         </div>
                     `;
@@ -304,30 +306,33 @@ export default class VariantSummaryPopulation extends LitElement {
                                                     const maxMore = dataMaxMin[study].maxMAF.populations.length > 1 || false;
                                                     const minMore = dataMaxMin[study].minMAF.populations.length > 1 || false;
                                                     return html`
-                                                        <div class="d-flex align-items-center" style="flex: 1 0 auto;">
+                                                        <div class="d-flex flex-column" style="flex: 1 1 auto;">
+                                                            <div class="fw-bold fs-7 text-secondary">Population ${study}</div>
+                                                            <div class="d-flex align-items-center" style="flex: 1 1 auto;">
                                                             <!--Stats box-->
                                                             <div class="ps-3" id="${statsId}" style="border-left: 1px solid #d9dada; flex: 0 1 auto">
                                                                 <div class="d-flex align-items-center text-dark">
                                                                     <div class="me-2" style="width: 10px;height: 10px;background: ${all.color};border-radius: 2px;"></div>
                                                                     <div class="me-2 fw-bold">Population ALL:</div>
-                                                                    <div class="me-2">${prettyCategory}</div>
-                                                                    <div class="me-2">(${all.freq.toFixed(4)})</div>
+                                                                    <div class="me-2 text-secondary">${prettyCategory}</div>
+                                                                    <div class="text-secondary me-2">(Alt. AF: ${all.freq.toFixed(4)})</div>
                                                                 </div>
                                                                 <div class="pt-2 text-secondary" style="word-break: break-word; white-space: normal;">
-                                                                    Max MAF <b>${dataMaxMin[study].maxMAF.value}%</b> in
+                                                                    Max MAF <b>${(dataMaxMin[study].maxMAF.value/100).toFixed(4)}</b> in
                                                                     ${maxMore ?
-                                                                        `${dataMaxMin[study].maxMAF.populations.length} populations` :
-                                                                        `population ${dataMaxMin[study].maxMAF.populations.join(", ")}` }
+                                                                            `${dataMaxMin[study].maxMAF.populations.length} populations` :
+                                                                            `population ${dataMaxMin[study].maxMAF.populations.join(", ")}` }
                                                                 </div>
                                                                 <div class="pt-2 text-secondary" style="word-break: break-word; white-space: normal;">
-                                                                    Min MAF <b>${dataMaxMin[study].minMAF.value}%</b> in
+                                                                    Min MAF <b>${(dataMaxMin[study].minMAF.value/100).toFixed(4)}</b> in
                                                                     ${minMore ?
-                                                                        `${dataMaxMin[study].minMAF.populations.length} populations` :
-                                                                        `population ${dataMaxMin[study].minMAF.populations.join(", ")}` }
+                                                                            `${dataMaxMin[study].minMAF.populations.length} populations` :
+                                                                            `population ${dataMaxMin[study].minMAF.populations.join(", ")}` }
                                                                 </div>
                                                             </div>
                                                             <!--Donut chart-->
                                                             <div class="d-flex justify-content-center align-items-center" id="${chartId}" style="flex: 1 0 auto"></div>
+                                                        </div>
                                                         </div>
                                                     `;
                                                 })}
