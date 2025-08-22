@@ -216,15 +216,19 @@ export default class VariantInterpreterGrid extends LitElement {
                     modalCyDataName: `modal-variant-view`,
                     modalSize: "modal-3xl",
                 },
-                render: () => html`
+                render: () => {
+                    return html`
                     <variant-interpreter-view
                         .opencgaSession="${this.opencgaSession}"
                         .settings="${this._config}"
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .toolId="${this.toolId}"
-                        .variant="${this._selectedVariant}">
+                        .variant="${this._selectedVariant}"
+                        .selected="${this._primaryFindings.has(this._selectedVariant.id) || this._secondaryFindings.has(this._selectedVariant.id)}"
+                        .primaryFinding="${this._selectedVariantPrimary}">
                     </variant-interpreter-view>
-                `,
+                    `;
+                }
             }),
         });
     }
@@ -1080,8 +1084,9 @@ export default class VariantInterpreterGrid extends LitElement {
         const action = event.currentTarget?.dataset?.action?.toLowerCase();
         switch (action) {
             case "view":
-                this._selectedVariant = variant;
-                this.gridCommons.changeActiveModal("view-variant");
+                // this._selectedVariant = variant;
+                // this.gridCommons.changeActiveModal("view-variant");
+                this.onVariantView(event, variant);
                 break;
             case "review":
             case "edit":
@@ -1200,6 +1205,21 @@ export default class VariantInterpreterGrid extends LitElement {
         // when entering in the review modal, the variant will be displayed checked by default
         this._selectedVariantChecked = true;
         this.gridCommons.changeActiveModal("review-variant");
+    }
+
+    onVariantView(event, row) {
+        // check if the variant is already selected
+        if (this._primaryFindings.has(row.id)) {
+            this._selectedVariant = UtilsNew.objectClone(this._primaryFindings.get(row.id));
+            this._selectedVariantPrimary = true;
+        } else if (this._secondaryFindings.has(row.id)) {
+            this._selectedVariant = UtilsNew.objectClone(this._secondaryFindings.get(row.id));
+            this._selectedVariantPrimary = false;
+        } else {
+            this._selectedVariant = UtilsNew.objectClone(row);
+            this._selectedVariantPrimary = true;
+        }
+        this.gridCommons.changeActiveModal("view-variant");
     }
 
     onVariantReviewChange(event) {

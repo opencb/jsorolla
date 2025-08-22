@@ -61,6 +61,14 @@ export default class VariantInterpreterView extends LitElement {
             variantId: {
                 type: String
             },
+            // True if the variant has been selected for the interpretation
+            selected: {
+                type: Boolean,
+            },
+            // True if the variant has been selected and is a primary finding. If selected and false, secondary finding
+            primaryFinding: {
+                type: Boolean,
+            },
             settings: {
                 type: Object,
             },
@@ -148,6 +156,9 @@ export default class VariantInterpreterView extends LitElement {
                         return html`
                             <variant-summary
                                 .variant="${variant}"
+                                .clinical="${true}"
+                                .selected="${this.selected}"
+                                .primaryFinding="${this.primaryFinding}"
                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                 .consequenceTypes="${CONSEQUENCE_TYPES}"
                                 .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"

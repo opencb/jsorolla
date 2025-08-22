@@ -35,6 +35,12 @@ export default class VariantSummaryInterpretation extends LitElement {
             variant: {
                 type: Object,
             },
+            primaryFinding: {
+                type: Object
+            },
+            clinicalAnalysis: {
+                type: Object,
+            },
             opencgaSession: {
                 type: Object,
             },
@@ -78,18 +84,17 @@ export default class VariantSummaryInterpretation extends LitElement {
     }
 
     variantObserver() {
-        if (this.variant) {
-            this._variant = {...this.variant};
-        }
+        this._variant = UtilsNew.objectClone(this.variant);
     }
 
     render() {
         if (!this._variant) {
             return nothing;
         }
+debugger
         // const data = this._variant.studies.find(s => s.studyId === this.opencgaSession.study.fqn).
         return html`
-            <div class="card p-3 me-2">
+            <div class="card p-3">
                 <div class="card-header border-0">
                     <h5 class="mb-2 fs-5 fw-bold d-flex">Variant Interpretation</h5>
                     <p class="text-secondary">
@@ -102,18 +107,35 @@ export default class VariantSummaryInterpretation extends LitElement {
                                 <b>Not selected</b>
                             </div>
                         `}
+                        ${this._variant?.confidence?.value ? html`
+                            <div class="">
+                                <b>${this._variant?.confidence?.value }</b>
+                            </div>
+                        ` : html`
+                            <div class="">
+                                <b>Not available</b>
+                            </div>
+                        `}
+                        ${this.primaryFinding ? html`
+                            <div class="">
+                                PRIMARY_FINDING
+                            </div>
+                        ` : html`
+                            <div class="">
+                               SECONDARY_FINDING
+                            </div>
+                        `}
                     </p>
-
                 </div>
-                <div class="card-body pt-0 pb-0">
+                <div class="card-body pt-0 pb-0" id="summary-interpretation">
                     <data-form
                         .data="${this._variant}"
                         .config="${this._config}">
                     </data-form>
                 </div>
-                <div class="card-footer text-muted">
-                    <i class="far fa-clock me-2"></i>
-                    Last updated
+                <div class="card-divider"></div>
+                <div class="text-muted fw-light fs-7">
+                    <i class="far fa-clock me-2 text-gray-700"></i>
                 </div>
             </div>
 
@@ -124,17 +146,53 @@ export default class VariantSummaryInterpretation extends LitElement {
         return {
             display: {
                 buttonsVisible: false,
-                className: "",
             },
             sections: [
                 {
-                    id: "variant-interpretation",
+                    id: "variant-interpretation-discussion",
                     // title: "VARIANT INFO",
                     display: {
                         // visible:
                         // className: "d-flex flex-column",
                     },
                     elements: [
+                        {
+                            id: "variant-interpretation-latest-activity",
+                            type: "custom",
+                            display: {
+                                render: variant => {
+                                    const sortedComments = variant.comments.sort((a, b) => b.date.localeCompare(a.date));
+                                    const lastComment = sortedComments[0] ?? null;
+                                    return html `
+                                        <div class="d-flex justify-content-between">
+                                        <!-- Discussion -->
+                                        ${variant.discussion ? html`
+                                        <div class="flex-fill border rounded p-3 bg-light">
+                                            <h5 class="mb-2">Discussion</h5>
+                                            <p class="mb-2">
+                                                ${variant.discussion.text}
+                                            </p>
+                                            <small class="text-muted d-block">${UtilsNew.dateFormatter(variant.discussion.date)}</small>
+                                        </div>
+                                        ` : html`
+                                            No discussion so far
+                                        `}
+                                        <!-- Last Comment -->
+                                        ${lastComment ? html`
+                                            <div class="flex-fill border rounded p-3 bg-light">
+                                                <h5 class="mb-2">Last Comment</h5>
+                                                <p class="mb-2">
+                                                    ${lastComment.message}
+                                                </p>
+                                                <small class="text-muted d-block">${UtilsNew.dateFormatter(variant.discussion.date)}</small>
+                                            </div>
+                                        ` : html`
+                                            No comments so far
+                                        `}
+                                    `;
+                                },
+                            },
+                        },
                     ],
                 },
             ],

@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-// import "./variant-summary-interpretation.js"
+import "./variant-summary-interpretation.js"
 import "./variant-summary-clinical-significance.js"
 import "./variant-summary-clinical-significance-variant-traits.js"
 import "./variant-summary-cs-cosmic-variant-traits.js"
@@ -27,6 +27,7 @@ import "./variant-summary-ct-no-selected.js"
 import "./variant-summary-gene.js"
 import "./variant-summary-deleteriousness.js";
 import "./variant-summary-conservation.js";
+import UtilsNew from "../../../core/utils-new";
 
 export default class VariantSummary extends LitElement {
 
@@ -48,6 +49,15 @@ export default class VariantSummary extends LitElement {
             variant: {
                 type: Object
             },
+            // True if the variant has been selected for the interpretation
+            selected: {
+                type: Boolean,
+            },
+            // True if the variant has been selected and is a primary finding. If selected and false, secondary finding
+            primaryFinding: {
+                type: Boolean,
+            },
+            // True if the summary is clinical
             clinical: {
                 type: Boolean,
             },
@@ -69,6 +79,8 @@ export default class VariantSummary extends LitElement {
     #init() {
         this.COMPONENT_ID = "variant-summary";
         this._variant = null;
+        this._interpretationVisible = false;
+        this._primaryFinding = false;
         this._config = this.getDefaultConfig();
     }
 
@@ -76,6 +88,16 @@ export default class VariantSummary extends LitElement {
         if (changedProperties.has("variant")) {
             this.variantObserver();
         }
+
+        if (changedProperties.has("clinical") || changedProperties.has("selected")) {
+            this.interpretationVisibleObserver();
+        }
+
+        if (changedProperties.has("primaryFinding")) {
+            this._primaryFinding = this.primaryFinding;
+            this._config = this.getDefaultConfig();
+        }
+
 
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
@@ -85,7 +107,12 @@ export default class VariantSummary extends LitElement {
     }
 
     variantObserver() {
-        this._variant = {...this.variant};
+        this._variant = UtilsNew.objectClone(this.variant);
+    }
+
+    interpretationVisibleObserver() {
+        this._interpretationVisible = !!(this.clinical && this.selected);
+        this._config = this.getDefaultConfig();
     }
 
     render() {
@@ -110,6 +137,37 @@ export default class VariantSummary extends LitElement {
                 ...this.displayConfig,
             },
             sections: [
+                // 1. Section Interpretation summary, if available
+                // - Clinical Significance selected interpretation
+                // - Variant interpretation selected interpretation
+                // - ACMG Classification selected interpretation
+                // - User classification selected interpretation
+                {
+                    display: {},
+                    elements: [
+                        {
+                            id: "variant-summary-interpretation",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                visible: this._interpretationVisible,
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-interpretation
+                                            .variant="${variant}"
+                                            .primaryFinding="${this._primaryFinding}"
+                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-interpretation>
+                                    `;
+                                }
+                            },
+                        },
+                    ],
+                },
                 // 2. Section Variant quality
                 {
                     elements: [
@@ -402,36 +460,6 @@ export default class VariantSummary extends LitElement {
                         // - Drug target
                     ],
                 },
-                // 1. Interpretation summary, if available
-                // - Clinical Significance selected interpretation
-                // - Variant interpretation selected interpretation
-                // - ACMG Classification selected interpretation
-                // - User classification selected interpretation
-                /*
-                {
-                    display: {},
-                    elements: [
-                        {
-                            id: "variant-summary-interpretation",
-                            type: "custom",
-                            title: "",
-                            display: {
-                                containerClassName: "",
-                                titleClassName: "",
-                                titleStyle: "",
-                                render: variant => {
-                                    return html`
-                                        <variant-summary-interpretation
-                                            .variant="${variant}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </variant-summary-interpretation>
-                                    `;
-                                }
-                            },
-                        },
-                    ],
-                },
-                 */
             ],
         };
     }
