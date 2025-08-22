@@ -225,7 +225,7 @@ export default class VariantSummaryPopulation extends LitElement {
             <div class="card p-3">
                 <div class="card-header border-0 d-flex justify-content-between mb-2">
                     <h5 class="mb-2 fs-5 fw-bold">Population Frequencies</h5>
-                    <a tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationTooltipSummaryContent()}">
+                    <a tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesSummaryTooltipContent(POPULATION_FREQUENCIES)}">
                         <i class="fa fa-info-circle text-info"></i>
                     </a>
                 </div>

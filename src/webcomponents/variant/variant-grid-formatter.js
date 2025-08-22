@@ -930,17 +930,25 @@ export default class VariantGridFormatter {
         `;
     }
 
-    static populationTooltipSummaryContent() {
+    static populationFrequenciesSummaryTooltipContent(populationFrequencies) {
         return `
-            <div class="fs-6 lh-base">
-                Variant alt allele frequency distributions for population frequencies 1000G and gnomAD_GENOMES
-            </div>
+            Variant alt allele frequency distributions for population frequencies projects 1000G and gnomAD_GENOMES.
+            Each coloured arc segment represents the proportion of sub-populations per project classified as 'very rare', 'rare', 'average', 'common' or 'missing' (see
+            <a href='https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919' target='_blank'>
+                https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919
+            </a>). Please, leave the cursor over each arc to display the actual sub-populations. <br>
+            <div style='padding: 10px 0px 0px 0px'><label>Legend: </label></div>
+            <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.veryRare}' aria-hidden='true'></i> Very rare:  freq < 0.1 %</span></div>
+            <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.rare}' aria-hidden='true'></i> Rare:  freq < 0.5 %</span></div>
+            <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.average}' aria-hidden='true'></i> Average:  freq < 5 %</span></div>
+            <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.common}' aria-hidden='true'></i> Common:  freq >= 5 %</span></div>
+            <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>
         `;
     }
 
     static conservationTooltipSummaryContent() {
         return `
-            <div class="fs-6 lh-base">
+            <div class="">
                 <strong>Thresholds for each qualitative description:</strong>
                 <ul style="padding-left: 20px; margin-top: 5px;">
                     <li><b>GERP++:</b> Low for scores ≤ 3, Moderate for scores &gt; 3, and High for scores &gt; 4.4.</li>
