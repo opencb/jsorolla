@@ -79,7 +79,7 @@ export default class VariantGridFormatter {
             tooltipText += `
                 <div class="dropdown-header" style="padding-top: 5px;padding-left: 5px">External Links</div>
                 <div style="padding: 5px">
-                    <a class="text-decoration-none" target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "decipher")}">
+                    <a class="text-decoration-none" target="_blank" href="${BioinfoUtils.getVariantLink(variantId, variantRegion, "decipher", species, assembly)}">
                         Decipher
                     </a>
                 </div>
