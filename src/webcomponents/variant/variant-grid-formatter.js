@@ -100,7 +100,7 @@ export default class VariantGridFormatter {
                 </a>
             </div>
             <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "ucsc_genome_browser", species, assembly)}">
+                <a class="text-decoration-none" target="_blank" href="${BioinfoUtils.getVariantLink(variant.id, variantRegion, "ucsc_genome_browser", species, assembly)}">
                     UCSC Genome Browser
                 </a>
             </div>
