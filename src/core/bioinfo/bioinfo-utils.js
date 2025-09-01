@@ -172,8 +172,6 @@ export default class BioinfoUtils {
                 }
             case "HGNC":
                 return "https://www.genenames.org/tools/search/#!/all?query=" + geneId;
-            case "LRG":
-                return `https://www.lrg-sequence.org/search/?query=${geneId}`;
             case "DECIPHER":
                 return `https://www.deciphergenomics.org/gene/${geneId}`;
             case "COSMIC":
