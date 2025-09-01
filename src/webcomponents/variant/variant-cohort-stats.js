@@ -141,24 +141,20 @@ export default class VariantCohortStats extends LitElement {
             `;
         }
 
-        return html`
-            <div>
-                ${Object.keys(this.projectToStudyStats).map(
-                    projectName => html`
-                        <h3 class="pt-2">Project: ${projectName}</h3>
-                        <hr class="my-1">
-                        ${this.projectToStudyStats[projectName].studies.map(study => html`
-                            <div class="p-2">
-                                <h4 class="py-1">${this.studyNames[study.studyId] || ""}</h4>
-                                <variant-cohort-stats-grid
-                                    .stats="${study.stats}">
-                                </variant-cohort-stats-grid>
-                            </div>
-                        `)}
-                    `
-                )}
+        return Object.keys(this.projectToStudyStats).map(projectName => html`
+            <div class="">
+                <h3 class="pt-2">Project: ${projectName}</h3>
+                <hr class="my-1">
+                ${this.projectToStudyStats[projectName].studies.map(study => html`
+                    <div class="p-2">
+                        <h4 class="py-1">${this.studyNames[study.studyId] || ""}</h4>
+                        <variant-cohort-stats-grid
+                            .stats="${study.stats}">
+                        </variant-cohort-stats-grid>
+                    </div>
+                `)}
             </div>
-        `;
+        `);
     }
 
 }
