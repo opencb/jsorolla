@@ -261,9 +261,6 @@ export default class VariantGridFormatter {
                 <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", assembly)}'>Ensembl</a>
             </div>
             <div class='p-1'>
-                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
-            </div>
-            <div class='p-1'>
                 <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
             </div>
             <div class='p-1' data-cy='varsome-gene-link'>
