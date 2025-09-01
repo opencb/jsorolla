@@ -362,7 +362,7 @@ context("Variant Browser Grid", () => {
                 ["Varsome", "https://varsome.com/variant/"],
                 ["CellBase v5.2", "https://ws.zettagenomics.com/cellbase/webservices/rest/v5.2"],
                 ["CellBase v5.8", "https://ws.zettagenomics.com/cellbase/webservices/rest/v5.8"],
-                ["Ensembl Genome Browser", "http://ensembl.org/Homo_sapiens/Location/View"],
+                ["Ensembl Genome Browser", "https://ensembl.org/Homo_sapiens/Location/View"],
                 ["UCSC Genome Browser", "https://genome.ucsc.edu/cgi-bin/hgTracks"],
             ];
             externalLinks.forEach(link => {
