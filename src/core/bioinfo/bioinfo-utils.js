@@ -101,9 +101,8 @@ export default class BioinfoUtils {
         return "https://www.ncbi.nlm.nih.gov/clinvar/variation/" + variantId;
     }
 
-    static getUniprotLink(featureId, species = "Homo sapiens") {
-        // return "https://www.uniprot.org/uniprot/?sort=score&query=" + featureId + "+organism:" + species;
-        return "https://www.uniprot.org/uniprot/" + featureId;
+    static getUniprotLink(featureId) {
+        return `https://www.uniprot.org/uniprotkb?query=${featureId}`;
     }
 
     static getVariantLink(id, location, source, species = "hsapiens", assembly = "grch38") {
