@@ -206,7 +206,7 @@ context("Cohort Browser Grid", () => {
         });
 
         it("should hide columns [Cohort ID,Creation Date]", () => {
-            const columns = ["Cohort ID", "Creation Date"];
+            const columns = ["Cohort", "Creation Date"];
             cy.get(`${browserGrid} thead th`)
                 .as("headerColumns");
 
