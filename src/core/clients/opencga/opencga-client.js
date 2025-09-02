@@ -459,11 +459,22 @@ export class OpenCGAClient {
                                                     // Fetch all the cohort
                                                     console.log("Fetching cohorts");
                                                     const cohortsResponse = await this.cohorts()
-                                                        .search({study: study.fqn, exclude: "samples", limit: 100});
+                                                        .search({study: study.fqn, exclude: "samples", limit: 250});
+
+                                                    // Sort cohorts alphabetically, but "ALL" first
                                                     study.cohorts = cohortsResponse.responses[0].results
-                                                        .filter(cohort => !cohort.attributes?.IVA?.ignore);
-                                                    // FIXME line above should check cohort.internal instead
-                                                    // .filter(cohort => cohort.internal.index?.status === "READY");
+                                                        .filter(cohort => !cohort.attributes?.IVA?.ignore)
+                                                        // FIXME line above should check cohort.internal instead
+                                                        // .filter(cohort => cohort.internal.index?.status === "READY");
+                                                        .sort((a, b) => {
+                                                            if (a.id === "ALL") {
+                                                                return -1;
+                                                            } else if (b.id === "ALL") {
+                                                                return 1;
+                                                            } else {
+                                                                return a.id.localeCompare(b.id);
+                                                            }
+                                                        });
 
                                                     // Keep track of the studies to fetch Disease Panels
                                                     studies.push(study.fqn);
