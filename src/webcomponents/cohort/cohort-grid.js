@@ -324,9 +324,7 @@ export default class CohortGrid extends LitElement {
                 field: "id",
                 formatter: cohortId => {
                     return `
-                        <div>
-                            <span class="d-block link fw-bold">${cohortId}</span>
-                        </div>
+                        <div class="link fw-bold">${cohortId}</div>
                     `;
                 },
                 halign: "center",
