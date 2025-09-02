@@ -309,4 +309,12 @@ export default class BioinfoUtils {
         return `https://www.pharmgkb.org/chemical/${pharmGKBId}`;
     }
 
+    static getCellbaseVariantLink(id, host = "https://ws.zettagenomics.com/cellbase", version = "v5", species = "hsapiens", assembly = "") {
+        let url = `${host}/webservices/rest/${version}/${species}/genomic/variant/${id}/annotation`;
+        if (assembly) {
+            url = `${url}?assembly=${assembly}`;
+        }
+        return url;
+    }
+
 }
