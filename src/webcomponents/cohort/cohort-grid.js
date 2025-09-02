@@ -326,7 +326,8 @@ export default class CohortGrid extends LitElement {
                     return `
                         <div>
                             <span class="d-block link fw-bold">${cohortId}</span>
-                        </div>`;
+                        </div>
+                    `;
                 },
                 halign: "center",
                 visible: this.gridCommons.isColumnVisible("id")
@@ -339,8 +340,10 @@ export default class CohortGrid extends LitElement {
                     const _name = name || (cohort.id === "ALL") ? "ALL" : cohort.id;
                     return `
                         <div class="m-1">
-                            <span class="d-block link fw-bold my-1">${_name}</span>
-                            <span class="text-secondary my-1" style="margin: 5px 0">${cohort.description || "-"}</span>
+                            <div class="link fw-bold my-1">${_name}</div>
+                            ${cohort?.description ? `
+                                <div class="text-secondary my-1">${cohort.description}</div>
+                            ` : ""}
                         </div>
                     `;
                 },
