@@ -721,6 +721,14 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     eligible: false,
                     formatter: (value, row) => {
+                        const cellbaseUrl = BioinfoUtils.getCellbaseVariantLink(
+                            row.id,
+                            this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.cellbaseClient?._config?.host,
+                            this.opencgaSession?.project?.cellbase?.version || this.opencgaSession?.cellbaseClient?._config?.version,
+                            this.opencgaSession?.project?.organism?.scientificName,
+                            this.opencgaSession?.project?.organism?.assembly,
+                        );
+
                         return `
                             <div class="dropdown">
                                 <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -742,16 +750,13 @@ export default class VariantBrowserGrid extends LitElement {
                                             <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i> Varsome
                                         </a>
                                     </li>
-
                                     <li class="dropdown-header">CellBase Links</li>
-                                    ${["v5.2", "v5.8"].map(v => `
                                     <li>
-                                        <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, row.chromosome + ":" + row.start + "-" + row.end, `CELLBASE_${v}`, this.opencgaSession?.project?.organism?.scientificName)}">
+                                        <a target="_blank" class="dropdown-item" href="${cellbaseUrl}">
                                             <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i>
-                                            CellBase ${v} ${this.opencgaSession?.project.cellbase.version === v ? "(current)" : ""}
+                                            <span>CellBase ${this.opencgaSession?.project?.cellbase?.version || this.opencgaSession?.cellbaseClient?._config?.version}</span>
                                         </a>
                                     </li>
-                                    `).join("")}
                                     <li class="dropdown-header">External Genome Browsers</li>
                                     <li>
                                         <a target="_blank" class="dropdown-item"
