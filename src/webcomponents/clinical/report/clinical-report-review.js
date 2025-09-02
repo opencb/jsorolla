@@ -351,6 +351,7 @@ export default class ClinicalReportReview extends LitElement {
                 pillsRightColumnClass: "col-md-11",
                 buttonsVisible: true,
                 buttonOkText: "Save Review",
+                buttonOkDisabled: this.clinicalAnalysis?.locked ?? true,
                 buttonClearText: "",
                 defaultLayout: "vertical",
             },
@@ -367,6 +368,7 @@ export default class ClinicalReportReview extends LitElement {
                             defaultValue: "",
                             display: {
                                 rows: 20,
+                                disabled: this.clinicalAnalysis?.locked ?? true,
                             },
                         },
                     ],
@@ -383,6 +385,7 @@ export default class ClinicalReportReview extends LitElement {
                             defaultValue: "",
                             display: {
                                 rows: 20,
+                                disabled: this.clinicalAnalysis?.locked ?? true,
                             },
                         },
                     ],
@@ -399,6 +402,7 @@ export default class ClinicalReportReview extends LitElement {
                             defaultValue: "",
                             display: {
                                 rows: 20,
+                                disabled: this.clinicalAnalysis?.locked ?? true,
                             },
                         },
                     ],
@@ -415,6 +419,7 @@ export default class ClinicalReportReview extends LitElement {
                             defaultValue: "",
                             display: {
                                 rows: 20,
+                                disabled: this.clinicalAnalysis?.locked ?? true,
                             },
                         },
                     ],
@@ -457,12 +462,19 @@ export default class ClinicalReportReview extends LitElement {
                             title: "Select Analyst",
                             type: "select",
                             allowedValues: () => this._analists,
+                            display: {
+                                disabled: this.clinicalAnalysis?.locked ?? true,
+                            },
                         },
                         {
                             id: "signature-role",
                             field: "signature.role",
                             title: "Role",
                             type: "input-text",
+                            display: {
+                                placeholder: "e.g. Geneticist, Pathologist...",
+                                disabled: this.clinicalAnalysis?.locked ?? true,
+                            },
                         },
                         {
                             id: "signature-image",
@@ -476,6 +488,7 @@ export default class ClinicalReportReview extends LitElement {
                                             type="file"
                                             class="form-control"
                                             accept="image/*"
+                                            ?disabled="${this.clinicalAnalysis?.locked ?? true}"
                                             @change="${event => this.onSignatureImageChange(event, onFieldChange)}"
                                         />
                                     `;
@@ -490,7 +503,7 @@ export default class ClinicalReportReview extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => {
-                                    const saveDisabled = !this._signature.signedBy || !this._signature.signature;
+                                    const saveDisabled = (this.clinicalAnalysis?.locked ?? true) || !this._signature.signedBy || !this._signature.signature;
                                     return html`
                                         <div class="d-flex justify-content-end">
                                             <button class="btn btn-light d-flex gap-2 justify-content-center align-items-center" ?disabled="${saveDisabled}" @click="${() => this.onSignatureAdd()}">
