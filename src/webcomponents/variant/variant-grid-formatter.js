@@ -92,7 +92,7 @@ export default class VariantGridFormatter {
             </div>
             ${snpId ? `
                 <div class="mt-0">
-                    <a class="link text-secondary d-flex align-items-center gap-1" href="${BioinfoUtils.getEnsemblLink(snpId, "VARIANT", assembly)}" target="_blank">
+                    <a class="link text-secondary d-flex align-items-center gap-1" href="${BioinfoUtils.getEnsemblLink(snpId, "VARIANT", species, assembly)}" target="_blank">
                         <span>${snpId}</span>
                         <i class="fa fa-external-link-alt fs-8"></i>
                     </a>
@@ -146,7 +146,7 @@ export default class VariantGridFormatter {
 
                     const tooltipText = `
                         ${geneViewMenuLink}
-                        ${this.getGeneTooltip(geneName, this.opencgaSession?.project?.organism?.assembly)}
+                        ${this.getGeneTooltip(geneName, this.opencgaSession?.project?.organism?.scientificName, this.opencgaSession?.project?.organism?.assembly)}
                     `;
 
                     // If query.ct exists
@@ -184,19 +184,19 @@ export default class VariantGridFormatter {
         return "-";
     }
 
-    static getGeneTooltip(geneName, assembly) {
+    static getGeneTooltip(geneName, species, assembly) {
         return `
             <div class='dropdown-header ps-1 mt-2 mb-1'>
                 External Links
             </div>
             <div class='p-1'>
-                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", assembly)}'>Ensembl</a>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", species, assembly)}'>Ensembl</a>
             </div>
             <div class='p-1'>
                 <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
             </div>
             <div class='p-1' data-cy='varsome-gene-link'>
-                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "varsome", assembly)}'>Varsome</a>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "varsome", species, assembly)}'>Varsome</a>
             </div>
             <div class='dropdown-header ps-1 mt-2 mb-1'>
                 Clinical Resources
@@ -206,7 +206,7 @@ export default class VariantGridFormatter {
                 <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
             </div>
             <div class='p-1'>
-                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", assembly)}'>COSMIC</a>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", species, assembly)}'>COSMIC</a>
             </div>
             <div class='p-1'>
                 <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
