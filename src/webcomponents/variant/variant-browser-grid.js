@@ -539,7 +539,7 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => {
-                        VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession?.project?.organism?.scientificName, this.opencgaSession.project.organism.assembly, this._config);
+                        return VariantGridFormatter.variantIdFormatter(value, row, index, this.opencgaSession?.project?.organism?.scientificName, this.opencgaSession.project.organism.assembly, this._config);
                     },
                     events: {
                         "click a": (event, value, row) => this.onActionClick(event, row)
