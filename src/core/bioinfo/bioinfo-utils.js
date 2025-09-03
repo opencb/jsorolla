@@ -16,6 +16,14 @@
 
 export default class BioinfoUtils {
 
+    static isHuman(species) {
+        return ["hsapiens", "homo_sapiens", "homosapiens", "human"].includes(species.toLowerCase());
+    }
+
+    static getEnsemblHost(assembly = "GRCh38") {
+        return (assembly.toLowerCase() === "grch37") ? "https://grch37.ensembl.org" : "https://www.ensembl.org";
+    }
+
     static sort(consequenceTypes, field) {
         consequenceTypes.sort((a, b) => {
             if (field(a) === "" && field(b) !== "") {
@@ -104,7 +112,7 @@ export default class BioinfoUtils {
         // Check for CellBase source
         if (source.toUpperCase().startsWith("CELLBASE_V")) {
             const version = source.toUpperCase().replace("CELLBASE_", "").toLowerCase();
-            return `https://ws.zettagenomics.com/cellbase/webservices/rest/${version}/${species}/genomic/variant/${id}/annotation`;
+            return BioinfoUtils.getCellbaseVariantLink(id, "https://ws.zettagenomics.com/cellbase", version, species, assembly);
         }
 
         if (id?.startsWith("rs")) {
@@ -300,12 +308,24 @@ export default class BioinfoUtils {
         return `https://www.pharmgkb.org/chemical/${pharmGKBId}`;
     }
 
-    static getCellbaseVariantLink(id, host = "https://ws.zettagenomics.com/cellbase", version = "v5", species = "hsapiens", assembly = "") {
-        let url = `${host}/webservices/rest/${version}/${species}/genomic/variant/${id}/annotation`;
+    static getCellbaseLink(id, type = "VARIANT", host = "https://ws.zettagenomics.com/cellbase", version = "v5", species = "hsapiens", assembly = "") {
+        let url = `${host}/webservices/rest/${version}/${species}`;
+
+        switch (type?.toUpperCase()) {
+            case "VARIANT":
+                url = `${url}/genomic/variant/${id}/annotation`;
+                break;
+        }
+        
         if (assembly) {
             url = `${url}?assembly=${assembly}`;
         }
         return url;
+    }
+
+    // alias to getCellbaseLink with type VARIANT
+    static getCellbaseVariantLink(id, host, version, species, assembly) {
+        return BioinfoUtils.getCellbaseLink(id, "VARIANT", host, version, species, assembly);
     }
 
 }
