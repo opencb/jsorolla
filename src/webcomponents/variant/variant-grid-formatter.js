@@ -918,28 +918,74 @@ export default class VariantGridFormatter {
     }
 
     // Creates the colored table with one row and as many columns as populations.
-    static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
+    static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor = {}, populationFrequenciesConfig = {}) {
             // NOTE: FREQUENCY_NUMBER is now deprecated, so we will use FREQUENCY_BOX instead
         const displayMode = populationFrequenciesConfig?.displayMode || "FREQUENCY_BOX";
 
         if (displayMode === "FREQUENCY_COMPACT") {
-            return "";
+            // 1. initialize map with the available classifications
+            const classificationsMap = new Map();
+            Object.values(VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION).forEach(key => {
+                classificationsMap.set(key, {
+                    classification: key,
+                    color: populationFrequenciesColor[key] || "black",
+                    populations: [],
+                });
+            });
+
+            // 2. fill the map with populations
+            (populations || []).forEach(population => {
+                // Note: population ALL is not considered
+                if (population.toUpperCase() !== "ALL") {
+                    let classification = VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.UNOBSERVED;
+                    if (typeof populationFrequenciesMap.get(population) !== "undefined") {
+                        const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
+                        classification = VariantGridFormatter.getPopulationFrequencyClassification(freq);
+                    }
+                    // add population to the corresponding classification
+                    classificationsMap.get(classification).populations.push(population);
+                }
+            });
+
+            return `
+                <div class="d-flex justify-content-center align-items-center user-select-none">
+                    <div class="d-flex rounded overflow-hidden" style="gap:1px;">
+                        ${Array.from(classificationsMap.values()).map(entry => {
+                            if (entry.populations.length > 0) {
+                                const tooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(entry.populations, populationFrequenciesMap, populationFrequenciesColor);
+                                return `
+                                    <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}" tooltip-position-my="top right">
+                                        <div class="px-2 py-1" style="background-color:${entry.color};">
+                                            <span class="small text-white fw-bold">${entry.populations.length}</span>
+                                        </div>
+                                    </a>
+                                `;
+                            } else {
+                                return `
+                                    <div class="px-2 py-3 cursor-not-allowed" style="background-color:${entry.color};"></div>
+                                `;
+                            }
+                        }).join("")}
+                    </div>
+                </div>
+            `;
         } else {
             const tooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(populations, populationFrequenciesMap, populationFrequenciesColor);
             return `
                 <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}" tooltip-position-my="top right">
-                <div class="d-flex justify-content-center align-items-center">
-                    <div class="d-flex rounded overflow-hidden" style="gap:1px;">
-                        ${populations.map(population => {
-                            let color = "black";
-                            if (typeof populationFrequenciesMap.get(population) !== "undefined") {
-                                const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
-                                color = VariantGridFormatter.getPopulationFrequencyColor(freq, populationFrequenciesColor);
-                            }
-                            return `<div class="px-2 py-3" style="background-color:${color}"></div>`;
-                        }).join("")}
+                    <div class="d-flex justify-content-center align-items-center">
+                        <div class="d-flex rounded overflow-hidden" style="gap:1px;">
+                            ${populations.map(population => {
+                                let color = "black";
+                                if (typeof populationFrequenciesMap.get(population) !== "undefined") {
+                                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
+                                    color = VariantGridFormatter.getPopulationFrequencyColor(freq, populationFrequenciesColor);
+                                }
+                                return `<div class="px-2 py-3" style="background-color:${color}"></div>`;
+                            }).join("")}
+                        </div>
                     </div>
-                </div>
+                </a>
             `;
         }
     }
