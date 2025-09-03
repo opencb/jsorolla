@@ -1024,7 +1024,7 @@ export default class VariantInterpreterGridFormatter {
         const displayedOverlaps = overlaps.map(overlap => {
             let geneHtml = "-";
             if (overlap.geneName) {
-                const tooltip = VariantGridFormatter.getGeneTooltip(overlap.geneName, opencgaSession?.project?.organism?.assembly);
+                const tooltip = VariantGridFormatter.getGeneTooltip(overlap.geneName, opencgaSession?.project?.organism?.scientificName, opencgaSession?.project?.organism?.assembly);
                 geneHtml = `
                     <a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltip}" style="margin-left: 2px">
                         ${overlap.geneName}
@@ -1052,7 +1052,7 @@ export default class VariantInterpreterGridFormatter {
 
                 if (genes.length > 0) {
                     const genesLinks = genes.map(gene => {
-                        const tooltip = VariantGridFormatter.getGeneTooltip(gene, opencgaSession?.project?.organism?.assembly);
+                        const tooltip = VariantGridFormatter.getGeneTooltip(gene, opencgaSession?.project?.organism?.scientificName, opencgaSession?.project?.organism?.assembly);
                         return `
                             <a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltip}">${gene}</a>
                         `;
