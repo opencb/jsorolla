@@ -109,10 +109,10 @@ export default class BioinfoUtils {
 
         if (id?.startsWith("rs")) {
             const sp = (species === "Homo sapiens" || species === "hsapiens") ? "Homo_sapiens" : "Mus_musculus";
-            if (assembly?.toUpperCase() === "GRCH38") {
-                return `https://ensembl.org/${sp}/Variation/Explore?vdb=variation;v=${id}`;
-            } else {
+            if (assembly?.toUpperCase() === "GRCH37") {
                 return `https://grch37.ensembl.org/${sp}/Variation/Explore?vdb=variation;v=${id}`;
+            } else {
+                return `https://ensembl.org/${sp}/Variation/Explore?vdb=variation;v=${id}`;
             }
         }
 
