@@ -861,41 +861,41 @@ export default class VariantGridFormatter {
         `;
     }
 
-    // Creates the colored table with one row and as many columns as populations.
-    static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
-        const tooltipRows = (populations || [])
-            .map(population => {
-                const popFreq = populationFrequenciesMap.get(population) || null;
-                const altFreq = popFreq?.altAlleleFreq?.toPrecision(4) || 0;
-                const altCount = popFreq?.altAlleleCount || 0;
-                // TASK-5854: Check if altHomGenotypeFreq (population freqs) or genotypeFreq (cohort stats)
-                const homAltFreq = popFreq?.altHomGenotypeFreq?.toPrecision(4) ?? popFreq?.genotypeFreq?.["1/1"]?.toPrecision(4) ?? 0;
-                const homAltCount = popFreq?.altHomGenotypeCount ?? popFreq?.genotypeCount?.["1/1"] ?? 0;
-                const color = VariantGridFormatter._getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
-                let altFreqText = "";
-                let homAltFreqText = "";
+    static getPopulationFrequenciesTooltip(populations, populationFrequenciesMap, populationFrequenciesColor) {
+        const tooltipRows = (populations || []).map(population => {
+            const popFreq = populationFrequenciesMap.get(population) || null;
+            const altFreq = popFreq?.altAlleleFreq?.toPrecision(4) || 0;
+            const altCount = popFreq?.altAlleleCount || 0;
 
-                // ALT freq tell us if the VARIANT has been OBSERVED.
-                if (altFreq > 0) {
-                    altFreqText = `${altFreq || "-"} / ${altCount} (${altFreq > 0 ? (altFreq * 100).toPrecision(4) + "%" : "-"})`;
-                    homAltFreqText = `${homAltFreq > 0 ? homAltFreq : "-"} / ${homAltCount} ${homAltFreq > 0 ? `(${(homAltFreq * 100).toPrecision(4)} %)` : ""}`;
-                } else {
-                    altFreqText = "<span style='font-style: italic'>Not Observed</span>";
-                    homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
-                }
+            // TASK-5854: Check if altHomGenotypeFreq (population freqs) or genotypeFreq (cohort stats)
+            const homAltFreq = popFreq?.altHomGenotypeFreq?.toPrecision(4) ?? popFreq?.genotypeFreq?.["1/1"]?.toPrecision(4) ?? 0;
+            const homAltCount = popFreq?.altHomGenotypeCount ?? popFreq?.genotypeCount?.["1/1"] ?? 0;
+            const color = VariantGridFormatter._getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
+            let altFreqText = "";
+            let homAltFreqText = "";
 
-                return `
-                    <tr style='border-top:1px solid #ededed;'>
-                        <td style='width:140px;padding:8px 8px 8px 0;'>
-                            <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                            <label style='padding-left: 5px;'>${population}</label>
-                        </td>
-                        <td style='font-weight:bold;padding:8px 8px 8px 0;'>${altFreqText}</td>
-                        <td style='font-weight:bold;padding:8px 0 8px 0;'>${homAltFreqText}</td>
+            // ALT freq tell us if the VARIANT has been OBSERVED.
+            if (altFreq > 0) {
+                altFreqText = `${altFreq || "-"} / ${altCount} (${altFreq > 0 ? (altFreq * 100).toPrecision(4) + "%" : "-"})`;
+                homAltFreqText = `${homAltFreq > 0 ? homAltFreq : "-"} / ${homAltCount} ${homAltFreq > 0 ? `(${(homAltFreq * 100).toPrecision(4)} %)` : ""}`;
+            } else {
+                altFreqText = "<span style='font-style: italic'>Not Observed</span>";
+                homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
+            }
+
+            return `
+                <tr style='border-top:1px solid #ededed;'>
+                    <td style='width:140px;padding:8px 8px 8px 0;'>
+                        <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
+                        <label style='padding-left: 5px;'>${population}</label>
                     </td>
-                `;
-            });
-        const tooltip = `
+                    <td style='font-weight:bold;padding:8px 8px 8px 0;'>${altFreqText}</td>
+                    <td style='font-weight:bold;padding:8px 0 8px 0;'>${homAltFreqText}</td>
+                </td>
+            `;
+        });
+        
+        return `
             <table class='population-freq-tooltip'>
                 <thead>
                     <tr>
@@ -907,6 +907,11 @@ export default class VariantGridFormatter {
                 <tbody>${tooltipRows.join("")}</tbody>
             </table>
         `;
+    }
+
+    // Creates the colored table with one row and as many columns as populations.
+    static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
+        const tooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(populations, populationFrequenciesMap, populationFrequenciesColor);
 
         // Create the table (with the tooltip info)
         let htmlPopFreqTable;
