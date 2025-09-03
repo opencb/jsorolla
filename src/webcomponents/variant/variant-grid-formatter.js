@@ -870,7 +870,7 @@ export default class VariantGridFormatter {
             // TASK-5854: Check if altHomGenotypeFreq (population freqs) or genotypeFreq (cohort stats)
             const homAltFreq = popFreq?.altHomGenotypeFreq?.toPrecision(4) ?? popFreq?.genotypeFreq?.["1/1"]?.toPrecision(4) ?? 0;
             const homAltCount = popFreq?.altHomGenotypeCount ?? popFreq?.genotypeCount?.["1/1"] ?? 0;
-            const color = VariantGridFormatter._getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
+            const color = VariantGridFormatter.getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
             let altFreqText = "";
             let homAltFreqText = "";
 
@@ -926,7 +926,7 @@ export default class VariantGridFormatter {
                             let color = "black";
                             if (typeof populationFrequenciesMap.get(population) !== "undefined") {
                                 const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
-                                color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
+                                color = VariantGridFormatter.getPopulationFrequencyColor(freq, populationFrequenciesColor);
                             }
                             return `<div class="px-2 py-3" style="background-color:${color}"></div>`;
                         }).join("")}
@@ -936,7 +936,7 @@ export default class VariantGridFormatter {
         }
     }
 
-    static _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
+    static getPopulationFrequencyColor(freq, populationFrequenciesColor) {
         let color;
         const freqFloat = Number.parseFloat(freq);
         if (freqFloat === 0 || freqFloat === "0") {
