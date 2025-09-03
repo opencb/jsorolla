@@ -841,15 +841,11 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     actionsFormatter(value, row) {
+        const species = this.opencgaSession?.project?.organism?.scientificName;
         const assembly = this.opencgaSession?.project?.organism?.assembly;
-        const variantPosition = `${row.chromosome}:${row.start}-${row.end}`;
-        const cellbaseUrl = BioinfoUtils.getCellbaseVariantLink(
-            row.id,
-            this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.cellbaseClient?._config?.host,
-            this.opencgaSession?.project?.cellbase?.version || this.opencgaSession?.cellbaseClient?._config?.version,
-            this.opencgaSession?.project?.organism?.scientificName,
-            this.opencgaSession?.project?.organism?.assembly,
-        );
+        const position = `${row.chromosome}:${row.start}-${row.end}`;
+        const cellbaseHost = this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.cellbaseClient?._config?.host;
+        const cellbaseVersion = this.opencgaSession?.project?.cellbase?.version || this.opencgaSession?.cellbaseClient?._config?.version;
 
         return `
             <div class="dropdown">
@@ -868,22 +864,22 @@ export default class VariantBrowserGrid extends LitElement {
                     </a>
                     <div class="dropdown-divider"></div>
                     <div class="dropdown-header">External Links</div>
-                    <a target="_blank" class="dropdown-item ${row.type !== "SNV" ? "disabled" : ""}" href="${BioinfoUtils.getVariantLink(row.id, variantPosition, "decipher")}">
+                    <a target="_blank" class="dropdown-item ${row.type !== "SNV" ? "disabled" : ""}" href="${BioinfoUtils.getVariantLink(row.id, position, "decipher")}">
                         <i class="fas fa-external-link-alt me-1"></i> Decipher
                     </a>
-                    <a target="_blank" class="dropdown-item ${row.type === "COPY_NUMBER" ? "disabled" : ""}" href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", assembly)}">
+                    <a target="_blank" class="dropdown-item ${row.type === "COPY_NUMBER" ? "disabled" : ""}" href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", species, assembly)}">
                         <i class="fas fa-external-link-alt me-1"></i> Varsome
                     </a>
                     <div class="dropdown-header">CellBase Links</div>
-                    <a target="_blank" class="dropdown-item" href="${cellbaseUrl}">
-                        <i class="fas fa-external-link-alt me-1" aria-hidden="true"></i>
-                        <span>CellBase ${this.opencgaSession?.project?.cellbase?.version || this.opencgaSession?.cellbaseClient?._config?.version}</span>
+                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getCellbaseVariantLink(row.id, cellbaseHost, cellbaseVersion, species, assembly)}">
+                        <i class="fas fa-external-link-alt me-1"></i>
+                        <span>CellBase ${cellbaseVersion}</span>
                     </a>
                     <div class="dropdown-header">External Genome Browsers</div>
-                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, variantPosition, "ensembl_genome_browser", assembly)}">
+                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, position, "ensembl_genome_browser", species, assembly)}">
                         <i class="fas fa-external-link-alt me-1"></i> Ensembl Genome Browser
                     </a>
-                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, variantPosition, "ucsc_genome_browser")}">
+                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, position, "ucsc_genome_browser", species, assembly)}">
                         <i class="fas fa-external-link-alt me-1"></i> UCSC Genome Browser
                     </a>
                     <div class="dropdown-divider"></div>
