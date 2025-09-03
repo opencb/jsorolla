@@ -23,6 +23,14 @@ import GridCommons from "../commons/grid-commons.js";
 
 export default class VariantGridFormatter {
 
+    static POPULATION_FREQUENCY_CLASSIFICATION = {
+        UNOBSERVED: "unobserved",
+        VERY_RARE: "veryRare",
+        RARE: "rare",
+        AVERAGE: "average",
+        COMMON: "common",
+    }
+
     // DEPRECATED: use new consequenceTypes.impact instead
     static assignColors(consequenceTypes, proteinSubstitutionScores) {
         let result = {};
@@ -936,21 +944,23 @@ export default class VariantGridFormatter {
         }
     }
 
-    static getPopulationFrequencyColor(freq, populationFrequenciesColor) {
-        let color;
+    static getPopulationFrequencyClassification(freq) {
         const freqFloat = Number.parseFloat(freq);
         if (freqFloat === 0 || freqFloat === "0") {
-            color = populationFrequenciesColor.unobserved;
+            return VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.UNOBSERVED;
         } else if (freqFloat < 0.001) {
-            color = populationFrequenciesColor.veryRare;
+            return VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.VERY_RARE;
         } else if (freqFloat < 0.005) {
-            color = populationFrequenciesColor.rare;
+            return VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.RARE;
         } else if (freqFloat < 0.05) {
-            color = populationFrequenciesColor.average;
+            return VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.AVERAGE;
         } else {
-            color = populationFrequenciesColor.common;
+            return VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.COMMON;
         }
-        return color;
+    }
+
+    static getPopulationFrequencyColor(freq, populationFrequenciesColor = {}) {
+        return populationFrequenciesColor[VariantGridFormatter.getPopulationFrequencyClassification(freq)] || "black";
     }
 
     static clinicalTraitAssociationFormatter(value, row, index) {
