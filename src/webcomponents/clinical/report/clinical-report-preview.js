@@ -21,10 +21,14 @@ export default class ClinicalReportPreview extends LitElement {
             opencgaSession: {
                 type: Object,
             },
+            active: {
+                type: Boolean,
+            },
         };
     }
 
     #init() {
+        this.active = true;
         this._templates = null;
         this._invalidTemplates = [];
         this._activeTemplate = null;
@@ -145,7 +149,7 @@ export default class ClinicalReportPreview extends LitElement {
                     `}">
                 </empty-state>
             ` : nothing}
-            ${this._activeTemplate && active ? html`
+            ${this._activeTemplate && this.active ? html`
                 <data-form
                     .data="${clinicalAnalysis}"
                     .config="${{
