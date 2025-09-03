@@ -911,12 +911,14 @@ export default class VariantGridFormatter {
 
     // Creates the colored table with one row and as many columns as populations.
     static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
-        const tooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(populations, populationFrequenciesMap, populationFrequenciesColor);
+            // NOTE: FREQUENCY_NUMBER is now deprecated, so we will use FREQUENCY_BOX instead
+        const displayMode = populationFrequenciesConfig?.displayMode || "FREQUENCY_BOX";
 
-        // Create the table (with the tooltip info)
-        let htmlPopFreqTable;
-        if (populationFrequenciesConfig?.displayMode === "FREQUENCY_BOX") {
-            htmlPopFreqTable = `
+        if (displayMode === "FREQUENCY_COMPACT") {
+            return "";
+        } else {
+            const tooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(populations, populationFrequenciesMap, populationFrequenciesColor);
+            return `
                 <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}" tooltip-position-my="top right">
                 <div class="d-flex justify-content-center align-items-center">
                     <div class="d-flex rounded overflow-hidden" style="gap:1px;">
@@ -931,49 +933,7 @@ export default class VariantGridFormatter {
                     </div>
                 </div>
             `;
-        } else {
-            htmlPopFreqTable = "<div>";
-            const populationFrequenciesHtml = [];
-            for (const population of populations) {
-                let color = "black";
-                if (typeof populationFrequenciesMap.get(population) !== "undefined") { // Freq exists
-                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
-                    const percentage = (Number(freq) * 100).toPrecision(4);
-                    // Only color the significant ones
-                    if (freq <= 0.005) {
-                        color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
-                    }
-
-                    if (populations.length > 1) {
-                        populationFrequenciesHtml.push("<div>");
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${population}</span>`);
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${freq}</span>`);
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">(${percentage} %)</span>`);
-                        populationFrequenciesHtml.push("</div>");
-                    } else {
-                        populationFrequenciesHtml.push("<div>");
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${freq}</span>`);
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">(${percentage} %)</span>`);
-                        populationFrequenciesHtml.push("</div>");
-                    }
-                } else { // Freq does not exist
-                    if (populations.length > 1) {
-                        populationFrequenciesHtml.push("<div>");
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${population}</span>`);
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">NA</span>`);
-                        populationFrequenciesHtml.push("</div>");
-                    } else {
-                        populationFrequenciesHtml.push("<div>");
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">NA</span>`);
-                        populationFrequenciesHtml.push("</div>");
-                    }
-                }
-            }
-            htmlPopFreqTable += `${populationFrequenciesHtml.join("")}`;
-            htmlPopFreqTable += "</div>";
         }
-
-        return htmlPopFreqTable;
     }
 
     static _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
