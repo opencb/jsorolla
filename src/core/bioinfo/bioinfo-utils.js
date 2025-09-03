@@ -131,10 +131,10 @@ export default class BioinfoUtils {
                 return `https://www.deciphergenomics.org/sequence-variant/${decipherId}`;
             case "ENSEMBL_GENOME_BROWSER":
                 const sp = (species === "Homo sapiens" || species === "hsapiens") ? "Homo_sapiens" : "Mus_musculus";
-                if (assembly?.toUpperCase() === "GRCH38") {
-                    return `https://ensembl.org/${sp}/Location/View?r=${region}`;
-                } else {
+                if (assembly?.toUpperCase() === "GRCH37") {
                     return `https://grch37.ensembl.org/${sp}/Location/View?r=${region}`;
+                } else {
+                    return `https://ensembl.org/${sp}/Location/View?r=${region}`;
                 }
             case "UCSC_GENOME_BROWSER":
                 const hg = assembly?.toUpperCase() === "GRCH38" ? "hg38" : "hg19";
