@@ -151,7 +151,7 @@ export default class ClinicalReportPreview extends LitElement {
             ` : nothing}
             ${this._activeTemplate && this.active ? html`
                 <data-form
-                    .data="${clinicalAnalysis}"
+                    .data="${this.clinicalAnalysis}"
                     .config="${{
                         ...this._activeTemplate?.config,
                         display: {
