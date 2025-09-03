@@ -1176,15 +1176,12 @@ export default class VariantInterpreterGrid extends LitElement {
 
         const reviewId = `${this._prefix}${row.id}VariantReviewActionButton`;
         const reviewDisabled = (!this.checkedVariants.has(row.id) || this.clinicalAnalysis.locked || this.clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
-        const position = row.chromosome + ":" + row.start + "-" + row.end;
 
-        const cellbaseUrl = BioinfoUtils.getCellbaseVariantLink(
-            row.id,
-            this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.cellbaseClient?._config?.host,
-            this.opencgaSession?.project?.cellbase?.version || this.opencgaSession?.cellbaseClient?._config?.version,
-            this.opencgaSession?.project?.organism?.scientificName,
-            this.opencgaSession?.project?.organism?.assembly,
-        );
+        const species = this.opencgaSession?.project?.organism?.scientificName;
+        const assembly = this.opencgaSession?.project?.organism?.assembly;
+        const position = row.chromosome + ":" + row.start + "-" + row.end;
+        const cellbaseHost = this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.cellbaseClient?._config?.host;
+        const cellbaseVersion = this.opencgaSession?.project?.cellbase?.version || this.opencgaSession?.cellbaseClient?._config?.version;
 
         return `
             <div class="dropdown">
@@ -1200,19 +1197,19 @@ export default class VariantInterpreterGrid extends LitElement {
                     <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.studies[0]?.files[0]?.call?.variantId?.split(",")[0] || row.id, position, "decipher")}">
                         <i class="fas fa-external-link-alt me-1"></i> Decipher
                     </a>
-                    <a target="_blank" class="dropdown-item" ${row.type === "COPY_NUMBER" ? "disabled" : ""} href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", this.opencgaSession?.project?.organism?.assembly)}">
+                    <a target="_blank" class="dropdown-item" ${row.type === "COPY_NUMBER" ? "disabled" : ""} href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", species, assembly)}">
                         <i class="fas fa-external-link-alt me-1"></i> Varsome
                     </a>
                     <div class="dropdown-header">CellBase Links</div>
-                    <a target="_blank" class="dropdown-item" href="${cellbaseUrl}">
+                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getCellbaseVariantLink(row.id, cellbaseHost, cellbaseVersion, species, assembly)}">
                         <i class="fas fa-external-link-alt me-1"></i>
-                        <span>CellBase ${this.opencgaSession?.project?.cellbase?.version || this.opencgaSession?.cellbaseClient?._config?.version}</span>
+                        <span>CellBase ${cellbaseVersion}</span>
                     </a>
                     <div class="dropdown-header">External Genome Browsers</div>
-                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, position, "ensembl_genome_browser", this.opencgaSession?.project?.organism?.assembly)}">
+                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, position, "ensembl_genome_browser", species, assembly)}">
                         <i class="fas fa-external-link-alt me-1"></i> Ensembl Genome Browser
                     </a>
-                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, position, "ucsc_genome_browser")}">
+                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, position, "ucsc_genome_browser", species, assembly)}">
                         <i class="fas fa-external-link-alt me-1"></i> UCSC Genome Browser
                     </a>
                     <hr class="dropdown-divider">
