@@ -70,16 +70,21 @@ export default class BioinfoUtils {
         return "https://www.genenames.org/tools/search/#!/all?query=" + geneName;
     }
 
-    static getEnsemblLink(featureId, type = "gene", assembly = "GRCh38") {
-        const ensemblHost = assembly.toUpperCase() === "GRCH38" ? "www.ensembl.org" : "grch37.ensembl.org";
+    // Note: currently only human and mouse are supported
+    static getEnsemblLink(featureId, type = "gene", species = "hsapiens", assembly = "GRCh38") {
+        const ensemblHost = BioinfoUtils.getEnsemblHost(assembly);
+        const ensemblSpecies = BioinfoUtils.isHuman(species) ? "Homo_sapiens" : "Mus_musculus";
         switch (type.toUpperCase()) {
             case "GENE":
-                return `https://${ensemblHost}/Homo_sapiens/Gene/Summary?db=core;g=${featureId}`;
+                return `${ensemblHost}/${ensemblSpecies}/Gene/Summary?db=core;g=${featureId}`;
             case "TRANSCRIPT":
-                return `https://${ensemblHost}/Homo_sapiens/Transcript/Summary?db=core;t=${featureId}`;
+                return `${ensemblHost}/${ensemblSpecies}/Transcript/Summary?db=core;t=${featureId}`;
             case "VARIANT":
             case "VARIATION":
-                return `https://${ensemblHost}/Homo_sapiens/Variation/Explore?vdb=variation;v=${featureId}`;
+                return `${ensemblHost}/${ensemblSpecies}/Variation/Explore?vdb=variation;v=${featureId}`;
+            case "LOCATION":
+            case "BROWSER":
+                return `${ensemblHost}/${ensemblSpecies}/Location/View?r=${featureId}`;
         }
         return "";
     }
@@ -116,12 +121,7 @@ export default class BioinfoUtils {
         }
 
         if (id?.startsWith("rs")) {
-            const sp = (species === "Homo sapiens" || species === "hsapiens") ? "Homo_sapiens" : "Mus_musculus";
-            if (assembly?.toUpperCase() === "GRCH37") {
-                return `https://grch37.ensembl.org/${sp}/Variation/Explore?vdb=variation;v=${id}`;
-            } else {
-                return `https://ensembl.org/${sp}/Variation/Explore?vdb=variation;v=${id}`;
-            }
+            return BioinfoUtils.getEnsemblLink(id, "VARIATION", species, assembly);
         }
 
         if (id?.startsWith("HGNC:")) {
@@ -138,12 +138,7 @@ export default class BioinfoUtils {
                 const decipherId = id.replace(/:/g, "-");
                 return `https://www.deciphergenomics.org/sequence-variant/${decipherId}`;
             case "ENSEMBL_GENOME_BROWSER":
-                const sp = (species === "Homo sapiens" || species === "hsapiens") ? "Homo_sapiens" : "Mus_musculus";
-                if (assembly?.toUpperCase() === "GRCH37") {
-                    return `https://grch37.ensembl.org/${sp}/Location/View?r=${region}`;
-                } else {
-                    return `https://ensembl.org/${sp}/Location/View?r=${region}`;
-                }
+                return BioinfoUtils.getEnsemblLink(region, "BROWSER", species, assembly);
             case "UCSC_GENOME_BROWSER":
                 const hg = assembly?.toUpperCase() === "GRCH38" ? "hg38" : "hg19";
                 return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=${hg}&position=chr${region}`;
@@ -152,7 +147,7 @@ export default class BioinfoUtils {
         }
     }
 
-    static getGeneLink(geneId, source, assembly = "GRCh38") {
+    static getGeneLink(geneId, source, species = "hsapiens", assembly = "GRCh38") {
         if (!geneId) {
             return null;
         }
@@ -164,11 +159,7 @@ export default class BioinfoUtils {
 
         switch (s.toUpperCase()) {
             case "ENSEMBL":
-                if (assembly.toUpperCase() === "GRCH38") {
-                    return `https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`;
-                } else {
-                    return `https://grch37.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`;
-                }
+                return BioinfoUtils.getEnsemblLink(geneId, "GENE", species, assembly);
             case "HGNC":
                 return "https://www.genenames.org/tools/search/#!/all?query=" + geneId;
             case "DECIPHER":
@@ -204,11 +195,7 @@ export default class BioinfoUtils {
 
         switch (s.toUpperCase()) {
             case "ENSEMBL":
-                if (assembly.toUpperCase() === "GRCH38") {
-                    return `https://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${transcriptId}`;
-                } else {
-                    return `https://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${transcriptId}`;
-                }
+                return BioinfoUtils.getEnsemblLink(transcriptId, "TRANSCRIPT", "hsapiens", assembly);
             case "REFSEQ":
                 return `https://www.ncbi.nlm.nih.gov/gene/?term=${transcriptId}`;
         }
@@ -226,7 +213,7 @@ export default class BioinfoUtils {
 
         switch (s.toUpperCase()) {
             case "ENSEMBL":
-                return `http://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;p=${proteinId}`;
+                return BioinfoUtils.getEnsemblLink(proteinId, "PROTEIN", "hsapiens", "");
             case "REFSEQ":
                 return `https://www.ncbi.nlm.nih.gov/gene/?term=${proteinId}`;
         }
