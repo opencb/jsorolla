@@ -12,7 +12,7 @@ jobs:
     name: "Create GitHub Release"
     runs-on: ${{ vars.UBUNTU_VERSION }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4gi
         with:
           name: iva-app
           path: iva-${{ inputs.version }}.tar.gz

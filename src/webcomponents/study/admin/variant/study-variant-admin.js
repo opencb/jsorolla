@@ -16,10 +16,6 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../../commons/utils/lit-utils";
-import "../study-admin-sample.js";
-import "../study-admin-individual.js";
-import "../study-admin-family.js";
-import "../study-admin-cohort.js";
 import "../study-admin-configuration.js";
 import "../../../variant/operation/variant-annotation-index-operation.js";
 import "../../../variant/operation/clinical-analysis-configuration-update.js";

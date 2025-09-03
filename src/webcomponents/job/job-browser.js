@@ -19,10 +19,6 @@ import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "../commons/aggregation-stats.js";
 import "./job-grid.js";
-import "./job-detail.js";
-import "./job-detail-log.js";
-import "./job-view.js";
-import "./job-timeline-view.js";
 
 export default class JobBrowser extends LitElement {
 
@@ -133,17 +129,9 @@ export default class JobBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .files="${params.files}"
                             @queryComplete="${e => params.onQueryComplete(e)}"
-                            @selectrow="${e => params.onClickRow(e)}"
                             @jobUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </job-grid>
-                        ${params?.detail ? html`
-                            <job-detail
-                                .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}"
-                                .jobId="${params.detail?.id}">
-                            </job-detail>
-                        ` : nothing}
                     `,
                 },
                 {
@@ -192,7 +180,7 @@ export default class JobBrowser extends LitElement {
                             },
                             {
                                 id: "tool",
-                                title: "Analysis Tool ID",
+                                title: "Tool ID",
                                 placeholder: "Tool",
                                 allowedValues: "",
                                 defaultValue: "",
@@ -212,8 +200,8 @@ export default class JobBrowser extends LitElement {
                                 id: "internalStatus",
                                 title: "Status",
                                 placeholder: "Status",
-                                allowedValues: ["PENDING", "QUEUED", "RUNNING", "DONE", "ERROR", "UNKNOWN", "ABORTED", "DELETED"],
-                                multiple: true,
+                                // allowedValues: ["PENDING", "QUEUED", "RUNNING", "DONE", "ERROR", "UNKNOWN", "ABORTED", "DELETED"],
+                                // multiple: true,
                                 defaultValue: "",
                                 description: "",
                                 quick: true,
@@ -242,6 +230,7 @@ export default class JobBrowser extends LitElement {
                                 allowedValues: "",
                                 defaultValue: "",
                                 description: "",
+                                quick: true
                             },
                             {
                                 id: "creationDate",
@@ -273,55 +262,6 @@ export default class JobBrowser extends LitElement {
                         exportTabs: ["download", "link", "code"]
                         // columns list for the dropdown will be added in grid components based on settings.table.columns
                     }
-                },
-                detail: {
-                    title: "Job",
-                    showTitle: true,
-                    items: [
-                        {
-                            id: "job-view",
-                            name: "Overview",
-                            active: true,
-                            render: (job, _active, opencgaSession) => html`
-                                <job-view
-                                    .opencgaSession="${opencgaSession}"
-                                    mode="simple"
-                                    .job="${job}">
-                                </job-view>
-                            `,
-                        },
-                        {
-                            id: "job-result",
-                            name: "Execution Result",
-                            render: (job, active, opencgaSession) => html`
-                                <job-result
-                                    .job="${job}"
-                                    .opencgaSession="${opencgaSession}">
-                                </job-result>
-                            `,
-                        },
-                        {
-                            id: "job-log",
-                            name: "Logs",
-                            render: (job, active, opencgaSession) => html`
-                                <job-detail-log
-                                    .opencgaSession="${opencgaSession}"
-                                    .active="${active}"
-                                    .job="${job}">
-                                </job-detail-log>
-                            `,
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (job, active) => html`
-                                <json-viewer
-                                    .data="${job}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        },
-                    ],
                 },
             },
             aggregation: {

@@ -19,7 +19,6 @@ import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "./cohort-grid.js";
-import "./cohort-detail.js";
 
 export default class CohortBrowser extends LitElement {
 
@@ -129,17 +128,9 @@ export default class CohortBrowser extends LitElement {
                             .eventNotifyName="${params.eventNotifyName}"
                             .active="${true}"
                             @queryComplete="${e => params.onQueryComplete(e)}"
-                            @selectrow="${e => params.onClickRow(e)}"
                             @cohortUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </cohort-grid>
-                        ${params?.detail ? html`
-                            <cohort-detail
-                                .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}"
-                                .cohortId="${params.detail?.id}">
-                            </cohort-detail>
-                        ` : nothing}
                     `,
                 },
                 {
@@ -205,55 +196,6 @@ export default class CohortBrowser extends LitElement {
                 result: {
                     grid: {}
                 },
-                detail: {
-                    title: "Cohort",
-                    showTitle: true,
-                    display: {
-                        titleClass: "mt-4",
-                        contentClass: "p-3"
-                    },
-                    items: [
-                        {
-                            id: "cohort-view",
-                            name: "Overview",
-                            active: true,
-                            render: (cohort, active, opencgaSession) => {
-                                return html`
-                                    <cohort-view
-                                        .opencgaSession="${opencgaSession}"
-                                        .cohort="${cohort}">
-                                    </cohort-view>
-                                `;
-                            }
-                        },
-                        {
-                            id: "sample-view",
-                            name: "Samples",
-                            render: (cohort, active, opencgaSession) => {
-                                return html`
-                                    <sample-grid
-                                        .opencgaSession="${opencgaSession}"
-                                        .query="${{cohortIds: cohort.id}}"
-                                        .config="${{showSelectCheckbox: false}}"
-                                        .active="${active}">
-                                    </sample-grid>
-                                `;
-                            }
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (cohort, active, opencgaSession) => {
-                                return html`
-                                    <json-viewer
-                                        .data="${cohort}"
-                                        .active="${active}">
-                                    </json-viewer>
-                                `;
-                            }
-                        }
-                    ]
-                }
             },
             aggregation: {
                 default: ["creationYear[MONTH]", "numSamples[0..10]:1"],

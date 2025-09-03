@@ -21,18 +21,9 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "./variant-browser-filter.js";
 import "./variant-browser-grid.js";
-import "./variant-browser-detail.js";
 import "../commons/aggregation-stats.js";
 import "../commons/tool-header.js";
 import "../commons/grid-notifications.js";
-import "./annotation/cellbase-variant-annotation-summary.js";
-import "./annotation/variant-consequence-type-view.js";
-import "./annotation/cellbase-population-frequency-grid.js";
-import "./annotation/variant-annotation-clinical-view.js";
-import "./annotation/variant-annotation-pharmacogenomics-view.js";
-import "./variant-cohort-stats.js";
-import "./variant-samples.js";
-import "./variant-notes.js";
 import "../visualization/genome-browser.js";
 
 export default class VariantBrowser extends LitElement {
@@ -93,8 +84,6 @@ export default class VariantBrowser extends LitElement {
         this.executedQuery = {};
         this.selectedFacet = {};
         this.preparedFacetQueryFormatted = {};
-        // this.errorState = false;
-        this.variant = null;
         this.notifications = [];
 
         this.activeView = "table";
@@ -150,7 +139,6 @@ export default class VariantBrowser extends LitElement {
 
             // Search must be disabled even defaultFilter is empty
             this.searchActive = false;
-            this.variant = null;
 
             this.facetQuery = null;
             this.preparedFacetQueryFormatted = null;
@@ -166,7 +154,6 @@ export default class VariantBrowser extends LitElement {
 
                 LitUtils.dispatchCustomEvent(this, "queryChange", undefined, this.preparedQuery);
                 this.searchActive = false; // Disable search button
-                this.variant = null;
             }
         }
     }
@@ -186,7 +173,6 @@ export default class VariantBrowser extends LitElement {
         this.preparedQuery = {...e.detail.query};
         this.executedQuery = {...e.detail.query};
         this.searchActive = false;
-        this.variant = null;
         this.notifySearch(this.preparedQuery);
         this.requestUpdate();
     }
@@ -195,7 +181,6 @@ export default class VariantBrowser extends LitElement {
         this.preparedQuery = {};
         this.executedQuery = {};
         this.searchActive = false;
-        this.variant = null;
         this.notifySearch(this.preparedQuery);
         this.requestUpdate();
     }
@@ -208,12 +193,6 @@ export default class VariantBrowser extends LitElement {
     onQueryComplete(event) {
         this.notifications = WebUtils.getResponseEvents(event.detail.response);
         this.searchActive = true;
-        this.requestUpdate();
-    }
-
-    onSelectVariant(e) {
-        this.variantId = e.detail.id;
-        this.variant = e.detail.row;
         this.requestUpdate();
     }
 
@@ -293,18 +272,8 @@ export default class VariantBrowser extends LitElement {
                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                     .config="${this._config.filter.result.grid}"
                     @queryComplete="${this.onQueryComplete}"
-                    @selectrow="${this.onSelectVariant}"
                     @settingsUpdate="${this.onSettingsUpdate}">
                 </variant-browser-grid>
-
-                ${this.variant ? html`
-                    <variant-browser-detail
-                        .variant="${this.variant}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .cellbaseClient="${this.cellbaseClient}"
-                        .config="${this._config.filter.detail}">
-                    </variant-browser-detail>
-                ` : nothing}
             </div>
 
             <div class="${this.activeView === "aggregation" ? "d-block" : "d-none"}">
@@ -318,15 +287,12 @@ export default class VariantBrowser extends LitElement {
             </div>
 
             <div class="${this.activeView === "genome" ? "d-block" : "d-none"}">
-                ${this.variant ? html`
-                    <genome-browser
-                        .opencgaSession="${this.opencgaSession}"
-                        .config="${this._config.genomeBrowser.config}"
-                        .region="${this.variant}"
-                        .tracks="${this._config.genomeBrowser.tracks}"
-                        .active="${this.activeView === "genome"}">
-                    </genome-browser>
-                ` : nothing}
+                <genome-browser
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config.genomeBrowser.config}"
+                    .tracks="${this._config.genomeBrowser.tracks}"
+                    .active="${this.activeView === "genome"}">
+                </genome-browser>
             </div>
         `;
     }
@@ -386,12 +352,12 @@ export default class VariantBrowser extends LitElement {
                             },
                             {
                                 id: "region",
-                                title: "Genomic Location",
+                                title: "Genomic Region",
                                 tooltip: tooltips.region
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs",
+                                title: "Feature ID",
                                 description: "Select a feature from the list (gene, SNP, etc.)",
                                 tooltip: tooltips.feature,
                                 quick: true,
@@ -419,7 +385,7 @@ export default class VariantBrowser extends LitElement {
                         filters: [
                             {
                                 id: "consequence-type",
-                                title: "Select SO terms",
+                                title: "Consequence Type",
                                 tooltip: tooltips.consequenceTypeSelect,
                                 params: {
                                     consequenceTypes: this.consequenceTypes || CONSEQUENCE_TYPES
@@ -434,12 +400,13 @@ export default class VariantBrowser extends LitElement {
                         filters: [
                             {
                                 id: "populationFrequency",
-                                title: "Select Population Frequency",
+                                title: "Population Frequency",
                                 tooltip: tooltips.populationFrequencies,
                                 params: {
                                     populationFrequencies: this.populationFrequencies || POPULATION_FREQUENCIES,
                                     showSetAll: true
-                                }
+                                },
+                                quick: true
                             }
                         ]
                     },
@@ -449,7 +416,7 @@ export default class VariantBrowser extends LitElement {
                         filters: [
                             {
                                 id: "diseasePanels",
-                                title: "Disease Panels",
+                                title: "Disease Panel",
                                 tooltip: tooltips.diseasePanels,
                                 quick: true,
                             },
@@ -527,119 +494,6 @@ export default class VariantBrowser extends LitElement {
                 result: {
                     grid: {}
                 },
-                detail: {
-                    title: "Selected Variant:",
-                    items: [
-                        {
-                            id: "annotationSummary",
-                            name: "Summary",
-                            active: true,
-                            render: (variant, active, opencgaSession) => html`
-                                <cellbase-variant-annotation-summary
-                                    .variantAnnotation="${variant.annotation}"
-                                    .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
-                                    .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
-                                    .assembly="${opencgaSession?.project?.organism?.assembly}">
-                                </cellbase-variant-annotation-summary>
-                            `,
-                        },
-                        {
-                            id: "annotationConsType",
-                            name: "Consequence Type",
-                            render: (variant, active) => html`
-                                <variant-consequence-type-view
-                                    .consequenceTypes="${variant?.annotation?.consequenceTypes}"
-                                    .active="${active}">
-                                </variant-consequence-type-view>
-                            `,
-                        },
-                        {
-                            id: "annotationPropFreq",
-                            name: "Population Frequencies",
-                            render: (variant, active) => html`
-                                <cellbase-population-frequency-grid
-                                    .populationFrequencies="${variant?.annotation?.populationFrequencies}"
-                                    .active="${active}">
-                                </cellbase-population-frequency-grid>
-                            `,
-                        },
-                        {
-                            id: "annotationClinical",
-                            name: "Clinical",
-                            render: variant => html`
-                                <variant-annotation-clinical-view
-                                    .traitAssociation="${variant?.annotation?.traitAssociation}"
-                                    .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}">
-                                </variant-annotation-clinical-view>
-                            `,
-                        },
-                        {
-                            id: "annotationPharmacogenomics",
-                            name: "Pharmacogenomics",
-                            render: variant => html`
-                                <variant-annotation-pharmacogenomics-view
-                                    .pharmacogenomics="${variant?.annotation?.pharmacogenomics}">
-                                </variant-annotation-pharmacogenomics-view>
-                            `,
-                        },
-                        {
-                            id: "cohortStats",
-                            name: "Cohort Variant Stats",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-cohort-stats
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variant}"
-                                    .config="${this.cohortConfig}"
-                                    .active="${active}">
-                                </variant-cohort-stats>
-                            `,
-                        },
-                        {
-                            id: "samples",
-                            name: "Samples",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-samples
-                                    .opencgaSession="${opencgaSession}"
-                                    .variantId="${variant.id}"
-                                    .active="${active}">
-                                </variant-samples>
-                            `,
-                        },
-                        {
-                            id: "notes",
-                            name: "Notes",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-notes
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variant}"
-                                    .active="${active}">
-                                </variant-notes>
-                            `,
-                        },
-                        {
-                            id: "beacon",
-                            name: "Beacon",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-beacon-network
-                                    .variant="${variant.id}"
-                                    .assembly="${opencgaSession.project.organism.assembly}"
-                                    .config="${this.beaconConfig}"
-                                    .active="${active}">
-                                </variant-beacon-network>
-                            `,
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (variant, active) => html`
-                                <json-viewer
-                                    .data="${variant}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        }
-                    ]
-                }
             },
             aggregation: {
                 default: ["chromosome", "type"],

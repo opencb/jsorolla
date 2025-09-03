@@ -385,7 +385,6 @@ export class OpenCGAClient {
     // opencgaClient object itself.
     // @returns {Promise<any>}
     createSession() {
-        // const _this = this;
         return new Promise((resolve, reject) => {
             // check that a session exists
             // TODO should we check the session has not expired?
@@ -459,7 +458,12 @@ export class OpenCGAClient {
                                                     // Fetch all the cohort
                                                     console.log("Fetching cohorts");
                                                     const cohortsResponse = await this.cohorts()
-                                                        .search({study: study.fqn, exclude: "samples", limit: 250});
+                                                        .search({
+                                                            study: study.fqn,
+                                                            internalStatus: "READY,CALCULATING,INVALID",
+                                                            exclude: "samples",
+                                                            limit: 250,
+                                                        });
 
                                                     // Sort cohorts alphabetically, but "ALL" first
                                                     study.cohorts = cohortsResponse.responses[0].results
@@ -490,8 +494,9 @@ export class OpenCGAClient {
                                             if (project.cellbase?.url && project.cellbase.version !== "v5" && project.cellbase.version !== "v4") {
                                                 const cellbaseClient = new CellBaseClient({
                                                     host: project.cellbase.url,
-                                                    version: project.cellbase.version.startsWith("v") ? project.cellbase.version : "v" + project.cellbase.version,
-                                                    species: "hsapiens",
+                                                    version: project.cellbase.version,
+                                                    species: project.organism.scientificName,
+                                                    apiKey: project.cellbase.apiKey,
                                                 });
                                                 // Call to: https://ws.zettagenomics.com/cellbase/webservices/rest/v5.1/meta/hsapiens/dataReleases
                                                 const promise = cellbaseClient.getMeta("dataReleases");

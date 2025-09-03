@@ -63,26 +63,17 @@ export default class BioinfoUtils {
     }
 
     static getEnsemblLink(featureId, type = "gene", assembly = "GRCh38") {
-        let ensemblLink;
+        const ensemblHost = assembly.toUpperCase() === "GRCH38" ? "www.ensembl.org" : "grch37.ensembl.org";
         switch (type.toUpperCase()) {
             case "GENE":
-                if (assembly.toUpperCase() === "GRCH38") {
-                    ensemblLink = "http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + featureId;
-                } else {
-                    ensemblLink = "http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=" + featureId;
-                }
-                break;
+                return `https://${ensemblHost}/Homo_sapiens/Gene/Summary?db=core;g=${featureId}`;
             case "TRANSCRIPT":
-                if (assembly.toUpperCase() === "GRCH38") {
-                    ensemblLink = "https://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=" + featureId;
-                } else {
-                    ensemblLink = "http://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=" + featureId;
-                }
-                break;
-            default:
-                break;
+                return `https://${ensemblHost}/Homo_sapiens/Transcript/Summary?db=core;t=${featureId}`;
+            case "VARIANT":
+            case "VARIATION":
+                return `https://${ensemblHost}/Homo_sapiens/Variation/Explore?vdb=variation;v=${featureId}`;
         }
-        return ensemblLink;
+        return "";
     }
 
     static getCosmicLink(featureId, assembly = "GRCh38") {

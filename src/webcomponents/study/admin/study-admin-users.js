@@ -352,30 +352,29 @@ export default class StudyAdminUsers extends LitElement {
         this.requestUpdate();
     }
 
-    onUserAdd(e) {
-        let error;
-        const params= {
-            includeResult: true,
-            action: "ADD",
-        };
+    onUserAdd() {
+        if (this.groupsMap.get("@members").includes(this.addUserId)) {
+            console.log("User already exists in the study");
+            return;
+        }
         const data = {
             users: [this.addUserId],
         };
         return this.opencgaSession.opencgaClient.studies()
-            .updateGroupsUsers(this.study.fqn, "@members" , data, params)
+            .updateGroupsUsers(this.study.fqn, "@members", data, {
+                includeResult: true,
+                action: "ADD",
+            })
             .then(() => {
                 this.addUserId = "";
                 const studyId = this.study.fqn.split(":").pop();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: `Add user to study`,
-                    message: `
-                        ${this.addUserId} "added to study ${studyId} correctly.
-                    `,
+                    message: `${this.addUserId} "added to study ${studyId} correctly.`,
                 });
                 LitUtils.dispatchCustomEvent(this, "studyUpdateRequest", this.study.fqn);
             })
             .catch(reason => {
-                error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
     }

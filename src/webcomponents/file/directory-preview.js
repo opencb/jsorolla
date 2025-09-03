@@ -22,6 +22,9 @@ export default class DirectoryPreview extends LitElement {
             directoryId: {
                 type: String,
             },
+            query: {
+                type: Object,
+            },
             opencgaSession: {
                 type: Object,
             },
@@ -35,6 +38,7 @@ export default class DirectoryPreview extends LitElement {
     }
 
     #init() {
+        this._totalResults = 0;
         this._directories = [];
         this._files = [];
         this._loading = false;
@@ -44,6 +48,10 @@ export default class DirectoryPreview extends LitElement {
     update(changedProperties) {
         if (changedProperties.has("directoryId") || changedProperties.has("opencgaSession") || changedProperties.has("active")) {
             this.directoryIdObserver();
+        }
+
+        if (changedProperties.has("query") || changedProperties.has("opencgaSession") || changedProperties.has("active")) {
+            this.queryObserver();
         }
 
         if (changedProperties.has("config")) {
@@ -81,6 +89,53 @@ export default class DirectoryPreview extends LitElement {
                     console.error(error);
                 })
                 .finally(() => {
+                    this._loading = false;
+                    this.requestUpdate();
+                });
+        }
+    }
+
+    queryObserver() {
+        this._totalResults = 0;
+        this._directories = [];
+        this._files = [];
+
+        if (this.query && this.opencgaSession && this.active) {
+            this._loading = true;
+            let filesResponse = null;
+            const filters = {
+                study: this.opencgaSession.study.fqn,
+                ...this.query,
+                limit: this._config?.maxResults,
+                count: true,
+            };
+
+            // check for including directory in the query
+            // this is a workaround to request the content of the root directory in strict mode
+            if (Object.keys(this.query).length === 0) {
+                filters.directory = "";
+            }
+
+            this.opencgaSession.opencgaClient.files()
+                .search(filters)
+                .then(response => {
+                    filesResponse = response;
+                    this._directories = (response.responses?.[0]?.results || []).filter(item => {
+                        return item.type.toUpperCase() === "DIRECTORY";
+                    });
+                    this._files = (response.responses?.[0]?.results || []).filter(item => {
+                        return item.type.toUpperCase() === "FILE";
+                    });
+                    this._totalResults = response.responses?.[0]?.numTotalResults || 0;
+                    this.fetchImagesFiles();
+                })
+                .catch(error => {
+                    console.error(error);
+                })
+                .finally(() => {
+                    LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
+                        response: filesResponse,
+                    });
                     this._loading = false;
                     this.requestUpdate();
                 });
@@ -139,10 +194,13 @@ export default class DirectoryPreview extends LitElement {
                                     }}">
                                 </image-viewer>
                             ` : html`
-                                <i class="fas fa-file-alt fs-1 text-gray-500"></i>
+                                <i class="fas ${UtilsNew.getFileIcon(file)} display-3 text-gray-500"></i>
                             `}
                         </div>
-                        <div class="mt-2">${file.name}</div>
+                        <div class="mt-2">
+                            <span class="text-break">${file.name}</span>
+                            <span class="text-secondary"> (${UtilsNew.getDiskUsage(file.size || 0)})</span>
+                        </div>
                     </div>
                 </div>
             `;
@@ -150,7 +208,7 @@ export default class DirectoryPreview extends LitElement {
     }
 
     render() {
-        if (!this.directoryId || !this.opencgaSession || !this.active) {
+        if (!this.opencgaSession || !this.active) {
             return nothing;
         }
 
@@ -171,6 +229,13 @@ export default class DirectoryPreview extends LitElement {
         }
 
         return html`
+            ${this.query && this._totalResults > this._config?.maxResults ? html`
+                <div class="alert alert-warning mb-3">
+                    <i class="fas fa-exclamation-triangle pe-2"></i>
+                    <span>Displaying ${this._config.maxResults} out of ${this._totalResults} total results. </span>
+                    <span>Use more specific filters to narrow down results.</span>
+                </div>
+            ` : nothing}
             <div class="d-flex flex-column">
                 ${this._directories.length > 0 ? html`
                     <div class="fs-5 fw-bold mb-2">Folders</div>
@@ -189,7 +254,9 @@ export default class DirectoryPreview extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            maxResults: 500,
+        };
     }
 
 }

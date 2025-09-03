@@ -28,13 +28,12 @@ import "./variant-interpreter-qc.js";
 import "./variant-interpreter-browser.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
-import "./variant-interpreter-review.js";
 import "./variant-interpreter-methods.js";
 import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
-import "../../clinical/clinical-analysis-review.js";
 import "../../clinical/interpretation/clinical-interpretation-update.js";
+import "../../clinical/report/clinical-analysis-report.js";
 
 class VariantInterpreter extends LitElement {
 
@@ -323,23 +322,6 @@ class VariantInterpreter extends LitElement {
                             </variant-interpreter-browser>
                         </div>
                     `;
-                case "review":
-                    return html`
-                        <div id="${this._prefix}review" class="clinical-portal-content">
-                            <variant-interpreter-review
-                                .opencgaSession="${this.opencgaSession}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .cellbaseClient="${this.cellbaseClient}"
-                                .populationFrequencies="${this._config.populationFrequencies}"
-                                .proteinSubstitutionScores="${this._config.proteinSubstitutionScores}"
-                                .consequenceTypes="${this._config.consequenceTypes}"
-                                .settings="${this._config?.tools?.find(t => t.id === "variant-browser") || {}}"
-                                @gene="${this.geneSelected}"
-                                @samplechange="${this.onSampleChange}"
-                                @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                            </variant-interpreter-review>
-                        </div>
-                    `;
                 case "report":
                     return html`
                         <div id="${this._prefix}report" >
@@ -347,11 +329,11 @@ class VariantInterpreter extends LitElement {
                                 <tool-header
                                     title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}">
                                 </tool-header>
-                                <clinical-analysis-review
-                                    @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}"
+                                <clinical-analysis-report
+                                    .opencgaSession="${this.opencgaSession}"
                                     .clinicalAnalysis="${this.clinicalAnalysis}"
-                                    .opencgaSession="${this.opencgaSession}">
-                                </clinical-analysis-review>
+                                    @clinicalAnalysisUpdate="${e => this.onClinicalAnalysisUpdate(e)}">
+                                </clinical-analysis-report>
                             </div>
                         </div>
                     `;
@@ -567,13 +549,6 @@ class VariantInterpreter extends LitElement {
                     title: "Sample Variant Browser",
                     description: "",
                     icon: "fa fa-search"
-                },
-                {
-                    id: "review",
-                    title: "Interpretation Review",
-                    description: "",
-                    icon: "fa fa-edit",
-                    visible: false,
                 },
                 {
                     id: "report",
