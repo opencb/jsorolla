@@ -919,7 +919,7 @@ export default class VariantGridFormatter {
 
     // Creates the colored table with one row and as many columns as populations.
     static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor = {}, populationFrequenciesConfig = {}) {
-            // NOTE: FREQUENCY_NUMBER is now deprecated, so we will use FREQUENCY_BOX instead
+        // NOTE: FREQUENCY_NUMBER is now deprecated, so we will use FREQUENCY_BOX instead
         const displayMode = populationFrequenciesConfig?.displayMode || "FREQUENCY_BOX";
 
         if (displayMode === "FREQUENCY_COMPACT") {
@@ -933,11 +933,11 @@ export default class VariantGridFormatter {
                 });
             });
 
-            // initialize the variable to save the classification of the population ALL
+            // 2. initialize the variable to save the classification of the population ALL
             const allPopulationTooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(populations, populationFrequenciesMap, populationFrequenciesColor);
             let allPopulationClassification = VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.UNOBSERVED;
 
-            // 2. fill the map with populations
+            // 3. fill the map with populations
             (populations || []).forEach(population => {
                 let classification = VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.UNOBSERVED;
                 if (typeof populationFrequenciesMap.get(population) !== "undefined") {
@@ -952,6 +952,7 @@ export default class VariantGridFormatter {
                 }
             });
 
+            // 4. render the html of the compact view
             return `
                 <div class="d-flex justify-content-center align-items-center user-select-none gap-1">
                     <a tooltip-title="Population Frequencies" tooltip-text="${allPopulationTooltip}" tooltip-position-my="top right">
