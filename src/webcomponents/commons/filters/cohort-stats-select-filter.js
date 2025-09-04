@@ -116,7 +116,11 @@ export default class CohortStatsSelectFilter extends LitElement {
     }
 
     render() {
-        return (this.studies || []).map(study => this.renderStudyCohorts(study));
+        return html`
+            <div class="d-flex flex-column gap-3">
+                ${(this.studies || []).map(study => this.renderStudyCohorts(study))}
+            </div>
+        `;
     }
 
     getDefaultConfig() {
