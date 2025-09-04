@@ -51,15 +51,43 @@ export default class CohortStatsSelectFilter extends LitElement {
     }
 
     #init() {
-        this._selectedCohorts = [];
+        this._selectedCohortsByStudy = new Map();
     }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this._selectedCohorts = []; // reset selected cohorts list
+            this._selectedCohortsByStudy = new Map(); // reset selected cohorts list
+            // TODO: we would have to check if there is a study with a single cohort "ALL" and select it by default
+            // this will also hide the dropdown to manually select cohorts
         }
 
         super.update(changedProperties);
+    }
+
+    getSelectedCohortsInStudy(studyId) {
+        if (this._selectedCohortsByStudy.has(studyId)) {
+            return this._selectedCohortsByStudy.get(studyId);
+        }
+        // this study does not have any cohort selected yet
+        return new Set();
+    }
+
+    onSelectCohortInStudy(event, studyId, cohortId) {
+        event.preventDefault();
+        event.stopPropagation();
+        // ensure there is a Set for this studyId
+        if (!this._selectedCohortsByStudy.has(studyId)) {
+            this._selectedCohortsByStudy.set(studyId, new Set());
+        }
+        // toggle cohortId in the selected cohorts set for this study
+        const selectedCohorts = this._selectedCohortsByStudy.get(studyId);
+        if (selectedCohorts.has(cohortId)) {
+            selectedCohorts.delete(cohortId);
+        } else {
+            selectedCohorts.add(cohortId);
+        }
+        // force updating the view
+        this.requestUpdate();
     }
 
     onFilterChange(e) {
@@ -67,16 +95,17 @@ export default class CohortStatsSelectFilter extends LitElement {
     }
 
     renderStudyCohorts(study) {
+        const selectedCohorts = this.getSelectedCohortsInStudy(study.id);
         return html`
             <div class="">
                 <div> Study <b>${study.id}</b> cohorts:</div>
                 <div class="d-grid dropdown">
                     <button class="btn btn-light dropdown-toggle d-flex justify-content-between align-items-center" data-bs-toggle="dropdown">
-                        <span>Select cohorts</span>
+                        <span>Selected ${selectedCohorts.size} cohort(s) of ${study.cohorts.length}</span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-start">
                         ${study.cohorts.map(cohort => html`
-                            <a class="dropdown-item cursor-pointer">
+                            <a class="dropdown-item cursor-pointer ${selectedCohorts.has(cohort.id) ? "active" : ""}" @click="${event => this.onSelectCohortInStudy(event, study.id, cohort.id)}">
                                 <span>${cohort.id}</span>
                             </a>
                         `)}
