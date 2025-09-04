@@ -161,11 +161,12 @@ export default class VariantBrowserFilter extends LitElement {
                     content = html`
                         <cohort-stats-select-filter
                             .opencgaSession="${opencgaSession}"
-                            .cohorts="${subsection.studies}"
+                            .studies="${subsection.studies}"
                             .onlyCohortAll=${subsection.onlyCohortAll}
-                            .cohortStatsAlt="${preparedQuery.cohortStatsAlt}"
+                            .value="${preparedQuery.cohortStatsAlt}"
                             @filterChange="${e => onFilterChange("cohortStatsAlt", e.detail.value)}">
-                        </cohort-stats-select-filter>`;
+                        </cohort-stats-select-filter>
+                    `;
                 } else {
                     content = "No cohort stats available.";
                 }
