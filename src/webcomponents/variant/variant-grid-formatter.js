@@ -966,14 +966,14 @@ export default class VariantGridFormatter {
                                 const tooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(entry.populations, populationFrequenciesMap, populationFrequenciesColor);
                                 return `
                                     <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}" tooltip-position-my="top right">
-                                        <div class="px-2 py-1" style="background-color:${entry.color};min-width:26px;">
+                                        <div class="px-1 py-1 text-center" style="background-color:${entry.color};min-width:26px;">
                                             <span class="small text-white fw-bold">${entry.populations.length}</span>
                                         </div>
                                     </a>
                                 `;
                             } else {
                                 return `
-                                    <div class="px-2 py-3 cursor-not-allowed" style="background-color:${entry.color};min-width:26px;opacity:0.25;"></div>
+                                    <div class="px-1 py-3 cursor-not-allowed" style="background-color:${entry.color};min-width:26px;opacity:0.25;"></div>
                                 `;
                             }
                         }).join("")}
