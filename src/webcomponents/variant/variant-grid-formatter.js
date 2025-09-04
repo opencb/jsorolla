@@ -933,22 +933,32 @@ export default class VariantGridFormatter {
                 });
             });
 
+            // initialize the variable to save the classification of the population ALL
+            const allPopulationTooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(populations, populationFrequenciesMap, populationFrequenciesColor);
+            let allPopulationClassification = VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.UNOBSERVED;
+
             // 2. fill the map with populations
             (populations || []).forEach(population => {
-                // Note: population ALL is not considered
-                if (population.toUpperCase() !== "ALL") {
-                    let classification = VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.UNOBSERVED;
-                    if (typeof populationFrequenciesMap.get(population) !== "undefined") {
-                        const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
-                        classification = VariantGridFormatter.getPopulationFrequencyClassification(freq);
-                    }
+                let classification = VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.UNOBSERVED;
+                if (typeof populationFrequenciesMap.get(population) !== "undefined") {
+                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
+                    classification = VariantGridFormatter.getPopulationFrequencyClassification(freq);
+                }
+                if (population.toUpperCase() === "ALL") {
+                    allPopulationClassification = classification;
+                } else {
                     // add population to the corresponding classification
                     classificationsMap.get(classification).populations.push(population);
                 }
             });
 
             return `
-                <div class="d-flex justify-content-center align-items-center user-select-none">
+                <div class="d-flex justify-content-center align-items-center user-select-none gap-1">
+                    <a tooltip-title="Population Frequencies" tooltip-text="${allPopulationTooltip}" tooltip-position-my="top right">
+                        <div class="px-2 py-1 rounded" style="background-color:${populationFrequenciesColor[allPopulationClassification]};">
+                            <span class="small text-white fw-bold">ALL</span>
+                        </div>
+                    </a>
                     <div class="d-flex rounded overflow-hidden" style="gap:1px;">
                         ${Array.from(classificationsMap.values()).map(entry => {
                             if (entry.populations.length > 0) {
