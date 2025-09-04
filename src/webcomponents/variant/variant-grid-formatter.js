@@ -973,7 +973,7 @@ export default class VariantGridFormatter {
                                 `;
                             } else {
                                 return `
-                                    <div class="px-2 py-3" style="background-color:${entry.color};min-width:26px;"></div>
+                                    <div class="px-2 py-3 cursor-not-allowed" style="background-color:${entry.color};min-width:26px;opacity:0.25;"></div>
                                 `;
                             }
                         }).join("")}
