@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 
 export default class CohortStatsSelectFilter extends LitElement {
@@ -52,6 +52,7 @@ export default class CohortStatsSelectFilter extends LitElement {
 
     #init() {
         this._selectedCohortsByStudy = new Map();
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
@@ -75,10 +76,12 @@ export default class CohortStatsSelectFilter extends LitElement {
     onSelectCohortInStudy(event, studyId, cohortId) {
         event.preventDefault();
         event.stopPropagation();
+
         // ensure there is a Set for this studyId
         if (!this._selectedCohortsByStudy.has(studyId)) {
             this._selectedCohortsByStudy.set(studyId, new Set());
         }
+
         // toggle cohortId in the selected cohorts set for this study
         const selectedCohorts = this._selectedCohortsByStudy.get(studyId);
         if (selectedCohorts.has(cohortId)) {
@@ -86,6 +89,7 @@ export default class CohortStatsSelectFilter extends LitElement {
         } else {
             selectedCohorts.add(cohortId);
         }
+
         // force updating the view
         this.requestUpdate();
     }
@@ -111,6 +115,32 @@ export default class CohortStatsSelectFilter extends LitElement {
                         `)}
                     </div>
                 </div>
+                ${Array.from(selectedCohorts).length > 0 ? html`
+                    <div class="d-flex flex-column gap-2 mt-2">
+                        ${Array.from(selectedCohorts).map(cohortId => html`
+                            <div class="d-flex align-items-center justify-content-between gap-2 p-2 border border-gray-200 rounded">
+                                <div class="flex-shrink-0 pe-1">
+                                    <span class="fw-bold">${cohortId}</span>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <select class="form-select form-select-sm fs-6" @change="${e => null}">
+                                        ${this._config.operators.map(operator => html`
+                                            <option value="${operator.value}">${operator.value}</option>
+                                        `)}
+                                    </select>
+                                </div>
+                                <div class="">
+                                    <input type="number" class="form-control form-control-sm fs-6" min="0" placeholder="0" />
+                                </div>
+                                <div class="">
+                                    <button class="btn btn-light d-flex align-items-center px-2" @click="${event => this.onSelectCohortInStudy(event, study.id, cohortId)}">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `)}
+                    </div>
+                ` : nothing}
             </div>
         `;
     }
@@ -124,7 +154,15 @@ export default class CohortStatsSelectFilter extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            operators: [
+                { value: "<" },
+                { value: "<=" },
+                { value: "=" },
+                { value: ">" },
+                { value: ">=" },
+            ],
+        };
     }
 
 }
