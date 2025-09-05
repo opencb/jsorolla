@@ -140,28 +140,14 @@ export default class CohortStatsSelectFilter extends LitElement {
 
         // update the value property
         this.dispatchFilterChangeEvent();
-
-        // // ensure there is a Set for this studyId
-        // if (!this._selectedCohortsByStudy.has(studyId)) {
-        //     this._selectedCohortsByStudy.set(studyId, new Set());
-        // }
-
-        // // toggle cohortId in the selected cohorts set for this study
-        // const selectedCohorts = this._selectedCohortsByStudy.get(studyId);
-        // if (selectedCohorts.has(cohortId)) {
-        //     selectedCohorts.delete(cohortId);
-        // } else {
-        //     selectedCohorts.add(cohortId);
-        // }
-
-        // force updating the view
-        this.requestUpdate();
     }
 
     onChangeCohortOperator(event, studyFqn, cohortId) {
+        // TODO
     }
 
     onChangeCohortValue(event, studyFqn, cohortId) {
+        // TODO
     }
 
     renderStudyCohorts(study) {
