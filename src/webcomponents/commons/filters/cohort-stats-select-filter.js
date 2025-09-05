@@ -120,18 +120,18 @@ export default class CohortStatsSelectFilter extends LitElement {
                     <div class="d-flex flex-column gap-2 mt-2">
                         ${Array.from(selectedCohorts).map(cohortId => keyed(study.id + ":" + cohortId, html`
                             <div class="d-flex align-items-center justify-content-between gap-2 p-2 border border-gray-200 rounded">
-                                <div class="flex-shrink-0 pe-1">
+                                <div class="flex-shrink-0 pe-1 text-truncate" style="width:72px;" title="${cohortId}">
                                     <span class="fw-bold">${cohortId}</span>
                                 </div>
                                 <div class="flex-shrink-0">
-                                    <select class="form-select form-select-sm fs-6" @change="${e => null}">
+                                    <select class="form-select form-select-sm fs-6 w-full" @change="${e => null}">
                                         ${this._config.operators.map(operator => html`
                                             <option value="${operator.value}">${operator.value}</option>
                                         `)}
                                     </select>
                                 </div>
-                                <div class="">
-                                    <input type="number" class="form-control form-control-sm fs-6" min="0" placeholder="0" />
+                                <div class="w-full">
+                                    <input type="number" class="form-control form-control-sm fs-6 w-full" min="0" placeholder="0" />
                                 </div>
                                 <div class="">
                                     <button class="btn btn-light d-flex align-items-center px-2" @click="${event => this.onSelectCohortInStudy(event, study.id, cohortId)}">
