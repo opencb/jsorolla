@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html, nothing} from "lit";
+import {keyed} from "lit/directives/keyed.js";
 import LitUtils from "../utils/lit-utils.js";
 
 export default class CohortStatsSelectFilter extends LitElement {
@@ -117,7 +118,7 @@ export default class CohortStatsSelectFilter extends LitElement {
                 </div>
                 ${Array.from(selectedCohorts).length > 0 ? html`
                     <div class="d-flex flex-column gap-2 mt-2">
-                        ${Array.from(selectedCohorts).map(cohortId => html`
+                        ${Array.from(selectedCohorts).map(cohortId => keyed(study.id + ":" + cohortId, html`
                             <div class="d-flex align-items-center justify-content-between gap-2 p-2 border border-gray-200 rounded">
                                 <div class="flex-shrink-0 pe-1">
                                     <span class="fw-bold">${cohortId}</span>
@@ -138,7 +139,7 @@ export default class CohortStatsSelectFilter extends LitElement {
                                     </button>
                                 </div>
                             </div>
-                        `)}
+                        `))}
                     </div>
                 ` : nothing}
             </div>
