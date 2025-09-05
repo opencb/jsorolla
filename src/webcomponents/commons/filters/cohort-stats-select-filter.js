@@ -52,55 +52,120 @@ export default class CohortStatsSelectFilter extends LitElement {
     }
 
     #init() {
-        this._selectedCohortsByStudy = new Map();
+        this._selectedCohorts = new Map();
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this._selectedCohortsByStudy = new Map(); // reset selected cohorts list
+            this._selectedCohorts = new Map();
             // TODO: we would have to check if there is a study with a single cohort "ALL" and select it by default
             // this will also hide the dropdown to manually select cohorts
+        }
+
+        if (changedProperties.has("value")) {
+            this.valueObserver();
         }
 
         super.update(changedProperties);
     }
 
-    getSelectedCohortsInStudy(studyId) {
-        if (this._selectedCohortsByStudy.has(studyId)) {
-            return this._selectedCohortsByStudy.get(studyId);
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            // Array.from(this._selectedCohorts.keys()).forEach(key => {
+            //     const {operator, value} = this._selectedCohorts.get(key);
+            //     
+            // });
         }
-        // this study does not have any cohort selected yet
-        return new Set();
     }
 
-    onSelectCohortInStudy(event, studyId, cohortId) {
+    valueObserver() {
+        console.log("CohortStatsSelectFilter valueObserver: ", this.value);
+        this._selectedCohorts = new Map();
+
+        if (this.value) {
+            this.value.split(";").forEach(cohortStat => {
+                const splitFiled = cohortStat.split(":");
+                let studyId, cohortFreq;
+                if (splitFiled.length === 2) {
+                    // No FQN is given
+                    studyId = splitFiled[0];
+                    cohortFreq = splitFiled[1];
+                } else {
+                    // Study is actually the FQN
+                    studyId = splitFiled[0] + ":" + splitFiled[1];
+                    cohortFreq = splitFiled[2];
+                }
+                const [cohort, operator, value] = cohortFreq.split(/(<=?|>=?|=)/);
+                this._selectedCohorts.set(studyId + ":" + cohort, {
+                    operator: operator,
+                    value: value,
+                });
+            });
+        }
+    }
+
+    getSelectedCohortsInStudy(study) {
+        const selectedCohorts = new Set();
+        (study.cohorts || []).forEach(cohort => {
+            if (this._selectedCohorts.has(study.fqn + ":" + cohort.id)) {
+                selectedCohorts.add(cohort.id);
+            }
+        });
+        return selectedCohorts;
+    }
+
+    dispatchFilterChangeEvent() {
+        const values = Array.from(this._selectedCohorts.keys()).map(key => {
+            const {operator, value} = this._selectedCohorts.get(key);
+            return `${key}:${operator}${value}`;
+        });
+        LitUtils.dispatchCustomEvent(this, "filterChange", values.join(";"));
+    }
+
+    onSelectCohortInStudy(event, studyFqn, cohortId) {
         event.preventDefault();
         event.stopPropagation();
 
-        // ensure there is a Set for this studyId
-        if (!this._selectedCohortsByStudy.has(studyId)) {
-            this._selectedCohortsByStudy.set(studyId, new Set());
+        // check if this cohort is already selected
+        const key = studyFqn + ":" + cohortId;
+        if (this._selectedCohorts.has(key)) {
+            this._selectedCohorts.delete(key);
+        } else {
+            this._selectedCohorts.set(key, {
+                operator: this._config.defaultOperatorOnSelect,
+                value: this._config.defaultValueOnSelect,
+            });
         }
 
-        // toggle cohortId in the selected cohorts set for this study
-        const selectedCohorts = this._selectedCohortsByStudy.get(studyId);
-        if (selectedCohorts.has(cohortId)) {
-            selectedCohorts.delete(cohortId);
-        } else {
-            selectedCohorts.add(cohortId);
-        }
+        // update the value property
+        this.dispatchFilterChangeEvent();
+
+        // // ensure there is a Set for this studyId
+        // if (!this._selectedCohortsByStudy.has(studyId)) {
+        //     this._selectedCohortsByStudy.set(studyId, new Set());
+        // }
+
+        // // toggle cohortId in the selected cohorts set for this study
+        // const selectedCohorts = this._selectedCohortsByStudy.get(studyId);
+        // if (selectedCohorts.has(cohortId)) {
+        //     selectedCohorts.delete(cohortId);
+        // } else {
+        //     selectedCohorts.add(cohortId);
+        // }
 
         // force updating the view
         this.requestUpdate();
     }
 
-    onFilterChange(e) {
-        // LitUtils.dispatchCustomEvent(this, "filterChange", this._ct.join(","));
+    onChangeCohortOperator(event, studyFqn, cohortId) {
+    }
+
+    onChangeCohortValue(event, studyFqn, cohortId) {
     }
 
     renderStudyCohorts(study) {
-        const selectedCohorts = this.getSelectedCohortsInStudy(study.id);
+        const selectedCohorts = this.getSelectedCohortsInStudy(study);
         return html`
             <div class="">
                 <div> Study <b>${study.id}</b> cohorts:</div>
@@ -111,7 +176,7 @@ export default class CohortStatsSelectFilter extends LitElement {
                     <div class="dropdown-menu dropdown-menu-start">
                         <div class="d-flex flex-column gap-1">
                             ${study.cohorts.map(cohort => html`
-                                <a class="dropdown-item cursor-pointer ${selectedCohorts.has(cohort.id) ? "active" : ""}" @click="${event => this.onSelectCohortInStudy(event, study.id, cohort.id)}">
+                                <a class="dropdown-item cursor-pointer ${selectedCohorts.has(cohort.id) ? "active" : ""}" @click="${event => this.onSelectCohortInStudy(event, study.fqn, cohort.id)}">
                                     <span>${cohort.id}</span>
                                 </a>
                             `)}
@@ -133,10 +198,10 @@ export default class CohortStatsSelectFilter extends LitElement {
                                     </select>
                                 </div>
                                 <div class="w-full">
-                                    <input type="number" class="form-control form-control-sm fs-6 w-full" min="0" placeholder="0" />
+                                    <input type="number" class="form-control form-control-sm fs-6 w-full" placeholder="0" />
                                 </div>
                                 <div class="">
-                                    <button class="btn btn-light d-flex align-items-center px-2" @click="${event => this.onSelectCohortInStudy(event, study.id, cohortId)}">
+                                    <button class="btn btn-light d-flex align-items-center px-2" @click="${event => this.onSelectCohortInStudy(event, study.fqn, cohortId)}">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
@@ -165,6 +230,8 @@ export default class CohortStatsSelectFilter extends LitElement {
                 { value: ">" },
                 { value: ">=" },
             ],
+            defaultOperatorOnSelect: ">",
+            defaultValueOnSelect: "0",
         };
     }
 
