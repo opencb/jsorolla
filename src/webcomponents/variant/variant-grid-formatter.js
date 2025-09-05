@@ -24,11 +24,11 @@ import GridCommons from "../commons/grid-commons.js";
 export default class VariantGridFormatter {
 
     static POPULATION_FREQUENCY_CLASSIFICATION = {
-        UNOBSERVED: "unobserved",
         VERY_RARE: "veryRare",
         RARE: "rare",
         AVERAGE: "average",
         COMMON: "common",
+        UNOBSERVED: "unobserved",
     }
 
     // DEPRECATED: use new consequenceTypes.impact instead
