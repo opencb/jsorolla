@@ -207,6 +207,11 @@ export default class CohortStatsSelectFilter extends LitElement {
                                 </a>
                             `)}
                         </div>
+                        ${(visibleCohorts.length === 0 && !!this._searchCohortValue) ? html`
+                            <div class="text-center text-muted p-4 text-wrap">
+                                <span class="small">No cohorts found matching <b>${this._searchCohortValue}</b>.</span>
+                            </div>
+                        ` : nothing}
                     </div>
                 </div>
                 ${Array.from(selectedCohorts).length > 0 ? html`
