@@ -53,14 +53,13 @@ export default class CohortStatsSelectFilter extends LitElement {
 
     #init() {
         this._selectedCohorts = new Map();
-        this._searchCohortValue = "";
-        this._searchCohortStudy = "";
+        this._searchedCohorts = new Map();
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this._selectedCohorts = new Map();
+            this._searchedCohorts = new Map();
             // TODO: we would have to check if there is a study with a single cohort "ALL" and select it by default
             // this will also hide the dropdown to manually select cohorts
         }
@@ -74,9 +73,16 @@ export default class CohortStatsSelectFilter extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            // Array.from(this._selectedCohorts.keys()).forEach(key => {
-            //     const {operator, value} = this._selectedCohorts.get(key);
-            //     
+            // Array.from(this.querySelectorAll(`[data-role="cohort:dropdown"]`)).forEach(dropdownParent => {
+            //     dropdownParent.addEventListener("hidden.bs.modal", () => {
+            //         if (this._searchCohortValue && this._searchCohortStudy === dropdownParent.dataset?.study) {
+            //             this._searchCohortValue = "";
+            //             this._searchCohortStudy = "";
+            //             dropdownParent.querySelector(`[data-role="cohort:search"]`).value = "";
+            //         }
+            //     });
+            //     dropdownParent.addEventListener("shown.bs.modal", () => {
+            //     });
             // });
         }
     }
@@ -111,9 +117,10 @@ export default class CohortStatsSelectFilter extends LitElement {
     }
 
     getVisibleCohorts(study) {
-        if (this._searchCohortStudy === study.fqn && this._searchCohortValue) {
+        if (this._searchedCohorts.has(study.fqn)) {
+            const value = this._searchedCohorts.get(study.fqn).toLowerCase();
             return (study.cohorts || []).filter(cohort => {
-                return cohort.id.toLowerCase().includes(this._searchCohortValue.toLowerCase());
+                return cohort.id.toLowerCase().includes(value);
             });
         }
         return study.cohorts || [];
@@ -147,16 +154,14 @@ export default class CohortStatsSelectFilter extends LitElement {
     }
     
     onCohortSearch(event, studyFqn) {
-        this._searchCohortValue = event.target.value || "";
-        this._searchCohortStudy = studyFqn;
+        this._searchedCohorts.set(studyFqn, event.target.value || "");
         this.requestUpdate();
     }
 
-    onCohortSearchClear(event) {
+    onCohortSearchClear(event, studyFqn) {
         event.preventDefault();
         event.stopPropagation();
-        this._searchCohortValue = "";
-        this._searchCohortStudy = "";
+        this._searchedCohorts.delete(studyFqn);
         this.requestUpdate();
     }
 
@@ -191,14 +196,14 @@ export default class CohortStatsSelectFilter extends LitElement {
     renderStudyCohorts(study) {
         const selectedCohorts = this.getSelectedCohortsInStudy(study);
         const visibleCohorts = this.getVisibleCohorts(study);
-        return html`
+        return keyed("cohort:" + study.fqn, html`
             <div class="">
                 <div> Study <b>${study.id}</b> cohorts:</div>
                 <div class="d-grid dropdown">
                     <button class="btn btn-light dropdown-toggle d-flex justify-content-between align-items-center" data-bs-toggle="dropdown">
                         <span>Selected ${selectedCohorts.size} cohort(s) of ${study.cohorts.length}</span>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-start">
+                    <div class="dropdown-menu dropdown-menu-start" data-role="cohort:dropdown" data-study="${study.fqn}">
                         <div class="mb-2">
                             <div class="input-group">
                                 <input
@@ -208,7 +213,7 @@ export default class CohortStatsSelectFilter extends LitElement {
                                     placeholder="Search cohort..."
                                     @input="${event => this.onCohortSearch(event, study.fqn)}"
                                 />
-                                <div class="input-group-text bg-white cursor-pointer" @click="${event => this.onCohortSearchClear(event)}">
+                                <div class="input-group-text bg-white cursor-pointer" @click="${event => this.onCohortSearchClear(event, study.fqn)}" title="Clear">
                                     <i class="fas fa-times"></i>
                                 </div>
                             </div>
@@ -220,9 +225,9 @@ export default class CohortStatsSelectFilter extends LitElement {
                                 </a>
                             `)}
                         </div>
-                        ${(visibleCohorts.length === 0 && !!this._searchCohortValue) ? html`
+                        ${(visibleCohorts.length === 0 && this._searchedCohorts.has(study.fqn)) ? html`
                             <div class="text-center text-muted p-4 text-wrap">
-                                <span class="small">No cohorts found matching <b>${this._searchCohortValue}</b>.</span>
+                                <span class="small">No cohorts found matching <b>${this._searchedCohorts.get(study.fqn)}</b>.</span>
                             </div>
                         ` : nothing}
                     </div>
@@ -261,7 +266,7 @@ export default class CohortStatsSelectFilter extends LitElement {
                     </div>
                 ` : nothing}
             </div>
-        `;
+        `);
     }
 
     render() {
