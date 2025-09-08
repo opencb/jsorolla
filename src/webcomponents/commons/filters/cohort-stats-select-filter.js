@@ -214,9 +214,9 @@ export default class CohortStatsSelectFilter extends LitElement {
                                     placeholder="Search cohort..."
                                     @input="${event => this.onCohortSearch(event, study.fqn)}"
                                 />
-                                <div class="input-group-text bg-white cursor-pointer" @click="${event => this.onCohortSearchClear(event, study.fqn)}" title="Clear">
+                                <button class="input-group-text bg-white cursor-pointer" @click="${event => this.onCohortSearchClear(event, study.fqn)}" title="Clear">
                                     <i class="fas fa-times"></i>
-                                </div>
+                                </button>
                             </div>
                         </div>
                         <div class="d-flex flex-column gap-1 overflow-y-auto" style="max-height: 200px;">
