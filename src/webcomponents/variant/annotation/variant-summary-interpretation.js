@@ -97,35 +97,50 @@ debugger
             <div class="card p-3">
                 <div class="card-header border-0">
                     <h5 class="mb-2 fs-5 fw-bold d-flex">Variant Interpretation</h5>
-                    <p class="text-secondary">
-                        ${this._variant.status ? html`
-                            <div class="badge ${VariantUtils.getStatusColor(this._variant.status || "")} user-select-none my-2">
-                                <b>${this._variant.status}</b>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex flex-column me-2">
+                            <div class="card-category">
+                                STATUS
                             </div>
-                        ` : html`
-                            <div class="badge bg-light-subtle border-1 border-light-subtle user-select-none my-2">
-                                <b>Not selected</b>
+                            ${this._variant.status ? html`
+                                <h4 class="d-flex flex-column badge ${VariantUtils.getStatusColor(this._variant.status || "")} user-select-none my-2">
+                                    <b>${this._variant.status}</b>
+                                </h4>
+                            ` : html`
+                                <h4 class="d-flex flex-column badge bg-light-subtle border-1 border-light-subtle user-select-none my-2">
+                                    <b>N/A</b>
+                                </h4>
+                            `}
+                        </div>
+                        <div class="d-flex flex-column me-2">
+                            <div class="card-category">
+                                CONFIDENCE
                             </div>
-                        `}
-                        ${this._variant?.confidence?.value ? html`
-                            <div class="">
-                                <b>${this._variant?.confidence?.value }</b>
+                            ${this._variant?.confidence?.value ? html`
+                                <div class="">
+                                    <b>${this._variant?.confidence?.value }</b>
+                                </div>
+                            ` : html`
+                                <div class="">
+                                    <b>N/A</b>
+                                </div>
+                            `}
+                        </div>
+                        <div class="d-flex flex-column me-2">
+                            <div class="card-category">
+                                RELEVANCE
                             </div>
-                        ` : html`
-                            <div class="">
-                                <b>Not available</b>
-                            </div>
-                        `}
-                        ${this.primaryFinding ? html`
-                            <div class="">
-                                PRIMARY_FINDING
-                            </div>
-                        ` : html`
-                            <div class="">
-                               SECONDARY_FINDING
-                            </div>
-                        `}
-                    </p>
+                            ${this.primaryFinding ? html`
+                                <div class="">
+                                    <b>PRIMARY_FINDING</b>
+                                </div>
+                            ` : html`
+                                <div class="">
+                                   <b>SECONDARY_FINDING</b>
+                                </div>
+                            `}
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body pt-0 pb-0" id="summary-interpretation">
                     <data-form
@@ -165,30 +180,31 @@ debugger
                                     const lastComment = sortedComments[0] ?? null;
                                     return html `
                                         <div class="d-flex justify-content-between">
-                                        <!-- Discussion -->
-                                        ${variant.discussion ? html`
-                                        <div class="flex-fill border rounded p-3 bg-light">
-                                            <h5 class="mb-2">Discussion</h5>
-                                            <p class="mb-2">
-                                                ${variant.discussion.text}
-                                            </p>
-                                            <small class="text-muted d-block">${UtilsNew.dateFormatter(variant.discussion.date)}</small>
-                                        </div>
-                                        ` : html`
-                                            No discussion so far
-                                        `}
-                                        <!-- Last Comment -->
-                                        ${lastComment ? html`
-                                            <div class="flex-fill border rounded p-3 bg-light">
-                                                <h5 class="mb-2">Last Comment</h5>
+                                            <!-- Discussion -->
+                                            ${variant.discussion ? html`
+                                                <div class="flex-fill border rounded p-3 bg-light me-2">
+                                                <h5 class="mb-2">Discussion</h5>
                                                 <p class="mb-2">
-                                                    ${lastComment.message}
+                                                    ${variant.discussion.text}
                                                 </p>
                                                 <small class="text-muted d-block">${UtilsNew.dateFormatter(variant.discussion.date)}</small>
                                             </div>
-                                        ` : html`
-                                            No comments so far
-                                        `}
+                                            ` : html`
+                                                No discussion so far
+                                            `}
+                                            <!-- Last Comment -->
+                                            ${lastComment ? html`
+                                                <div class="flex-fill border rounded p-3 bg-light me-2">
+                                                    <h5 class="mb-2">Last Comment</h5>
+                                                    <p class="mb-2">
+                                                        ${lastComment.message}
+                                                    </p>
+                                                    <small class="text-muted d-block">${UtilsNew.dateFormatter(variant.discussion.date)}</small>
+                                                </div>
+                                            ` : html`
+                                                No comments so far
+                                            `}
+                                        </div>
                                     `;
                                 },
                             },
