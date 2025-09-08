@@ -95,19 +95,8 @@ export default class CohortStatsSelectFilter extends LitElement {
                         value: value,
                     });
                 }
-                // const splitFiled = cohortStat.split(":");
-                // let studyId, cohortFreq;
-                // if (splitFiled.length === 2) {
-                //     studyId = splitFiled[0];
-                //     cohortFreq = splitFiled[1];
-                // } else {
-                //     studyId = splitFiled[0] + ":" + splitFiled[1];
-                //     cohortFreq = splitFiled[2];
-                // }
-                // const [cohort, operator, value] = cohortFreq.split(/(<=?|>=?|=)/);
             });
         }
-        console.log("CohortStatsSelectFilter selected cohorts: ", this._selectedCohorts);
     }
 
     getSelectedCohortsInStudy(study) {
