@@ -134,6 +134,10 @@ export default class CohortStatsSelectFilter extends LitElement {
         // update the value property
         this.dispatchFilterChangeEvent();
     }
+    
+    onCohortSearch(event, studyFqn) {
+        // TODO
+    }
 
     onChangeCohortOperator(event, studyFqn, cohortId) {
         event.preventDefault();
@@ -173,6 +177,9 @@ export default class CohortStatsSelectFilter extends LitElement {
                         <span>Selected ${selectedCohorts.size} cohort(s) of ${study.cohorts.length}</span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-start">
+                        <div class="">
+                            <input type="text" class="form-control w-full" placeholder="Search cohort" oninput="${event => this.onCohortSearch(event, study.fqn)}" />
+                        </div>
                         <div class="d-flex flex-column gap-1 overflow-y-auto" style="max-height: 200px;">
                             ${study.cohorts.map(cohort => html`
                                 <a class="dropdown-item cursor-pointer ${selectedCohorts.has(cohort.id) ? "active" : ""}" @click="${event => this.onSelectCohortInStudy(event, study.fqn, cohort.id)}">
