@@ -80,7 +80,6 @@ export default class CohortStatsSelectFilter extends LitElement {
     }
 
     valueObserver() {
-        console.log("CohortStatsSelectFilter valueObserver: ", this.value);
         this._selectedCohorts = new Map();
 
         if (this.value) {
@@ -171,9 +170,11 @@ export default class CohortStatsSelectFilter extends LitElement {
                                     <span class="fw-bold">${cohortId}</span>
                                 </div>
                                 <div class="flex-shrink-0">
-                                    <select class="form-select form-select-sm fs-6 w-full" .value="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.operator}" @change="${e => null}">
+                                    <select class="form-select form-select-sm fs-6 w-full" @change="${e => null}">
                                         ${this._config.operators.map(operator => html`
-                                            <option value="${operator.value}">${operator.value}</option>
+                                            <option value="${operator.value}" selected="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.operator === operator.value ? "selected" : nothing}">
+                                                ${operator.value}
+                                            </option>
                                         `)}
                                     </select>
                                 </div>
