@@ -116,7 +116,7 @@ export default class CohortStatsSelectFilter extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterChange", values.join(";"));
     }
 
-    onSelectCohortInStudy(event, studyFqn, cohortId) {
+    onCohortSelect(event, studyFqn, cohortId) {
         event.preventDefault();
         event.stopPropagation();
 
@@ -139,7 +139,7 @@ export default class CohortStatsSelectFilter extends LitElement {
         // TODO
     }
 
-    onChangeCohortOperator(event, studyFqn, cohortId) {
+    onCohortOperatorChange(event, studyFqn, cohortId) {
         event.preventDefault();
         const operator = event.target.value || "";
         if (this._selectedCohorts.has(studyFqn + ":" + cohortId)) {
@@ -153,7 +153,7 @@ export default class CohortStatsSelectFilter extends LitElement {
         }
     }
 
-    onChangeCohortValue(event, studyFqn, cohortId) {
+    onCohortValueChange(event, studyFqn, cohortId) {
         event.preventDefault();
         const value = event.target.value || "";
         if (this._selectedCohorts.has(studyFqn + ":" + cohortId)) {
@@ -182,7 +182,7 @@ export default class CohortStatsSelectFilter extends LitElement {
                         </div>
                         <div class="d-flex flex-column gap-1 overflow-y-auto" style="max-height: 200px;">
                             ${study.cohorts.map(cohort => html`
-                                <a class="dropdown-item cursor-pointer ${selectedCohorts.has(cohort.id) ? "active" : ""}" @click="${event => this.onSelectCohortInStudy(event, study.fqn, cohort.id)}">
+                                <a class="dropdown-item cursor-pointer ${selectedCohorts.has(cohort.id) ? "active" : ""}" @click="${event => this.onCohortSelect(event, study.fqn, cohort.id)}">
                                     <span>${cohort.id}</span>
                                 </a>
                             `)}
@@ -197,7 +197,7 @@ export default class CohortStatsSelectFilter extends LitElement {
                                     <span class="fw-bold">${cohortId}</span>
                                 </div>
                                 <div class="flex-shrink-0">
-                                    <select class="form-select form-select-sm fs-6 w-full" @change="${event => this.onChangeCohortOperator(event, study.fqn, cohortId)}">
+                                    <select class="form-select form-select-sm fs-6 w-full" @change="${event => this.onCohortOperatorChange(event, study.fqn, cohortId)}">
                                         ${this._config.operators.map(operator => html`
                                             <option value="${operator.value}" selected="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.operator === operator.value ? "selected" : nothing}">
                                                 ${operator.value}
@@ -210,11 +210,11 @@ export default class CohortStatsSelectFilter extends LitElement {
                                         type="number"
                                         class="form-control form-control-sm fs-6 w-full"
                                         value="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.value || "0"}"
-                                        @change="${event => this.onChangeCohortValue(event, study.fqn, cohortId)}"
+                                        @change="${event => this.onCohortValueChange(event, study.fqn, cohortId)}"
                                     />
                                 </div>
                                 <div class="">
-                                    <button class="btn btn-light d-flex align-items-center px-2" @click="${event => this.onSelectCohortInStudy(event, study.fqn, cohortId)}">
+                                    <button class="btn btn-light d-flex align-items-center px-2" @click="${event => this.onCohortSelect(event, study.fqn, cohortId)}">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
