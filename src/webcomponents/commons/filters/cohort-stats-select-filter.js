@@ -136,16 +136,26 @@ export default class CohortStatsSelectFilter extends LitElement {
     }
 
     onChangeCohortOperator(event, studyFqn, cohortId) {
-        // TODO
+        event.preventDefault();
+        const operator = event.target.value || "";
+        if (this._selectedCohorts.has(studyFqn + ":" + cohortId)) {
+            if (operator && operator !== this._selectedCohorts.get(studyFqn + ":" + cohortId).operator) {
+                this._selectedCohorts.set(studyFqn + ":" + cohortId, {
+                    operator: operator,
+                    value: this._selectedCohorts.get(studyFqn + ":" + cohortId).value,
+                });
+                this.dispatchFilterChangeEvent();
+            }
+        }
     }
 
     onChangeCohortValue(event, studyFqn, cohortId) {
+        event.preventDefault();
         const value = event.target.value || "";
         if (this._selectedCohorts.has(studyFqn + ":" + cohortId)) {
             if (value !== this._selectedCohorts.get(studyFqn + ":" + cohortId).value) {
-                const operator = this._selectedCohorts.get(studyFqn + ":" + cohortId).operator;
                 this._selectedCohorts.set(studyFqn + ":" + cohortId, {
-                    operator: operator,
+                    operator: this._selectedCohorts.get(studyFqn + ":" + cohortId).operator,
                     value: value,
                 });
                 this.dispatchFilterChangeEvent();
