@@ -92,7 +92,7 @@ export default class CohortStatsSelectFilter extends LitElement {
                 if (studyFqn && cohortId && operator) {
                     this._selectedCohorts.set(studyFqn + ":" + cohortId, {
                         operator: operator,
-                        value: value,
+                        value: value || "",
                     });
                 }
             });
@@ -171,14 +171,18 @@ export default class CohortStatsSelectFilter extends LitElement {
                                     <span class="fw-bold">${cohortId}</span>
                                 </div>
                                 <div class="flex-shrink-0">
-                                    <select class="form-select form-select-sm fs-6 w-full" value="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.operator}" @change="${e => null}">
+                                    <select class="form-select form-select-sm fs-6 w-full" .value="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.operator}" @change="${e => null}">
                                         ${this._config.operators.map(operator => html`
                                             <option value="${operator.value}">${operator.value}</option>
                                         `)}
                                     </select>
                                 </div>
                                 <div class="w-full">
-                                    <input type="number" class="form-control form-control-sm fs-6 w-full" placeholder="0" />
+                                    <input
+                                        type="number"
+                                        class="form-control form-control-sm fs-6 w-full"
+                                        value="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.value || "0"}"
+                                    />
                                 </div>
                                 <div class="">
                                     <button class="btn btn-light d-flex align-items-center px-2" @click="${event => this.onSelectCohortInStudy(event, study.fqn, cohortId)}">
