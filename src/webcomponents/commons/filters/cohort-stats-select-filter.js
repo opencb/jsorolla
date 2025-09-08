@@ -85,24 +85,29 @@ export default class CohortStatsSelectFilter extends LitElement {
 
         if (this.value) {
             this.value.split(";").forEach(cohortStat => {
-                const splitFiled = cohortStat.split(":");
-                let studyId, cohortFreq;
-                if (splitFiled.length === 2) {
-                    // No FQN is given
-                    studyId = splitFiled[0];
-                    cohortFreq = splitFiled[1];
-                } else {
-                    // Study is actually the FQN
-                    studyId = splitFiled[0] + ":" + splitFiled[1];
-                    cohortFreq = splitFiled[2];
+                // Note: we assume that the cohortStat string has the following structure 'org@project:study:cohortId[operator]Value'
+                const items = cohortStat.trim().split(":");
+                const studyFqn = [items[0], items[1]].join(":");
+                const [cohortId, operator, value] = items[2].split(/(<=?|>=?|=)/);
+                if (studyFqn && cohortId && operator) {
+                    this._selectedCohorts.set(studyFqn + ":" + cohortId, {
+                        operator: operator,
+                        value: value,
+                    });
                 }
-                const [cohort, operator, value] = cohortFreq.split(/(<=?|>=?|=)/);
-                this._selectedCohorts.set(studyId + ":" + cohort, {
-                    operator: operator,
-                    value: value,
-                });
+                // const splitFiled = cohortStat.split(":");
+                // let studyId, cohortFreq;
+                // if (splitFiled.length === 2) {
+                //     studyId = splitFiled[0];
+                //     cohortFreq = splitFiled[1];
+                // } else {
+                //     studyId = splitFiled[0] + ":" + splitFiled[1];
+                //     cohortFreq = splitFiled[2];
+                // }
+                // const [cohort, operator, value] = cohortFreq.split(/(<=?|>=?|=)/);
             });
         }
+        console.log("CohortStatsSelectFilter selected cohorts: ", this._selectedCohorts);
     }
 
     getSelectedCohortsInStudy(study) {
@@ -118,7 +123,7 @@ export default class CohortStatsSelectFilter extends LitElement {
     dispatchFilterChangeEvent() {
         const values = Array.from(this._selectedCohorts.keys()).map(key => {
             const {operator, value} = this._selectedCohorts.get(key);
-            return `${key}:${operator}${value}`;
+            return `${key}${operator}${value}`;
         });
         LitUtils.dispatchCustomEvent(this, "filterChange", values.join(";"));
     }
@@ -177,7 +182,7 @@ export default class CohortStatsSelectFilter extends LitElement {
                                     <span class="fw-bold">${cohortId}</span>
                                 </div>
                                 <div class="flex-shrink-0">
-                                    <select class="form-select form-select-sm fs-6 w-full" @change="${e => null}">
+                                    <select class="form-select form-select-sm fs-6 w-full" value="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.operator}" @change="${e => null}">
                                         ${this._config.operators.map(operator => html`
                                             <option value="${operator.value}">${operator.value}</option>
                                         `)}
