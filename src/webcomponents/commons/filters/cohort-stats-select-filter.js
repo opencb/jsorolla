@@ -140,7 +140,17 @@ export default class CohortStatsSelectFilter extends LitElement {
     }
 
     onChangeCohortValue(event, studyFqn, cohortId) {
-        // TODO
+        const value = event.target.value || "";
+        if (this._selectedCohorts.has(studyFqn + ":" + cohortId)) {
+            if (value !== this._selectedCohorts.get(studyFqn + ":" + cohortId).value) {
+                const operator = this._selectedCohorts.get(studyFqn + ":" + cohortId).operator;
+                this._selectedCohorts.set(studyFqn + ":" + cohortId, {
+                    operator: operator,
+                    value: value,
+                });
+                this.dispatchFilterChangeEvent();
+            }
+        }
     }
 
     renderStudyCohorts(study) {
@@ -170,7 +180,7 @@ export default class CohortStatsSelectFilter extends LitElement {
                                     <span class="fw-bold">${cohortId}</span>
                                 </div>
                                 <div class="flex-shrink-0">
-                                    <select class="form-select form-select-sm fs-6 w-full" @change="${e => null}">
+                                    <select class="form-select form-select-sm fs-6 w-full" @change="${event => this.onChangeCohortOperator(event, study.fqn, cohortId)}">
                                         ${this._config.operators.map(operator => html`
                                             <option value="${operator.value}" selected="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.operator === operator.value ? "selected" : nothing}">
                                                 ${operator.value}
@@ -183,6 +193,7 @@ export default class CohortStatsSelectFilter extends LitElement {
                                         type="number"
                                         class="form-control form-control-sm fs-6 w-full"
                                         value="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.value || "0"}"
+                                        @change="${event => this.onChangeCohortValue(event, study.fqn, cohortId)}"
                                     />
                                 </div>
                                 <div class="">
