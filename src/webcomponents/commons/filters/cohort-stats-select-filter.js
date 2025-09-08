@@ -53,6 +53,8 @@ export default class CohortStatsSelectFilter extends LitElement {
 
     #init() {
         this._selectedCohorts = new Map();
+        this._searchCohortValue = "";
+        this._searchCohortStudy = "";
         this._config = this.getDefaultConfig();
     }
 
@@ -108,6 +110,15 @@ export default class CohortStatsSelectFilter extends LitElement {
         return selectedCohorts;
     }
 
+    getVisibleCohorts(study) {
+        if (this._searchCohortStudy === study.fqn && this._searchCohortValue) {
+            return (study.cohorts || []).filter(cohort => {
+                return cohort.id.toLowerCase().includes(this._searchCohortValue.toLowerCase());
+            });
+        }
+        return study.cohorts || [];
+    }
+
     dispatchFilterChangeEvent() {
         const values = Array.from(this._selectedCohorts.keys()).map(key => {
             const {operator, value} = this._selectedCohorts.get(key);
@@ -136,7 +147,9 @@ export default class CohortStatsSelectFilter extends LitElement {
     }
     
     onCohortSearch(event, studyFqn) {
-        // TODO
+        this._searchCohortValue = event.target.value || "";
+        this._searchCohortStudy = studyFqn;
+        this.requestUpdate();
     }
 
     onCohortOperatorChange(event, studyFqn, cohortId) {
@@ -169,6 +182,7 @@ export default class CohortStatsSelectFilter extends LitElement {
 
     renderStudyCohorts(study) {
         const selectedCohorts = this.getSelectedCohortsInStudy(study);
+        const visibleCohorts = this.getVisibleCohorts(study);
         return html`
             <div class="">
                 <div> Study <b>${study.id}</b> cohorts:</div>
@@ -177,11 +191,17 @@ export default class CohortStatsSelectFilter extends LitElement {
                         <span>Selected ${selectedCohorts.size} cohort(s) of ${study.cohorts.length}</span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-start">
-                        <div class="">
-                            <input type="text" class="form-control w-full" placeholder="Search cohort" oninput="${event => this.onCohortSearch(event, study.fqn)}" />
+                        <div class="mb-2">
+                            <input
+                                data-role="cohort:search"
+                                type="text"
+                                class="form-control w-full"
+                                placeholder="Search cohort..."
+                                @input="${event => this.onCohortSearch(event, study.fqn)}"
+                            />
                         </div>
                         <div class="d-flex flex-column gap-1 overflow-y-auto" style="max-height: 200px;">
-                            ${study.cohorts.map(cohort => html`
+                            ${visibleCohorts.map(cohort => html`
                                 <a class="dropdown-item cursor-pointer ${selectedCohorts.has(cohort.id) ? "active" : ""}" @click="${event => this.onCohortSelect(event, study.fqn, cohort.id)}">
                                     <span>${cohort.id}</span>
                                 </a>
