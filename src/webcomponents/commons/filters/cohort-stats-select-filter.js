@@ -126,6 +126,10 @@ export default class CohortStatsSelectFilter extends LitElement {
         return study.cohorts || [];
     }
 
+    getFavoriteCohorts(study) {
+        return ["ALL"];
+    }
+
     dispatchFilterChangeEvent() {
         const values = Array.from(this._selectedCohorts.keys()).map(key => {
             const {operator, value} = this._selectedCohorts.get(key);
@@ -197,9 +201,26 @@ export default class CohortStatsSelectFilter extends LitElement {
     renderStudyCohorts(study) {
         const selectedCohorts = this.getSelectedCohortsInStudy(study);
         const visibleCohorts = this.getVisibleCohorts(study);
+        const favoriteCohorts = this.getFavoriteCohorts(study);
+
         return keyed("cohort:" + study.fqn, html`
             <div class="">
                 <div> Study <b>${study.id}</b> cohorts:</div>
+                ${favoriteCohorts.length > 0 ? html`
+                    <div class="mb-2">
+                        <div class="">Favorite cohorts:</div>
+                        <div class="d-flex flex-wrap gap-1">
+                            ${favoriteCohorts.map(cohortId => html`
+                                <div class="py-1 px-2 border border-gray-200 rounded cursor-pointer d-flex align-items-center gap-2" @click="${event => this.onCohortSelect(event, study.fqn, cohortId)}">
+                                    <div class="fw-bold">${cohortId}</div>
+                                    <div class="d-inline-flex border border-gray-200 fs-8 p-1 rounded ${selectedCohorts.has(cohortId) ? "bg-primary" : "bg-gray-100"}">
+                                        <i class="fas fa-check ${selectedCohorts.has(cohortId) ? "text-white" : "opacity-0"}"></i>
+                                    </div>
+                                </div>
+                            `)}
+                        </div>
+                    </div>
+                ` : nothing}
                 <div class="d-grid dropdown">
                     <button class="btn btn-light dropdown-toggle d-flex justify-content-between align-items-center" data-bs-toggle="dropdown">
                         <span>Selected ${selectedCohorts.size} cohort(s) of ${study.cohorts.length}</span>
