@@ -173,7 +173,7 @@ export default class CohortStatsSelectFilter extends LitElement {
                         <span>Selected ${selectedCohorts.size} cohort(s) of ${study.cohorts.length}</span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-start">
-                        <div class="d-flex flex-column gap-1">
+                        <div class="d-flex flex-column gap-1 overflow-y-auto" style="max-height: 200px;">
                             ${study.cohorts.map(cohort => html`
                                 <a class="dropdown-item cursor-pointer ${selectedCohorts.has(cohort.id) ? "active" : ""}" @click="${event => this.onSelectCohortInStudy(event, study.fqn, cohort.id)}">
                                     <span>${cohort.id}</span>
