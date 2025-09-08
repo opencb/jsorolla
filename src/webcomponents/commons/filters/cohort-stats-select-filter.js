@@ -204,15 +204,15 @@ export default class CohortStatsSelectFilter extends LitElement {
         const favoriteCohorts = this.getFavoriteCohorts(study);
 
         return keyed("cohort:" + study.fqn, html`
-            <div class="">
-                <div> Study <b>${study.id}</b> cohorts:</div>
+            <div class="p-2 border border-gray-200 rounded-3">
+                <div class="fs-5"> Study <b>${study.id}</b> cohorts</div>
                 ${favoriteCohorts.length > 0 ? html`
                     <div class="mb-2">
                         <div class="">Favorite cohorts:</div>
                         <div class="d-flex flex-wrap gap-1">
                             ${favoriteCohorts.map(cohortId => html`
                                 <div class="py-1 px-2 border border-gray-200 rounded cursor-pointer d-flex align-items-center gap-2" @click="${event => this.onCohortSelect(event, study.fqn, cohortId)}">
-                                    <div class="fw-bold">${cohortId}</div>
+                                    <div class="fw-bold lh-1">${cohortId}</div>
                                     <div class="d-inline-flex border border-gray-200 fs-8 p-1 rounded ${selectedCohorts.has(cohortId) ? "bg-primary" : "bg-gray-100"}">
                                         <i class="fas fa-check ${selectedCohorts.has(cohortId) ? "text-white" : "opacity-0"}"></i>
                                     </div>
