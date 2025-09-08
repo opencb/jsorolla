@@ -162,6 +162,7 @@ export default class CohortStatsSelectFilter extends LitElement {
         event.preventDefault();
         event.stopPropagation();
         this._searchedCohorts.delete(studyFqn);
+        event.currentTarget.closest(".input-group").querySelector(`[data-role="cohort:search"]`).value = "";
         this.requestUpdate();
     }
 
@@ -203,7 +204,7 @@ export default class CohortStatsSelectFilter extends LitElement {
                     <button class="btn btn-light dropdown-toggle d-flex justify-content-between align-items-center" data-bs-toggle="dropdown">
                         <span>Selected ${selectedCohorts.size} cohort(s) of ${study.cohorts.length}</span>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-start" data-role="cohort:dropdown" data-study="${study.fqn}">
+                    <div class="dropdown-menu dropdown-menu-start">
                         <div class="mb-2">
                             <div class="input-group">
                                 <input
