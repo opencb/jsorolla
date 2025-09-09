@@ -66,6 +66,7 @@ export default class CellbaseSearchAutocomplete extends LitElement {
         };
         this.#initResourcesConfig();
         this.searchField = "";
+        this.queryParams = {};
     }
 
     #initResourcesConfig() {
