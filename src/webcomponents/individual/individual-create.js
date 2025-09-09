@@ -46,7 +46,8 @@ export default class IndividualCreate extends LitElement {
 
     #init() {
         this.individual = {};
-        this.disordersQueryParams = {};
+        this._disordersQueryParams = {};
+        this._phenotypesQueryParams = {};
         this.displayConfigDefault = {
             buttonsVisible: true,
             buttonOkText: "Create",
@@ -68,7 +69,13 @@ export default class IndividualCreate extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             if (this.opencgaSession?.study?.attributes?.IVA_CONFIG?.settings?.INDIVIDUAL_BROWSER?.model?.disorders?.source) {
                 const source = this.opencgaSession.study.attributes.IVA_CONFIG.settings.INDIVIDUAL_BROWSER.model.disorders.source;
-                this.disordersQueryParams = {
+                this._disordersQueryParams = {
+                    source: source === "HPO" ? "HP" : source,
+                };
+            }
+            if (this.opencgaSession?.study?.attributes?.IVA_CONFIG?.settings?.INDIVIDUAL_BROWSER?.model?.phenotypes?.source) {
+                const source = this.opencgaSession.study.attributes.IVA_CONFIG.settings.INDIVIDUAL_BROWSER.model.phenotypes.source;
+                this._phenotypesQueryParams = {
                     source: source === "HPO" ? "HP" : source,
                 };
             }
@@ -418,6 +425,7 @@ export default class IndividualCreate extends LitElement {
                                     render: (currentData, dataFormFilterChange) => html`
                                         <cellbase-search-autocomplete
                                             .resource="${"PHENOTYPE"}"
+                                            .queryParams="${this._phenotypesQueryParams}"
                                             .cellbaseClient="${this.opencgaSession.cellbaseClient}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.data)}">
                                         </cellbase-search-autocomplete>
@@ -499,7 +507,7 @@ export default class IndividualCreate extends LitElement {
                                     render: (currentData, dataFormFilterChange) => html`
                                         <cellbase-search-autocomplete
                                             .resource="${"DISORDER"}"
-                                            .queryParams="${this.disordersQueryParams}"
+                                            .queryParams="${this._disordersQueryParams}"
                                             .cellbaseClient="${this.opencgaSession.cellbaseClient}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.data)}">
                                         </cellbase-search-autocomplete>
