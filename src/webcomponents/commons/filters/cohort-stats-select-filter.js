@@ -205,7 +205,9 @@ export default class CohortStatsSelectFilter extends LitElement {
 
         return keyed("cohort:" + study.fqn, html`
             <div class="p-2 border border-gray-200 rounded-3">
-                <div class="fs-5"> Study <b>${study.id}</b> cohorts</div>
+                <div class="">
+                    <div class="fs-5">Study <b>${study.id}</b> (${(study.cohorts).length})</div>
+                </div>
                 ${favoriteCohorts.length > 0 ? html`
                     <div class="mb-2">
                         <div class="">Favorite cohorts:</div>
