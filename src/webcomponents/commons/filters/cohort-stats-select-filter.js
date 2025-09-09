@@ -52,6 +52,7 @@ export default class CohortStatsSelectFilter extends LitElement {
     }
 
     #init() {
+        this._expandedStudies = new Set();
         this._selectedCohorts = new Map();
         this._searchedCohorts = new Map();
         this._config = this.getDefaultConfig();
@@ -59,6 +60,7 @@ export default class CohortStatsSelectFilter extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
+            this._expandedStudies = new Set();
             this._searchedCohorts = new Map();
             // TODO: we would have to check if there is a study with a single cohort "ALL" and select it by default
             // this will also hide the dropdown to manually select cohorts
@@ -138,6 +140,16 @@ export default class CohortStatsSelectFilter extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterChange", values.join(";"));
     }
 
+    onStudyToggle(event, studyFqn) {
+        event.preventDefault();
+        if (this._expandedStudies.has(studyFqn)) {
+            this._expandedStudies.delete(studyFqn);
+        } else {
+            this._expandedStudies.add(studyFqn);
+        }
+        this.requestUpdate();
+    }
+
     onCohortSelect(event, studyFqn, cohortId) {
         event.preventDefault();
         event.stopPropagation();
@@ -199,97 +211,100 @@ export default class CohortStatsSelectFilter extends LitElement {
     }
 
     renderStudyCohorts(study) {
+        const isExpanded = this._expandedStudies.has(study.fqn);
         const selectedCohorts = this.getSelectedCohortsInStudy(study);
         const visibleCohorts = this.getVisibleCohorts(study);
         const favoriteCohorts = this.getFavoriteCohorts(study);
 
         return keyed("cohort:" + study.fqn, html`
             <div class="p-2 border border-gray-200 rounded-3">
-                <div class="">
+                <div class="cursor-pointer d-flex align-items-center gap-2" @click="${event => this.onStudyToggle(event, study.fqn)}">
                     <div class="fs-5">Study <b>${study.id}</b> (${(study.cohorts).length})</div>
                 </div>
-                ${favoriteCohorts.length > 0 ? html`
-                    <div class="mb-2">
-                        <div class="">Favorite cohorts:</div>
-                        <div class="d-flex flex-wrap gap-1">
-                            ${favoriteCohorts.map(cohortId => html`
-                                <div class="py-1 px-2 border border-gray-200 rounded cursor-pointer d-flex align-items-center gap-2" @click="${event => this.onCohortSelect(event, study.fqn, cohortId)}">
-                                    <div class="fw-bold lh-1">${cohortId}</div>
-                                    <div class="d-inline-flex border border-gray-200 fs-8 p-1 rounded ${selectedCohorts.has(cohortId) ? "bg-primary" : "bg-gray-100"}">
-                                        <i class="fas fa-check ${selectedCohorts.has(cohortId) ? "text-white" : "opacity-0"}"></i>
-                                    </div>
-                                </div>
-                            `)}
-                        </div>
-                    </div>
-                ` : nothing}
-                <div class="d-grid dropdown">
-                    <button class="btn btn-light dropdown-toggle d-flex justify-content-between align-items-center" data-bs-toggle="dropdown">
-                        <span>Selected ${selectedCohorts.size} cohort(s) of ${study.cohorts.length}</span>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-start">
+                <div class="${isExpanded ? "d-block mt-1" : "d-none"}">
+                    ${favoriteCohorts.length > 0 ? html`
                         <div class="mb-2">
-                            <div class="input-group">
-                                <input
-                                    data-role="cohort:search"
-                                    type="text"
-                                    class="form-control w-full border-end-0"
-                                    placeholder="Search cohort..."
-                                    @input="${event => this.onCohortSearch(event, study.fqn)}"
-                                />
-                                <button class="input-group-text bg-white cursor-pointer" @click="${event => this.onCohortSearchClear(event, study.fqn)}" title="Clear">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                            <div class="">Favorite cohorts:</div>
+                            <div class="d-flex flex-wrap gap-1">
+                                ${favoriteCohorts.map(cohortId => html`
+                                    <div class="py-1 px-2 border border-gray-200 rounded cursor-pointer d-flex align-items-center gap-2" @click="${event => this.onCohortSelect(event, study.fqn, cohortId)}">
+                                        <div class="fw-bold lh-1">${cohortId}</div>
+                                        <div class="d-inline-flex border border-gray-200 fs-8 p-1 rounded ${selectedCohorts.has(cohortId) ? "bg-primary" : "bg-gray-100"}">
+                                            <i class="fas fa-check ${selectedCohorts.has(cohortId) ? "text-white" : "opacity-0"}"></i>
+                                        </div>
+                                    </div>
+                                `)}
                             </div>
                         </div>
-                        <div class="d-flex flex-column gap-1 overflow-y-auto" style="max-height: 200px;">
-                            ${visibleCohorts.map(cohort => html`
-                                <a class="dropdown-item cursor-pointer ${selectedCohorts.has(cohort.id) ? "active" : ""}" @click="${event => this.onCohortSelect(event, study.fqn, cohort.id)}">
-                                    <div>${cohort.id}</div>
-                                    <div class="small text-truncate opacity-50" title="${cohort.description || ""}">${cohort.description || ""}</div>
-                                </a>
-                            `)}
-                        </div>
-                        ${(visibleCohorts.length === 0 && this._searchedCohorts.has(study.fqn)) ? html`
-                            <div class="text-center text-muted p-4 text-wrap">
-                                <span class="small">No cohorts found matching <b>${this._searchedCohorts.get(study.fqn)}</b>.</span>
-                            </div>
-                        ` : nothing}
-                    </div>
-                </div>
-                ${Array.from(selectedCohorts).length > 0 ? html`
-                    <div class="d-flex flex-column gap-2 mt-2">
-                        ${Array.from(selectedCohorts).map(cohortId => keyed(study.id + ":" + cohortId, html`
-                            <div class="d-flex align-items-center justify-content-between gap-2 p-2 border border-gray-200 rounded">
-                                <div class="flex-shrink-0 pe-1 text-truncate" style="width:72px;" title="${cohortId}">
-                                    <span class="fw-bold">${cohortId}</span>
-                                </div>
-                                <div class="flex-shrink-0">
-                                    <select class="form-select form-select-sm fs-6 w-full" @change="${event => this.onCohortOperatorChange(event, study.fqn, cohortId)}">
-                                        ${this._config.operators.map(operator => html`
-                                            <option value="${operator.value}" selected="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.operator === operator.value ? "selected" : nothing}">
-                                                ${operator.value}
-                                            </option>
-                                        `)}
-                                    </select>
-                                </div>
-                                <div class="w-full">
+                    ` : nothing}
+                    <div class="d-grid dropdown">
+                        <button class="btn btn-light dropdown-toggle d-flex justify-content-between align-items-center" data-bs-toggle="dropdown">
+                            <span>Selected ${selectedCohorts.size} cohort(s) of ${study.cohorts.length}</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-start">
+                            <div class="mb-2">
+                                <div class="input-group">
                                     <input
-                                        type="number"
-                                        class="form-control form-control-sm fs-6 w-full"
-                                        value="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.value || "0"}"
-                                        @change="${event => this.onCohortValueChange(event, study.fqn, cohortId)}"
+                                        data-role="cohort:search"
+                                        type="text"
+                                        class="form-control w-full border-end-0"
+                                        placeholder="Search cohort..."
+                                        @input="${event => this.onCohortSearch(event, study.fqn)}"
                                     />
-                                </div>
-                                <div class="">
-                                    <button class="btn btn-light d-flex align-items-center px-2" @click="${event => this.onCohortSelect(event, study.fqn, cohortId)}">
+                                    <button class="input-group-text bg-white cursor-pointer" @click="${event => this.onCohortSearchClear(event, study.fqn)}" title="Clear">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
                             </div>
-                        `))}
+                            <div class="d-flex flex-column gap-1 overflow-y-auto" style="max-height: 200px;">
+                                ${visibleCohorts.map(cohort => html`
+                                    <a class="dropdown-item cursor-pointer ${selectedCohorts.has(cohort.id) ? "active" : ""}" @click="${event => this.onCohortSelect(event, study.fqn, cohort.id)}">
+                                        <div>${cohort.id}</div>
+                                        <div class="small text-truncate opacity-50" title="${cohort.description || ""}">${cohort.description || ""}</div>
+                                    </a>
+                                `)}
+                            </div>
+                            ${(visibleCohorts.length === 0 && this._searchedCohorts.has(study.fqn)) ? html`
+                                <div class="text-center text-muted p-4 text-wrap">
+                                    <span class="small">No cohorts found matching <b>${this._searchedCohorts.get(study.fqn)}</b>.</span>
+                                </div>
+                            ` : nothing}
+                        </div>
                     </div>
-                ` : nothing}
+                    ${Array.from(selectedCohorts).length > 0 ? html`
+                        <div class="d-flex flex-column gap-2 mt-2">
+                            ${Array.from(selectedCohorts).map(cohortId => keyed(study.id + ":" + cohortId, html`
+                                <div class="d-flex align-items-center justify-content-between gap-2 p-2 border border-gray-200 rounded">
+                                    <div class="flex-shrink-0 pe-1 text-truncate" style="width:72px;" title="${cohortId}">
+                                        <span class="fw-bold">${cohortId}</span>
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <select class="form-select form-select-sm fs-6 w-full" @change="${event => this.onCohortOperatorChange(event, study.fqn, cohortId)}">
+                                            ${this._config.operators.map(operator => html`
+                                                <option value="${operator.value}" selected="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.operator === operator.value ? "selected" : nothing}">
+                                                    ${operator.value}
+                                                </option>
+                                            `)}
+                                        </select>
+                                    </div>
+                                    <div class="w-full">
+                                        <input
+                                            type="number"
+                                            class="form-control form-control-sm fs-6 w-full"
+                                            value="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.value || "0"}"
+                                            @change="${event => this.onCohortValueChange(event, study.fqn, cohortId)}"
+                                        />
+                                    </div>
+                                    <div class="">
+                                        <button class="btn btn-light d-flex align-items-center px-2" @click="${event => this.onCohortSelect(event, study.fqn, cohortId)}">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `))}
+                        </div>
+                    ` : nothing}
+                </div>
             </div>
         `);
     }
