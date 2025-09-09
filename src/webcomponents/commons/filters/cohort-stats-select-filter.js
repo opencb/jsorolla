@@ -222,7 +222,7 @@ export default class CohortStatsSelectFilter extends LitElement {
                     <div class="flex-shrink-0 d-flex align-items-center justify-content-center" style="width:12px;height:13px;">
                         <i class="fas fa-chevron-${isExpanded ? "down" : "right"}"></i>
                     </div>
-                    <div class="fs-5 d-flex align-items-center">
+                    <div class="fs-6 d-flex align-items-center">
                         <span>Study <b>${study.id}</b> (${(study.cohorts).length})</span>
                     </div>
                 </div>
