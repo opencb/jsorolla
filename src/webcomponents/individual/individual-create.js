@@ -45,18 +45,9 @@ export default class IndividualCreate extends LitElement {
     }
 
     #init() {
-        this.individual = {};
+        this._individual = {};
         this._disordersQueryParams = {};
         this._phenotypesQueryParams = {};
-        this.displayConfigDefault = {
-            buttonsVisible: true,
-            buttonOkText: "Create",
-            titleWidth: 3,
-            with: "8",
-            defaultValue: "",
-            defaultLayout: "horizontal"
-        };
-        this.updatedFields = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -81,14 +72,13 @@ export default class IndividualCreate extends LitElement {
             }
         }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
     onFieldChange(e) {
-        this.individual = {...e.detail.data}; // force to refresh the object-list
+        this._individual = {...e.detail.data}; // force to refresh the object-list
         this.requestUpdate();
     }
 
@@ -97,7 +87,7 @@ export default class IndividualCreate extends LitElement {
             title: "Clear individual",
             message: "Are you sure to clear?",
             ok: () => {
-                this.individual = {};
+                this._individual = {};
                 this._config = this.getDefaultConfig();
                 this.requestUpdate();
             },
@@ -105,28 +95,27 @@ export default class IndividualCreate extends LitElement {
     }
 
     onSubmit() {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            includeResult: true
-        };
         let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.individuals()
-            .create(this.individual, params)
+            .create(this._individual, {
+                study: this.opencgaSession.study.fqn,
+                includeResult: true
+            })
             .then(() => {
-                this.individual = {};
-                this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Individual Create",
                     message: "New Individual created correctly"
                 });
+                LitUtils.dispatchCustomEvent(this, "individualCreate", this._individual, {}, error);
+                this._individual = {};
+                this._config = this.getDefaultConfig();
             })
             .catch(reason => {
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "individualCreate", this.individual, {}, error);
                 this.#setLoading(false);
             });
     }
@@ -138,7 +127,7 @@ export default class IndividualCreate extends LitElement {
 
         return html`
             <data-form
-                .data="${this.individual}"
+                .data="${this._individual}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
@@ -149,7 +138,15 @@ export default class IndividualCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                buttonsVisible: true,
+                buttonOkText: "Create",
+                titleWidth: 3,
+                with: "8",
+                defaultValue: "",
+                defaultLayout: "horizontal",
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
@@ -393,7 +390,7 @@ export default class IndividualCreate extends LitElement {
                                     field: "population.description",
                                     type: "input-text",
                                     validation: {
-                                        validate: () => this.individual?.population?.description ? !!this.individual?.population?.name : true,
+                                        validate: () => this._individual?.population?.description ? !!this._individual?.population?.name : true,
                                         message: "The population name must be filled",
                                     },
                                     display: {
