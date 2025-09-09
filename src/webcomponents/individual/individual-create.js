@@ -46,6 +46,7 @@ export default class IndividualCreate extends LitElement {
 
     #init() {
         this.individual = {};
+        this.disordersQueryParams = {};
         this.displayConfigDefault = {
             buttonsVisible: true,
             buttonOkText: "Create",
@@ -64,6 +65,14 @@ export default class IndividualCreate extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            if (this.opencgaSession?.study?.attributes?.IVA_CONFIG?.settings?.INDIVIDUAL_BROWSER?.model?.disorders?.source) {
+                const source = this.opencgaSession.study.attributes.IVA_CONFIG.settings.INDIVIDUAL_BROWSER.model.disorders.source;
+                this.disordersQueryParams = {
+                    source: source === "HPO" ? "HP" : source,
+                };
+            }
+        }
         if (changedProperties.has("displayConfig")) {
             this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
@@ -490,6 +499,7 @@ export default class IndividualCreate extends LitElement {
                                     render: (currentData, dataFormFilterChange) => html`
                                         <cellbase-search-autocomplete
                                             .resource="${"DISORDER"}"
+                                            .queryParams="${this.disordersQueryParams}"
                                             .cellbaseClient="${this.opencgaSession.cellbaseClient}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.data)}">
                                         </cellbase-search-autocomplete>
