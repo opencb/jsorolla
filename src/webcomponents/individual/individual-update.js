@@ -59,6 +59,8 @@ export default class IndividualUpdate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
+            this._disordersQueryParams = {};
+            this._phenotypesQueryParams = {};
             if (this.opencgaSession?.study?.attributes?.IVA_CONFIG?.settings?.INDIVIDUAL_BROWSER?.model?.disorders?.source) {
                 const source = this.opencgaSession.study.attributes.IVA_CONFIG.settings.INDIVIDUAL_BROWSER.model.disorders.source;
                 this._disordersQueryParams = {
