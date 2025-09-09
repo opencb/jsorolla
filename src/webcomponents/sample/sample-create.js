@@ -56,6 +56,7 @@ export default class SampleCreate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
+            this._phenotypesQueryParams = {};
             if (this.opencgaSession?.study?.attributes?.IVA_CONFIG?.settings?.SAMPLE_BROWSER?.model?.phenotypes?.source) {
                 const source = this.opencgaSession.study.attributes.IVA_CONFIG.settings.SAMPLE_BROWSER.model.phenotypes.source;
                 this._phenotypesQueryParams = {
