@@ -266,6 +266,10 @@ export default class CohortStatsSelectFilter extends LitElement {
                                     <a class="dropdown-item cursor-pointer ${selectedCohorts.has(cohort.id) ? "active" : ""}" @click="${event => this.onCohortSelect(event, study.fqn, cohort.id)}">
                                         <div>${cohort.id}</div>
                                         <div class="small text-truncate opacity-50" title="${cohort.description || ""}">${cohort.description || ""}</div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="small opacity-50"><b>${cohort?.numSamples ?? 0}</b> samples</div>
+                                            <div class="small opacity-50">Status: <b>${cohort?.internal?.status?.name || cohort?.internal?.status?.id || "NONE"}</b></div>
+                                        </div>
                                     </a>
                                 `)}
                             </div>
