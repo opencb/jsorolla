@@ -51,6 +51,9 @@ export default class CellbaseSearchAutocomplete extends LitElement {
             searchField: {
                 type: String,
             },
+            queryParams: {
+                type: Object,
+            },
         };
     }
 
@@ -242,6 +245,7 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                 const queryParams = {
                     ...this.defaultQueryParams,
                     ...this.RESOURCES[this.resource].queryParams,
+                    ...this.queryParams,
                     skip: (page - 1) * this._config.limit,
                 };
                 if (params?.data?.term) {
