@@ -45,6 +45,7 @@ export default class SampleCreate extends LitElement {
 
     #init() {
         this._sample = {};
+        this._phenotypesQueryParams = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -54,6 +55,14 @@ export default class SampleCreate extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            if (this.opencgaSession?.study?.attributes?.IVA_CONFIG?.settings?.SAMPLE_BROWSER?.model?.phenotypes?.source) {
+                const source = this.opencgaSession.study.attributes.IVA_CONFIG.settings.SAMPLE_BROWSER.model.phenotypes.source;
+                this._phenotypesQueryParams = {
+                    source: source === "HPO" ? "HP" : source,
+                };
+            }
+        }
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
@@ -439,6 +448,7 @@ export default class SampleCreate extends LitElement {
                                     render: (currentData, dataFormFilterChange) => html`
                                         <cellbase-search-autocomplete
                                             .resource="${"PHENOTYPE"}"
+                                            .queryParams="${this._phenotypesQueryParams}"
                                             .cellbaseClient="${this.opencgaSession.cellbaseClient}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.data)}">
                                         </cellbase-search-autocomplete>
