@@ -18,6 +18,7 @@ import {LitElement, html} from "lit";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils";
 import "../commons/tool-header.js";
+import "../commons/forms/tags-input.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
 
@@ -181,6 +182,20 @@ export default class CohortCreate extends LitElement {
                             display: {
                                 rows: 3,
                                 placeholder: "Add a cohort description...",
+                            },
+                        },
+                        {
+                            title: "Tags",
+                            field: "tags",
+                            type: "custom",
+                            display: {
+                                render: (tags, dataFormFilterChange) => html`
+                                    <tags-input
+                                        .value="${tags || []}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </tags-input>
+                                `,
+                                helpMessage: "List of strings that can be used to tag and categorize the cohort.",
                             },
                         },
                         {
