@@ -23,7 +23,6 @@ import "../commons/filters/region-filter.js";
 import "../commons/filters/clinvar-accessions-filter.js";
 import "../commons/filters/clinical-annotation-filter.js";
 import "../commons/filters/cohort-stats-filter.js";
-import "../commons/filters/cohort-stats-select-filter.js";
 import "../commons/filters/consequence-type-filter.js";
 import "../commons/filters/consequence-type-select-filter.js";
 import "../commons/filters/role-in-cancer-filter.js";
@@ -142,30 +141,15 @@ export default class VariantBrowserFilter extends LitElement {
                 `;
                 break;
             case "cohort":
-                // FIXME subsection.cohorts must be renamed to subsection.studies
                 if (subsection.onlyCohortAll === true || subsection.studies?.[0].cohorts?.length > 0) {
                     content = html`
                         <cohort-stats-filter
-                            .opencgaSession="${opencgaSession}"
-                            .cohorts="${subsection.studies}"
-                            .onlyCohortAll=${subsection.onlyCohortAll}
-                            .cohortStatsAlt="${preparedQuery.cohortStatsAlt}"
-                            @filterChange="${e => onFilterChange("cohortStatsAlt", e.detail.value)}">
-                        </cohort-stats-filter>`;
-                } else {
-                    content = "No cohort stats available.";
-                }
-                break;
-            case "cohort-select":
-                if (subsection.onlyCohortAll === true || subsection.studies?.[0].cohorts?.length > 0) {
-                    content = html`
-                        <cohort-stats-select-filter
                             .opencgaSession="${opencgaSession}"
                             .studies="${subsection.studies}"
                             .onlyCohortAll=${subsection.onlyCohortAll}
                             .value="${preparedQuery.cohortStatsAlt}"
                             @filterChange="${e => onFilterChange("cohortStatsAlt", e.detail.value)}">
-                        </cohort-stats-select-filter>
+                        </cohort-stats-filter>
                     `;
                 } else {
                     content = "No cohort stats available.";
