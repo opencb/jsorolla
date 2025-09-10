@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utils-new.js";
-import "../forms/number-field-filter.js";
-
+import {LitElement, html, nothing} from "lit";
+import {keyed} from "lit/directives/keyed.js";
+import LitUtils from "../utils/lit-utils.js";
 
 export default class CohortStatsFilter extends LitElement {
 
@@ -25,7 +24,7 @@ export default class CohortStatsFilter extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -34,184 +33,311 @@ export default class CohortStatsFilter extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
-            cohorts: {
-                type: Array
+            studies: {
+                type: Array,
             },
             onlyCohortAll: {
-                type: Boolean
+                type: Boolean,
             },
-            cohortStatsAlt: {
-                type: String
+            value: {
+                type: String,
+            },
+            opencgaSession: {
+                type: Object,
             },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
-    _init() {
-        this._prefix = UtilsNew.randomString(8);
-        this.state = {};
-        this.defaultComparator = "<";
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-
-        this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.study.id] : null;
-        this.state = {};
+    #init() {
+        this._expandedStudies = new Set();
+        this._selectedCohorts = new Map();
+        this._searchedCohorts = new Map();
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("cohorts")) {
-            this.state = {};
-            this.cohortsPerStudy = this._getCohorts();
+        if (changedProperties.has("opencgaSession")) {
+            this._expandedStudies = new Set();
+            this._searchedCohorts = new Map();
+            // TODO: we would have to check if there is a study with a single cohort "ALL" and select it by default
+            // this will also hide the dropdown to manually select cohorts
         }
 
-        if (changedProperties.has("cohortStatsAlt")) {
-            this.cohortStatsAltObserver();
+        if (changedProperties.has("value")) {
+            this.valueObserver();
         }
+
         super.update(changedProperties);
     }
 
-    cohortStatsAltObserver() {
-        this.state = {};
-        if (this.cohortStatsAlt) {
-            const cohorts = this.cohortStatsAlt.split(";");
-            cohorts.forEach(cohortStat => {
-                const splitFiled = cohortStat.split(":");
-                let studyId, cohortFreq;
-                if (splitFiled.length === 2) {
-                    // No FQN is given
-                    studyId = splitFiled[0];
-                    cohortFreq = splitFiled[1];
-                } else {
-                    // Study is actually the FQN
-                    studyId = splitFiled[0] + ":" + splitFiled[1];
-                    cohortFreq = splitFiled[2];
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            // Array.from(this.querySelectorAll(`[data-role="cohort:dropdown"]`)).forEach(dropdownParent => {
+            //     dropdownParent.addEventListener("hidden.bs.modal", () => {
+            //         if (this._searchCohortValue && this._searchCohortStudy === dropdownParent.dataset?.study) {
+            //             this._searchCohortValue = "";
+            //             this._searchCohortStudy = "";
+            //             dropdownParent.querySelector(`[data-role="cohort:search"]`).value = "";
+            //         }
+            //     });
+            //     dropdownParent.addEventListener("shown.bs.modal", () => {
+            //     });
+            // });
+        }
+    }
+
+    valueObserver() {
+        this._selectedCohorts = new Map();
+
+        if (this.value) {
+            this.value.split(";").forEach(cohortStat => {
+                // Note: we assume that the cohortStat string has the following structure 'org@project:study:cohortId[operator]Value'
+                const items = cohortStat.trim().split(":");
+                const studyFqn = [items[0], items[1]].join(":");
+                const [cohortId, operator, value] = items[2].split(/(<=?|>=?|=)/);
+                if (studyFqn && cohortId && operator) {
+                    this._selectedCohorts.set(studyFqn + ":" + cohortId, {
+                        operator: operator,
+                        value: value || "",
+                    });
                 }
-                if (!this.state[studyId]) {
-                    this.state[studyId] = [];
-                }
-                const [cohort, comparator, value] = cohortFreq.split(/(<=?|>=?|=)/);
-                this.state[studyId].push({cohort, comparator, value});
             });
         }
     }
 
-    _getCohorts() {
-        let studiesAndCohorts = [];
-        if (this.opencgaSession?.project?.studies) { //  && this.onlyCohortAll
-            for (const study of this.opencgaSession.project.studies) {
-                if (study.cohorts?.length) {
-                    if (this.onlyCohortAll) {
-                        studiesAndCohorts.push({
-                            ...study,
-                            cohorts: [{id: "ALL"}]
-                        });
-                    } else {
-                        studiesAndCohorts = this.cohorts;
-                    }
-                }
-            }
-        }
-        return studiesAndCohorts;
-    }
-
-    handleCollapseAction(e) {
-        const id = e.target.dataset.id;
-        const elem = $("#" + id)[0];
-        elem.hidden = !elem.hidden;
-        if (elem.hidden) {
-            e.target.className = "fa fa-plus ps-1";
-        } else {
-            e.target.className = "fa fa-minus ps-1";
-        }
-    }
-
-    getStudyIdFromFqn(fqn) {
-        // replaces characters not valid in an DOM Element ID
-        return fqn.split(":")[1]?.replace(/@|:/g, "_");
-    }
-
-    filterChange(e, study, cohort) {
-        e.stopPropagation();
-
-        // e.detail.value is not defined iff you are changing the comparator and a value hasn't been set yet
-        const index = this.state[study]?.findIndex(c => c.cohort === cohort);
-        if (e?.detail?.value) {
-            if (index >= 0) {
-                this.state[study][index].comparator = e.detail.comparator;
-                this.state[study][index].value = e.detail.numValue;
-            } else {
-                if (!this.state[study]) {
-                    this.state[study] = [];
-                }
-                this.state[study].push({cohort: cohort, comparator: e.detail.comparator, value: e.detail.numValue});
-            }
-        } else {
-            if (index >= 0) {
-                this.state[study].splice(index, 1);
-            }
-
-            // If not cohort are left then we remove everything?
-            if (this.state[study]?.length === 0) {
-                delete this.state[study];
-            }
-        }
-
-        // serialize this.state in the form of "PROJECT_ID:STUDY_ID:COHORT_ID<VALUE;.."
-        const value = Object.entries(this.state)
-            .map(([studyId, cohorts]) => {
-                return cohorts.map(c => `${studyId}:${c.cohort}${c.comparator}${c.value}`).join(";");
-            })
-            .join(";");
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: value
+    getSelectedCohortsInStudy(study) {
+        const selectedCohorts = new Set();
+        (study.cohorts || []).forEach(cohort => {
+            if (this._selectedCohorts.has(study.fqn + ":" + cohort.id)) {
+                selectedCohorts.add(cohort.id);
             }
         });
-        this.dispatchEvent(event);
+        return selectedCohorts;
+    }
+
+    getVisibleCohorts(study) {
+        if (this._searchedCohorts.has(study.fqn)) {
+            const value = this._searchedCohorts.get(study.fqn).toLowerCase();
+            return (study.cohorts || []).filter(cohort => {
+                return cohort.id.toLowerCase().includes(value);
+            });
+        }
+        return study.cohorts || [];
+    }
+
+    getFavoriteCohorts(study) {
+        return ["ALL"];
+    }
+
+    dispatchFilterChangeEvent() {
+        const values = Array.from(this._selectedCohorts.keys()).map(key => {
+            const {operator, value} = this._selectedCohorts.get(key);
+            return `${key}${operator}${value}`;
+        });
+        LitUtils.dispatchCustomEvent(this, "filterChange", values.join(";"));
+    }
+
+    onStudyToggle(event, studyFqn) {
+        event.preventDefault();
+        if (this._expandedStudies.has(studyFqn)) {
+            this._expandedStudies.delete(studyFqn);
+        } else {
+            this._expandedStudies.add(studyFqn);
+        }
+        this.requestUpdate();
+    }
+
+    onCohortSelect(event, studyFqn, cohortId) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        // check if this cohort is already selected
+        const key = studyFqn + ":" + cohortId;
+        if (this._selectedCohorts.has(key)) {
+            this._selectedCohorts.delete(key);
+        } else {
+            this._selectedCohorts.set(key, {
+                operator: this._config.defaultOperatorOnSelect,
+                value: this._config.defaultValueOnSelect,
+            });
+        }
+
+        // update the value property
+        this.dispatchFilterChangeEvent();
+    }
+    
+    onCohortSearch(event, studyFqn) {
+        this._searchedCohorts.set(studyFqn, event.target.value || "");
+        this.requestUpdate();
+    }
+
+    onCohortSearchClear(event, studyFqn) {
+        event.preventDefault();
+        event.stopPropagation();
+        this._searchedCohorts.delete(studyFqn);
+        event.currentTarget.closest(".input-group").querySelector(`[data-role="cohort:search"]`).value = "";
+        this.requestUpdate();
+    }
+
+    onCohortOperatorChange(event, studyFqn, cohortId) {
+        event.preventDefault();
+        const operator = event.target.value || "";
+        if (this._selectedCohorts.has(studyFqn + ":" + cohortId)) {
+            if (operator && operator !== this._selectedCohorts.get(studyFqn + ":" + cohortId).operator) {
+                this._selectedCohorts.set(studyFqn + ":" + cohortId, {
+                    operator: operator,
+                    value: this._selectedCohorts.get(studyFqn + ":" + cohortId).value,
+                });
+                this.dispatchFilterChangeEvent();
+            }
+        }
+    }
+
+    onCohortValueChange(event, studyFqn, cohortId) {
+        event.preventDefault();
+        const value = event.target.value || "";
+        if (this._selectedCohorts.has(studyFqn + ":" + cohortId)) {
+            if (value !== this._selectedCohorts.get(studyFqn + ":" + cohortId).value) {
+                this._selectedCohorts.set(studyFqn + ":" + cohortId, {
+                    operator: this._selectedCohorts.get(studyFqn + ":" + cohortId).operator,
+                    value: value,
+                });
+                this.dispatchFilterChangeEvent();
+            }
+        }
+    }
+
+    renderStudyCohorts(study) {
+        const isExpanded = this._expandedStudies.has(study.fqn);
+        const selectedCohorts = this.getSelectedCohortsInStudy(study);
+        const visibleCohorts = this.getVisibleCohorts(study);
+        const favoriteCohorts = this.getFavoriteCohorts(study);
+
+        return keyed("cohort:" + study.fqn, html`
+            <div class="p-2 border border-gray-200 rounded-3">
+                <div class="cursor-pointer d-flex align-items-center gap-2 user-select-none" @click="${event => this.onStudyToggle(event, study.fqn)}">
+                    <div class="flex-shrink-0 d-flex align-items-center justify-content-center" style="width:12px;height:13px;">
+                        <i class="fas fa-chevron-${isExpanded ? "down" : "right"}"></i>
+                    </div>
+                    <div class="fs-6 d-flex align-items-center">
+                        <span>Study <b>${study.id}</b> (${(study.cohorts).length})</span>
+                    </div>
+                </div>
+                <div class="${isExpanded ? "d-block mt-1" : "d-none"}">
+                    ${favoriteCohorts.length > 0 ? html`
+                        <div class="mb-2">
+                            <div class="">Favorite cohorts:</div>
+                            <div class="d-flex flex-wrap gap-1">
+                                ${favoriteCohorts.map(cohortId => html`
+                                    <div class="py-1 px-2 border border-gray-200 rounded cursor-pointer d-flex align-items-center gap-2" @click="${event => this.onCohortSelect(event, study.fqn, cohortId)}">
+                                        <div class="fw-bold lh-1">${cohortId}</div>
+                                        <div class="d-inline-flex border border-gray-200 fs-8 p-1 rounded ${selectedCohorts.has(cohortId) ? "bg-primary" : "bg-gray-100"}">
+                                            <i class="fas fa-check ${selectedCohorts.has(cohortId) ? "text-white" : "opacity-0"}"></i>
+                                        </div>
+                                    </div>
+                                `)}
+                            </div>
+                        </div>
+                    ` : nothing}
+                    <div class="d-grid dropdown">
+                        <button class="btn btn-light dropdown-toggle d-flex justify-content-between align-items-center" data-bs-toggle="dropdown">
+                            <span>Selected ${selectedCohorts.size} cohort(s) of ${study.cohorts.length}</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-start">
+                            <div class="mb-2">
+                                <div class="input-group">
+                                    <input
+                                        data-role="cohort:search"
+                                        type="text"
+                                        class="form-control w-full border-end-0"
+                                        placeholder="Search cohort..."
+                                        @input="${event => this.onCohortSearch(event, study.fqn)}"
+                                    />
+                                    <button class="input-group-text bg-white cursor-pointer" @click="${event => this.onCohortSearchClear(event, study.fqn)}" title="Clear">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column gap-1 overflow-y-auto" style="max-height: 200px;">
+                                ${visibleCohorts.map(cohort => html`
+                                    <a class="dropdown-item cursor-pointer ${selectedCohorts.has(cohort.id) ? "active" : ""}" @click="${event => this.onCohortSelect(event, study.fqn, cohort.id)}">
+                                        <div>${cohort.id}</div>
+                                        <div class="small text-truncate opacity-50" title="${cohort.description || ""}">${cohort.description || ""}</div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="small opacity-50"><b>${cohort?.numSamples ?? 0}</b> samples</div>
+                                            <div class="small opacity-50">Status: <b>${cohort?.internal?.status?.name || cohort?.internal?.status?.id || "NONE"}</b></div>
+                                        </div>
+                                    </a>
+                                `)}
+                            </div>
+                            ${(visibleCohorts.length === 0 && this._searchedCohorts.has(study.fqn)) ? html`
+                                <div class="text-center text-muted p-4 text-wrap">
+                                    <span class="small">No cohorts found matching <b>${this._searchedCohorts.get(study.fqn)}</b>.</span>
+                                </div>
+                            ` : nothing}
+                        </div>
+                    </div>
+                    ${Array.from(selectedCohorts).length > 0 ? html`
+                        <div class="d-flex flex-column gap-2 mt-2">
+                            ${Array.from(selectedCohorts).map(cohortId => keyed(study.id + ":" + cohortId, html`
+                                <div class="d-flex align-items-center justify-content-between gap-2 p-2 border border-gray-200 rounded">
+                                    <div class="flex-shrink-0 pe-1 text-truncate" style="width:72px;" title="${cohortId}">
+                                        <span class="fw-bold">${cohortId}</span>
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <select class="form-select form-select-sm fs-6 w-full" @change="${event => this.onCohortOperatorChange(event, study.fqn, cohortId)}">
+                                            ${this._config.operators.map(operator => html`
+                                                <option value="${operator.value}" selected="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.operator === operator.value ? "selected" : nothing}">
+                                                    ${operator.value}
+                                                </option>
+                                            `)}
+                                        </select>
+                                    </div>
+                                    <div class="w-full">
+                                        <input
+                                            type="number"
+                                            class="form-control form-control-sm fs-6 w-full"
+                                            value="${this._selectedCohorts.get(study.fqn + ":" + cohortId)?.value || "0"}"
+                                            @change="${event => this.onCohortValueChange(event, study.fqn, cohortId)}"
+                                        />
+                                    </div>
+                                    <div class="">
+                                        <button class="btn btn-light d-flex align-items-center px-2" @click="${event => this.onCohortSelect(event, study.fqn, cohortId)}">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `))}
+                        </div>
+                    ` : nothing}
+                </div>
+            </div>
+        `);
     }
 
     render() {
-        if (!this.cohortsPerStudy?.length) {
-            return html`<span>Cohort Variants Stats not available.</span>`;
-        }
-
         return html`
-            ${this.cohortsPerStudy.map(study => html`
-                    <div class="mb-2">
-                        <i class="fa fa-plus ps-1" id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}Icon" data-id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}"
-                            data-cy="study-cohort-toggle" style="cursor: pointer;"
-                            @click="${this.handleCollapseAction}">
-                        </i>
-                        <span class="text-break">Study <strong>${this.getStudyIdFromFqn(study.fqn)}</strong> cohorts</span>
-                    </div>
+            <div class="d-flex flex-column gap-3">
+                ${(this.studies || []).map(study => this.renderStudyCohorts(study))}
+            </div>
+        `;
+    }
 
-                    <div class="row g-2" id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}" hidden>
-                        ${study.cohorts.map(cohort => {
-                            const stateCohort = this.state?.[study.fqn]?.find(c => c.cohort === cohort.id);
-                            return html`
-                                    <number-field-filter
-                                        .value="${stateCohort?.value ?
-                                            (stateCohort?.comparator ?? this.defaultComparator) + (stateCohort.value ?? "") :
-                                            ""}"
-                                        .config="${{comparator: true, layout: [3, 4, 5]}}"
-                                        .label="${cohort.id}"
-                                        type="text"
-                                        data-study="${study.id}"
-                                        data-cohort="${cohort.id}"
-                                        data-action="comparator"
-                                        @filterChange="${e => this.filterChange(e, study.fqn, cohort.id)}">
-                                    </number-field-filter>
-                                `;
-                        })}
-                    </div>
-            `)}`;
+    getDefaultConfig() {
+        return {
+            operators: [
+                { value: "<" },
+                { value: "<=" },
+                { value: "=" },
+                { value: ">" },
+                { value: ">=" },
+            ],
+            defaultOperatorOnSelect: ">",
+            defaultValueOnSelect: "0",
+        };
     }
 
 }
