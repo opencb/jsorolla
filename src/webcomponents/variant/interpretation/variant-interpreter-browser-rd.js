@@ -336,7 +336,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 clinicalAnalysis: this.clinicalAnalysis,
                                 visible: () => this.clinicalAnalysis.type.toUpperCase() === "FAMILY",
                                 tooltip: tooltips.sample,
-                                quick: this.clinicalAnalysis?.type?.toUpperCase() === "FAMILY"
+                                quick: false, // this.clinicalAnalysis?.type?.toUpperCase() === "FAMILY"
                             },
                             {
                                 id: "individual-hpo",
