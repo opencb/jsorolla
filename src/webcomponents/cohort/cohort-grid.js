@@ -318,6 +318,15 @@ export default class CohortGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("name")
             },
             {
+                id: "tags",
+                title: "Tags",
+                field: "tags",
+                formatter: tags => {
+                    return (tags || []).map(tag => `<span class="badge bg-secondary me-1 mb-1">${tag}</span>`).join("");
+                },
+                visible: this.gridCommons.isColumnVisible("tags"),
+            },
+            {
                 id: "numSamples",
                 title: "Number of Samples",
                 field: "numSamples",
