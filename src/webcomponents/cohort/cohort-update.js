@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import Types from "../commons/types.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
@@ -51,15 +50,11 @@ export default class CohortUpdate extends LitElement {
 
     #init() {
         this._cohort = {};
-        this.cohortId = "";
-        this.displayConfig = {};
-
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -75,19 +70,21 @@ export default class CohortUpdate extends LitElement {
     render() {
         return html`
             <opencga-update
-                    .resource="${"COHORT"}"
-                    .componentId="${this.cohortId}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .active="${this.active}"
-                    .config="${this._config}"
-                    @componentIdObserver="${this.onComponentIdObserver}">
+                .resource="${"COHORT"}"
+                .componentId="${this.cohortId}"
+                .opencgaSession="${this.opencgaSession}"
+                .active="${this.active}"
+                .config="${this._config}"
+                @componentIdObserver="${this.onComponentIdObserver}">
             </opencga-update>
         `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            display: this.displayConfig,
+        return {
+            display: {
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
@@ -170,7 +167,7 @@ export default class CohortUpdate extends LitElement {
                     ]
                 },
             ]
-        });
+        };
     }
 
 }
