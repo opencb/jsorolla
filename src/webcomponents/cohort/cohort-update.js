@@ -152,7 +152,6 @@ export default class CohortUpdate extends LitElement {
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </tags-input>
                                 `,
-                                helpMessage: "List of strings that can be used to tag and categorize the cohort.",
                             },
                         },
                         {
