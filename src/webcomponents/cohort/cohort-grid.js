@@ -249,7 +249,7 @@ export default class CohortGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        include: "id,name,description,numSamples,creationDate,modificationDate,status,internal,annotationSets",
+                        include: "id,name,description,numSamples,creationDate,modificationDate,status,internal,annotationSets,tags",
                         ...this.query
                     };
 
@@ -322,7 +322,7 @@ export default class CohortGrid extends LitElement {
                 title: "Tags",
                 field: "tags",
                 formatter: tags => {
-                    return (tags || []).map(tag => `<span class="badge bg-secondary me-1 mb-1">${tag}</span>`).join("");
+                    return (tags || []).map(tag => `<span class="badge bg-secondary me-1 mb-1">${tag}</span>`).join("") || "-";
                 },
                 visible: this.gridCommons.isColumnVisible("tags"),
             },
