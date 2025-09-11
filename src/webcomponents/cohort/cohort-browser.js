@@ -163,6 +163,11 @@ export default class CohortBrowser extends LitElement {
                                 quick: true,
                             },
                             {
+                                id: "name",
+                                title: "Name",
+                                quick: true,
+                            },
+                            {
                                 id: "samples",
                                 title: "Samples",
                                 type: "string",
