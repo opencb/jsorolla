@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
+import "../commons/forms/tags-input.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class CohortUpdate extends LitElement {
@@ -139,6 +140,20 @@ export default class CohortUpdate extends LitElement {
                                 rows: 3,
                                 placeholder: "Add a cohort description...",
                             }
+                        },
+                        {
+                            title: "Tags",
+                            field: "tags",
+                            type: "custom",
+                            display: {
+                                render: (tags, dataFormFilterChange) => html`
+                                    <tags-input
+                                        .value="${tags || []}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </tags-input>
+                                `,
+                                helpMessage: "List of strings that can be used to tag and categorize the cohort.",
+                            },
                         },
                         {
                             title: "Status",
