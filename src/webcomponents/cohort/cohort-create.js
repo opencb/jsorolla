@@ -142,10 +142,17 @@ export default class CohortCreate extends LitElement {
                             required: true,
                             display: {
                                 placeholder: "Add a short ID...",
-                                helpMessage: "short Sample id",
+                                helpMessage: "Unique identifier for the Cohort",},
+                        },
+                        {
+                            title: "Cohort Name",
+                            field: "name",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a name...",
+                                helpMessage: "Descriptive name for the Cohort.",
                             },
                         },
-                        // TODO we need first to support ID copy into the autocomplete elements.
                         {
                             title: "Sample IDs",
                             field: "samples",
