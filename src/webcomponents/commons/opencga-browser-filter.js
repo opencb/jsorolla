@@ -114,7 +114,6 @@ export default class OpencgaBrowserFilter extends LitElement {
 
         switch (id) {
             case "id":
-            case "name":
             case "fileIds":
             case "samples":
             case "sample":
@@ -141,6 +140,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                     </catalog-search-autocomplete>
                 `;
                 break;
+            case "name":
             case "phenotypes":
             case "disorders":
             case "ethnicity":
