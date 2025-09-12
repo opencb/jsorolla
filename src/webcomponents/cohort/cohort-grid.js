@@ -332,6 +332,13 @@ export default class CohortGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("numSamples")
             },
             {
+                id: "status",
+                title: "Status",
+                field: "internal.status.id",
+                formatter: status => status || "-",
+                visible: this.gridCommons.isColumnVisible("status"),
+            },
+            {
                 id: "creationDate",
                 title: "Modification / Creation Date",
                 field: "creationDate",
