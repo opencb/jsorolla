@@ -276,11 +276,13 @@ export default class ClinicalVariantReview extends LitElement {
                         <div class="lh-1 py-1">${values.find(v => v.active)?.text || "Not selected"}</div>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        ${values.map(value => html`
-                            <div class="dropdown-item ${value.active ? "active" : "cursor-pointer"}" @click="${() => this.onSelectChange(value.id)}">
-                                <div class="lh-1 py-1">${value.text || "Not selected"}</div>
-                            </div>
-                        `)}
+                        <div class="d-flex flex-column gap-1">
+                            ${values.map(value => html`
+                                <div class="dropdown-item ${value.active ? "active" : "cursor-pointer"}" @click="${() => this.onSelectChange(value.id)}">
+                                    <div class="lh-1 py-1">${value.text || "Not selected"}</div>
+                                </div>
+                            `)}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -314,11 +316,13 @@ export default class ClinicalVariantReview extends LitElement {
                             ${this.renderVariantStatusItem(this._variant?.status || "NOT_REVIEWED")}
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            ${VariantUtils.VARIANT_STATUS_VALUES.map(status => html`
-                                <div class="dropdown-item ${this._variant?.status === status ? "active" : "cursor-pointer"}" @click="${() => this.onStatusChange(status)}">
-                                    ${this.renderVariantStatusItem(status)}
-                                </div>
-                            `)}
+                            <div class="d-flex flex-column gap-1">
+                                ${VariantUtils.VARIANT_STATUS_VALUES.map(status => html`
+                                    <div class="dropdown-item ${this._variant?.status === status ? "active" : "cursor-pointer"}" @click="${() => this.onStatusChange(status)}">
+                                        ${this.renderVariantStatusItem(status)}
+                                    </div>
+                                `)}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -329,14 +333,16 @@ export default class ClinicalVariantReview extends LitElement {
                             ${this.renderVariantConfidenceItem(this._variant?.confidence?.value || "Not Selected")}
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <div class="dropdown-item ${!this._variant?.confidence?.value ? " active" : ""} cursor-pointer" @click="${() => this.onConfidenceChange(null)}">
-                                ${this.renderVariantConfidenceItem("Not Selected")}
-                            </div>
-                            ${VariantUtils.VARIANT_CONFIDENCE_VALUES.map(confidence => html`
-                                <div class="dropdown-item ${this._variant?.confidence?.value === confidence ? "active" : "cursor-pointer"}" @click="${() => this.onConfidenceChange(confidence)}">
-                                    ${this.renderVariantConfidenceItem(confidence)}
+                            <div class="d-flex flex-column gap-1">
+                                <div class="dropdown-item ${!this._variant?.confidence?.value ? " active" : ""} cursor-pointer" @click="${() => this.onConfidenceChange(null)}">
+                                    ${this.renderVariantConfidenceItem("Not Selected")}
                                 </div>
-                            `)}
+                                ${VariantUtils.VARIANT_CONFIDENCE_VALUES.map(confidence => html`
+                                    <div class="dropdown-item ${this._variant?.confidence?.value === confidence ? "active" : "cursor-pointer"}" @click="${() => this.onConfidenceChange(confidence)}">
+                                        ${this.renderVariantConfidenceItem(confidence)}
+                                    </div>
+                                `)}
+                            </div>
                         </div>
                     </div>
                 </div>
