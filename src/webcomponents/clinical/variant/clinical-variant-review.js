@@ -125,10 +125,6 @@ export default class ClinicalVariantReview extends LitElement {
             primaryFinding: this._primaryFinding,
             variant: {
                 ...this._variant,
-                comments: (this._variant?.comments || []).map(comment => ({
-                    ...comment,
-                    tags: UtilsNew.commaSeparatedArray(comment.tags || []),
-                })),
             },
         });
     }
