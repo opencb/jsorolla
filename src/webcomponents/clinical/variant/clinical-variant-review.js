@@ -168,12 +168,17 @@ export default class ClinicalVariantReview extends LitElement {
     }
 
     onConfidenceChange(confidence) {
-        this._variant.confidence = {
-            value: confidence,
-            author: this.opencgaSession?.user?.id,
-            date: UtilsNew.getDatetime(),
-        };
-        this._updatedParams = FormUtils.getUpdatedFields(this.variant, this._updatedParams, "confidence.value", confidence);
+        if (confidence) {
+            this._variant.confidence = {
+                value: confidence,
+                author: this.opencgaSession?.user?.id,
+                date: UtilsNew.getDatetime(),
+            };
+            this._updatedParams = FormUtils.getUpdatedFields(this.variant, this._updatedParams, "confidence.value", confidence);
+        } else {
+            delete this._variant.confidence;
+            this._updatedParams = FormUtils.getUpdatedFields(this.variant, this._updatedParams, "confidence", null);
+        }
         this.dispatchChange();
         this.requestUpdate();
     }
@@ -321,9 +326,12 @@ export default class ClinicalVariantReview extends LitElement {
                     <label class="form-label mb-0 fw-bold">Confidence</label>
                     <div class="dropdown">
                         <button class="btn btn-light bg-white dropdown-toggle d-flex align-items-center gap-1" ?disabled="${!this._selected}" data-bs-toggle="dropdown">
-                            ${this.renderVariantConfidenceItem(this._variant?.confidence?.value || "LOW")}
+                            ${this.renderVariantConfidenceItem(this._variant?.confidence?.value || "Not Selected")}
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
+                            <div class="dropdown-item ${!this._variant?.confidence?.value ? " active" : ""} cursor-pointer" @click="${() => this.onConfidenceChange(null)}">
+                                ${this.renderVariantConfidenceItem("Not Selected")}
+                            </div>
                             ${VariantUtils.VARIANT_CONFIDENCE_VALUES.map(confidence => html`
                                 <div class="dropdown-item ${this._variant?.confidence?.value === confidence ? "active" : "cursor-pointer"}" @click="${() => this.onConfidenceChange(confidence)}">
                                     ${this.renderVariantConfidenceItem(confidence)}
@@ -331,7 +339,6 @@ export default class ClinicalVariantReview extends LitElement {
                             `)}
                         </div>
                     </div>
-
                 </div>
             </div>
         `;
