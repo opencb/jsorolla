@@ -94,14 +94,20 @@ export default class CohortUpdate extends LitElement {
                             title: "Cohort ID",
                             field: "id",
                             type: "input-text",
-                            required: true,
                             display: {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
                                 helpMessage: this._cohort.creationDate? "Created on " + UtilsNew.dateFormatter(this._cohort.creationDate) : "No creation date",
-                                validation: {
-                                }
                             }
+                        },
+                        {
+                            title: "Cohort Name",
+                            field: "name",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a name...",
+                                helpMessage: "Descriptive name for the Cohort.",
+                            },
                         },
                         {
                             title: "Sample ID(s)",
