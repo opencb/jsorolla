@@ -132,8 +132,8 @@ export default class CohortSummary extends LitElement {
                             },
                         },
                         {
-                            title: "Cohort Type",
-                            field: "type",
+                            title: "Cohort Name",
+                            field: "name",
                         },
                         {
                             title: "Description",
