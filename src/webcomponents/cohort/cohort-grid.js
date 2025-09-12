@@ -305,10 +305,9 @@ export default class CohortGrid extends LitElement {
                 title: "Name",
                 field: "name",
                 formatter: (name, cohort) => {
-                    const _name = name || (cohort.id === "ALL") ? "ALL" : cohort.id;
                     return `
                         <div class="m-1">
-                            <div class="link fw-bold my-1">${_name}</div>
+                            <div class="link fw-bold my-1">${name || cohort.id}</div>
                             ${cohort?.description ? `
                                 <div class="text-secondary my-1">${cohort.description}</div>
                             ` : ""}
