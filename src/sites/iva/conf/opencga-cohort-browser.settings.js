@@ -24,7 +24,7 @@ const OPENCGA_COHORT_BROWSER_SETTINGS = {
         },
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
         // It is supported either columns[] or hiddenColumns[].
-        columns: ["id", "name", "tags", "numSamples", "creationDate", "type"]
+        columns: ["id", "name", "tags", "numSamples", "creationDate", "status"]
     },
     // merge criterium: uses this array as filter for internal 1D array.
     details: ["cohort-view", "sample-view", "json-view"]
