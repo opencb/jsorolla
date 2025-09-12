@@ -307,7 +307,7 @@ export default class CohortGrid extends LitElement {
                 formatter: (name, cohort) => {
                     return `
                         <div class="m-1">
-                            <div class="link fw-bold my-1">${name || cohort.id}</div>
+                            <div class="fw-bold my-1">${name || cohort.id}</div>
                             ${cohort?.description ? `
                                 <div class="text-secondary my-1">${cohort.description}</div>
                             ` : ""}
