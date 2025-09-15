@@ -866,8 +866,8 @@ export default class DataForm extends LitElement {
 
     _createTextElement(element) {
         const value = typeof element.text === "function" ? element.text(this.data, element.field) : element.text;
-        const textClass = element.display?.textClassName ?? "";
-        const textStyle = element.display?.textStyle ?? nothing;
+        const textClass = element.display?.className ?? element.display?.textClassName ?? "";
+        const textStyle = element.display?.style ?? element.display?.textStyle ?? nothing;
         const notificationClass = element.type === "notification" ? DataForm.NOTIFICATION_TYPES[element?.display?.notificationType] || "alert alert-info" : "";
 
         const content = html`
