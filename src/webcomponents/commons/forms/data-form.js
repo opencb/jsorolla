@@ -90,6 +90,7 @@ export default class DataForm extends LitElement {
         // stores the current objectlist item being edited
         this._objectListEditField = "";
         this._objectListEditIndex = -1;
+        this._objectListEditAction = "";
     }
 
     update(changedProperties) {
@@ -1805,7 +1806,13 @@ export default class DataForm extends LitElement {
                                             <div class="mb-2">
                                                 ${this._createObjectElement(_element)}
                                             </div>
-                                            <div class="d-flex flex-row-reverse">
+                                            <div class="d-flex flex-row-reverse gap-2">
+                                                ${this._objectListEditAction === "ADD" && isOpen ? html`
+                                                    <button class="btn btn-danger d-flex align-items-center gap-2" @click="${e => this.#removeFromObjectList(e, item, index, element)}">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                        <span>Discard</span>
+                                                    </button>
+                                                ` : nothing}
                                                 <button class="btn btn-light d-flex align-items-center gap-2" @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
                                                     <span>Close Edition</span>
                                                 </button>
@@ -1898,6 +1905,7 @@ export default class DataForm extends LitElement {
         } else {
             this._objectListEditIndex = index;
             this._objectListEditField = element.field;
+            this._objectListEditAction = "EDIT";
         }
         // const htmlElement = document.getElementById(element?.field + "_" + index);
         // htmlElement.classList.toggle("d-none");
@@ -1934,14 +1942,14 @@ export default class DataForm extends LitElement {
     }
 
     #addToObjectList(e, element) {
-        const event = {
+        this.onFilterChange(element, {}, {
             action: "ADD",
-        };
-        this.onFilterChange(element, {}, event);
+        });
 
         const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
         this._objectListEditIndex = dataElementList.length - 1;
         this._objectListEditField = element.field;
+        this._objectListEditAction = "ADD";
         this.requestUpdate();
     }
 
