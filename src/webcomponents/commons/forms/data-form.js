@@ -86,6 +86,10 @@ export default class DataForm extends LitElement {
         this.data = {};
         // Maintains a data model of the data that has been filled out using the search autocomplete
         this.dataAutocomplete = {};
+
+        // stores the current objectlist item being edited
+        this._objectListEditField = "";
+        this._objectListEditIndex = -1;
     }
 
     update(changedProperties) {
@@ -1707,7 +1711,8 @@ export default class DataForm extends LitElement {
         let maxNumItems;
         if (element.display.collapsed) {
             maxNumItems = element.display.maxNumItems ?? 5;
-            if (maxNumItems >= items?.length || this.editOpen >= 0) {
+            // if (maxNumItems >= items?.length || this.editOpen >= 0) {
+            if (maxNumItems >= items?.length || this._objectListEditIndex >= 0) {
                 // eslint-disable-next-line no-param-reassign
                 element.display.collapsed = false;
                 maxNumItems = items?.length;
@@ -1743,6 +1748,7 @@ export default class DataForm extends LitElement {
                         <div class="list-group rounded-3">
                             ${items?.slice(0, maxNumItems).map((item, index) => {
                                 const _element = JSON.parse(JSON.stringify(element));
+                                const isOpen = index === this._objectListEditIndex && element.field === this._objectListEditField;
                                 // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
                                 // items have a virtual element associated, this will allow to get the proper value later.
                                 if (_element.display?.search && typeof element.display?.search?.render === "function") {
@@ -1796,7 +1802,7 @@ export default class DataForm extends LitElement {
                                                 ` : nothing}
                                             </div>
                                         </div>
-                                        <div id="${element?.field}_${index}" class="mt-3 ps-3 border-start border-2 d-${index === this.editOpen ? "block" : "none"}">
+                                        <div id="${element?.field}_${index}" class="mt-3 ps-3 border-start border-2 ${isOpen ? "d-block" : "d-none"}">
                                             <div class="mb-2">
                                                 ${this._createObjectElement(_element)}
                                             </div>
@@ -1888,10 +1894,18 @@ export default class DataForm extends LitElement {
 
     #toggleEditItemOfObjectList(e, item, index, element) {
         // We must reset this variable after editing the new item.
-        this.editOpen = -1;
+        // this.editOpen = -1;
+        if (this._objectListEditIndex === index && this._objectListEditField === element.field) {
+            this._objectListEditIndex = -1;
+            this._objectListEditField = "";
+        } else {
+            this._objectListEditIndex = index;
+            this._objectListEditField = element.field;
+        }
 
-        const htmlElement = document.getElementById(element?.field + "_" + index);
-        htmlElement.classList.toggle("d-none");
+        // const htmlElement = document.getElementById(element?.field + "_" + index);
+        // htmlElement.classList.toggle("d-none");
+        this.requestUpdate();
     }
 
     #removeFromObjectList(e, item, index, element) {
@@ -1930,7 +1944,10 @@ export default class DataForm extends LitElement {
         this.onFilterChange(element, {}, event);
 
         const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
-        this.editOpen = dataElementList.length - 1;
+        // this.editOpen = dataElementList.length - 1;
+        this._objectListEditIndex = dataElementList.length - 1;
+        this._objectListEditField = element.field;
+        this.requestUpdate();
     }
 
     #toggleAddBatchToObjectList(e, element) {
