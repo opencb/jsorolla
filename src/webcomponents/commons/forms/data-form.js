@@ -1711,7 +1711,6 @@ export default class DataForm extends LitElement {
         let maxNumItems;
         if (element.display.collapsed) {
             maxNumItems = element.display.maxNumItems ?? 5;
-            // if (maxNumItems >= items?.length || this.editOpen >= 0) {
             if (maxNumItems >= items?.length || this._objectListEditIndex >= 0) {
                 // eslint-disable-next-line no-param-reassign
                 element.display.collapsed = false;
@@ -1893,8 +1892,6 @@ export default class DataForm extends LitElement {
     }
 
     #toggleEditItemOfObjectList(e, item, index, element) {
-        // We must reset this variable after editing the new item.
-        // this.editOpen = -1;
         if (this._objectListEditIndex === index && this._objectListEditField === element.field) {
             this._objectListEditIndex = -1;
             this._objectListEditField = "";
@@ -1902,7 +1899,6 @@ export default class DataForm extends LitElement {
             this._objectListEditIndex = index;
             this._objectListEditField = element.field;
         }
-
         // const htmlElement = document.getElementById(element?.field + "_" + index);
         // htmlElement.classList.toggle("d-none");
         this.requestUpdate();
@@ -1944,7 +1940,6 @@ export default class DataForm extends LitElement {
         this.onFilterChange(element, {}, event);
 
         const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
-        // this.editOpen = dataElementList.length - 1;
         this._objectListEditIndex = dataElementList.length - 1;
         this._objectListEditField = element.field;
         this.requestUpdate();
