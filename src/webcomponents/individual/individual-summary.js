@@ -110,9 +110,82 @@ export default class IndividualSummary extends LitElement {
             display: {
                 titleVisible: false,
                 buttonsVisible: false,
+                layout: [
+                    {
+                        className: "row",
+                        sections: [
+                            {
+                                id: "general",
+                                className: "col-6",
+                            },
+                            {
+                                id: "metadata",
+                                className: "col-6",
+                            },
+                        ],
+                    },
+                    {
+                        id: "disorders-phenotypes",
+                    },
+                    {
+                        id: "samples",
+                    },
+                ],
                 ...this.displayConfig,
             },
             sections: [
+                {
+                    id: "general",
+                    display: {
+                        className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
+                    },
+                    elements: [
+                        {
+                            type: "text",
+                            text: "General Information",
+                            display: {
+                                className: "mb-2 fs-5 fw-bold",
+                            },
+                        }
+                    ],
+                },
+                {
+                    id: "metadata",
+                    display: {
+                        className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
+                    },
+                    elements: [
+                        {
+                            type: "text",
+                            text: "Metadata",
+                            display: {
+                                className: "mb-2 fs-5 fw-bold",
+                            },
+                        }
+                    ],
+                },
+                {
+                    id: "disorders-phenotypes",
+                    display: {
+                        className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
+                    },
+                    elements: [],
+                },
+                {
+                    id: "samples",
+                    display: {
+                        className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
+                    },
+                    elements: [
+                        {
+                            type: "text",
+                            text: "Samples",
+                            display: {
+                                className: "mb-2 fs-5 fw-bold",
+                            },
+                        },
+                    ],
+                },
                 {
                     title: "General",
                     elements: [
