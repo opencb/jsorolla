@@ -107,8 +107,9 @@ export default class IndividualSummary extends LitElement {
 
     getDefaultConfig() {
         return {
+            title: "Individual Summary",
             display: {
-                titleVisible: false,
+                titleVisible: true,
                 buttonsVisible: false,
                 layout: [
                     {
