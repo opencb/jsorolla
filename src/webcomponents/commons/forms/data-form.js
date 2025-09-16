@@ -1920,8 +1920,6 @@ export default class DataForm extends LitElement {
             this._objectListEditAction = "EDIT";
         }
         this._objectListEditElement = null; // only needed when adding a new item
-        // const htmlElement = document.getElementById(element?.field + "_" + index);
-        // htmlElement.classList.toggle("d-none");
         this.requestUpdate();
     }
 
