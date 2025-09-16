@@ -107,10 +107,11 @@ export default class IndividualSummary extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Individual Summary",
+            title: "Individual Overview",
             display: {
                 titleVisible: true,
                 buttonsVisible: false,
+                separationClassName: "mb-1",
                 layout: [
                     {
                         className: "row",
@@ -139,6 +140,7 @@ export default class IndividualSummary extends LitElement {
                     id: "general",
                     display: {
                         className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
+                        separationClassName: "mb-3",
                     },
                     elements: [
                         {
@@ -147,13 +149,61 @@ export default class IndividualSummary extends LitElement {
                             display: {
                                 className: "mb-2 fs-5 fw-bold",
                             },
-                        }
+                        },
+                        {
+                            title: "ID",
+                            field: "id",
+                        },
+                        {
+                            id: "name",
+                            title: "Name",
+                            field: "name",
+                        },
+                        {
+                            id: "father",
+                            title: "Father ID",
+                            field: "father.id",
+                            display: {
+                                defaultValue: "-",
+                            },
+                        },
+                        {
+                            id: "mother",
+                            title: "Mother ID",
+                            field: "mother.id",
+                            display: {
+                                defaultValue: "-",
+                            },
+                        },
+                        {
+                            id: "sex",
+                            title: "Reported Sex (Karyotypic)",
+                            type: "complex",
+                            display: {
+                                defaultValue: "Not specified",
+                                template: "${sex.id} (${karyotypicSex})"
+                            },
+                        },
+                        {
+                            title: "Inferred Karyotypic Sex",
+                            field: "qualityControl",
+                            display: {
+                                format: qualityControl => {
+                                    return qualityControl?.inferredSexReports?.length > 0 ? qualityControl.inferredSexReports[0].inferredKaryotypicSex : "-";
+                                },
+                            },
+                        },
+                        {
+                            title: "Ethnicity",
+                            field: "ethnicity.id",
+                        },
                     ],
                 },
                 {
                     id: "metadata",
                     display: {
                         className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
+                        separationClassName: "mb-3",
                     },
                     elements: [
                         {
@@ -162,13 +212,44 @@ export default class IndividualSummary extends LitElement {
                             display: {
                                 className: "mb-2 fs-5 fw-bold",
                             },
-                        }
+                        },
+                        {
+                            title: "Version",
+                            field: "version",
+                            display: {
+                                defaultValue: "-",
+                            },
+                        },
+                        {
+                            title: "Release",
+                            field: "release",
+                            display: {
+                                defaultValue: "-",
+                            },
+                        },
+                        {
+                            title: "Creation Date",
+                            field: "creationDate",
+                            type: "custom",
+                            display: {
+                                render: creationDate => creationDate ? UtilsNew.dateFormatter(creationDate) : "-",
+                            },
+                        },
+                        {
+                            title: "Modification Date",
+                            field: "modificationDate",
+                            type: "custom",
+                            display: {
+                                render: modificationDate => modificationDate ? UtilsNew.dateFormatter(modificationDate) : "-",
+                            },
+                        },
                     ],
                 },
                 {
                     id: "disorders-phenotypes",
                     display: {
                         className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
+                        separationClassName: "mb-3",
                     },
                     elements: [],
                 },
@@ -176,6 +257,7 @@ export default class IndividualSummary extends LitElement {
                     id: "samples",
                     display: {
                         className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
+                        separationClassName: "mb-0",
                     },
                     elements: [
                         {
