@@ -36,9 +36,6 @@ export default class CohortStatsFilter extends LitElement {
             studies: {
                 type: Array,
             },
-            onlyCohortAll: {
-                type: Boolean,
-            },
             value: {
                 type: String,
             },
@@ -68,6 +65,13 @@ export default class CohortStatsFilter extends LitElement {
 
         if (changedProperties.has("value")) {
             this.valueObserver();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
 
         super.update(changedProperties);
@@ -128,8 +132,17 @@ export default class CohortStatsFilter extends LitElement {
         return study.cohorts || [];
     }
 
-    getFavoriteCohorts(study) {
-        return ["ALL"];
+    getFavouriteCohorts(study) {
+        if (this._config.favourites?.length > 0) {
+            return (study.cohorts || [])
+                .filter(cohort => {
+                    return this._config.favourites.some(tagName => {
+                        return (cohort?.tags || []).includes(tagName);
+                    });
+                })
+                .map(cohort => cohort.id);
+        }
+        return [];
     }
 
     dispatchFilterChangeEvent() {
@@ -214,7 +227,7 @@ export default class CohortStatsFilter extends LitElement {
         const isExpanded = this._expandedStudies.has(study.fqn);
         const selectedCohorts = this.getSelectedCohortsInStudy(study);
         const visibleCohorts = this.getVisibleCohorts(study);
-        const favoriteCohorts = this.getFavoriteCohorts(study);
+        const favouriteCohorts = this.getFavouriteCohorts(study);
 
         return keyed("cohort:" + study.fqn, html`
             <div class="p-2 border border-gray-200 rounded-3">
@@ -227,11 +240,11 @@ export default class CohortStatsFilter extends LitElement {
                     </div>
                 </div>
                 <div class="${isExpanded ? "d-block mt-1" : "d-none"}">
-                    ${favoriteCohorts.length > 0 ? html`
+                    ${favouriteCohorts.length > 0 ? html`
                         <div class="mb-2">
-                            <div class="">Favorite cohorts:</div>
+                            <div class="fw-bold">Favourite cohorts</div>
                             <div class="d-flex flex-wrap gap-1">
-                                ${favoriteCohorts.map(cohortId => html`
+                                ${favouriteCohorts.map(cohortId => html`
                                     <div class="py-1 px-2 border border-gray-200 rounded cursor-pointer d-flex align-items-center gap-2" @click="${event => this.onCohortSelect(event, study.fqn, cohortId)}">
                                         <div class="fw-bold lh-1">${cohortId}</div>
                                         <div class="d-inline-flex border border-gray-200 fs-8 p-1 rounded ${selectedCohorts.has(cohortId) ? "bg-primary" : "bg-gray-100"}">
@@ -337,6 +350,7 @@ export default class CohortStatsFilter extends LitElement {
             ],
             defaultOperatorOnSelect: ">",
             defaultValueOnSelect: "0",
+            favourites: [],
         };
     }
 
