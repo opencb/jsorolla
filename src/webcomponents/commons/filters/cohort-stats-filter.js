@@ -77,22 +77,6 @@ export default class CohortStatsFilter extends LitElement {
         super.update(changedProperties);
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            // Array.from(this.querySelectorAll(`[data-role="cohort:dropdown"]`)).forEach(dropdownParent => {
-            //     dropdownParent.addEventListener("hidden.bs.modal", () => {
-            //         if (this._searchCohortValue && this._searchCohortStudy === dropdownParent.dataset?.study) {
-            //             this._searchCohortValue = "";
-            //             this._searchCohortStudy = "";
-            //             dropdownParent.querySelector(`[data-role="cohort:search"]`).value = "";
-            //         }
-            //     });
-            //     dropdownParent.addEventListener("shown.bs.modal", () => {
-            //     });
-            // });
-        }
-    }
-
     valueObserver() {
         this._selectedCohorts = new Map();
 
