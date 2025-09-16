@@ -141,13 +141,15 @@ export default class VariantBrowserFilter extends LitElement {
                 `;
                 break;
             case "cohort":
-                if (subsection.onlyCohortAll === true || subsection.studies?.[0].cohorts?.length > 0) {
+                if (subsection.studies?.[0].cohorts?.length > 0) {
                     content = html`
                         <cohort-stats-filter
                             .opencgaSession="${opencgaSession}"
                             .studies="${subsection.studies}"
-                            .onlyCohortAll=${subsection.onlyCohortAll}
                             .value="${preparedQuery.cohortStatsAlt}"
+                            .config="${{
+                                favourites: subsection?.favourites || [],
+                            }}"
                             @filterChange="${e => onFilterChange("cohortStatsAlt", e.detail.value)}">
                         </cohort-stats-filter>
                     `;
