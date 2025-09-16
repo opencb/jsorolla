@@ -1785,22 +1785,24 @@ export default class DataForm extends LitElement {
                                             <div class="d-flex flex-column justify-content-center">
                                                 ${element.display.view(item)}
                                             </div>
-                                            <div class="d-flex flex-row align-items-center gap-1">
-                                                ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
-                                                    <button title="Edit" class="btn btn-light"
-                                                            ?disabled="${isDisabled}"
-                                                            @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
-                                                        <i class="fas fa-pen"></i>
-                                                    </button>
-                                                ` : nothing}
-                                                ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
-                                                    <button title="Remove" class="btn btn-light"
-                                                            ?disabled="${isDisabled}"
-                                                            @click="${e => this.#removeFromObjectList(e, item, index, element)}">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </button>
-                                                ` : nothing}
-                                            </div>
+                                            ${!(isOpen && this._objectListEditAction === "ADD") ? html`
+                                                <div class="d-flex flex-row align-items-center gap-1">
+                                                    ${this._getBooleanValue(element.display.showEditItemListButton, true) ? html`
+                                                        <button title="Edit" class="btn btn-light"
+                                                                ?disabled="${isDisabled}"
+                                                                @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
+                                                            <i class="fas fa-pen"></i>
+                                                        </button>
+                                                    ` : nothing}
+                                                    ${this._getBooleanValue(element.display.showDeleteItemListButton, true) ? html`
+                                                        <button title="Remove" class="btn btn-light"
+                                                                ?disabled="${isDisabled}"
+                                                                @click="${e => this.#removeFromObjectList(e, item, index, element)}">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    ` : nothing}
+                                                </div>
+                                            ` : nothing}
                                         </div>
                                         <div id="${element?.field}_${index}" class="mt-3 ps-3 border-start border-2 ${isOpen ? "d-block" : "d-none"}">
                                             <div class="mb-2">
