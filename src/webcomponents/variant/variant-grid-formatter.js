@@ -923,6 +923,8 @@ export default class VariantGridFormatter {
         const displayMode = populationFrequenciesConfig?.displayMode || "FREQUENCY_BOX";
 
         if (displayMode === "FREQUENCY_COMPACT") {
+            const onlyCohortAll = populations.length === 1 && populations[0].toUpperCase() === "ALL";
+
             // 1. initialize map with the available classifications
             const classificationsMap = new Map();
             Object.values(VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION).forEach(key => {
@@ -960,24 +962,26 @@ export default class VariantGridFormatter {
                             <span class="small text-white fw-bold">ALL</span>
                         </div>
                     </a>
-                    <div class="d-flex rounded overflow-hidden" style="gap:1px;">
-                        ${Array.from(classificationsMap.values()).map(entry => {
-                            if (entry.populations.length > 0) {
-                                const tooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(entry.populations, populationFrequenciesMap, populationFrequenciesColor);
-                                return `
-                                    <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}" tooltip-position-my="top right">
-                                        <div class="px-1 py-1 text-center" style="background-color:${entry.color};min-width:26px;">
-                                            <span class="small text-white fw-bold">${entry.populations.length}</span>
-                                        </div>
-                                    </a>
-                                `;
-                            } else {
-                                return `
-                                    <div class="px-1 py-3 cursor-not-allowed" style="background-color:${entry.color};min-width:26px;opacity:0.25;"></div>
-                                `;
-                            }
-                        }).join("")}
-                    </div>
+                    ${!onlyCohortAll ? `
+                        <div class="d-flex rounded overflow-hidden" style="gap:1px;">
+                            ${Array.from(classificationsMap.values()).map(entry => {
+                                if (entry.populations.length > 0) {
+                                    const tooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(entry.populations, populationFrequenciesMap, populationFrequenciesColor);
+                                    return `
+                                        <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}" tooltip-position-my="top right">
+                                            <div class="px-1 py-1 text-center" style="background-color:${entry.color};min-width:26px;">
+                                                <span class="small text-white fw-bold">${entry.populations.length}</span>
+                                            </div>
+                                        </a>
+                                    `;
+                                } else {
+                                    return `
+                                        <div class="px-1 py-3 cursor-not-allowed" style="background-color:${entry.color};min-width:26px;opacity:0.25;"></div>
+                                    `;
+                                }
+                            }).join("")}
+                        </div>
+                    ` : ""}
                 </div>
             `;
         } else {
