@@ -88,6 +88,7 @@ export default class DataForm extends LitElement {
         this.dataAutocomplete = {};
 
         // stores the current objectlist item being edited
+        this._objectListEditElement = null;
         this._objectListEditField = "";
         this._objectListEditIndex = -1;
         this._objectListEditAction = "";
@@ -1905,10 +1906,20 @@ export default class DataForm extends LitElement {
             this._objectListEditIndex = -1;
             this._objectListEditField = "";
         } else {
+            // if the user edits another item while adding a new one, we need to check if the added one is empty
+            // in that case, we have to remove it
+            if (this._objectListEditAction === "ADD" && this._objectListEditElement && this._objectListEditIndex > -1) {
+                const dataElementList = UtilsNew.getObjectValue(this.data, this._objectListEditField, []);
+                const addedItem = dataElementList[this._objectListEditIndex] || null;
+                if (addedItem && Object.keys(addedItem).length === 0) {
+                    this.#removeFromObjectList(e, addedItem, this._objectListEditIndex, this._objectListEditElement);
+                }
+            }
             this._objectListEditIndex = index;
             this._objectListEditField = element.field;
             this._objectListEditAction = "EDIT";
         }
+        this._objectListEditElement = null; // only needed when adding a new item
         // const htmlElement = document.getElementById(element?.field + "_" + index);
         // htmlElement.classList.toggle("d-none");
         this.requestUpdate();
@@ -1951,6 +1962,7 @@ export default class DataForm extends LitElement {
         const dataElementList = UtilsNew.getObjectValue(this.data, element.field, []);
         this._objectListEditIndex = dataElementList.length - 1;
         this._objectListEditField = element.field;
+        this._objectListEditElement = element; // needed to remove the item in case that it is empty
         this._objectListEditAction = "ADD";
         this.requestUpdate();
     }
