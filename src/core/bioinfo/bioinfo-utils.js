@@ -117,7 +117,7 @@ export default class BioinfoUtils {
         // Check for CellBase source
         if (source.toUpperCase().startsWith("CELLBASE_V")) {
             const version = source.toUpperCase().replace("CELLBASE_", "").toLowerCase();
-            return BioinfoUtils.getCellbaseVariantLink(id, "https://ws.zettagenomics.com/cellbase", version, species, assembly);
+            return BioinfoUtils.getCellbaseVariantLink(id, "https://ws.zettagenomics.com/cellbase", version, "", "", species, assembly);
         }
 
         if (id?.startsWith("rs")) {
@@ -321,12 +321,12 @@ export default class BioinfoUtils {
             searchParams.append("assembly", assembly);
         }
 
-        return searchParams.size > 0 ? `${url}&${searchParams.toString()}` : url;
+        return searchParams.size > 0 ? `${url}?${searchParams.toString()}` : url;
     }
 
     // alias to getCellbaseLink with type VARIANT
-    static getCellbaseVariantLink(id, host, version, species, assembly) {
-        return BioinfoUtils.getCellbaseLink(id, "VARIANT", host, version, "", "", species, assembly);
+    static getCellbaseVariantLink(id, host, version, dataRelease, apiKey, species, assembly) {
+        return BioinfoUtils.getCellbaseLink(id, "VARIANT", host, version, dataRelease, apiKey, species, assembly);
     }
 
 }
