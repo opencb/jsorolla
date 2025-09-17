@@ -1565,6 +1565,7 @@ export default class VariantGridFormatter {
             if (!hasCurrentVersion && cb.host === currentCellbaseHost && cb.version === currentCellbaseVersion && cb.dataRelease === currentCellbaseDataRelease) {
                 hasCurrentVersion = true;
                 cb.current = true;
+                cb.apiKey = opencgaSession?.project?.cellbase?.apiKey || opencgaSession?.cellbaseClient?._config?.apiKey || "";
             }
             return cb;
         });
@@ -1575,6 +1576,7 @@ export default class VariantGridFormatter {
                 host: currentCellbaseHost,
                 version: currentCellbaseVersion,
                 dataRelease: currentCellbaseDataRelease,
+                apiKey: opencgaSession?.project?.cellbase?.apiKey || opencgaSession?.cellbaseClient?._config?.apiKey || "",
                 current: true,
             });
         }
