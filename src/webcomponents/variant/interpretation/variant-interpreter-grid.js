@@ -1180,8 +1180,17 @@ export default class VariantInterpreterGrid extends LitElement {
         const species = this.opencgaSession?.project?.organism?.scientificName;
         const assembly = this.opencgaSession?.project?.organism?.assembly;
         const position = row.chromosome + ":" + row.start + "-" + row.end;
-        const cellbaseHost = this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.cellbaseClient?._config?.host;
-        const cellbaseVersion = this.opencgaSession?.project?.cellbase?.version || this.opencgaSession?.cellbaseClient?._config?.version;
+
+        // generate cellbase links
+        const cellbaseLinks = VariantGridFormatter.getCellbaseActionsLinks(this.opencgaSession).map(cb => {
+            const cellbaseUrl = BioinfoUtils.getCellbaseVariantLink(row.id, cb.host, cb.version, cb.dataRelease, cb.apiKey, species, assembly);
+            return `
+                <a target="_blank" class="dropdown-item" href="${cellbaseUrl}">
+                    <i class="fas fa-external-link-alt me-1"></i>
+                    <span>CellBase ${cb.version} DR${cb.dataRelease} ${cb.current ? `(<b>current</b>)` : ""}</span>
+                </a>
+            `;
+        });
 
         return `
             <div class="dropdown">
@@ -1201,10 +1210,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         <i class="fas fa-external-link-alt me-1"></i> Varsome
                     </a>
                     <div class="dropdown-header">CellBase Links</div>
-                    <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getCellbaseVariantLink(row.id, cellbaseHost, cellbaseVersion, species, assembly)}">
-                        <i class="fas fa-external-link-alt me-1"></i>
-                        <span>CellBase ${cellbaseVersion}</span>
-                    </a>
+                    ${cellbaseLinks.join("")}
                     <div class="dropdown-header">External Genome Browsers</div>
                     <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getVariantLink(row.id, position, "ensembl_genome_browser", species, assembly)}">
                         <i class="fas fa-external-link-alt me-1"></i> Ensembl Genome Browser
