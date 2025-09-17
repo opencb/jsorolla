@@ -599,6 +599,10 @@ export default class OpencgaFileGrid extends LitElement {
                             <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
                         </a>
                         <hr class="dropdown-divider">
+                        <a data-action="open-folder" class="dropdown-item ${row.type === "DIRECTORY" ? "cursor-pointer" : "disabled"}">
+                            <i class="fas fa-folder-open me-1"></i>
+                            <span>Open Folder</span>
+                        </a>
                         <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" || !hasDownloadPermission ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
                             <i class="fas fa-download me-1"></i> Download
                         </a>
