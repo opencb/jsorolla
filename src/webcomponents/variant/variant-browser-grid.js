@@ -844,8 +844,6 @@ export default class VariantBrowserGrid extends LitElement {
         const species = this.opencgaSession?.project?.organism?.scientificName;
         const assembly = this.opencgaSession?.project?.organism?.assembly;
         const position = `${row.chromosome}:${row.start}-${row.end}`;
-        // const cellbaseHost = this.opencgaSession?.project?.cellbase?.url || this.opencgaSession?.cellbaseClient?._config?.host;
-        // const cellbaseVersion = this.opencgaSession?.project?.cellbase?.version || this.opencgaSession?.cellbaseClient?._config?.version;
 
         // generate cellbase links
         const cellbaseLinks = VariantGridFormatter.getCellbaseActionsLinks(this.opencgaSession).map(cb => {
