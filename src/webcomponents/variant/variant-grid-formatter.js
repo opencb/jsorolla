@@ -19,6 +19,7 @@ import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter";
 import CustomActions from "../commons/custom-actions.js";
 import GridCommons from "../commons/grid-commons.js";
+import UtilsNew from "../../core/utils-new.js";
 
 
 export default class VariantGridFormatter {
@@ -1549,6 +1550,37 @@ export default class VariantGridFormatter {
         return `
             <span class='fw-bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations.
         `;
+    }
+
+    static getCellbaseActionsLinks(opencgaSession) {
+        let hasCurrentVersion = false;
+        const currentCellbaseHost = opencgaSession?.project?.cellbase?.url || opencgaSession?.cellbaseClient?._config?.host;
+        const currentCellbaseVersion = opencgaSession?.project?.cellbase?.version || opencgaSession?.cellbaseClient?._config?.version;
+        // const currentCellbaseDataRelease = opencgaSession?.project?.cellbase?.dataRelease || opencgaSession?.cellbaseClient?._config?.dataRelease;
+
+        // 1. get the cellbase supported versions from the configuration
+        const cellbaseVersions = (CELLBASE?.supportedVersions || []).map(cellbaseConfig => {
+            const cb = UtilsNew.objectClone(cellbaseConfig);
+            cb.current = false;
+            if (!hasCurrentVersion && cb.host === currentCellbaseHost && cb.version === currentCellbaseVersion) {
+                hasCurrentVersion = true;
+                cb.current = true;
+            }
+            return cb;
+        });
+
+        // 2. check if current version is not in the list, then add it
+        if (!hasCurrentVersion) {
+            cellbaseVersions.push({
+                host: currentCellbaseHost,
+                version: currentCellbaseVersion,
+                dataRelease: "",
+                current: true,
+            });
+        }
+
+        // 3. return the cellbase versions to display in the actions menu
+        return cellbaseVersions;
     }
 
 }
