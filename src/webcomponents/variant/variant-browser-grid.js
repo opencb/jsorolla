@@ -847,8 +847,9 @@ export default class VariantBrowserGrid extends LitElement {
 
         // generate cellbase links
         const cellbaseLinks = VariantGridFormatter.getCellbaseActionsLinks(this.opencgaSession).map(cb => {
+            const cellbaseUrl = BioinfoUtils.getCellbaseVariantLink(row.id, cb.host, cb.version, cb.dataRelease, cb.apiKey, species, assembly);
             return `
-                <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getCellbaseVariantLink(row.id, cb.host, cb.version, species, assembly)}">
+                <a target="_blank" class="dropdown-item" href="${cellbaseUrl}">
                     <i class="fas fa-external-link-alt me-1"></i>
                     <span>CellBase ${cb.version} DR${cb.dataRelease} ${cb.current ? `(<b>current</b>)` : ""}</span>
                 </a>
