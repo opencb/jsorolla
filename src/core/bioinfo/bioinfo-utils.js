@@ -295,24 +295,38 @@ export default class BioinfoUtils {
         return `https://www.pharmgkb.org/chemical/${pharmGKBId}`;
     }
 
-    static getCellbaseLink(id, type = "VARIANT", host = "https://ws.zettagenomics.com/cellbase", version = "v5", species = "hsapiens", assembly = "") {
+    static getCellbaseLink(id, type = "VARIANT", host = "https://ws.zettagenomics.com/cellbase", version = "v5", dataRelease = "", apiKey = "", species = "hsapiens", assembly) {
         let url = `${host}/webservices/rest/${version}/${species}`;
+        const searchParams = new URLSearchParams();
 
+        // 1. check the resource to generate the correct URL
         switch (type?.toUpperCase()) {
             case "VARIANT":
                 url = `${url}/genomic/variant/${id}/annotation`;
                 break;
         }
-        
-        if (assembly) {
-            url = `${url}?assembly=${assembly}`;
+
+        // 2. check if dataRelease is provided
+        if (dataRelease) {
+            searchParams.append("dataRelease", dataRelease);
         }
-        return url;
+
+        // 3. check if apiKey is provided
+        if (apiKey) {
+            searchParams.append("apiKey", apiKey);
+        }
+
+        // 4. add assembly if provided
+        if (assembly) {
+            searchParams.append("assembly", assembly);
+        }
+
+        return searchParams.size > 0 ? `${url}&${searchParams.toString()}` : url;
     }
 
     // alias to getCellbaseLink with type VARIANT
     static getCellbaseVariantLink(id, host, version, species, assembly) {
-        return BioinfoUtils.getCellbaseLink(id, "VARIANT", host, version, species, assembly);
+        return BioinfoUtils.getCellbaseLink(id, "VARIANT", host, version, "", "", species, assembly);
     }
 
 }
