@@ -251,6 +251,17 @@ export default class IndividualSummary extends LitElement {
                                 render: modificationDate => modificationDate ? UtilsNew.dateFormatter(modificationDate) : "-",
                             },
                         },
+                        {
+                            title: "UUID",
+                            field: "uuid",
+                            type: "custom",
+                            display: {
+                                render: uuid => html`
+                                    <code class="">${uuid || "-"}</code>
+                                `,
+                                defaultValue: "-",
+                            },
+                        },
                     ],
                 },
                 {
