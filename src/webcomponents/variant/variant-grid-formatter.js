@@ -1571,11 +1571,11 @@ export default class VariantGridFormatter {
         });
 
         // 2. check if current version is not in the list, then add it
-        if (!hasCurrentVersion) {
+        if (!hasCurrentVersion && currentCellbaseHost && currentCellbaseVersion) {
             cellbaseVersions.push({
                 host: currentCellbaseHost,
                 version: currentCellbaseVersion,
-                dataRelease: currentCellbaseDataRelease,
+                dataRelease: currentCellbaseDataRelease || "",
                 apiKey: opencgaSession?.project?.cellbase?.apiKey || opencgaSession?.cellbaseClient?._config?.apiKey || "",
                 current: true,
             });
