@@ -44,6 +44,21 @@ const opencga = {
     },
 };
 
+const cellbase = {
+    ltsVersions: [
+        {
+            host: "https://ws.zettagenomics.com/cellbase",
+            version: "v5.2",
+            dataRelease: 3,
+        },
+        {
+            host: "https://ws.zettagenomics.com/cellbase",
+            version: "v5.8",
+            dataRelease: 7,
+        },
+    ],
+};
+
 const SUITE = {
     id: "suite",
     name: "OpenCB Suite",
