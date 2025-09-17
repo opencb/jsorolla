@@ -139,6 +139,7 @@ export default class IndividualSummary extends LitElement {
                 {
                     id: "general",
                     display: {
+                        titleWidth: 4,
                         className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
                         separationClassName: "mb-3",
                     },
@@ -158,6 +159,9 @@ export default class IndividualSummary extends LitElement {
                             id: "name",
                             title: "Name",
                             field: "name",
+                            display: {
+                                defaultValue: "-",
+                            },
                         },
                         {
                             id: "father",
@@ -196,6 +200,9 @@ export default class IndividualSummary extends LitElement {
                         {
                             title: "Ethnicity",
                             field: "ethnicity.id",
+                            display: {
+                                defaultValue: "-",
+                            },
                         },
                     ],
                 },
@@ -204,6 +211,7 @@ export default class IndividualSummary extends LitElement {
                     display: {
                         className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
                         separationClassName: "mb-3",
+                        titleWidth: 4,
                     },
                     elements: [
                         {
