@@ -1556,13 +1556,13 @@ export default class VariantGridFormatter {
         let hasCurrentVersion = false;
         const currentCellbaseHost = opencgaSession?.project?.cellbase?.url || opencgaSession?.cellbaseClient?._config?.host;
         const currentCellbaseVersion = opencgaSession?.project?.cellbase?.version || opencgaSession?.cellbaseClient?._config?.version;
-        // const currentCellbaseDataRelease = opencgaSession?.project?.cellbase?.dataRelease || opencgaSession?.cellbaseClient?._config?.dataRelease;
+        const currentCellbaseDataRelease = opencgaSession?.project?.cellbase?.dataRelease || opencgaSession?.cellbaseClient?._config?.dataRelease;
 
         // 1. get the cellbase supported versions from the configuration
         const cellbaseVersions = (CELLBASE?.supportedVersions || []).map(cellbaseConfig => {
             const cb = UtilsNew.objectClone(cellbaseConfig);
             cb.current = false;
-            if (!hasCurrentVersion && cb.host === currentCellbaseHost && cb.version === currentCellbaseVersion) {
+            if (!hasCurrentVersion && cb.host === currentCellbaseHost && cb.version === currentCellbaseVersion && cb.dataRelease === currentCellbaseDataRelease) {
                 hasCurrentVersion = true;
                 cb.current = true;
             }
@@ -1574,7 +1574,7 @@ export default class VariantGridFormatter {
             cellbaseVersions.push({
                 host: currentCellbaseHost,
                 version: currentCellbaseVersion,
-                dataRelease: "",
+                dataRelease: currentCellbaseDataRelease,
                 current: true,
             });
         }

@@ -852,7 +852,7 @@ export default class VariantBrowserGrid extends LitElement {
             return `
                 <a target="_blank" class="dropdown-item" href="${BioinfoUtils.getCellbaseVariantLink(row.id, cb.host, cb.version, species, assembly)}">
                     <i class="fas fa-external-link-alt me-1"></i>
-                    <span>CellBase ${cb.version} ${cb.current ? "(current)" : ""}</span>
+                    <span>CellBase ${cb.version} DR${cb.dataRelease} ${cb.current ? `(<b>current</b>)` : ""}</span>
                 </a>
             `;
         });
