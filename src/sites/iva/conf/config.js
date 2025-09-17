@@ -44,8 +44,8 @@ const opencga = {
     },
 };
 
-const cellbase = {
-    ltsVersions: [
+const CELLBASE = {
+    supportedVersions: [
         {
             host: "https://ws.zettagenomics.com/cellbase",
             version: "v5.2",
