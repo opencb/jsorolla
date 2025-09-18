@@ -301,25 +301,29 @@ export default class IndividualSummary extends LitElement {
                         {
                             id: "disorders",
                             field: "disorders",
-                            type: "custom",
                             title: "Disorders",
+                            type: "list",
                             display: {
                                 titleWidth: 2,
-                                render: disorders => html`
-                                    <div>Content</div>
-                                `,
+                                contentLayout: "bullets",
+                                format: disorder => {
+                                    return UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder]));
+                                },
+                                defaultValue: "-",
                             },
                         },
                         {
                             id: "phenotypes",
                             field: "phenotypes",
-                            type: "custom",
                             title: "Phenotypes",
+                            type: "list",
                             display: {
                                 titleWidth: 2,
-                                render: phenotypes => html`
-                                    <div>Content</div>
-                                `,
+                                contentLayout: "bullets",
+                                format: phenotype => {
+                                    return UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype]));
+                                },
+                                defaultValue: "-",
                             },
                         },
                     ],
