@@ -742,7 +742,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                         display: {
                                             defaultValue: "N/A",
                                             format: disorder => {
-                                                return UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder], false));
+                                                return UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder]));
                                             },
                                         }
                                     },

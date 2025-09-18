@@ -331,7 +331,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 field: "disorder",
                 valign: "middle",
                 formatter: value => {
-                    return CatalogGridFormatter.disorderFormatter([value], false);
+                    return CatalogGridFormatter.disorderFormatter([value]);
                 },
                 visible: this.gridCommons.isColumnVisible("disorderId")
             },

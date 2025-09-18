@@ -492,14 +492,14 @@ export default class IndividualGrid extends LitElement {
                 id: "disorders",
                 title: "Disorders",
                 field: "disorders",
-                formatter: disorders => CatalogGridFormatter.disorderFormatter(disorders, true),
+                formatter: disorders => CatalogGridFormatter.disorderFormatter(disorders),
                 visible: this.gridCommons.isColumnVisible("disorders")
             },
             {
                 id: "phenotypes",
                 title: "Phenotypes",
                 field: "phenotypes",
-                formatter: phenotypes => CatalogGridFormatter.phenotypesFormatter(phenotypes, true),
+                formatter: phenotypes => CatalogGridFormatter.phenotypesFormatter(phenotypes),
                 visible: this.gridCommons.isColumnVisible("phenotypes")
             },
             {

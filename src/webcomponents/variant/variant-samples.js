@@ -344,7 +344,7 @@ export default class VariantSamples extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: disorders => {
-                        return CatalogGridFormatter.disorderFormatter(disorders || [], true) || "-";
+                        return CatalogGridFormatter.disorderFormatter(disorders || []);
                     },
                     halign: "center"
                 },
@@ -354,7 +354,7 @@ export default class VariantSamples extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: phenotypes => {
-                        return CatalogGridFormatter.phenotypesFormatter(phenotypes || [], true) || "-";
+                        return CatalogGridFormatter.phenotypesFormatter(phenotypes || []);
                     },
                     halign: "center"
                 }

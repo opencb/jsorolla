@@ -164,7 +164,7 @@ export default class FamilySummary extends LitElement {
                             display: {
                                 contentLayout: "vertical",
                                 format: disorder => {
-                                    return UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder], false));
+                                    return UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder]));
                                 },
                                 defaultValue: "-"
                             }
@@ -176,7 +176,7 @@ export default class FamilySummary extends LitElement {
                             display: {
                                 contentLayout: "vertical",
                                 format: phenotype => {
-                                    return UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype], false));
+                                    return UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype]));
                                 },
                                 defaultValue: "-"
                             }
@@ -239,7 +239,7 @@ export default class FamilySummary extends LitElement {
                                         display: {
                                             defaultValue: "-",
                                             format: disorder => {
-                                                return UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder], false));
+                                                return UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder]));
                                             },
                                         }
                                     },
@@ -250,7 +250,7 @@ export default class FamilySummary extends LitElement {
                                         display: {
                                             defaultValue: "-",
                                             format: phenotype => {
-                                                return UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype], false));
+                                                return UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype]));
                                             },
                                         }
                                     },

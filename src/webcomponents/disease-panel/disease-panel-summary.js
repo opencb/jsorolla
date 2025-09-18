@@ -133,7 +133,7 @@ export default class DiseasePanelSummary extends LitElement {
                             display: {
                                 contentLayout: "vertical",
                                 format: disorder => {
-                                    return UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder], false));
+                                    return UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder]));
                                 },
                                 defaultValue: "-",
                             },

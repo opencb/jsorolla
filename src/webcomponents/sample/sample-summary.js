@@ -190,7 +190,7 @@ export default class SampleSummary extends LitElement {
                                 contentLayout: "bullets",
                                 defaultValue: "-",
                                 format: phenotype => {
-                                    return UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype], false));
+                                    return UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype]));
                                 },
                             },
                         },

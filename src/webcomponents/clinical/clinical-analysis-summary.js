@@ -136,7 +136,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             display: {
                                 template: "${disorder}",
                                 format: {
-                                    disorder: disorder => CatalogGridFormatter.disorderFormatter([disorder], false),
+                                    disorder: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
                                 },
                                 defaultValue: "-",
                             },
