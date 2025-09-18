@@ -394,10 +394,11 @@ export default class GridCommons {
     }
 
     static generateExpandCollapseContent(items = [], maxItems = 5) {
-        let resultHtml = "-";
-        if (items.length > 0) {
+        if (items.length <= maxItems) {
+            return items.join("") || "-";
+        } else {
             const hiddenItemsLength = items.length - maxItems;
-            resultHtml = `
+            return `
                 <div data-role="expand-collapse-content">
                     <div class="d-flex flex-column gap-1 mb-1">
                         ${items.slice(0, maxItems).join("")}
@@ -426,7 +427,6 @@ export default class GridCommons {
                 </div>
             `;
         }
-        return resultHtml;
     }
 
 }
