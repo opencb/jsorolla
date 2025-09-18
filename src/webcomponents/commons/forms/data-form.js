@@ -202,7 +202,7 @@ export default class DataForm extends LitElement {
             }
             if (element?.display?.link?.[match]) {
                 const href = element?.display?.link?.[match](value, data);
-                value = href ? `<a href="${href}" target="_blank">${value}</a>` : value;
+                value = !!href && href?.startsWith("http") ? `<a href="${href}" target="_blank">${value}</a>` : value;
             }
             if (element?.display?.className?.[match] || element?.display?.style?.[match]) {
                 const style = this._parseStyleField(element.display?.style?.[match], value, data);
