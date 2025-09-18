@@ -136,7 +136,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             display: {
                                 template: "${disorder}",
                                 format: {
-                                    disorder: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
+                                    disorder: disorder => CatalogGridFormatter.disorderFormatter([disorder], false),
                                 },
                                 defaultValue: "-",
                             },
@@ -248,12 +248,11 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             display: {
                                 defaultValue: "-",
                                 contentLayout: "bullets",
-                                transform: disorders => (disorders || []).map(disorder => ({disorder})),
-                                template: "${disorder.name} (${disorder.id})",
+                                template: "${name} (${id})",
                                 link: {
-                                    "disorder.id": id => id.startsWith("OMIM:") ?
-                                        BioinfoUtils.getOmimOntologyLink(id) :
-                                        "",
+                                    "id": id => {
+                                        return id.startsWith("OMIM:") ? BioinfoUtils.getOmimOntologyLink(id) : "";
+                                    },
                                 },
                             },
                         },
@@ -264,12 +263,14 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             display: {
                                 defaultValue: "-",
                                 contentLayout: "bullets",
-                                transform: phenotypes => (phenotypes || [])
-                                    .sort(item => item?.status === "OBSERVED" ? -1 : 1)
-                                    .map(phenotype => ({phenotype})),
-                                template: "${phenotype.name} (${phenotype.id}) - ${phenotype.status}",
+                                transform: phenotypes => {
+                                    return (phenotypes || []).sort(item => item?.status === "OBSERVED" ? -1 : 1);
+                                },
+                                template: "${name} (${id})",
                                 link: {
-                                    "phenotype.id": id => id.startsWith("HP:") ? BioinfoUtils.getHpoLink(id) : id,
+                                    "id": id => {
+                                        return id.startsWith("HP:") ? BioinfoUtils.getHpoLink(id) : "";
+                                    },
                                 }
                             },
                         },

@@ -188,7 +188,9 @@ class VariantInterpreterQcSummary extends LitElement {
                             display: {
                                 template: "${disorder}",
                                 format: {
-                                    disorder: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
+                                    disorder: disorder => {
+                                        return UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder], false));
+                                    },
                                 },
                                 defaultValue: "-",
                             },

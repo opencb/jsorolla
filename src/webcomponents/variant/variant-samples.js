@@ -344,8 +344,7 @@ export default class VariantSamples extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: disorders => {
-                        const result = disorders?.map(disorder => CatalogGridFormatter.disorderFormatter([disorder])).join("<br>");
-                        return result || "-";
+                        return CatalogGridFormatter.disorderFormatter(disorders || [], true) || "-";
                     },
                     halign: "center"
                 },
@@ -354,7 +353,9 @@ export default class VariantSamples extends LitElement {
                     field: "attributes.OPENCGA_INDIVIDUAL.phenotypes",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: CatalogGridFormatter.phenotypesFormatter,
+                    formatter: phenotypes => {
+                        return CatalogGridFormatter.phenotypesFormatter(phenotypes || [], true) || "-";
+                    },
                     halign: "center"
                 }
             ]

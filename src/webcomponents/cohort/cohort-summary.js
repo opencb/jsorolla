@@ -195,7 +195,9 @@ export default class CohortSummary extends LitElement {
                                         display: {
                                             contentLayout: "bullets",
                                             defaultValue: "-",
-                                            format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
+                                            format: phenotype => {
+                                                return UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype], false));
+                                            },
                                         },
                                     },
                                 ],
