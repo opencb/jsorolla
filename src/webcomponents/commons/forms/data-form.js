@@ -1197,8 +1197,11 @@ export default class DataForm extends LitElement {
             }
         } else {
             if (element.display?.template) {
-                values = values
-                    .map(item => this.applyTemplate(element.display.template, item, this._getDefaultValue(element, section), element));
+                // Note: template can contain HTML, so we must convert it to HTML using the UtilsNew.renderHTML function
+                // for example, if template renders links or formated text
+                values = values.map(item => {
+                    return UtilsNew.renderHTML(this.applyTemplate(element.display.template, item, this._getDefaultValue(element, section), element));
+                });
             }
         }
 
@@ -1228,10 +1231,7 @@ export default class DataForm extends LitElement {
                 } else {
                     separator = element.display.separator(values[i], i, values, data);
                 }
-                // if (separator) {
-                //     separators[values[i]] = separator.includes("---") ? "<hr>" : separator;
-                // }
-                separators[i] = separator.includes("---") ? "<hr>" : separator;
+                separators[i] = separator.includes("---") ? html`<hr>` : separator;
             }
         }
 
@@ -1239,45 +1239,40 @@ export default class DataForm extends LitElement {
         let content = this._getDefaultValue(element, section);
         switch (contentLayout) {
             case "horizontal":
-                content = `
-                    ${values.map((elem, index) => `
-                        <span style="${styles[elem]}">${elem}</span>
-                        <span>${index < values.length - 1 ? separators[index] ?? ", " : ""}</span>
-                    `)
-                    .join("")}
-                `;
+                content = values.map((elem, index) => html`
+                    <span style="${styles[elem]}">${elem}</span>
+                    <span>${index < values.length - 1 ? separators[index] ?? ", " : nothing}</span>
+                `);
                 break;
             case "vertical":
-                content = `
-                    ${values.map((elem, index) => `
-                        <div><span style="${styles[elem] || ""}">${elem}</span></div>
-                        ${separators[index] ? `<div>${separators[index]}</div>` : ""}
-                    `)
-                    .join("")
-                }`;
+                content = values.map((elem, index) => html`
+                    <div class="">
+                        <span style="${styles[elem] || ""}">${elem}</span>
+                    </div>
+                    ${separators[index] ? html`<div>${separators[index]}</div>` : nothing}
+                `);
                 break;
             case "bullets":
-                content = `
+                content = html`
                     <ul class="ps-3">
-                        ${values.map((elem, index) => `
-                            <li><span style="${styles[elem]}">${elem}</span></li>
-                             ${separators[index] ? `<div>${separators[index]}</div>` : ""}
-                        `)
-                    .join("")
-                }
+                        ${values.map((elem, index) => html`
+                            <li class="">
+                                <span style="${styles[elem]}">${elem}</span>
+                            </li>
+                            ${separators[index] ? html`<div>${separators[index]}</div>` : nothing}
+                        `)}
                     </ul>
                 `;
                 break;
             case "numbers":
-                content = `
+                content = html`
                     <ol class="ps-3">
-                        ${values
-                    .map((elem, index) => `
-                            <li><span style="${styles[elem]}">${elem}</span></li>
-                             ${separators[index] ? `<div>${separators[index]}</div>` : ""}
-                        `)
-                    .join("")
-                }
+                        ${values.map((elem, index) => html`
+                            <li class="">
+                                <span style="${styles[elem]}">${elem}</span>
+                            </li>
+                            ${separators[index] ? html`<div>${separators[index]}</div>` : nothing}
+                        `)}
                     </ol>
                 `;
                 break;
