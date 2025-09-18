@@ -74,7 +74,7 @@ export default class CatalogGridFormatter {
         return sexHtml;
     }
 
-    static phenotypesFormatter(phenotypes, showExpandCollapse = true) {
+    static phenotypesFormatter(phenotypes) {
         const status = ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"];
         const phenotypesItems = (phenotypes || [])
             .sort((a, b) => status.indexOf(a.status) - status.indexOf(b.status))
@@ -101,10 +101,10 @@ export default class CatalogGridFormatter {
                     <div style="white-space:nowrap;">${result.join(" ")}</div>
                 `;
             });
-        return showExpandCollapse ? GridCommons.generateExpandCollapseContent(phenotypesItems, 3) : phenotypesItems.join("");
+        return GridCommons.generateExpandCollapseContent(phenotypesItems, 3);
     }
 
-    static disorderFormatter(disorders, showExpandCollapse = true) {
+    static disorderFormatter(disorders) {
         const disordersItems = (disorders || []).map(disorder => {
             if (disorder?.id) {
                 // Default value if the disorder ID does not include ':' (source:ID)
@@ -136,7 +136,7 @@ export default class CatalogGridFormatter {
             }
             return "";
         });
-        return showExpandCollapse ? GridCommons.generateExpandCollapseContent(disordersItems, 3) : disordersItems.join("");
+        return GridCommons.generateExpandCollapseContent(disordersItems, 3);
     }
 
     static panelFormatter(panels) {
