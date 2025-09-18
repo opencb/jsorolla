@@ -649,7 +649,11 @@ export default class DataForm extends LitElement {
 
         // if not 'type' is defined we assumed is 'basic' and therefore field exist
         if (!element.type || element.type === "basic") {
-            content = html`${this.getValue(element.field, this.data, this._getDefaultValue(element, section), element.display)}`;
+            content = html`
+                <div class="text-break">
+                    ${this.getValue(element.field, this.data, this._getDefaultValue(element, section), element.display)}
+                </div>
+            `;
         } else {
             // Other 'type' are rendered by specific functions
             switch (element.type) {
@@ -876,7 +880,7 @@ export default class DataForm extends LitElement {
                 ${element.display?.icon ? html`
                     <i class="fas fa-${element.display.icon} me-2"></i>
                 ` : nothing}
-                <span>${value || ""}</span>
+                <span class="text-break">${value || ""}</span>
             </div>
         `;
 
