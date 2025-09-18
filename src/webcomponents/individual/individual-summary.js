@@ -298,7 +298,13 @@ export default class IndividualSummary extends LitElement {
                             title: "Disorders",
                             type: "list",
                             display: {
-                                defaultValue: "-",
+                                titleWidth: 2,
+                                defaultLayout: "vertical",
+                                defaultValue: html`
+                                    <div class="alert alert-light mb-0">
+                                        <span>No <b>disorders</b> available for this individual.</span>
+                                    </div>
+                                `,
                                 contentLayout: "bullets",
                                 template: "${name} (${id})",
                                 link: {
@@ -314,6 +320,7 @@ export default class IndividualSummary extends LitElement {
                             title: "Phenotypes",
                             type: "list",
                             display: {
+                                titleWidth: 2,
                                 defaultValue: "-",
                                 contentLayout: "bullets",
                                 transform: phenotypes => {
