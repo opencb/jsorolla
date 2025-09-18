@@ -257,7 +257,7 @@ export default class IndividualSummary extends LitElement {
                             type: "custom",
                             display: {
                                 render: uuid => html`
-                                    <code class="">${uuid || "-"}</code>
+                                    <code class="text-break">${uuid || "-"}</code>
                                 `,
                                 defaultValue: "-",
                             },
