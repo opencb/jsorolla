@@ -267,10 +267,62 @@ export default class IndividualSummary extends LitElement {
                 {
                     id: "disorders-phenotypes",
                     display: {
+                        titleWidth: 2,
                         className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
                         separationClassName: "mb-3",
+                        layout: [
+                            {
+                                id: "title",
+                            },
+                            {
+                                className: "row",
+                                elements: [
+                                    {
+                                        id: "disorders",
+                                        className: "col-6",
+                                    },
+                                    {
+                                        id: "phenotypes",
+                                        className: "col-6",
+                                    },
+                                ],
+                            },
+                        ],
                     },
-                    elements: [],
+                    elements: [
+                        {
+                            id: "title",
+                            type: "text",
+                            text: "Disorders & Phenotypes",
+                            display: {
+                                className: "mb-2 fs-5 fw-bold",
+                            },
+                        },
+                        {
+                            id: "disorders",
+                            field: "disorders",
+                            type: "custom",
+                            title: "Disorders",
+                            display: {
+                                titleWidth: 2,
+                                render: disorders => html`
+                                    <div>Content</div>
+                                `,
+                            },
+                        },
+                        {
+                            id: "phenotypes",
+                            field: "phenotypes",
+                            type: "custom",
+                            title: "Phenotypes",
+                            display: {
+                                titleWidth: 2,
+                                render: phenotypes => html`
+                                    <div>Content</div>
+                                `,
+                            },
+                        },
+                    ],
                 },
                 {
                     id: "samples",
