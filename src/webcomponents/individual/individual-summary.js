@@ -198,13 +198,6 @@ export default class IndividualSummary extends LitElement {
                                 },
                             },
                         },
-                        {
-                            title: "Ethnicity",
-                            field: "ethnicity.id",
-                            display: {
-                                defaultValue: "-",
-                            },
-                        },
                     ],
                 },
                 {
@@ -220,6 +213,17 @@ export default class IndividualSummary extends LitElement {
                             text: "Metadata",
                             display: {
                                 className: "mb-2 fs-5 fw-bold",
+                            },
+                        },
+                        {
+                            title: "UUID",
+                            field: "uuid",
+                            type: "custom",
+                            display: {
+                                render: uuid => html`
+                                    <code class="text-break">${uuid || "-"}</code>
+                                `,
+                                defaultValue: "-",
                             },
                         },
                         {
@@ -250,17 +254,6 @@ export default class IndividualSummary extends LitElement {
                             type: "custom",
                             display: {
                                 render: modificationDate => modificationDate ? UtilsNew.dateFormatter(modificationDate) : "-",
-                            },
-                        },
-                        {
-                            title: "UUID",
-                            field: "uuid",
-                            type: "custom",
-                            display: {
-                                render: uuid => html`
-                                    <code class="text-break">${uuid || "-"}</code>
-                                `,
-                                defaultValue: "-",
                             },
                         },
                     ],
