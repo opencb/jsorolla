@@ -20,6 +20,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../loading-spinner.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 
 export default class IndividualSummary extends LitElement {
 
@@ -304,12 +305,14 @@ export default class IndividualSummary extends LitElement {
                             title: "Disorders",
                             type: "list",
                             display: {
-                                titleWidth: 2,
-                                contentLayout: "bullets",
-                                format: disorder => {
-                                    return UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder]));
-                                },
                                 defaultValue: "-",
+                                contentLayout: "bullets",
+                                template: "${name} (${id})",
+                                link: {
+                                    "id": id => {
+                                        return BioinfoUtils.getOntologyLink(id);
+                                    },
+                                },
                             },
                         },
                         {
@@ -318,12 +321,17 @@ export default class IndividualSummary extends LitElement {
                             title: "Phenotypes",
                             type: "list",
                             display: {
-                                titleWidth: 2,
-                                contentLayout: "bullets",
-                                format: phenotype => {
-                                    return UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype]));
-                                },
                                 defaultValue: "-",
+                                contentLayout: "bullets",
+                                transform: phenotypes => {
+                                    return (phenotypes || []).sort(item => item?.status === "OBSERVED" ? -1 : 1);
+                                },
+                                template: "${name} (${id})",
+                                link: {
+                                    "id": id => {
+                                        return BioinfoUtils.getOntologyLink(id);
+                                    },
+                                }
                             },
                         },
                     ],
