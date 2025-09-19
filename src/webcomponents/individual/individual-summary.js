@@ -299,13 +299,15 @@ export default class IndividualSummary extends LitElement {
                             type: "list",
                             display: {
                                 titleWidth: 2,
+                                listClassName: "mb-0 ps-3",
+                                contentLayout: "bullets",
                                 defaultLayout: "vertical",
-                                defaultValue: html`
-                                    <div class="alert alert-light mb-0">
-                                        <span>No <b>disorders</b> available for this individual.</span>
+                                emptyMessage: individual => html`
+                                    <div class="alert alert-light mb-0 d-flex flex-column align-items-center gap-1">
+                                        <i class="fas fa-info-circle fs-3"></i>
+                                        <div>No disorders available for individual <b>${individual.name || individual.id}</b>.</div>
                                     </div>
                                 `,
-                                contentLayout: "bullets",
                                 template: "${name} (${id})",
                                 link: {
                                     "id": id => {
