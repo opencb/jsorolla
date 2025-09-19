@@ -302,7 +302,7 @@ export default class IndividualSummary extends LitElement {
                                 listClassName: "mb-0 ps-3",
                                 contentLayout: "bullets",
                                 defaultLayout: "vertical",
-                                emptyMessage: individual => html`
+                                defaultValue: individual => html`
                                     <div class="alert alert-light mb-0 d-flex flex-column align-items-center gap-1">
                                         <i class="fas fa-info-circle fs-3"></i>
                                         <div>No disorders available for individual <b>${individual.name || individual.id}</b>.</div>
@@ -326,7 +326,7 @@ export default class IndividualSummary extends LitElement {
                                 listClassName: "mb-0 ps-3",
                                 contentLayout: "bullets",
                                 defaultLayout: "vertical",
-                                emptyMessage: individual => html`
+                                defaultValue: individual => html`
                                     <div class="alert alert-light mb-0 d-flex flex-column align-items-center gap-1">
                                         <i class="fas fa-info-circle fs-3"></i>
                                         <div>No phenotypes available for individual <b>${individual.name || individual.id}</b>.</div>
