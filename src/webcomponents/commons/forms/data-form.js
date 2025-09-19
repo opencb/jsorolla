@@ -1188,6 +1188,10 @@ export default class DataForm extends LitElement {
 
         // 3. Check length of the array. This MUST be done after filtering
         if (values.length === 0) {
+            // Check if an 'emptyMessage' function is provided
+            if (typeof element.display?.emptyMessage === "function") {
+                return this._createElementTemplate(element, null, element.display.emptyMessage(data) || nothing);
+            }
             // If empty we just print the defaultValue, this is not an error
             return this._createElementTemplate(element, null, null, {
                 message: this._getDefaultValue(element, section) ?? "Empty array",
@@ -1203,14 +1207,12 @@ export default class DataForm extends LitElement {
             } else {
                 values = values.map(item => element.display.render(item, data));
             }
-        } else {
-            if (element.display?.template) {
-                // Note: template can contain HTML, so we must convert it to HTML using the UtilsNew.renderHTML function
-                // for example, if template renders links or formated text
-                values = values.map(item => {
-                    return UtilsNew.renderHTML(this.applyTemplate(element.display.template, item, this._getDefaultValue(element, section), element));
-                });
-            }
+        } else if (element.display?.template) {
+            // Note: template can contain HTML, so we must convert it to HTML using the UtilsNew.renderHTML function
+            // for example, if template renders links or formated text
+            values = values.map(item => {
+                return UtilsNew.renderHTML(this.applyTemplate(element.display.template, item, this._getDefaultValue(element, section), element));
+            });
         }
 
         // 5. Render element values
