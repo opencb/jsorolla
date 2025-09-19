@@ -263,8 +263,10 @@ export default class DataForm extends LitElement {
     }
 
     _getDefaultValue(element, section) {
-        // Preference order: element, section and then global config
-        return element?.display?.defaultValue ?? section?.display?.defaultValue ?? this.config?.display?.defaultValue ?? "";
+        const defaultValue = element?.display?.defaultValue ?? section?.display?.defaultValue ?? this.config?.display?.defaultValue ?? "";
+
+        // if defaultValue is a function, execute it with the global data object
+        return typeof defaultValue === "function" ? defaultValue(this.data) : defaultValue;
     }
 
     _getDefaultErrorMessage(element, section) {
