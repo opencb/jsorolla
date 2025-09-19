@@ -1155,6 +1155,11 @@ export default class DataForm extends LitElement {
             values = element.display.getData(data);
         }
         const contentLayout = element.display?.contentLayout || "vertical";
+        const listClassName = element.display?.className || element.display?.listClassName || "";
+        const listStyle = this._parseStyleField(element.display?.style || element.display?.listStyle) || "";
+        const listItemClassName = element.display?.itemClassName || element.display?.listItemClassName || "";
+        const listItemStyle = this._parseStyleField(element.display?.itemStyle || element.display?.listItemStyle) || "";
+
         // 1. Check array and layout exist
         if (!Array.isArray(values)) {
             return this._createElementTemplate(element, null, null, {
@@ -1254,10 +1259,10 @@ export default class DataForm extends LitElement {
                 break;
             case "bullets":
                 content = html`
-                    <ul class="ps-3">
+                    <ul class="${listClassName}" style="list-style-position:inside;${listStyle}">
                         ${values.map((elem, index) => html`
-                            <li class="">
-                                <span style="${styles[elem]}">${elem}</span>
+                            <li class="${listItemClassName}" style="${listItemStyle}">
+                                <span>${elem}</span>
                             </li>
                             ${separators[index] ? html`<div>${separators[index]}</div>` : nothing}
                         `)}
@@ -1266,10 +1271,10 @@ export default class DataForm extends LitElement {
                 break;
             case "numbers":
                 content = html`
-                    <ol class="ps-3">
+                    <ol class="${listClassName}" style="list-style-position:inside;${listStyle}">
                         ${values.map((elem, index) => html`
-                            <li class="">
-                                <span style="${styles[elem]}">${elem}</span>
+                            <li class="${listItemClassName}" style="${listItemStyle}">
+                                <span>${elem}</span>
                             </li>
                             ${separators[index] ? html`<div>${separators[index]}</div>` : nothing}
                         `)}
