@@ -1260,11 +1260,10 @@ export default class DataForm extends LitElement {
             case "bullets":
                 content = html`
                     <ul class="${listClassName}" style="list-style-position:inside;${listStyle}">
-                        ${values.map((elem, index) => html`
+                        ${values.map(value => html`
                             <li class="${listItemClassName}" style="${listItemStyle}">
-                                <span>${elem}</span>
+                                <span>${value}</span>
                             </li>
-                            ${separators[index] ? html`<div>${separators[index]}</div>` : nothing}
                         `)}
                     </ul>
                 `;
@@ -1272,11 +1271,10 @@ export default class DataForm extends LitElement {
             case "numbers":
                 content = html`
                     <ol class="${listClassName}" style="list-style-position:inside;${listStyle}">
-                        ${values.map((elem, index) => html`
+                        ${values.map(value => html`
                             <li class="${listItemClassName}" style="${listItemStyle}">
-                                <span>${elem}</span>
+                                <span>${value}</span>
                             </li>
-                            ${separators[index] ? html`<div>${separators[index]}</div>` : nothing}
                         `)}
                     </ol>
                 `;
