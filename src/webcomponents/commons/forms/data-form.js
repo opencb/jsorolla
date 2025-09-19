@@ -1291,23 +1291,20 @@ export default class DataForm extends LitElement {
 
         // 1. Check field exists, and it is an array. Also, check 'columns' is defined
         if (!array) {
-            const message = errorMessage ?? `Type 'table' requires a valid array field: ${element.field} not found`;
             return this._createElementTemplate(element, null, null, {
-                message: message,
+                message:  errorMessage ?? `Type 'table' requires a valid array field: ${element.field} not found`,
                 className: errorClassName,
             });
         }
         if (!Array.isArray(array)) {
-            const message = `Field '${element.field}' is not an array`;
             return this._createElementTemplate(element, null, null, {
-                message: message,
+                message: `Field '${element.field}' is not an array`,
                 className: errorClassName,
             });
         }
         if (!element.display && !element.display.columns) {
-            const message = "Type 'table' requires a 'columns' array";
             return this._createElementTemplate(element, null, null, {
-                message: message,
+                message: "Type 'table' requires a 'columns' array",
                 className: errorClassName,
             });
         }
