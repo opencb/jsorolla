@@ -1160,6 +1160,9 @@ export default class DataForm extends LitElement {
         const listItemClassName = element.display?.itemClassName || element.display?.listItemClassName || "";
         const listItemStyle = this._parseStyleField(element.display?.itemStyle || element.display?.listItemStyle) || "";
 
+        // note: separator is only available for 'horizontal' and 'vertical' layouts
+        const separator = element.display?.separator ?? (contentLayout === "horizontal" ? ", " : null);
+
         // 1. Check array and layout exist
         if (!Array.isArray(values)) {
             return this._createElementTemplate(element, null, null, {
@@ -1210,52 +1213,32 @@ export default class DataForm extends LitElement {
             }
         }
 
-        // 5. Precompute styles
-        const styles = {};
-        if (element.display?.style) {
-            if (typeof element.display.style === "string") {
-                // All elements will have the same style
-                values.forEach(item => styles[item] = element.display.style);
-            } else {
-                // It is an object, we must find the right style for each element
-                for (const item of values) {
-                    // This call already checks if style is a function
-                    styles[item] = this._parseStyleField(element.display?.style, item, data);
-                }
-            }
-        }
-
-        // 6. Precompute separators
-        const separators = {};
-        if (element.display?.separator) {
-            // Last element cannot add a separator, so we iterate until length -1
-            for (let i = 0; i < values.length - 1; i++) {
-                let separator = null;
-                if (typeof element.display.separator === "string") {
-                    separator = element.display.separator;
-                } else {
-                    separator = element.display.separator(values[i], i, values, data);
-                }
-                separators[i] = separator.includes("---") ? html`<hr>` : separator;
-            }
-        }
-
-        // 7. Render element values
+        // 5. Render element values
         let content = this._getDefaultValue(element, section);
         switch (contentLayout) {
             case "horizontal":
-                content = values.map((elem, index) => html`
-                    <span style="${styles[elem]}">${elem}</span>
-                    <span>${index < values.length - 1 ? separators[index] ?? ", " : nothing}</span>
-                `);
+                content = html`
+                    <div class="${listClassName}" style="${listStyle}">
+                        ${values.map((value, index) => html`
+                            <span class="${listItemClassName}" style="${listItemStyle}">${value}</span>
+                            ${(index < values.length - 1 && separator) ? html`
+                                <span>${typeof separator === "function" ? separator(value, index, values) : nothing}</span>
+                            ` : nothing}
+                        `)}
+                    </div>
+                `;
                 break;
             case "vertical":
-                content = values.map((elem, index) => html`
-                    <div class="">
-                        <span style="${styles[elem] || ""}">${elem}</span>
+                content = html`
+                    <div class="${listClassName}" style="${listStyle}">
+                        ${values.map((value, index) => html`
+                            <div class="${listItemClassName}" style="${listItemStyle}">${value}</div>
+                            ${(index < values.length - 1 && separator) ? html`
+                                <span>${typeof separator === "function" ? separator(value, index, values) : nothing}</span>
+                            ` : nothing}
+                        `)}
                     </div>
-                    ${separators[index] ? html`<div>${separators[index]}</div>` : nothing}
-                `);
+                `;
                 break;
             case "bullets":
                 content = html`
