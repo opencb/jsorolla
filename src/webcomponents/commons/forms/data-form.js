@@ -1165,10 +1165,12 @@ export default class DataForm extends LitElement {
 
         // 1. Check array and layout exist
         if (!Array.isArray(values)) {
-            return this._createElementTemplate(element, null, null, {
-                message: this._getDefaultValue(element, section) ?? `Field '${element.field}' is not an array`,
-                className: "text-danger"
-            });
+            console.error(`Field '${element.field}' is not an array.`);
+            return this._createElementTemplate(element, null, this._getDefaultValue(element, section));
+            // return this._createElementTemplate(element, null, null, {
+            //     message: this._getDefaultValue(element, section) ?? `Field '${element.field}' is not an array`,
+            //     className: "text-danger"
+            // });
         }
         if (contentLayout !== "horizontal" && contentLayout !== "vertical" && contentLayout !== "bullets" && contentLayout !== "numbers") {
             return this._createElementTemplate(element, null, null, {
@@ -1188,14 +1190,7 @@ export default class DataForm extends LitElement {
 
         // 3. Check length of the array. This MUST be done after filtering
         if (values.length === 0) {
-            // Check if an 'emptyMessage' function is provided
-            if (typeof element.display?.emptyMessage === "function") {
-                return this._createElementTemplate(element, null, element.display.emptyMessage(data) || nothing);
-            }
-            // If empty we just print the defaultValue, this is not an error
-            return this._createElementTemplate(element, null, null, {
-                message: this._getDefaultValue(element, section) ?? "Empty array",
-            });
+            return this._createElementTemplate(element, null, this._getDefaultValue(element, section));
         }
 
         // 4. Format list elements. Initialise values with array, this is valid for scalars, or when 'template' and 'format' do not exist
@@ -1211,7 +1206,7 @@ export default class DataForm extends LitElement {
             // Note: template can contain HTML, so we must convert it to HTML using the UtilsNew.renderHTML function
             // for example, if template renders links or formated text
             values = values.map(item => {
-                return UtilsNew.renderHTML(this.applyTemplate(element.display.template, item, this._getDefaultValue(element, section), element));
+                return UtilsNew.renderHTML(this.applyTemplate(element.display.template, item, "", element));
             });
         }
 
@@ -1224,7 +1219,7 @@ export default class DataForm extends LitElement {
                         ${values.map((value, index) => html`
                             <span class="${listItemClassName}" style="${listItemStyle}">${value}</span>
                             ${(index < values.length - 1 && separator) ? html`
-                                <span>${typeof separator === "function" ? separator(value, index, values) : nothing}</span>
+                                <span>${typeof separator === "function" ? separator(value, index, values) : separator}</span>
                             ` : nothing}
                         `)}
                     </div>
@@ -1236,7 +1231,7 @@ export default class DataForm extends LitElement {
                         ${values.map((value, index) => html`
                             <div class="${listItemClassName}" style="${listItemStyle}">${value}</div>
                             ${(index < values.length - 1 && separator) ? html`
-                                <span>${typeof separator === "function" ? separator(value, index, values) : nothing}</span>
+                                <span>${typeof separator === "function" ? separator(value, index, values) : separator}</span>
                             ` : nothing}
                         `)}
                     </div>
