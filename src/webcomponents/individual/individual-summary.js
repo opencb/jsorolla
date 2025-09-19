@@ -359,6 +359,44 @@ export default class IndividualSummary extends LitElement {
                                 className: "mb-2 fs-5 fw-bold",
                             },
                         },
+                        {
+                            field: "samples",
+                            type: "table",
+                            display: {
+                                className: "",
+                                style: "",
+                                headerClassName: "",
+                                headerStyle: "",
+                                headerVisible: true,
+                                defaultValue: "No phenotypes found",
+                                columns: [
+                                    {
+                                        title: "Samples ID",
+                                        field: "id",
+                                        display: {
+                                            style: {
+                                                "font-weight": "bold"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        title: "Somatic",
+                                        field: "somatic",
+                                    },
+                                    {
+                                        title: "Phenotypes",
+                                        field: "phenotypes",
+                                        type: "list",
+                                        display: {
+                                            contentLayout: "bullets",
+                                            defaultValue: "-",
+                                            format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+ 
                     ],
                 },
                 {
