@@ -323,8 +323,15 @@ export default class IndividualSummary extends LitElement {
                             type: "list",
                             display: {
                                 titleWidth: 2,
-                                defaultValue: "-",
+                                listClassName: "mb-0 ps-3",
                                 contentLayout: "bullets",
+                                defaultLayout: "vertical",
+                                emptyMessage: individual => html`
+                                    <div class="alert alert-light mb-0 d-flex flex-column align-items-center gap-1">
+                                        <i class="fas fa-info-circle fs-3"></i>
+                                        <div>No phenotypes available for individual <b>${individual.name || individual.id}</b>.</div>
+                                    </div>
+                                `,
                                 transform: phenotypes => {
                                     return (phenotypes || []).sort(item => item?.status === "OBSERVED" ? -1 : 1);
                                 },
