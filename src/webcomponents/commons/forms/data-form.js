@@ -1325,9 +1325,13 @@ export default class DataForm extends LitElement {
 
         // 3. Check length of the array. This MUST be done after filtering
         if (!array.length) {
-            const message = this._getDefaultValue(element, section);
+            // Check if an 'emptyMessage' function is provided
+            if (typeof element.display?.emptyMessage === "function") {
+                return this._createElementTemplate(element, null, element.display.emptyMessage(data) || nothing);
+            }
+            // If empty we just print the defaultValue, this is not an error
             return this._createElementTemplate(element, null, null, {
-                message: message,
+                message: this._getDefaultValue(element, section),
             });
         }
 
