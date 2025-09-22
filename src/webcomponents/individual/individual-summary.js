@@ -365,6 +365,7 @@ export default class IndividualSummary extends LitElement {
                             display: {
                                 className: "table-borderless table-grid",
                                 headerCellClassName: "bg-white",
+                                bodyRowClassName: "bg-gray-100",
                                 defaultValue: individual => html`
                                     <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
                                         <i class="fas fa-info-circle fs-3"></i>
@@ -391,6 +392,17 @@ export default class IndividualSummary extends LitElement {
                                             render: somatic => html`
                                                 <i class="fas ${somatic ? "fa-check": "fa-times"}"></i>
                                             `,
+                                        },
+                                    },
+                                    {
+                                        title: "Cohorts",
+                                        field: "cohortIds",
+                                        type: "list",
+                                        display: {
+                                            contentLayout: "horizontal",
+                                            listClassName: "d-flex align-items-center flex-wrap",
+                                            listItemClassName: "badge bg-secondary text-white me-1",
+                                            defaultValue: "-",
                                         },
                                     },
                                     {
