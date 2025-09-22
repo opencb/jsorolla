@@ -363,12 +363,9 @@ export default class IndividualSummary extends LitElement {
                             field: "samples",
                             type: "table",
                             display: {
-                                className: "",
-                                style: "",
-                                headerClassName: "",
-                                headerStyle: "",
-                                headerVisible: true,
-                                defaultValue: "No phenotypes found",
+                                className: "table-borderless table-grid",
+                                headerCellClassName: "bg-white",
+                                defaultValue: "No samples available for this individual.",
                                 columns: [
                                     {
                                         title: "Samples ID",
@@ -382,6 +379,14 @@ export default class IndividualSummary extends LitElement {
                                     {
                                         title: "Somatic",
                                         field: "somatic",
+                                        type: "custom",
+                                        display: {
+                                            headerCellClassName: "text-center",
+                                            bodyCellClassName: "text-center",
+                                            render: somatic => html`
+                                                <i class="fas ${somatic ? "fa-check": "fa-times"}"></i>
+                                            `,
+                                        },
                                     },
                                     {
                                         title: "Phenotypes",
