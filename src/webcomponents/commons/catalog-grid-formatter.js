@@ -16,7 +16,6 @@
 
 import UtilsNew from "../../core/utils-new.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
-import WebUtils from "./utils/web-utils.js";
 import GridCommons from "./grid-commons.js";
 
 export default class CatalogGridFormatter {
@@ -285,4 +284,19 @@ export default class CatalogGridFormatter {
         return "-";
     }
 
+    static variantStatusFormatter(internalVariant) {
+        let indexHtml = internalVariant?.index?.status?.id === "READY"
+            ? `<i class="fas fa-check text-success" title="VCF Variant indexed"></i>`
+            : `<span class="text-danger">${internalVariant.index.status.id}</span>`;
+        let annotationHtml = internalVariant?.annotationIndex?.status?.id === "READY"
+            ? `<i class="fas fa-check text-success" title="Variant Annotation indexed"></i>`
+            : `<span class="text-danger">${internalVariant.annotationIndex.status.id}</span>`;
+
+        return `
+            <div class="d-flex flex-column gap-1">
+                <div class="">Indexed: <span class="mx-3">${indexHtml}</span></div>
+                <div class="">Annotated: <span class="mx-3">${annotationHtml}</span></div>
+            </div>
+                    `;
+    }
 }

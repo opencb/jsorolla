@@ -577,17 +577,8 @@ export default class SampleGrid extends LitElement {
             {
                 id: "status",
                 title: "Variant Index Status",
-                field: "internal.variant.index.status.id",
-                formatter: (variantIndexStatusId, sample) => {
-                    let result = "-";
-                    result = `
-                        <div class="d-flex flex-column gap-1">
-                            <label>Index: ${variantIndexStatusId}</label>
-                            <label>Annotation: ${sample?.internal?.variant?.annotationIndex?.status?.id}</label>
-                        </div>
-                    `;
-                    return result;
-                },
+                field: "internal.variant",
+                formatter: internalVariant => CatalogGridFormatter.variantStatusFormatter(internalVariant),
                 visible: this.gridCommons.isColumnVisible("status"),
             },
             {
