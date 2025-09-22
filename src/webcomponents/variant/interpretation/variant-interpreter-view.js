@@ -151,7 +151,7 @@ export default class VariantInterpreterView extends LitElement {
             sections: [
                 {
                     id: "annotationSummary",
-                    name: "Summary New",
+                    name: "Overview",
                     render: variant => {
                         return html`
                             <variant-summary
@@ -169,20 +169,20 @@ export default class VariantInterpreterView extends LitElement {
                         `;
                     }
                 },
-                {
-                    id: "annotationSummary",
-                    name: "Summary 2",
-                    render: variant => {
-                        return html`
-                            <cellbase-variant-annotation-summary
-                                .variantAnnotation="${variant?.annotation}"
-                                .consequenceTypes="${CONSEQUENCE_TYPES}"
-                                .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
-                                .assembly="${this.opencgaSession.project.organism.assembly}">
-                            </cellbase-variant-annotation-summary>
-                        `;
-                    }
-                },
+                // {
+                //     id: "annotationSummary",
+                //     name: "Summary 2",
+                //     render: variant => {
+                //         return html`
+                //             <cellbase-variant-annotation-summary
+                //                 .variantAnnotation="${variant?.annotation}"
+                //                 .consequenceTypes="${CONSEQUENCE_TYPES}"
+                //                 .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                //                 .assembly="${this.opencgaSession.project.organism.assembly}">
+                //             </cellbase-variant-annotation-summary>
+                //         `;
+                //     }
+                // },
                 {
                     id: "annotationConsType",
                     name: "Consequence Type",
