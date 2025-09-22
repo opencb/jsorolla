@@ -297,7 +297,7 @@ export default class JobGrid extends LitElement {
         this._columns = [
             {
                 id: "id",
-                title: "Job ID",
+                title: "Job",
                 field: "id",
                 formatter: (id, row) => `
                     <a class="link fw-bold d-block my-1" data-action="view">${id}</a>
@@ -310,7 +310,7 @@ export default class JobGrid extends LitElement {
             },
             {
                 id: "toolId",
-                title: "Tool ID",
+                title: "Tool",
                 field: "tool.id",
                 formatter: (toolId, row) => `
                     <div class="my-1">${toolId}</div>

@@ -239,7 +239,7 @@ export default class FileBrowser extends LitElement {
                             },
                             {
                                 id: "sampleIds",
-                                title: "Sample ID",
+                                title: "Sample",
                                 type: "string",
                                 placeholder: "HG01879, HG01880, HG01881...",
                                 description: "",
@@ -247,7 +247,7 @@ export default class FileBrowser extends LitElement {
                             },
                             {
                                 id: "jobId",
-                                title: "Job ID",
+                                title: "Job",
                                 type: "string",
                                 placeholder: "Job ID ...",
                                 description: "",
