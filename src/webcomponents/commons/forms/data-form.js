@@ -1348,7 +1348,7 @@ export default class DataForm extends LitElement {
                     ${supraColumns.length > 0 ? html`
                         <tr class="${headerRowClassName}">
                             ${supraColumns.map(elem => html`
-                                <th class="${headerCellClassName} ${elem.display?.headerClassName}" rowspan="${subColumns.length ? (!elem.display?.columns?.length ? "2" : "1") : ""}" colspan="${elem.display?.columns?.length || "1"}">
+                                <th class="${headerCellClassName} ${elem.display?.headerCellClassName}" rowspan="${subColumns.length ? (!elem.display?.columns?.length ? "2" : "1") : ""}" colspan="${elem.display?.columns?.length || "1"}">
                                     ${elem.title || elem.name}
                                 </th>
                             `)}
@@ -1357,7 +1357,7 @@ export default class DataForm extends LitElement {
                     ${subColumns.length > 0 ? html`
                         <tr class="${headerRowClassName}">
                             ${subColumns.map(elem => html`
-                                <th class="${headerCellClassName} ${elem?.display?.headerClassName}" rowspan="1" colspan="1">
+                                <th class="${headerCellClassName} ${elem?.display?.headerCellClassName}" rowspan="1" colspan="1">
                                     ${elem.title || elem.name}
                                 </th>
                             `)}
@@ -1368,9 +1368,9 @@ export default class DataForm extends LitElement {
                 ${array.map((row, index) => html`
                     <tr data-row-index="${index}" class="${bodyRowClassName}">
                         ${columns.map(elem => {
-                            // @deprecated: 'elem.display.className' is deprecated, use 'elem.display.cellClassName' instead
-                            const elemClassName = elem.display?.cellClassName || elem.display?.className || "";
-                            const elemStyle = this._parseStyleField(elem.display?.cellStyle);
+                            // @deprecated: 'elem.display.className' and 'elem.display.cellClassName' is deprecated, use 'elem.display.bodyCellClassName' instead
+                            const elemClassName = elem.display?.bodyCellClassName || elem.display?.cellClassName || elem.display?.className || "";
+                            const elemStyle = this._parseStyleField(elem.display?.bodyCellStyle);
 
                             // Check the element type
                             let content;
