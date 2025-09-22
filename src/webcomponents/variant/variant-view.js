@@ -129,7 +129,7 @@ export default class VariantView extends LitElement {
             sections: [
                 {
                     id: "annotation-summary",
-                    name: "Summary 2",
+                    name: "Overview",
                     render: (variant, active) => html`
                         <variant-summary
                             .active="${active}"
