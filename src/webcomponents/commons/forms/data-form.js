@@ -1368,9 +1368,9 @@ export default class DataForm extends LitElement {
                 ${array.map((row, index) => html`
                     <tr data-row-index="${index}" class="${bodyRowClassName}">
                         ${columns.map(elem => {
-                            // @deprecated: 'elem.display.className' and 'elem.display.cellClassName' are deprecated, use 'elem.display.bodyClassName' instead
-                            const elemClassName = elem.display?.bodyClassName || elem.display?.className || elem.display?.cellClassName || "";
-                            const elemStyle = this._parseStyleField(elem.display?.style);
+                            // @deprecated: 'elem.display.className' is deprecated, use 'elem.display.cellClassName' instead
+                            const elemClassName = elem.display?.cellClassName || elem.display?.className || "";
+                            const elemStyle = this._parseStyleField(elem.display?.cellStyle);
 
                             // Check the element type
                             let content;
