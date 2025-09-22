@@ -197,7 +197,7 @@ export default class DataForm extends LitElement {
             //          },
             //     },
             let value = this.getValue(match, data, defaultValue);
-            if (element?.display?.format?.[match]) {
+            if (typeof element?.display?.format?.[match] === "function") {
                 value = element?.display?.format?.[match](value, data);
             }
             if (element?.display?.link?.[match]) {
@@ -1197,7 +1197,7 @@ export default class DataForm extends LitElement {
 
         // 4. Format list elements. Initialise values with array, this is valid for scalars, or when 'template' and 'format' do not exist
         // Apply the template to all Array elements and store them in 'values'
-        if (element.display?.format || element.display?.render) {
+        if (typeof element.display?.format === "function" || typeof element.display?.render === "function") {
             // NOTE: 'element.display.render' is now deprecated, use 'format' instead
             if (element.display?.format) {
                 values = values.map(item => element.display.format(item, data));
