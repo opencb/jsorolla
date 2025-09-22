@@ -407,16 +407,6 @@ export default class IndividualSummary extends LitElement {
                                         },
                                     },
                                     {
-                                        title: "Phenotypes",
-                                        field: "phenotypes",
-                                        type: "list",
-                                        display: {
-                                            contentLayout: "bullets",
-                                            defaultValue: "-",
-                                            format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
-                                        },
-                                    },
-                                    {
                                         title: "Files",
                                         field: "fileIds",
                                         type: "list",
