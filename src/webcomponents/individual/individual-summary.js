@@ -377,6 +377,7 @@ export default class IndividualSummary extends LitElement {
                                         title: "Sample ID",
                                         field: "id",
                                         display: {
+                                            className: "text-break",
                                             style: {
                                                 "font-weight": "bold"
                                             }
@@ -413,6 +414,20 @@ export default class IndividualSummary extends LitElement {
                                             contentLayout: "bullets",
                                             defaultValue: "-",
                                             format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
+                                        },
+                                    },
+                                    {
+                                        title: "Files",
+                                        field: "fileIds",
+                                        type: "list",
+                                        display: {
+                                            contentLayout: "vertical",
+                                            listItemClassName: "d-flex align-items-center gap-2",
+                                            defaultValue: "-",
+                                            template: "<i class='far fa-file'></i><span>${id}</span>",
+                                            format: {
+                                                id: (fileId, data) => data,
+                                            },
                                         },
                                     },
                                 ],
