@@ -305,8 +305,8 @@ class VariantInterpreter extends LitElement {
                 // add separator between this tool only if it is not the first one
                 if (index > 0) {
                     tools.push(html`
-                        <div class="bg-gray-200 flex-shrink-0" style="height:2px;width:32px;margin-top:19px;"></div>`
-                    );
+                        <div class="bg-gray-200 flex-shrink-0" style="height:2px;width:32px;margin-top:19px;"></div>
+                    `);
                 }
                 const active = activeTool === item.id;
                 const url = WebUtils.getInterpreterLink(this.opencgaSession, {
