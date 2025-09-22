@@ -303,7 +303,7 @@ export default class IndividualSummary extends LitElement {
                                 contentLayout: "bullets",
                                 defaultLayout: "vertical",
                                 defaultValue: individual => html`
-                                    <div class="alert alert-light mb-0 d-flex flex-column align-items-center gap-1">
+                                    <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
                                         <i class="fas fa-info-circle fs-3"></i>
                                         <div class="text-break">No disorders available for individual <b>${individual.name || individual.id}</b>.</div>
                                     </div>
@@ -327,7 +327,7 @@ export default class IndividualSummary extends LitElement {
                                 contentLayout: "bullets",
                                 defaultLayout: "vertical",
                                 defaultValue: individual => html`
-                                    <div class="alert alert-light mb-0 d-flex flex-column align-items-center gap-1">
+                                    <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
                                         <i class="fas fa-info-circle fs-3"></i>
                                         <div class="text-break">No phenotypes available for individual <b>${individual.name || individual.id}</b>.</div>
                                     </div>
@@ -365,10 +365,15 @@ export default class IndividualSummary extends LitElement {
                             display: {
                                 className: "table-borderless table-grid",
                                 headerCellClassName: "bg-white",
-                                defaultValue: "No samples available for this individual.",
+                                defaultValue: individual => html`
+                                    <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
+                                        <i class="fas fa-info-circle fs-3"></i>
+                                        <div class="text-break">No samples available for individual <b>${individual.name || individual.id}</b>.</div>
+                                    </div>
+                                `,
                                 columns: [
                                     {
-                                        title: "Samples ID",
+                                        title: "Sample ID",
                                         field: "id",
                                         display: {
                                             style: {
