@@ -297,6 +297,18 @@ export default class CatalogGridFormatter {
                 <div class="">Indexed: <span class="mx-3">${indexHtml}</span></div>
                 <div class="">Annotated: <span class="mx-3">${annotationHtml}</span></div>
             </div>
-                    `;
+        `;
+    }
+
+    static alignmentStatusFormatter(internalAlignment) {
+        let indexHtml = internalAlignment?.index?.status?.id === "READY"
+            ? `<i class="fas fa-check text-success" title="Alignment file indexed"></i>`
+            : `<span class="text-danger">${internalAlignment.index.status.id}</span>`;
+
+        return `
+            <div class="d-flex flex-column gap-1">
+                <div class="">Indexed: <span class="mx-3">${indexHtml}</span></div>
+            </div>
+        `;
     }
 }

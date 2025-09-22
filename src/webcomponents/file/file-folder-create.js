@@ -100,12 +100,14 @@ export default class FileFolderCreate extends LitElement {
             ...otherFileData,
             tags: otherFileData.tags ? otherFileData.tags.split(",").map(t => t.trim()) : [],
             path: `${this.path || ""}${name}`,
+            resource: this.path.startsWith("RESOURCES/")
         };
 
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.files()
             .create(data, {
                 study: this.opencgaSession.study.fqn,
+                parents: name?.includes("/")
             })
             .then(() => {
                 this.#initOriginalObjects();
@@ -198,17 +200,17 @@ export default class FileFolderCreate extends LitElement {
                                 helpMessage: "Description of the folder.",
                             },
                         },
-                        {
-                            title: "Resource",
-                            field: "resource",
-                            type: "checkbox",
-                            display: {
-                                disabled: () => {
-                                    return !CatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
-                                },
-                                helpMessage: "If checked, the file will be created as a resource. This option is only available for study administrators.",
-                            },
-                        },
+                        // {
+                        //     title: "Resource",
+                        //     field: "resource",
+                        //     type: "checkbox",
+                        //     display: {
+                        //         disabled: () => {
+                        //             return !CatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
+                        //         },
+                        //         helpMessage: "If checked, the file will be created as a resource. This option is only available for study administrators.",
+                        //     },
+                        // },
                     ],
                 },
             ],
