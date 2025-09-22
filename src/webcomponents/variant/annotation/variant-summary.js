@@ -142,32 +142,32 @@ export default class VariantSummary extends LitElement {
                 // - Variant interpretation selected interpretation
                 // - ACMG Classification selected interpretation
                 // - User classification selected interpretation
-                // {
-                //     display: {},
-                //     elements: [
-                //         {
-                //             id: "variant-summary-interpretation",
-                //             type: "custom",
-                //             title: "",
-                //             display: {
-                //                 containerClassName: "",
-                //                 titleClassName: "",
-                //                 titleStyle: "",
-                //                 visible: this._interpretationVisible,
-                //                 render: variant => {
-                //                     return html`
-                //                         <variant-summary-interpretation
-                //                             .variant="${variant}"
-                //                             .primaryFinding="${this._primaryFinding}"
-                //                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                //                             .opencgaSession="${this.opencgaSession}">
-                //                         </variant-summary-interpretation>
-                //                     `;
-                //                 }
-                //             },
-                //         },
-                //     ],
-                // },
+                {
+                    display: {},
+                    elements: [
+                        {
+                            id: "variant-summary-interpretation",
+                            type: "custom",
+                            title: "",
+                            display: {
+                                containerClassName: "",
+                                titleClassName: "",
+                                titleStyle: "",
+                                visible: this._interpretationVisible,
+                                render: variant => {
+                                    return html`
+                                        <variant-summary-interpretation
+                                            .variant="${variant}"
+                                            .primaryFinding="${this._primaryFinding}"
+                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </variant-summary-interpretation>
+                                    `;
+                                }
+                            },
+                        },
+                    ],
+                },
                 // 2. Section Variant quality
                 {
                     elements: [
