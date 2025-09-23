@@ -30,7 +30,7 @@ import "./file-create.js";
 import "./file-upload.js";
 import "./file-fetch.js";
 import "./file-view.js";
-import "./file-content-update.js";
+import "./file-editor.js";
 import "../variant/operation/variant-index-operation.js";
 
 export default class OpencgaFileGrid extends LitElement {
@@ -140,13 +140,13 @@ export default class OpencgaFileGrid extends LitElement {
                     buttonsVisible: false,
                 },
                 render: () => html`
-                    <file-content-update
-                        .file="${this._selectedFile}"
+                    <file-editor
+                        .path="${this._selectedFile.path || this._selectedFile.id}"
                         .opencgaSession="${this.opencgaSession}"
                         @fileContentUpdate="${() => {
                             this.gridCommons.clearActiveModal();
                         }}">
-                    </file-content-update>
+                    </file-editor>
                 `,
             }),
             "create-folder": {
