@@ -582,6 +582,10 @@ export default class OpencgaFileGrid extends LitElement {
         `;
     }
 
+    isUpdateContentAllowed(file) {
+        return file.type === "FILE" && ["TAB_SEPARATED_VALUES", "COMMA_SEPARATED_VALUES", "XML", "JSON", "PLAIN", "PED", "JAVASCRIPT", "NONE", "UNKNOWN"].includes(file.format);
+    }
+
     onActionClick(event, file) {
         const action = (event.currentTarget?.dataset?.action || "").toLowerCase();
         switch (action) {
