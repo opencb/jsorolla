@@ -179,7 +179,8 @@ module.exports = {
                     "node_modules/bootstrap-table/dist/bootstrap-table.min.css",
                     "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
                     "node_modules/qtip2/dist/jquery.qtip.min.css",
-                    "node_modules/swagger-ui/dist/swagger-ui.css"
+                    "node_modules/swagger-ui/dist/swagger-ui.css",
+                    "node_modules/codecake/codecake.css",
                 ],
             },
             chunks: entries,
