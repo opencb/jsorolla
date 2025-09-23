@@ -544,6 +544,7 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     actionsFormatter(value, row) {
+        const hasWritePermission = this.gridCommons.hasPermission("WRITE");
         const hasDownloadPermission = this.gridCommons.hasPermission("DOWNLOAD");
         const hasDeletePermission = this.gridCommons.hasPermission("DELETE");
         const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
@@ -568,6 +569,9 @@ export default class OpencgaFileGrid extends LitElement {
                         <hr class="dropdown-divider">
                         <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" || !hasDownloadPermission ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
                             <i class="fas fa-download me-1"></i> Download
+                        </a>
+                        <a data-action="update-content" class="dropdown-item ${this.isUpdateContentAllowed(row) && hasDownloadPermission && hasWritePermission ? "cursor-pointer" : "disabled"}">
+                            <i class="fas fa-edit me-1"></i> Update Content
                         </a>
                         <a data-action="variant-index" class="dropdown-item ${row.format === "VCF" && isStudyAdmin ? "cursor-pointer" : "disabled"}">
                             <i class="fas fa-rocket me-1"></i> Run Variant Index
