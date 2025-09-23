@@ -622,6 +622,10 @@ export default class OpencgaFileGrid extends LitElement {
                 this._selectedJobId = event.currentTarget.dataset.job;
                 this.gridCommons.changeActiveModal("view-job");
                 break;
+            case "update-content":
+                this._selectedFile = file;
+                this.gridCommons.changeActiveModal("update-content");
+                break;
         }
     }
 
