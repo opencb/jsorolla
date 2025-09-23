@@ -66,7 +66,7 @@ export default class ContentEditor extends LitElement {
 
     getDefaultConfig() {
         return {
-            parentClassName: "w-full overflow-y-auto h-full",
+            parentClassName: "w-full overflow-y-auto h-full rounded-3",
             parentStyle: "",
             editorClassName: "h-full",
             editorStyle: "",
