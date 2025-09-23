@@ -26,7 +26,6 @@ export default class ContentEditor extends LitElement {
     }
 
     #init() {
-        this._editor = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -41,17 +40,20 @@ export default class ContentEditor extends LitElement {
     }
 
     firstUpdated() {
-        this._editor = CodeCake.create(this.querySelector("div"), {
+        // 1. initialize the editor using the provided configuration
+        const editor = CodeCake.create(this.querySelector("div"), {
             code: this.content || "",
             language: this._config.language,
-            className: `codecake-${this._config.theme} h-full`,
-            lineNumbers: true,
+            className: `codecake-${this._config.theme} ${this._config.editorClassName}`,
+            style: this._config.editorStyle,
+            lineNumbers: this._config.lineNumbers,
             highlight: (code, language) => {
                 return CodeCake.highlight(code, language);
             },
         });
-        // dispatch content change event on editor changes
-        this._editor.onChange(newCode => {
+
+        // 2. listen to changes in the editor
+        editor.onChange(newCode => {
             LitUtils.dispatchCustomEvent(this, "contentChange", newCode);
         });
     }
@@ -66,7 +68,10 @@ export default class ContentEditor extends LitElement {
         return {
             parentClassName: "w-full overflow-y-auto h-full",
             parentStyle: "",
+            editorClassName: "h-full",
+            editorStyle: "",
             language: "",
+            lineNumbers: true,
             theme: "dark",
         };
     }
