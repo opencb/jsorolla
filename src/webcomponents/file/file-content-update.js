@@ -18,16 +18,13 @@ export default class FileContentUpdate extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             file: {
                 type: Object,
             },
-            fileId: {
-                type: String,
-            },
             displayConfig: {
-                type: Object
+                type: Object,
             },
         };
     }
@@ -51,7 +48,7 @@ export default class FileContentUpdate extends LitElement {
         this._file = {};
         if (this.file && this.opencgaSession) {
             this.opencgaSession.opencgaClient.files()
-                .download(file.id, {
+                .download(this.file.id, {
                     study: this.opencgaSession.study.fqn,
                 })
                 .then(fileContent => {
@@ -114,7 +111,8 @@ export default class FileContentUpdate extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                ...this.displayConfigDefault,
+                buttonsVisible: true,
+
                 ...this.displayConfig,
             },
             sections: [
