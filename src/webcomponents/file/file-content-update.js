@@ -112,21 +112,22 @@ export default class FileContentUpdate extends LitElement {
         return {
             display: {
                 buttonsVisible: true,
-
+                buttonOkText: "Update Content",
+                buttonClearText: "Clear Content",
+                defaultLayout: "vertical",
                 ...this.displayConfig,
             },
             sections: [
                 {
                     elements: [
                         {
-                            title: "Content",
+                            title: `Edit the content of the file ${this.file?.name || ""}`,
                             field: "content",
                             type: "input-text",
-                            required: true,
                             display: {
-                                rows: 20,
+                                rows: 25,
                                 help: {
-                                    text: "Content of the file. Maximum size is 5MB.",
+                                    text: "Maximum size is 5MB.",
                                 },
                             }
                         },
