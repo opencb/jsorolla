@@ -47,20 +47,7 @@ export default class FileFolderCreate extends LitElement {
 
     #init() {
         this.isLoading = false;
-        this.displayConfigDefault = {
-            style: "margin: 10px",
-            titleWidth: 3,
-            defaultLayout: "horizontal",
-            buttonOkText: "Create Folder",
-            buttonClearText: "Discard Changes",
-        };
-        this.#initOriginalObjects();
-    }
-
-    #initOriginalObjects() {
-        this._folder = {
-            type: "DIRECTORY",
-        };
+        this._folder = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -83,10 +70,10 @@ export default class FileFolderCreate extends LitElement {
 
     onClear() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Clear Folder",
-            message: "Are you sure to clear?",
+            title: "Discard Changes",
+            message: "This will discard all changes made on this form. Do you want to continue?",
             ok: () => {
-                this.#initOriginalObjects();
+                this._folder = {};
                 this.requestUpdate();
             },
         });
@@ -96,21 +83,24 @@ export default class FileFolderCreate extends LitElement {
         const {name, ...otherFileData} = this._folder;
         const data = {
             ...otherFileData,
+            type: "DIRECTORY",
             path: `${this.path || ""}${name}`,
+            resource: (this.path || "").startsWith("RESOURCES/"),
         };
 
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.files()
             .create(data, {
                 study: this.opencgaSession.study.fqn,
+                parents: name?.includes("/"),
             })
             .then(() => {
-                this.#initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Create Folder",
                     message: `Folder ${name} created correctly`,
                 });
                 LitUtils.dispatchCustomEvent(this, "folderCreate", null, data);
+                this._folder = {};
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -141,27 +131,19 @@ export default class FileFolderCreate extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                ...this.displayConfigDefault,
+                titleWidth: 3,
+                defaultLayout: "horizontal",
+                buttonOkText: "Create Folder",
+                buttonClearText: "Discard Changes",
                 ...this.displayConfig,
             },
             sections: [
                 {
                     elements: [
-                        // {
-                        //     title: "Type",
-                        //     field: "type",
-                        //     type: "input-text",
-                        //     required: true,
-                        //     display: {
-                        //         defaultValue: "DIRECTORY",
-                        //         disabled: true,
-                        //     },
-                        // },
                         {
                             title: "Path",
                             field: "path",
                             type: "input-text",
-                            // required: true,
                             display: {
                                 defaultValue: `/${this.path}`,
                                 disabled: true,
