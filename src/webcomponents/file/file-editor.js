@@ -24,6 +24,9 @@ export default class FileEditor extends LitElement {
             path: {
                 type: String,
             },
+            config: {
+                type: Object,
+            },
         };
     }
 
@@ -37,9 +40,12 @@ export default class FileEditor extends LitElement {
         if (changedProperties.has("path") || changedProperties.has("opencgaSession")) {
             this.pathObserver();
         }
-        // if (changedProperties.has("displayConfig")) {
-        //     this._config = this.getDefaultConfig();
-        // }
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+        }
         super.update(changedProperties);
     }
 
@@ -54,6 +60,8 @@ export default class FileEditor extends LitElement {
                     .search({
                         study: this.opencgaSession.study.fqn,
                         path: filePath,
+                        type: "FILE",
+                        include: "id",
                     });
                 const files = fileResponse?.responses?.[0]?.results || [];
                 // 2.1. if there is no file in the current study, throw an error
@@ -77,6 +85,20 @@ export default class FileEditor extends LitElement {
                 this.requestUpdate();
             }
         }
+    }
+
+    getLanguageFromFilePath() {
+        let language = "";
+        if (this.path) {
+            const extension = this.path.split(".").pop();
+            switch (extension) {
+                case "js":
+                case "json":
+                    language = "javascript";
+                    break;
+            }
+        }
+        return language;
     }
 
     // onFieldChange(e) {
@@ -123,7 +145,9 @@ export default class FileEditor extends LitElement {
                 class="d-block"
                 style="height:640px;"
                 .content="${this._content}"
-                .config="${{}}">
+                .config="${{
+                    language: this.getLanguageFromFilePath(),
+                }}">
             </content-editor>
         `;
     }
