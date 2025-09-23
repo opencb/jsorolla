@@ -31,6 +31,7 @@ export default class FileContentUpdate extends LitElement {
 
     #init() {
         this._file = {};
+        this._fileOriginalContent = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -45,6 +46,7 @@ export default class FileContentUpdate extends LitElement {
     }
 
     fileObserver() {
+        this._fileOriginalContent = null;
         this._file = {};
         if (this.file && this.opencgaSession) {
             this.opencgaSession.opencgaClient.files()
@@ -52,6 +54,7 @@ export default class FileContentUpdate extends LitElement {
                     study: this.opencgaSession.study.fqn,
                 })
                 .then(fileContent => {
+                    this._fileOriginalContent = fileContent;
                     this._file = {
                         content: fileContent,
                     };
@@ -71,10 +74,12 @@ export default class FileContentUpdate extends LitElement {
 
     onClear() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Clear File Content",
-            message: "This will clear the content of the file. Do you want to continue?",
+            title: "Discard Changes",
+            message: "This will discard all changes and restore the origial content of the file. Do you want to continue?",
             ok: () => {
-                this._file = {};
+                this._file = {
+                    content: this._fileOriginalContent,
+                };
                 this.requestUpdate();
             },
         });
@@ -89,7 +94,7 @@ export default class FileContentUpdate extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: `File content updated.`,
                 });
-                LitUtils.dispatchCustomEvent(this, "fileContentUpdate", null, data);
+                LitUtils.dispatchCustomEvent(this, "fileContentUpdate", null, null);
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -113,7 +118,7 @@ export default class FileContentUpdate extends LitElement {
             display: {
                 buttonsVisible: true,
                 buttonOkText: "Update Content",
-                buttonClearText: "Clear Content",
+                buttonClearText: "Discard Changes",
                 defaultLayout: "vertical",
                 ...this.displayConfig,
             },
