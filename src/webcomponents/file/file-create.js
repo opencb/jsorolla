@@ -17,7 +17,6 @@
 import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/data-form.js";
 
 export default class FileCreate extends LitElement {
@@ -48,21 +47,7 @@ export default class FileCreate extends LitElement {
 
     #init() {
         this.isLoading = false;
-        this.displayConfigDefault = {
-            style: "margin: 10px",
-            titleWidth: 3,
-            defaultLayout: "horizontal",
-            buttonOkText: "Create File",
-            buttonClearText: "Discard Changes",
-        };
-
-        this.#initOriginalObjects();
-    }
-
-    #initOriginalObjects() {
-        this._file = {
-            type: "FILE",
-        };
+        this._file = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -85,10 +70,10 @@ export default class FileCreate extends LitElement {
 
     onClear() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Clear File",
-            message: "Are you sure to clear?",
+            title: "Discard Changes",
+            message: "This will discard all changes made on this form. Do you want to continue?",
             ok: () => {
-                this.#initOriginalObjects();
+                this._file = {};
                 this.requestUpdate();
             },
         });
@@ -98,7 +83,9 @@ export default class FileCreate extends LitElement {
         const {name, ...otherFileData} = this._file;
         const data = {
             ...otherFileData,
+            type: "FILE",
             path: `${this.path || ""}${name}`,
+            resource: (this.path || "").startsWith("RESOURCES/"),
         };
 
         this.#setLoading(true);
@@ -107,12 +94,12 @@ export default class FileCreate extends LitElement {
                 study: this.opencgaSession.study.fqn,
             })
             .then(() => {
-                this.#initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Create File",
                     message: `File ${name} created correctly`,
                 });
                 LitUtils.dispatchCustomEvent(this, "fileCreate", null, data);
+                this._file = {};
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -143,7 +130,10 @@ export default class FileCreate extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                ...this.displayConfigDefault,
+                titleWidth: 3,
+                defaultLayout: "horizontal",
+                buttonOkText: "Create File",
+                buttonClearText: "Discard Changes",
                 ...this.displayConfig,
             },
             sections: [
@@ -171,17 +161,6 @@ export default class FileCreate extends LitElement {
                                     text: "Name of the file to be uploaded (including extension).",
                                 },
                             }
-                        },
-                        {
-                            title: "Resource",
-                            field: "resource",
-                            type: "checkbox",
-                            display: {
-                                disabled: () => {
-                                    return !CatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
-                                },
-                                helpMessage: "If checked, the file will be created as a resource. This option is only available for study administrators.",
-                            },
                         },
                         {
                             title: "Description",
