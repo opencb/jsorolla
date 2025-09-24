@@ -180,15 +180,17 @@ export default class FileEditor extends LitElement {
         window.clearTimeout(this._autoSaveTimer);
 
         // check if autosave is enabled to save the content automatically
-        if (this._settings.autoSave && this._config.autoSave && this._fileId && this._currentContent !== this._savedContent) {
+        if (this._settings.autoSave && this._config.autoSave && this._fileId) {
             // set a new timer to save the content after a delay
             this._autoSaveTimer = window.setTimeout(() => {
-                this.saveFileContent().then(() => {
-                    // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    //     message: `File content auto-saved.`,
-                    // });
-                    LitUtils.dispatchCustomEvent(this, "fileContentAutoSave", this._currentContent);
-                });
+                if (this._currentContent !== this._savedContent) {
+                    this.saveFileContent().then(() => {
+                        // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                        //     message: `File content auto-saved.`,
+                        // });
+                        LitUtils.dispatchCustomEvent(this, "fileContentAutoSave", this._currentContent);
+                    });
+                }
             }, this._config.autoSaveDelay);
         }
     }
