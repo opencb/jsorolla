@@ -127,6 +127,9 @@ export default class FileEditor extends LitElement {
                 case "json":
                     language = "javascript";
                     break;
+                case "md":
+                    language = "markdown";
+                    break;
             }
         }
         return language;
@@ -162,6 +165,12 @@ export default class FileEditor extends LitElement {
 
     onThemeChange(event) {
         this._settings.theme = event?.target?.value;
+        this._version = this._version + 1; // force to refresh the editor
+        this.requestUpdate();
+    }
+
+    onLanguageChange(event) {
+        this._settings.language = event?.target?.value;
         this._version = this._version + 1; // force to refresh the editor
         this.requestUpdate();
     }
@@ -243,24 +252,36 @@ export default class FileEditor extends LitElement {
                                         <i class="fas fa-cog fs-4"></i>
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end">
-                                        <div class="p-1">
-                                            <label for="themeSelect" class="form-label mb-1 fw-bold">Theme</label>
-                                            <select id="themeSelect" class="form-select form-select-sm" @change="${event => this.onThemeChange(event)}">
-                                                ${this._config.allowedThemes.map(theme => html`
-                                                    <option value="${theme.id}" ?selected="${this._settings.theme === theme.id}">
-                                                        ${theme.name}
-                                                    </option>
-                                                `)}
-                                            </select>
-                                        </div>
-                                        <div class="form-switch mb-0 d-flex justify-content-between p-1">
-                                            <label class="form-check-label fw-bold" for="autosaveCheckbox">Auto Save</label>
-                                            <input
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                id="autosaveCheckbox"
-                                                ?checked="${this._settings.autoSave}"
-                                                @change="${event => this.onAutoSaveChange(event)}">
+                                        <div class="d-flex flex-column gap-2 px-1" style="min-width:160px;">
+                                            <div class="p-0">
+                                                <label for="themeSelect" class="form-label mb-1 fw-bold">Theme</label>
+                                                <select id="themeSelect" class="form-select" @change="${event => this.onThemeChange(event)}">
+                                                    ${this._config.allowedThemes.map(theme => html`
+                                                        <option value="${theme.id}" ?selected="${this._settings.theme === theme.id}">
+                                                            ${theme.name}
+                                                        </option>
+                                                    `)}
+                                                </select>
+                                            </div>
+                                            <div class="p-0">
+                                                <label for="languageSelect" class="form-label mb-1 fw-bold">Language</label>
+                                                <select id="languageSelect" class="form-select" @change="${event => this.onLanguageChange(event)}">
+                                                    ${this._config.allowedLanguages.map(lang => html`
+                                                        <option value="${lang.id}" ?selected="${this._settings.language === lang.id}">
+                                                            ${lang.name}
+                                                        </option>
+                                                    `)}
+                                                </select>
+                                            </div>
+                                            <div class="form-switch mb-0 d-flex justify-content-between p-0">
+                                                <label class="form-check-label fw-bold" for="autosaveCheckbox">Auto Save</label>
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    id="autosaveCheckbox"
+                                                    ?checked="${this._settings.autoSave}"
+                                                    @change="${event => this.onAutoSaveChange(event)}">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -299,6 +320,12 @@ export default class FileEditor extends LitElement {
             allowedThemes: [
                 {id: "dark", name: "Dark", isDarkTheme: true},
                 {id: "light", name: "Light", isDarkTheme: false},
+            ],
+            allowedLanguages: [
+                {id: "", name: "Plain Text"},
+                {id: "javascript", name: "JavaScript"},
+                // {id: "json", name: "JSON"},
+                {id: "markdown", name: "Markdown"},
             ],
         };
     }
