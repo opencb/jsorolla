@@ -187,7 +187,7 @@ export default class FileEditor extends LitElement {
                     // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     //     message: `File content auto-saved.`,
                     // });
-                    // LitUtils.dispatchCustomEvent(this, "fileContentAutoSave", this._currentContent);
+                    LitUtils.dispatchCustomEvent(this, "fileContentAutoSave", this._currentContent);
                 });
             }, this._config.autoSaveDelay);
         }
