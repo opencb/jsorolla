@@ -46,6 +46,7 @@ export default class FileEditor extends LitElement {
 
         this._settings = {
             theme: "dark",
+            language: "",
             autoSave: true,
         };
         this._config = this.getDefaultConfig();
@@ -74,6 +75,7 @@ export default class FileEditor extends LitElement {
         if (this.path && this.opencgaSession) {
             try {
                 const filePath = this.path.indexOf(":") > 0 ? this.path.replaceAll(":", "/") : this.path;
+
                 // 1. check if there is a file in the current study with that path
                 const fileResponse = await this.opencgaSession.opencgaClient.files()
                     .search({
@@ -82,15 +84,20 @@ export default class FileEditor extends LitElement {
                         type: "FILE",
                         include: "id",
                     });
+                
+                // 2. get the list of files in the current study with that path
                 const files = fileResponse?.responses?.[0]?.results || [];
+
                 // 2.1. if there is no file in the current study, throw an error
                 if (files.length === 0) {
                     throw new Error(`File with path '${filePath}' not found in current study '${this.opencgaSession.study.fqn}'.`);
                 }
+
                 // 2.2. if there is more than one file in the current study, throw an error
                 if (files.length > 1) {
                     throw new Error(`More than one file with path '${filePath}' found in current study '${this.opencgaSession.study.fqn}'.`);
                 }
+
                 // 3. if there is exactly one file in the current study, get its content
                 const fileContent = await this.opencgaSession.opencgaClient.files()
                     .download(files[0].id, {
@@ -99,12 +106,15 @@ export default class FileEditor extends LitElement {
                 this._fileId = files[0].id; // needed for saving the content
                 this._savedContent = fileContent; // needed for discarding changes and restoring original content
                 this._currentContent = fileContent;
-                this.requestUpdate();
+                
+                // 4. extract the language from the file path
+                this._settings.language = this.getLanguageFromFilePath();
+
             } catch (error) {
                 console.error(error);
                 this._error = error?.message || `Error fetching content of file '${this.path}'.`;
-                this.requestUpdate();
             }
+            this.requestUpdate();
         }
     }
 
@@ -220,7 +230,7 @@ export default class FileEditor extends LitElement {
                                 style="height:640px;"
                                 .content="${this._currentContent}"
                                 .config="${{
-                                    language: this.getLanguageFromFilePath(),
+                                    language: this._settings.language,
                                     theme: this._settings.theme,
                                 }}"
                                 @contentChange="${event => this.onContentChange(event)}">
