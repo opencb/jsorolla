@@ -113,7 +113,7 @@ export default class FileEditor extends LitElement {
 
     getClassForSettingsButton() {
         // TODO: use the isDarkTheme property from the selected theme to determine the class
-        return this._settings.theme.includes("dark") ? "border-white text-white" : "border-gray-900 text-gray-900";
+        return this._settings.theme.includes("dark") ? "border-gray-500 text-white" : "border-gray-200 text-gray-900";
     }
 
     // onSubmit() {
