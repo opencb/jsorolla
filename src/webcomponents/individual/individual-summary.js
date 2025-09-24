@@ -416,7 +416,7 @@ export default class IndividualSummary extends LitElement {
                                             defaultValue: "-",
                                             template: "<i class='far fa-file'></i><span>${id}</span>",
                                             format: {
-                                                id: (fileId, data) => data,
+                                                id: (fileId, data) => data.split(":").at(-1),
                                             },
                                         },
                                     },
