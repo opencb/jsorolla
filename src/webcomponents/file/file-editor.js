@@ -1,4 +1,5 @@
 import {html, LitElement, nothing} from "lit";
+import {keyed} from "lit/directives/keyed.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/forms/data-form.js";
@@ -32,7 +33,9 @@ export default class FileEditor extends LitElement {
 
     #init() {
         this._error = null;
+        this._version = 0;
         this._content = null;
+        this._originalContent = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -52,6 +55,8 @@ export default class FileEditor extends LitElement {
     async pathObserver() {
         this._error = null;
         this._content = null;
+        this._originalContent = null;
+        this._version = 0; // reset the editing version
         if (this.path && this.opencgaSession) {
             try {
                 const filePath = this.path.indexOf(":") > 0 ? this.path.replaceAll(":", "/") : this.path;
@@ -78,6 +83,7 @@ export default class FileEditor extends LitElement {
                         study: this.opencgaSession.study.fqn,
                     });
                 this._content = fileContent;
+                this._originalContent = fileContent;
                 this.requestUpdate();
             } catch (error) {
                 console.error(error);
@@ -101,24 +107,6 @@ export default class FileEditor extends LitElement {
         return language;
     }
 
-    // onFieldChange(e) {
-    //     this._file = {...e.detail.data}; // force to refresh the object-list
-    //     this.requestUpdate();
-    // }
-
-    // onClear() {
-    //     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-    //         title: "Discard Changes",
-    //         message: "This will discard all changes and restore the origial content of the file. Do you want to continue?",
-    //         ok: () => {
-    //             this._file = {
-    //                 content: this._fileOriginalContent,
-    //             };
-    //             this.requestUpdate();
-    //         },
-    //     });
-    // }
-
     // onSubmit() {
     //     this.opencgaSession.opencgaClient.files()
     //         .updateContent(this.file.id, this._file, {
@@ -135,6 +123,25 @@ export default class FileEditor extends LitElement {
     //         });
     // }
 
+    onDiscardClick() {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Discard Changes",
+            message: "This will discard all changes and restore the origial content of the file. Do you want to continue?",
+            ok: () => {
+                this._content = this._originalContent;
+                this._version = this._version + 1; // force to refresh the editor
+                this.requestUpdate();
+            },
+        });
+    }
+
+    onSaveClick() {
+
+    }
+
+    onSaveAndCloseClick() {
+    }
+
     render() {
         if (!this.path || !this.opencgaSession) {
             return nothing;
@@ -149,21 +156,44 @@ export default class FileEditor extends LitElement {
                     </div>
                 ` : nothing}
                 ${typeof this._content === "string" ? html`
-                    <content-editor
-                        class="d-block"
-                        style="height:640px;"
-                        .content="${this._content}"
-                        .config="${{
-                            language: this.getLanguageFromFilePath(),
-                        }}">
-                    </content-editor>
+                    ${keyed(this.path + ":" + this._version, html`
+                        <content-editor
+                            class="d-block"
+                            style="height:640px;"
+                            .content="${this._content}"
+                            .config="${{
+                                language: this.getLanguageFromFilePath(),
+                            }}">
+                        </content-editor>
+                    `)}
+                    ${this._config.showButtons ? html`
+                        <div class="mt-3 d-flex justify-content-end align-items-center gap-2">
+                            ${this._config.showDiscardButton ? html`
+                                <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onDiscardClick()}">
+                                    <i class="fas fa-undo-alt"></i> 
+                                    <span>Discard Changes</span>
+                                </button>
+                            ` : nothing}
+                            ${this._config.showSaveButton ? html`
+                                <button type="button" class="btn btn-primary d-flex align-items-center gap-2" @click="${() => this.onSaveClick()}">
+                                    <i class="fas fa-save"></i> 
+                                    <span>Save Changes</span>
+                                </button>
+                            ` : nothing}
+                        </div>
+                    ` : nothing}
                 ` : nothing}
             </div>
         `;
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            showButtons: true,
+            showSaveButton: true,
+            showSaveAndCloseButton: false,
+            showDiscardButton: true,
+        };
     }
 }
 
