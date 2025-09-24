@@ -143,7 +143,7 @@ export default class FileEditor extends LitElement {
 
     getClassForSettingsButton() {
         // TODO: use the isDarkTheme property from the selected theme to determine the class
-        return this._settings.theme.includes("dark") ? "border-gray-500 text-white" : "border-gray-200 text-gray-900";
+        return this._settings.theme.includes("dark") ? "border-gray-500 text-white bg-gray-900" : "border-gray-200 text-gray-900 bg-white";
     }
 
     saveFileContent() {
@@ -251,7 +251,7 @@ export default class FileEditor extends LitElement {
                             <div class="position-absolute" style="top:10px; right:10px;">
                                 <div class="dropdown">
                                     <div data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                                        <button class="bg-transparent border border-1 rounded-3 p-2 ${this.getClassForSettingsButton()} d-flex">
+                                        <button class="border border-1 rounded-3 p-2 ${this.getClassForSettingsButton()} d-flex">
                                             <i class="fas fa-cog fs-4"></i>
                                         </button>
                                     </div>
