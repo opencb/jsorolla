@@ -143,7 +143,7 @@ export default class OpencgaFileGrid extends LitElement {
                     <file-editor
                         .path="${this._selectedFile.path || this._selectedFile.id}"
                         .opencgaSession="${this.opencgaSession}"
-                        @fileContentUpdate="${() => {
+                        @fileContentSaveAndClose="${() => {
                             this.gridCommons.clearActiveModal();
                         }}">
                     </file-editor>

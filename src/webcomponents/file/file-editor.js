@@ -216,6 +216,12 @@ export default class FileEditor extends LitElement {
     }
 
     onSaveAndCloseClick() {
+        this.saveFileContent().then(() => {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: `File content saved.`,
+            });
+            LitUtils.dispatchCustomEvent(this, "fileContentSaveAndClose", this._currentContent);
+        });
     }
 
     render() {
@@ -300,7 +306,13 @@ export default class FileEditor extends LitElement {
                             ${this._config.showSaveButton ? html`
                                 <button type="button" class="btn btn-primary d-flex align-items-center gap-2" @click="${() => this.onSaveClick()}">
                                     <i class="fas fa-save"></i> 
-                                    <span>Save Changes</span>
+                                    <span>Save</span>
+                                </button>
+                            ` : nothing}
+                            ${this._config.showSaveAndCloseButton ? html`
+                                <button type="button" class="btn btn-primary d-flex align-items-center gap-2" @click="${() => this.onSaveAndCloseClick()}">
+                                    <i class="fas fa-save"></i> 
+                                    <span>Save and Close</span>
                                 </button>
                             ` : nothing}
                         </div>
@@ -314,7 +326,7 @@ export default class FileEditor extends LitElement {
         return {
             showButtons: true,
             showSaveButton: true,
-            showSaveAndCloseButton: false,
+            showSaveAndCloseButton: true,
             showDiscardButton: true,
             showSettings: true,
             autoSave: true,
