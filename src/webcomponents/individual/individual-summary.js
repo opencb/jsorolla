@@ -375,7 +375,7 @@ export default class IndividualSummary extends LitElement {
                                 `,
                                 columns: [
                                     {
-                                        title: "Sample ID",
+                                        title: "Sample",
                                         field: "id",
                                         display: {
                                             className: "text-break",
