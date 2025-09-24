@@ -5,6 +5,11 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/content-editor.js";
 
+const THEMES = [
+    {id: "dark", name: "Dark"},
+    {id: "light", name: "Light"},
+];
+
 export default class FileEditor extends LitElement {
 
     constructor() {
@@ -36,6 +41,10 @@ export default class FileEditor extends LitElement {
         this._version = 0;
         this._content = null;
         this._originalContent = null;
+        this._settings = {
+            theme: "dark",
+            autoSave: true,
+        };
         this._config = this.getDefaultConfig();
     }
 
@@ -123,6 +132,12 @@ export default class FileEditor extends LitElement {
     //         });
     // }
 
+    onThemeChange(event) {
+        this._settings.theme = event?.target?.value;
+        this._version = this._version + 1; // force to refresh the editor
+        this.requestUpdate();
+    }
+
     onDiscardClick() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
             title: "Discard Changes",
@@ -156,16 +171,40 @@ export default class FileEditor extends LitElement {
                     </div>
                 ` : nothing}
                 ${typeof this._content === "string" ? html`
-                    ${keyed(this.path + ":" + this._version, html`
-                        <content-editor
-                            class="d-block"
-                            style="height:640px;"
-                            .content="${this._content}"
-                            .config="${{
-                                language: this.getLanguageFromFilePath(),
-                            }}">
-                        </content-editor>
-                    `)}
+                    <div class="position-relative w-full">
+                        ${keyed(this.path + ":" + this._version, html`
+                            <content-editor
+                                class="d-block"
+                                style="height:640px;"
+                                .content="${this._content}"
+                                .config="${{
+                                    language: this.getLanguageFromFilePath(),
+                                    theme: this._settings.theme,
+                                }}">
+                            </content-editor>
+                        `)}
+                        ${this._config.showSettings ? html`
+                            <div class="position-absolute" style="top:10px; right:10px;">
+                                <div class="dropdown">
+                                    <button class="bg-transparent border border-1 border-white rounded-3 p-2 d-flex text-white" data-bs-toggle="dropdown">
+                                        <i class="fas fa-cog fs-4"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <div class="p-1">
+                                            <label for="themeSelect" class="form-label mb-1 fw-bold">Theme</label>
+                                            <select id="themeSelect" class="form-select form-select-sm" @change="${event => this.onThemeChange(event)}">
+                                                ${THEMES.map(theme => html`
+                                                    <option value="${theme.id}" ?selected="${this._settings.theme === theme.id}">
+                                                        ${theme.name}
+                                                    </option>
+                                                `)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : nothing}
+                    </div>
                     ${this._config.showButtons ? html`
                         <div class="mt-3 d-flex justify-content-end align-items-center gap-2">
                             ${this._config.showDiscardButton ? html`
@@ -193,6 +232,7 @@ export default class FileEditor extends LitElement {
             showSaveButton: true,
             showSaveAndCloseButton: false,
             showDiscardButton: true,
+            showSettings: true,
         };
     }
 }
