@@ -116,6 +116,10 @@ export default class FileEditor extends LitElement {
         return language;
     }
 
+    getClassForSettingsButton() {
+        return this._settings.theme.includes("dark") ? "border-white text-white" : "border-gray-900 text-gray-900";
+    }
+
     // onSubmit() {
     //     this.opencgaSession.opencgaClient.files()
     //         .updateContent(this.file.id, this._file, {
@@ -186,7 +190,7 @@ export default class FileEditor extends LitElement {
                         ${this._config.showSettings ? html`
                             <div class="position-absolute" style="top:10px; right:10px;">
                                 <div class="dropdown">
-                                    <button class="bg-transparent border border-1 border-white rounded-3 p-2 d-flex text-white" data-bs-toggle="dropdown">
+                                    <button class="bg-transparent border border-1 rounded-3 p-2 d-flex ${this.getClassForSettingsButton()}" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                                         <i class="fas fa-cog fs-4"></i>
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end">
