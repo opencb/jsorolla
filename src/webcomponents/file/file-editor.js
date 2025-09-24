@@ -36,6 +36,7 @@ export default class FileEditor extends LitElement {
         this._version = 0;
         this._content = null;
         this._originalContent = null;
+        this._fileId = null;
         this._settings = {
             theme: "dark",
             autoSave: true,
@@ -86,8 +87,9 @@ export default class FileEditor extends LitElement {
                     .download(files[0].id, {
                         study: this.opencgaSession.study.fqn,
                     });
+                this._fileId = files[0].id; // needed for saving the content
+                this._originalContent = fileContent; // needed for discarding changes and restoring original content
                 this._content = fileContent;
-                this._originalContent = fileContent;
                 this.requestUpdate();
             } catch (error) {
                 console.error(error);
@@ -116,21 +118,18 @@ export default class FileEditor extends LitElement {
         return this._settings.theme.includes("dark") ? "border-gray-500 text-white" : "border-gray-200 text-gray-900";
     }
 
-    // onSubmit() {
-    //     this.opencgaSession.opencgaClient.files()
-    //         .updateContent(this.file.id, this._file, {
-    //             study: this.opencgaSession.study.fqn,
-    //         })
-    //         .then(() => {
-    //             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-    //                 message: `File content updated.`,
-    //             });
-    //             LitUtils.dispatchCustomEvent(this, "fileContentUpdate", null, null);
-    //         })
-    //         .catch(error => {
-    //             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-    //         });
-    // }
+    saveFileContent() {
+        const data = {
+            content: this._content || "",
+        };
+        return this.opencgaSession.opencgaClient.files()
+            .updateContent(this._fileId, data, {
+                study: this.opencgaSession.study.fqn,
+            })
+            .catch(error => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            });
+    }
 
     onThemeChange(event) {
         this._settings.theme = event?.target?.value;
@@ -145,13 +144,19 @@ export default class FileEditor extends LitElement {
             ok: () => {
                 this._content = this._originalContent;
                 this._version = this._version + 1; // force to refresh the editor
+                LitUtils.dispatchCustomEvent(this, "fileContentDiscard", null, {content: this._content});
                 this.requestUpdate();
             },
         });
     }
 
     onSaveClick() {
-
+        this.saveFileContent().then(() => {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: `File content saved.`,
+            });
+            LitUtils.dispatchCustomEvent(this, "fileContentSave", null, {content: this._content});
+        });
     }
 
     onSaveAndCloseClick() {
