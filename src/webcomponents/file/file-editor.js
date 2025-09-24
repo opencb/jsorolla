@@ -136,19 +136,29 @@ export default class FileEditor extends LitElement {
     // }
 
     render() {
-        if (typeof this._content !== "string" && !this._error) {
+        if (!this.path || !this.opencgaSession) {
             return nothing;
         }
 
         return html`
-            <content-editor
-                class="d-block"
-                style="height:640px;"
-                .content="${this._content}"
-                .config="${{
-                    language: this.getLanguageFromFilePath(),
-                }}">
-            </content-editor>
+            <div class="">
+                ${this._error ? html`
+                    <div class="alert alert-danger d-flex align-items-center gap-2">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>${this._error}</div>
+                    </div>
+                ` : nothing}
+                ${typeof this._content === "string" ? html`
+                    <content-editor
+                        class="d-block"
+                        style="height:640px;"
+                        .content="${this._content}"
+                        .config="${{
+                            language: this.getLanguageFromFilePath(),
+                        }}">
+                    </content-editor>
+                ` : nothing}
+            </div>
         `;
     }
 
