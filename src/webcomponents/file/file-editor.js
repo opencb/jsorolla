@@ -247,24 +247,14 @@ export default class FileEditor extends LitElement {
                 ` : nothing}
                 ${typeof this._currentContent === "string" ? html`
                     <div class="position-relative w-full">
-                        ${keyed(this.path + ":" + this._version, html`
-                            <content-editor
-                                class="d-block"
-                                style="height:640px;"
-                                .content="${this._currentContent}"
-                                .config="${{
-                                    language: this._settings.language,
-                                    theme: this._settings.theme,
-                                }}"
-                                @contentChange="${event => this.onContentChange(event)}">
-                            </content-editor>
-                        `)}
                         ${this._config.showSettings ? html`
                             <div class="position-absolute" style="top:10px; right:10px;">
                                 <div class="dropdown">
-                                    <button class="bg-transparent border border-1 rounded-3 p-2 d-flex ${this.getClassForSettingsButton()}" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                                        <i class="fas fa-cog fs-4"></i>
-                                    </button>
+                                    <div data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                        <button class="bg-transparent border border-1 rounded-3 p-2 ${this.getClassForSettingsButton()} d-flex">
+                                            <i class="fas fa-cog fs-4"></i>
+                                        </button>
+                                    </div>
                                     <div class="dropdown-menu dropdown-menu-end">
                                         <div class="d-flex flex-column gap-2 px-1" style="min-width:160px;">
                                             <div class="p-0">
@@ -302,6 +292,19 @@ export default class FileEditor extends LitElement {
                                 </div>
                             </div>
                         ` : nothing}
+                        ${keyed(this.path + ":" + this._version, html`
+                            <content-editor
+                                class="d-block"
+                                style="height:640px;"
+                                .content="${this._currentContent}"
+                                .config="${{
+                                    parentClassName: "w-full h-full overflow-hidden rounded-3 border border-1 border-gray-200",
+                                    language: this._settings.language,
+                                    theme: this._settings.theme,
+                                }}"
+                                @contentChange="${event => this.onContentChange(event)}">
+                            </content-editor>
+                        `)}
                     </div>
                     ${this._config.showButtons ? html`
                         <div class="mt-3 d-flex justify-content-end align-items-center gap-2">
