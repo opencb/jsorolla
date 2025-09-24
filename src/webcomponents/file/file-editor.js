@@ -33,10 +33,17 @@ export default class FileEditor extends LitElement {
 
     #init() {
         this._error = null;
-        this._version = 0;
-        this._content = null;
-        this._originalContent = null;
         this._fileId = null;
+        this._version = 0;
+
+        // the currentContent variable holds the content being edited in the editor
+        // the savedContent variable holds the content last saved to the server
+        this._currentContent = null;
+        this._savedContent = null;
+
+        // this variable holds the timmer for auto-saving the content
+        this._autoSaveTimer = -1;
+
         this._settings = {
             theme: "dark",
             autoSave: true,
@@ -59,9 +66,11 @@ export default class FileEditor extends LitElement {
 
     async pathObserver() {
         this._error = null;
-        this._content = null;
-        this._originalContent = null;
+        this._currentContent = null;
+        this._savedContent = null;
         this._version = 0; // reset the editing version
+        this._fileId = null;
+
         if (this.path && this.opencgaSession) {
             try {
                 const filePath = this.path.indexOf(":") > 0 ? this.path.replaceAll(":", "/") : this.path;
@@ -88,8 +97,8 @@ export default class FileEditor extends LitElement {
                         study: this.opencgaSession.study.fqn,
                     });
                 this._fileId = files[0].id; // needed for saving the content
-                this._originalContent = fileContent; // needed for discarding changes and restoring original content
-                this._content = fileContent;
+                this._savedContent = fileContent; // needed for discarding changes and restoring original content
+                this._currentContent = fileContent;
                 this.requestUpdate();
             } catch (error) {
                 console.error(error);
@@ -120,15 +129,25 @@ export default class FileEditor extends LitElement {
 
     saveFileContent() {
         const data = {
-            content: this._content || "",
+            content: this._currentContent || "",
         };
         return this.opencgaSession.opencgaClient.files()
             .updateContent(this._fileId, data, {
                 study: this.opencgaSession.study.fqn,
             })
+            .then(() => {
+                // we have to update the saved content to avoid issues when discarding changes
+                // as the content in the editor is the same as the saved content
+                this._savedContent = this._currentContent;
+            })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             });
+    }
+
+    onAutoSaveChange(event) {
+        this._settings.autoSave = event?.target?.checked;
+        this.requestUpdate();
     }
 
     onThemeChange(event) {
@@ -137,14 +156,32 @@ export default class FileEditor extends LitElement {
         this.requestUpdate();
     }
 
+    onContentChange(event) {
+        this._currentContent = event?.detail?.value || "";
+        window.clearTimeout(this._autoSaveTimer);
+
+        // check if autosave is enabled to save the content automatically
+        if (this._settings.autoSave && this._fileId && this._currentContent !== this._savedContent) {
+            // set a new timer to save the content after a delay
+            this._autoSaveTimer = window.setTimeout(() => {
+                this.saveFileContent().then(() => {
+                    // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    //     message: `File content auto-saved.`,
+                    // });
+                    // LitUtils.dispatchCustomEvent(this, "fileContentAutoSave", this._currentContent);
+                });
+            }, this._config.autoSaveDelay);
+        }
+    }
+
     onDiscardClick() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
             title: "Discard Changes",
             message: "This will discard all changes and restore the origial content of the file. Do you want to continue?",
             ok: () => {
-                this._content = this._originalContent;
+                this._currentContent = this._savedContent;
                 this._version = this._version + 1; // force to refresh the editor
-                LitUtils.dispatchCustomEvent(this, "fileContentDiscard", null, {content: this._content});
+                LitUtils.dispatchCustomEvent(this, "fileContentDiscard", this._currentContent);
                 this.requestUpdate();
             },
         });
@@ -155,7 +192,7 @@ export default class FileEditor extends LitElement {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: `File content saved.`,
             });
-            LitUtils.dispatchCustomEvent(this, "fileContentSave", null, {content: this._content});
+            LitUtils.dispatchCustomEvent(this, "fileContentSave", this._currentContent);
         });
     }
 
@@ -175,17 +212,18 @@ export default class FileEditor extends LitElement {
                         <div>${this._error}</div>
                     </div>
                 ` : nothing}
-                ${typeof this._content === "string" ? html`
+                ${typeof this._currentContent === "string" ? html`
                     <div class="position-relative w-full">
                         ${keyed(this.path + ":" + this._version, html`
                             <content-editor
                                 class="d-block"
                                 style="height:640px;"
-                                .content="${this._content}"
+                                .content="${this._currentContent}"
                                 .config="${{
                                     language: this.getLanguageFromFilePath(),
                                     theme: this._settings.theme,
-                                }}">
+                                }}"
+                                @contentChange="${event => this.onContentChange(event)}">
                             </content-editor>
                         `)}
                         ${this._config.showSettings ? html`
@@ -204,6 +242,15 @@ export default class FileEditor extends LitElement {
                                                     </option>
                                                 `)}
                                             </select>
+                                        </div>
+                                        <div class="form-switch mb-0 d-flex justify-content-between p-1">
+                                            <label class="form-check-label fw-bold" for="autosaveCheckbox">Auto Save</label>
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="autosaveCheckbox"
+                                                ?checked="${this._settings.autoSave}"
+                                                @change="${event => this.onAutoSaveChange(event)}">
                                         </div>
                                     </div>
                                 </div>
@@ -238,6 +285,7 @@ export default class FileEditor extends LitElement {
             showSaveAndCloseButton: false,
             showDiscardButton: true,
             showSettings: true,
+            autoSaveDelay: 2000, // milliseconds
             allowedThemes: [
                 {id: "dark", name: "Dark", isDarkTheme: true},
                 {id: "light", name: "Light", isDarkTheme: false},
