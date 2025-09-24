@@ -180,7 +180,7 @@ export default class FileEditor extends LitElement {
         window.clearTimeout(this._autoSaveTimer);
 
         // check if autosave is enabled to save the content automatically
-        if (this._settings.autoSave && this._fileId && this._currentContent !== this._savedContent) {
+        if (this._settings.autoSave && this._config.autoSave && this._fileId && this._currentContent !== this._savedContent) {
             // set a new timer to save the content after a delay
             this._autoSaveTimer = window.setTimeout(() => {
                 this.saveFileContent().then(() => {
@@ -279,7 +279,8 @@ export default class FileEditor extends LitElement {
                                                     class="form-check-input"
                                                     type="checkbox"
                                                     id="autosaveCheckbox"
-                                                    ?checked="${this._settings.autoSave}"
+                                                    ?checked="${this._settings.autoSave && this._config.autoSave}"
+                                                    ?disabled="${!this._config.autoSave}"
                                                     @change="${event => this.onAutoSaveChange(event)}">
                                             </div>
                                         </div>
@@ -316,6 +317,7 @@ export default class FileEditor extends LitElement {
             showSaveAndCloseButton: false,
             showDiscardButton: true,
             showSettings: true,
+            autoSave: true,
             autoSaveDelay: 2000, // milliseconds
             allowedThemes: [
                 {id: "dark", name: "Dark", isDarkTheme: true},
