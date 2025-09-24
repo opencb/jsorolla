@@ -5,11 +5,6 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/content-editor.js";
 
-const THEMES = [
-    {id: "dark", name: "Dark"},
-    {id: "light", name: "Light"},
-];
-
 export default class FileEditor extends LitElement {
 
     constructor() {
@@ -117,6 +112,7 @@ export default class FileEditor extends LitElement {
     }
 
     getClassForSettingsButton() {
+        // TODO: use the isDarkTheme property from the selected theme to determine the class
         return this._settings.theme.includes("dark") ? "border-white text-white" : "border-gray-900 text-gray-900";
     }
 
@@ -197,7 +193,7 @@ export default class FileEditor extends LitElement {
                                         <div class="p-1">
                                             <label for="themeSelect" class="form-label mb-1 fw-bold">Theme</label>
                                             <select id="themeSelect" class="form-select form-select-sm" @change="${event => this.onThemeChange(event)}">
-                                                ${THEMES.map(theme => html`
+                                                ${this._config.allowedThemes.map(theme => html`
                                                     <option value="${theme.id}" ?selected="${this._settings.theme === theme.id}">
                                                         ${theme.name}
                                                     </option>
@@ -237,6 +233,10 @@ export default class FileEditor extends LitElement {
             showSaveAndCloseButton: false,
             showDiscardButton: true,
             showSettings: true,
+            allowedThemes: [
+                {id: "dark", name: "Dark", isDarkTheme: true},
+                {id: "light", name: "Light", isDarkTheme: false},
+            ],
         };
     }
 }
