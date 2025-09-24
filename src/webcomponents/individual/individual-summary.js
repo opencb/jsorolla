@@ -391,7 +391,7 @@ export default class IndividualSummary extends LitElement {
                                             headerCellClassName: "text-center",
                                             bodyCellClassName: "text-center",
                                             render: somatic => html`
-                                                <i class="fas ${somatic ? "fa-check": "fa-times"}"></i>
+                                                <i class="fas ${somatic ? "fa-check text-success": "fa-times text-danger"}"></i>
                                             `,
                                         },
                                     },
