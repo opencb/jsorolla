@@ -44,24 +44,30 @@ export default class FileEditor extends LitElement {
         // this variable holds the timmer for auto-saving the content
         this._autoSaveTimer = -1;
 
+        this._config = this.getDefaultConfig();
         this._settings = {
-            theme: "dark",
+            theme: this._config.allowedThemes[0].id,
             language: "",
             autoSave: true,
         };
-        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("path") || changedProperties.has("opencgaSession")) {
             this.pathObserver();
         }
+
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
+            // if the current theme is not in the list of allowed themes, set it to the first one
+            if (!this._config.allowedThemes.find(theme => theme.id === this._settings.theme)) {
+                this._settings.theme = this._config.allowedThemes[0].id;
+            }
         }
+
         super.update(changedProperties);
     }
 
@@ -334,8 +340,8 @@ export default class FileEditor extends LitElement {
             autoSave: true,
             autoSaveDelay: 2000, // milliseconds
             allowedThemes: [
-                {id: "dark", name: "Dark", isDarkTheme: true},
-                {id: "light", name: "Light", isDarkTheme: false},
+                {id: "one-dark", name: "Dark", isDarkTheme: true},
+                {id: "one-light", name: "Light", isDarkTheme: false},
             ],
             allowedLanguages: [
                 {id: "", name: "Plain Text"},
