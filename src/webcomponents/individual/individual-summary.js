@@ -366,6 +366,7 @@ export default class IndividualSummary extends LitElement {
                                 className: "table-borderless table-grid",
                                 headerCellClassName: "bg-white",
                                 bodyRowClassName: "bg-gray-100",
+                                bodyCellClassName: "align-middle",
                                 defaultValue: individual => html`
                                     <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
                                         <i class="fas fa-info-circle fs-3"></i>
@@ -417,6 +418,16 @@ export default class IndividualSummary extends LitElement {
                                             template: "<i class='far fa-file'></i><span>${id}</span>",
                                             format: {
                                                 id: (fileId, data) => data.split(":").at(-1),
+                                            },
+                                        },
+                                    },
+                                    {
+                                        title: "Modification / Creation",
+                                        type: "custom",
+                                        display: {
+                                            render: sample => {
+                                                console.log(sample);
+                                                return UtilsNew.renderHTML(CatalogGridFormatter.modifiedAndCreateDateFormatter(null, sample));
                                             },
                                         },
                                     },
