@@ -2435,7 +2435,7 @@ export default class DataForm extends LitElement {
                     ${section.icon ? html`
                         <i class="fas ${section.icon} lh-1 ${iconClassName}"></i>
                     ` : nothing}
-                    <span class="fw-bold lh-1 text-center ${titleClassName}">
+                    <span class="fw-bold lh-1 text-center ${titleClassName} text-break">
                         ${section.title || section.name || ""}
                     </span>
                 </a>
