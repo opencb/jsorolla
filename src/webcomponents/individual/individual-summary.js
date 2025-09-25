@@ -193,6 +193,7 @@ export default class IndividualSummary extends LitElement {
                             title: "Inferred Karyotypic Sex",
                             field: "qualityControl",
                             display: {
+                                separationClassName: "mb-0",
                                 format: qualityControl => {
                                     return qualityControl?.inferredSexReports?.length > 0 ? qualityControl.inferredSexReports[0].inferredKaryotypicSex : "-";
                                 },
@@ -253,6 +254,7 @@ export default class IndividualSummary extends LitElement {
                             field: "modificationDate",
                             type: "custom",
                             display: {
+                                separationClassName: "mb-0",
                                 render: modificationDate => modificationDate ? UtilsNew.dateFormatter(modificationDate) : "-",
                             },
                         },
@@ -298,6 +300,7 @@ export default class IndividualSummary extends LitElement {
                             title: "Disorders",
                             type: "list",
                             display: {
+                                separationClassName: "mb-0",
                                 titleWidth: 2,
                                 listClassName: "mb-0 ps-3",
                                 contentLayout: "bullets",
@@ -322,6 +325,7 @@ export default class IndividualSummary extends LitElement {
                             title: "Phenotypes",
                             type: "list",
                             display: {
+                                separationClassName: "mb-0",
                                 titleWidth: 2,
                                 listClassName: "mb-0 ps-3",
                                 contentLayout: "bullets",
@@ -364,6 +368,7 @@ export default class IndividualSummary extends LitElement {
                             type: "table",
                             display: {
                                 className: "table-borderless table-grid mb-0",
+                                separationClassName: "mb-0",
                                 headerCellClassName: "bg-white",
                                 bodyRowClassName: "bg-gray-100",
                                 bodyCellClassName: "align-middle",
