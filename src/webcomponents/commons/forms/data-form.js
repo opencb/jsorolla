@@ -2431,7 +2431,7 @@ export default class DataForm extends LitElement {
             const titleClassName = section?.icon && orientation === "vertical" ? "fs-8" : "";
 
             return html`
-                <a class="nav-link cursor-pointer ${sectionClassName} align-items-center gap-2 ${active ? "active" : ""}" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                <a class="nav-link rounded-3 cursor-pointer ${sectionClassName} align-items-center gap-2 ${active ? "active" : ""}" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
                     ${section.icon ? html`
                         <i class="fas ${section.icon} lh-1 ${iconClassName}"></i>
                     ` : nothing}
@@ -2447,7 +2447,7 @@ export default class DataForm extends LitElement {
             ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
             <div class="${containerClassName}">
                 <div class="${pillsColumnClassName}">
-                    <div class="nav nav-pills p-1 border bg-gray-100 rounded-3 ${pillsClassName}">
+                    <div class="nav nav-pills p-2 border bg-gray-100 rounded-4 ${pillsClassName}">
                         ${pills}
                     </div>
                 </div>
