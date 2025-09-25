@@ -2380,26 +2380,22 @@ export default class DataForm extends LitElement {
             ${notificationHtml}
 
             <!-- Render buttons UPPER, above the tabs -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "UPPER" ? this.renderButtons(dismiss, this.activeSection) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "UPPER" ? this.renderButtons(dismiss, this.activeSection) : nothing}
 
             <!-- Render tabs -->
             <div>
                 <ul class="nav nav-tabs">
-                    ${this._getVisibleSections()
-                        .map((section, index) => {
-                            const active = index === this.activeSection;
-                            return html`
-                                <li class="nav-item ${active ? "show" : ""}" role="presentation">
-                                    <a class="nav-link fw-bold" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                        ${section.title || section.name || ""}
-                                    </a>
-                                </li>
-                            `;
-                        })}
+                    ${this._getVisibleSections().map((section, index) => html`
+                        <li class="nav-item ${index === this.activeSection ? "show" : ""}" role="presentation">
+                            <a class="nav-link fw-bold" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
+                                ${section.title || section.name || ""}
+                            </a>
+                        </li>
+                    `)}
                 </ul>
             </div>
             <!-- Render buttons at the TOP -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss, this.activeSection) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss, this.activeSection) : nothing}
 
             <!-- Render data form -->
             <div style="margin-top:24px;">
@@ -2407,7 +2403,7 @@ export default class DataForm extends LitElement {
             </div>
 
             <!-- Render buttons at the BOTTOM -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : nothing}
         `;
     }
 
@@ -2419,8 +2415,8 @@ export default class DataForm extends LitElement {
 
         // get classnames for displaying pills in vertical or horizontal orientation
         const containerClassName = orientation === "vertical" ? "row" : "";
-        const pillsColumnClassName = orientation === "vertical" ? (this.config?.display?.pillsLeftColumnClassName || this.config?.display?.pillsLeftColumnClass || "col-md-3") : "mb-4";
-        const contentColumnClassName = orientation === "vertical" ? (this.config?.display?.pillsRightColumnClassName || this.config?.display?.pillsRightColumnClass || "col-md-9") : "";
+        const pillsColumnClassName = orientation === "vertical" ? (this.config?.display?.pillsLeftColumnClassName || this.config?.display?.pillsLeftColumnClass || "col-3") : "mb-4";
+        const contentColumnClassName = orientation === "vertical" ? (this.config?.display?.pillsRightColumnClassName || this.config?.display?.pillsRightColumnClass || "col-9") : "";
         const pillsClassName = orientation === "vertical" ? "flex-column gap-2" : "nav-fill";
 
         // generate pills
