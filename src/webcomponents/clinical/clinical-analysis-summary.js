@@ -109,8 +109,9 @@ export default class ClinicalAnalysisSummary extends LitElement {
 
     getDefaultConfig() {
         return {
+            title: "Clinical Analysis Overview",
             display: {
-                titleVisible: false,
+                titleVisible: true,
                 buttonsVisible: false,
                 separationClassName: "mb-1",
                 layout: [
@@ -129,6 +130,11 @@ export default class ClinicalAnalysisSummary extends LitElement {
                     },
                     {
                         id: "proband",
+                        className: "mb-4",
+                    },
+                    {
+                        id: "family",
+                        className: "mb-4",
                     },
                 ],
                 ...this.displayConfig,
@@ -299,8 +305,39 @@ export default class ClinicalAnalysisSummary extends LitElement {
                     title: "Family",
                     display: {
                         visible: clinicalAnalysis => clinicalAnalysis?.id && clinicalAnalysis.type === "FAMILY",
+                        titleWidth: 4,
+                        titleClassName: "fw-bold",
+                        className: "p-4 border border-1 border-gray-200 rounded-4 bg-white",
+                        layout: [
+                            {
+                                id: "title",
+                            },
+                            {
+                                className: "row",
+                                elements: [
+                                    {
+                                        id: "members",
+                                        className: "col-9",
+                                    },
+                                    {
+                                        id: "pedigree",
+                                        className: "col-3",
+                                    },
+                                ],
+                            },
+                        ],
                     },
                     elements: [
+                        {
+                            id: "title",
+                            type: "text",
+                            text: (clinicalAnalysis) => {
+                                return `Family Information - ${clinicalAnalysis?.family?.id || ""}`;
+                            },
+                            display: {
+                                className: "mb-2 fs-5 fw-bold",
+                            },
+                        },
                         {
                             title: "Family ID",
                             field: "family.id"
@@ -310,6 +347,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             field: "family.name"
                         },
                         {
+                            id: "members",
                             title: "Members",
                             field: "family",
                             type: "custom",
@@ -333,9 +371,13 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             },
                         },
                         {
+                            id: "pedigree",
                             title: "Pedigree",
                             type: "image",
                             field: "family.pedigreeGraph.base64",
+                            display: {
+                                defaultLayout: "vertical",
+                            },
                         },
 
                     ]
