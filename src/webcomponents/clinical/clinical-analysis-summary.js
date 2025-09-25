@@ -21,6 +21,7 @@ import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/forms/data-form.js";
 import "../individual/individual-grid.js";
+import "../individual/individual-summary.js";
 
 export default class ClinicalAnalysisSummary extends LitElement {
 
@@ -111,17 +112,42 @@ export default class ClinicalAnalysisSummary extends LitElement {
             display: {
                 titleVisible: false,
                 buttonsVisible: false,
+                separationClassName: "mb-1",
+                layout: [
+                    {
+                        className: "row mb-4",
+                        sections: [
+                            {
+                                id: "case-general",
+                                className: "col-6",
+                            },
+                            {
+                                id: "case-metadata",
+                                className: "col-6",
+                            },
+                        ],
+                    },
+                    {
+                        id: "proband",
+                    },
+                ],
                 ...this.displayConfig,
             },
             sections: [
                 {
-                    id: "detail",
-                    title: "Details",
+                    id: "case-general",
                     display: {
-                        titleWidth: 3,
-                        className: "p-3 border border-1 border-gray-200 rounded-3 bg-white",
+                        titleWidth: 4,
+                        className: "p-3 border border-1 border-gray-200 rounded-4 bg-white",
                     },
                     elements: [
+                        {
+                            type: "text",
+                            text: "General Information",
+                            display: {
+                                className: "mb-2 fs-5 fw-bold",
+                            },
+                        },
                         {
                             title: "Case ID",
                             field: "id",
@@ -198,24 +224,66 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                 },
                             },
                         },
+                    ],
+                },
+                {
+                    id: "case-metadata",
+                    display: {
+                        titleWidth: 4,
+                        className: "p-4 border border-1 border-gray-200 rounded-4 bg-white",
+                    },
+                    elements: [
+                        {
+                            type: "text",
+                            text: "Metadata",
+                            display: {
+                                className: "mb-2 fs-5 fw-bold",
+                            },
+                        },
                         {
                             title: "Creation Date",
                             field: "creationDate",
                             display: {
-                                format: date => UtilsNew.dateFormatter(date)
+                                format: date => UtilsNew.dateFormatter(date),
                             },
                         },
                         {
                             title: "Due date",
                             field: "dueDate",
                             display: {
-                                format: date => UtilsNew.dateFormatter(date)
+                                separationClassName: "mb-0",
+                                defaultValue: "-",
+                                format: date => UtilsNew.dateFormatter(date),
                             },
                         }
-                    ]
+                    ],
                 },
                 {
                     id: "proband",
+                    title: "Proband",
+                    display: {
+                        titleClassName: "fw-bold",
+                    },
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: clinicalAnalysis => {
+                                    return html`
+                                        <individual-summary
+                                            .individualId="${clinicalAnalysis?.proband?.id}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .displayConfig="${{
+                                                titleVisible: false,
+                                            }}">
+                                        </individual-summary>
+                                    `;
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
                     title: "Proband",
                     display: {
                         titleWidth: 3,
