@@ -17,10 +17,8 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/forms/data-form.js";
-import "../individual/individual-grid.js";
 import "../individual/individual-summary.js";
 
 export default class ClinicalAnalysisSummary extends LitElement {
@@ -338,24 +336,25 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             id: "members",
                             title: "Family Members",
                             field: "family",
-                            type: "custom",
+                            type: "table",
                             display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: family => html`
-                                    <div class="overflow-y-auto">
-                                        <individual-grid
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .individuals="${family?.members || []}"
-                                            .config="${{
-                                                showToolbar: false,
-                                                showActions: false,
-                                            }}">
-                                        </individual-grid>
-                                    </div>
-                                `,
+                                className: "table-borderless table-grid mb-0",
+                                separationClassName: "mb-0",
+                                headerCellClassName: "bg-white",
+                                bodyRowClassName: "bg-gray-100",
+                                bodyCellClassName: "align-middle",
+                                columns: [
+                                    {
+                                        title: "Individual",
+                                        field: "id",
+                                        display: {
+                                            className: "text-break",
+                                            style: {
+                                                "font-weight": "bold"
+                                            }
+                                        }
+                                    },
+                                ],
                             },
                         },
                         {
