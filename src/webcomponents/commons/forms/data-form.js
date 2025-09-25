@@ -1163,7 +1163,7 @@ export default class DataForm extends LitElement {
         const listItemStyle = this._parseStyleField(element.display?.itemStyle || element.display?.listItemStyle) || "";
 
         // note: separator is only available for 'horizontal' and 'vertical' layouts
-        const separator = element.display?.separator ?? (contentLayout === "horizontal" ? ", " : null);
+        const separator = element.display?.separator ?? (contentLayout === "horizontal" ? ", " : nothing);
 
         // 1. Check array and layout exist
         if (!Array.isArray(values)) {
