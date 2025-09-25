@@ -144,7 +144,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                     id: "case-general",
                     display: {
                         titleWidth: 4,
-                        className: "p-3 border border-1 border-gray-200 rounded-4 bg-white",
+                        className: "p-4 border border-1 border-gray-200 rounded-4 bg-white",
                     },
                     elements: [
                         {
@@ -339,16 +339,8 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             },
                         },
                         {
-                            title: "Family ID",
-                            field: "family.id"
-                        },
-                        {
-                            title: "Name",
-                            field: "family.name"
-                        },
-                        {
                             id: "members",
-                            title: "Members",
+                            title: "Family Members",
                             field: "family",
                             type: "custom",
                             display: {
@@ -379,53 +371,9 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                 defaultLayout: "vertical",
                             },
                         },
-
-                    ]
+                    ],
                 },
-                {
-                    id: "files",
-                    title: "Files",
-                    elements: [
-                        {
-                            type: "table",
-                            field: "files",
-                            display: {
-                                columns: [
-                                    {
-                                        title: "Name",
-                                        field: "name",
-                                    },
-                                    {
-                                        title: "Size",
-                                        field: "size",
-                                        display: {
-                                            format: size => UtilsNew.getDiskUsage(size),
-                                        },
-                                    },
-                                    {
-                                        title: "Format",
-                                        field: "format",
-                                    },
-                                    {
-                                        title: "Software",
-                                        field: "software",
-                                        display: {
-                                            format: software => software?.name ? `${software.name} (${software.version || "-"})` : "-",
-                                        },
-                                    },
-                                    {
-                                        title: "Creation Date",
-                                        field: "creationDate",
-                                        display: {
-                                            format: creationDate => UtilsNew.dateFormatter(creationDate, "D MMM YYYY, h:mm:ss a"),
-                                        }
-                                    },
-                                ],
-                            },
-                        }
-                    ]
-                }
-            ]
+            ],
         };
     }
 
