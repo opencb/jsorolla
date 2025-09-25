@@ -71,13 +71,11 @@ export default class ClinicalReportVariantCard extends LitElement {
         }
 
         return html`
-            <div class="card rounded-3 shadow-sm border cursor-pointer ${this.selected ? "bg-gray-100 border-primary" : "bg-white border-gray-200"}" @click="${event => this.onVariantReviewInfo(event)}">
-                <div class="card-body">
-                    <data-form
-                        .data="${this.variant}"
-                        .config="${this._config}">
-                    </data-form>
-                </div>
+            <div class="p-4 rounded-4 shadow-sm border cursor-pointer ${this.selected ? "bg-gray-100 border-primary" : "bg-white border-gray-200"}" @click="${event => this.onVariantReviewInfo(event)}">
+                <data-form
+                    .data="${this.variant}"
+                    .config="${this._config}">
+                </data-form>
             </div>
         `;
     }
