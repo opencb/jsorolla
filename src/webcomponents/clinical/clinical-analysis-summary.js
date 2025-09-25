@@ -175,18 +175,14 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             title: "Flags",
                             field: "flags",
                             type: "custom",
+                            type: "list",
                             display: {
-                                render: flags => {
-                                    if (!flags || flags.length === 0) {
-                                        return html`<span class="text-muted">No flags added.</span>`;
-                                    }
-                                    return html`
-                                        <div class="d-flex flex-wrap gap-2">
-                                            ${flags.map(flag => html`<span class="badge bg-primary">${flag?.id}</span>`)}
-                                        </div>
-                                    `;
-                                },
-                            }
+                                contentLayout: "vertical",
+                                listClassName: "d-flex align-items-center flex-wrap gap-1",
+                                listItemClassName: "badge bg-secondary text-white d-flex align-items-center gap-2",
+                                defaultValue: "-",
+                                template: "<span>${id}</span>",
+                            },
                         },
                         {
                             title: "Status",
@@ -205,23 +201,13 @@ export default class ClinicalAnalysisSummary extends LitElement {
                         {
                             title: "Assigned To",
                             field: "analysts",
-                            type: "custom",
+                            type: "list",
                             display: {
-                                render: analysts => {
-                                    if (!analysts || analysts.length === 0) {
-                                        return html`<span class="text-muted">No analysts assigned.</span>`;
-                                    }
-                                    return html`
-                                        <div class="d-flex flex-wrap gap-2">
-                                            ${analysts.map(analyst => html`
-                                                <span class="d-flex align-items-center gap-2 badge bg-secondary">
-                                                    <i class="fa fa-user-md"></i>
-                                                    <span>${analyst?.id}</span>
-                                                </span>
-                                            `)}
-                                        </div>
-                                    `;
-                                },
+                                contentLayout: "vertical",
+                                listClassName: "d-flex align-items-center flex-wrap gap-1",
+                                listItemClassName: "badge bg-secondary text-white d-flex align-items-center gap-2",
+                                defaultValue: "-",
+                                template: "<i class='fas fa-user-md'></i><span>${id}</span>",
                             },
                         },
                     ],
@@ -238,6 +224,31 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             text: "Metadata",
                             display: {
                                 className: "mb-2 fs-5 fw-bold",
+                            },
+                        },
+                        {
+                            title: "UUID",
+                            field: "uuid",
+                            type: "custom",
+                            display: {
+                                render: uuid => html`
+                                    <code class="text-break">${uuid || "-"}</code>
+                                `,
+                                defaultValue: "-",
+                            },
+                        },
+                        {
+                            title: "Version",
+                            field: "version",
+                            display: {
+                                defaultValue: "-",
+                            },
+                        },
+                        {
+                            title: "Release",
+                            field: "release",
+                            display: {
+                                defaultValue: "-",
                             },
                         },
                         {
