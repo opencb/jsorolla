@@ -278,9 +278,6 @@ export default class ClinicalAnalysisSummary extends LitElement {
                 {
                     id: "proband",
                     title: "Proband",
-                    display: {
-                        titleClassName: "fw-bold",
-                    },
                     elements: [
                         {
                             type: "custom",
@@ -306,7 +303,6 @@ export default class ClinicalAnalysisSummary extends LitElement {
                     display: {
                         visible: clinicalAnalysis => clinicalAnalysis?.id && clinicalAnalysis.type === "FAMILY",
                         titleWidth: 4,
-                        titleClassName: "fw-bold",
                         className: "p-4 border border-1 border-gray-200 rounded-4 bg-white",
                         layout: [
                             {
