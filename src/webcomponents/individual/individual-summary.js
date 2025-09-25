@@ -141,7 +141,7 @@ export default class IndividualSummary extends LitElement {
                     id: "general",
                     display: {
                         titleWidth: 4,
-                        className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
+                        className: "border border-1 gorder-gray-200 rounded-4 p-4 bg-white",
                         separationClassName: "mb-3",
                     },
                     elements: [
@@ -203,7 +203,7 @@ export default class IndividualSummary extends LitElement {
                 {
                     id: "metadata",
                     display: {
-                        className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
+                        className: "border border-1 gorder-gray-200 rounded-4 p-4 bg-white",
                         separationClassName: "mb-3",
                         titleWidth: 4,
                     },
@@ -262,7 +262,7 @@ export default class IndividualSummary extends LitElement {
                     id: "disorders-phenotypes",
                     display: {
                         titleWidth: 2,
-                        className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
+                        className: "border border-1 gorder-gray-200 rounded-4 p-4 bg-white",
                         separationClassName: "mb-3",
                         layout: [
                             {
@@ -348,7 +348,7 @@ export default class IndividualSummary extends LitElement {
                 {
                     id: "samples",
                     display: {
-                        className: "border border-1 gorder-gray-200 rounded-3 p-3 bg-white",
+                        className: "border border-1 gorder-gray-200 rounded-4 p-4 bg-white",
                         separationClassName: "mb-0",
                     },
                     elements: [
@@ -363,7 +363,7 @@ export default class IndividualSummary extends LitElement {
                             field: "samples",
                             type: "table",
                             display: {
-                                className: "table-borderless table-grid",
+                                className: "table-borderless table-grid mb-0",
                                 headerCellClassName: "bg-white",
                                 bodyRowClassName: "bg-gray-100",
                                 bodyCellClassName: "align-middle",
@@ -426,7 +426,6 @@ export default class IndividualSummary extends LitElement {
                                         type: "custom",
                                         display: {
                                             render: sample => {
-                                                console.log(sample);
                                                 return UtilsNew.renderHTML(CatalogGridFormatter.modifiedAndCreateDateFormatter(null, sample));
                                             },
                                         },
