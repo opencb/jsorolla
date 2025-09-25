@@ -174,10 +174,6 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             },
                         },
                         {
-                            title: "Analysis Type",
-                            field: "type",
-                        },
-                        {
                             title: "Flags",
                             field: "flags",
                             type: "custom",
@@ -242,6 +238,10 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                 `,
                                 defaultValue: "-",
                             },
+                        },
+                        {
+                            title: "Analysis Type",
+                            field: "type",
                         },
                         {
                             title: "Version",
