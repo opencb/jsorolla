@@ -93,7 +93,7 @@ export default class ImageLoader extends LitElement {
                     <span>${this._error}</span>
                 </div>
             ` : nothing}
-            <div data-role="dragdrop" class="d-flex align-items-center justify-content-center rounded-3 border border-gray-200 p-5 bg-white cursor-pointer">
+            <div data-role="dragdrop" class="d-flex align-items-center justify-content-center rounded-4 border border-gray-200 p-5 bg-white cursor-pointer">
                 <div class="d-flex flex-column gap-2 align-items-center">
                     <div class="d-flex display-4 text-secondary">
                         <i class="fas fa-cloud-upload-alt"></i>
