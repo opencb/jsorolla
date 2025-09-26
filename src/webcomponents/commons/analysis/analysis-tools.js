@@ -53,7 +53,7 @@ export default class AnalysisTools extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    onChangeActiveTool(event) {
+    onChangeActiveItem(event) {
         const [app, tool] = WebUtils.getApplicationAndToolFromHash();
         WebUtils.redirectTo(this.opencgaSession, app, tool, {
             tool: event.detail.value,
@@ -67,7 +67,7 @@ export default class AnalysisTools extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .activeItem="${this.tool}"
                 .config="${this._config || {}}"
-                @changeActiveItem="${event => this.onChangeActiveTool(event)}">
+                @changeActiveItem="${event => this.onChangeActiveItem(event)}">
             </vertical-menu>
         `;
     }
