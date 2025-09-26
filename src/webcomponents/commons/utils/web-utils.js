@@ -123,4 +123,10 @@ export default class WebUtils {
         });
     }
 
+    static getApplicationAndToolFromHash(hash = "") {
+        // '#clinical/portal/project/study' --> ['clinical', 'portal]
+        // '#portal/project/study' --> ['portal']
+        return (hash || window.location.hash).replace("#", "").split("/").slice(0, -2);
+    }
+
 }
