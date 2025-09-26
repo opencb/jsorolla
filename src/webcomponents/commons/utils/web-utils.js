@@ -130,6 +130,7 @@ export default class WebUtils {
         return (hash || window.location.hash).replace("#", "").split("/").slice(0, -2);
     }
 
-
-
+    static redirectTo(opencgaSession, app = "", tool = "", query = {}) {
+        window.location.hash = WebUtils.getLink(opencgaSession, app, tool, query);
+    }
 }
