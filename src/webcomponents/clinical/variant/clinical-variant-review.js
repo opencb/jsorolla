@@ -393,16 +393,26 @@ export default class ClinicalVariantReview extends LitElement {
             },
             sections: [
                 {
-                    id: "annotationSummary",
+                    id: "summary",
                     name: "Summary",
                     icon: "fa-info-circle",
+                    // render: variant => html`
+                    //     <cellbase-variant-annotation-summary
+                    //         .variantAnnotation="${variant?.annotation}"
+                    //         .consequenceTypes="${CONSEQUENCE_TYPES}"
+                    //         .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                    //         .assembly="${this.opencgaSession.project.organism.assembly}">
+                    //     </cellbase-variant-annotation-summary>
+                    // `,
                     render: variant => html`
-                        <cellbase-variant-annotation-summary
-                            .variantAnnotation="${variant?.annotation}"
+                        <variant-summary
+                            .variant="${variant}"
+                            .clinical="${false}"
                             .consequenceTypes="${CONSEQUENCE_TYPES}"
                             .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
-                            .assembly="${this.opencgaSession.project.organism.assembly}">
-                        </cellbase-variant-annotation-summary>
+                            .opencgaSession="${this.opencgaSession}"
+                            .assembly="${this.opencgaSession?.project?.organism?.assembly}">
+                        </variant-summary>
                     `,
                 },
                 {
