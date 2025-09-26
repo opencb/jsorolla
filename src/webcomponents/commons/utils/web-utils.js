@@ -60,26 +60,27 @@ export default class WebUtils {
         return (resource && mapResourcePermissionId[resource] && mode) ? `${mode.toUpperCase()}_${mapResourcePermissionId[resource]}` : "";
     }
 
-    static getIVALink(opencgaSession, tool, query = {}) {
-        const baseUrl = (new URL(window.location.pathname, window.location.origin));
-        let queryStr = "";
-        // Check if query object has been provided
-        if (query) {
-            queryStr = "?" + (new URLSearchParams(query)).toString();
-        }
-        return `${baseUrl}#${tool}/${opencgaSession.project.id}/${opencgaSession.study.id}${queryStr}`;
-    }
-
-    static getInterpreterLink(opencgaSession, caseId = "") {
+    static getLink(opencgaSession, app = "", tool = "", query = null) {
         const hashItems = [
-            // ...window.location.hash.replace("#", "").split("/").slice(0, -3), // '#clinical/portal/project/study' --> ['clinical']
-            "clinical",
-            "interpreter",
+            app,
+            tool,
             opencgaSession?.project?.id || "",
             opencgaSession?.study?.id || "",
         ];
 
-        return `#${hashItems.filter(Boolean).join("/")}${!!caseId ? "?id=" + caseId : ""}`;
+        // build the querystring fragment of the URL if a query object is provided
+        const queryStr = (query && Object.keys(query || {}).length > 0) ? "?" + (new URLSearchParams(query)).toString() : "";
+
+        // build and return the internal link
+        return `#${hashItems.filter(Boolean).join("/")}${queryStr}`;
+    }
+
+    static getIVALink(opencgaSession, app, tool, query = null) {
+        return (new URL(window.location.pathname, window.location.origin)) + WebUtils.getLink(opencgaSession, app, tool, query);
+    }
+
+    static getInterpreterLink(opencgaSession, query = null) {
+        return WebUtils.getLink(opencgaSession, "clinical", "interpreter", query);
     }
 
     static jobStatusFormatter(status, appendDescription = false) {
@@ -128,5 +129,7 @@ export default class WebUtils {
         // '#portal/project/study' --> ['portal']
         return (hash || window.location.hash).replace("#", "").split("/").slice(0, -2);
     }
+
+
 
 }
