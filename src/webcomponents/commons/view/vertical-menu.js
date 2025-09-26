@@ -17,6 +17,9 @@ export default class VerticalMenu extends LitElement {
             opencgaSession: {
                 type: Object,
             },
+            activeItem: {
+                type: String,
+            },
             config: {
                 type: Object,
             },
@@ -35,8 +38,15 @@ export default class VerticalMenu extends LitElement {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
-            // initialize the active item
-            if (!this._activeItem) {
+        }
+
+        if (changedProperties.has("config") || changedProperties.has("activeItem")) {
+            // check if we have to change the active item
+            if (this.activeItem && this.activeItem !== this._activeItem) {
+                this._activeItem = this.activeItem;
+            }
+            // initialize the active item if not set
+            if (!this._activeItem && !this.activeItem) {
                 this._activeItem = this._config.menu[0].submenu[0].id;
             }
         }
