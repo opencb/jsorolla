@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import LitUtils from "../utils/lit-utils.js";
 
 export default class VerticalMenu extends LitElement {
 
@@ -56,6 +57,7 @@ export default class VerticalMenu extends LitElement {
 
     onChangeActiveItem(newActiveItem) {
         this._activeItem = newActiveItem;
+        LitUtils.dispatchCustomEvent(this, "changeActiveItem", this._activeItem);
         this.requestUpdate();
     }
 
