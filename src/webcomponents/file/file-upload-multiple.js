@@ -92,7 +92,9 @@ export default class FileUploadMultiple extends LitElement {
     }
 
     onSelectFilesClick(event) {
-        this.querySelector(`input[type="file"]`).click();
+        if (!this._uploading) {
+            this.querySelector(`input[type="file"]`).click();
+        }
     }
 
     onFilesChange(event) {
@@ -150,6 +152,7 @@ export default class FileUploadMultiple extends LitElement {
 
         // start uploading the selected files
         this._uploading = true;
+        this._config = this.getDefaultConfig();
         this.requestUpdate();
 
         this.uploadFiles()
@@ -164,7 +167,7 @@ export default class FileUploadMultiple extends LitElement {
             })
             .finally(() => {
                 this._uploading = false;
-                this._data = {...this._data};
+                this._config = this.getDefaultConfig();
                 this.requestUpdate();
             });
 
@@ -209,7 +212,9 @@ export default class FileUploadMultiple extends LitElement {
         return {
             display: {
                 buttonOkText: "Upload Files",
-                buttonClearText: "Discard Changes",
+                buttonOkDisabled: () => this._uploading || (this._data?.files?.length === 0) || this._data?.files?.every(f => f.status === this.FILE_STATUS.DONE),
+                buttonClearText: "Discard",
+                buttonClearDisabled: () => this._uploading || (this._data?.files?.length === 0),
                 ...this.displayConfig,
             },
             sections: [
@@ -220,6 +225,7 @@ export default class FileUploadMultiple extends LitElement {
                             field: "relativeFilePath",
                             type: "input-text",
                             display: {
+                                disabled: () => this._uploading,
                                 helpMessage: "Path where the files will be uploaded.",
                             },
                         },
