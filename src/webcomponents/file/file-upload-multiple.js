@@ -253,7 +253,7 @@ export default class FileUploadMultiple extends LitElement {
                             display: {
                                 visible: data => data?.files?.length > 0,
                                 render: (selectedFiles) => html`
-                                    <div class="d-flex flex-column gap-2">
+                                    <div class="d-flex flex-column gap-2 overflow-y-auto" style="max-height:320px;">
                                         ${(selectedFiles || []).map(file => html`
                                             <div class="d-flex align-items-center justify-content-between border rounded-3 p-2">
                                                 <div class="d-flex align-items-center gap-2">
