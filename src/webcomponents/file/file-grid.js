@@ -29,6 +29,7 @@ import "../job/job-view.js";
 import "./file-folder-create.js";
 import "./file-create.js";
 import "./file-upload.js";
+import "./file-upload-multiple.js";
 import "./file-fetch.js";
 import "./file-update.js";
 import "./file-view.js";
@@ -215,6 +216,28 @@ export default class OpencgaFileGrid extends LitElement {
                             this.onPathCreate(event.detail.relativeFilePath + event.detail.fileName);
                         }}">
                     </file-upload>
+                `,
+            },
+            "upload-multiple-files": {
+                display: {
+                    modalTitle: "Upload Multiple Files",
+                    modalSize: "modal-lg",
+                    modalCyDataName: "modal-upload-multiple",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <file-upload-multiple
+                        .opencgaSession="${this.opencgaSession}"
+                        .path="${this.getCurrentPath()}"
+                        .displayConfig="${{
+                            buttonsLayout: "bottom",
+                        }}"
+                        @fileUpload="${event => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                            this.onPathCreate(event.detail.relativeFilePath + event.detail.fileName);
+                        }}">
+                    </file-upload-multiple>
                 `,
             },
             "fetch-file": {
@@ -802,11 +825,29 @@ export default class OpencgaFileGrid extends LitElement {
                 disabled: !hasWritePermission,
                 onClick: () => this.gridCommons.changeActiveModal("create-file"),
             },
+            // {
+            //     icon: "fa-file-upload",
+            //     title: "Upload File",
+            //     disabled: !hasWritePermission || !hasUploadPermission,
+            //     onClick: () => this.gridCommons.changeActiveModal("upload-file"),
+            // },
             {
-                icon: "fa-file-upload",
-                title: "Upload File",
-                disabled: !hasWritePermission || !hasUploadPermission,
-                onClick: () => this.gridCommons.changeActiveModal("upload-file"),
+                render: () => html`
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle ${!hasWritePermission || !hasUploadPermission ? "disabled" : "cursor-pointer"}" data-bs-toggle="dropdown">
+                            <i class="fa fa-file-upload me-1"></i> 
+                            <span class="">Upload File</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <a class="dropdown-item cursor-pointer" @click="${() => this.gridCommons.changeActiveModal("upload-file")}">
+                                <span>Upload Single File</span>
+                            </a>
+                            <a class="dropdown-item cursor-pointer" @click="${() => this.gridCommons.changeActiveModal("upload-multiple-files")}">
+                                <span>Upload Multiple Files</span>
+                            </a>
+                        </div>
+                    </div>
+                `,
             },
             {
                 icon: "fas fa-cloud-download-alt",
