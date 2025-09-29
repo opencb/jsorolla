@@ -233,6 +233,10 @@ export default class OpencgaFileGrid extends LitElement {
                             buttonsLayout: "bottom",
                         }}"
                         @fileUpload="${event => {
+                            this.table.bootstrapTable("refresh");
+                            this.onPathCreate(event.detail.relativeFilePath);
+                        }}"
+                        @fileUploadAll="${event => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                             this.onPathCreate(event.detail.relativeFilePath);
