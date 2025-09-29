@@ -84,7 +84,10 @@ export default class FileUploadMultiple extends LitElement {
                     // 2. if everything is ok, set the status to DONE
                     file.status = this.FILE_STATUS.DONE;
                     // 3. dispatch an event to notify that a file has been uploaded
-                    // LitUtils.dispatchCustomEvent(this, "fileUploaded", null, file);
+                    LitUtils.dispatchCustomEvent(this, "fileUpload", null, {
+                        relativeFilePath: this._data.relativeFilePath,
+                        fileName: file.fileObject.name,
+                    });
                 } catch (error) {
                     // if there is an error, set the status to ERROR and stop the upload process
                     file.status = this.FILE_STATUS.ERROR;
@@ -169,7 +172,13 @@ export default class FileUploadMultiple extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: `Uploaded ${this._data.files.length} files correctly.`,
                 });
-                LitUtils.dispatchCustomEvent(this, "fileUpload", null, this._data);
+                // dispatch an event to notify that all files have been uploaded
+                LitUtils.dispatchCustomEvent(this, "fileUploadAll", null, {
+                    relativeFilePath: this._data.relativeFilePath,
+                    files: this._data.files.map(file => {
+                        return file.fileObject.name;
+                    }),
+                });
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
