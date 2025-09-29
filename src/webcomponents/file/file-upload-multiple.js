@@ -72,6 +72,7 @@ export default class FileUploadMultiple extends LitElement {
                 await this.updateComplete;
 
                 try {
+                    // 1. perform the request to OpenCGA for uploading the file
                     await this.opencgaSession.opencgaClient.files()
                         .upload({
                             study: this.opencgaSession.study.fqn,
@@ -80,8 +81,10 @@ export default class FileUploadMultiple extends LitElement {
                             relativeFilePath: this._data.relativeFilePath.substring(1) || this.path,
                             resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
                         });
-                    
+                    // 2. if everything is ok, set the status to DONE
                     file.status = this.FILE_STATUS.DONE;
+                    // 3. dispatch an event to notify that a file has been uploaded
+                    // LitUtils.dispatchCustomEvent(this, "fileUploaded", null, file);
                 } catch (error) {
                     // if there is an error, set the status to ERROR and stop the upload process
                     file.status = this.FILE_STATUS.ERROR;

@@ -235,7 +235,7 @@ export default class OpencgaFileGrid extends LitElement {
                         @fileUpload="${event => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
-                            this.onPathCreate(event.detail.relativeFilePath + event.detail.fileName);
+                            this.onPathCreate(event.detail.relativeFilePath);
                         }}">
                     </file-upload-multiple>
                 `,
