@@ -288,6 +288,9 @@ export default class FileUploadMultiple extends LitElement {
                                             </div>
                                         `)}
                                     </div>
+                                    <div class="small text-muted mt-2">
+                                        <span>Total files: ${selectedFiles.length}</span>
+                                    </div>
                                 `,
                             },
                         },
