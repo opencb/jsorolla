@@ -133,12 +133,6 @@ export default class FileUploadMultiple extends LitElement {
 
     onFieldChange(event) {
         this._data = {...event.detail.data};
-
-        // // if user selects a local file and the fileName is not set, then set the fileName with the name of the file
-        // if (event.detail.param === "file" && event.detail.value?.name && !event.detail.data.fileName) {
-        //     this._file.fileName = event.detail.value.name;
-        // }
-
         this.requestUpdate();
     }
 
@@ -182,30 +176,6 @@ export default class FileUploadMultiple extends LitElement {
                 this._config = this.getDefaultConfig();
                 this.requestUpdate();
             });
-
-        // const params = {
-        //     study: this.opencgaSession.study.fqn,
-        //     file: this._file.file,
-        //     fileName: this._file.fileName || this._file.file.name, // get the name from the uploaded file
-        //     relativeFilePath: this._file.relativeFilePath.substring(1) || this.path,
-        //     description: this._file.description || "",
-        //     resource: this._file.resource ?? false,
-        //     tags: this._file.tags ? this._file.tags.split(",").map(t => t.trim()) : [],
-        // };
-
-        // this.opencgaSession.opencgaClient.files()
-        //     .upload(params)
-        //     .then(() => {
-        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-        //             title: "Upload File",
-        //             message: `File ${this._file.fileName || this._file.file.name} uploaded correctly.`,
-        //         });
-        //         this._file = {}; // reset the file data
-        //         LitUtils.dispatchCustomEvent(this, "fileUpload", null, params);
-        //     })
-        //     .catch(error => {
-        //         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-        //     });
     }
 
     render() {
