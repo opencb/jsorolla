@@ -91,16 +91,8 @@ export default class FileUploadMultiple extends LitElement {
         }
     }
 
-    onSelectFilesClick(event) {
-        if (!this._uploading) {
-            this.querySelector(`input[type="file"]`).click();
-        }
-    }
-
-    onFilesChange(event) {
-        event.preventDefault();
-        const files = event.target.files || event.dataTransfer.files || []
-        if (files.length > 0) {
+    addFiles(files) {
+        if (files.length > 0 && !this._uploading) {
             // TODO: check for maximum file size or duplicated files?
             Array.from(files).forEach(file => {
                 this._data.files.push({
@@ -111,6 +103,26 @@ export default class FileUploadMultiple extends LitElement {
             this._data = {...this._data};
             this.requestUpdate();
         }
+    }
+
+    onSelectFilesClick(event) {
+        event.preventDefault();
+        if (!this._uploading) {
+            this.querySelector(`input[type="file"]`).click();
+        }
+    }
+
+    onDropFiles(event) {
+        event.preventDefault();
+        this.addFiles(event.dataTransfer?.files || []);
+    }
+
+    onFilesChange(event) {
+        event.preventDefault();
+        this.addFiles(event.target.files || []);
+
+        // note: reset the value of the input file to allow uploading the same file again
+        event.target.value = null;
     }
 
     onFileRemove(event, file) {
@@ -237,7 +249,7 @@ export default class FileUploadMultiple extends LitElement {
                             display: {
                                 render: () => html`
                                     <input class="d-none" type="file" multiple @change="${event => this.onFilesChange(event)}">
-                                    <div @click="${event => this.onSelectFilesClick(event)}" @drop="${event => this.onFilesChange(event)}" @dragover="${event => event.preventDefault()}">
+                                    <div @click="${event => this.onSelectFilesClick(event)}" @drop="${event => this.onDropFiles(event)}" @dragover="${event => event.preventDefault()}">
                                         <div class="d-flex align-items-center justify-content-center rounded-3 border border-gray-200 p-4 cursor-pointer">
                                             <div class="d-flex flex-column gap-2 align-items-center">
                                                 <div class="d-flex fs-1 text-secondary">
