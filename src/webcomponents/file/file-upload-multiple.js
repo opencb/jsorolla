@@ -35,7 +35,7 @@ export default class FileUploadMultiple extends LitElement {
         this.FILE_STATUS = {
             PENDING: "PENDING",
             UPLOADING: "UPLOADING",
-            READY: "READY",
+            DONE: "DONE",
             ERROR: "ERROR",
         };
 
@@ -60,33 +60,38 @@ export default class FileUploadMultiple extends LitElement {
     }
 
     async uploadFiles() {
-        for (let i = 0; i < this._data.files.length; i++) {
-            const file = this._data.files[i];
+        const files = this._data.files || [];
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
 
-            // 1. update the status of the file to uploading
-            file.status = this.FILE_STATUS.UPLOADING;
-            this.requestUpdate();
-            await this.updateComplete;
-            
-            // 2. upload the file
-            await this.opencgaSession.opencgaClient.files()
-                .upload({
-                    study: this.opencgaSession.study.fqn,
-                    file: file.fileObject,
-                    fileName: file.fileObject.name, // get the name from the uploaded file
-                    relativeFilePath: this._data.relativeFilePath.substring(1) || this.path,
-                    resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
-                });
-            
-            // 3. update the status of the file to ready
-            file.status = this.FILE_STATUS.READY;
+            // check the status of the file: if it is done, skip it
+            if (file.status !== this.FILE_STATUS.DONE) {
+                file.status = this.FILE_STATUS.UPLOADING;
+                this._data = {...this._data};
+                this.requestUpdate();
+                await this.updateComplete;
+
+                try {
+                    await this.opencgaSession.opencgaClient.files()
+                        .upload({
+                            study: this.opencgaSession.study.fqn,
+                            file: file.fileObject,
+                            fileName: file.fileObject.name, // get the name from the uploaded file
+                            relativeFilePath: this._data.relativeFilePath.substring(1) || this.path,
+                            resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
+                        });
+                    
+                    file.status = this.FILE_STATUS.DONE;
+                } catch (error) {
+                    // if there is an error, set the status to ERROR and stop the upload process
+                    file.status = this.FILE_STATUS.ERROR;
+                    return Promise.reject(error);
+                }
+            }
         }
-        this.requestUpdate();
-        await this.updateComplete;
     }
 
     onSelectFilesClick(event) {
-        event.preventDefault();
         this.querySelector(`input[type="file"]`).click();
     }
 
@@ -159,6 +164,7 @@ export default class FileUploadMultiple extends LitElement {
             })
             .finally(() => {
                 this._uploading = false;
+                this._data = {...this._data};
                 this.requestUpdate();
             });
 
@@ -257,9 +263,28 @@ export default class FileUploadMultiple extends LitElement {
                                                     </div>
                                                     <div class="text-muted">(${UtilsNew.getDiskUsage(file.fileObject.size)})</div>
                                                 </div>
-                                                <button class="btn btn-sm" @click="${(event) => this.onFileRemove(event, file)}">
-                                                    <i class="fa fa-times"></i>
-                                                </button>
+                                                <div class="d-flex align-items-center gap-1">
+                                                    ${file.status === this.FILE_STATUS.UPLOADING ? html`
+                                                        <div class="d-flex align-items-center px-1" title="Uploading...">
+                                                            <i class="fa fa-spinner fa-spin text-primary"></i>
+                                                        </div>
+                                                    ` : nothing}
+                                                    ${file.status === this.FILE_STATUS.DONE ? html`
+                                                        <div class="d-flex align-items-center px-1" title="File uploaded">
+                                                            <i class="fa fa-check text-success"></i>
+                                                        </div>
+                                                    ` : nothing}
+                                                    ${file.status === this.FILE_STATUS.ERROR ? html`
+                                                        <div class="d-flex align-items-center px-1" title="Error uploading file">
+                                                            <i class="fa fa-exclamation-triangle text-danger"></i>
+                                                        </div>
+                                                    ` : nothing}
+                                                    ${(!this._uploading && file.status !== this.FILE_STATUS.DONE) ? html`
+                                                        <button class="btn btn-sm" @click="${(event) => this.onFileRemove(event, file)}">
+                                                            <i class="fa fa-times"></i>
+                                                        </button>
+                                                    ` : nothing}
+                                                </div>
                                             </div>
                                         `)}
                                     </div>
