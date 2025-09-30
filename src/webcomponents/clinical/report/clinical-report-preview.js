@@ -32,6 +32,7 @@ export default class ClinicalReportPreview extends LitElement {
         this._templates = null;
         this._invalidTemplates = [];
         this._activeTemplate = null;
+        this._editingTemplate = false;
     }
 
     update(changedProperties) {
@@ -100,21 +101,24 @@ export default class ClinicalReportPreview extends LitElement {
             return {
                 id: file.id,
                 path: file.path,
+                name: file.name,
                 content: content,
-                title: data?.name || data?.title || file.name.replace(".js", ""),
-                description: data?.description || "",
-                version: data?.version || "",
-                config: data?.config || data?.template || {}
+                originalContent: content,
+                data: data,
             };
         });
     }
 
     onTemplateChange(event) {
         const selectedTemplate = this._templates.find(template => {
-            return template.title === event.target.value;
+            return template.id === event.target.value;
         });
         this._activeTemplate = selectedTemplate || null;
-        this.requestUpdate();
+        this._activeTemplate.content = this._activeTemplate.originalContent; // reset content to original
+        this.evaluateTemplate(this._activeTemplate.content).then(data => {
+            this._activeTemplate.data = data;
+            this.requestUpdate();
+        });
     }
 
     render() {
@@ -139,8 +143,8 @@ export default class ClinicalReportPreview extends LitElement {
                     <select class="form-control" @change="${event => this.onTemplateChange(event)}">
                         <option disabled selected value> -- select a template -- </option>
                         ${this._templates.map(template => html`
-                            <option value="${template.title}" ?selected="${this._activeTemplate?.title === template.title}">
-                                ${template.title} ${template.version ? html` - ${template.version}` : nothing}
+                            <option value="${template.id}" ?selected="${this._activeTemplate?.id === template.id}">
+                                ${template.data?.title || template.data?.name || template.name} ${template.data?.version ? html` - ${template.data?.version}` : nothing}
                             </option>
                         `)}
                     </select>
@@ -160,10 +164,10 @@ export default class ClinicalReportPreview extends LitElement {
                 <data-form
                     .data="${this.clinicalAnalysis}"
                     .config="${{
-                        ...this._activeTemplate?.config,
+                        ...this._activeTemplate?.data?.config,
                         display: {
                             buttonsVisible: false,
-                            ...this._activeTemplate?.config?.display,
+                            ...this._activeTemplate?.data?.config?.display,
                         },
                     }}">
                 </data-form>
