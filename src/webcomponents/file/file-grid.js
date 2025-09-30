@@ -133,7 +133,7 @@ export default class OpencgaFileGrid extends LitElement {
                     </file-view>
                 `,
             }),
-            "update-content": () => ({
+            "edit-content": () => ({
                 display: {
                     title: `Update ${this._selectedFile?.name} Content`,
                     size: "modal-xl",
@@ -143,7 +143,7 @@ export default class OpencgaFileGrid extends LitElement {
                     <file-editor
                         .path="${this._selectedFile.path || this._selectedFile.id}"
                         .opencgaSession="${this.opencgaSession}"
-                        @fileContentSaveAndClose="${() => {
+                        @fileContentSave="${() => {
                             this.gridCommons.clearActiveModal();
                         }}">
                     </file-editor>
@@ -587,7 +587,7 @@ export default class OpencgaFileGrid extends LitElement {
                         <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" || !hasDownloadPermission ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
                             <i class="fas fa-download me-1"></i> Download
                         </a>
-                        <a data-action="update-content" class="dropdown-item ${this.isUpdateContentAllowed(row) && hasDownloadPermission && hasWritePermission ? "cursor-pointer" : "disabled"}">
+                        <a data-action="edit-content" class="dropdown-item ${this.isUpdateContentAllowed(row) && hasDownloadPermission && hasWritePermission ? "cursor-pointer" : "disabled"}">
                             <i class="fas fa-edit me-1"></i> Update Content
                         </a>
                         <a data-action="variant-index" class="dropdown-item ${row.format === "VCF" && isStudyAdmin ? "cursor-pointer" : "disabled"}">
@@ -639,9 +639,9 @@ export default class OpencgaFileGrid extends LitElement {
                 this._selectedJobId = event.currentTarget.dataset.job;
                 this.gridCommons.changeActiveModal("view-job");
                 break;
-            case "update-content":
+            case "edit-content":
                 this._selectedFile = file;
-                this.gridCommons.changeActiveModal("update-content");
+                this.gridCommons.changeActiveModal("edit-content");
                 break;
         }
     }
