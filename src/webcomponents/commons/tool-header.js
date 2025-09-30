@@ -40,6 +40,12 @@ export default class ToolHeader extends LitElement {
             class: {
                 type: String
             },
+            leftContent: {
+                type: Object,
+            },
+            centerContent: {
+                type: Object,
+            },
             rightContent: {
                 type: Object,
             },
@@ -68,16 +74,27 @@ export default class ToolHeader extends LitElement {
 
     render() {
         return html`
-            <div class="d-flex align-items-center my-3 py-2 ${this.class ?? ""}">
-                <h1 class="d-flex align-items-center gap-3 user-select-none">
-                    ${this.renderIcon()}
-                    <span class="fw-bold">${UtilsNew.renderHTML(this.title)}</span>
-                </h1>
-                ${this.subtitle ? html`
-                    <h3>${this.subtitle}</h3>
+            <div class="d-flex align-items-center justify-content-between my-3 py-2 ${this.class ?? ""}">
+                ${this.leftContent ? html`
+                    <div>${this.leftContent}</div>
+                ` : html`
+                    <div class="d-flex flex-column">
+                        ${this.title ? html`
+                            <h1 class="d-flex align-items-center gap-3 user-select-none">
+                                ${this.renderIcon()}
+                                <span class="fw-bold">${UtilsNew.renderHTML(this.title)}</span>
+                            </h1>
+                        ` : nothing}
+                        ${this.subtitle ? html`
+                            <h3 class="text-secondary">${UtilsNew.renderHTML(this.subtitle)}</h3>
+                        ` : nothing}
+                    </div>
+                `}
+                ${this.centerContent ? html`
+                    <div class="flex-grow-1 text-center">${this.centerContent}</div>
                 ` : nothing}
                 ${(this.rightContent || this.rhs) ? html`
-                    <div class="ms-auto">${this.rightContent || this.rhs}</div>
+                    <div>${this.rightContent || this.rhs}</div>
                 ` : nothing}
             </div>
         `;
