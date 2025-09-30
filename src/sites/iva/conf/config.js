@@ -302,6 +302,13 @@ const SUITE = {
             },
             menu: [
                 {
+                    id: "clinical-preprocessing",
+                    name: "Clinical Preprocessing",
+                    icon: "fa-file-medical",
+                    visibility: "public",
+                    description: "Preprocess clinical data and generate the required files to run a clinical analysis.",
+                },
+                {
                     id: "clinical-analysis-portal",
                     name: "Case Interpreter Portal",
                     icon: "fa-file-medical",
