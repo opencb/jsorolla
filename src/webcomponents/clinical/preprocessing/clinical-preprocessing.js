@@ -1,6 +1,6 @@
 import {LitElement, html, nothing} from "lit";
-import "../../commons/forms/data-form.js";
 import "../../commons/tool-header.js";
+import "../../alignment/analysis/sarek-analysis.js";
 
 export default class ClinicalPreprocessing extends LitElement {
 
@@ -22,7 +22,7 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     #init() {
-        this._activeStepIndex = 2;
+        this._activeStepIndex = 1;
         this._config = this.getDefaultConfig();
     }
 
@@ -70,9 +70,10 @@ export default class ClinicalPreprocessing extends LitElement {
         return html`
             <tool-header
                 .title="${this._config.title}"
-                .rightContent="${this.renderToolbarCenterContent()}">
+                .rightContent="${nothing}"
+                .centerContent="${this.renderToolbarCenterContent()}">
             </tool-header>
-            <div class="py-4">
+            <div class="container py-4">
                 ${this._config.steps[this._activeStepIndex]?.render()}
             </div>
         `;
@@ -95,7 +96,10 @@ export default class ClinicalPreprocessing extends LitElement {
                     title: "Sarek Parameters",
                     icon: "fas fa-sliders-h",
                     render: () => html`
-                        <div>Set Sarek parameters</div>
+                        <sarek-analysis
+                            .opencgaSession="${this.opencgaSession}"
+                            .toolParams="${{}}">
+                        </sarek-analysis>
                     `,
                 },
                 {
