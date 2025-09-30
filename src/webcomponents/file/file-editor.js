@@ -218,26 +218,30 @@ export default class FileEditor extends LitElement {
                                     </div>
                                     <div class="dropdown-menu dropdown-menu-end">
                                         <div class="d-flex flex-column gap-2 px-1" style="min-width:160px;">
-                                            <div class="p-0">
-                                                <label for="languageSelect" class="form-label mb-1 fw-bold">Language</label>
-                                                <select id="languageSelect" class="form-select" @change="${event => this.onLanguageChange(event)}">
-                                                    ${this._config.allowedLanguages.map(lang => html`
-                                                        <option value="${lang.id}" ?selected="${this._settings.language === lang.id}">
-                                                            ${lang.name}
-                                                        </option>
-                                                    `)}
-                                                </select>
-                                            </div>
-                                            <div class="p-0">
-                                                <label for="themeSelect" class="form-label mb-1 fw-bold">Theme</label>
-                                                <select id="themeSelect" class="form-select" @change="${event => this.onThemeChange(event)}">
-                                                    ${this._config.allowedThemes.map(theme => html`
-                                                        <option value="${theme.id}" ?selected="${this._settings.theme === theme.id}">
-                                                            ${theme.name}
-                                                        </option>
-                                                    `)}
-                                                </select>
-                                            </div>
+                                            ${this._config.showLanguageSelector ? html`
+                                                <div class="p-0">
+                                                    <label for="languageSelect" class="form-label mb-1 fw-bold">Language</label>
+                                                    <select id="languageSelect" class="form-select" @change="${event => this.onLanguageChange(event)}">
+                                                        ${this._config.allowedLanguages.map(lang => html`
+                                                            <option value="${lang.id}" ?selected="${this._settings.language === lang.id}">
+                                                                ${lang.name}
+                                                            </option>
+                                                        `)}
+                                                    </select>
+                                                </div>
+                                            ` : nothing}
+                                            ${this._config.showThemeSelector ? html`
+                                                <div class="p-0">
+                                                    <label for="themeSelect" class="form-label mb-1 fw-bold">Theme</label>
+                                                    <select id="themeSelect" class="form-select" @change="${event => this.onThemeChange(event)}">
+                                                        ${this._config.allowedThemes.map(theme => html`
+                                                            <option value="${theme.id}" ?selected="${this._settings.theme === theme.id}">
+                                                                ${theme.name}
+                                                            </option>
+                                                        `)}
+                                                    </select>
+                                                </div>
+                                            ` : nothing}
                                         </div>
                                     </div>
                                 </div>
@@ -284,6 +288,8 @@ export default class FileEditor extends LitElement {
             showSaveButton: true,
             showDiscardButton: true,
             showSettings: true,
+            showLanguageSelector: true,
+            showThemeSelector: true,
             allowedThemes: [
                 {id: "one-dark", name: "Dark", isDarkTheme: true},
                 {id: "one-light", name: "Light", isDarkTheme: false},
