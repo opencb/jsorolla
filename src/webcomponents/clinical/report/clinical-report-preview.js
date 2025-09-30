@@ -1,6 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import "../../commons/forms/data-form.js";
 import "../../commons/empty-state.js";
+import "../../file/file-editor.js";
 
 export default class ClinicalReportPreview extends LitElement {
 
@@ -32,6 +33,7 @@ export default class ClinicalReportPreview extends LitElement {
         this._templates = null;
         this._invalidTemplates = [];
         this._activeTemplate = null;
+        this._activeConfig = null; // Configuration of the active template
         this._editingTemplate = false;
     }
 
@@ -81,6 +83,7 @@ export default class ClinicalReportPreview extends LitElement {
                     // if there are only one template, set it as the current active
                     if (this._templates.length === 1) {
                         this._activeTemplate = this._templates[0];
+                        this._activeConfig = this._activeTemplate.config;
                     }
                     this.requestUpdate();
                 })
@@ -100,11 +103,11 @@ export default class ClinicalReportPreview extends LitElement {
         return this.evaluateTemplate(content).then(data => {
             return {
                 id: file.id,
-                path: file.path,
-                name: file.name,
                 content: content,
-                originalContent: content,
-                data: data,
+                title: data?.name || data?.title || file.name.replace(".js", ""),
+                description: data?.description || "",
+                version: data?.version || "",
+                config: data?.config || data?.template || {}
             };
         });
     }
@@ -114,11 +117,16 @@ export default class ClinicalReportPreview extends LitElement {
             return template.id === event.target.value;
         });
         this._activeTemplate = selectedTemplate || null;
-        this._activeTemplate.content = this._activeTemplate.originalContent; // reset content to original
-        this.evaluateTemplate(this._activeTemplate.content).then(data => {
-            this._activeTemplate.data = data;
-            this.requestUpdate();
-        });
+        this._activeConfig = this._activeTemplate ? this._activeTemplate.config : null;
+        this.requestUpdate();
+    }
+
+    onTemplateContentChange(event) {
+        // TODO
+    }
+
+    onTemplateContentSave(event) {
+        // TODO
     }
 
     render() {
@@ -144,7 +152,7 @@ export default class ClinicalReportPreview extends LitElement {
                         <option disabled selected value> -- select a template -- </option>
                         ${this._templates.map(template => html`
                             <option value="${template.id}" ?selected="${this._activeTemplate?.id === template.id}">
-                                ${template.data?.title || template.data?.name || template.name} ${template.data?.version ? html` - ${template.data?.version}` : nothing}
+                                ${template.title} ${template.version ? html` - ${template.version}` : nothing}
                             </option>
                         `)}
                     </select>
@@ -161,16 +169,33 @@ export default class ClinicalReportPreview extends LitElement {
                 </empty-state>
             ` : nothing}
             ${this._activeTemplate && this.active ? html`
-                <data-form
-                    .data="${this.clinicalAnalysis}"
-                    .config="${{
-                        ...this._activeTemplate?.data?.config,
-                        display: {
-                            buttonsVisible: false,
-                            ...this._activeTemplate?.data?.config?.display,
-                        },
-                    }}">
-                </data-form>
+                <div class="row">
+                    <div class="col-7">
+                        <data-form
+                            .data="${this.clinicalAnalysis}"
+                            .config="${{
+                                ...this._activeConfig,
+                                display: {
+                                    buttonsVisible: false,
+                                    ...this._activeConfig?.display,
+                                },
+                            }}">
+                        </data-form>
+                    </div>
+                    <div class="col-5">
+                        <file-editor
+                            .path="${this._activeTemplate.id}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${{}}"
+                            @fileContentChange="${event => {
+                                this.onTemplateContentChange(event);
+                            }}"
+                            @fileContentSave="${event => {
+                                this.onTemplateContentSave(event);
+                            }}">
+                        </file-editor>
+                    </div>
+                </div>
             ` : nothing}
         `;
     }
