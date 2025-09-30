@@ -57,22 +57,8 @@ export default class SarekAnalysis extends LitElement {
         this.DEFAULT_TOOLPARAMS = {
             step: "mapping",
             split_fastq: 50000000,
-            // New defaults
-            skip_fastp: false,
-            skip_mark_duplicates: false,
-            skip_prepare_calibration: false,
-            skip_recalibrate: false,
-            skip_variant_calling: false,
-            skip_annotation: false,
-            variant_callers: "mutect2",
-            genome: "GRCh38",
-            nucleotides_per_second: undefined,
-            intervals: "",
-            no_intervals: false,
-            extra_options: "",
-            fastp_options: "",
-            fasta: "",
-            known_sites: "",
+            length_required: 15,
+            genome: "GATK.GRCh38",
         };
 
         // Make a deep copy to avoid modifying default object.
@@ -235,7 +221,7 @@ debugger
                 title: "Input Parameters",
                 elements: [
                     {
-                        title: "Select FastQ File 1",
+                        title: "Select FastQ Files",
                         field: "files",
                         type: "custom",
                         required: true,
@@ -292,7 +278,7 @@ debugger
                             min: 1,
                             disabled: data => !["prepare_calibration", "recalibrate", "variant_calling"].includes(data?.step),
                             helpMessage: "Estimate interval size.\n" +
-                                "Intervals are parts of the chopped up genome used to speed up preprocessing and variant calling. See --intervals for more info.\n" +
+                                "Intervals are parts of the chopped up genome used to speed up preprocessing and variant calling. See --intervals for more info. " +
                                 "Changing this parameter, changes the number of intervals that are grouped and processed together. Bed files from target sequencing can contain thousands or small intervals. Spinning up a new process for each can be quite resource intensive. Instead it can be desired to process small intervals together on larger nodes. In order to make use of this parameter, no runtime estimate can be present in the bed file (column 5)."
                         }
                     },
@@ -303,8 +289,8 @@ debugger
                         display: {
                             placeholder: "path/to/targets.bed(.gz) or 1-22,X,Y,MT",
                             disabled: data => !["prepare_calibration", "recalibrate", "variant_calling"].includes(data?.step),
-                            helpMessage: "Path to target bed file in case of whole exome or targeted sequencing or intervals file. \n" +
-                                "To speed up preprocessing and variant calling processes, the execution is parallelized across a reference chopped into smaller pieces. \n" +
+                            helpMessage: "Path to target bed file in case of whole exome or targeted sequencing or intervals file. " +
+                                "To speed up preprocessing and variant calling processes, the execution is parallelized across a reference chopped into smaller pieces. " +
                                 "Parts of preprocessing and variant calling are done by these intervals, the different resulting files are then merged. " +
                                 "This can parallelize processes, and push down wall clock time significantly."
                         }
@@ -317,7 +303,7 @@ debugger
                         display: {
                             disabled: data => !["prepare_calibration", "recalibrate", "variant_calling"].includes(data?.step),
                             helpMessage: "Disable usage of intervals. Intervals are parts of the chopped up genome used to speed up " +
-                                "preprocessing and variant calling. See --intervals for more info.\n" +
+                                "preprocessing and variant calling. See --intervals for more info. " +
                                 "If 'no_intervals' is set no intervals will be taken into account for speed up or data processing."
                         }
                     },
@@ -351,7 +337,7 @@ debugger
                         type: "input-text",
                         display: {
                             helpMessage: "Disable specified tools. " +
-                                "Multiple tools can be specified, separated by commas.<br>" +
+                                "Multiple tools can be specified, separated by commas. " +
                                 "This parameter must be a combination of the following values: " +
                                 "baserecalibrator, baserecalibrator_report, bcftools, dnascope_filter, documentation, fastqc, " +
                                 "haplotypecaller_filter, haplotyper_filter, markduplicates, markduplicates_report, mosdepth, multiqc, " +
@@ -364,22 +350,31 @@ debugger
                 title: "FASTQ Processing Options",
                 elements: [
                     {
-                        title: "Skip FastP (FASTQ QC/Trimming)",
-                        field: "skip_fastp",
+                        title: "Trim FASTQ (FastP)",
+                        field: "trim_fastq",
                         type: "checkbox",
-                        defaultValue: false,
+                        // defaultValue: false,
                         display: {
-                            helpMessage: "Do not run FastP for adapter/quality trimming or per-read QC. Use if input FASTQs are already processed."
+                            helpMessage: "Run FastP for read trimming. Use this to perform adapter trimming. Adapter are detected " +
+                                "automatically by using the FastP flag 'detect_adapter_for_pe'. For more info see FastP."
                         }
                     },
                     {
-                        title: "FastP Extra Options",
-                        field: "fastp_options",
-                        type: "input-text",
+                        title: "Save Trimmed FASTQ",
+                        field: "save_trimmed",
+                        type: "checkbox",
+                        // defaultValue: false,
                         display: {
-                            placeholder: "--cut_right --length_required 30",
-                            disabled: data => data?.skip_fastp,
-                            helpMessage: "Additional FastP CLI options. Applied only when FastP runs."
+                            helpMessage: "Save trimmed FastQ file intermediates."
+                        }
+                    },
+                    {
+                        title: "Length Required (FastP)",
+                        field: "length_required",
+                        type: "input-num",
+                        display: {
+                            helpMessage: "Minimum length of reads to keep. This is the minimum length of reads to keep after trimming. " +
+                                "Corresponds to the FastP flag --length_required (default in FastP is 15bp)."
                         }
                     }
                 ],
@@ -387,29 +382,68 @@ debugger
             {
                 title: "Preprocessing Options",
                 elements: [
-
+                    {
+                        title: "Aligner",
+                        field: "aligner",
+                        type: "select",
+                        allowedValues: ["bwa-mem", "bwa-mem2", "dragmap", "sentieon-bwamem"],
+                        defaultValue: "bwa-mem2",
+                        display: {
+                            helpMessage: "Specify aligner to be used to map reads to reference genome. Sarek will build missing indices " +
+                                "automatically if not provided. Set 'bwa' false if indices should be (re-)built. " +
+                                "If DragMap is selected as aligner, it is recommended to skip 'baserecalibration' with 'skip_tools baserecalibrator'."
+                        }
+                    },
+                    {
+                        title: "Save Mapped BAM",
+                        field: "save_mapped",
+                        type: "checkbox",
+                        defaultValue: false,
+                        display: {
+                            helpMessage: "Save mapped files. If the parameter 'split-fastq' is used, the sharded bam files are merged and converted to CRAM before saving them."
+                        }
+                    }
                 ],
             },
             {
                 title: "Variant Calling Options",
                 elements: [
                     {
-                        title: "Skip Variant Calling",
-                        field: "skip_variant_calling",
+                        title: "Only Paired Variant Calling",
+                        field: "only_paired_variant_calling",
                         type: "checkbox",
                         defaultValue: false,
                         display: {
-                            helpMessage: "Do not execute variant calling steps. Subsequent annotation step will also be skipped unless variants are provided externally."
+                            helpMessage: "If true, skips germline variant calling for matched normal to tumor sample. Normal samples without matched tumor will still be processed through germline variant calling tools. " +
+                                "This can speed up computation for somatic variant calling with matched normal samples. If false, all normal samples are processed as well through the germline variantcalling tools. If true, only somatic variant calling is done."
                         }
                     },
                     {
-                        title: "Variant Callers",
-                        field: "variant_callers",
-                        type: "input-text",
+                        title: "Variant Callers - GATK",
+                        field: "joint_germline",
+                        type: "checkbox",
                         display: {
-                            placeholder: "mutect2,strelka,tnscope",
-                            disabled: data => data?.skip_variant_calling,
-                            helpMessage: "Comma-separated list of variant callers to run. Typical values: mutect2, strelka, tnscope. First one listed will be primary for downstream steps."
+                            helpMessage: "Turn on the joint germline variant calling for GATK haplotypecaller. " +
+                                "Uses all normal germline samples (as designated by 'status' in the input csv) in the joint germline variant calling process."
+                        }
+                    },
+                    {
+                        title: "Variant Callers - Mutect2",
+                        field: "joint_mutect2",
+                        type: "checkbox",
+                        display: {
+                            helpMessage: "Runs Mutect2 in joint (multi-sample) mode for better concordance among variant calls of tumor samples from the same patient. " +
+                                "Mutect2 outputs will be stored in a subfolder named with patient ID under variant_calling/mutect2/ folder. " +
+                                "Only a single normal sample per patient is allowed. Tumor-only mode is also supported."
+                        }
+                    },
+                    {
+                        title: "Concatenate VCFs",
+                        field: "concatenate_vcfs",
+                        type: "checkbox",
+                        defaultValue: false,
+                        display: {
+                            helpMessage: "Option for concatenating germline vcf-files. Concatenating the germline vcf-files from each applied variant-caller into one vcf-file using 'bfctools' concat."
                         }
                     }
                 ],
@@ -418,12 +452,11 @@ debugger
                 title: "Annotation Options",
                 elements: [
                     {
-                        title: "Skip Annotation",
-                        field: "skip_annotation",
-                        type: "checkbox",
-                        defaultValue: false,
+                        title: "",
+                        type: "notification",
+                        text: "Variant annotation will be annotated using CellBase in the Variant database",
                         display: {
-                            helpMessage: "Do not run variant annotation. Use if VCFs are already annotated externally."
+                            notificationType: "info",
                         }
                     }
                 ],
@@ -432,33 +465,45 @@ debugger
                 title: "Reference Genome Options",
                 elements: [
                     {
-                        title: "Reference Genome Preset",
+                        title: "Reference Genome",
                         field: "genome",
-                        type: "select",
-                        allowedValues: ["GRCh38", "GRCh37"],
-                        defaultValue: "GRCh38",
+                        type: "input-text",
+                        // allowedValues: ["GATK.GRCh38", "GRCh37", ],
+                        // defaultValue: "GATK.GRCh38",
                         display: {
-                            helpMessage: "Select a bundled genome preset (dictates default reference/known sites paths server-side)."
+                            helpMessage: "Name of iGenomes reference. If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. 'genome GATK.GRCh38'."
                         }
                     },
                     {
-                        title: "Custom FASTA (override)",
+                        title: "Custom FASTA",
                         field: "fasta",
                         type: "input-text",
                         display: {
                             placeholder: "/path/to/reference.fasta",
-                            helpMessage: "Optional path to a custom reference FASTA to override genome preset. Must be indexed (.fai)."
+                            helpMessage: "Path to FASTA genome file. This parameter is mandatory if Reference Genome is not specified. " +
+                                "If you use AWS iGenomes, this has already been set for you appropriately."
                         }
                     },
                     {
-                        title: "Known Sites (BQSR/Calling)",
-                        field: "known_sites",
+                        title: "BWA Index",
+                        field: "bwa",
                         type: "input-text",
                         display: {
-                            placeholder: "/path/dbsnp.vcf.gz,/path/known_indels.vcf.gz",
-                            helpMessage: "Comma-separated VCF(s) of known polymorphic sites used for base recalibration or filtering. Each must be indexed (.tbi)."
+                            placeholder: "/path/to/bwa/index",
+                            helpMessage: "Path to BWA mem indices. If you wish to recompute indices available on igenomes, set 'bwa false'. " +
+                                "If you use AWS iGenomes, this has already been set for you appropriately."
                         }
-                    }
+                    },
+                    {
+                        title: "BWA Mem2 Index",
+                        field: "bwamem",
+                        type: "input-text",
+                        display: {
+                            placeholder: "/path/to/bwa/index",
+                            helpMessage: "Path to bwa-mem2 indices. If you wish to recompute indices available on igenomes, set 'bwamem2 false'. " +
+                                "If you use AWS iGenomes, this has already been set for you appropriately."
+                        }
+                    },
                 ],
             },
         ];
