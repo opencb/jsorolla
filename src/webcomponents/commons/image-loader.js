@@ -49,6 +49,11 @@ export default class ImageLoader extends LitElement {
         });
     }
 
+    onSelectFilesClick(event) {
+        event.preventDefault();
+        this.querySelector(`input[type="file"]`).click();
+    }
+
     onSelectFile(event) {
         event.preventDefault();
         const files = event.target.files || event.dataTransfer.files || [];
@@ -57,7 +62,7 @@ export default class ImageLoader extends LitElement {
             this.requestUpdate();
             const allPromises = Array.from(files).map(file => {
                 if (file.size > this._config.maxFileSize) {
-                    return Promise.reject(new Error(`File ${file.name} exceeds the maximum size of 5MB.`));
+                    return Promise.reject(new Error(`File ${file.name} exceeds the maximum size.`));
                 }
                 return UtilsNew.fileToDataURL(file);
             });
@@ -75,7 +80,8 @@ export default class ImageLoader extends LitElement {
         }
     }
 
-    onRemoveImage(image) {
+    onRemoveImage(event, image) {
+        event.preventDefault();
         LitUtils.dispatchCustomEvent(this, "imagesChange", this.images.filter(img => img !== image));
     }
 
@@ -93,19 +99,21 @@ export default class ImageLoader extends LitElement {
                     <span>${this._error}</span>
                 </div>
             ` : nothing}
-            <div data-role="dragdrop" class="d-flex align-items-center justify-content-center rounded-4 border border-gray-200 p-5 bg-white cursor-pointer">
-                <div class="d-flex flex-column gap-2 align-items-center">
-                    <div class="d-flex display-4 text-secondary">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                    </div>
-                    <div class="fw-medium fs-4 text-center">
-                        ${this._config.title}
-                    </div>
-                    ${this._config.description ? html`
-                        <div class="text-secondary text-center">
-                            ${this._config.description}
+            <div @click="${event => this.onSelectFilesClick(event)}" @drop="${event => this.onSelectFile(event)}" @dragover="${event => event.preventDefault()}">
+                <div class="d-flex align-items-center justify-content-center rounded-4 border border-gray-200 p-5 bg-white cursor-pointer">
+                    <div class="d-flex flex-column gap-2 align-items-center">
+                        <div class="d-flex display-4 text-secondary">
+                            <i class="fas fa-cloud-upload-alt"></i>
                         </div>
-                    ` : nothing}
+                        <div class="fw-medium fs-4 text-center">
+                            ${this._config.title}
+                        </div>
+                        ${this._config.description ? html`
+                            <div class="text-secondary text-center">
+                                ${this._config.description}
+                            </div>
+                        ` : nothing}
+                    </div>
                 </div>
             </div>
             ${this.images && this.images.length > 0 ? html`
@@ -116,7 +124,7 @@ export default class ImageLoader extends LitElement {
                             <div class="col-2">
                                 <div class="d-flex align-items-center justify-content-center p-3 bg-white rounded-3 border position-relative" style="height:120px;">
                                     <div class="position-absolute top-0 end-0 mt-1 me-1">
-                                        <button class="btn-close" @click="${() => this.onRemoveImage(image)}"></button>
+                                        <button class="btn-close" @click="${event => this.onRemoveImage(event, image)}"></button>
                                     </div>
                                     <img src="${image}" style="max-width:100%;max-height:100%;" />
                                 </div>
