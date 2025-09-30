@@ -33,6 +33,7 @@ import "./file-upload-multiple.js";
 import "./file-fetch.js";
 import "./file-update.js";
 import "./file-view.js";
+import "../alignment/analysis/sarek-analysis.js";
 import "../variant/operation/variant-index-operation.js";
 
 export default class OpencgaFileGrid extends LitElement {
@@ -261,6 +262,23 @@ export default class OpencgaFileGrid extends LitElement {
                             this.table.bootstrapTable("refresh");
                         }}">
                     </file-fetch>
+                `,
+            },
+            "alignment": {
+                display: {
+                    modalTitle: "Run FASTQ Secondary Analysis",
+                    modalSize: "modal-lg",
+                    modalCyDataName: "modal-alignment",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <sarek-analysis
+                        .opencgaSession="${this.opencgaSession}"
+                        .toolParams="${{
+                            file: this._selectedFile.id,
+                            study: this.opencgaSession.study.fqn,
+                        }}">
+                    </sarek-analysis>
                 `,
             },
             "variant-index": {
@@ -625,12 +643,18 @@ export default class OpencgaFileGrid extends LitElement {
                         <a data-action="download-json" class="dropdown-item cursor-pointer">
                             <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
                         </a>
-                        <hr class="dropdown-divider">
                         <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" || !hasDownloadPermission ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
-                            <i class="fas fa-download me-1"></i> Download
+                            <i class="fas fa-download me-1"></i> Download File
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a data-action="alignment" class="dropdown-item ${row.format === "FASTQ" && isStudyAdmin ? "cursor-pointer" : "disabled"}">
+                            <i class="fas fa-rocket me-1"></i> Run FASTQ Secondary Analysis
+                        </a>
+                        <a data-action="variant-calling" class="dropdown-item ${row.format === "BAM" && isStudyAdmin ? "cursor-pointer" : "disabled"}">
+                            <i class="fas fa-rocket me-1"></i> Run BAM Variant Calling
                         </a>
                         <a data-action="variant-index" class="dropdown-item ${row.format === "VCF" && isStudyAdmin ? "cursor-pointer" : "disabled"}">
-                            <i class="fas fa-rocket me-1"></i> Run Variant Index
+                            <i class="fas fa-rocket me-1"></i> Run VCF Variant Index
                         </a>
                         <hr class="dropdown-divider">
                         <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
@@ -661,6 +685,14 @@ export default class OpencgaFileGrid extends LitElement {
                 break;
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(file, null, "\t")], file.id + ".json");
+                break;
+            case "alignment":
+                this._selectedFile = file;
+                this.gridCommons.changeActiveModal("alignment");
+                break;
+            case "variant-calling":
+                this._selectedFile = file;
+                this.gridCommons.changeActiveModal("variant-calling");
                 break;
             case "variant-index":
                 this._selectedFile = file;
@@ -839,7 +871,7 @@ export default class OpencgaFileGrid extends LitElement {
                 render: () => html`
                     <div class="dropdown">
                         <button class="btn btn-light dropdown-toggle ${!hasWritePermission || !hasUploadPermission ? "disabled" : "cursor-pointer"}" data-bs-toggle="dropdown">
-                            <i class="fa fa-file-upload me-1"></i> 
+                            <i class="fa fa-file-upload me-1"></i>
                             <span class="">Upload File</span>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end shadow-sm">

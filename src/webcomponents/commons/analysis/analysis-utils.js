@@ -4,7 +4,6 @@ import UtilsNew from "../../../core/utils-new";
 import "../filters/feature-filter.js";
 import "../filters/disease-panel-filter.js";
 import "../filters/catalog-search-autocomplete.js";
-import LitUtils from "../utils/lit-utils";
 
 export default class AnalysisUtils {
 
@@ -20,6 +19,13 @@ export default class AnalysisUtils {
             id: "opencb/opencga-ext-tools",
             version: opencgaSession.opencga.version
         };
+    }
+
+    static notify(title, message, type = NotificationUtils.NOTIFY_INFO, context) {
+        NotificationUtils.dispatch(context, type, {
+            title: title,
+            message: message,
+        });
     }
 
     static submit(id, promise, context) {

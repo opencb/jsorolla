@@ -5,6 +5,7 @@ import "../../clinical/analysis/mutational-signature-analysis.js";
 import "../../clinical/analysis/rd-tiering-analysis.js";
 import "../../job/analysis/tool-analysis.js";
 import "../../job/analysis/custom-tool-builder.js";
+import "../../alignment/analysis/sarek-analysis.js";
 import "../../variant/analysis/gwas-analysis.js";
 import "../../variant/analysis/sample-variant-stats-analysis.js";
 import "../../variant/analysis/cohort-variant-stats-analysis.js";
@@ -97,6 +98,22 @@ export default class AnalysisTools extends LitElement {
                                 <workflow-analysis
                                     .opencgaSession="${opencgaSession}">
                                 </workflow-analysis>
+                            `,
+                        },
+                    ],
+                },
+                {
+                    id: "secondary-analysis",
+                    name: "Secondary Analysis",
+                    submenu: [
+                        {
+                            id: "sarek-analysis",
+                            name: "Sarek",
+                            description: "Sarek is a Nextflow-based pipeline to analyze whole-genome or whole-exome sequencing data for germline and somatic variants",
+                            render: opencgaSession => html`
+                                <sarek-analysis
+                                    .opencgaSession="${opencgaSession}">
+                                </sarek-analysis>
                             `,
                         },
                     ],
