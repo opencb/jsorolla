@@ -145,6 +145,7 @@ export default class OpencgaFileGrid extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         @fileContentSave="${() => {
                             this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
                         }}">
                     </file-editor>
                 `,
