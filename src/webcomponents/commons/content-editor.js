@@ -1,5 +1,6 @@
 import {html, LitElement} from "lit";
-import * as CodeCake from "codecake";
+import mokai from "mokai";
+import mokaiHighlight from "mokai-syntax";
 import LitUtils from "./utils/lit-utils.js";
 
 export default class ContentEditor extends LitElement {
@@ -41,20 +42,20 @@ export default class ContentEditor extends LitElement {
 
     firstUpdated() {
         // 1. initialize the editor using the provided configuration
-        const editor = CodeCake.create(this.querySelector("div"), {
-            code: this.content || "",
+        const editor = mokai(this.querySelector("div"), {
+            value: this.content || "",
             language: this._config.language,
-            className: `codecake-${this._config.theme} ${this._config.editorClassName}`,
+            className: `mokai-${this._config.theme} ${this._config.editorClassName}`,
             style: this._config.editorStyle,
             lineNumbers: this._config.lineNumbers,
             highlight: (code, language) => {
-                return CodeCake.highlight(code, language);
+                return mokaiHighlight(code, language);
             },
         });
 
         // 2. listen to changes in the editor
-        editor.onChange(newCode => {
-            LitUtils.dispatchCustomEvent(this, "contentChange", newCode);
+        editor.on("change", event => {
+            LitUtils.dispatchCustomEvent(this, "contentChange", event.value);
         });
     }
 
