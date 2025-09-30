@@ -53,7 +53,7 @@ export default class ClinicalReportPreview extends LitElement {
                 .search({
                     study: this.opencgaSession.study.fqn,
                     directory: "RESOURCES/clinical/report/templates",
-                    include: "id,name",
+                    include: "id,name,path",
                 })
                 .then(response => {
                     const files = (response.responses?.[0]?.results || []).filter(file => {
@@ -89,11 +89,18 @@ export default class ClinicalReportPreview extends LitElement {
         }
     }
 
-    loadTemplateFromFile(file, content) {
+    evaluateTemplate(templateString) {
         const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
-        const fn = new AsyncFunction(content);
-        return Promise.resolve(fn()).then(data => {
+        const fn = new AsyncFunction(templateString);
+        return Promise.resolve(fn());
+    }
+
+    loadTemplateFromFile(file, content) {
+        return this.evaluateTemplate(content).then(data => {
             return {
+                id: file.id,
+                path: file.path,
+                content: content,
                 title: data?.name || data?.title || file.name.replace(".js", ""),
                 description: data?.description || "",
                 version: data?.version || "",
