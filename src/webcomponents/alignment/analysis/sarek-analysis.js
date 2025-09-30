@@ -18,6 +18,7 @@ import {html, LitElement} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 
+import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 
@@ -102,6 +103,9 @@ export default class SarekAnalysis extends LitElement {
 
     onFieldChange() {
         this._toolParams = {...this._toolParams};
+
+        LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
+
         this.requestUpdate();
     }
 
@@ -229,10 +233,11 @@ debugger
                             render: (sample, dataFormFilterChange) => {
                                 return html `
                                     <catalog-search-autocomplete
+                                        .value="${sample}"
                                         .resource="${"FILE"}"
                                         .query="${{study: this.opencgaSession.study.fqn, format: "FASTQ"}}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true}}"
+                                        .config="${{multiple: true, disabled: this.toolParams.files}}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
@@ -496,7 +501,7 @@ debugger
                     },
                     {
                         title: "BWA Mem2 Index",
-                        field: "bwamem",
+                        field: "bwamem2",
                         type: "input-text",
                         display: {
                             placeholder: "/path/to/bwa/index",

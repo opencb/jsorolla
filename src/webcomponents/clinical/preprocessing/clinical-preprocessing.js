@@ -1,4 +1,5 @@
 import {LitElement, html, nothing} from "lit";
+import "./clinical-preprocessing-select-files.js";
 import "../../commons/tool-header.js";
 import "../../alignment/analysis/sarek-analysis.js";
 
@@ -79,6 +80,9 @@ export default class ClinicalPreprocessing extends LitElement {
         `;
     }
 
+    aaa(e) {
+        debugger
+    }
     getDefaultConfig() {
         return {
             title: "Clinical Preprocessing",
@@ -88,7 +92,10 @@ export default class ClinicalPreprocessing extends LitElement {
                     title: "Select Files",
                     icon: "fas fa-file-medical",
                     render: () => html`
-                        <div>Select the files you want to preprocess</div>
+                        <clinical-preprocessing-select-files
+                            .opencgaSession="${this.opencgaSession}"
+                            .toolParams="${{}}">
+                        </clinical-preprocessing-select-files>
                     `,
                 },
                 {
@@ -97,8 +104,9 @@ export default class ClinicalPreprocessing extends LitElement {
                     icon: "fas fa-sliders-h",
                     render: () => html`
                         <sarek-analysis
+                            .toolParams="${{files: "aaaa,bbbb"}}"
                             .opencgaSession="${this.opencgaSession}"
-                            .toolParams="${{}}">
+                            @paramsChange="${e => this.aaa(e)}">
                         </sarek-analysis>
                     `,
                 },
