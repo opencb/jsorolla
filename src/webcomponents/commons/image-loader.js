@@ -40,15 +40,6 @@ export default class ImageLoader extends LitElement {
         super.update(changedProperties);
     }
 
-    firstUpdated() {
-        const dragDropElement = this.querySelector(`[data-role="dragdrop"]`);
-        dragDropElement.addEventListener("drop", event => this.onSelectFile(event), false);
-        dragDropElement.addEventListener("click", event => {
-            event.preventDefault();
-            this.querySelector(`input[type="file"]`).click();
-        });
-    }
-
     onSelectFilesClick(event) {
         event.preventDefault();
         this.querySelector(`input[type="file"]`).click();
