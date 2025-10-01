@@ -306,6 +306,7 @@ const SUITE = {
                     name: "Clinical File Upload",
                     icon: "fa-file-medical",
                     visibility: "public",
+                    category: "Data Preprocessing",
                     description: "Upload clinical data files (VCF, PED, BAM, etc.) to the current study.",
                 },
                 {
@@ -313,6 +314,7 @@ const SUITE = {
                     name: "Clinical Preprocessing",
                     icon: "fa-file-medical",
                     visibility: "public",
+                    category: "Data Preprocessing",
                     description: "Preprocess clinical data and generate the required files to run a clinical analysis.",
                 },
                 {
@@ -320,6 +322,7 @@ const SUITE = {
                     name: "Case Interpreter Portal",
                     icon: "fa-file-medical",
                     visibility: "public",
+                    category: "Data Analysis",
                     description: "Explore and review Clinical Interpretations: filter by gene, consequence, frequency, and create clinical interpretations and reports.",
                 },
                 {
@@ -327,6 +330,7 @@ const SUITE = {
                     name: "Disease Panel Browser",
                     icon: "fa-th-list",
                     visibility: "public",
+                    category: "Data Analysis",
                     description: "Explore, manage, and create any Disease Panel associated with the active Study.",
                 },
                 {
@@ -334,6 +338,7 @@ const SUITE = {
                     name: "Clinical Variant DB",
                     icon: "fa-database",
                     visibility: "none",
+                    category: "Data Analysis",
                     description: "Explore and review relevant information from your clinical analysis: interpretations, variants, and variant evidence.",
                 },
             ],
