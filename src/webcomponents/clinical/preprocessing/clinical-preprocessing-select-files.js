@@ -67,7 +67,10 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
         const individualId = e.detail.value;
         if (individualId) {
             return this.opencgaSession.opencgaClient.individuals()
-                .info(individualId, {study: this.opencgaSession.study.fqn, include: "id,samples"})
+                .info(individualId, {
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,samples",
+                })
                 .then(response => {
                     this._data.single.samples = response.responses[0].results[0].samples
                         .map(s => s.id);
@@ -101,6 +104,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                 })
                 .then(response => {
                     this._data.single.files = response.responses[0].results;
+                    debugger;
                 })
                 .catch(reason => {
                     console.error(reason);
@@ -166,7 +170,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                             type: "custom",
                             required: true,
                             display: {
-                                render: ((probandId, dataFormFieldChange) => {
+                                render: (probandId, dataFormFieldChange) => {
                                     return html`
                                         <catalog-search-autocomplete
                                             .value="${probandId}"
@@ -176,7 +180,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                             @filterChange="${e => dataFormFieldChange(e.detail.value)}">
                                         </catalog-search-autocomplete>
                                     `;
-                                }),
+                                },
                             },
                         },
                         {
@@ -184,31 +188,33 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                             field: "single.sampleId",
                             type: "select",
                             allowedValues: () => this._data.single?.samples || [],
-                            // defaultValue: ``,
                             required: true,
-                            // validation: {
-                            //     // validate: () => {
-                            //     //     return this.clinicalAnalysis?.samples?.length === 1;
-                            //     // },
-                            //     message: "A germline sample must be selected.",
-                            // },
-                            display: {
-
-                            },
                         },
                         {
                             title: "Select Files",
-                            field: "single.files",
-                            type: "list",
-                            // required: true,
-                            // validation: {
-                            //     // validate: () => {
-                            //     //     return this.clinicalAnalysis?.samples?.length === 1;
-                            //     // },
-                            //     message: "A germline sample must be selected.",
-                            // },
+                            field: "single.fileIds",
+                            type: "table",
                             display: {
-
+                                getData: data => data?.single?.files || [],
+                                className: "table-borderless table-grid mb-0",
+                                columns: [
+                                    {
+                                        title: "File",
+                                        field: "name",
+                                    },
+                                    {
+                                        title: "Format",
+                                        field: "format",
+                                    },
+                                    {
+                                        title: "Size",
+                                        field: "size",
+                                        type: "custom",
+                                        display: {
+                                            render: size => UtilsNew.getDiskUsage(size),
+                                        },
+                                    },
+                                ],
                             },
                         },
                         // {
