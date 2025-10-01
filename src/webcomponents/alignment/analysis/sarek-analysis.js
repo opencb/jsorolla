@@ -101,7 +101,7 @@ export default class SarekAnalysis extends LitElement {
 
     onFieldChange() {
         this._toolParams = {...this._toolParams};
-
+debugger
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
 
         this.requestUpdate();
@@ -127,14 +127,15 @@ export default class SarekAnalysis extends LitElement {
 
         // 2. Create and upload a samplesheet
         let samplesheet = "patient,status,sample,lane,fastq_1,fastq_2\n";
-        if (files?.length > 0) {
+        if (filesArray?.length > 0) {
             // 1. Get samples related to the files
             // We assume that the files belong to the same sample
-            const response = await this.opencgaSession.opencgaClient.samples().search({
-                study: this.opencgaSession.study.fqn,
-                fileIds: files,
-                include: "id,individualId",
-            });
+            const response = await this.opencgaSession.opencgaClient.samples()
+                .search({
+                    study: this.opencgaSession.study.fqn,
+                    fileIds: files,
+                    include: "id,individualId",
+                });
 
             // Check there is one single sample
             if (response.responses[0].numResults > 1) {
@@ -146,22 +147,25 @@ export default class SarekAnalysis extends LitElement {
             samples.forEach(sample => {
                 const individualId = sample.individualId ? sample.individualId : "no_individual";
                 // Assuming single-end reads for simplicity; modify as needed for paired-end
-                const fastq1 = filesArray?.find(f => f.id === filesArray[0].id)?.path || "N/A";
-                const fastq2 = filesArray.length > 1 ? (filesArray?.find(f => f.id === filesArray[1].id)?.path || "N/A") : "N/A";
+                const fastq1 = filesArray[0] || "N/A";
+                const fastq2 = filesArray.length > 1 ? filesArray[1] : "N/A";
                 samplesheet += `${individualId},1,${sample.id},lane_1,file://${fastq1},file://${fastq2}\n`;
             });
 
             // Upload samplesheet to OpenCGA
-            const uploadResponse = await this.opencgaSession.opencgaClient.files().upload("data/samplesheets", {
-                study: this.opencgaSession.study.fqn,
-                content: samplesheet,
-                // parents: true,
-                description: `Samplesheet for Sarek analysis - ${UtilsNew.getDatetime()}`,
-            });
+            const uploadResponse = await this.opencgaSession.opencgaClient.files()
+                .create({
+                    path: `data/sarek/samplesheets_${UtilsNew.getDatetime()}.csv`,
+                    content: samplesheet,
+                    type: "FILE",
+                    format: "PLAIN",
+                    description: `Samplesheet for Sarek analysis - ${UtilsNew.getDatetime()}`,
+                }, {study: this.opencgaSession.study.fqn});
 
             // Add samplesheet path to otherToolParams
             const samplesheetFile = uploadResponse.responses[0].results[0];
-            otherToolParams.input = samplesheetFile.path;
+            otherToolParams.input = "file://" + samplesheetFile.path;
+            otherToolParams.outdir = "$OUTPUT";
         } else {
             AnalysisUtils.notify("", "Please select at least one FASTQ file", NotificationUtils.NOTIFY_ERROR, this);
             return;
