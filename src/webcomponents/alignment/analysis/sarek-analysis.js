@@ -237,7 +237,7 @@ debugger
                                         .resource="${"FILE"}"
                                         .query="${{study: this.opencgaSession.study.fqn, format: "FASTQ"}}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: this.toolParams.files}}"
+                                        .config="${{multiple: true, disabled: this.toolParams?.files || ""}}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
@@ -509,6 +509,21 @@ debugger
                                 "If you use AWS iGenomes, this has already been set for you appropriately."
                         }
                     },
+                ],
+            },
+            {
+                title: "Other Options",
+                elements: [
+                    {
+                        title: "Other Parameters",
+                        type: "input-text",
+                        display: {
+                            rows: 5,
+                            placeholder: "--myparam value",
+                            helpMessage: "Other parameters not listed above can be passed to the pipeline using this parameter. " +
+                                "Please refer to the nf-core/sarek documentation for a full list of parameters that can be used."
+                        }
+                    }
                 ],
             },
         ];

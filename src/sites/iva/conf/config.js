@@ -26,16 +26,16 @@ const hosts = [
     },
     {
         id: "reference",
-        url: "https://test.app.zettagenomics.com/task-7706/opencga"
+        url: "https://test.app.zettagenomics.com/xeta-30/opencga"
     },
 ];
 
 const opencga = {
-    host: hosts[1].url,
+    host: hosts[2].url,
     version: "v2",
-    // organizations: ["test", "test2"],
+    organizations: ["test", "test2"],
     cookie: {
-        prefix: "iva-" + hosts[1].id,
+        prefix: "iva-" + hosts[2].id,
         secure: true,
     },
     sso: {
