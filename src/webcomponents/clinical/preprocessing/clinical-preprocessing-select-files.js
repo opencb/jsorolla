@@ -214,6 +214,30 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                             render: size => UtilsNew.getDiskUsage(size),
                                         },
                                     },
+                                    {
+                                        title: "Select",
+                                        field: "id",
+                                        type: "custom",
+                                        display: {
+                                            className: "d-flex justify-content-center align-items-center",
+                                            render: (fileId, dataFormFieldChange) => html`
+                                                <input
+                                                    type="checkbox"
+                                                    class="form-check-input"
+                                                    ?checked="${this._data.single.fileIds?.split(",").includes(fileId)}"
+                                                    @change="${event => {
+                                                        // note: using 'filter' to remove empty strings
+                                                        const selectedFiles = new Set(this._data.single.fileIds?.split(",").filter(Boolean));
+                                                        if (event.target.checked) {
+                                                            selectedFiles.add(fileId);
+                                                        } else {
+                                                            selectedFiles.delete(fileId);
+                                                        }
+                                                        dataFormFieldChange(Array.from(selectedFiles).join(","));
+                                                    }}">
+                                            `,
+                                        },
+                                    },
                                 ],
                             },
                         },
