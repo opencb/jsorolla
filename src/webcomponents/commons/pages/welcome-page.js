@@ -68,9 +68,6 @@ export default class WelcomePage extends LitElement {
     }
 
     renderTools() {
-        // const visibleTools = (this.app.menu || []).filter(item => {
-        //     return UtilsNew.isAppVisible(item, this.opencgaSession);
-        // });
         const groupedTools = new Map();
         const groups = new Set(["empty"]);
         (this.app.menu || []).forEach(item => {
