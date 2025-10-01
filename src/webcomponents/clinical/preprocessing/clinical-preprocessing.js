@@ -23,12 +23,18 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     #init() {
-        this._activeStepIndex = 1;
+        this._activeStepIndex = 0;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         super.update(changedProperties);
+    }
+
+    onChangeActiveStep(event, newStepIndex) {
+        event.preventDefault();
+        this._activeStepIndex = newStepIndex;
+        this.requestUpdate();
     }
 
     renderToolbarCenterContent() {
@@ -43,9 +49,9 @@ export default class ClinicalPreprocessing extends LitElement {
             const active = index === this._activeStepIndex;
             const completed = index < this._activeStepIndex;
             steps.push(html`
-                <div class="w-full text-decoration-none" style="max-width:100px;">
+                <div class="w-full text-decoration-none" style="max-width:100px;" @click="${event => this.onChangeActiveStep(event, index)}">
                     <div class="d-flex flex-column align-items-center gap-1 ${active || completed ? "text-primary": "text-secondary"} cursor-pointer w-full">
-                        <div class="d-flex align-items-center justify-content-center ${active ? "bg-primary-subtle" : "bg-gray-100"} rounded-circle" style="width:40px;height:40px;">
+                        <div class="d-flex align-items-center justify-content-center ${active || completed ? "bg-primary-subtle" : "bg-gray-100"} rounded-circle" style="width:40px;height:40px;">
                             <i class="${completed ? "fa fa-check-circle" : item.icon} fs-5"></i>
                         </div>
                         <div class="text-center small ${active ? "fw-bold" : ""}">${item.title}</div>
