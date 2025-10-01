@@ -42,40 +42,75 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
         super.update(changedProperties);
     }
 
-    onFieldChange() {
+    async onFieldChange(e) {
         this._data = {...this._data};
+
+        if (e.detail.param === "single.individualId") {
+            await this.#onIndividualChange(e);
+            if (this._data.single.sampleId) {
+                this.#onSampleChange(e);
+            }
+        }
+
+        if (e.detail.param === "single.sampleId") {
+            if (this._data.single.sampleId) {
+                this.#onSampleChange(e);
+            }
+        }
+        debugger
+
         // LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
         this.requestUpdate();
     }
 
     #onIndividualChange(e) {
+        this._data.single.sampleId = "";
+        this._data.single.samples = [];
+
         const individualId = e.detail.value;
         if (individualId) {
-            this.opencgaSession.opencgaClient.individuals()
+            return this.opencgaSession.opencgaClient.individuals()
                 .info(individualId, {study: this.opencgaSession.study.fqn, include: "id,samples"})
                 .then(response => {
                     this._data.single.samples = response.responses[0].results[0].samples
                         .map(s => s.id);
 
+                    // Select sample if only one is available
                     if (this._data.single.samples.length === 1) {
                         this._data.single.sampleId = this._data.single.samples[0];
                     }
+
                     this._config = this.getDefaultConfig();
-                    this.requestUpdate();
                 })
                 .catch(reason => {
                     console.error(reason);
                 });
         } else {
             this._config = this.getDefaultConfig();
-            this.requestUpdate();
         }
     }
 
     #onSampleChange(e) {
+        this.opencgaSession.opencgaClient.files()
+            .search({
+                study: this.opencgaSession.study.fqn,
+                sampleIds: this._data.single.sampleId,
+                type: "FILE",
+                // format: "FASTQ,BAM,VCF",
+                // status: "READY",
+                exclude: "qualityControl,attributes",
+                limit: 100
+            })
+            .then(response => {
+                this._data.single.files = response.responses[0].results;
+                debugger
+                this._config = this.getDefaultConfig();
+                this.requestUpdate();
+            })
+            .catch(reason => {
+                console.error(reason);
+            });
 
-        debugger
-        this.requestUpdate();
     }
 
     render() {
@@ -138,17 +173,17 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                             type: "custom",
                             required: true,
                             display: {
-                                render: probandId => {
+                                render: ((probandId, dataFormFieldChange) => {
                                     return html`
                                         <catalog-search-autocomplete
                                             .value="${probandId}"
                                             .resource="${"INDIVIDUAL"}"
                                             .opencgaSession="${this.opencgaSession}"
                                             .config=${{addButton: false, multiple: false}}
-                                            @filterChange="${e => this.#onIndividualChange(e)}">
+                                            @filterChange="${e => dataFormFieldChange(e.detail.value)}">
                                         </catalog-search-autocomplete>
                                     `;
-                                },
+                                }),
                             },
                         },
                         {
@@ -158,6 +193,21 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                             allowedValues: () => this._data.single?.samples || [],
                             // defaultValue: ``,
                             required: true,
+                            // validation: {
+                            //     // validate: () => {
+                            //     //     return this.clinicalAnalysis?.samples?.length === 1;
+                            //     // },
+                            //     message: "A germline sample must be selected.",
+                            // },
+                            display: {
+
+                            },
+                        },
+                        {
+                            title: "Select Files",
+                            field: "single.files",
+                            type: "list",
+                            // required: true,
                             // validation: {
                             //     // validate: () => {
                             //     //     return this.clinicalAnalysis?.samples?.length === 1;

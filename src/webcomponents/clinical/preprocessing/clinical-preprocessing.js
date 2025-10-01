@@ -24,6 +24,26 @@ export default class ClinicalPreprocessing extends LitElement {
 
     #init() {
         this._activeStepIndex = 0;
+
+        this.workingPlan = {
+            select: {
+                analysisType: "SINGLE",
+                single: {},
+                family: {},
+                cancer: {}
+            },
+            secondaryAnalysis: {
+                tool: "nf-core.sarek",
+                // type: "WORKFLOW",
+                toolParams: {
+
+                },
+            },
+            variantIndex: {
+                files: [],
+            }
+        };
+
         this._config = this.getDefaultConfig();
     }
 
