@@ -110,7 +110,7 @@ export default class ClinicalPreprocessing extends LitElement {
                     icon: "fas fa-sliders-h",
                     render: () => html`
                         <sarek-analysis
-                            .toolParams="${{files: "aaaa,bbbb"}}"
+                            .toolParams="${{files: "aaaa,bbbb", joint_germline: true}}"
                             .opencgaSession="${this.opencgaSession}"
                             @paramsChange="${e => this.aaa(e)}">
                         </sarek-analysis>

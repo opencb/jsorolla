@@ -1050,6 +1050,10 @@ export default class DataForm extends LitElement {
                             allowedValues = values;
                             if (values.defaultValue) {
                                 defaultValue = values.defaultValue;
+                            } else {
+                                if (values.length === 1) {
+                                    defaultValue = values[0];
+                                }
                             }
                         }
                     } else {

@@ -101,7 +101,12 @@ export default class SarekAnalysis extends LitElement {
 
     onFieldChange() {
         this._toolParams = {...this._toolParams};
-debugger
+
+        // Fixes
+        if (this._toolParams.tools) {
+            this._toolParams.tools = this._toolParams.tools.replaceAll(" ", "");
+        }
+
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
 
         this.requestUpdate();
