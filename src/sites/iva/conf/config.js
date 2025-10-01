@@ -302,6 +302,13 @@ const SUITE = {
             },
             menu: [
                 {
+                    id: "clinical-file-upload",
+                    name: "Clinical File Upload",
+                    icon: "fa-file-medical",
+                    visibility: "public",
+                    description: "Upload clinical data files (VCF, PED, BAM, etc.) to the current study.",
+                },
+                {
                     id: "clinical-preprocessing",
                     name: "Clinical Preprocessing",
                     icon: "fa-file-medical",

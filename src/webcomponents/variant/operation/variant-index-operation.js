@@ -194,7 +194,6 @@ export default class VariantIndexOperation extends LitElement {
                             `,
                         },
                     },
-
                     {
                         title: "Calculate Stats",
                         field: "calculateStats",

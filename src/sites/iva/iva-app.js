@@ -69,6 +69,7 @@ import "../../webcomponents/note/note-browser.js";
 import "../../webcomponents/commons/analysis/analysis-tools.js";
 import "../../webcomponents/commons/analysis/jupyter-notebook.js";
 
+import "../../webcomponents/clinical/preprocessing/clinical-file-upload.js";
 import "../../webcomponents/clinical/preprocessing/clinical-preprocessing.js";
 
 import "../../webcomponents/commons/layout/layout-footer.js";
@@ -1371,6 +1372,13 @@ class IvaApp extends LitElement {
                     <study-dashboard
                         .opencgaSession="${this.opencgaSession}">
                     </study-dashboard>
+                `;
+                break;
+            case "clinical-file-upload":
+                content = html`
+                    <clinical-file-upload
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-file-upload>
                 `;
                 break;
             case "clinical-preprocessing":
