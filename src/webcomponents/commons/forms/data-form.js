@@ -1258,10 +1258,10 @@ export default class DataForm extends LitElement {
     _createTableElement(element, data = this.data, section) {
         // Get array values
         let array;
-        if (element.field) {
-            array = this.getValue(element.field, data);
-        } else {
+        if (typeof element.display?.getData === "function") {
             array = element.display.getData(data);
+        } else if (element.field) {
+            array = this.getValue(element.field, data);
         }
 
         const tableClassName = element.display?.className || "";
