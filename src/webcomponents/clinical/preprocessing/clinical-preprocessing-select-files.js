@@ -1,7 +1,7 @@
 import {LitElement, html, nothing} from "lit";
-import "../../commons/forms/data-form.js";
 import UtilsNew from "../../../core/utils-new";
 import LitUtils from "../../commons/utils/lit-utils";
+import "../../commons/forms/data-form.js";
 
 export default class ClinicalPreprocessingSelectFiles extends LitElement {
 
@@ -47,17 +47,14 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
 
         if (e.detail.param === "single.individualId") {
             await this.#onIndividualChange(e);
-            if (this._data.single.sampleId) {
-                this.#onSampleChange(e);
-            }
+            await this.#onSampleChange(e);
+            this._config = this.getDefaultConfig();
         }
 
         if (e.detail.param === "single.sampleId") {
-            if (this._data.single.sampleId) {
-                this.#onSampleChange(e);
-            }
+            await this.#onSampleChange(e);
+            this._config = this.getDefaultConfig();
         }
-        debugger
 
         // LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
         this.requestUpdate();
@@ -80,37 +77,35 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                         this._data.single.sampleId = this._data.single.samples[0];
                     }
 
-                    this._config = this.getDefaultConfig();
                 })
                 .catch(reason => {
                     console.error(reason);
                 });
-        } else {
-            this._config = this.getDefaultConfig();
         }
     }
 
     #onSampleChange(e) {
-        this.opencgaSession.opencgaClient.files()
-            .search({
-                study: this.opencgaSession.study.fqn,
-                sampleIds: this._data.single.sampleId,
-                type: "FILE",
-                // format: "FASTQ,BAM,VCF",
-                // status: "READY",
-                exclude: "qualityControl,attributes",
-                limit: 100
-            })
-            .then(response => {
-                this._data.single.files = response.responses[0].results;
-                debugger
-                this._config = this.getDefaultConfig();
-                this.requestUpdate();
-            })
-            .catch(reason => {
-                console.error(reason);
-            });
+        this._data.single.files = [];
+        this._data.single.fileIds = "";
 
+        if (this._data.single.sampleId) {
+            return this.opencgaSession.opencgaClient.files()
+                .search({
+                    study: this.opencgaSession.study.fqn,
+                    sampleIds: this._data.single.sampleId,
+                    type: "FILE",
+                    // format: "FASTQ,BAM,VCF",
+                    // status: "READY",
+                    exclude: "qualityControl,attributes",
+                    limit: 100,
+                })
+                .then(response => {
+                    this._data.single.files = response.responses[0].results;
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
+        }
     }
 
     render() {
@@ -119,15 +114,13 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
         }
 
         return html`
-            <div>
-                <data-form
-                    .data="${this._data}"
-                    .config="${this._config}"
-                    @fieldChange="${e => this.onFieldChange(e)}"
-                    @clear="${this.onClear}"
-                    @submit="${this.onSubmit}">
-                </data-form>
-            </div>
+            <data-form
+                .data="${this._data}"
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
+            </data-form>
         `;
     }
 
