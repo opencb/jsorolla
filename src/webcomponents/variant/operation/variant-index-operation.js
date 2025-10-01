@@ -33,42 +33,43 @@ export default class VariantIndexOperation extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object,
-            },
             toolParams: {
                 type: Object,
             },
             title: {
                 type: String,
             },
+            opencgaSession: {
+                type: Object,
+            },
         };
     }
 
     #init() {
-        this.TOOL = "VariantIndex";
+        this.ANALYSIS_TOOL = "variant-index";
         this.TITLE = "Variant Index Operation";
         this.DESCRIPTION = "Index variant files into the variant storage";
 
         this.DEFAULT_TOOLPARAMS = {};
+
         // Make a deep copy to avoid modifying default object.
-        this.toolParams = {
+        this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
         };
 
         this.config = this.getDefaultConfig();
     }
 
-    firstUpdated(changedProperties) {
-        if (changedProperties.has("toolParams")) {
-            // This parameter will indicate if either a study is passed as an argument
-            this.study = this.toolParams.study || "";
-        }
-    }
+    // firstUpdated(changedProperties) {
+    //     if (changedProperties.has("toolParams")) {
+    //         // This parameter will indicate if either a study is passed as an argument
+    //         this.study = this.toolParams.study || "";
+    //     }
+    // }
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            this.toolParams = {
+            this._toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
@@ -78,12 +79,12 @@ export default class VariantIndexOperation extends LitElement {
     }
 
     check() {
-        if (!this.toolParams.study) {
-            return {
-                message: "Study is a mandatory parameter, please select one."
-            };
-        }
-        if (!this.toolParams.file) {
+        // if (!this._toolParams.study) {
+        //     return {
+        //         message: "Study is a mandatory parameter, please select one."
+        //     };
+        // }
+        if (!this._toolParams.file) {
             return {
                 message: "A VCF file is a mandatory parameter, please select one."
             };
@@ -94,44 +95,48 @@ export default class VariantIndexOperation extends LitElement {
     onFieldChange(e, field) {
         const param = field || e.detail.param;
         if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+            this._toolParams = FormUtils.createObject(this._toolParams, param, e.detail.value);
         }
         this.config = this.getDefaultConfig();
+
         this.requestUpdate();
     }
 
     onSubmit() {
-        const toolParams = {
-            file: this.toolParams.file || "",
-            calculateStats: this.toolParams.calculateStats || false,
-            annotate: this.toolParams.annotate || false,
-            resume: this.toolParams.resume || false,
-            loadMultiFileData: this.toolParams.loadMultiFileData || false,
+        const bodyData = {
+            file: this._toolParams.file || "",
+            calculateStats: this._toolParams.calculateStats || false,
+            annotate: this._toolParams.annotate || false,
+            resume: this._toolParams.resume || false,
+            loadMultiFileData: this._toolParams.loadMultiFileData || false,
         };
         const params = {
-            study: this.toolParams.study || this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
+            study: this.opencgaSession.study.fqn,
+            ...AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL),
         };
+
         AnalysisUtils.submit(
             this.TITLE,
             this.opencgaSession.opencgaClient.variantOperations()
-                .indexVariant(toolParams, params),
+                .indexVariant(bodyData, params),
             this,
         );
     }
 
     onClear() {
-        this.toolParams = {
+        this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             study: this.toolParams.study || "",
         };
         this.config = this.getDefaultConfig();
+
+        this.requestUpdate();
     }
 
     render() {
         return html`
             <data-form
-                .data="${this.toolParams}"
+                .data="${this._toolParams}"
                 .config="${this.config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
@@ -155,7 +160,7 @@ export default class VariantIndexOperation extends LitElement {
                                     .value="${toolParams?.study}"
                                     .resource="${"STUDY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.study}}"
+                                    .config="${{multiple: false, disabled: !!this.toolParams.study}}"
                                     @filterChange="${e => this.onFieldChange(e, "study")}">
                                 </catalog-search-autocomplete>
                             `,
@@ -235,7 +240,7 @@ export default class VariantIndexOperation extends LitElement {
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.TOOL,
+            this.ANALYSIS_TOOL,
             this.title ?? this.TITLE,
             this.DESCRIPTION,
             params,

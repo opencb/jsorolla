@@ -85,8 +85,6 @@ export default class SarekAnalysis extends LitElement {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
-            // this.files = this._toolParams.files || "";
-            // delete this._toolParams.files;
             this.config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -123,7 +121,7 @@ export default class SarekAnalysis extends LitElement {
         // 0. Prepare special params. 'otherToolParams' will be included in the 'params' object and MUST NOT include these params
         const {files, jobId, jobDependsOn, jobTags, jobDescription, ...otherToolParams} = this._toolParams;
         const filesArray = files?.split(",") || [];
-debugger
+
         // 1. Check if sarek workflow is installed
         // TODO: check if sarek is installed
 
@@ -137,7 +135,7 @@ debugger
                 fileIds: files,
                 include: "id,individualId",
             });
-debugger
+
             // Check there is one single sample
             if (response.responses[0].numResults > 1) {
                 AnalysisUtils.notify("", "Please select files belonging to a single sample", NotificationUtils.NOTIFY_ERROR, this);
