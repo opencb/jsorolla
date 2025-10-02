@@ -20,6 +20,7 @@ import NotificationUtils from "../commons/utils/notification-utils.js";
 import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-distinct-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 import "../loading-spinner.js";
 
 export default class FileUpload extends LitElement {
@@ -48,13 +49,16 @@ export default class FileUpload extends LitElement {
     }
 
     #init() {
-        this._displayConfigDefault = {
-            buttonOkText: "Upload File",
-            buttonClearText: "Discard Changes",
-        };
+        this._isLoading = false;
         this._file = {};
         this._config = this.getDefaultConfig();
-        this._isLoading = false;
+        this.initiOriginalObjects();
+    }
+
+    initiOriginalObjects() {
+        this._file = {
+            relativeFilePath: this.path || "/",
+        };
     }
 
     #setLoading(value) {
@@ -63,10 +67,14 @@ export default class FileUpload extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("displayConfig") || changedProperties.has("path")) {
-            this._file.relativeFilePath = "/" + this.path;
+        if (changedProperties.has("path")) {
+            this.initiOriginalObjects();
+        }
+
+        if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -86,7 +94,7 @@ export default class FileUpload extends LitElement {
             title: "Clear File Upload",
             message: "Are you sure to clear?",
             ok: () => {
-                this._file = {};
+                this.initiOriginalObjects();
                 this.requestUpdate();
             },
         });
@@ -97,7 +105,7 @@ export default class FileUpload extends LitElement {
             study: this.opencgaSession.study.fqn,
             file: this._file.file,
             fileName: this._file.fileName || this._file.file.name, // get the name from the uploaded file
-            relativeFilePath: this._file.relativeFilePath.substring(1) || this.path,
+            relativeFilePath: this._file.relativeFilePath || this.path,
             description: this._file.description || "",
             resource: this._file.resource ?? false,
             tags: this._file.tags ? this._file.tags.split(",").map(t => t.trim()) : [],
@@ -111,8 +119,8 @@ export default class FileUpload extends LitElement {
                     title: "Upload File",
                     message: `File ${this._file.fileName || this._file.file.name} uploaded correctly.`,
                 });
-                this._file = {}; // reset the file data
                 LitUtils.dispatchCustomEvent(this, "fileUpload", null, params);
+                this.initiOriginalObjects();
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -143,7 +151,8 @@ export default class FileUpload extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                ...this._displayConfigDefault,
+                buttonOkText: "Upload File",
+                buttonClearText: "Discard Changes",
                 ...this.displayConfig,
             },
             sections: [
@@ -154,19 +163,16 @@ export default class FileUpload extends LitElement {
                             field: "relativeFilePath",
                             type: "custom",
                             display: {
-                                disabled: () => this._uploading,
-                                render: (path = "/", onFieldChange) => html`
-                                    <div>
-                                        <catalog-search-autocomplete
-                                            .value="${path}"
-                                            .resource="${"DIRECTORY"}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .config="${{multiple: false}}"
-                                            @filterChange="${e => onFieldChange(e.detail.value)}">
-                                        </catalog-search-autocomplete>
-                                    </div>
+                                render: (relativeFilePath, onFieldChange) => html`
+                                    <catalog-search-autocomplete
+                                        .value="${relativeFilePath}"
+                                        .resource="${"DIRECTORY"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e => onFieldChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
                                 `,
-                                helpMessage: "Path where the files will be uploaded.",
+                                helpMessage: "Path where the file will be uploaded.",
                             },
                         },
                         {
