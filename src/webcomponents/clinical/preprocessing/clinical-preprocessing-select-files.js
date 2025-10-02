@@ -127,14 +127,9 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                         });
                     });
 
-                    // Select sample if only one is available
-                    // if (this._toolParams.single.individual.samples.length === 1) {
-                    //     this._toolParams.single.sampleId = this._toolParams.single.individual.samples[0].id;
-                    // }
                     return this.opencgaSession.opencgaClient.files()
                         .search({
                             study: this.opencgaSession.study.fqn,
-                            // sampleIds: this._toolParams.single.sampleId,
                             id: Array.from(allFileIds).join(","),
                             type: "FILE",
                             format: "FASTQ,BAM,VCF",
@@ -301,13 +296,6 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                 },
                             },
                         },
-                        // {
-                        //     title: "Select Samples",
-                        //     field: "single.sampleId",
-                        //     type: "select",
-                        //     allowedValues: () => this._toolParams.single?.individual?.samples?.map(s => s.id) || [],
-                        //     required: true,
-                        // },
                         {
                             title: "Select Files",
                             field: "single.fileIds",
