@@ -154,11 +154,21 @@ export default class FileCreate extends LitElement {
                         {
                             title: "Path",
                             field: "path",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                defaultValue: `/${this.path}`,
-                                disabled: true,
-                                helpMessage: "Path where the file will be uploaded.",
+                                disabled: () => this._uploading,
+                                render: (path = "/", onFieldChange) => html`
+                                    <div>
+                                        <catalog-search-autocomplete
+                                            .value="${path}"
+                                            .resource="${"DIRECTORY"}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .config="${{multiple: false}}"
+                                            @filterChange="${e => onFieldChange(e.detail.value)}">
+                                        </catalog-search-autocomplete>
+                                    </div>
+                                `,
+                                helpMessage: "Path where the files will be uploaded.",
                             },
                         },
                         {

@@ -217,9 +217,20 @@ export default class FileUploadMultiple extends LitElement {
                         {
                             title: "Path",
                             field: "relativeFilePath",
-                            type: "input-text",
+                            type: "custom",
                             display: {
                                 disabled: () => this._uploading,
+                                render: (path = "/", onFieldChange) => html`
+                                    <div>
+                                        <catalog-search-autocomplete
+                                            .value="${path}"
+                                            .resource="${"DIRECTORY"}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .config="${{multiple: false}}"
+                                            @filterChange="${e => onFieldChange(e.detail.value)}">
+                                        </catalog-search-autocomplete>
+                                    </div>
+                                `,
                                 helpMessage: "Path where the files will be uploaded.",
                             },
                         },
