@@ -16,6 +16,9 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
 
     static get properties() {
         return {
+            toolParams: {
+                type: Object,
+            },
             opencgaSession: {
                 type: Object,
             },
@@ -26,33 +29,42 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
     }
 
     #init() {
-        this._data = {
+        this.DEFAULT_TOOLPARAMS = {
             analysisType: "SINGLE",
             single: {},
             family: {},
             cancer: {}
         };
+
+        // Make a deep copy to avoid modifying default object.
+        this._toolParams = {
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
+        };
+
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            // note: we only need to reset the analysisType when the opencgaSession changes
-            // the other fields will be reset when the user changes the individual or sample
-            this._data = {
-                analysisType: "SINGLE",
+        if (changedProperties.has("toolParams") || changedProperties.has("opencgaSession")) {
+            this._toolParams = {
+                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                ...this.toolParams,
             };
+            this._config = this.getDefaultConfig();
         }
-
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
     async onFieldChange(e) {
-        this._data = {...this._data};
+        this._toolParams = {...this._toolParams};
+
+        if (e.detail.param === "single.sampleId") {
+            await this.#onSampleChange(e);
+            this._config = this.getDefaultConfig();
+        }
 
         if (e.detail.param === "single.individualId") {
             await this.#onIndividualChange(e);
@@ -60,52 +72,24 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
             this._config = this.getDefaultConfig();
         }
 
-        if (e.detail.param === "single.sampleId") {
+        if (e.detail.param === "single.familyId") {
             await this.#onSampleChange(e);
             this._config = this.getDefaultConfig();
         }
 
-        LitUtils.dispatchCustomEvent(this, "paramsChange", this._data);
+        LitUtils.dispatchCustomEvent(this, "paramsChange", this._toolParams);
         this.requestUpdate();
     }
 
-    #onIndividualChange(e) {
-        // Clear samples and files
-        this._data.single.sampleId = "";
-        this._data.single.samples = [];
-
-        const individualId = e.detail.value;
-        if (individualId) {
-            return this.opencgaSession.opencgaClient.individuals()
-                .info(individualId, {
-                    study: this.opencgaSession.study.fqn,
-                    include: "id,samples",
-                })
-                .then(response => {
-                    this._data.single.samples = response.responses[0].results[0].samples
-                        .map(s => s.id);
-
-                    // Select sample if only one is available
-                    if (this._data.single.samples.length === 1) {
-                        this._data.single.sampleId = this._data.single.samples[0];
-                    }
-
-                })
-                .catch(reason => {
-                    console.error(reason);
-                });
-        }
-    }
-
     #onSampleChange(e) {
-        this._data.single.files = [];
-        this._data.single.fileIds = "";
+        this._toolParams.single.files = [];
+        this._toolParams.single.fileIds = "";
 
-        if (this._data.single.sampleId) {
+        if (this._toolParams.single.sampleId) {
             return this.opencgaSession.opencgaClient.files()
                 .search({
                     study: this.opencgaSession.study.fqn,
-                    sampleIds: this._data.single.sampleId,
+                    sampleIds: this._toolParams.single.sampleId,
                     type: "FILE",
                     format: "FASTQ,BAM,VCF",
                     // status: "READY",
@@ -113,7 +97,62 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                     limit: 100,
                 })
                 .then(response => {
-                    this._data.single.files = response.responses[0].results;
+                    this._toolParams.single.files = response.responses[0].results;
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
+        }
+    }
+
+    #onIndividualChange(e) {
+        // Clear samples and files
+        this._toolParams.single.individual = {};
+        this._toolParams.single.sampleId = "";
+
+        const individualId = e.detail.value;
+        if (individualId) {
+            return this.opencgaSession.opencgaClient.individuals()
+                .info(individualId, {
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,father,mother,sex,samples.id,samples.somatic,samples.fileIds",
+                })
+                .then(response => {
+                    this._toolParams.single.individual = response.responses[0].results[0];
+
+                    // Select sample if only one is available
+                    if (this._toolParams.single.individual.samples.length === 1) {
+                        this._toolParams.single.sampleId = this._toolParams.single.individual.samples[0].id;
+                    }
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
+        }
+    }
+
+    #onFamilyChange(e) {
+        // Clear samples and files
+        this._toolParams.family.individual = {};
+        this._toolParams.family.sampleIds = [];
+
+        const familyId = e.detail.value;
+        if (familyId) {
+            return this.opencgaSession.opencgaClient.families()
+                .info(familyId, {
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,members.id,members.father,members.mother,members.sex,members.samples.id,members.samples.somatic,members.samples.fileIds",
+                })
+                .then(response => {
+                    this._toolParams.family.family = response.responses[0].results[0];
+
+
+                    // Select sample if only one is available
+                    this._toolParams.family.family.members.forEach(member => {
+                        if (member.samples.length === 1) {
+                            this._toolParams.single.sampleIds.push(member.samples[0].id);
+                        }
+                    });
                 })
                 .catch(reason => {
                     console.error(reason);
@@ -128,7 +167,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
 
         return html`
             <data-form
-                .data="${this._data}"
+                .data="${this._toolParams}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
@@ -188,7 +227,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                             title: "Select Samples",
                             field: "single.sampleId",
                             type: "select",
-                            allowedValues: () => this._data.single?.samples || [],
+                            allowedValues: () => this._toolParams.single?.individual?.samples?.map(s => s.id) || [],
                             required: true,
                         },
                         {
@@ -200,6 +239,10 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                 className: "table-borderless table-grid mb-0",
                                 defaultValue: "Select a sample to see available files.",
                                 columns: [
+                                    {
+                                        title: "Sample",
+                                        field: "sampleId",
+                                    },
                                     {
                                         title: "File",
                                         field: "name",
@@ -226,10 +269,10 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                                 <input
                                                     type="checkbox"
                                                     class="form-check-input"
-                                                    ?checked="${this._data.single.fileIds?.split(",").includes(fileId)}"
+                                                    ?checked="${this._toolParams.single.fileIds?.split(",").includes(fileId)}"
                                                     @change="${event => {
                                                         // note: using 'filter' to remove empty strings
-                                                        const selectedFiles = new Set(this._data.single.fileIds?.split(",").filter(Boolean));
+                                                        const selectedFiles = new Set(this._toolParams.single.fileIds?.split(",").filter(Boolean));
                                                         if (event.target.checked) {
                                                             selectedFiles.add(fileId);
                                                         } else {

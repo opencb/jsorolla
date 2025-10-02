@@ -135,6 +135,7 @@ export default class ClinicalPreprocessing extends LitElement {
                     icon: "fas fa-file-medical",
                     render: () => html`
                         <clinical-preprocessing-select-files
+                            .toolParams="${{...this._workingPlan.select}}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: false,

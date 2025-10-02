@@ -294,7 +294,7 @@ export default class SarekAnalysis extends LitElement {
                         display: {
                             placeholder: "e.g. 5000000",
                             min: 1,
-                            disabled: data => !["prepare_calibration", "recalibrate", "variant_calling"].includes(data?.step),
+                            // disabled: data => !["prepare_calibration", "recalibrate", "variant_calling"].includes(data?.step),
                             helpMessage: "Estimate interval size.\n" +
                                 "Intervals are parts of the chopped up genome used to speed up preprocessing and variant calling. See --intervals for more info. " +
                                 "Changing this parameter, changes the number of intervals that are grouped and processed together. Bed files from target sequencing can contain thousands or small intervals. Spinning up a new process for each can be quite resource intensive. Instead it can be desired to process small intervals together on larger nodes. In order to make use of this parameter, no runtime estimate can be present in the bed file (column 5)."
@@ -306,7 +306,7 @@ export default class SarekAnalysis extends LitElement {
                         type: "input-text",
                         display: {
                             placeholder: "path/to/targets.bed(.gz) or 1-22,X,Y,MT",
-                            disabled: data => !["prepare_calibration", "recalibrate", "variant_calling"].includes(data?.step),
+                            // disabled: data => !["prepare_calibration", "recalibrate", "variant_calling"].includes(data?.step),
                             helpMessage: "Path to target bed file in case of whole exome or targeted sequencing or intervals file. " +
                                 "To speed up preprocessing and variant calling processes, the execution is parallelized across a reference chopped into smaller pieces. " +
                                 "Parts of preprocessing and variant calling are done by these intervals, the different resulting files are then merged. " +
@@ -319,7 +319,7 @@ export default class SarekAnalysis extends LitElement {
                         type: "checkbox",
                         defaultValue: false,
                         display: {
-                            disabled: data => !["prepare_calibration", "recalibrate", "variant_calling"].includes(data?.step),
+                            // disabled: data => !["prepare_calibration", "recalibrate", "variant_calling"].includes(data?.step),
                             helpMessage: "Disable usage of intervals. Intervals are parts of the chopped up genome used to speed up " +
                                 "preprocessing and variant calling. See --intervals for more info. " +
                                 "If 'no_intervals' is set no intervals will be taken into account for speed up or data processing."
