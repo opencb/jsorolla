@@ -132,11 +132,6 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
         return {
             title: "Configuration",
             display: {
-                // titleVisible: false,
-                // buttonOkText: "Upload Files",
-                // buttonOkDisabled: () => this._uploading || (this._data?.files?.length === 0) || this._data?.files?.every(f => f.status === this.FILE_STATUS.DONE),
-                // buttonClearText: "Discard",
-                // buttonClearDisabled: () => this._uploading || (this._data?.files?.length === 0),
                 ...this.displayConfig,
             },
             sections: [
@@ -176,7 +171,9 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                             .value="${probandId}"
                                             .resource="${"INDIVIDUAL"}"
                                             .opencgaSession="${this.opencgaSession}"
-                                            .config=${{addButton: false, multiple: false}}
+                                            .config=${{
+                                                multiple: false,
+                                            }}
                                             @filterChange="${e => dataFormFieldChange(e.detail.value)}">
                                         </catalog-search-autocomplete>
                                     `;
@@ -242,32 +239,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                 ],
                             },
                         },
-                        // {
-                        //     title: "Select Samples2",
-                        //     field: "single",
-                        //     type: "custom",
-                        //     required: true,
-                        //     validation: {
-                        //         // validate: () => {
-                        //         //     return this.clinicalAnalysis?.samples?.length === 1;
-                        //         // },
-                        //         message: "A germline sample must be selected.",
-                        //     },
-                        //     display: {
-                        //         render: single => {
-                        //             // return this.renderSamplesSelection(samples, false, false);
-                        //             return html`
-                        //                 <select-field-filter
-                        //                     .value="${single.sampleId}"
-                        //                     .data=${single.samples || []}
-                        //                     .config="${{}}"
-                        //                     @filterChange="${e => this.#onSampleChange(e)}">
-                        //                 </select-field-filter>
-                        //             `;
-                        //         },
-                        //     },
-                        // },
-                    ]
+                    ],
                 },
                 {
                     title: "Analysis Type: Family",
@@ -277,22 +249,21 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                     },
                     elements: [
                         {
-                            title: "Select a Sample",
-                            field: "sampleId",
+                            title: "Select a Family",
+                            field: "familyId",
                             type: "custom",
                             display: {
-                                render: (sampleId, onFieldChange) => html`
-                                    <div>
-                                        <catalog-search-autocomplete
-                                            .value="${sampleId}"
-                                            .resource="${"SAMPLE"}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .config="${{multiple: false}}"
-                                            @filterChange="${e => onFieldChange(e.detail.value)}">
-                                        </catalog-search-autocomplete>
-                                    </div>
+                                render: (familyId, onFieldChange) => html`
+                                    <catalog-search-autocomplete
+                                        .value="${familyId}"
+                                        .resource="${"FAMILY"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            multiple: false,
+                                        }}"
+                                        @filterChange="${e => onFieldChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
                                 `,
-                                helpMessage: "Path where the files will be uploaded.",
                             },
                         },
                     ]
