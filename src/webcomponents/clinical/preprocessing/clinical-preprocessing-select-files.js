@@ -52,23 +52,19 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
             };
             this._config = this.getDefaultConfig();
         }
+
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
     async onFieldChange(e) {
         this._toolParams = {...this._toolParams};
 
-        // if (e.detail.param === "single.sampleId") {
-        //     await this.#onSampleChange(e);
-        //     this._config = this.getDefaultConfig();
-        // }
-
         if (e.detail.param === "single.individualId") {
             await this.#onIndividualChange();
-            // await this.#onSampleChange(e);
             this._config = this.getDefaultConfig();
         }
 
@@ -80,30 +76,6 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
         LitUtils.dispatchCustomEvent(this, "paramsChange", this._toolParams);
         this.requestUpdate();
     }
-
-    // #onSampleChange(e) {
-    //     this._toolParams.single.files = [];
-    //     this._toolParams.single.fileIds = "";
-
-    //     if (this._toolParams.single.sampleId) {
-    //         return this.opencgaSession.opencgaClient.files()
-    //             .search({
-    //                 study: this.opencgaSession.study.fqn,
-    //                 sampleIds: this._toolParams.single.sampleId,
-    //                 type: "FILE",
-    //                 format: "FASTQ,BAM,VCF",
-    //                 // status: "READY",
-    //                 exclude: "qualityControl,attributes",
-    //                 limit: 100,
-    //             })
-    //             .then(response => {
-    //                 this._toolParams.single.files = response.responses[0].results;
-    //             })
-    //             .catch(reason => {
-    //                 console.error(reason);
-    //             });
-    //     }
-    // }
 
     #onIndividualChange() {
         this._toolParams.single.individual = {};
