@@ -36,9 +36,18 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            // note: we only need to reset the analysisType when the opencgaSession changes
+            // the other fields will be reset when the user changes the individual or sample
+            this._data = {
+                analysisType: "SINGLE",
+            };
+        }
+
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
