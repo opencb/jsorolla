@@ -3,6 +3,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 import "../loading-spinner.js";
 
 export default class FileUploadMultiple extends LitElement {
@@ -39,23 +40,28 @@ export default class FileUploadMultiple extends LitElement {
             ERROR: "ERROR",
         };
 
-        this._data = {
-            files: [],
-        };
+        this._data = {};
         this._uploading = false;
         this._config = this.getDefaultConfig();
+        this.initOriginalObjects();
+    }
+
+    initOriginalObjects() {
+        this._data = {
+            relativeFilePath: this.path || "/",
+            files: [],
+        };
     }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("path")) {
-            this._data = {
-                relativeFilePath: "/" + this.path,
-                files: [],
-            };
+            this.initOriginalObjects();
         }
+
         if (changedProperties.has("displayConfig") || changedProperties.has("path")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -147,10 +153,7 @@ export default class FileUploadMultiple extends LitElement {
             title: "Clear File Upload",
             message: "Are you sure to clear?",
             ok: () => {
-                this._data = {
-                    relativeFilePath: "/" + this.path,
-                    files: [],
-                };
+                this.initOriginalObjects();
                 this.requestUpdate();
             },
         });
@@ -220,16 +223,14 @@ export default class FileUploadMultiple extends LitElement {
                             type: "custom",
                             display: {
                                 disabled: () => this._uploading,
-                                render: (path = "/", onFieldChange) => html`
-                                    <div>
-                                        <catalog-search-autocomplete
-                                            .value="${path}"
-                                            .resource="${"DIRECTORY"}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .config="${{multiple: false}}"
-                                            @filterChange="${e => onFieldChange(e.detail.value)}">
-                                        </catalog-search-autocomplete>
-                                    </div>
+                                render: (relativeFilePath, onFieldChange) => html`
+                                    <catalog-search-autocomplete
+                                        .value="${relativeFilePath}"
+                                        .resource="${"DIRECTORY"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e => onFieldChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
                                 `,
                                 helpMessage: "Path where the files will be uploaded.",
                             },
