@@ -18,7 +18,8 @@ import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-
+import "../commons/forms/data-form.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class FileFetch extends LitElement {
 
@@ -48,21 +49,15 @@ export default class FileFetch extends LitElement {
 
     #init() {
         this.JOB_ID = "file-fetch";
-
-        this.displayConfigDefault = {
-            style: "margin: 10px",
-            titleWidth: 3,
-            defaultLayout: "horizontal",
-            buttonOkText: "Fetch File",
-            buttonClearText: "Discard Changes",
-
-        };
-        this.#initOriginalObjects();
-    }
-
-    #initOriginalObjects() {
         this._data = {};
         this._config = this.getDefaultConfig();
+        this.initOriginalObjects();
+    }
+
+    initOriginalObjects() {
+        this._data = {
+            path: this.path || "/",
+        };
     }
 
     #setLoading(value) {
@@ -72,12 +67,13 @@ export default class FileFetch extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("path")) {
-            this._data.path = `/${this.path}`;
-            this._config = this.getDefaultConfig();
+            this.initOriginalObjects();
         }
+
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -91,7 +87,7 @@ export default class FileFetch extends LitElement {
             title: "Clear Fetch File",
             message: "Are you sure to clear?",
             ok: () => {
-                this.#initOriginalObjects();
+                this.initOriginalObjects();
                 this.requestUpdate();
             },
         });
@@ -99,15 +95,15 @@ export default class FileFetch extends LitElement {
 
     onSubmit() {
         const {jobId, ...data} = this._data;
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            jobId: jobId ?? `${this.JOB_ID}-${UtilsNew.getDatetime()}`,
-        };
+
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.files()
-            .fetch(data, params)
+            .fetch(data, {
+                study: this.opencgaSession.study.fqn,
+                jobId: jobId ?? `${this.JOB_ID}-${UtilsNew.getDatetime()}`,
+            })
             .then(() => {
-                this.#initOriginalObjects();
+                this.initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Fetch File: Job launched",
                     message: `Job ${params.jobId} has been launched successfully`,
@@ -143,7 +139,10 @@ export default class FileFetch extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                ...this._displayConfigDefault,
+                titleWidth: 3,
+                defaultLayout: "horizontal",
+                buttonOkText: "Fetch File",
+                buttonClearText: "Discard Changes",
                 ...this.displayConfig,
             },
             sections: [
@@ -153,12 +152,20 @@ export default class FileFetch extends LitElement {
                         {
                             title: "Path",
                             field: "path",
-                            type: "input-text",
-                            // required: true,
+                            type: "custom",
                             display: {
-                                defaultValue: `/${this.path}`,
-                                disabled: true,
-                                helpMessage: "Path where the file be downloaded."
+                                render: (path, onFieldChange) => html`
+                                    <catalog-search-autocomplete
+                                        .value="${path}"
+                                        .resource="${"DIRECTORY"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            multiple: false,
+                                        }}"
+                                        @filterChange="${e => onFieldChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `,
+                                helpMessage: "Path where the file will be downloaded.",
                             },
                         },
                         {
