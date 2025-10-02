@@ -84,8 +84,8 @@ export default class FileUploadMultiple extends LitElement {
                             study: this.opencgaSession.study.fqn,
                             file: file.fileObject,
                             fileName: file.fileObject.name, // get the name from the uploaded file
-                            relativeFilePath: this._data.relativeFilePath.substring(1) || this.path,
-                            resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
+                            relativeFilePath: this._data.relativeFilePath,
+                            resource: this._data.relativeFilePath.startsWith("RESOURCES/"),
                         });
                     // 2. if everything is ok, set the status to DONE
                     file.status = this.FILE_STATUS.DONE;
