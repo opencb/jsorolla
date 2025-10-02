@@ -72,8 +72,8 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
             this._config = this.getDefaultConfig();
         }
 
-        if (e.detail.param === "single.familyId") {
-            await this.#onSampleChange(e);
+        if (e.detail.param === "family.familyId") {
+            await this.#onFamilyChange(e);
             this._config = this.getDefaultConfig();
         }
 
@@ -132,9 +132,9 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
     }
 
     #onFamilyChange(e) {
-        // Clear samples and files
-        this._toolParams.family.individual = {};
-        this._toolParams.family.sampleIds = [];
+        this._toolParams.family.family = {};
+        this._toolParams.family.files = [];
+        this._toolParams.family.fileIds = "";
 
         const familyId = e.detail.value;
         if (familyId) {
@@ -146,12 +146,50 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                 .then(response => {
                     this._toolParams.family.family = response.responses[0].results[0];
 
-
-                    // Select sample if only one is available
+                    // we have to get all files from all samples from all members
+                    const allFileIds = new Set();
                     this._toolParams.family.family.members.forEach(member => {
-                        if (member.samples.length === 1) {
-                            this._toolParams.single.sampleIds.push(member.samples[0].id);
-                        }
+                        member.samples.forEach(sample => {
+                            sample.fileIds.forEach(fileId => allFileIds.add(fileId));
+                        });
+                    });
+
+                    return this.opencgaSession.opencgaClient.files()
+                        .search({
+                            study: this.opencgaSession.study.fqn,
+                            id: Array.from(allFileIds).join(","),
+                            type: "FILE",
+                            format: "FASTQ,BAM",
+                            exclude: "qualityControl,attributes",
+                            limit: 100,
+                        });
+                })
+                .then(response => {
+                    // we have to generate a list of files with sampleId and individualId included
+                    const fileIdsMap = new Map();
+                    response.responses[0].results.forEach(file => {
+                        fileIdsMap.set(file.id, file);
+                    });
+
+                    // now we can generate the list of files including sampleId and individualId
+                    this._toolParams.family.files = [];
+                    this._toolParams.family.family.members.forEach(member => {
+                        member.samples.forEach(sample => {
+                            sample.fileIds.forEach(fileId => {
+                                if (fileIdsMap.has(fileId)) {
+                                    const file = fileIdsMap.get(fileId);
+                                    this._toolParams.family.files.push({
+                                        fileId: fileId,
+                                        fileName: file.name,
+                                        fileFormat: file.format,
+                                        fileSize: file.size,
+                                        sampleId: sample.id,
+                                        sampleSomatic: sample.somatic,
+                                        individualId: member.id,
+                                    });
+                                }
+                            });
+                        });
                     });
                 })
                 .catch(reason => {
@@ -297,7 +335,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                     elements: [
                         {
                             title: "Select a Family",
-                            field: "familyId",
+                            field: "family.familyId",
                             type: "custom",
                             display: {
                                 render: (familyId, onFieldChange) => html`
