@@ -49,21 +49,15 @@ export default class FileFolderCreate extends LitElement {
 
     #init() {
         this.isLoading = false;
-        this.displayConfigDefault = {
-            style: "margin: 10px",
-            titleWidth: 3,
-            defaultLayout: "horizontal",
-            buttonOkText: "Create Folder",
-            buttonClearText: "Discard Changes",
-        };
-        this.#initOriginalObjects();
+        this._folder = {};
+        this._config = this.getDefaultConfig();
+        this.initOriginalObjects();
     }
 
-    #initOriginalObjects() {
+    initOriginalObjects() {
         this._folder = {
-            type: "DIRECTORY",
+            path: this.path || "/",
         };
-        this._config = this.getDefaultConfig();
     }
 
     #setLoading(value) {
@@ -72,9 +66,14 @@ export default class FileFolderCreate extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("path")) {
+            this.initOriginalObjects();
+        }
+
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -88,18 +87,19 @@ export default class FileFolderCreate extends LitElement {
             title: "Clear Folder",
             message: "Are you sure to clear?",
             ok: () => {
-                this.#initOriginalObjects();
+                this.initOriginalObjects();
                 this.requestUpdate();
             },
         });
     }
 
     onSubmit() {
-        const {name, ...otherFileData} = this._folder;
+        const {name, tags, path, ...otherFileData} = this._folder;
         const data = {
             ...otherFileData,
-            tags: otherFileData.tags ? otherFileData.tags.split(",").map(t => t.trim()) : [],
-            path: `${this.path || ""}${name}`,
+            tags: tags ? tags.split(",").map(t => t.trim()) : [],
+            path: `${path || ""}${name}`,
+            type: "DIRECTORY",
         };
 
         this.#setLoading(true);
@@ -108,7 +108,7 @@ export default class FileFolderCreate extends LitElement {
                 study: this.opencgaSession.study.fqn,
             })
             .then(() => {
-                this.#initOriginalObjects();
+                this.initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Create Folder",
                     message: `Folder ${name} created correctly`,
@@ -144,7 +144,11 @@ export default class FileFolderCreate extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                ...this.displayConfigDefault,
+                style: "margin: 10px",
+                titleWidth: 3,
+                defaultLayout: "horizontal",
+                buttonOkText: "Create Folder",
+                buttonClearText: "Discard Changes",
                 ...this.displayConfig,
             },
             sections: [
@@ -155,17 +159,16 @@ export default class FileFolderCreate extends LitElement {
                             field: "path",
                             type: "custom",
                             display: {
-                                disabled: () => this._uploading,
-                                render: (path = "/", onFieldChange) => html`
-                                    <div>
-                                        <catalog-search-autocomplete
-                                            .value="${path}"
-                                            .resource="${"DIRECTORY"}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .config="${{multiple: false}}"
-                                            @filterChange="${e => onFieldChange(e.detail.value)}">
-                                        </catalog-search-autocomplete>
-                                    </div>
+                                render: (path, onFieldChange) => html`
+                                    <catalog-search-autocomplete
+                                        .value="${path}"
+                                        .resource="${"DIRECTORY"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            multiple: false,
+                                        }}"
+                                        @filterChange="${e => onFieldChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
                                 `,
                                 helpMessage: "Path where the files will be uploaded.",
                             },
