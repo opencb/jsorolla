@@ -308,6 +308,13 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                     {
                                         title: "Sample",
                                         field: "sampleId",
+                                        type: "custom",
+                                        display: {
+                                            render: (sampleId, onFieldChange, updateParams, data, row) => html`
+                                                <div class="mb-1">${sampleId}</div>
+                                                <div class="text-muted fs-7">${row.sampleSomatic ? "Somatic" : "Germline"}</div>
+                                            `,
+                                        },
                                     },
                                     {
                                         title: "File",
@@ -395,6 +402,13 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                     {
                                         title: "Sample",
                                         field: "sampleId",
+                                        type: "custom",
+                                        display: {
+                                            render: (sampleId, onFieldChange, updateParams, data, row) => html`
+                                                <div class="mb-1">${sampleId}</div>
+                                                <div class="text-muted fs-7">${row.sampleSomatic ? "Somatic" : "Germline"}</div>
+                                            `,
+                                        },
                                     },
                                     {
                                         title: "File",
