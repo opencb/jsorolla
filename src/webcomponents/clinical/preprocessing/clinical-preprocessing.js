@@ -163,8 +163,10 @@ export default class ClinicalPreprocessing extends LitElement {
                         <sarek-analysis
                             .toolParams="${this.getParamsForSarekStep()}"
                             .opencgaSession="${this.opencgaSession}"
-                            .displayConfig="${{
-                                buttonsVisible: false,
+                            .config="${{
+                                display: {
+                                    buttonsVisible: false,
+                                },
                             }}"
                             @paramsChange="${e => this.onSecondaryAnalysisChange(e)}">
                         </sarek-analysis>
@@ -177,7 +179,12 @@ export default class ClinicalPreprocessing extends LitElement {
                     render: () => html`
                         <variant-index-operation
                             .toolParams="${{study: this.opencgaSession.study.fqn}}"
-                            .opencgaSession="${this.opencgaSession}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${{
+                                display: {
+                                    buttonsVisible: false,
+                                },
+                            }}">
                         </variant-index-operation>
                     `,
                 },
