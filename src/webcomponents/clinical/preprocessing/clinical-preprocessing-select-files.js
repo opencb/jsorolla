@@ -198,6 +198,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                             display: {
                                 getData: data => data?.single?.files || [],
                                 className: "table-borderless table-grid mb-0",
+                                defaultValue: "Select a sample to see available files.",
                                 columns: [
                                     {
                                         title: "File",
