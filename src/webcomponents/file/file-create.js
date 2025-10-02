@@ -169,7 +169,7 @@ export default class FileCreate extends LitElement {
                                         @filterChange="${e => onFieldChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `,
-                                helpMessage: "Path where the files will be uploaded.",
+                                helpMessage: "Path where the file will be created.",
                             },
                         },
                         {
