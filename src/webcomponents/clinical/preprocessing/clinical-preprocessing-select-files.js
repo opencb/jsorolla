@@ -130,27 +130,22 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Configuration",
+            title: "Select Files",
             display: {
+                titleClassName: "mb-4",
                 ...this.displayConfig,
             },
             sections: [
                 {
-                    title: "Select Sample",
-                    description: "",
                     elements: [
                         {
-                            title: "Create or Select Sample",
+                            title: "Analysis Type",
                             field: "analysisType",
-                            type: "select",
-                            allowedValues: ["SINGLE", "FAMILY"],
+                            type: "toggle-buttons",
+                            allowedValues: ["SINGLE", "FAMILY", "CANCER"],
                             defaultValue: "SINGLE",
-                            required: true,
-                            display: {
-                                helpMessage: "Choose whether to create a new sample or select an existing one.",
-                            },
-                        }
-                    ]
+                        },
+                    ],
                 },
                 {
                     title: "Analysis Type: Single Sample",
