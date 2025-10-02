@@ -102,6 +102,18 @@ export default class ClinicalPreprocessing extends LitElement {
             </tool-header>
             <div class="container py-4">
                 ${this._config.steps[this._activeStepIndex]?.render()}
+                <div class="mt-4 d-flex align-items-center justify-content-end gap-2">
+                    ${this._activeStepIndex > 0 ? html`
+                        <button class="btn btn-light" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex - 1)}">
+                            <i class="fas fa-arrow-left me-1"></i> Previous
+                        </button>
+                    ` : nothing}
+                    ${this._activeStepIndex < this._config.steps.length - 1 ? html`
+                        <button class="btn btn-primary" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex + 1)}">
+                            Next <i class="fas fa-arrow-right ms-1"></i>
+                        </button>
+                    ` : nothing}
+                </div>
             </div>
         `;
     }
@@ -120,7 +132,9 @@ export default class ClinicalPreprocessing extends LitElement {
                     render: () => html`
                         <clinical-preprocessing-select-files
                             .opencgaSession="${this.opencgaSession}"
-                            .toolParams="${{}}">
+                            .displayConfig="${{
+                                buttonsVisible: false,
+                            }}">
                         </clinical-preprocessing-select-files>
                     `,
                 },
@@ -132,6 +146,9 @@ export default class ClinicalPreprocessing extends LitElement {
                         <sarek-analysis
                             .toolParams="${{files: "aaaa,bbbb", joint_germline: true}}"
                             .opencgaSession="${this.opencgaSession}"
+                            .displayConfig="${{
+                                buttonsVisible: false,
+                            }}"
                             @paramsChange="${e => this.onSecondaryAnalysisChange(e)}">
                         </sarek-analysis>
                     `,
