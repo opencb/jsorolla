@@ -55,6 +55,13 @@ export default class ClinicalPreprocessing extends LitElement {
         super.update(changedProperties);
     }
 
+    getParamsForSarekStep() {
+        const type = this._workingPlan.select?.analysisType.toLowerCase();
+        return {
+            files: this._workingPlan.select?.[type]?.fileIds || "",
+        };
+    }
+
     onChangeActiveStep(event, newStepIndex) {
         event.preventDefault();
         this._activeStepIndex = newStepIndex;
@@ -154,9 +161,7 @@ export default class ClinicalPreprocessing extends LitElement {
                     icon: "fas fa-sliders-h",
                     render: () => html`
                         <sarek-analysis
-                            .toolParams="${{
-                                files: this._workingPlan.select?.single?.fileIds || "",
-                            }}"
+                            .toolParams="${this.getParamsForSarekStep()}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: false,
