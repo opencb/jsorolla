@@ -84,11 +84,11 @@ export default class VariantIndexOperation extends LitElement {
         //         message: "Study is a mandatory parameter, please select one."
         //     };
         // }
-        if (!this._toolParams.file) {
-            return {
-                message: "A VCF file is a mandatory parameter, please select one."
-            };
-        }
+        // if (!this._toolParams.file) {
+        //     return {
+        //         message: "A VCF file is a mandatory parameter, please select one."
+        //     };
+        // }
         return null;
     }
 

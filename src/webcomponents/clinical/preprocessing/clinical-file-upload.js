@@ -285,28 +285,29 @@ export default class ClinicalFileUpload extends LitElement {
                     ]
                 },
                 {
-                    title: "Create New Sample",
+                    title: "Create New Patient and Sample",
                     description: "",
                     display: {
                         visible: data => data?.select !== false,
                     },
                     elements: [
                         {
-                            title: "Individual ID",
+                            title: "Patient",
                             field: "individualId",
                             type: "input-text",
                             required: true,
                             display: {
-                                helpMessage: "Map the sample names in the uploaded files to existing samples in the study.",
+                                helpMessage: "Map the individual names in the uploaded files to existing individuals in the study. " +
+                                    "If the individual does not exist, it will be created automatically.",
                             },
                         },
                         {
-                            title: "Sample ID",
+                            title: "Sample",
                             field: "sampleId",
                             type: "input-text",
                             required: true,
                             display: {
-                                helpMessage: "Map the sample names in the uploaded files to existing samples in the study.",
+                                helpMessage: "Identifier for the sample to be created and associated to the uploaded files. "
                             },
                         }
                     ]
