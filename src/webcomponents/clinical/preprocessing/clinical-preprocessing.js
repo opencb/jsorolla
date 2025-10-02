@@ -25,7 +25,7 @@ export default class ClinicalPreprocessing extends LitElement {
     #init() {
         this._activeStepIndex = 0;
 
-        this.workingPlan = {
+        this._workingPlan = {
             select: {
                 analysisType: "SINGLE",
                 single: {},
@@ -55,6 +55,10 @@ export default class ClinicalPreprocessing extends LitElement {
         event.preventDefault();
         this._activeStepIndex = newStepIndex;
         this.requestUpdate();
+    }
+
+    onSelectFilesParamsChange(event) {
+        this._workingPlan.select = event.detail.value;
     }
 
     renderToolbarCenterContent() {
@@ -134,7 +138,8 @@ export default class ClinicalPreprocessing extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: false,
-                            }}">
+                            }}"
+                            @paramsChange="${event => this.onSelectFilesParamsChange(event)}">
                         </clinical-preprocessing-select-files>
                     `,
                 },
@@ -144,7 +149,9 @@ export default class ClinicalPreprocessing extends LitElement {
                     icon: "fas fa-sliders-h",
                     render: () => html`
                         <sarek-analysis
-                            .toolParams="${{files: "aaaa,bbbb", joint_germline: true}}"
+                            .toolParams="${{
+                                files: this._workingPlan.select?.single?.fileIds || "",
+                            }}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: false,
