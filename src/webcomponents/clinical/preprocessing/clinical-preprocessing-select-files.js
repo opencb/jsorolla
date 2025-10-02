@@ -17,10 +17,10 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             displayConfig: {
-                type: Object
+                type: Object,
             },
         };
     }
@@ -56,7 +56,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
             this._config = this.getDefaultConfig();
         }
 
-        // LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
+        LitUtils.dispatchCustomEvent(this, "paramsChange", this._data);
         this.requestUpdate();
     }
 
@@ -105,7 +105,6 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                 })
                 .then(response => {
                     this._data.single.files = response.responses[0].results;
-                    debugger;
                 })
                 .catch(reason => {
                     console.error(reason);
