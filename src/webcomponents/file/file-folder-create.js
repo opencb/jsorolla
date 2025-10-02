@@ -94,9 +94,9 @@ export default class FileFolderCreate extends LitElement {
     }
 
     onSubmit() {
-        const {name, tags, path, ...otherFileData} = this._folder;
+        const {name, tags, path, ...otherFolderData} = this._folder;
         const data = {
-            ...otherFileData,
+            ...otherFolderData,
             tags: tags ? tags.split(",").map(t => t.trim()) : [],
             path: `${path || ""}${name}`,
             type: "DIRECTORY",
@@ -144,7 +144,6 @@ export default class FileFolderCreate extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                style: "margin: 10px",
                 titleWidth: 3,
                 defaultLayout: "horizontal",
                 buttonOkText: "Create Folder",
