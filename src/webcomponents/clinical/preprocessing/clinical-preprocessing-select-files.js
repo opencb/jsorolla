@@ -61,19 +61,19 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
     async onFieldChange(e) {
         this._toolParams = {...this._toolParams};
 
-        if (e.detail.param === "single.sampleId") {
-            await this.#onSampleChange(e);
-            this._config = this.getDefaultConfig();
-        }
+        // if (e.detail.param === "single.sampleId") {
+        //     await this.#onSampleChange(e);
+        //     this._config = this.getDefaultConfig();
+        // }
 
         if (e.detail.param === "single.individualId") {
-            await this.#onIndividualChange(e);
-            await this.#onSampleChange(e);
+            await this.#onIndividualChange();
+            // await this.#onSampleChange(e);
             this._config = this.getDefaultConfig();
         }
 
         if (e.detail.param === "family.familyId") {
-            await this.#onFamilyChange(e);
+            await this.#onFamilyChange();
             this._config = this.getDefaultConfig();
         }
 
@@ -81,49 +81,90 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
         this.requestUpdate();
     }
 
-    #onSampleChange(e) {
+    // #onSampleChange(e) {
+    //     this._toolParams.single.files = [];
+    //     this._toolParams.single.fileIds = "";
+
+    //     if (this._toolParams.single.sampleId) {
+    //         return this.opencgaSession.opencgaClient.files()
+    //             .search({
+    //                 study: this.opencgaSession.study.fqn,
+    //                 sampleIds: this._toolParams.single.sampleId,
+    //                 type: "FILE",
+    //                 format: "FASTQ,BAM,VCF",
+    //                 // status: "READY",
+    //                 exclude: "qualityControl,attributes",
+    //                 limit: 100,
+    //             })
+    //             .then(response => {
+    //                 this._toolParams.single.files = response.responses[0].results;
+    //             })
+    //             .catch(reason => {
+    //                 console.error(reason);
+    //             });
+    //     }
+    // }
+
+    #onIndividualChange() {
+        this._toolParams.single.individual = {};
         this._toolParams.single.files = [];
         this._toolParams.single.fileIds = "";
 
-        if (this._toolParams.single.sampleId) {
-            return this.opencgaSession.opencgaClient.files()
-                .search({
-                    study: this.opencgaSession.study.fqn,
-                    sampleIds: this._toolParams.single.sampleId,
-                    type: "FILE",
-                    format: "FASTQ,BAM,VCF",
-                    // status: "READY",
-                    exclude: "qualityControl,attributes",
-                    limit: 100,
-                })
-                .then(response => {
-                    this._toolParams.single.files = response.responses[0].results;
-                })
-                .catch(reason => {
-                    console.error(reason);
-                });
-        }
-    }
-
-    #onIndividualChange(e) {
-        // Clear samples and files
-        this._toolParams.single.individual = {};
-        this._toolParams.single.sampleId = "";
-
-        const individualId = e.detail.value;
-        if (individualId) {
+        if (this._toolParams.single?.individualId) {
             return this.opencgaSession.opencgaClient.individuals()
-                .info(individualId, {
+                .info(this._toolParams.single.individualId, {
                     study: this.opencgaSession.study.fqn,
                     include: "id,father,mother,sex,samples.id,samples.somatic,samples.fileIds",
                 })
                 .then(response => {
                     this._toolParams.single.individual = response.responses[0].results[0];
 
+                    // prepare the list of file ids to fetch
+                    const allFileIds = new Set();
+                    this._toolParams.single.individual.samples.forEach(sample => {
+                        sample.fileIds.forEach(fileId => {
+                            allFileIds.add(fileId);
+                        });
+                    });
+
                     // Select sample if only one is available
-                    if (this._toolParams.single.individual.samples.length === 1) {
-                        this._toolParams.single.sampleId = this._toolParams.single.individual.samples[0].id;
-                    }
+                    // if (this._toolParams.single.individual.samples.length === 1) {
+                    //     this._toolParams.single.sampleId = this._toolParams.single.individual.samples[0].id;
+                    // }
+                    return this.opencgaSession.opencgaClient.files()
+                        .search({
+                            study: this.opencgaSession.study.fqn,
+                            // sampleIds: this._toolParams.single.sampleId,
+                            id: Array.from(allFileIds).join(","),
+                            type: "FILE",
+                            format: "FASTQ,BAM,VCF",
+                            exclude: "qualityControl,attributes",
+                            limit: 100,
+                        });
+                })
+                .then(response => {
+                    const fileIdsMap = new Map();
+                    response.responses[0].results.forEach(file => {
+                        fileIdsMap.set(file.id, file);
+                    });
+
+                    // now we can generate the list of files including sampleId
+                    this._toolParams.single.files = [];
+                    this._toolParams.single.individual.samples.forEach(sample => {
+                        sample.fileIds.forEach(fileId => {
+                            if (fileIdsMap.has(fileId)) {
+                                const file = fileIdsMap.get(fileId);
+                                this._toolParams.single.files.push({
+                                    fileId: fileId,
+                                    fileName: file.name,
+                                    fileFormat: file.format,
+                                    fileSize: file.size,
+                                    sampleId: sample.id,
+                                    sampleSomatic: sample.somatic,
+                                });
+                            }
+                        });
+                    });
                 })
                 .catch(reason => {
                     console.error(reason);
@@ -131,15 +172,14 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
         }
     }
 
-    #onFamilyChange(e) {
+    #onFamilyChange() {
         this._toolParams.family.family = {};
         this._toolParams.family.files = [];
         this._toolParams.family.fileIds = "";
 
-        const familyId = e.detail.value;
-        if (familyId) {
+        if (this._toolParams.family?.familyId) {
             return this.opencgaSession.opencgaClient.families()
-                .info(familyId, {
+                .info(this._toolParams.family.familyId, {
                     study: this.opencgaSession.study.fqn,
                     include: "id,members.id,members.father,members.mother,members.sex,members.samples.id,members.samples.somatic,members.samples.fileIds",
                 })
@@ -261,13 +301,13 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                 },
                             },
                         },
-                        {
-                            title: "Select Samples",
-                            field: "single.sampleId",
-                            type: "select",
-                            allowedValues: () => this._toolParams.single?.individual?.samples?.map(s => s.id) || [],
-                            required: true,
-                        },
+                        // {
+                        //     title: "Select Samples",
+                        //     field: "single.sampleId",
+                        //     type: "select",
+                        //     allowedValues: () => this._toolParams.single?.individual?.samples?.map(s => s.id) || [],
+                        //     required: true,
+                        // },
                         {
                             title: "Select Files",
                             field: "single.fileIds",
@@ -275,19 +315,23 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                             display: {
                                 getData: data => data?.single?.files || [],
                                 className: "table-borderless table-grid mb-0",
-                                defaultValue: "Select a sample to see available files.",
+                                defaultValue: "Select an individual to see available files.",
                                 columns: [
                                     {
+                                        title: "Sample",
+                                        field: "sampleId",
+                                    },
+                                    {
                                         title: "File",
-                                        field: "name",
+                                        field: "fileName",
                                     },
                                     {
                                         title: "Format",
-                                        field: "format",
+                                        field: "fileFormat",
                                     },
                                     {
                                         title: "Size",
-                                        field: "size",
+                                        field: "fileSize",
                                         type: "custom",
                                         display: {
                                             render: size => UtilsNew.getDiskUsage(size),
