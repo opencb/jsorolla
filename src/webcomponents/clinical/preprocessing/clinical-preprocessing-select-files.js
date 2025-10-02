@@ -61,6 +61,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
     }
 
     #onIndividualChange(e) {
+        // Clear samples and files
         this._data.single.sampleId = "";
         this._data.single.samples = [];
 
@@ -97,7 +98,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                     study: this.opencgaSession.study.fqn,
                     sampleIds: this._data.single.sampleId,
                     type: "FILE",
-                    // format: "FASTQ,BAM,VCF",
+                    format: "FASTQ,BAM,VCF",
                     // status: "READY",
                     exclude: "qualityControl,attributes",
                     limit: 100,

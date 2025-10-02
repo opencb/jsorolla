@@ -106,7 +106,7 @@ export default class ClinicalPreprocessing extends LitElement {
         `;
     }
 
-    aaa(e) {
+    onSecondaryAnalysisChange(e) {
         debugger
     }
     getDefaultConfig() {
@@ -132,7 +132,7 @@ export default class ClinicalPreprocessing extends LitElement {
                         <sarek-analysis
                             .toolParams="${{files: "aaaa,bbbb", joint_germline: true}}"
                             .opencgaSession="${this.opencgaSession}"
-                            @paramsChange="${e => this.aaa(e)}">
+                            @paramsChange="${e => this.onSecondaryAnalysisChange(e)}">
                         </sarek-analysis>
                     `,
                 },
@@ -141,7 +141,10 @@ export default class ClinicalPreprocessing extends LitElement {
                     title: "Variant Index Parameters",
                     icon: "fas fa-database",
                     render: () => html`
-                        <div>Set Variant Index parameters</div>
+                        <variant-index-operation
+                            .toolParams="${{study: this.opencgaSession.study.fqn}}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </variant-index-operation>
                     `,
                 },
                 {

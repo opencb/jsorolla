@@ -106,6 +106,12 @@ export default class SarekAnalysis extends LitElement {
         if (this._toolParams.tools) {
             this._toolParams.tools = this._toolParams.tools.replaceAll(" ", "");
         }
+        if (this._toolParams.joint_germline && this._toolParams.tools.includes("sentieon_haplotyper")) {
+            this._toolParams.sentieon_haplotyper_emit_mode = "gvcf";
+        }
+        if (this._toolParams.joint_germline && this._toolParams.tools.includes("sentieon_dnascope")) {
+            this._toolParams.sentieon_dnascope_emit_mode = "gvcf";
+        }
 
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
 
@@ -154,7 +160,7 @@ export default class SarekAnalysis extends LitElement {
                 // Assuming single-end reads for simplicity; modify as needed for paired-end
                 const fastq1 = filesArray[0] || "N/A";
                 const fastq2 = filesArray.length > 1 ? filesArray[1] : "N/A";
-                samplesheet += `${individualId},1,${sample.id},lane_1,file://${fastq1},file://${fastq2}\n`;
+                samplesheet += `${individualId},0,${sample.id},lane_1,file://${fastq1},file://${fastq2}\n`;
             });
 
             // Upload samplesheet to OpenCGA
@@ -447,6 +453,28 @@ export default class SarekAnalysis extends LitElement {
                             helpMessage: "Runs Mutect2 in joint (multi-sample) mode for better concordance among variant calls of tumor samples from the same patient. " +
                                 "Mutect2 outputs will be stored in a subfolder named with patient ID under variant_calling/mutect2/ folder. " +
                                 "Only a single normal sample per patient is allowed. Tumor-only mode is also supported."
+                        }
+                    },
+                    {
+                        title: "Sentieon Haplotyper Emit Mode",
+                        field: "sentieon_haplotyper_emit_mode",
+                        type: "input-text",
+                        display: {
+                            helpMessage: "Option for selecting output and emit-mode of Sentieon’s Haplotyper. " +
+                                "The option 'sentieon_haplotyper_emit_mode' can be set to the same string values as the Haplotyper’s 'emit_mode'. " +
+                                "To output both a vcf and a gvcf, specify both a vcf-option (currently, all, confident and variant) and gvcf. " +
+                                "For example, to obtain a vcf and gvcf one could set 'sentieon_haplotyper_emit_mode' to 'variant,gvcf'"
+                        }
+                    },
+                    {
+                        title: "Sentieon DNAscope Emit Mode",
+                        field: "sentieon_dnascope_emit_mode",
+                        type: "input-text",
+                        display: {
+                            helpMessage: "Option for selecting output and emit-mode of Sentieon’s Dnascope. " +
+                                "The option 'sentieon_dnascope_emit_mode' can be set to the same string values as the Dnascope’s 'emit_mode'. " +
+                                "To output both a vcf and a gvcf, specify both a vcf-option (currently, all, confident and variant) and gvcf. " +
+                                "For example, to obtain a vcf and gvcf one could set 'sentieon_dnascope_emit_mode' to 'variant,gvcf'"
                         }
                     },
                     {
