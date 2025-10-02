@@ -306,7 +306,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                     },
                                     {
                                         title: "Select",
-                                        field: "id",
+                                        field: "fileId",
                                         type: "custom",
                                         display: {
                                             className: "d-flex justify-content-center align-items-center",
@@ -400,7 +400,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                     },
                                     {
                                         title: "Select",
-                                        field: "id",
+                                        field: "fileId",
                                         type: "custom",
                                         display: {
                                             className: "d-flex justify-content-center align-items-center",
