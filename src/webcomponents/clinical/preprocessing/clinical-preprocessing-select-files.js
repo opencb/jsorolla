@@ -278,10 +278,6 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                 defaultValue: "Select a sample to see available files.",
                                 columns: [
                                     {
-                                        title: "Sample",
-                                        field: "sampleId",
-                                    },
-                                    {
                                         title: "File",
                                         field: "name",
                                     },
@@ -351,6 +347,67 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                 `,
                             },
                         },
+                        {
+                            title: "Select Files",
+                            field: "family.fileIds",
+                            type: "table",
+                            display: {
+                                getData: data => data?.family?.files || [],
+                                className: "table-borderless table-grid mb-0",
+                                defaultValue: "Select a Family to see available files.",
+                                columns: [
+                                    {
+                                        title: "Individual",
+                                        field: "individualId",
+                                    },
+                                    {
+                                        title: "Sample",
+                                        field: "sampleId",
+                                    },
+                                    {
+                                        title: "File",
+                                        field: "fileName",
+                                    },
+                                    {
+                                        title: "Format",
+                                        field: "fileFormat",
+                                    },
+                                    {
+                                        title: "Size",
+                                        field: "fileSize",
+                                        type: "custom",
+                                        display: {
+                                            render: size => UtilsNew.getDiskUsage(size),
+                                        },
+                                    },
+                                    {
+                                        title: "Select",
+                                        field: "id",
+                                        type: "custom",
+                                        display: {
+                                            className: "d-flex justify-content-center align-items-center",
+                                            render: (fileId, dataFormFieldChange) => html`
+                                                <input
+                                                    type="checkbox"
+                                                    class="form-check-input"
+                                                    ?checked="${this._toolParams.family.fileIds?.split(",").includes(fileId)}"
+                                                    @change="${event => {
+                                                        // note: using 'filter' to remove empty strings
+                                                        const selectedFiles = new Set(this._toolParams.family.fileIds?.split(",").filter(Boolean));
+                                                        if (event.target.checked) {
+                                                            selectedFiles.add(fileId);
+                                                        } else {
+                                                            selectedFiles.delete(fileId);
+                                                        }
+                                                        dataFormFieldChange(Array.from(selectedFiles).join(","));
+                                                    }}">
+                                            `,
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+
                     ]
                 },
             ],
