@@ -138,6 +138,7 @@ export default class OpencgaFileGrid extends LitElement {
                     title: `Update ${this._selectedFile?.name} Content`,
                     size: "modal-xl",
                     buttonsVisible: false,
+                    draggable: false,
                 },
                 render: () => html`
                     <file-editor

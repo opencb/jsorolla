@@ -216,7 +216,7 @@ export default class FileEditor extends LitElement {
                                             <i class="fas fa-cog fs-4"></i>
                                         </button>
                                     </div>
-                                    <div class="dropdown-menu dropdown-menu-end">
+                                    <div class="dropdown-menu dropdown-menu-end px-2 py-3">
                                         <div class="d-flex flex-column gap-2 px-1" style="min-width:160px;">
                                             ${this._config.showLanguageSelector ? html`
                                                 <div class="p-0">
