@@ -1,8 +1,10 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./clinical-preprocessing-select-files.js";
+import "./clinical-preprocessing-summary.js";
 import "../../commons/tool-header.js";
 import "../../alignment/analysis/sarek-analysis.js";
+import "../../variant/operation/variant-index-operation.js";
 
 export default class ClinicalPreprocessing extends LitElement {
 
@@ -189,7 +191,10 @@ export default class ClinicalPreprocessing extends LitElement {
                     title: "Run",
                     icon: "fas fa-play-circle",
                     render: () => html`
-                        <div>Run preprocessing</div>
+                        <clinical-preprocessing-summary
+                            .toolParams="${this._stepsParams}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </clinical-preprocessing-summary>
                     `,
                 },
             ],
