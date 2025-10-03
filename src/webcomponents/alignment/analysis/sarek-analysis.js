@@ -17,7 +17,6 @@
 import {html, LitElement} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
