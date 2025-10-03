@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 
 export default class VariantIndexOperation extends LitElement {
@@ -99,8 +100,8 @@ export default class VariantIndexOperation extends LitElement {
         if (event.detail.param) {
             this._toolParams = FormUtils.createObject(this._toolParams, param, event.detail.value);
         }
-        // this.config = this.getDefaultConfig();
-
+        // this._config = this.getDefaultConfig();
+        LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
         this.requestUpdate();
     }
 
