@@ -32,19 +32,16 @@ export default class SarekAnalysis extends LitElement {
     createRenderRoot() {
         return this;
     }
-    // CAUTION: waiting for decision on params accepted
+
     static get properties() {
         return {
-            // files: {
-            //     type: Array,
-            // },
             toolParams: {
                 type: Object,
             },
             opencgaSession: {
                 type: Object,
             },
-            config: {
+            displayConfig: {
                 type: Object
             },
         };
@@ -63,21 +60,9 @@ export default class SarekAnalysis extends LitElement {
         };
 
         // Make a deep copy to avoid modifying default object.
-        this._toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
-        };
-
-        // this.files = "";
-        this.config = this.getDefaultConfig();
+        this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
+        this._config = this.getDefaultConfig();
     }
-
-    // firstUpdated(changedProperties) {
-    //     if (changedProperties.has("toolParams")) {
-    //         // This parameter will indicate if either an individual ID or a sample ID were passed as an argument
-    //         this.files = this.toolParams.files || "";
-    //         // update this.toolParams with default values
-    //     }
-    // }
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
@@ -85,22 +70,23 @@ export default class SarekAnalysis extends LitElement {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
-            this.config = this.getDefaultConfig();
         }
+        
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
+        }
+
         super.update(changedProperties);
     }
 
     check() {
-        // if (this.opencgaSession && !OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user?.id)) {
-        //     return {
-        //         message: "Only Study admins can execute QC methods"
-        //     };
-        // }
         return null;
     }
 
     onFieldChange() {
-        this._toolParams = {...this._toolParams};
+        this._toolParams = {
+            ...this._toolParams,
+        };
 
         // Fixes
         if (this._toolParams.tools) {
@@ -215,8 +201,6 @@ export default class SarekAnalysis extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             ...this.toolParams,
         };
-        this.config = this.getDefaultConfig();
-
         this.requestUpdate();
     }
 
@@ -224,7 +208,7 @@ export default class SarekAnalysis extends LitElement {
         return html`
             <data-form
                 .data="${this._toolParams}"
-                .config="${this.config}"
+                .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
@@ -569,7 +553,9 @@ export default class SarekAnalysis extends LitElement {
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check(),
-            this.config
+            {
+                display: this.displayConfig || {},
+            },
         );
     }
 
