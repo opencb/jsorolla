@@ -42,6 +42,9 @@ export default class VariantIndexOperation extends LitElement {
             opencgaSession: {
                 type: Object,
             },
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
@@ -52,12 +55,8 @@ export default class VariantIndexOperation extends LitElement {
 
         this.DEFAULT_TOOLPARAMS = {};
 
-        // Make a deep copy to avoid modifying default object.
-        this._toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-        };
-
-        this.config = this.getDefaultConfig();
+        this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
+        this._config = this.getDefaultConfig();
     }
 
     // firstUpdated(changedProperties) {
@@ -73,8 +72,12 @@ export default class VariantIndexOperation extends LitElement {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
-            this.config = this.getDefaultConfig();
         }
+
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
+        }
+
         super.update(changedProperties);
     }
 
@@ -92,12 +95,11 @@ export default class VariantIndexOperation extends LitElement {
         return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        if (param) {
-            this._toolParams = FormUtils.createObject(this._toolParams, param, e.detail.value);
+    onFieldChange(event) {
+        if (event.detail.param) {
+            this._toolParams = FormUtils.createObject(this._toolParams, param, event.detail.value);
         }
-        this.config = this.getDefaultConfig();
+        // this.config = this.getDefaultConfig();
 
         this.requestUpdate();
     }
@@ -126,9 +128,9 @@ export default class VariantIndexOperation extends LitElement {
     onClear() {
         this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            study: this.toolParams.study || "",
+            ...this.toolParams,
         };
-        this.config = this.getDefaultConfig();
+        this._config = this.getDefaultConfig();
 
         this.requestUpdate();
     }
@@ -137,10 +139,10 @@ export default class VariantIndexOperation extends LitElement {
         return html`
             <data-form
                 .data="${this._toolParams}"
-                .config="${this.config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                .config="${this._config}"
+                @fieldChange="${event => this.onFieldChange(event)}"
+                @clear="${() => this.onClear()}"
+                @submit="${() => this.onSubmit()}">
             </data-form>
         `;
     }
@@ -152,19 +154,20 @@ export default class VariantIndexOperation extends LitElement {
                 elements: [
                     {
                         title: "Study",
+                        field: "study",
                         type: "custom",
                         required: true,
                         display: {
-                            render: toolParams => html`
+                            render: (study, dataFormFieldChange) => html`
                                 <catalog-search-autocomplete
-                                    .value="${toolParams?.study}"
+                                    .value="${study}"
                                     .resource="${"STUDY"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{
                                         multiple: false,
                                         disabled: !!this.toolParams.study,
                                     }}"
-                                    @filterChange="${e => this.onFieldChange(e, "study")}">
+                                    @filterChange="${event => dataFormFieldChange(event.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
@@ -180,7 +183,7 @@ export default class VariantIndexOperation extends LitElement {
                         type: "custom",
                         required: true,
                         display: {
-                            render: file => html`
+                            render: (file, dataFormFieldChange) => html`
                                 <catalog-search-autocomplete
                                     .value="${file}"
                                     .resource="${"FILE"}"
@@ -194,7 +197,7 @@ export default class VariantIndexOperation extends LitElement {
                                         disabled: !!this._toolParams.file,
                                         multiple: false,
                                     }}"
-                                    @filterChange="${e => this.onFieldChange(e, "file")}">
+                                    @filterChange="${event => dataFormFieldChange(event.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
@@ -249,8 +252,10 @@ export default class VariantIndexOperation extends LitElement {
             this.DESCRIPTION,
             params,
             this.check(),
-            {},
-            this.opencgaSession
+            {
+                display: this.displayConfig || {},
+            },
+            this.opencgaSession,
         );
     }
 
