@@ -189,10 +189,8 @@ export default class ClinicalPreprocessing extends LitElement {
                                 ...this._stepsParams?.variantIndex,
                             }}"
                             .opencgaSession="${this.opencgaSession}"
-                            .config="${{
-                                display: {
-                                    buttonsVisible: false,
-                                },
+                            .displayConfig="${{
+                                buttonsVisible: false,
                             }}">
                         </variant-index-operation>
                     `,
