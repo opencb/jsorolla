@@ -67,6 +67,11 @@ export default class ClinicalPreprocessing extends LitElement {
         this._stepsParams.sarek.files = this._stepsParams.select?.[analysisType]?.fileIds || "";
     }
 
+    onSarekParamsChange(event) {
+        this._stepsParams.sarek = event.detail;
+        // TODO: check if we have to update variant index params
+    }
+
     onExecuteAnalysis(event) {
         // TODO
     }
@@ -137,9 +142,6 @@ export default class ClinicalPreprocessing extends LitElement {
         `;
     }
 
-    onSecondaryAnalysisChange(e) {
-        debugger
-    }
     getDefaultConfig() {
         return {
             title: "Clinical Preprocessing",
@@ -172,7 +174,7 @@ export default class ClinicalPreprocessing extends LitElement {
                                     buttonsVisible: false,
                                 },
                             }}"
-                            @paramsChange="${e => this.onSecondaryAnalysisChange(e)}">
+                            @paramsChange="${e => this.onSarekParamsChange(e)}">
                         </sarek-analysis>
                     `,
                 },
