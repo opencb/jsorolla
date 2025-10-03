@@ -73,7 +73,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
             this._config = this.getDefaultConfig();
         }
 
-        LitUtils.dispatchCustomEvent(this, "paramsChange", this._toolParams);
+        LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
         this.requestUpdate();
     }
 

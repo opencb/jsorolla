@@ -83,6 +83,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                                     });
                                 },
                                 className: "table-borderless table-grid mb-0",
+                                defaultValue: "No files selected.",
                                 columns: [
                                     {
                                         title: "Individual",

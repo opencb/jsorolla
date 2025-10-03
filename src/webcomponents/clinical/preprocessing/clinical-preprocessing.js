@@ -60,7 +60,7 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     onSelectFilesParamsChange(event) {
-        this._stepsParams.select = event.detail.value;
+        this._stepsParams.select = event.detail;
 
         // we have to update the params for the next step (sarek) with the files selected
         const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
