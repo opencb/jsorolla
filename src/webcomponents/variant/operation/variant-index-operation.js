@@ -53,19 +53,11 @@ export default class VariantIndexOperation extends LitElement {
         this.ANALYSIS_TOOL = "variant-index";
         this.TITLE = "Variant Index Operation";
         this.DESCRIPTION = "Index variant files into the variant storage";
-
         this.DEFAULT_TOOLPARAMS = {};
 
         this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
         this._config = this.getDefaultConfig();
     }
-
-    // firstUpdated(changedProperties) {
-    //     if (changedProperties.has("toolParams")) {
-    //         // This parameter will indicate if either a study is passed as an argument
-    //         this.study = this.toolParams.study || "";
-    //     }
-    // }
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
@@ -83,16 +75,6 @@ export default class VariantIndexOperation extends LitElement {
     }
 
     check() {
-        // if (!this._toolParams.study) {
-        //     return {
-        //         message: "Study is a mandatory parameter, please select one."
-        //     };
-        // }
-        // if (!this._toolParams.file) {
-        //     return {
-        //         message: "A VCF file is a mandatory parameter, please select one."
-        //     };
-        // }
         return null;
     }
 
