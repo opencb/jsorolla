@@ -98,7 +98,7 @@ export default class VariantIndexOperation extends LitElement {
 
     onFieldChange(event) {
         if (event.detail.param) {
-            this._toolParams = FormUtils.createObject(this._toolParams, param, event.detail.value);
+            this._toolParams = FormUtils.createObject(this._toolParams, event.detail.param, event.detail.value);
         }
         // this._config = this.getDefaultConfig();
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
