@@ -658,9 +658,9 @@ export default class VariantInterpreterGridFormatter {
         if (variant.discussion?.text) {
             discussionTooltipText = `
                 <div style="min-width:200px;">
-                    <div>${variant.discussion?.text || "-"}</div>
+                    <div>${UtilsNew.escapeHtml(variant.discussion?.text || "-")}</div>
                     <div style="margin-top:6px;">
-                        Added by <b>${variant.discussion?.author || "-"}</b> on <b>${UtilsNew.dateFormatter(variant.discussion?.date)}</b>
+                        Added by <b>${UtilsNew.escapeHtml(variant.discussion?.author || "-")}</b> on <b>${UtilsNew.dateFormatter(variant.discussion?.date)}</b>
                     </div>
                 </div>
             `;
@@ -670,8 +670,8 @@ export default class VariantInterpreterGridFormatter {
             <div style="min-width:200px;">
                 ${(variant.comments || []).map(comment => `
                     <div style="padding:4px;">
-                        <label>${comment.author} - ${UtilsNew.dateFormatter(comment.date)}</label>
-                        <div>${comment.message || "-"}</div>
+                        <label>${UtilsNew.escapeHtml(comment.author)} - ${UtilsNew.dateFormatter(comment.date)}</label>
+                        <div>${UtilsNew.escapeHtml(comment.message || "-")}</div>
                     </div>
                 `).join("")}
             </div>
