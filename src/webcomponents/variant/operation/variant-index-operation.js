@@ -160,7 +160,10 @@ export default class VariantIndexOperation extends LitElement {
                                     .value="${toolParams?.study}"
                                     .resource="${"STUDY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.toolParams.study}}"
+                                    .config="${{
+                                        multiple: false,
+                                        disabled: !!this.toolParams.study,
+                                    }}"
                                     @filterChange="${e => this.onFieldChange(e, "study")}">
                                 </catalog-search-autocomplete>
                             `,
@@ -181,14 +184,16 @@ export default class VariantIndexOperation extends LitElement {
                                 <catalog-search-autocomplete
                                     .value="${file}"
                                     .resource="${"FILE"}"
-                                    .query="${
-                                    {
+                                    .query="${{
                                         type: "FILE",
                                         format: "VCF",
                                         include: "id,name,format,size,path",
                                     }}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false}}"
+                                    .config="${{
+                                        disabled: !!this._toolParams.file,
+                                        multiple: false,
+                                    }}"
                                     @filterChange="${e => this.onFieldChange(e, "file")}">
                                 </catalog-search-autocomplete>
                             `,
