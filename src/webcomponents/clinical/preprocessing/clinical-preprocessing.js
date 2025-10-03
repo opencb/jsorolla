@@ -1,4 +1,5 @@
 import {LitElement, html, nothing} from "lit";
+import UtilsNew from "../../../core/utils-new.js";
 import "./clinical-preprocessing-select-files.js";
 import "../../commons/tool-header.js";
 import "../../alignment/analysis/sarek-analysis.js";
@@ -23,33 +24,28 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     #init() {
-        this._activeStepIndex = 0;
-
-        this._workingPlan = {
+        this.DEFAULT_STEPS_PARAMS = {
             select: {
                 analysisType: "SINGLE",
                 single: {},
                 family: {},
                 cancer: {}
             },
-            secondaryAnalysis: {
-                tool: "nf-core.sarek",
-                // type: "WORKFLOW",
-                toolParams: {
-
-                },
+            sarek: {
+                files: [],
             },
             variantIndex: {
                 files: [],
             }
         };
-
+        this._activeStepIndex = 0;
+        this._stepsParams = UtilsNew.objectClone(this.DEFAULT_STEPS_PARAMS);
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this._workingPlan = {};
+            this._stepsParams = UtilsNew.objectClone(this.DEFAULT_STEPS_PARAMS);
         }
 
         super.update(changedProperties);
@@ -69,7 +65,7 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     onSelectFilesParamsChange(event) {
-        this._workingPlan.select = event.detail.value;
+        this._stepsParams.select = event.detail.value;
     }
 
     renderToolbarCenterContent() {
@@ -146,7 +142,7 @@ export default class ClinicalPreprocessing extends LitElement {
                     icon: "fas fa-file-medical",
                     render: () => html`
                         <clinical-preprocessing-select-files
-                            .toolParams="${{...this._workingPlan?.select}}"
+                            .toolParams="${{...this._stepsParams?.select}}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: false,
@@ -161,7 +157,7 @@ export default class ClinicalPreprocessing extends LitElement {
                     icon: "fas fa-sliders-h",
                     render: () => html`
                         <sarek-analysis
-                            .toolParams="${this.getParamsForSarekStep()}"
+                            .toolParams="${{...this._stepsParams?.sarek}}"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${{
                                 display: {
@@ -178,7 +174,10 @@ export default class ClinicalPreprocessing extends LitElement {
                     icon: "fas fa-database",
                     render: () => html`
                         <variant-index-operation
-                            .toolParams="${{study: this.opencgaSession.study.fqn}}"
+                            .toolParams="${{
+                                study: this.opencgaSession.study.fqn,
+                                ...this._stepsParams?.variantIndex,
+                            }}"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${{
                                 display: {
