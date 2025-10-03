@@ -128,6 +128,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                     fileSize: file.size,
                                     sampleId: sample.id,
                                     sampleSomatic: sample.somatic,
+                                    individualId: this._toolParams.single.individualId
                                 });
                             }
                         });
