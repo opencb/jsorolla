@@ -178,10 +178,8 @@ export default class ClinicalPreprocessing extends LitElement {
                         <sarek-analysis
                             .toolParams="${this._stepsParams?.sarek}"
                             .opencgaSession="${this.opencgaSession}"
-                            .config="${{
-                                display: {
-                                    buttonsVisible: false,
-                                },
+                            .displayConfig="${{
+                                buttonsVisible: false,
                             }}"
                             @paramsChange="${e => this.onSarekParamsChange(e)}">
                         </sarek-analysis>
