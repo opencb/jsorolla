@@ -118,8 +118,17 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                                 ],
                             },
                         },
-
                     ],
+                },
+                {
+                    title: "Sarek Parameters",
+                    display: {},
+                    elements: [],
+                },
+                {
+                    title: "Variant Index Parameters",
+                    display: {},
+                    elements: [],
                 },
             ],
         };
