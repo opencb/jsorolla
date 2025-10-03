@@ -167,7 +167,7 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                             study: this.opencgaSession.study.fqn,
                             id: Array.from(allFileIds).join(","),
                             type: "FILE",
-                            format: "FASTQ,BAM",
+                            format: "FASTQ,BAM,VCF",
                             exclude: "qualityControl,attributes",
                             limit: 100,
                         });
