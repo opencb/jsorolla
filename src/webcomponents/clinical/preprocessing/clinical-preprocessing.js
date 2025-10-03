@@ -72,6 +72,10 @@ export default class ClinicalPreprocessing extends LitElement {
         // TODO: check if we have to update variant index params
     }
 
+    onVariantIndexParamsChange(event) {
+        this._stepsParams.variantIndex = event.detail;
+    }
+
     onExecuteAnalysis(event) {
         // TODO
     }
@@ -152,7 +156,7 @@ export default class ClinicalPreprocessing extends LitElement {
                     icon: "fas fa-file-medical",
                     render: () => html`
                         <clinical-preprocessing-select-files
-                            .toolParams="${{...this._stepsParams?.select}}"
+                            .toolParams="${this._stepsParams?.select}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: false,
@@ -167,7 +171,7 @@ export default class ClinicalPreprocessing extends LitElement {
                     icon: "fas fa-sliders-h",
                     render: () => html`
                         <sarek-analysis
-                            .toolParams="${{...this._stepsParams?.sarek}}"
+                            .toolParams="${this._stepsParams?.sarek}"
                             .opencgaSession="${this.opencgaSession}"
                             .config="${{
                                 display: {
@@ -191,7 +195,8 @@ export default class ClinicalPreprocessing extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: false,
-                            }}">
+                            }}"
+                            @paramsChange="${e => {this.onVariantIndexParamsChange(e)}}">
                         </variant-index-operation>
                     `,
                 },
