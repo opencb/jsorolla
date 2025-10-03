@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import "./clinical-preprocessing-select-files.js";
 import "./clinical-preprocessing-summary.js";
 import "../../commons/tool-header.js";
@@ -80,9 +81,108 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     async onExecute() {
+        // avoid clicking twice the run button
+        if (this._running) {
+            return;
+        }
+
+        // 0. set running state to true to disable buttons and navigate between steps
         this._running = true;
         this.requestUpdate();
 
+        // 1. Prepare special params. 'otherToolParams' will be included in the 'params' object and MUST NOT include these params
+        const {files, jobId, jobDependsOn, jobTags, jobDescription, ...otherSarekParams} = this._stepsParams.sarek;
+        const filesArray = files?.split(",") || [];
+
+        // 1. Check if sarek workflow is installed
+        // TODO: check if sarek is installed
+
+        // 2. Create and upload a samplesheet
+        if (filesArray?.length > 0) {
+            const samplesheet = [
+                "patient,status,sample,lane,fastq_1,fastq_2",
+            ];
+            // NOTE: we assume that all files belong to the same sample and individual
+            const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
+            const fileObject = this._stepsParams.select?.[analysisType]?.files.find(fileObject => {
+                return filesArray.includes(fileObject.fileId);
+            });
+            // Assuming single-end reads for simplicity; modify as needed for paired-end
+            const fastq1 = filesArray[0] || "N/A";
+            const fastq2 = filesArray.length > 1 ? filesArray[1] : "N/A";
+            samplesheet.push(`${fileObject.individualId},0,${fileObject.sampleId},lane_1,file://${fastq1},file://${fastq2}`);
+
+            // Upload samplesheet to OpenCGA
+            const uploadResponse = await this.opencgaSession.opencgaClient.files()
+                .create({
+                    path: `data/sarek/samplesheets_${UtilsNew.getDatetime()}.csv`,
+                    content: samplesheet.join("\n"),
+                    type: "FILE",
+                    format: "PLAIN",
+                    description: `Samplesheet for Sarek analysis - ${UtilsNew.getDatetime()}`,
+                }, {study: this.opencgaSession.study.fqn});
+
+            // Add samplesheet path to otherSarekParams
+            const samplesheetFile = uploadResponse.responses[0].results[0];
+            otherSarekParams.input = "file://" + samplesheetFile.path;
+            otherSarekParams.outdir = "$OUTPUT";
+        } else {
+            AnalysisUtils.notify("", "Please select at least one FASTQ file", NotificationUtils.NOTIFY_ERROR, this);
+            this._running = false;
+            this.requestUpdate();
+            return;
+        }
+
+        // 3. Create toolParams and params objects
+        const sarekJobData = {
+            id: "nf-core.sarek", // this.ANALYSIS_TOOL, // This must be the same as the workflow id
+            params: {
+                "-r": "3.5.1",
+                "-profile": "docker",
+            },
+        }
+        // Nextflow workflow parameters must start with '--'
+        Object.keys(otherSarekParams).forEach(key => {
+            sarekJobData.params["--" + key] = otherSarekParams[key];
+        });
+
+        // 4. Submit sarek job
+        const sarekJobParams = {
+            study: this.opencgaSession.study.fqn,
+            ...AnalysisUtils.fillJobParams(this._stepsParams.sarek, "nf-core.sarek"),
+        };
+        await AnalysisUtils.submit(
+            "Sarek Analysis",
+            this.opencgaSession.opencgaClient.workflows()
+                .run(sarekJobData, sarekJobParams),
+            this,
+        );
+
+        // 5. Prepare data and Submit variant index job
+        const variantIndexJobData = {
+            file: this._stepsParams?.variantIndex?.file || "",
+            calculateStats: this._stepsParams?.variantIndex?.calculateStats || false,
+            annotate: this._stepsParams?.variantIndex?.annotate || false,
+            resume: this._stepsParams?.variantIndex?.resume || false,
+            loadMultiFileData: this._stepsParams?.variantIndex?.loadMultiFileData || false,
+        };
+        const variantIndexJobParams = {
+            study: this.opencgaSession.study.fqn,
+            ...AnalysisUtils.fillJobParams(this._stepsParams.variantIndex, "variant-index"),
+            jobDependsOn: sarekJobParams.jobId,
+        };
+
+        // 6. Submit variant index job
+        await AnalysisUtils.submit(
+            "Variant Index",
+            this.opencgaSession.opencgaClient.variantOperations()
+                .indexVariant(variantIndexJobData, variantIndexJobParams),
+            this,
+        );
+
+        // run completed
+        this._running = false;
+        this.requestUpdate();
     }
 
     renderToolbarCenterContent() {
