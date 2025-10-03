@@ -67,6 +67,10 @@ export default class ClinicalPreprocessing extends LitElement {
         this._stepsParams.sarek.files = this._stepsParams.select?.[analysisType]?.fileIds || "";
     }
 
+    onExecuteAnalysis(event) {
+        // TODO
+    }
+
     renderToolbarCenterContent() {
         const steps = [];
         (this._config?.steps || []).forEach((item, index) => {
@@ -121,6 +125,11 @@ export default class ClinicalPreprocessing extends LitElement {
                     ${this._activeStepIndex < this._config.steps.length - 1 ? html`
                         <button class="btn btn-primary" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex + 1)}">
                             Next <i class="fas fa-arrow-right ms-1"></i>
+                        </button>
+                    ` : nothing}
+                    ${this._activeStepIndex === this._config.steps.length - 1 ? html`
+                        <button class="btn btn-success" @click="${e => this.onExecuteAnalysis(e)}">
+                            <i class="fas fa-play-circle me-1"></i> Run Analysis
                         </button>
                     ` : nothing}
                 </div>
@@ -193,7 +202,10 @@ export default class ClinicalPreprocessing extends LitElement {
                     render: () => html`
                         <clinical-preprocessing-summary
                             .toolParams="${this._stepsParams}"
-                            .opencgaSession="${this.opencgaSession}">
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig="${{
+                                buttonsVisible: false,
+                            }}">
                         </clinical-preprocessing-summary>
                     `,
                 },
