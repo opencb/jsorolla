@@ -426,7 +426,6 @@ export default class ClinicalPreprocessingSelectFiles extends LitElement {
                                 ],
                             },
                         },
-
                     ]
                 },
             ],
