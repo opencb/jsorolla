@@ -32,10 +32,10 @@ export default class ClinicalPreprocessing extends LitElement {
                 cancer: {}
             },
             sarek: {
-                files: [],
+                files: "",
             },
             variantIndex: {
-                files: [],
+                file: "",
             }
         };
         this._activeStepIndex = 0;
@@ -51,13 +51,6 @@ export default class ClinicalPreprocessing extends LitElement {
         super.update(changedProperties);
     }
 
-    getParamsForSarekStep() {
-        const type = this._workingPlan.select?.analysisType.toLowerCase();
-        return {
-            files: this._workingPlan.select?.[type]?.fileIds || "",
-        };
-    }
-
     onChangeActiveStep(event, newStepIndex) {
         event.preventDefault();
         this._activeStepIndex = newStepIndex;
@@ -66,6 +59,10 @@ export default class ClinicalPreprocessing extends LitElement {
 
     onSelectFilesParamsChange(event) {
         this._stepsParams.select = event.detail.value;
+
+        // we have to update the params for the next step (sarek) with the files selected
+        const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
+        this._stepsParams.sarek.files = this._stepsParams.select?.[analysisType]?.fileIds || "";
     }
 
     renderToolbarCenterContent() {
