@@ -42,6 +42,7 @@ export default class ClinicalPreprocessing extends LitElement {
         };
         this._activeStepIndex = 0;
         this._stepsParams = UtilsNew.objectClone(this.DEFAULT_STEPS_PARAMS);
+        this._running = false;
         this._config = this.getDefaultConfig();
     }
 
@@ -55,8 +56,10 @@ export default class ClinicalPreprocessing extends LitElement {
 
     onChangeActiveStep(event, newStepIndex) {
         event.preventDefault();
-        this._activeStepIndex = newStepIndex;
-        this.requestUpdate();
+        if (!this._running) {
+            this._activeStepIndex = newStepIndex;
+            this.requestUpdate();
+        }
     }
 
     onSelectFilesParamsChange(event) {
@@ -76,8 +79,10 @@ export default class ClinicalPreprocessing extends LitElement {
         this._stepsParams.variantIndex = event.detail;
     }
 
-    onExecuteAnalysis(event) {
-        // TODO
+    async onExecute() {
+        this._running = true;
+        this.requestUpdate();
+
     }
 
     renderToolbarCenterContent() {
@@ -127,7 +132,7 @@ export default class ClinicalPreprocessing extends LitElement {
                 ${this._config.steps[this._activeStepIndex]?.render()}
                 <div class="mt-4 d-flex align-items-center justify-content-end gap-2">
                     ${this._activeStepIndex > 0 ? html`
-                        <button class="btn btn-light" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex - 1)}">
+                        <button class="btn btn-light ${this._running ? "disabled": ""}" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex - 1)}">
                             <i class="fas fa-arrow-left me-1"></i> Previous
                         </button>
                     ` : nothing}
@@ -137,7 +142,7 @@ export default class ClinicalPreprocessing extends LitElement {
                         </button>
                     ` : nothing}
                     ${this._activeStepIndex === this._config.steps.length - 1 ? html`
-                        <button class="btn btn-success" @click="${e => this.onExecuteAnalysis(e)}">
+                        <button class="btn btn-success ${this._running ? "disabled": ""}" @click="${e => this.onExecute(e)}">
                             <i class="fas fa-play-circle me-1"></i> Run Analysis
                         </button>
                     ` : nothing}
