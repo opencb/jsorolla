@@ -63,7 +63,7 @@ export default class ClinicalFileUpload extends LitElement {
     async createSample() {
         if (this._data.select === true && this._data.sampleId && this._data.individualId) {
             await this.opencgaSession.opencgaClient.individuals()
-                .create({id: this._data.individualId}, {study: this.opencgaSession.study.fqn});
+                .create({id: this._data.individualId, sex: {id: this._data.sex || ""}}, {study: this.opencgaSession.study.fqn});
 
             await this.opencgaSession.opencgaClient.samples()
                 .create({id: this._data.sampleId, individualId: this._data.individualId}, {study: this.opencgaSession.study.fqn});
@@ -302,6 +302,14 @@ export default class ClinicalFileUpload extends LitElement {
                             },
                         },
                         {
+                            title: "Patient Sex",
+                            field: "sex",
+                            type: "input-text",
+                            display: {
+                                helpMessage: "Sex of the patient.",
+                            },
+                        },
+                        {
                             title: "Sample",
                             field: "sampleId",
                             type: "input-text",
@@ -309,7 +317,15 @@ export default class ClinicalFileUpload extends LitElement {
                             display: {
                                 helpMessage: "Identifier for the sample to be created and associated to the uploaded files. "
                             },
-                        }
+                        },
+                        {
+                            title: "Somatic Sample",
+                            field: "somatic",
+                            type: "checkbox",
+                            display: {
+                                helpMessage: "Check if the sample is somatic.",
+                            },
+                        },
                     ]
                 },
                 {
