@@ -39,6 +39,15 @@ export default class ClinicalPreprocessingSummary extends LitElement {
         super.update(changedProperties);
     }
 
+    getParameters(data) {
+        return Object.keys(data || {}).map(key => {
+            return {
+                key: key,
+                value: data[key],
+            };
+        });
+    }
+
     render() {
         if (!this.opencgaSession || !this.toolParams) {
             return nothing;
@@ -124,12 +133,52 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                 {
                     title: "Sarek Parameters",
                     display: {},
-                    elements: [],
+                    elements: [
+                        {
+                            title: "Parameters",
+                            field: "sarek",
+                            type: "table",
+                            display: {
+                                getData: data => this.getParameters(data.sarek),
+                                className: "table-borderless table-grid mb-0",
+                                columns: [
+                                    {
+                                        title: "Parameter",
+                                        field: "key",
+                                    },
+                                    {
+                                        title: "Value",
+                                        field: "value",
+                                    },
+                                ],
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Variant Index Parameters",
                     display: {},
-                    elements: [],
+                    elements: [
+                        {
+                            title: "Parameters",
+                            field: "variantIndex",
+                            type: "table",
+                            display: {
+                                getData: data => this.getParameters(data.variantIndex),
+                                className: "table-borderless table-grid mb-0",
+                                columns: [
+                                    {
+                                        title: "Parameter",
+                                        field: "key",
+                                    },
+                                    {
+                                        title: "Value",
+                                        field: "value",
+                                    },
+                                ],
+                            },
+                        },
+                    ],
                 },
             ],
         };
