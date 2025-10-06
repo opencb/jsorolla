@@ -35,7 +35,11 @@ export default class ClinicalReportPreview extends LitElement {
         this._invalidTemplates = [];
         this._activeTemplate = null;
         this._activeTemplateConfig = null; // Configuration of the active template
+
         this._editingTemplate = false;
+        this._editingTemplateUnsavedChanges = false;
+        this._editingTemplateTimer = null;
+        this._editingTemplateError = null;
     }
 
     update(changedProperties) {
@@ -50,6 +54,7 @@ export default class ClinicalReportPreview extends LitElement {
         this._templates = null;
         this._invalidTemplates = [];
         this._activeTemplate = null;
+        this._editingTemplate = false;
 
         if (this.opencgaSession && this.clinicalAnalysis) {
             // 1. fetch all .js files inside the clinical report templates folder
@@ -124,18 +129,47 @@ export default class ClinicalReportPreview extends LitElement {
 
     onToggleTemplateEdition(event) {
         this._editingTemplate = event.target.checked;
+        this._editingTemplateError = null; // reset previous error
+        this._editingTemplateUnsavedChanges = false; // reset unsaved changes flag
+
+        // when enabling edition mode, load the latest template content from the server
         if (this._activeTemplate) {
             this._activeTemplateConfig = this._activeTemplate.config;
         }
+
         this.requestUpdate();
     }
 
     onTemplateContentChange(event) {
-        // TODO
+        const newContent = event.detail.value;
+        this._editingTemplateUnsavedChanges = true; // there are unsaved changes
+
+        // evaluate the new template content after a debounce timer
+        if (this._editingTemplateTimer) {
+            clearTimeout(this._editingTemplateTimer);
+        }
+
+        this._editingTemplateTimer = setTimeout(() => {
+            this._editingTemplateTimer = null;
+            this._editingTemplateError = null;
+            this.evaluateTemplate(newContent)
+                .then(data => {
+                    this._activeTemplateConfig = data?.config || data?.template || {};
+                })
+                .catch(error => {
+                    console.error("Error evaluating template:", error);
+                    this._editingTemplateError = error?.message || "Error evaluating template";
+                })
+                .finally(() => {
+                    this.requestUpdate();
+                });
+        }, 1000);
     }
 
     onTemplateContentSave(event) {
-        // TODO
+        this._editingTemplateUnsavedChanges = false;
+        this._activeTemplate.config = this._activeTemplateConfig; // save the current config in the active template
+        this.requestUpdate();
     }
 
     render() {
@@ -228,12 +262,9 @@ export default class ClinicalReportPreview extends LitElement {
                                     .config="${{
                                         editorStyle: "height:calc(100vh - 8rem);",
                                     }}"
-                                    @fileContentChange="${event => {
-                                        this.onTemplateContentChange(event);
-                                    }}"
-                                    @fileContentSave="${event => {
-                                        this.onTemplateContentSave(event);
-                                    }}">
+                                    @fileContentChange="${event => this.onTemplateContentChange(event)}}"
+                                    @fileContentDiscard="${event => this.onTemplateContentChange(event)}"
+                                    @fileContentSave="${event => this.onTemplateContentSave(event)}}">
                                 </file-editor>
                             </div>
                         </div>
