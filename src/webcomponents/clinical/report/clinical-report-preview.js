@@ -221,19 +221,21 @@ export default class ClinicalReportPreview extends LitElement {
                     </div>
                     ${this._editingTemplate ? html`
                         <div class="col-5" style="min-height:100vh;">
-                            <file-editor
-                                .path="${this._activeTemplate.id}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .config="${{
-                                    editorStyle: "height:calc(100vh - 8rem);",
-                                }}"
-                                @fileContentChange="${event => {
-                                    this.onTemplateContentChange(event);
-                                }}"
-                                @fileContentSave="${event => {
-                                    this.onTemplateContentSave(event);
-                                }}">
-                            </file-editor>
+                            <div class="sticky-top">
+                                <file-editor
+                                    .path="${this._activeTemplate.id}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{
+                                        editorStyle: "height:calc(100vh - 8rem);",
+                                    }}"
+                                    @fileContentChange="${event => {
+                                        this.onTemplateContentChange(event);
+                                    }}"
+                                    @fileContentSave="${event => {
+                                        this.onTemplateContentSave(event);
+                                    }}">
+                                </file-editor>
+                            </div>
                         </div>
                     ` : nothing}
                 </div>
