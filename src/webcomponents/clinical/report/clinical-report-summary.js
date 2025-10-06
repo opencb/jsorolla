@@ -1,5 +1,5 @@
 import {LitElement, html, nothing} from "lit";
-import UtilsNew from "../../core/utils-new.js";
+import UtilsNew from "../../../core/utils-new.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import WebUtils from "../../commons/utils/web-utils.js";
 import "../../commons/forms/data-form.js";
