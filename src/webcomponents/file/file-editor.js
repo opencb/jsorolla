@@ -156,6 +156,7 @@ export default class FileEditor extends LitElement {
 
     onContentChange(event) {
         this._currentContent = event?.detail?.value || "";
+        LitUtils.dispatchCustomEvent(this, "fileContentChange", this._currentContent);
     }
 
     onDiscardClick() {
