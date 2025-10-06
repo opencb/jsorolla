@@ -145,17 +145,33 @@ export default class ClinicalReportPreview extends LitElement {
                     </span>
                 </div>
             ` : nothing}
-            ${this._templates.length > 1 ? html`
-                <div class="form-group mb-5">
-                    <label for="templateSelect" class="fw-bold">Select Template:</label>
-                    <select class="form-control" @change="${event => this.onTemplateChange(event)}">
-                        <option disabled selected value> -- select a template -- </option>
-                        ${this._templates.map(template => html`
-                            <option value="${template.id}" ?selected="${this._activeTemplate?.id === template.id}">
-                                ${template.title} ${template.version ? html` - ${template.version}` : nothing}
-                            </option>
-                        `)}
-                    </select>
+            ${this._templates.length > 0 ? html`
+                <div class="p-4 rounded-4 mb-5 bg-white border border-gray-200 d-flex align-items-start gap-4">
+                    <div class="form-group flex-grow-1">
+                        <label for="templateSelect" class="fw-bold mb-1">Select a Template to generate the preview</label>
+                        <select class="form-select" @change="${event => this.onTemplateChange(event)}">
+                            <option disabled selected value> -- select a template -- </option>
+                            ${this._templates.map(template => html`
+                                <option value="${template.id}" ?selected="${this._activeTemplate?.id === template.id}">
+                                    ${template.title} ${template.version ? html` - ${template.version}` : nothing}
+                                </option>
+                            `)}
+                        </select>
+                        <div class="mt-1 small text-muted">
+                            <span>The templates are located in the folder <span class="fw-bold font-monospace small">RESOURCES/clinical/report/templates</span> of this study.</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="fw-bold mb-1">Template Options</div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="templateEdition" checked>
+                            <label class="form-check-label" for="templateEdition">Edition Mode</label>
+                        </div>
+                        <div class="mt-1 small text-muted">
+                            <div>Enable or disable the live template editing.</div>
+                            <div>Note that you must have Study Admin rights to enable this mode.</div>
+                        </div>
+                    </div>
                 </div>
             ` : nothing}
             ${this._templates && this._templates.length === 0 ? html`
