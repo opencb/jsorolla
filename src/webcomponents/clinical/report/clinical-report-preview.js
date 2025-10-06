@@ -263,9 +263,9 @@ export default class ClinicalReportPreview extends LitElement {
                                     .config="${{
                                         editorStyle: "height:calc(100vh - 8rem);",
                                     }}"
-                                    @fileContentChange="${event => this.onTemplateContentChange(event)}}"
+                                    @fileContentChange="${event => this.onTemplateContentChange(event)}"
                                     @fileContentDiscard="${event => this.onTemplateContentChange(event)}"
-                                    @fileContentSave="${event => this.onTemplateContentSave(event)}}">
+                                    @fileContentSave="${event => this.onTemplateContentSave(event)}">
                                 </file-editor>
                             </div>
                         </div>
