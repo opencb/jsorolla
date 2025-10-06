@@ -224,7 +224,9 @@ export default class ClinicalReportPreview extends LitElement {
                             <file-editor
                                 .path="${this._activeTemplate.id}"
                                 .opencgaSession="${this.opencgaSession}"
-                                .config="${{}}"
+                                .config="${{
+                                    editorStyle: "height:calc(100vh - 8rem);",
+                                }}"
                                 @fileContentChange="${event => {
                                     this.onTemplateContentChange(event);
                                 }}"
