@@ -249,8 +249,8 @@ export default class FileEditor extends LitElement {
                         ` : nothing}
                         ${keyed(this.path + ":" + this._version, html`
                             <content-editor
-                                class="d-block"
-                                style="height:640px;"
+                                class="${this._config.editorClassName}"
+                                style="${this._config.editorStyle}"
                                 .content="${this._currentContent}"
                                 .config="${{
                                     parentClassName: "w-full h-full overflow-hidden rounded-3 border border-1 border-gray-200",
@@ -290,6 +290,8 @@ export default class FileEditor extends LitElement {
             showSettings: true,
             showLanguageSelector: true,
             showThemeSelector: true,
+            editorClassName: "d-block",
+            editorStyle: "height:640px;",
             allowedThemes: [
                 {id: "one-dark", name: "Dark", isDarkTheme: true},
                 {id: "one-light", name: "Light", isDarkTheme: false},
