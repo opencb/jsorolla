@@ -20,6 +20,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/forms/data-form.js";
 import "../individual/individual-summary.js";
+import "./report/clinical-report-summary.js";
 
 export default class ClinicalAnalysisSummary extends LitElement {
 
