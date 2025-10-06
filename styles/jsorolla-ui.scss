@@ -32,6 +32,11 @@ $white: #fff;
 // custom body configuration
 $body-bg: $gray-50;
 
+// overwrite border radius configuration. 
+// this overwrite smooths the difference between the xl and xxl values
+$border-radius-xl: 0.75rem;
+$border-radius-xxl: 1rem;
+
 // Overwrite z-index configuration
 $zindex-dropdown: 1020;
 $zindex-sticky: 1000;
@@ -39,6 +44,10 @@ $zindex-sticky: 1000;
 // custom border configuration
 $border-color: $gray-200;
 $border-width: 1px;
+
+// custom alerts configuration
+// https://getbootstrap.com/docs/5.3/components/alerts/#sass-variables
+$alert-border-radius: $border-radius-xl;
 
 // custom card configuration
 // https://getbootstrap.com/docs/5.3/components/card/#sass-variables
