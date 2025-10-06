@@ -1677,7 +1677,7 @@ export default class DataForm extends LitElement {
 
     _createObjectListElement(element) {
         const items = this.getValue(element.field);
-        const isUpdated = this._isUpdated(element);
+        // const isUpdated = this._isUpdated(element);
         const isDisabled = this._getBooleanValue(element.display?.disabled, false, element);
         const contents = [];
 
@@ -1703,7 +1703,7 @@ export default class DataForm extends LitElement {
         // Render all existing items
         if (!items || items?.length === 0) {
             const view = html`
-                <div class="pb-1 ${isUpdated? "pb-1 ps-3 mb-4 border-start border-2 border-updated" :""}">
+                <div class="pb-1">
                     <span>${element.display?.itemsNotFoundText || "No items found."}</span>
                 </div>
             `;
@@ -1717,7 +1717,7 @@ export default class DataForm extends LitElement {
                         </div>
                     ` : nothing}
 
-                    <div class="pb-1 ${isUpdated? "pb-1 ps-3 mb-4 border-start border-2 border-updated" :""}">
+                    <div class="pb-1">
                         ${element.display?.itemsTitle && items[0][element.display.itemId || "id"] ? html`
                             <div>
                                 <span class="fw-bold">${element.display?.itemsTitle || ""}</span>
