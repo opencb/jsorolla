@@ -142,6 +142,12 @@ export default class OpencgaCatalogUtils {
         return getEffectivePermission(userPermissionsStudy, groupPermissions) >= permissionLevel[permission];
     }
 
+    // simplified version of getStudyEffectivePermission
+    static hasStudyPermission(opencgaSession, permission) {
+        const simplifyPermissions = opencgaSession?.organization?.configuration?.optimizations?.simplifyPermissions ?? false;
+        return OpencgaCatalogUtils.getStudyEffectivePermission(opencgaSession?.study, opencgaSession?.user?.id, permission, simplifyPermissions);
+    }
+
     // Check if the user has the right the permissions in the study.
     static isAdmin(study, userLogged) {
         if (!study || !userLogged) {
