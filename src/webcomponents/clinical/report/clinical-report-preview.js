@@ -210,23 +210,24 @@ export default class ClinicalReportPreview extends LitElement {
                             <span>The templates are located in the folder <span class="fw-bold font-monospace small">RESOURCES/clinical/report/templates</span> of this study.</span>
                         </div>
                     </div>
-                    <div class="form-group flex-shrink-0" style="width:320px;">
-                        <div class="fw-bold mb-1">Template Options</div>
-                        <div class="form-check form-switch">
-                            <input
-                                class="form-check-input"
-                                type="checkbox"
-                                id="templateEdition"
-                                ?checked="${this._editingTemplate}"
-                                ?disabled="${!isStudyAdmin || !hasWritePermission || !hasDownloadPermission}"
-                                @change="${event => this.onToggleTemplateEdition(event)}">
-                            <label class="form-check-label" for="templateEdition">Edition Mode</label>
+                    ${isStudyAdmin && hasWritePermission && hasDownloadPermission ? html`
+                        <div class="form-group flex-shrink-0" style="width:320px;">
+                            <div class="fw-bold mb-1">Template Options</div>
+                            <div class="form-check form-switch">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="templateEdition"
+                                    ?checked="${this._editingTemplate}"
+                                    ?disabled="${!isStudyAdmin || !hasWritePermission || !hasDownloadPermission}"
+                                    @change="${event => this.onToggleTemplateEdition(event)}">
+                                <label class="form-check-label" for="templateEdition">Edition Mode</label>
+                            </div>
+                            <div class="mt-1 small text-muted">
+                                <span>Enable or disable the live template editing.</span>
+                            </div>
                         </div>
-                        <div class="mt-1 small text-muted">
-                            <span>Enable or disable the live template editing.</span>
-                            <span>Note that you must be a Study Admin and having <b>WRITE</b> and <b>DOWNLOAD</b> rights to files to enable this mode.</span>
-                        </div>
-                    </div>
+                    ` : nothing}
                 </div>
             ` : nothing}
             ${this._templates && this._templates.length === 0 ? html`
