@@ -34,7 +34,7 @@ export default class ClinicalReportPreview extends LitElement {
         this._templates = null;
         this._invalidTemplates = [];
         this._activeTemplate = null;
-        this._activeConfig = null; // Configuration of the active template
+        this._activeTemplateConfig = null; // Configuration of the active template
         this._editingTemplate = false;
     }
 
@@ -84,7 +84,7 @@ export default class ClinicalReportPreview extends LitElement {
                     // if there are only one template, set it as the current active
                     if (this._templates.length === 1) {
                         this._activeTemplate = this._templates[0];
-                        this._activeConfig = this._activeTemplate.config;
+                        this._activeTempleteConfig = this._activeTemplate.config;
                     }
                     this.requestUpdate();
                 })
@@ -118,12 +118,15 @@ export default class ClinicalReportPreview extends LitElement {
             return template.id === event.target.value;
         });
         this._activeTemplate = selectedTemplate || null;
-        this._activeConfig = this._activeTemplate ? this._activeTemplate.config : null;
+        this._activeTemplateConfig = this._activeTemplate ? this._activeTemplate.config : null;
         this.requestUpdate();
     }
 
     onToggleTemplateEdition(event) {
         this._editingTemplate = event.target.checked;
+        if (this._activeTemplate) {
+            this._activeTemplateConfig = this._activeTemplate.config;
+        }
         this.requestUpdate();
     }
 
@@ -204,31 +207,33 @@ export default class ClinicalReportPreview extends LitElement {
             ` : nothing}
             ${this._activeTemplate && this.active ? html`
                 <div class="row">
-                    <div class="col-7">
+                    <div class="${this._editingTemplate ? "col-7" : "col-12"}">
                         <data-form
                             .data="${this.clinicalAnalysis}"
                             .config="${{
-                                ...this._activeConfig,
+                                ...this._activeTemplateConfig,
                                 display: {
                                     buttonsVisible: false,
-                                    ...this._activeConfig?.display,
+                                    ...this._activeTemplateConfig?.display,
                                 },
                             }}">
                         </data-form>
                     </div>
-                    <div class="col-5">
-                        <file-editor
-                            .path="${this._activeTemplate.id}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${{}}"
-                            @fileContentChange="${event => {
-                                this.onTemplateContentChange(event);
-                            }}"
-                            @fileContentSave="${event => {
-                                this.onTemplateContentSave(event);
-                            }}">
-                        </file-editor>
-                    </div>
+                    ${this._editingTemplate ? html`
+                        <div class="col-5" style="min-height:100vh;">
+                            <file-editor
+                                .path="${this._activeTemplate.id}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${{}}"
+                                @fileContentChange="${event => {
+                                    this.onTemplateContentChange(event);
+                                }}"
+                                @fileContentSave="${event => {
+                                    this.onTemplateContentSave(event);
+                                }}">
+                            </file-editor>
+                        </div>
+                    ` : nothing}
                 </div>
             ` : nothing}
         `;
