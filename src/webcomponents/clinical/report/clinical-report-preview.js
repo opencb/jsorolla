@@ -1,4 +1,5 @@
 import {LitElement, html, nothing} from "lit";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/empty-state.js";
 import "../../file/file-editor.js";
@@ -121,6 +122,11 @@ export default class ClinicalReportPreview extends LitElement {
         this.requestUpdate();
     }
 
+    onToggleTemplateEdition(event) {
+        this._editingTemplate = event.target.checked;
+        this.requestUpdate();
+    }
+
     onTemplateContentChange(event) {
         // TODO
     }
@@ -133,6 +139,12 @@ export default class ClinicalReportPreview extends LitElement {
         if (!this.opencgaSession || !this.clinicalAnalysis || !this._templates) {
             return nothing;
         }
+
+        // check if the user has permissions to edit the template
+        // note: study admin is required to write templates into RESOURCES folder of the study
+        const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
+        const hasWritePermission = OpencgaCatalogUtils.hasPermissionInCurrentStudy(this.opencgaSession, "FILES_WRITE");
+        const hasDownloadPermission = OpencgaCatalogUtils.hasPermissionInCurrentStudy(this.opencgaSession, "FILES_DOWNLOAD");
         
         return html`
             ${this._invalidTemplates?.length > 0 ? html`
@@ -161,15 +173,21 @@ export default class ClinicalReportPreview extends LitElement {
                             <span>The templates are located in the folder <span class="fw-bold font-monospace small">RESOURCES/clinical/report/templates</span> of this study.</span>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group flex-shrink-0" style="width:320px;">
                         <div class="fw-bold mb-1">Template Options</div>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="templateEdition" checked>
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="templateEdition"
+                                ?checked="${this._editingTemplate}"
+                                ?disabled="${!isStudyAdmin || !hasWritePermission || !hasDownloadPermission}"
+                                @change="${event => this.onToggleTemplateEdition(event)}">
                             <label class="form-check-label" for="templateEdition">Edition Mode</label>
                         </div>
                         <div class="mt-1 small text-muted">
-                            <div>Enable or disable the live template editing.</div>
-                            <div>Note that you must have Study Admin rights to enable this mode.</div>
+                            <span>Enable or disable the live template editing.</span>
+                            <span>Note that you must be a Study Admin and having <b>WRITE</b> and <b>DOWNLOAD</b> rights to files to enable this mode.</span>
                         </div>
                     </div>
                 </div>
