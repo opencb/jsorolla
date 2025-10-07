@@ -54,6 +54,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         this.DEFAULT_TOOLPARAMS = {
             step: "quality-control",
             genome: "https://ftp.ensembl.org/pub/release-115/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+            input: {
+                files: "",
+            },
             qc: {
                 options: {},
                 tool: {
@@ -116,13 +119,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             ...this._toolParams,
         };
 
-        // Fixes
-        if (this._toolParams.tools) {
-            this._toolParams.tools = this._toolParams.tools.replaceAll(" ", "");
-        }
-
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
-
         this.requestUpdate();
     }
 
@@ -230,7 +227,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Select FastQ Files",
-                        field: "files",
+                        field: "input.files",
                         type: "custom",
                         required: true,
                         display: {
@@ -239,9 +236,15 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     <catalog-search-autocomplete
                                         .value="${sample}"
                                         .resource="${"FILE"}"
-                                        .query="${{study: this.opencgaSession.study.fqn, format: "FASTQ"}}"
+                                        .query="${{
+                                            study: this.opencgaSession.study.fqn,
+                                            format: "FASTQ",
+                                        }}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: this.toolParams?.files || ""}}"
+                                        .config="${{
+                                            multiple: true,
+                                            disabled: !!this.toolParams?.input?.files,
+                                        }}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
