@@ -54,6 +54,7 @@ export default class ClinicalReportPreview extends LitElement {
         this._templates = null;
         this._invalidTemplates = [];
         this._activeTemplate = null;
+        this._activeTemplateConfig = null;
         this._editingTemplate = false;
 
         if (this.opencgaSession && this.clinicalAnalysis) {
@@ -78,32 +79,35 @@ export default class ClinicalReportPreview extends LitElement {
                                 // return this.loadTemplateFromFile(file, fileContent);
                                 return this.evaluateTemplate(fileContent);
                             })
-                            .then(evaluatedTemplate => {
-                                template = evaluatedTemplate;
+                            .then(template => {
+                                return {
+                                    id: file.id,
+                                    invalid: false,
+                                    title: template?.name || template?.title || file.name.replace(".js", ""),
+                                    description: template?.description || "",
+                                    version: template?.version || "",
+                                    config: template?.config || template?.template || null,
+                                };
                             })
                             .catch(error => {
                                 console.error(`Error loading template from file ${file.name}:`, error);
                                 // this._invalidTemplates.push(file.name);
                                 // return null; // Return null for failed templates
-                            })
-                            .finally(() => {
                                 return {
                                     id: file.id,
-                                    invalid: !template,
-                                    title: template?.name || template?.title || file.name.replace(".js", ""),
-                                    description: template?.description || "",
-                                    version: template?.version || "",
-                                    config: template?.config || template?.template || null,
+                                    invalid: true,
+                                    title: file.name.replace(".js", ""),
+                                    config: null,
                                 };
                             });
                     }));
                 })
                 .then(templates => {
                     this._templates = templates.filter(Boolean); // Filter out invalid templates
-                    // if there are only one template, set it as the current active
-                    if (this._templates.length === 1) {
+                    // set the first template as the active one by default
+                    if (this._templates.length > 0) {
                         this._activeTemplate = this._templates[0];
-                        this._activeTempleteConfig = this._activeTemplate.config;
+                        this._activeTemplateConfig = this._activeTemplate.config;
                     }
                     this.requestUpdate();
                 })
@@ -234,7 +238,6 @@ export default class ClinicalReportPreview extends LitElement {
                     <div class="form-group flex-grow-1">
                         <label for="templateSelect" class="fw-bold mb-1">Select a Template to generate the preview</label>
                         <select class="form-select" @change="${event => this.onTemplateChange(event)}">
-                            <option disabled selected value> -- select a template -- </option>
                             ${this._templates.map(template => html`
                                 <option value="${template.id}" ?selected="${this._activeTemplate?.id === template.id}">
                                     ${template.title} ${template.version ? html` - ${template.version}` : nothing}
@@ -245,7 +248,7 @@ export default class ClinicalReportPreview extends LitElement {
                             <span>The templates are located in the folder <span class="fw-bold font-monospace small">RESOURCES/clinical/report/templates</span> of this study.</span>
                         </div>
                     </div>
-                    ${isStudyAdmin && hasWritePermission && hasDownloadPermission ? html`
+                    ${false && isStudyAdmin && hasWritePermission && hasDownloadPermission ? html`
                         <div class="form-group flex-shrink-0" style="width:320px;">
                             <div class="fw-bold mb-1">Template Options</div>
                             <div class="form-check form-switch">
@@ -278,16 +281,18 @@ export default class ClinicalReportPreview extends LitElement {
             ${this._activeTemplate && this.active ? html`
                 <div class="row">
                     <div class="${this._editingTemplate ? "col-7" : "col-12"}">
-                        <data-form
-                            .data="${this.clinicalAnalysis}"
-                            .config="${{
-                                ...this._activeTemplateConfig,
-                                display: {
-                                    buttonsVisible: false,
-                                    ...this._activeTemplateConfig?.display,
-                                },
-                            }}">
-                        </data-form>
+                        ${this._activeTemplateConfig ? html`
+                            <data-form
+                                .data="${this.clinicalAnalysis}"
+                                .config="${{
+                                    ...this._activeTemplateConfig,
+                                    display: {
+                                        buttonsVisible: false,
+                                        ...this._activeTemplateConfig?.display,
+                                    },
+                                }}">
+                            </data-form>
+                        ` : nothing}
                     </div>
                     ${this._editingTemplate ? html`
                         <div class="col-5" style="min-height:100vh;">
