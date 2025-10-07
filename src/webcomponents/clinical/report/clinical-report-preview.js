@@ -75,12 +75,26 @@ export default class ClinicalReportPreview extends LitElement {
                                 study: this.opencgaSession.study.fqn,
                             })
                             .then(fileContent => {
-                                return this.loadTemplateFromFile(file, fileContent);
+                                // return this.loadTemplateFromFile(file, fileContent);
+                                return this.evaluateTemplate(fileContent);
+                            })
+                            .then(evaluatedTemplate => {
+                                template = evaluatedTemplate;
                             })
                             .catch(error => {
                                 console.error(`Error loading template from file ${file.name}:`, error);
-                                this._invalidTemplates.push(file.name);
-                                return null; // Return null for failed templates
+                                // this._invalidTemplates.push(file.name);
+                                // return null; // Return null for failed templates
+                            })
+                            .finally(() => {
+                                return {
+                                    id: file.id,
+                                    invalid: !template,
+                                    title: template?.name || template?.title || file.name.replace(".js", ""),
+                                    description: template?.description || "",
+                                    version: template?.version || "",
+                                    config: template?.config || template?.template || null,
+                                };
                             });
                     }));
                 })
@@ -105,18 +119,18 @@ export default class ClinicalReportPreview extends LitElement {
         return Promise.resolve(fn());
     }
 
-    loadTemplateFromFile(file, content) {
-        return this.evaluateTemplate(content).then(data => {
-            return {
-                id: file.id,
-                content: content,
-                title: data?.name || data?.title || file.name.replace(".js", ""),
-                description: data?.description || "",
-                version: data?.version || "",
-                config: data?.config || data?.template || {}
-            };
-        });
-    }
+    // loadTemplateFromFile(file, content) {
+    //     return this.evaluateTemplate(content).then(data => {
+    //         return {
+    //             id: file.id,
+    //             content: content,
+    //             title: data?.name || data?.title || file.name.replace(".js", ""),
+    //             description: data?.description || "",
+    //             version: data?.version || "",
+    //             config: data?.config || data?.template || {}
+    //         };
+    //     });
+    // }
 
     onTemplateChange(event) {
         const selectedTemplate = this._templates.find(template => {
@@ -168,8 +182,29 @@ export default class ClinicalReportPreview extends LitElement {
 
     onTemplateContentSave(event) {
         this._editingTemplateUnsavedChanges = false;
-        this._activeTemplate.config = this._activeTemplateConfig; // save the current config in the active template
-        this.requestUpdate();
+        // this._activeTemplate.config = this._activeTemplateConfig; // save the current config in the active template
+        // this.requestUpdate();
+        // evaluate the current template content to ensure it's valid and update the template config
+        this.evaluateTemplate(event.detail.value)
+            .then(template => {
+                Object.assign(this._activeTemplate, {
+                    invalid: false,
+                    title: template?.name || template?.title || this._activeTemplate.name,
+                    description: template?.description || this._activeTemplate.description,
+                    version: template?.version || this._activeTemplate.version,
+                    config: template?.config || template?.template || this._activeTemplate.config,
+                });
+                this._activeTemplateConfig = this._activeTemplate.config;
+                this._editingTemplateError = null;
+            })
+            .catch(error => {
+                console.error("Error evaluating template:", error);
+                this._activeTemplate.invalid = true;
+                this._editingTemplateError = error?.message || "Error evaluating template";
+            })
+            .finally(() => {
+                this.requestUpdate();
+            });
     }
 
     render() {
