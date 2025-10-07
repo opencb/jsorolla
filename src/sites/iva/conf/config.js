@@ -25,17 +25,17 @@ const hosts = [
         url: "https://demo.app.zettagenomics.com/trial-scs/opencga"
     },
     {
-        id: "reference",
-        url: "https://test.app.zettagenomics.com/xeta-30/opencga"
+        id: "task-7645",
+        url: "https://test.app.zettagenomics.com/task-7645a/opencga"
     },
 ];
 
 const opencga = {
-    host: hosts[1].url,
+    host: hosts[2].url,
     version: "v2",
-    organizations: ["zetta"],
+    organizations: ["test"],
     cookie: {
-        prefix: "iva-" + hosts[1].id,
+        prefix: "iva-" + hosts[2].id,
         secure: true,
     },
     sso: {
