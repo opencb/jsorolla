@@ -70,6 +70,7 @@ export default class ClinicalPreprocessing extends LitElement {
         // we have to update the params for the next step (sarek) with the files selected
         const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
         this._stepsParams.sarek.files = this._stepsParams.select?.[analysisType]?.fileIds || "";
+        this._stepsParams.sarek.select = this._stepsParams.select || {};
     }
 
     onSarekParamsChange(event) {
@@ -280,7 +281,7 @@ export default class ClinicalPreprocessing extends LitElement {
                             .toolParams="${this._stepsParams?.sarek}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
-                                buttonsVisible: false,
+                                buttonsVisible: true,
                             }}"
                             @paramsChange="${e => this.onSarekParamsChange(e)}">
                         </clinical-preprocessing-analysis>

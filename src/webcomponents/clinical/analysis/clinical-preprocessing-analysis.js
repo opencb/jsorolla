@@ -55,11 +55,35 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             step: "quality-control",
             genome: "https://ftp.ensembl.org/pub/release-115/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
             qc: {
-                threads: 2
+                options: {},
+                tool: {
+                    name: "fastqc",
+                    index: "",
+                    parameters: {
+                        threads: 2,
+                    },
+                },
             },
             alignment: {
-                t: 2,
-                k: 19
+                options: {},
+                tool: {
+                    name: "bwa",
+                    index: "",
+                    parameters: {
+                        t: 2,
+                        k: 19
+                    },
+                },
+
+            },
+            vc: {
+                options: {},
+                tool: {
+                    name: "gatk",
+                    index: "",
+                    parameters: {
+                    },
+                }
             }
         };
 
@@ -118,14 +142,41 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         const filesArray = files?.split(",") || [];
 
         // 2. Create and upload a samplesheet
-        if (filesArray?.length > 0) {
-            // 1. Get samples related to the files
-            // We assume that the files belong to the same sample
-
-        } else {
+        if (filesArray?.length === 0) {
             AnalysisUtils.notify("", "Please select at least one FASTQ file", NotificationUtils.NOTIFY_ERROR, this);
             return;
         }
+
+        const _bodyParam = {
+            name: "ngs-pipeline",
+            input: {
+                sample: "",
+                type: "FASTQ",
+                files: filesArray.map(file => file.trim()),
+            },
+            steps: [
+                {
+                    name: "quality-control",
+                    options: {},
+                    ...otherToolParams.qc
+
+                },
+                {
+                    name: "alignment",
+                    ...otherToolParams.alignment
+                },
+                {
+                    name: "variant-calling",
+                    options: {},
+                    tools: [
+                        {...otherToolParams.vc}
+                    ],
+                }
+            ]
+        }
+
+        this._toolParams
+        debugger
 
         // 3. Create toolParams and params objects
         const dataBody = {
@@ -251,7 +302,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Number of Threads",
-                        field: "qc.threads",
+                        field: "qc.tool.parameters.threads",
                         type: "input-num",
                         display: {
                             placeholder: "e.g. 2",
@@ -265,7 +316,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     },
                     {
                         title: "Minimum Length",
-                        field: "qc.min_length",
+                        field: "qc.tool.parameters.min_length",
                         type: "input-num",
                         display: {
                             helpMessage: "Sets an artificial lower limit on the length of the sequence\n" +
@@ -278,7 +329,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     },
                     {
                         title: "Oxford Nanopore Data",
-                        field: "qc.nano",
+                        field: "qc.tool.parameters.nano",
                         type: "checkbox",
                         defaultValue: false,
                         display: {
@@ -296,7 +347,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Alignment Tool",
-                        field: "alignment.tool",
+                        field: "alignment.tool.name",
                         type: "select",
                         allowedValues: ["bwa", "bwa-mem2", "minimap2"],
                         defaultValue: "bwa",
@@ -305,10 +356,33 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         }
                     },
                     {
+                        title: "Alignment Index",
+                        field: "alignment.tool.index",
+                        type: "custom",
+                        display: {
+                            render: (sample, dataFormFilterChange) => {
+                                return html `
+                                    <catalog-search-autocomplete
+                                        .value="${sample}"
+                                        .resource="${"FILE"}"
+                                        .query="${{study: this.opencgaSession.study.fqn}}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `;
+                            },
+                            help: {
+                                text: "Select a sample to run QC. Only Study Admins can execute QC analysis"
+                            },
+                        }
+                    },
+                    {
                         title: "Number of Threads",
-                        field: "alignment.t",
+                        field: "alignment.tool.parameters.t",
                         type: "input-num",
                         display: {
+                            visible: params => params.alignment.tool.name === "bwa" || params.alignment.tool.name === "bwa-mem2",
                             placeholder: "e.g. 2",
                             min: 1,
                             helpMessage: "Number of threads to use for the alignment step."
@@ -316,9 +390,10 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     },
                     {
                         title: "Minimum Seed Length",
-                        field: "alignment.k",
+                        field: "alignment.tool.parameters.k",
                         type: "input-num",
                         display: {
+                            visible: params => params.alignment.tool.name === "bwa" || params.alignment.tool.name === "bwa-mem2",
                             placeholder: "e.g. 2",
                             min: 1,
                             helpMessage: "Minimum seed length [19]"
@@ -332,7 +407,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Alignment Tool",
-                        field: "vc.tool",
+                        field: "vc.tool.name",
                         type: "select",
                         allowedValues: ["GATK", "freebayes2", "mutect2"],
                         defaultValue: "GATK",
@@ -342,7 +417,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     },
                     {
                         title: "Variant Callers - GATK",
-                        field: "joint_germline",
+                        field: "vc.tool.parameters.joint_germline",
                         type: "checkbox",
                         display: {
                             helpMessage: "Turn on the joint germline variant calling for GATK haplotypecaller. " +
@@ -351,7 +426,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     },
                     {
                         title: "Variant Callers - Mutect2",
-                        field: "joint_mutect2",
+                        field: "vc.tool.parameters.joint_mutect2",
                         type: "checkbox",
                         display: {
                             helpMessage: "Runs Mutect2 in joint (multi-sample) mode for better concordance among variant calls of tumor samples from the same patient. " +
