@@ -4,6 +4,7 @@ import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import "./clinical-preprocessing-select-files.js";
 import "./clinical-preprocessing-summary.js";
 import "../../commons/tool-header.js";
+import "../../clinical/analysis/clinical-preprocessing-analysis.js";
 import "../../alignment/analysis/sarek-analysis.js";
 import "../../variant/operation/variant-index-operation.js";
 
@@ -271,18 +272,18 @@ export default class ClinicalPreprocessing extends LitElement {
                     `,
                 },
                 {
-                    id: "sarek",
-                    title: "Sarek Parameters",
+                    id: "preprocessing",
+                    title: "Preprocessing Parameters",
                     icon: "fas fa-sliders-h",
                     render: () => html`
-                        <sarek-analysis
+                        <clinical-preprocessing-analysis
                             .toolParams="${this._stepsParams?.sarek}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: false,
                             }}"
                             @paramsChange="${e => this.onSarekParamsChange(e)}">
-                        </sarek-analysis>
+                        </clinical-preprocessing-analysis>
                     `,
                 },
                 {
