@@ -5,7 +5,6 @@ import "./clinical-preprocessing-select-files.js";
 import "./clinical-preprocessing-summary.js";
 import "../../commons/tool-header.js";
 import "../../clinical/analysis/clinical-preprocessing-analysis.js";
-import "../../alignment/analysis/sarek-analysis.js";
 import "../../variant/operation/variant-index-operation.js";
 
 export default class ClinicalPreprocessing extends LitElement {
@@ -35,8 +34,10 @@ export default class ClinicalPreprocessing extends LitElement {
                 family: {},
                 cancer: {}
             },
-            sarek: {
-                files: "",
+            preprocessing: {
+                input: {
+                    files: "",
+                },
             },
             variantIndex: {
                 file: "",
@@ -69,12 +70,11 @@ export default class ClinicalPreprocessing extends LitElement {
 
         // we have to update the params for the next step (sarek) with the files selected
         const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
-        this._stepsParams.sarek.files = this._stepsParams.select?.[analysisType]?.fileIds || "";
-        this._stepsParams.sarek.select = this._stepsParams.select || {};
+        this._stepsParams.preprocessing.input.files = this._stepsParams.select?.[analysisType]?.fileIds || "";
     }
 
-    onSarekParamsChange(event) {
-        this._stepsParams.sarek = event.detail;
+    onPreprocessingParamsChange(event) {
+        this._stepsParams.preprocessing = event.detail;
         // TODO: check if we have to update variant index params
     }
 
@@ -278,7 +278,7 @@ export default class ClinicalPreprocessing extends LitElement {
                     icon: "fas fa-sliders-h",
                     render: () => html`
                         <clinical-preprocessing-analysis
-                            .toolParams="${this._stepsParams?.sarek}"
+                            .toolParams="${this._stepsParams?.preprocessing}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: true,
