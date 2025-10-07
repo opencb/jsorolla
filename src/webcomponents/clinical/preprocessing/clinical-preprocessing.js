@@ -68,7 +68,7 @@ export default class ClinicalPreprocessing extends LitElement {
     onSelectFilesParamsChange(event) {
         this._stepsParams.select = event.detail;
 
-        // we have to update the params for the next step (sarek) with the files selected
+        // we have to update the params for the next step (preprocessing) with the files selected
         const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
         this._stepsParams.preprocessing.input.files = this._stepsParams.select?.[analysisType]?.fileIds || "";
     }
@@ -92,71 +92,45 @@ export default class ClinicalPreprocessing extends LitElement {
         this._running = true;
         this.requestUpdate();
 
-        // 1. Prepare special params. 'otherToolParams' will be included in the 'params' object and MUST NOT include these params
-        const {files, jobId, jobDependsOn, jobTags, jobDescription, ...otherSarekParams} = this._stepsParams.sarek;
-        const filesArray = files?.split(",") || [];
-
-        // 1. Check if sarek workflow is installed
-        // TODO: check if sarek is installed
-
-        // 2. Create and upload a samplesheet
-        if (filesArray?.length > 0) {
-            const samplesheet = [
-                "patient,status,sample,lane,fastq_1,fastq_2",
-            ];
-            // NOTE: we assume that all files belong to the same sample and individual
-            const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
-            const fileObject = this._stepsParams.select?.[analysisType]?.files.find(fileObject => {
-                return filesArray.includes(fileObject.fileId);
-            });
-            // Assuming single-end reads for simplicity; modify as needed for paired-end
-            const fastq1 = filesArray[0] || "N/A";
-            const fastq2 = filesArray.length > 1 ? filesArray[1] : "N/A";
-            samplesheet.push(`${fileObject.individualId},0,${fileObject.sampleId},lane_1,file://${fastq1},file://${fastq2}`);
-
-            // Upload samplesheet to OpenCGA
-            const uploadResponse = await this.opencgaSession.opencgaClient.files()
-                .create({
-                    path: `data/sarek/samplesheets_${UtilsNew.getDatetime()}.csv`,
-                    content: samplesheet.join("\n"),
-                    type: "FILE",
-                    format: "PLAIN",
-                    description: `Samplesheet for Sarek analysis - ${UtilsNew.getDatetime()}`,
-                }, {study: this.opencgaSession.study.fqn});
-
-            // Add samplesheet path to otherSarekParams
-            const samplesheetFile = uploadResponse.responses[0].results[0];
-            otherSarekParams.input = "file://" + samplesheetFile.path;
-            otherSarekParams.outdir = "$OUTPUT";
-        } else {
-            AnalysisUtils.notify("", "Please select at least one FASTQ file", NotificationUtils.NOTIFY_ERROR, this);
-            this._running = false;
-            this.requestUpdate();
-            return;
-        }
-
-        // 3. Create toolParams and params objects
-        const sarekJobData = {
-            id: "nf-core.sarek", // this.ANALYSIS_TOOL, // This must be the same as the workflow id
-            params: {
-                "-r": "3.5.1",
-                "-profile": "docker",
+        // 1. prepare data object for ngsPipeline job
+        const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
+        const fileIds = (this._stepsParams.select?.[analysisType]?.fileIds || "").split(",");
+        const ngsPipelineJobData = {
+            name: "ngs-pipeline",
+            input: {
+                sample: this._stepsParams.select?.[analysisType]?.files.find(f => f.id === fileIds[0])?.sampleId || "",
+                files: fileIds,
+                type: "FASTQ",
             },
-        }
-        // Nextflow workflow parameters must start with '--'
-        Object.keys(otherSarekParams).forEach(key => {
-            sarekJobData.params["--" + key] = otherSarekParams[key];
-        });
+            steps: [
+                {
+                    name: "quality-control",
+                    ...this._stepsParams.preprocessing.qc,
 
-        // 4. Submit sarek job
-        const sarekJobParams = {
+                },
+                {
+                    name: "alignment",
+                    ...this._stepsParams.preprocessing.alignment,
+                },
+                {
+                    name: "variant-calling",
+                    options: this._stepsParams.preprocessing.vc.options || {},
+                    tools: [
+                        this._stepsParams.preprocessing.vc.tool,
+                    ],
+                },
+            ],
+        };
+
+        // 4. Submit ngs pipeline job job
+        const ngsPipelineJobParams = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this._stepsParams.sarek, "nf-core.sarek"),
+            ...AnalysisUtils.fillJobParams(this._stepsParams.preprocessing, "ngs-pipeline"),
         };
         await AnalysisUtils.submit(
-            "Sarek Analysis",
-            this.opencgaSession.opencgaClient.workflows()
-                .run(sarekJobData, sarekJobParams),
+            "NGS Pipeline Analysis",
+            this.opencgaSession.opencgaClient.clinical()
+                .runNgsPipeline(ngsPipelineJobData, ngsPipelineJobParams),
             this,
         );
 
@@ -171,7 +145,7 @@ export default class ClinicalPreprocessing extends LitElement {
         const variantIndexJobParams = {
             study: this.opencgaSession.study.fqn,
             ...AnalysisUtils.fillJobParams(this._stepsParams.variantIndex, "variant-index"),
-            jobDependsOn: sarekJobParams.jobId,
+            jobDependsOn: ngsPipelineJobParams.jobId,
         };
 
         // 6. Submit variant index job
