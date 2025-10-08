@@ -144,8 +144,7 @@ export default class FileReferenceGenome extends LitElement {
             .then(() => {
                 this.initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Fetch Reference Genome: Job launched",
-                    message: `Job ${params.jobId} has been launched successfully`,
+                    message: `Fetch Reference Genome Job has been launched successfully`,
                 });
                 LitUtils.dispatchCustomEvent(this, "fileReferenceGenome", data);
             })
