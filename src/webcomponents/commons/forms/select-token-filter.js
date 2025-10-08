@@ -140,10 +140,10 @@ export default class SelectTokenFilter extends LitElement {
                     <span>${item.name}</span>
                     ${(rest ? Object.entries(rest)
                     .map(([label, value]) => `
-                            <div class="dropdown-item-extra text-secondary">
-                                <label>${label}:</label> ${value || "-"}
-                            </div>`)
-
+                        <div class="dropdown-item-extra text-secondary">
+                            <label>${label}:</label> ${value || "-"}
+                        </div>
+                    `)
                     .join("") : "")}
                 </div>
             `) : item.id;
