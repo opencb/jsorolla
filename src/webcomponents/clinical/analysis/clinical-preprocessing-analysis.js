@@ -224,7 +224,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{
                                             multiple: true,
-                                            disabled: false, // (this.toolParams?.input?.files || []).length > 0,
+                                            disabled: (this.toolParams?.input?.files || []).length > 0,
                                         }}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
