@@ -151,7 +151,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             return;
         }
 
-        const _bodyParam = {
+        const bodyParam = {
             name: "ngs-pipeline",
             input: {
                 sample: "",
@@ -271,29 +271,30 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                             helpMessage: "Select the starting step of the secondary analysis."
                         }
                     },
+                    // {
+                    //     title: "Download a Reference Genome",
+                    //     field: "genome",
+                    //     type: "input-text",
+                    //     // allowedValues: ["GATK.GRCh38", "GRCh37", ],
+                    //     // defaultValue: "GATK.GRCh38",
+                    //     display: {
+                    //         helpMessage: "Name of iGenomes reference. If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. 'genome GATK.GRCh38'."
+                    //     }
+                    // },
                     {
-                        title: "Download a Reference Genome",
-                        field: "genome",
-                        type: "input-text",
-                        // allowedValues: ["GATK.GRCh38", "GRCh37", ],
-                        // defaultValue: "GATK.GRCh38",
-                        display: {
-                            helpMessage: "Name of iGenomes reference. If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. 'genome GATK.GRCh38'."
-                        }
-                    },
-                    {
-                        title: "Reference Genome (FASTA)",
+                        title: "Reference Genome Indexes",
                         field: "fasta",
                         type: "custom",
+                        description: "FASTA file with the reference genome indexes. If not provided, the pipeline will download the reference genome from Ensembl.",
                         display: {
                             render: (sample, dataFormFilterChange) => {
                                 return html `
                                     <catalog-search-autocomplete
                                         .value="${sample}"
-                                        .resource="${"FILE"}"
-                                        .query="${{study: this.opencgaSession.study.fqn, format: "FASTA"}}"
+                                        .resource="${"DIRECTORY"}"
+                                        .query="${{study: this.opencgaSession.study.fqn}}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: true, disabled: this.toolParams?.files || ""}}"
+                                        .config="${{multiple: false}}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
@@ -434,14 +435,36 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                 "Uses all normal germline samples (as designated by 'status' in the input csv) in the joint germline variant calling process."
                         }
                     },
+                    // {
+                    //     title: "Variant Callers - Mutect2",
+                    //     field: "vc.tool.parameters.joint_mutect2",
+                    //     type: "checkbox",
+                    //     display: {
+                    //         helpMessage: "Runs Mutect2 in joint (multi-sample) mode for better concordance among variant calls of tumor samples from the same patient. " +
+                    //             "Mutect2 outputs will be stored in a subfolder named with patient ID under variant_calling/mutect2/ folder. " +
+                    //             "Only a single normal sample per patient is allowed. Tumor-only mode is also supported."
+                    //     }
+                    // },
                     {
-                        title: "Variant Callers - Mutect2",
-                        field: "vc.tool.parameters.joint_mutect2",
-                        type: "checkbox",
+                        title: "Alignment Index",
+                        field: "vc.tool.reference",
+                        type: "custom",
                         display: {
-                            helpMessage: "Runs Mutect2 in joint (multi-sample) mode for better concordance among variant calls of tumor samples from the same patient. " +
-                                "Mutect2 outputs will be stored in a subfolder named with patient ID under variant_calling/mutect2/ folder. " +
-                                "Only a single normal sample per patient is allowed. Tumor-only mode is also supported."
+                            render: (sample, dataFormFilterChange) => {
+                                return html `
+                                    <catalog-search-autocomplete
+                                        .value="${sample}"
+                                        .resource="${"FILE"}"
+                                        .query="${{study: this.opencgaSession.study.fqn}}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `;
+                            },
+                            help: {
+                                text: "Select a sample to run QC. Only Study Admins can execute QC analysis"
+                            },
                         }
                     },
                 ],
