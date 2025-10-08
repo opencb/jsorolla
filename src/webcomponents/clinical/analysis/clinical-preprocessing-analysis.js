@@ -59,7 +59,6 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 options: {},
                 tool: {
                     name: "fastqc",
-                    index: "",
                     parameters: {
                         threads: 2,
                     },
@@ -81,9 +80,8 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 options: {},
                 tool: {
                     name: "gatk",
-                    index: "",
-                    parameters: {
-                    },
+                    reference: "",
+                    parameters: {},
                 }
             }
         };
@@ -160,8 +158,8 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
     dispatchChange() {
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
             input: {
-                files: this._toolParams.files?.split(",") || [],
-                index: this._toolParams.index || "",
+                files: this._toolParams.files?.split(",")?.filter(Boolean) || [],
+                // index: this._toolParams.index || "",
             },
             steps: [
                 {
@@ -184,10 +182,10 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
     }
 
     onClear() {
-        this._toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            ...this.toolParams,
-        };
+        // this._toolParams = {
+        //     ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+        //     ...this.toolParams,
+        // };
         this.requestUpdate();
     }
 
@@ -226,7 +224,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{
                                             multiple: true,
-                                            disabled: !!this.toolParams?.input?.files,
+                                            disabled: false, // (this.toolParams?.input?.files || []).length > 0,
                                         }}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
@@ -274,9 +272,6 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
-                            },
-                            help: {
-                                text: "Select a sample to run QC. Only Study Admins can execute QC analysis"
                             },
                         }
                     },

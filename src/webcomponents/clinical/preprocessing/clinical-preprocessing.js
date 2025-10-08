@@ -36,7 +36,11 @@ export default class ClinicalPreprocessing extends LitElement {
             },
             preprocessing: {
                 input: {
-                    files: "",
+                    files: [],
+                    sample: "",
+                    type: "fastq",
+                    somatic: false,
+                    index: "/tmp/index",
                 },
                 steps: [],
             },
@@ -70,7 +74,11 @@ export default class ClinicalPreprocessing extends LitElement {
 
         // we have to update the params for the next step (preprocessing) with the files selected
         const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
-        this._stepsParams.preprocessing.input.files = this._stepsParams.select?.[analysisType]?.fileIds?.split(",") || [];
+        const fileIds = this._stepsParams.select?.[analysisType]?.fileIds?.split(",")?.filter(Boolean) || [];
+        const fileObject = this._stepsParams.select?.[analysisType]?.files.find(f => f.id === fileIds[0]);
+        this._stepsParams.preprocessing.input.files = fileIds;
+        this._stepsParams.preprocessing.input.sample = fileObject?.sampleId || "";
+        this._stepsParams.preprocessing.input.somatic = fileObject?.sampleSomatic || false;
     }
 
     onPreprocessingParamsChange(event) {
@@ -96,49 +104,25 @@ export default class ClinicalPreprocessing extends LitElement {
         this.requestUpdate();
 
         // 1. prepare data object for ngsPipeline job
-        const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
-        const fileIds = (this._stepsParams.select?.[analysisType]?.fileIds || "").split(",");
         const bodyParam = {
-            command: "pipeline",
-            input: fileIds,
+            command: "run",
+            input: this._stepsParams.preprocessing.input.files,
             pipelineParams: {
                 name: "ngs-pipeline",
-                input: {
-                    sample: this._stepsParams.select?.[analysisType]?.files.find(f => f.id === fileIds[0])?.sampleId || "",
-                    files: fileIds,
-                    type: "FASTQ",
-                },
-                steps: [
-                    {
-                        name: "quality-control",
-                        ...this._stepsParams.preprocessing.qc,
-
-                    },
-                    {
-                        name: "alignment",
-                        ...this._stepsParams.preprocessing.alignment,
-                    },
-                    {
-                        name: "variant-calling",
-                        options: this._stepsParams.preprocessing.vc.options || {},
-                        tools: [
-                            this._stepsParams.preprocessing.vc.tool,
-                        ],
-                    },
-                ],
+                ...this._stepsParams.preprocessing,
             }
         };
 
-        // 4. Submit ngs pipeline job job
-        const ngsPipelineJobParams = {
+        // 2. Submit ngs pipeline job
+        const jobParams = {
             study: this.opencgaSession.study.fqn,
             ...AnalysisUtils.fillJobParams(this._stepsParams.preprocessing, "ngs-pipeline"),
         };
-        debugger
+
         await AnalysisUtils.submit(
             "NGS Pipeline Analysis",
             this.opencgaSession.opencgaClient.clinical()
-                .runNgsPipeline(bodyParam, ngsPipelineJobParams),
+                .runNgsPipeline(bodyParam, jobParams),
             this,
         );
 
@@ -263,7 +247,7 @@ export default class ClinicalPreprocessing extends LitElement {
                             .toolParams="${this._stepsParams?.preprocessing}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
-                                buttonsVisible: true,
+                                buttonsVisible: false,
                             }}"
                             @paramsChange="${e => this.onPreprocessingParamsChange(e)}">
                         </clinical-preprocessing-analysis>
