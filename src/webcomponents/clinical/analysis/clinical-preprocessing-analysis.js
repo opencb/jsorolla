@@ -16,7 +16,6 @@
 
 import {html, LitElement} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
@@ -37,9 +36,6 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             toolParams: {
                 type: Object,
             },
-            // pipeline: {
-            //     type: Object,
-            // },
             opencgaSession: {
                 type: Object,
             },
@@ -56,10 +52,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
 
         this.DEFAULT_TOOLPARAMS = {
             step: "quality-control",
-            genome: "https://ftp.ensembl.org/pub/release-115/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
-            input: {
-                files: "",
-            },
+            // genome: "https://ftp.ensembl.org/pub/release-115/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+            index: "",
+            files: "",
             qc: {
                 options: {},
                 tool: {
@@ -100,10 +95,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            this._toolParams = {
-                ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-                ...this.toolParams,
-            };
+            this.toolParamsObserver();
         }
 
         if (changedProperties.has("displayConfig")) {
@@ -114,7 +106,42 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
     }
 
     firstUpdated() {
-        LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
+        this.dispatchChange();
+    }
+
+    toolParamsObserver() {
+        // 1. reset the internal toolParams object to the default values
+        this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
+
+        // 2. copy toolParams.input.files (array) to internal toolParams.files (string)
+        if (this.toolParams?.input?.files) {
+            this.toolParams.files = this.toolParams.input.files.join(",");
+        }
+
+        // 3. merge steps configuration
+        if (this.toolParams?.steps?.length) {
+            // 3.1. merge quality control step configuration
+            const qualityControl = this.toolParams.steps.find(step => step.name === "quality-control");
+            if (qualityControl?.tool) {
+                Object.assign(this._toolParams.qc.tool, qualityControl.tool);
+            }
+
+            // 3.2. merge alignment step configuration
+            const alignment = this.toolParams.steps.find(step => step.name === "alignment");
+            if (alignment?.tool) {
+                Object.assign(this._toolParams.alignment.tool, alignment.tool);
+            }
+
+            // 3.3. merge variant calling step configuration
+            const variantCalling = this.toolParams.steps.find(step => step.name === "variant-calling");
+            if (variantCalling?.tools?.length) {
+                // currently we only support one variant calling tool
+                const vcTool = variantCalling.tools[0];
+                if (vcTool) {
+                    Object.assign(this._toolParams.vc.tool, vcTool);
+                }
+            }
+        }
     }
 
     check() {
@@ -126,85 +153,34 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             ...this._toolParams,
         };
 
-        LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
+        this.dispatchChange();
         this.requestUpdate();
     }
 
-    async onSubmit() {
-        // This web service calls to workflow run method, which requires the following JSON data model:
-        // {
-        //   "id": "string",
-        //   "version": 0,
-        //   "params": {
-        //     "additionalProp1": "string",
-        //     "additionalProp2": "string",
-        //   }
-        // }
-
-        // 1. Prepare special params. 'otherToolParams' will be included in the 'params' object and MUST NOT include these params
-        const {files, jobId, jobDependsOn, jobTags, jobDescription, ...otherToolParams} = this._toolParams;
-        const filesArray = files?.split(",") || [];
-
-        // 2. Create and upload a samplesheet
-        if (filesArray?.length === 0) {
-            AnalysisUtils.notify("", "Please select at least one FASTQ file", NotificationUtils.NOTIFY_ERROR, this);
-            return;
-        }
-
-        const bodyParam = {
-            name: "ngs-pipeline",
+    dispatchChange() {
+        LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
             input: {
-                sample: "",
-                type: "FASTQ",
-                files: filesArray.map(file => file.trim()),
+                files: this._toolParams.files?.split(",") || [],
+                index: this._toolParams.index || "",
             },
             steps: [
                 {
                     name: "quality-control",
-                    options: {},
-                    ...otherToolParams.qc
-
+                    ...this._toolParams.qc,
                 },
                 {
                     name: "alignment",
-                    ...otherToolParams.alignment
+                    ...this._toolParams.alignment,
                 },
                 {
                     name: "variant-calling",
-                    options: {},
+                    options: this._toolParams.vc.options || {},
                     tools: [
-                        {...otherToolParams.vc}
+                        this._toolParams.vc.tool,
                     ],
-                }
-            ]
-        }
-
-        this._toolParams
-        debugger
-
-        // 3. Create toolParams and params objects
-        const dataBody = {
-            id: this.ANALYSIS_TOOL, // This must be the same as the workflow id
-            params: {},
-        }
-        // Nextflow workflow parameters must start with '--'
-        Object.keys(otherToolParams).forEach(key => {
-            dataBody.params["--" + key] = otherToolParams[key];
+                },
+            ],
         });
-
-        // 4. Create params object
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL),
-        };
-
-        // 5. Submit
-        AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.clinical()
-                .runNgsPipeline(dataBody, params),
-            this,
-        );
     }
 
     onClear() {
@@ -234,7 +210,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Select FastQ Files",
-                        field: "input.files",
+                        field: "files",
                         type: "custom",
                         required: true,
                         display: {
@@ -283,7 +259,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     // },
                     {
                         title: "Reference Genome Indexes",
-                        field: "fasta",
+                        field: "index",
                         type: "custom",
                         description: "FASTA file with the reference genome indexes. If not provided, the pipeline will download the reference genome from Ensembl.",
                         display: {
