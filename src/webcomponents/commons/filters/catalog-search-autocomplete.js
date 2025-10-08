@@ -194,7 +194,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 fields: item => ({
                     name: item.name,
                     path: `/${item.path.replace(`/${item.name}`, "")}`,
-                    format: item.format ? `${item.format} (${UtilsNew.getDiskUsage(item.size)})` : "N/A",
+                    format: `${item.format || "N/A"} (${UtilsNew.getDiskUsage(item.size)})`,
                 }),
                 query: {
                     type: "FILE",
