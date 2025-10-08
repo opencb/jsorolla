@@ -28,15 +28,31 @@ export default class ClinicalPreprocessingSummary extends LitElement {
     }
 
     #init() {
+        this._params = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("toolParams")) {
+            this.toolParamsObserver();
+        }
+
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
+    }
+
+    toolParamsObserver() {
+        this._params = {
+            select: this.toolParams?.select,
+            preprocessing: {
+                qc: this.toolParams?.preprocessing?.steps?.find(step => step.name === "quality-control"),
+                alignment: this.toolParams?.preprocessing?.steps?.find(step => step.name === "alignment"),
+                vc: this.toolParams?.preprocessing?.steps?.find(step => step.name === "variant-calling"),
+            },
+        };
     }
 
     getParameters(data) {
@@ -49,13 +65,13 @@ export default class ClinicalPreprocessingSummary extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession || !this.toolParams) {
+        if (!this.opencgaSession || !this._params) {
             return nothing;
         }
 
         return html`
             <data-form
-                .data="${this.toolParams}"
+                .data="${this._params}"
                 .config="${this._config}">
             </data-form>
         `;
@@ -131,16 +147,20 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                     ],
                 },
                 {
-                    title: "Sarek Parameters",
+                    title: "Quality Control Options",
                     display: {},
                     elements: [
                         {
+                            title: "Tool",
+                            field: "preprocessing.qc.tool.name",
+                        },
+                        {
                             title: "Parameters",
-                            field: "sarek",
                             type: "table",
                             display: {
-                                getData: data => this.getParameters(data.sarek),
+                                getData: data => this.getParameters(data.preprocessing.qc?.tool?.parameters),
                                 className: "table-borderless table-grid mb-0",
+                                defaultValue: "No parameters available.",
                                 columns: [
                                     {
                                         title: "Parameter",
@@ -156,16 +176,30 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                     ],
                 },
                 {
-                    title: "Variant Index Parameters",
+                    title: "Alignment Options",
                     display: {},
                     elements: [
                         {
+                            title: "Tool",
+                            field: "preprocessing.alignment.tool.name",
+                        },
+                        {
+                            title: "Alignment Index",
+                            field: "preprocessing.alignment.tool.index",
+                            type: "custom",
+                            display: {
+                                render: (index) => {
+                                    return index ? html`<code>${index}</code>` : "Not specified.";
+                                },
+                            },
+                        },
+                        {
                             title: "Parameters",
-                            field: "variantIndex",
                             type: "table",
                             display: {
-                                getData: data => this.getParameters(data.variantIndex),
+                                getData: data => this.getParameters(data.preprocessing.alignment?.tool?.parameters),
                                 className: "table-borderless table-grid mb-0",
+                                defaultValue: "No parameters available.",
                                 columns: [
                                     {
                                         title: "Parameter",
@@ -180,6 +214,76 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                         },
                     ],
                 },
+                {
+                    title: "Variant Calling Options",
+                    display: {},
+                    elements: [
+                        {
+                            type: "table",
+                            display: {
+                                getData: data => data.preprocessing.vc?.tools || [],
+                                className: "table-borderless table-grid mb-0",
+                                defaultValue: "No Variant Calling tools available.",
+                                columns: [
+                                    {
+                                        title: "Tool Name",
+                                        field: "name",
+                                    },
+                                    {
+                                        title: "Reference",
+                                        field: "reference",
+                                        type: "custom",
+                                        display: {
+                                            render: (reference) => {
+                                                return reference ? html`<code>${reference}</code>` : "Not specified.";
+                                            },
+                                        },
+                                    },
+                                    {
+                                        title: "Parameters",
+                                        type: "custom",
+                                        display: {
+                                            render: (parameters) => {
+                                                const params = this.getParameters(parameters);
+                                                if (params.length === 0) {
+                                                    return html`<span>No parameters available.</span>`;
+                                                }
+                                                return params.map(param => html`
+                                                    <div><b>${param.key}:</b> ${param.value}</div>
+                                                `);
+                                            },
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    ],
+                },
+                // {
+                //     title: "Variant Index Parameters",
+                //     display: {},
+                //     elements: [
+                //         {
+                //             title: "Parameters",
+                //             field: "variantIndex",
+                //             type: "table",
+                //             display: {
+                //                 getData: data => this.getParameters(data.variantIndex),
+                //                 className: "table-borderless table-grid mb-0",
+                //                 columns: [
+                //                     {
+                //                         title: "Parameter",
+                //                         field: "key",
+                //                     },
+                //                     {
+                //                         title: "Value",
+                //                         field: "value",
+                //                     },
+                //                 ],
+                //             },
+                //         },
+                //     ],
+                // },
             ],
         };
     }
