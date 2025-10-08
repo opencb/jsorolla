@@ -159,7 +159,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
             input: {
                 files: this._toolParams.files?.split(",")?.filter(Boolean) || [],
-                // index: this._toolParams.index || "",
+                index: this._toolParams.index || "",
             },
             steps: [
                 {
@@ -347,6 +347,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     <catalog-search-autocomplete
                                         .value="${sample}"
                                         .resource="${"FILE"}"
+                                        .searchField="${"path"}"
                                         .query="${{study: this.opencgaSession.study.fqn}}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"
@@ -426,6 +427,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     <catalog-search-autocomplete
                                         .value="${sample}"
                                         .resource="${"FILE"}"
+                                        .searchField="${"path"}"
                                         .query="${{study: this.opencgaSession.study.fqn}}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{multiple: false}}"

@@ -110,9 +110,10 @@ export default class ClinicalPreprocessing extends LitElement {
             pipelineParams: {
                 name: "ngs-pipeline",
                 ...this._stepsParams.preprocessing,
-            }
+            },
+            indexDir: this._stepsParams.preprocessing.input.index || "JOBS/test/test/20251008/fetch-reference-genome-20251008121516/"
         };
-
+debugger
         // 2. Submit ngs pipeline job
         const jobParams = {
             study: this.opencgaSession.study.fqn,

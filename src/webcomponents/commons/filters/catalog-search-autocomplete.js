@@ -193,25 +193,12 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 fetch: filters => this.opencgaSession.opencgaClient.files().search(filters),
                 fields: item => ({
                     name: item.name,
-                    Format: item.format ?? "N/A",
-                    Size: UtilsNew.getDiskUsage(item.size)
+                    path: `/${item.path.replace(`/${item.name}`, "")}`,
+                    format: item.format ? `${item.format} (${UtilsNew.getDiskUsage(item.size)})` : "N/A",
                 }),
                 query: {
                     type: "FILE",
                     include: "id,name,format,size,path",
-                }
-            },
-            "WORKFLOW": {
-                searchField: "id",
-                placeholder: "Start typing",
-                // client: this.opencgaSession.opencgaClient.workflows(),
-                fetch: filters => this.opencgaSession.opencgaClient.workflows().search(filters),
-                fields: item => ({
-                    id: item.id,
-                    name: item.name
-                }),
-                query: {
-                    include: "id,name"
                 }
             },
             "DIRECTORY": {
@@ -226,6 +213,19 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 query: {
                     type: "DIRECTORY",
                     include: "id,path",
+                }
+            },
+            "WORKFLOW": {
+                searchField: "id",
+                placeholder: "Start typing",
+                // client: this.opencgaSession.opencgaClient.workflows(),
+                fetch: filters => this.opencgaSession.opencgaClient.workflows().search(filters),
+                fields: item => ({
+                    id: item.id,
+                    name: item.name
+                }),
+                query: {
+                    include: "id,name"
                 }
             },
             "NOTE_ORGANIZATION": {
