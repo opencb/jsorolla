@@ -3,8 +3,8 @@ import UtilsNew from "../../../core/utils-new.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import "./clinical-preprocessing-select-files.js";
 import "./clinical-preprocessing-summary.js";
+import "./clinical-preprocessing-analysis.js";
 import "../../commons/tool-header.js";
-import "../../clinical/analysis/clinical-preprocessing-analysis.js";
 import "../../variant/operation/variant-index-operation.js";
 
 export default class ClinicalPreprocessing extends LitElement {
