@@ -48,7 +48,7 @@ export default class FileFetch extends LitElement {
     }
 
     #init() {
-        this.JOB_ID = "file-fetch";
+        this.JOB_ID = "fetch-file";
         this._data = {};
         this._config = this.getDefaultConfig();
         this.initOriginalObjects();
@@ -141,12 +141,12 @@ export default class FileFetch extends LitElement {
                 titleWidth: 3,
                 defaultLayout: "horizontal",
                 buttonOkText: "Fetch File",
-                buttonClearText: "Discard Changes",
+                buttonClearText: "Clear",
                 ...this.displayConfig,
             },
             sections: [
                 {
-                    title: "General Information",
+                    title: "",
                     elements: [
                         {
                             title: "Path",

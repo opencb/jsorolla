@@ -48,7 +48,7 @@ export default class FileReferenceGenome extends LitElement {
     }
 
     #init() {
-        this.JOB_ID = "file-reference-genome";
+        this.JOB_ID = "fetch-reference-genome";
         this._data = {};
 
         this.GENOME_ALIASES = [
@@ -58,19 +58,8 @@ export default class FileReferenceGenome extends LitElement {
                 url: "https://ftp.ensembl.org/pub/release-115/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
             },
             {
-                id: "GENCODE",
-                description: "GENCODE release 39 (GRCh38)",
-                url: "https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.40/"
-            },
-            {
-                id: "RefSeq",
-                description: "RefSeq (GRCh38)",
-                url: "https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.39/"
-            },
-            {
-                id: "UCSC",
-                description: "UCSC (hg38)",
-                url: "https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.39/"
+                id: "Custom",
+                description: "Ensembl release 115 (GRCh38)",
             },
         ];
 
@@ -81,6 +70,7 @@ export default class FileReferenceGenome extends LitElement {
     initOriginalObjects() {
         this._data = {
             path: this.path || "/",
+            alignerIndexes: true
         };
     }
 
@@ -102,15 +92,15 @@ export default class FileReferenceGenome extends LitElement {
     onFieldChange(e) {
         this._data = {...e.detail.data}; // force to refresh the object-list
 
-        if (e.detail.param === "genomeAlias") {
+        if (e.detail.param === "referenceGenomeAlias") {
             const genome = this.GENOME_ALIASES.find(item => item.id === e.detail.value);
             if (genome) {
-                this._data.url = genome.url;
+                this._data.referenceGenome = genome.url;
             }
         }
 
-        if (e.detail.param === "url") {
-            delete this._data.genomeAlias;
+        if (e.detail.param === "referenceGenome") {
+            delete this._data.referenceGenomeAlias;
         }
 
         this.requestUpdate();
@@ -118,8 +108,8 @@ export default class FileReferenceGenome extends LitElement {
 
     onClear() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Clear Reference Genome File",
-            message: "Are you sure to clear?",
+            title: "Clear Form",
+            message: "Are you sure?",
             ok: () => {
                 this.initOriginalObjects();
                 this.requestUpdate();
@@ -132,9 +122,10 @@ export default class FileReferenceGenome extends LitElement {
 
         const bodyParam = {
             command: "prepare",
-            input: [data.url],
+            input: [data.referenceGenome],
+            prepareIndices: this._data.alignerIndexes ? ["reference-genome,bwa"] : [],
         }
-        debugger
+
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.clinical()
             .runNgsPipeline(bodyParam, {
@@ -179,13 +170,13 @@ export default class FileReferenceGenome extends LitElement {
             display: {
                 titleWidth: 3,
                 defaultLayout: "horizontal",
-                buttonOkText: "Fetch File",
-                buttonClearText: "Discard Changes",
+                buttonOkText: "Fetch Reference Genome",
+                buttonClearText: "Clear",
                 ...this.displayConfig,
             },
             sections: [
                 {
-                    title: "General Information",
+                    title: "",
                     elements: [
                         {
                             title: "Path",
@@ -208,7 +199,7 @@ export default class FileReferenceGenome extends LitElement {
                         },
                         {
                             title: "Select Reference Genome",
-                            field: "genomeAlias",
+                            field: "referenceGenomeAlias",
                             type: "select",
                             allowedValues: this.GENOME_ALIASES.map(item => item.id),
                             display: {
@@ -217,8 +208,8 @@ export default class FileReferenceGenome extends LitElement {
                             },
                         },
                         {
-                            title: "Reference Genome URL",
-                            field: "url",
+                            title: "Custom Reference Genome URL",
+                            field: "referenceGenome",
                             type: "input-text",
                             display: {
                                 placeholder: "https://",
@@ -226,11 +217,13 @@ export default class FileReferenceGenome extends LitElement {
                             },
                         },
                         {
-                            title: "Index Reference Genome",
-                            field: "index",
+                            title: "Aligner Indexes (BWA, BWA-MEM2, etc.)",
+                            field: "alignerIndexes",
                             type: "checkbox",
+                            defaultValue: true,
                             display: {
-                                helpMessage: "If checked, the reference genome will be indexed after downloading (this might take a while)."
+                                multiple: true,
+                                helpMessage: "Select the aligner indexes to be downloaded along with the reference genome. Please note that not all aligners are compatible with all genome versions.",
                             },
                         },
                         /*

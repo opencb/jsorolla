@@ -267,8 +267,8 @@ export default class OpencgaFileGrid extends LitElement {
             },
             "fetch-reference-genome": {
                 display: {
-                    modalTitle: "Reference Genome Indexing",
-                    modalSize: "modal-lg",
+                    modalTitle: "Fetch Reference Genome and Create Indexes",
+                    modalSize: "modal-xl",
                     modalCyDataName: "modal-fetch",
                     modalDraggable: true,
                 },
