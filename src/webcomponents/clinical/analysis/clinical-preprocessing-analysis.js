@@ -115,7 +115,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
 
         // 2. copy toolParams.input.files (array) to internal toolParams.files (string)
         if (this.toolParams?.input?.files) {
-            this.toolParams.files = this.toolParams.input.files.join(",");
+            this._toolParams.files = this.toolParams.input.files.join(",");
         }
 
         // 3. merge steps configuration
