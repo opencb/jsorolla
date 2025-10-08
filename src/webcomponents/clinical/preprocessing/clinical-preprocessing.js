@@ -38,10 +38,11 @@ export default class ClinicalPreprocessing extends LitElement {
                 input: {
                     files: "",
                 },
+                steps: [],
             },
             variantIndex: {
                 file: "",
-            }
+            },
         };
         this._activeStepIndex = 0;
         this._stepsParams = UtilsNew.objectClone(this.DEFAULT_STEPS_PARAMS);
