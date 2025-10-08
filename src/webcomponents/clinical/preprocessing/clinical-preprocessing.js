@@ -70,12 +70,15 @@ export default class ClinicalPreprocessing extends LitElement {
 
         // we have to update the params for the next step (preprocessing) with the files selected
         const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
-        this._stepsParams.preprocessing.input.files = this._stepsParams.select?.[analysisType]?.fileIds || "";
+        this._stepsParams.preprocessing.input.files = this._stepsParams.select?.[analysisType]?.fileIds?.split(",") || [];
     }
 
     onPreprocessingParamsChange(event) {
-        this._stepsParams.preprocessing = event.detail;
-        // TODO: check if we have to update variant index params
+        // 1. update the input section
+        Object.assign(this._stepsParams.preprocessing.input, event.detail.input);
+
+        // 2. update the steps array with the steps selected
+        this._stepsParams.preprocessing.steps = event.detail.steps || [];
     }
 
     onVariantIndexParamsChange(event) {
