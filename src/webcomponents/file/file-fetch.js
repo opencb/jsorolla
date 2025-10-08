@@ -105,8 +105,7 @@ export default class FileFetch extends LitElement {
             .then(() => {
                 this.initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Fetch File: Job launched",
-                    message: `Job ${params.jobId} has been launched successfully`,
+                    message: `Fetch File Job has been launched successfully`,
                 });
                 LitUtils.dispatchCustomEvent(this, "fileFetch", data);
             })
