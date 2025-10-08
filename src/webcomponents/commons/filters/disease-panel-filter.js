@@ -215,6 +215,7 @@ export default class DiseasePanelFilter extends LitElement {
                         .value=${this.panel}
                         .classes="${this.classes}"
                         .config="${{
+                            liveSearch: true,
                             multiple: this.multiple,
                             separator: "\n"
                         }}"

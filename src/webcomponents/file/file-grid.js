@@ -31,6 +31,7 @@ import "./file-create.js";
 import "./file-upload.js";
 import "./file-upload-multiple.js";
 import "./file-fetch.js";
+import "./file-reference-genome.js";
 import "./file-update.js";
 import "./file-view.js";
 import "../alignment/analysis/sarek-analysis.js";
@@ -257,11 +258,30 @@ export default class OpencgaFileGrid extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .path="${this.getCurrentPath()}"
                         .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                        @fileUpload="${() => {
+                        @fileFetch="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
                     </file-fetch>
+                `,
+            },
+            "fetch-reference-genome": {
+                display: {
+                    modalTitle: "Reference Genome Indexing",
+                    modalSize: "modal-lg",
+                    modalCyDataName: "modal-fetch",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <file-reference-genome
+                        .opencgaSession="${this.opencgaSession}"
+                        .path="${this.getCurrentPath()}"
+                        .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                        @fileReferenceGenome="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </file-reference-genome>
                 `,
             },
             "alignment": {
@@ -861,12 +881,6 @@ export default class OpencgaFileGrid extends LitElement {
                 disabled: !hasWritePermission,
                 onClick: () => this.gridCommons.changeActiveModal("create-file"),
             },
-            // {
-            //     icon: "fa-file-upload",
-            //     title: "Upload File",
-            //     disabled: !hasWritePermission || !hasUploadPermission,
-            //     onClick: () => this.gridCommons.changeActiveModal("upload-file"),
-            // },
             {
                 render: () => html`
                     <div class="dropdown">
@@ -890,6 +904,17 @@ export default class OpencgaFileGrid extends LitElement {
                 title: "Fetch File",
                 disabled: !hasWritePermission || !hasJobExecutionPermission,
                 onClick: () => this.gridCommons.changeActiveModal("fetch-file"),
+            },
+            {
+                render: () => {
+                    return html`<div class="w-px bg-gray-200 mx-1"></div>`;
+                },
+            },
+            {
+                icon: "fas fa-cloud-download-alt",
+                title: "Reference Genome",
+                disabled: !hasWritePermission || !hasJobExecutionPermission,
+                onClick: () => this.gridCommons.changeActiveModal("fetch-reference-genome"),
             },
             {
                 render: () => {

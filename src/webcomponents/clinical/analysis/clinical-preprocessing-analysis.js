@@ -37,6 +37,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             toolParams: {
                 type: Object,
             },
+            // pipeline: {
+            //     type: Object,
+            // },
             opencgaSession: {
                 type: Object,
             },
@@ -108,6 +111,10 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         }
 
         super.update(changedProperties);
+    }
+
+    firstUpdated() {
+        LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
     }
 
     check() {

@@ -53,7 +53,6 @@ export default class ClinicalPreprocessing extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this._stepsParams = UtilsNew.objectClone(this.DEFAULT_STEPS_PARAMS);
         }
-
         super.update(changedProperties);
     }
 
@@ -95,31 +94,35 @@ export default class ClinicalPreprocessing extends LitElement {
         // 1. prepare data object for ngsPipeline job
         const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
         const fileIds = (this._stepsParams.select?.[analysisType]?.fileIds || "").split(",");
-        const ngsPipelineJobData = {
-            name: "ngs-pipeline",
-            input: {
-                sample: this._stepsParams.select?.[analysisType]?.files.find(f => f.id === fileIds[0])?.sampleId || "",
-                files: fileIds,
-                type: "FASTQ",
-            },
-            steps: [
-                {
-                    name: "quality-control",
-                    ...this._stepsParams.preprocessing.qc,
+        const bodyParam = {
+            command: "pipeline",
+            input: fileIds,
+            pipelineParams: {
+                name: "ngs-pipeline",
+                input: {
+                    sample: this._stepsParams.select?.[analysisType]?.files.find(f => f.id === fileIds[0])?.sampleId || "",
+                    files: fileIds,
+                    type: "FASTQ",
+                },
+                steps: [
+                    {
+                        name: "quality-control",
+                        ...this._stepsParams.preprocessing.qc,
 
-                },
-                {
-                    name: "alignment",
-                    ...this._stepsParams.preprocessing.alignment,
-                },
-                {
-                    name: "variant-calling",
-                    options: this._stepsParams.preprocessing.vc.options || {},
-                    tools: [
-                        this._stepsParams.preprocessing.vc.tool,
-                    ],
-                },
-            ],
+                    },
+                    {
+                        name: "alignment",
+                        ...this._stepsParams.preprocessing.alignment,
+                    },
+                    {
+                        name: "variant-calling",
+                        options: this._stepsParams.preprocessing.vc.options || {},
+                        tools: [
+                            this._stepsParams.preprocessing.vc.tool,
+                        ],
+                    },
+                ],
+            }
         };
 
         // 4. Submit ngs pipeline job job
@@ -127,34 +130,35 @@ export default class ClinicalPreprocessing extends LitElement {
             study: this.opencgaSession.study.fqn,
             ...AnalysisUtils.fillJobParams(this._stepsParams.preprocessing, "ngs-pipeline"),
         };
+        debugger
         await AnalysisUtils.submit(
             "NGS Pipeline Analysis",
             this.opencgaSession.opencgaClient.clinical()
-                .runNgsPipeline(ngsPipelineJobData, ngsPipelineJobParams),
+                .runNgsPipeline(bodyParam, ngsPipelineJobParams),
             this,
         );
 
         // 5. Prepare data and Submit variant index job
-        const variantIndexJobData = {
-            file: this._stepsParams?.variantIndex?.file || "",
-            calculateStats: this._stepsParams?.variantIndex?.calculateStats || false,
-            annotate: this._stepsParams?.variantIndex?.annotate || false,
-            resume: this._stepsParams?.variantIndex?.resume || false,
-            loadMultiFileData: this._stepsParams?.variantIndex?.loadMultiFileData || false,
-        };
-        const variantIndexJobParams = {
-            study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this._stepsParams.variantIndex, "variant-index"),
-            jobDependsOn: ngsPipelineJobParams.jobId,
-        };
-
-        // 6. Submit variant index job
-        await AnalysisUtils.submit(
-            "Variant Index",
-            this.opencgaSession.opencgaClient.variantOperations()
-                .indexVariant(variantIndexJobData, variantIndexJobParams),
-            this,
-        );
+        // const variantIndexJobData = {
+        //     file: this._stepsParams?.variantIndex?.file || "",
+        //     calculateStats: this._stepsParams?.variantIndex?.calculateStats || false,
+        //     annotate: this._stepsParams?.variantIndex?.annotate || false,
+        //     resume: this._stepsParams?.variantIndex?.resume || false,
+        //     loadMultiFileData: this._stepsParams?.variantIndex?.loadMultiFileData || false,
+        // };
+        // const variantIndexJobParams = {
+        //     study: this.opencgaSession.study.fqn,
+        //     ...AnalysisUtils.fillJobParams(this._stepsParams.variantIndex, "variant-index"),
+        //     jobDependsOn: ngsPipelineJobParams.jobId,
+        // };
+        //
+        // // 6. Submit variant index job
+        // await AnalysisUtils.submit(
+        //     "Variant Index",
+        //     this.opencgaSession.opencgaClient.variantOperations()
+        //         .indexVariant(variantIndexJobData, variantIndexJobParams),
+        //     this,
+        // );
 
         // run completed
         this._running = false;
@@ -257,7 +261,7 @@ export default class ClinicalPreprocessing extends LitElement {
                             .displayConfig="${{
                                 buttonsVisible: true,
                             }}"
-                            @paramsChange="${e => this.onSarekParamsChange(e)}">
+                            @paramsChange="${e => this.onPreprocessingParamsChange(e)}">
                         </clinical-preprocessing-analysis>
                     `,
                 },
