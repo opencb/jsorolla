@@ -136,12 +136,12 @@ export default class SelectTokenFilter extends LitElement {
         try {
             const {name, ...rest} = this._config.fields(item) ?? item.id;
             return name ? $(`
-                <div class="my-2">
+                <div class="my-1">
                     <span>${name}</span>
                     ${(rest ? Object.entries(rest)
                         .map(([label, value]) => `
                             <div class="dropdown-item-extra text-secondary">
-                                <label>${label}:</label> ${value || "-"}
+                                ${!label.startsWith("#") ? `<label>${label}: </label>` : ""}${value || ""}
                             </div>
                         `)
                         .join("") : "")}

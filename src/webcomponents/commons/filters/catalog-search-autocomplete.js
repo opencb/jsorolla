@@ -104,8 +104,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 fetch: filters => this.opencgaSession.opencgaClient.samples().search(filters),
                 fields: item => ({
                     name: item.id,
-                    // id: item.id,
-                    Individual: item.individualId,
+                    Individual: item.individualId || "-",
                 }),
                 query: {
                     include: "id,individualId"
@@ -117,11 +116,10 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 fetch: filters => this.opencgaSession.opencgaClient.individuals().search(filters),
                 fields: item => ({
                     name: item.id,
-                    // id: item.id,
                     Sex: item.sex ? item.sex.id : "-",
                 }),
                 query: {
-                    include: "id,sex"
+                    include: "id,name,sex"
                 }
             },
             "FAMILY": {
@@ -144,7 +142,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                     Proband: item?.proband?.id
                 }),
                 query: {
-                    include: "id,proband.id"
+                    include: "id,name,proband.id"
                 }
             },
             "DISEASE_PANEL": {
@@ -156,7 +154,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                     Source: item.source.project ? `${item.source.project} (${item.source.author})` : "-"
                 }),
                 query: {
-                    include: "id,source"
+                    include: "id,name,source"
                 }
             },
             "JOB": {
@@ -177,10 +175,10 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 fetch: filters => this.opencgaSession.opencgaClient.cohorts().search(filters),
                 fields: item => ({
                     name: item.id,
-                    Samples: item.numSamples
+                    "#Samples": `${item.numSamples} samples`
                 }),
                 query: {
-                    include: "id,numSamples"
+                    include: "id,name,numSamples"
                 }
             },
             "FILE": {
@@ -189,12 +187,12 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 fetch: filters => this.opencgaSession.opencgaClient.files().search(filters),
                 fields: item => ({
                     name: item.name,
-                    Path: `/${item.path.replace(`/${item.name}`, "")}`,
-                    Format: `${item.format || "N/A"} (${UtilsNew.getDiskUsage(item.size)})`,
+                    "#Path": `/${item.path.replace(`/${item.name}`, "")}`,
+                    "#Format": `${item.type === "FILE" ? `${item.format || "N/A"} (${UtilsNew.getDiskUsage(item.size)})` : ""}`,
                 }),
                 query: {
                     type: "FILE",
-                    include: "id,name,format,size,path",
+                    include: "id,name,type,format,size,path",
                 }
             },
             "DIRECTORY": {
@@ -203,11 +201,11 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 fetch: filters => this.opencgaSession.opencgaClient.files().search(filters),
                 fields: item => ({
                     name: item.name,
-                    Path: `/${item.path.replace(`/${item.name}`, "")}`
+                    "#Path": `/${item.path.replace(`/${item.name}`, "")}`
                 }),
                 query: {
                     type: "DIRECTORY",
-                    include: "id,path",
+                    include: "id,name,path",
                 }
             },
             "WORKFLOW": {
@@ -216,7 +214,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 fetch: filters => this.opencgaSession.opencgaClient.workflows().search(filters),
                 fields: item => ({
                     id: item.id,
-                    name: item.name
+                    name: item.name || "-",
                 }),
                 query: {
                     include: "id,name"
