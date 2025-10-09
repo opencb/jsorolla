@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../forms/select-token-filter.js";
@@ -79,10 +79,9 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "PROJECT": {
                 searchField: "id",
                 placeholder: "Project...",
-                // client: this.opencgaSession.opencgaClient.projects(),
                 fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.projects().search(params),
                 fields: item => ({
-                    "name": item.id,
+                    name: item.id,
                 }),
                 query: {
                     include: "id,name"
@@ -91,10 +90,9 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "STUDY": {
                 searchField: "fqn",
                 placeholder: "Study...",
-                // client: this.opencgaSession.opencgaClient.studies(),
                 fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.studies().search(this.opencgaSession.project.id, params),
                 fields: item => ({
-                    "name": item.id,
+                    name: item.id,
                 }),
                 query: {
                     include: "id,name,fqn"
@@ -103,11 +101,11 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "SAMPLE": {
                 searchField: "id",
                 placeholder: "HG01879, HG01880, HG01881...",
-                // client: this.opencgaSession.opencgaClient.samples(),
                 fetch: filters => this.opencgaSession.opencgaClient.samples().search(filters),
                 fields: item => ({
-                    "name": item.id,
-                    "Individual ID": item?.individualId,
+                    name: item.id,
+                    // id: item.id,
+                    Individual: item.individualId,
                 }),
                 query: {
                     include: "id,individualId"
@@ -116,22 +114,22 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "INDIVIDUAL": {
                 searchField: "id",
                 placeholder: "Start typing",
-                // client: this.opencgaSession.opencgaClient.individuals(),
                 fetch: filters => this.opencgaSession.opencgaClient.individuals().search(filters),
                 fields: item => ({
-                    "name": item.id
+                    name: item.id,
+                    // id: item.id,
+                    Sex: item.sex ? item.sex.id : "-",
                 }),
                 query: {
-                    include: "id"
+                    include: "id,sex"
                 }
             },
             "FAMILY": {
                 searchField: "id",
                 placeholder: "Start typing",
-                // client: this.opencgaSession.opencgaClient.families(),
                 fetch: filters => this.opencgaSession.opencgaClient.families().search(filters),
                 fields: item => ({
-                    "name": item.id
+                    name: item.id
                 }),
                 query: {
                     include: "id"
@@ -140,61 +138,59 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "CLINICAL_ANALYSIS": {
                 searchField: "id",
                 placeholder: "Start typing",
-                // client: this.opencgaSession.opencgaClient.clinical(),
                 fetch: filters => this.opencgaSession.opencgaClient.clinical().search(filters),
                 fields: item => ({
-                    "name": item.id,
-                    "Proband Id": item?.proband?.id
+                    name: item.id,
+                    Proband: item?.proband?.id
                 }),
                 query: {
-                    include: "id,proband"
+                    include: "id,proband.id"
                 }
             },
             "DISEASE_PANEL": {
                 searchField: "id",
                 placeholder: "Start typing",
-                // client: this.opencgaSession.opencgaClient.panels(),
                 fetch: filters => this.opencgaSession.opencgaClient.panels().search(filters),
                 fields: item => ({
-                    "name": item.id,
+                    name: item.id,
+                    Source: item.source.project ? `${item.source.project} (${item.source.author})` : "-"
                 }),
                 query: {
-                    include: "id"
+                    include: "id,source"
                 }
             },
             "JOB": {
                 searchField: "id",
                 placeholder: "Start typing",
-                // client: this.opencgaSession.opencgaClient.jobs(),
                 fetch: filters => this.opencgaSession.opencgaClient.jobs().search(filters),
                 fields: item => ({
-                    "name": item.id,
+                    name: item.id,
+                    Tool: item.tool.id
                 }),
                 query: {
-                    include: "id"
+                    include: "id,tool"
                 }
             },
             "COHORT": {
                 searchField: "id",
                 placeholder: "Start typing",
-                // client: this.opencgaSession.opencgaClient.cohorts(),
                 fetch: filters => this.opencgaSession.opencgaClient.cohorts().search(filters),
                 fields: item => ({
-                    "name": item.id
+                    name: item.id,
+                    Samples: item.numSamples
                 }),
                 query: {
-                    include: "id"
+                    include: "id,numSamples"
                 }
             },
             "FILE": {
                 searchField: "name",
                 placeholder: "eg. samples.tsv, phenotypes.vcf...",
-                // client: this.opencgaSession.opencgaClient.files(),
                 fetch: filters => this.opencgaSession.opencgaClient.files().search(filters),
                 fields: item => ({
                     name: item.name,
-                    path: `/${item.path.replace(`/${item.name}`, "")}`,
-                    format: `${item.format || "N/A"} (${UtilsNew.getDiskUsage(item.size)})`,
+                    Path: `/${item.path.replace(`/${item.name}`, "")}`,
+                    Format: `${item.format || "N/A"} (${UtilsNew.getDiskUsage(item.size)})`,
                 }),
                 query: {
                     type: "FILE",
@@ -204,11 +200,10 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "DIRECTORY": {
                 searchField: "path",
                 placeholder: "eg. /data/platinum-grch38...",
-                // client: this.opencgaSession.opencgaClient.files(),
                 fetch: filters => this.opencgaSession.opencgaClient.files().search(filters),
                 fields: item => ({
                     name: item.name,
-                    path: `/${item.path.replace(`/${item.name}`, "")}`
+                    Path: `/${item.path.replace(`/${item.name}`, "")}`
                 }),
                 query: {
                     type: "DIRECTORY",
@@ -218,7 +213,6 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "WORKFLOW": {
                 searchField: "id",
                 placeholder: "Start typing",
-                // client: this.opencgaSession.opencgaClient.workflows(),
                 fetch: filters => this.opencgaSession.opencgaClient.workflows().search(filters),
                 fields: item => ({
                     id: item.id,
@@ -231,10 +225,9 @@ export default class CatalogSearchAutocomplete extends LitElement {
             "NOTE_ORGANIZATION": {
                 searchField: "id",
                 placeholder: "Start typing",
-                // eslint-disable-next-line no-unused-vars
                 fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.organization().searchNotes(params),
                 fields: item => ({
-                    "name": item.id,
+                    name: item.id,
                 }),
                 query: {
                     include: "id",
@@ -246,7 +239,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 placeholder: "Start typing",
                 fetch: ({study, ...params}) => this.opencgaSession.opencgaClient.studies().searchNotes(study, params),
                 fields: item => ({
-                    "name": item.id,
+                    name: item.id,
                 }),
                 query: {
                     include: "id",

@@ -77,10 +77,12 @@ export default class OpencgaBrowserFilter extends LitElement {
             "sample": "SAMPLE",
             "samples": "SAMPLE",
             "sampleIds": "SAMPLE",
+            "individual": "INDIVIDUAL",
             "individualId": "INDIVIDUAL",
             "family": "FAMILY",
             "familyIds": "FAMILY",
             "members": "INDIVIDUAL",
+            "cohort": "COHORT",
             "cohortIds": "COHORT",
             "jobId": "JOB",
             "input": "FILE",
@@ -116,15 +118,17 @@ export default class OpencgaBrowserFilter extends LitElement {
             case "id":
             case "name":
             case "fileIds":
-            case "samples":
             case "sample":
+            case "samples":
             case "sampleIds":
+            case "individual":
             case "individualId":
-            case "father":
-            case "mother":
             case "family":
             case "familyIds":
+            case "father":
+            case "mother":
             case "members":
+            case "cohort":
             case "cohortIds":
             case "jobId":
             case "input":
