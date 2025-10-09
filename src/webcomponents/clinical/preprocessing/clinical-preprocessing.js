@@ -113,6 +113,8 @@ export default class ClinicalPreprocessing extends LitElement {
             },
             indexDir: this._stepsParams.preprocessing.input.index || "JOBS/test/test/20251008/fetch-reference-genome-20251008121516/"
         };
+        bodyParam.pipelineParams.input.sample = this._stepsParams.select.single.files[0]?.sampleId;
+        this._stepsParams
 debugger
         // 2. Submit ngs pipeline job
         const jobParams = {

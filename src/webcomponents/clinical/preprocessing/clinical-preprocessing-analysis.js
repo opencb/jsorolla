@@ -331,7 +331,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         title: "Alignment Tool",
                         field: "alignment.tool.name",
                         type: "select",
-                        allowedValues: ["bwa", "bwa-mem2", "minimap2"],
+                        allowedValues: ["bwa"],
                         defaultValue: "bwa",
                         display: {
                             helpMessage: "Select the alignment tool to use. Options are 'bwa' (BWA-MEM), 'bwa-mem2' (BWA-MEM2) and 'minimap2' (Minimap2)."
@@ -392,8 +392,8 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         title: "Alignment Tool",
                         field: "vc.tool.name",
                         type: "select",
-                        allowedValues: ["GATK", "freebayes2", "mutect2"],
-                        defaultValue: "GATK",
+                        allowedValues: ["gatk"],
+                        defaultValue: "gatk",
                         display: {
                             helpMessage: "Select the variant caller to use. Options are 'GATK' (HaplotypeCaller + GenotypeGVCFs), 'freebayes2' (FreeBayes2) and 'mutect2' (Mutect2)."
                         }
