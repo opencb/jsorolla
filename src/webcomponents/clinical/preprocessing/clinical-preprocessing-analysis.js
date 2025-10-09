@@ -418,7 +418,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     //     }
                     // },
                     {
-                        title: "Alignment Index",
+                        title: "Reference Genome Index",
                         field: "vc.tool.reference",
                         type: "custom",
                         display: {
