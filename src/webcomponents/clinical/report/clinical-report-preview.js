@@ -248,7 +248,7 @@ export default class ClinicalReportPreview extends LitElement {
                             <span>The templates are located in the folder <span class="fw-bold font-monospace small">RESOURCES/clinical/report/templates</span> of this study.</span>
                         </div>
                     </div>
-                    ${false && isStudyAdmin && hasWritePermission && hasDownloadPermission ? html`
+                    ${isStudyAdmin && hasWritePermission && hasDownloadPermission ? html`
                         <div class="form-group flex-shrink-0" style="width:320px;">
                             <div class="fw-bold mb-1">Template Options</div>
                             <div class="form-check form-switch">
