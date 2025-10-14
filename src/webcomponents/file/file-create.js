@@ -17,7 +17,6 @@
 import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-distinct-autocomplete.js";
 import "../commons/filters/catalog-search-autocomplete.js";
