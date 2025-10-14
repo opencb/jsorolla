@@ -69,6 +69,9 @@ import "../../webcomponents/note/note-browser.js";
 import "../../webcomponents/commons/analysis/analysis-tools.js";
 import "../../webcomponents/commons/analysis/jupyter-notebook.js";
 
+import "../../webcomponents/clinical/preprocessing/clinical-file-upload.js";
+import "../../webcomponents/clinical/preprocessing/clinical-preprocessing.js";
+
 import "../../webcomponents/commons/layout/layout-footer.js";
 import "../../webcomponents/commons/layout/layout-primary-bar.js";
 import "../../webcomponents/commons/layout/layout-secondary-bar.js";
@@ -776,6 +779,7 @@ class IvaApp extends LitElement {
                 host: this.opencgaSession.project.cellbase.url.replace(/\/$/, ""),
                 version: this.opencgaSession.project.cellbase.version,
                 species: this.opencgaSession.project.organism.scientificName,
+                apiKey: this.opencgaSession.project.cellbase.apiKey,
             });
 
             // 2.1 This simplifies passing 'cellbaseClient' to all components
@@ -1372,6 +1376,21 @@ class IvaApp extends LitElement {
                     <study-dashboard
                         .opencgaSession="${this.opencgaSession}">
                     </study-dashboard>
+                `;
+                break;
+            case "clinical-file-upload":
+                content = html`
+                    <clinical-file-upload
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-file-upload>
+                `;
+                break;
+            case "clinical-preprocessing":
+            case "preprocessing":
+                content = html`
+                    <clinical-preprocessing
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-preprocessing>
                 `;
                 break;
             default:

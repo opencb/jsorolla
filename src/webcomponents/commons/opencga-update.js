@@ -330,6 +330,19 @@ export default class OpencgaUpdate extends LitElement {
                     this.resourceUpdateParams = {
                         tagsAction: "SET",
                     };
+                case "FILE":
+                    this.endpoint = this.opencgaSession.opencgaClient.files();
+                    this.resourceInfoParams = {};
+                    this.resourceUpdateParams = {
+                        tagsAction: "SET",
+                    };
+                    this.updateCustomisation = [
+                        params => {
+                            // Note: we have to convert empty tags string to an empty array
+                            params.tags = (params.tags || "")?.split(",").map(t => t.trim()).filter(Boolean);
+                        },
+                    ];
+                    break;
             }
         }
     }

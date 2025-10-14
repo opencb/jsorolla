@@ -21,7 +21,7 @@ import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
-export default class FileFetch extends LitElement {
+export default class FileReferenceGenome extends LitElement {
 
     constructor() {
         super();
@@ -48,8 +48,21 @@ export default class FileFetch extends LitElement {
     }
 
     #init() {
-        this.JOB_ID = "fetch-file";
+        this.JOB_ID = "fetch-reference-genome";
         this._data = {};
+
+        this.GENOME_ALIASES = [
+            {
+                id: "Ensembl v115",
+                description: "Ensembl release 115 (GRCh38)",
+                url: "https://ftp.ensembl.org/pub/release-115/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
+            },
+            {
+                id: "Custom",
+                description: "Ensembl release 115 (GRCh38)",
+            },
+        ];
+
         this._config = this.getDefaultConfig();
         this.initOriginalObjects();
     }
@@ -57,6 +70,7 @@ export default class FileFetch extends LitElement {
     initOriginalObjects() {
         this._data = {
             path: this.path || "/",
+            alignerIndexes: true
         };
     }
 
@@ -69,23 +83,33 @@ export default class FileFetch extends LitElement {
         if (changedProperties.has("path")) {
             this.initOriginalObjects();
         }
-
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
     onFieldChange(e) {
         this._data = {...e.detail.data}; // force to refresh the object-list
+
+        if (e.detail.param === "referenceGenomeAlias") {
+            const genome = this.GENOME_ALIASES.find(item => item.id === e.detail.value);
+            if (genome) {
+                this._data.referenceGenome = genome.url;
+            }
+        }
+
+        if (e.detail.param === "referenceGenome") {
+            delete this._data.referenceGenomeAlias;
+        }
+
         this.requestUpdate();
     }
 
     onClear() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Clear Fetch File",
-            message: "Are you sure to clear?",
+            title: "Clear Form",
+            message: "Are you sure?",
             ok: () => {
                 this.initOriginalObjects();
                 this.requestUpdate();
@@ -96,18 +120,24 @@ export default class FileFetch extends LitElement {
     onSubmit() {
         const {jobId, ...data} = this._data;
 
+        const bodyParam = {
+            command: "prepare",
+            input: [data.referenceGenome],
+            prepareIndices: this._data.alignerIndexes ? ["reference-genome,bwa"] : [],
+        }
+
         this.#setLoading(true);
-        this.opencgaSession.opencgaClient.files()
-            .fetch(data, {
+        this.opencgaSession.opencgaClient.clinical()
+            .runNgsPipeline(bodyParam, {
                 study: this.opencgaSession.study.fqn,
                 jobId: jobId ?? `${this.JOB_ID}-${UtilsNew.getDatetime()}`,
             })
             .then(() => {
                 this.initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: `Fetch File Job has been launched successfully`,
+                    message: `Fetch Reference Genome Job has been launched successfully`,
                 });
-                LitUtils.dispatchCustomEvent(this, "fileFetch", data);
+                LitUtils.dispatchCustomEvent(this, "fileReferenceGenome", data);
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -140,7 +170,7 @@ export default class FileFetch extends LitElement {
             display: {
                 titleWidth: 3,
                 defaultLayout: "horizontal",
-                buttonOkText: "Fetch File",
+                buttonOkText: "Fetch Reference Genome",
                 buttonClearText: "Clear",
                 ...this.displayConfig,
             },
@@ -168,13 +198,32 @@ export default class FileFetch extends LitElement {
                             },
                         },
                         {
-                            title: "URL",
-                            field: "url",
-                            type: "input-text",
-                            required: true,
+                            title: "Select Reference Genome",
+                            field: "referenceGenomeAlias",
+                            type: "select",
+                            allowedValues: this.GENOME_ALIASES.map(item => item.id),
                             display: {
                                 placeholder: "https://",
                                 helpMessage: "URL where the file is located."
+                            },
+                        },
+                        {
+                            title: "Custom Reference Genome URL",
+                            field: "referenceGenome",
+                            type: "input-text",
+                            display: {
+                                placeholder: "https://",
+                                helpMessage: "URL where the file is located."
+                            },
+                        },
+                        {
+                            title: "Aligner Indexes (BWA, BWA-MEM2, etc.)",
+                            field: "alignerIndexes",
+                            type: "checkbox",
+                            defaultValue: true,
+                            display: {
+                                multiple: true,
+                                helpMessage: "Select the aligner indexes to be downloaded along with the reference genome. Please note that not all aligners are compatible with all genome versions.",
                             },
                         },
                         /*
@@ -200,4 +249,4 @@ export default class FileFetch extends LitElement {
     }
 }
 
-customElements.define("file-fetch", FileFetch);
+customElements.define("file-reference-genome", FileReferenceGenome);

@@ -77,14 +77,17 @@ export default class OpencgaBrowserFilter extends LitElement {
             "sample": "SAMPLE",
             "samples": "SAMPLE",
             "sampleIds": "SAMPLE",
+            "individual": "INDIVIDUAL",
             "individualId": "INDIVIDUAL",
             "family": "FAMILY",
             "familyIds": "FAMILY",
             "members": "INDIVIDUAL",
+            "cohort": "COHORT",
             "cohortIds": "COHORT",
             "jobId": "JOB",
             "input": "FILE",
             "output": "FILE",
+            "directory": "DIRECTORY",
             "workflow": "WORKFLOW",
         };
 
@@ -115,19 +118,22 @@ export default class OpencgaBrowserFilter extends LitElement {
             case "id":
             case "name":
             case "fileIds":
-            case "samples":
             case "sample":
+            case "samples":
             case "sampleIds":
+            case "individual":
             case "individualId":
-            case "father":
-            case "mother":
             case "family":
             case "familyIds":
+            case "father":
+            case "mother":
             case "members":
+            case "cohort":
             case "cohortIds":
             case "jobId":
             case "input":
             case "output":
+            case "directory":
             case "workflow":
                 content = html`
                     <catalog-search-autocomplete
@@ -136,17 +142,6 @@ export default class OpencgaBrowserFilter extends LitElement {
                         .opencgaSession="${opencgaSession}"
                         .config="${subsection}"
                         @filterChange="${e => onFilterChange(subsection.id, e.detail.value)}">
-                    </catalog-search-autocomplete>
-                `;
-                break;
-            case "directory": // Temporal Solution
-                content = html`
-                    <catalog-search-autocomplete
-                        .value="${preparedQuery[subsection.id]}"
-                        resource="DIRECTORY"
-                        .opencgaSession="${opencgaSession}"
-                        .config="${subsection}"
-                        @filterChange="${e => onFilterChange("path", "~^" + e.detail.value + ".+")}">
                     </catalog-search-autocomplete>
                 `;
                 break;

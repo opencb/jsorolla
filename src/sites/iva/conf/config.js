@@ -22,18 +22,18 @@ const hosts = [
     },
     {
         id: "demo",
-        url: "https://demo.app.zettagenomics.com/opencga"
+        url: "https://demo.app.zettagenomics.com/trial-scs/opencga"
     },
     {
-        id: "reference",
-        url: "https://test.app.zettagenomics.com/task-7645/opencga"
+        id: "task-7645",
+        url: "https://test.app.zettagenomics.com/task-7645a/opencga"
     },
 ];
 
 const opencga = {
     host: hosts[2].url,
     version: "v2",
-    // organizations: ["test", "test2"],
+    organizations: ["test"],
     cookie: {
         prefix: "iva-" + hosts[2].id,
         secure: true,
@@ -235,6 +235,7 @@ const SUITE = {
                     id: "variant-browser",
                     name: "Variant Browser",
                     icon: "fa-dna",
+                    category: "Data Exploration",
                     visibility: "public",
                     description: "Explore our high-performance and scalable aggregated variant database in real-time.",
                 },
@@ -242,6 +243,7 @@ const SUITE = {
                     id: "analysis-tools",
                     name: "Analysis Tools",
                     icon: "fa-tools",
+                    category: "Data Analysis",
                     visibility: "public",
                     description: "Execute analysis tools using data of the current study.",
                 },
@@ -249,6 +251,7 @@ const SUITE = {
                     id: "workflow-manager",
                     name: "Workflow Manager",
                     icon: "fa-stream",
+                    category: "Data Analysis",
                     visibility: "public",
                     description: "Build, import and execute NextFlow workflows.",
                 },
@@ -256,6 +259,7 @@ const SUITE = {
                     id: "tool-analysis",
                     name: "Custom Tool",
                     icon: "fa-rocket",
+                    category: "Data Analysis",
                     visibility: "public",
                     description: "Execute your own custom tools easily in the cloud.",
                 },
@@ -263,6 +267,7 @@ const SUITE = {
                     id: "jupyter-lab",
                     name: "Jupyter Lab Notebooks",
                     icon: "fa-book",
+                    category: "Data Exploration",
                     visibility: "public",
                     description: "Create, share, and execute Jupyter Notebooks with Python.",
                 },
@@ -277,6 +282,7 @@ const SUITE = {
                     id: "cohort-browser",
                     name: "Cohort Manager",
                     icon: "fa-search",
+                    category: "Data Analysis",
                     visibility: "public",
                     description: "Explore and manage all cohorts in the current study.",
                 },
@@ -302,17 +308,35 @@ const SUITE = {
             },
             menu: [
                 {
+                    id: "clinical-file-upload",
+                    name: "Clinical File Upload",
+                    icon: "fa-file-medical",
+                    visibility: "public",
+                    category: "Data Preprocessing",
+                    description: "Upload clinical data files (VCF, PED, BAM, etc.) to the current study.",
+                },
+                {
+                    id: "clinical-preprocessing",
+                    name: "Clinical Preprocessing",
+                    icon: "fa-file-medical",
+                    visibility: "public",
+                    category: "Data Preprocessing",
+                    description: "Preprocess clinical data and generate the required files to run a clinical analysis.",
+                },
+                {
                     id: "clinical-analysis-portal",
                     name: "Case Interpreter Portal",
                     icon: "fa-file-medical",
                     visibility: "public",
-                    description: "Explore and review Clinical Interpretations: Filter by gene, consequence, frequency, and create clinical interpretations and reports.",
+                    category: "Data Analysis",
+                    description: "Explore and review Clinical Interpretations: filter by gene, consequence, frequency, and create clinical interpretations and reports.",
                 },
                 {
                     id: "disease-panel-browser",
                     name: "Disease Panel Browser",
                     icon: "fa-th-list",
                     visibility: "public",
+                    category: "Data Analysis",
                     description: "Explore, manage, and create any Disease Panel associated with the active Study.",
                 },
                 {
@@ -320,6 +344,7 @@ const SUITE = {
                     name: "Clinical Variant DB",
                     icon: "fa-database",
                     visibility: "none",
+                    category: "Data Analysis",
                     description: "Explore and review relevant information from your clinical analysis: interpretations, variants, and variant evidence.",
                 },
             ],
@@ -399,14 +424,13 @@ const SUITE = {
             welcomePage: {
                 title: "Admin",
                 subtitle: "Perform all the administrative tasks for your Organization or Study.",
-                // content: "Administration tools for managing users, projects, and studies.",
             },
             menu: [
                 {
                     id: "organization-admin",
                     name: "Organization Admin",
                     icon: "fa-building",
-                    description: "Manage the configuration of the current organization.",
+                    description: "Manage the configuration of the current Organization.",
                     visibility: "public",
                 },
                 {
@@ -427,7 +451,7 @@ const SUITE = {
                     id: "operations-admin",
                     name: "Variant Operations",
                     icon: "fa-server",
-                    description: "Execute variant operations in the current organization or study.",
+                    description: "Execute variant operations in the current Organization or study.",
                     visibility: "public",
                 },
             ],

@@ -1086,6 +1086,10 @@ export default class DataForm extends LitElement {
                             allowedValues = values;
                             if (values.defaultValue) {
                                 defaultValue = values.defaultValue;
+                            } else {
+                                if (values.length === 1) {
+                                    defaultValue = values[0];
+                                }
                             }
                         }
                     } else {
@@ -1269,10 +1273,10 @@ export default class DataForm extends LitElement {
     _createTableElement(element, data = this.data, section) {
         // Get array values
         let array;
-        if (element.field) {
-            array = this.getValue(element.field, data);
-        } else {
+        if (typeof element.display?.getData === "function") {
             array = element.display.getData(data);
+        } else if (element.field) {
+            array = this.getValue(element.field, data);
         }
 
         const tableClassName = element.display?.className || "";
@@ -1385,8 +1389,11 @@ export default class DataForm extends LitElement {
                                     content = this._createImageElement(elem);
                                     break;
                                 case "custom":
-                                    // content = elem.display?.render(this.getValue(elem.field, row));
-                                    content = elem.display?.render(this.getValue(elem.field, row, row), value => this.onFilterChange(elem, value), this.updateParams, this.data, row);
+                                    // Josemi 20251001 TODO: review in which cases we need to call onFilterChange with the column element instead of
+                                    // passing the full element. I have changed this to use 'element' instead of 'elem' to support checkboxes in the table
+                                    const currentValue = this.getValue(elem.field, row, row);
+                                    content = elem.display?.render(currentValue, value => this.onFilterChange(element, value), this.updateParams, this.data, row);
+                                    // content = elem.display?.render(this.getValue(elem.field, row), value => this.onFilterChange(elem, value), this.updateParams, this.data, row);
                                     break;
                                 default:
                                     content = this.getValue(elem.field, row, this._getDefaultValue(element, section), elem.display);

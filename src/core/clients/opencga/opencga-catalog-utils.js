@@ -278,8 +278,10 @@ export default class OpencgaCatalogUtils {
         switch (type) {
             case "default":
                 settings = UtilsNew.objectClone(opencgaSession.ivaDefaultSettings.settings);
+                break;
             case "backup":
                 settings = UtilsNew.objectClone(study.attributes[SETTINGS_NAME + "_BACKUP"].settings);
+                break;
         }
         return {
             attributes: {
@@ -296,6 +298,7 @@ export default class OpencgaCatalogUtils {
                     date: UtilsNew.getDatetime(),
                     settings: settings,
                 },
+
             }
         };
     }

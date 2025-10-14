@@ -135,14 +135,17 @@ export default class SelectTokenFilter extends LitElement {
         // typing a non existing word (in data source). This avoids printing `undefined` in dropdown.
         try {
             const {name, ...rest} = this._config.fields(item) ?? item.id;
-            return item.name ? $(`
-                <span>${item.name}</span>
-                ${(rest ? Object.entries(rest)
-                .map(([label, value]) => `
-                        <p class="dropdown-item-extra">
-                            <label>${label}</label> ${value || "-"}
-                        </p>`)
-                .join("") : "")}
+            return name ? $(`
+                <div class="my-1">
+                    <span>${name}</span>
+                    ${(rest ? Object.entries(rest)
+                        .map(([label, value]) => `
+                            <div class="dropdown-item-extra text-secondary">
+                                ${!label.startsWith("#") ? `<label>${label}: </label>` : ""}${value || ""}
+                            </div>
+                        `)
+                        .join("") : "")}
+                </div>
             `) : item.id;
         } catch (e) {
             console.error(e);

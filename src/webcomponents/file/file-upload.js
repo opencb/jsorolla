@@ -17,7 +17,10 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/data-form.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 import "../loading-spinner.js";
 
 export default class FileUpload extends LitElement {
@@ -46,13 +49,16 @@ export default class FileUpload extends LitElement {
     }
 
     #init() {
-        this._displayConfigDefault = {
-            buttonOkText: "Upload File",
-            buttonClearText: "Discard Changes",
-        };
+        this._isLoading = false;
         this._file = {};
         this._config = this.getDefaultConfig();
-        this._isLoading = false;
+        this.initiOriginalObjects();
+    }
+
+    initiOriginalObjects() {
+        this._file = {
+            relativeFilePath: this.path || "/",
+        };
     }
 
     #setLoading(value) {
@@ -61,10 +67,14 @@ export default class FileUpload extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("displayConfig") || changedProperties.has("path")) {
-            this._file.relativeFilePath = "/" + this.path;
+        if (changedProperties.has("path")) {
+            this.initiOriginalObjects();
+        }
+
+        if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -84,7 +94,7 @@ export default class FileUpload extends LitElement {
             title: "Clear File Upload",
             message: "Are you sure to clear?",
             ok: () => {
-                this._file = {};
+                this.initiOriginalObjects();
                 this.requestUpdate();
             },
         });
@@ -95,8 +105,10 @@ export default class FileUpload extends LitElement {
             study: this.opencgaSession.study.fqn,
             file: this._file.file,
             fileName: this._file.fileName || this._file.file.name, // get the name from the uploaded file
-            relativeFilePath: this._file.relativeFilePath.substring(1) || this.path,
+            relativeFilePath: this._file.relativeFilePath || this.path,
             description: this._file.description || "",
+            resource: this._file.resource ?? false,
+            tags: this._file.tags ? this._file.tags.split(",").map(t => t.trim()) : [],
         };
 
         this.#setLoading(true);
@@ -107,8 +119,8 @@ export default class FileUpload extends LitElement {
                     title: "Upload File",
                     message: `File ${this._file.fileName || this._file.file.name} uploaded correctly.`,
                 });
-                this._file = {}; // reset the file data
                 LitUtils.dispatchCustomEvent(this, "fileUpload", null, params);
+                this.initiOriginalObjects();
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -139,7 +151,8 @@ export default class FileUpload extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                ...this._displayConfigDefault,
+                buttonOkText: "Upload File",
+                buttonClearText: "Discard Changes",
                 ...this.displayConfig,
             },
             sections: [
@@ -148,12 +161,18 @@ export default class FileUpload extends LitElement {
                         {
                             title: "Path",
                             field: "relativeFilePath",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                defaultValue: `/${this._file.relativeFilePath || ""}`,
-                                help: {
-                                    text: "Path where the file will be uploaded.",
-                                }
+                                render: (relativeFilePath, onFieldChange) => html`
+                                    <catalog-search-autocomplete
+                                        .value="${relativeFilePath}"
+                                        .resource="${"DIRECTORY"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{multiple: false}}"
+                                        @filterChange="${e => onFieldChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `,
+                                helpMessage: "Path where the file will be uploaded.",
                             },
                         },
                         {
@@ -165,30 +184,56 @@ export default class FileUpload extends LitElement {
                                 render: (file, onFilterChange) => html`
                                     <input class="form-control" type="file" @change="${e => onFilterChange(e.target.files[0])}">
                                 `,
-                                help: {
-                                    text: "Select the file to be uploaded. Maximum file size: 5GB",
-                                },
-                            }
+                                helpMessage: "Select the file to be uploaded. Maximum file size: 5GB",
+                            },
                         },
                         {
                             title: "File Name",
                             field: "fileName",
                             type: "input-text",
                             display: {
-                                help: {
-                                    text: "Name of the file to be uploaded. If not provided, the name of the uploaded file will be used.",
+                                helpMessage: "Name of the file to be uploaded. If not provided, the name of the uploaded file will be used.",
+                            },
+                        },
+                        {
+                            title: "Tags",
+                            field: "tags",
+                            type: "custom",
+                            display: {
+                                render: (tags, onFilterChange) => html`
+                                    <catalog-distinct-autocomplete
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .resource="${"FILE"}"
+                                        .value="${(tags || []).join(",")}"
+                                        .queryField="${"tags"}"
+                                        .distinctFields="${"tags"}"
+                                        .config="${{
+                                            freeTag: true,
+                                        }}"
+                                        @filterChange="${event => onFilterChange(event.detail.value)}">
+                                    </catalog-distinct-autocomplete>
+                                `,
+                            },
+                        },
+                        {
+                            title: "Resource",
+                            field: "resource",
+                            type: "checkbox",
+                            display: {
+                                disabled: () => {
+                                    return !CatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
                                 },
-                            }
+                                helpMessage: "If checked, the file will be created as a resource. This option is only available for study administrators.",
+                            },
                         },
                         {
                             title: "Description",
                             field: "description",
                             type: "input-text",
                             display: {
-                                help: {
-                                    text: "Description of the file to be uploaded.",
-                                },
-                            }
+                                rows: 3,
+                                helpMessage: "Description of the file to be uploaded.",
+                            },
                         },
                     ],
                 },

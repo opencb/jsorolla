@@ -418,3 +418,16 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
     max-width: 800px !important;
   }
 }
+
+// Customization for SwaggerUI
+.markdown p span {
+    display: inline-block;
+    padding: 0.2em 0.6em;
+    font-size: 0.9em;
+    font-weight: bold;
+    line-height: 1;
+    color: #ffffff;
+    background-color: #1b1b1b;
+    border-radius: 0.5em;
+    vertical-align: middle;
+}

@@ -351,7 +351,7 @@ export default class SelectFieldFilter extends LitElement {
         return html`
             <span class="input-group-text rounded-start-0">
                 <input class="form-check-input mt-0 me-2" id="${this._prefix}-all-checkbox" type="checkbox" aria-label="..." @click=${this.selectAll}>
-                <span class="fw-bold">All</span>
+                <span class="fw-bold ms-1">All</span>
             </span>
         `;
     }

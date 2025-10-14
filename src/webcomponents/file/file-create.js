@@ -17,7 +17,10 @@
 import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/data-form.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class FileCreate extends LitElement {
 
@@ -49,6 +52,13 @@ export default class FileCreate extends LitElement {
         this.isLoading = false;
         this._file = {};
         this._config = this.getDefaultConfig();
+        this.initOriginalObjects();
+    }
+
+    initOriginalObjects() {
+        this._file = {
+            path: this.path || "/",
+        };
     }
 
     #setLoading(value) {
@@ -57,9 +67,14 @@ export default class FileCreate extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("path")) {
+            this.initOriginalObjects();
+        }
+
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -73,19 +88,20 @@ export default class FileCreate extends LitElement {
             title: "Discard Changes",
             message: "This will discard all changes made on this form. Do you want to continue?",
             ok: () => {
-                this._file = {};
+                this.initOriginalObjects();
                 this.requestUpdate();
             },
         });
     }
 
     onSubmit() {
-        const {name, ...otherFileData} = this._file;
+        const {name, path, tags, ...otherFileData} = this._file;
         const data = {
             ...otherFileData,
             type: "FILE",
-            path: `${this.path || ""}${name}`,
-            resource: (this.path || "").startsWith("RESOURCES/"),
+            resource: (path || "").startsWith("RESOURCES/"),
+            tags: tags ? tags.split(",").map(t => t.trim()) : [],
+            path: `${path || ""}${name}`,
         };
 
         this.#setLoading(true);
@@ -99,7 +115,7 @@ export default class FileCreate extends LitElement {
                     message: `File ${name} created correctly`,
                 });
                 LitUtils.dispatchCustomEvent(this, "fileCreate", null, data);
-                this._file = {};
+                this.initOriginalObjects();
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -142,13 +158,20 @@ export default class FileCreate extends LitElement {
                         {
                             title: "Path",
                             field: "path",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                defaultValue: `/${this.path}`,
-                                disabled: true,
-                                help: {
-                                    text: "Path where the file will be uploaded.",
-                                }
+                                render: (path, onFieldChange) => html`
+                                    <catalog-search-autocomplete
+                                        .value="${path}"
+                                        .resource="${"DIRECTORY"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            multiple: false,
+                                        }}"
+                                        @filterChange="${e => onFieldChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `,
+                                helpMessage: "Path where the file will be created.",
                             },
                         },
                         {
@@ -157,20 +180,37 @@ export default class FileCreate extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
-                                help: {
-                                    text: "Name of the file to be uploaded (including extension).",
-                                },
-                            }
+                                helpMessage: "Name of the file to be uploaded (including extension).",
+                            },
+                        },
+                        {
+                            title: "Tags",
+                            field: "tags",
+                            type: "custom",
+                            display: {
+                                render: (tags, onFilterChange) => html`
+                                    <catalog-distinct-autocomplete
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .resource="${"FILE"}"
+                                        .value="${(tags || []).join(",")}"
+                                        .queryField="${"tags"}"
+                                        .distinctFields="${"tags"}"
+                                        .config="${{
+                                            freeTag: true,
+                                        }}"
+                                        @filterChange="${event => onFilterChange(event.detail.value)}">
+                                    </catalog-distinct-autocomplete>
+                                `,
+                            },
                         },
                         {
                             title: "Description",
                             field: "description",
                             type: "input-text",
                             display: {
-                                help: {
-                                    text: "Description of the file to be uploaded.",
-                                },
-                            }
+                                rows: 3,
+                                helpMessage: "Description of the file to be uploaded.",
+                            },
                         },
                         {
                             title: "Content",
@@ -178,11 +218,9 @@ export default class FileCreate extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
-                                rows: 20,
-                                help: {
-                                    text: "Content of the file to be uploaded. Maximum size is 1MB.",
-                                },
-                            }
+                                rows: 10,
+                                helpMessage: "Content of the file to be uploaded. Maximum size is 1MB.",
+                            },
                         },
                     ],
                 },

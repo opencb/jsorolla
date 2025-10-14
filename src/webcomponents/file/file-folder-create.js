@@ -18,6 +18,8 @@ import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/forms/data-form.js";
+import "../commons/filters/catalog-distinct-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class FileFolderCreate extends LitElement {
 
@@ -49,6 +51,13 @@ export default class FileFolderCreate extends LitElement {
         this.isLoading = false;
         this._folder = {};
         this._config = this.getDefaultConfig();
+        this.initOriginalObjects();
+    }
+
+    initOriginalObjects() {
+        this._folder = {
+            path: this.path || "/",
+        };
     }
 
     #setLoading(value) {
@@ -57,9 +66,14 @@ export default class FileFolderCreate extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("path")) {
+            this.initOriginalObjects();
+        }
+
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -73,19 +87,20 @@ export default class FileFolderCreate extends LitElement {
             title: "Discard Changes",
             message: "This will discard all changes made on this form. Do you want to continue?",
             ok: () => {
-                this._folder = {};
+                this.initOriginalObjects();
                 this.requestUpdate();
             },
         });
     }
 
     onSubmit() {
-        const {name, ...otherFileData} = this._folder;
+        const {name, tags, path, ...otherFolderData} = this._folder;
         const data = {
-            ...otherFileData,
+            ...otherFolderData,
+            tags: tags ? tags.split(",").map(t => t.trim()) : [],
+            path: `${path || ""}${name}`,
+            resource: (path || "").startsWith("RESOURCES/"),
             type: "DIRECTORY",
-            path: `${this.path || ""}${name}`,
-            resource: (this.path || "").startsWith("RESOURCES/"),
         };
 
         this.#setLoading(true);
@@ -100,7 +115,7 @@ export default class FileFolderCreate extends LitElement {
                     message: `Folder ${name} created correctly`,
                 });
                 LitUtils.dispatchCustomEvent(this, "folderCreate", null, data);
-                this._folder = {};
+                this.initOriginalObjects();
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -143,13 +158,20 @@ export default class FileFolderCreate extends LitElement {
                         {
                             title: "Path",
                             field: "path",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                defaultValue: `/${this.path}`,
-                                disabled: true,
-                                help: {
-                                    text: "Path where the folder will be created.",
-                                }
+                                render: (path, onFieldChange) => html`
+                                    <catalog-search-autocomplete
+                                        .value="${path}"
+                                        .resource="${"DIRECTORY"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            multiple: false,
+                                        }}"
+                                        @filterChange="${e => onFieldChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `,
+                                helpMessage: "Path where the folder will be created.",
                             },
                         },
                         {
@@ -158,10 +180,37 @@ export default class FileFolderCreate extends LitElement {
                             required: true,
                             type: "input-text",
                             display: {
-                                help: {
-                                    text: "Name of the folder to be created.",
-                                },
-                            }
+                                helpMessage: "Name of the folder to be created.",
+                            },
+                        },
+                        {
+                            title: "Tags",
+                            field: "tags",
+                            type: "custom",
+                            display: {
+                                render: (tags, onFilterChange) => html`
+                                    <catalog-distinct-autocomplete
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .resource="${"FILE"}"
+                                        .value="${(tags || []).join(",")}"
+                                        .queryField="${"tags"}"
+                                        .distinctFields="${"tags"}"
+                                        .config="${{
+                                            freeTag: true,
+                                        }}"
+                                        @filterChange="${event => onFilterChange(event.detail.value)}">
+                                    </catalog-distinct-autocomplete>
+                                `,
+                            },
+                        },
+                        {
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                helpMessage: "Description of the folder.",
+                            },
                         },
                     ],
                 },
