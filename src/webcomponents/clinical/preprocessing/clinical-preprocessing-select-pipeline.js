@@ -142,7 +142,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                             display: {
                                 contentLayout: "vertical",
                                 listClassName: "d-flex flex-column gap-2",
-                                listItemClassName: "p-3 rounded-4 bg-white border border-gray-200",
+                                listItemClassName: "p-3 rounded-4 bg-white border border-gray-200 cursor-pointer d-flex flex-column gap-1",
                                 listItemClick: (event, pipeline) => {
                                     event.stopPropagation();
                                     this.onSelectPipeline(pipeline);
