@@ -88,6 +88,14 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
         }
     }
 
+    onSelectPipeline(pipeline) {
+        LitUtils.dispatchCustomEvent(this, "pipelineSelect", pipeline);
+    }
+
+    onCreatePipeline() {
+        LitUtils.dispatchCustomEvent(this, "pipelineCreate");
+    }
+
     render() {
         return html`
             <data-form
@@ -135,6 +143,10 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                                 contentLayout: "vertical",
                                 listClassName: "d-flex flex-column gap-2",
                                 listItemClassName: "p-3 rounded-4 bg-white border border-gray-200",
+                                listItemClick: (event, pipeline) => {
+                                    event.stopPropagation();
+                                    this.onSelectPipeline(pipeline);
+                                },
                                 format: pipeline => html`
                                     <div class="">
                                         <span class="fw-bold">${pipeline.content.name || pipeline.name}</span>
