@@ -163,7 +163,28 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                 {
                     id: "create",
                     title: "Create Pipeline",
-                    elements: [],
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <span>If the predefined pipelines do not fit your needs, you can create a new custom pipeline.</span>
+                                    <span>Click the button below to start defining your own preprocessing pipeline from scratch.</span>
+                                `,
+                            },
+                        },
+                        {
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <button class="btn btn-primary w-full d-flex align-items-center justify-content-center gap-1" @click="${() => this.onCreatePipeline()}">
+                                        <i class="fas fa-plus-circle"></i>
+                                        <span>Create New Pipeline</span>
+                                    </button>
+                                `,
+                            },
+                        }
+                    ],
                 },
             ],
         };
