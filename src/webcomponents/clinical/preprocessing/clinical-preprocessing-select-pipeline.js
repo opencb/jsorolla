@@ -130,6 +130,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                         {
                             type: "custom",
                             display: {
+                                visible: () => this._data?.pipelines?.length > 0,
                                 render: () => html`
                                     <span>Select a preprocessing pipeline from the list of available pipelines. </span>
                                     <span>Note that pipelines are defined in JSON files stored in the <code>RESOURCES/clinical/pipelines</code> folder of the study.</span>
@@ -155,6 +156,18 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                                     ${pipeline.content.description ? html`
                                         <div class="text-muted">${pipeline.content.description}</div>
                                     ` : nothing}
+                                `,
+                                defaultValue: () => html`
+                                    <div class="text-center d-flex flex-column align-items-center p-5 bg-white rounded-4 border border-gray-200">
+                                        <div class="d-flex fs-1 text-secondary mb-2">
+                                            <i class="fas fa-info-circle"></i>
+                                        </div>
+                                        <div class="fw-bold fs-5 mb-1">No pipelines available</div>
+                                        <div class="text-muted">
+                                            No predefined preprocessing pipelines were found in the <code>RESOURCES/clinical/pipelines</code> folder of the study.
+                                            You can create a new custom pipeline by clicking the button on the right.
+                                        </div>
+                                    </div>
                                 `,
                             },
                         },
