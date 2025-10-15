@@ -148,7 +148,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                                     this.onSelectPipeline(pipeline);
                                 },
                                 format: pipeline => html`
-                                    <div class="">
+                                    <div class="d-flex align-items-center">
                                         <span class="fw-bold">${pipeline.content.name || pipeline.name}</span>
                                         ${pipeline.content.version ? html`<span class="badge bg-secondary ms-2">v${pipeline.content.version}</span>` : nothing}
                                     </div>
