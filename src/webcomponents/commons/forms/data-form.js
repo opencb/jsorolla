@@ -1165,6 +1165,7 @@ export default class DataForm extends LitElement {
         const listStyle = this._parseStyleField(element.display?.style || element.display?.listStyle) || "";
         const listItemClassName = element.display?.itemClassName || element.display?.listItemClassName || "";
         const listItemStyle = this._parseStyleField(element.display?.itemStyle || element.display?.listItemStyle) || "";
+        const listItemClick = typeof element.display?.itemClick === "function" ? element.display.itemClick : () => {};
 
         // note: separator is only available for 'horizontal' and 'vertical' layouts
         const separator = element.display?.separator ?? (contentLayout === "horizontal" ? ", " : nothing);
@@ -1223,7 +1224,9 @@ export default class DataForm extends LitElement {
                 content = html`
                     <div class="${listClassName}" style="${listStyle}">
                         ${values.map((value, index) => html`
-                            <span class="${listItemClassName}" style="${listItemStyle}">${value}</span>
+                            <span class="${listItemClassName}" style="${listItemStyle}" @click="${(event) => listItemClick(event, value, index, values)}">
+                                ${value}
+                            </span>
                             ${(index < values.length - 1 && separator) ? html`
                                 <span>${typeof separator === "function" ? separator(value, index, values) : separator}</span>
                             ` : nothing}
@@ -1235,7 +1238,9 @@ export default class DataForm extends LitElement {
                 content = html`
                     <div class="${listClassName}" style="${listStyle}">
                         ${values.map((value, index) => html`
-                            <div class="${listItemClassName}" style="${listItemStyle}">${value}</div>
+                            <div class="${listItemClassName}" style="${listItemStyle}" @click="${(event) => listItemClick(event, value, index, values)}">
+                                ${value}
+                            </div>
                             ${(index < values.length - 1 && separator) ? html`
                                 <span>${typeof separator === "function" ? separator(value, index, values) : separator}</span>
                             ` : nothing}
