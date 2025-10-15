@@ -2,6 +2,7 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import "./clinical-preprocessing-select-files.js";
+import "./clinical-preprocessing-select-pipeline.js";
 import "./clinical-preprocessing-summary.js";
 import "./clinical-preprocessing-analysis.js";
 import "../../commons/tool-header.js";
@@ -35,6 +36,7 @@ export default class ClinicalPreprocessing extends LitElement {
                 cancer: {}
             },
             preprocessing: {
+                pipeline: null,
                 input: {
                     files: [],
                     sample: "",
@@ -115,7 +117,7 @@ export default class ClinicalPreprocessing extends LitElement {
         };
         bodyParam.pipelineParams.input.sample = this._stepsParams.select.single.files[0]?.sampleId;
         this._stepsParams
-debugger
+
         // 2. Submit ngs pipeline job
         const jobParams = {
             study: this.opencgaSession.study.fqn,
@@ -246,14 +248,21 @@ debugger
                     title: "Preprocessing Parameters",
                     icon: "fas fa-sliders-h",
                     render: () => html`
-                        <clinical-preprocessing-analysis
-                            .toolParams="${this._stepsParams?.preprocessing}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .displayConfig="${{
-                                buttonsVisible: false,
-                            }}"
-                            @paramsChange="${e => this.onPreprocessingParamsChange(e)}">
-                        </clinical-preprocessing-analysis>
+                        ${this._stepsParams?.preprocessing?.pipeline === null ? html`
+                            <clinical-preprocessing-select-pipeline
+                                .opencgaSession="${this.opencgaSession}">
+                            </clinical-preprocessing-select-pipeline>
+                        ` : nothing}
+                        ${this._stepsParams?.preprocessing?.pipeline !== null ? html`
+                            <clinical-preprocessing-analysis
+                                .toolParams="${this._stepsParams?.preprocessing}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .displayConfig="${{
+                                    buttonsVisible: false,
+                                }}"
+                                @paramsChange="${e => this.onPreprocessingParamsChange(e)}">
+                            </clinical-preprocessing-analysis>
+                        ` : nothing}
                     `,
                 },
                 {
