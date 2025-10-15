@@ -120,8 +120,13 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                     title: "Select Pipeline",
                     elements: [
                         {
-                            text: "Select a preprocessing pipeline from the list of available pipelines.",
-                            type: "text",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <span>Select a preprocessing pipeline from the list of available pipelines. </span>
+                                    <span>Note that pipelines are defined in JSON files stored in the <code>RESOURCES/clinical/pipelines</code> folder of the study.</span>
+                                `,
+                            },
                         },
                         {
                             type: "list",
@@ -129,7 +134,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                             display: {
                                 contentLayout: "vertical",
                                 listClassName: "d-flex flex-column gap-2",
-                                listItemClassName: "p-4 rounded-4 bg-white border border-gray-200",
+                                listItemClassName: "p-3 rounded-4 bg-white border border-gray-200",
                                 format: pipeline => html`
                                     <div class="">
                                         <span class="fw-bold">${pipeline.content.name || pipeline.name}</span>
