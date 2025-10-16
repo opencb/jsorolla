@@ -380,8 +380,8 @@ export default class JobGrid extends LitElement {
                     const execution = row.execution;
                     const values = [];
                     if (execution?.start) {
-                        values.push(`<div class="my-1">${moment(execution.start).format("D MMM YYYY, h:mm:ss a")}</div>`);
-                        values.push(execution?.end ? `<div class="my-1">${moment(execution.end).format("D MMM YYYY, h:mm:ss a")}</div>` : "-");
+                        values.push(`<div class="my-1" style="white-space:nowrap">${UtilsNew.dateFormatter(execution.start, "D MMM YYYY, H:mm:ss")}</div>`);
+                        values.push(execution?.end ? `<div class="my-1" style="white-space:nowrap">${UtilsNew.dateFormatter(execution.end, "D MMM YYYY, H:mm:ss")}</div>` : "-");
                     }
                     return values.join("") || "-";
                 },
