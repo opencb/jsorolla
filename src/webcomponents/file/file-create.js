@@ -69,11 +69,9 @@ export default class FileCreate extends LitElement {
         if (changedProperties.has("path")) {
             this.initOriginalObjects();
         }
-
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 

@@ -70,11 +70,9 @@ export default class FileUpload extends LitElement {
         if (changedProperties.has("path")) {
             this.initiOriginalObjects();
         }
-
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
@@ -91,8 +89,8 @@ export default class FileUpload extends LitElement {
 
     onClear() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Clear File Upload",
-            message: "Are you sure to clear?",
+            title: "Discard Changes",
+            message: "This will discard all changes made on this form. Do you want to continue?",
             ok: () => {
                 this.initiOriginalObjects();
                 this.requestUpdate();
@@ -101,13 +99,15 @@ export default class FileUpload extends LitElement {
     }
 
     onSubmit() {
+        const path = this._file.relativeFilePath || this.path;
         const params = {
             study: this.opencgaSession.study.fqn,
             file: this._file.file,
             fileName: this._file.fileName || this._file.file.name, // get the name from the uploaded file
-            relativeFilePath: this._file.relativeFilePath || this.path,
+            relativeFilePath: path,
             description: this._file.description || "",
-            resource: this._file.resource ?? false,
+            // resource: this._file.resource ?? false,
+            resource: (path || "").startsWith("RESOURCES/"),
             tags: this._file.tags ? this._file.tags.split(",").map(t => t.trim()) : [],
         };
 
@@ -215,17 +215,17 @@ export default class FileUpload extends LitElement {
                                 `,
                             },
                         },
-                        {
-                            title: "Resource",
-                            field: "resource",
-                            type: "checkbox",
-                            display: {
-                                disabled: () => {
-                                    return !CatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
-                                },
-                                helpMessage: "If checked, the file will be created as a resource. This option is only available for study administrators.",
-                            },
-                        },
+                        // {
+                        //     title: "Resource",
+                        //     field: "resource",
+                        //     type: "checkbox",
+                        //     display: {
+                        //         disabled: () => {
+                        //             return !CatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
+                        //         },
+                        //         helpMessage: "If checked, the file will be created as a resource. This option is only available for study administrators.",
+                        //     },
+                        // },
                         {
                             title: "Description",
                             field: "description",

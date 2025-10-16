@@ -21,6 +21,7 @@ import WebUtils from "../commons/utils/web-utils.js";
 import "../commons/forms/data-form.js";
 import "../individual/individual-summary.js";
 import "./report/clinical-report-summary.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 
 export default class ClinicalAnalysisSummary extends LitElement {
 
@@ -175,7 +176,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                         {
                             title: "Flags",
                             field: "flags",
-                            type: "custom",
+                            // type: "custom",
                             type: "list",
                             display: {
                                 contentLayout: "vertical",
@@ -336,7 +337,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                         {
                             id: "members",
                             title: "Family Members",
-                            field: "family",
+                            field: "family.members",
                             type: "table",
                             display: {
                                 className: "table-borderless table-grid mb-0",
@@ -354,6 +355,38 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                                 "font-weight": "bold"
                                             }
                                         }
+                                    },
+                                    {
+                                        title: "Gender",
+                                        field: "sex.id",
+                                        display: {
+                                            className: "text-break",
+                                        }
+                                    },
+                                    {
+                                        id: "disorders",
+                                        field: "disorders",
+                                        title: "Disorders",
+                                        type: "list",
+                                        display: {
+                                            separationClassName: "mb-0",
+                                            titleWidth: 2,
+                                            listClassName: "mb-0 ps-3",
+                                            contentLayout: "bullets",
+                                            defaultLayout: "vertical",
+                                            defaultValue: individual => html`
+                                                <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
+                                                    <i class="fas fa-info-circle fs-3"></i>
+                                                    <div class="text-break">No disorders available for individual <b>${individual.name || individual.id}</b>.</div>
+                                                </div>
+                                            `,
+                                            template: "${name} (${id})",
+                                            link: {
+                                                "id": id => {
+                                                    return BioinfoUtils.getOntologyLink(id);
+                                                },
+                                            },
+                                        },
                                     },
                                 ],
                             },
