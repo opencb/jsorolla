@@ -142,7 +142,7 @@ export default class OpencgaFileGrid extends LitElement {
             "edit-content": () => ({
                 display: {
                     title: `Update ${this._selectedFile?.name} Content`,
-                    size: "modal-xl",
+                    size: "modal-2xl",
                     buttonsVisible: false,
                     draggable: false,
                 },
@@ -151,7 +151,8 @@ export default class OpencgaFileGrid extends LitElement {
                         .path="${this._selectedFile.path || this._selectedFile.id}"
                         .opencgaSession="${this.opencgaSession}"
                         @fileContentSave="${() => {
-                            this.gridCommons.clearActiveModal();
+                            // note: the next line is commented to prevent to close the modal on save
+                            // this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
                     </file-editor>
