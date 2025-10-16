@@ -90,7 +90,6 @@ export default class VariantInterpreterGridFormatter {
 
         let clinicalSignificanceCode = 0;
         let clinicalSignificanceHtml = "NA";
-        let clinicalSignificanceTooltipText = "";
 
         for (const re of row.evidences) {
             if (CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance]?.code > clinicalSignificanceCode) {
@@ -100,21 +99,11 @@ export default class VariantInterpreterGridFormatter {
                     <div style="margin: 5px 0px; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
                     <div class="text-body-secondary">${re.classification.acmg.map(acmg => acmg.classification).join(", ")}</div>
                 `;
-                clinicalSignificanceTooltipText = `<div class='p-1' style='width: 250px;'>
-                                                        <div class='row mb-2'>
-                                                            <div class='col-6'>ACMG</div>
-                                                            <div class='col-6'>${re.classification?.acmg?.join(", ")}</div>
-                                                        </div>
-                                                        <div class='row mb-2'>
-                                                            <div class='col-6'>ACMG Tier</div>
-                                                            <div class='col-6'>${re.classification.tier}</div>
-                                                        </div>
-                                                    </div>`;
             }
         }
-        return `<a class='predictionTooltip text-decoration-none' tooltip-title="Classification" tooltip-text="${clinicalSignificanceTooltipText}">
-                    ${clinicalSignificanceHtml}
-                </a>`;
+        return `
+            <a class="text-decoration-none">${clinicalSignificanceHtml}</a>
+        `;
     }
 
     /*
@@ -746,7 +735,7 @@ export default class VariantInterpreterGridFormatter {
         const displayedOverlaps = overlaps.map(overlap => {
             let geneHtml = "-";
             if (overlap.geneName) {
-                const tooltip = VariantGridFormatter.getGeneTooltip(overlap.geneName, opencgaSession?.project?.organism?.assembly);
+                const tooltip = VariantGridFormatter.getGeneTooltip(overlap.geneName, opencgaSession?.project?.organism?.scientificName, opencgaSession?.project?.organism?.assembly);
                 geneHtml = `
                     <a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltip}" style="margin-left: 2px">
                         ${overlap.geneName}
@@ -774,7 +763,7 @@ export default class VariantInterpreterGridFormatter {
 
                 if (genes.length > 0) {
                     const genesLinks = genes.map(gene => {
-                        const tooltip = VariantGridFormatter.getGeneTooltip(gene, opencgaSession?.project?.organism?.assembly);
+                        const tooltip = VariantGridFormatter.getGeneTooltip(gene, opencgaSession?.project?.organism?.scientificName, opencgaSession?.project?.organism?.assembly);
                         return `
                             <a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltip}">${gene}</a>
                         `;

@@ -22,6 +22,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import "../commons/grid-toolbar.js";
 import "../cohort/cohort-create-samples.js";
+import "../cohort/cohort-view.js";
 import "../individual/individual-view.js";
 import "../file/file-view.js";
 import "../variant/analysis/knockout-analysis.js";
@@ -74,6 +75,7 @@ export default class SampleGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this._selectedSampleId = null;
         this._selectedIndividualId = null;
+        this._selectedCohortId = null;
         this._selectedFileId = null;
         this._config = this.getDefaultConfig();
     }
@@ -220,6 +222,21 @@ export default class SampleGrid extends LitElement {
                         .active="${true}"
                         .opencgaSession="${this.opencgaSession}">
                     </individual-view>
+                `,
+            }),
+            "view-cohort": () => ({
+                display: {
+                    modalTitle: `Cohort ${this._selectedCohortId}`,
+                    modalSize: "modal-2xl",
+                    modalCyDataName: "cohort-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <cohort-view
+                        .cohortId="${this._selectedCohortId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </cohort-view>
                 `,
             }),
             "view-clinical-analysis": () => ({
@@ -505,9 +522,7 @@ export default class SampleGrid extends LitElement {
                         .filter(cohortId => cohortId !== "ALL")
                         .map(cohortId => {
                             return `
-                                <div>
-                                    <span>${cohortId}</span>
-                                </div>
+                                <a class="link fw-bold" data-action="view-cohort" data-cohort="${cohortId}">${cohortId}</a>
                             `;
                         });
                     return `
@@ -515,6 +530,9 @@ export default class SampleGrid extends LitElement {
                             ${items.length > 0 ? items.join("") : "-"}
                         </div>
                     `;
+                },
+                events: {
+                    "click a": (event, value, row) => this.onActionClick(event, row),
                 },
                 visible: this.gridCommons.isColumnVisible("cohorts")
             },
@@ -559,17 +577,8 @@ export default class SampleGrid extends LitElement {
             {
                 id: "status",
                 title: "Variant Index Status",
-                field: "internal.variant.index.status.id",
-                formatter: (variantIndexStatusId, sample) => {
-                    let result = "-";
-                    result = `
-                        <div class="d-flex flex-column gap-1">
-                            <label>Index: ${variantIndexStatusId}</label>
-                            <label>Annotation: ${sample?.internal?.variant?.annotationIndex?.status?.id}</label>
-                        </div>
-                    `;
-                    return result;
-                },
+                field: "internal.variant",
+                formatter: internalVariant => CatalogGridFormatter.variantStatusFormatter(internalVariant),
                 visible: this.gridCommons.isColumnVisible("status"),
             },
             {
@@ -676,6 +685,10 @@ export default class SampleGrid extends LitElement {
             case "view-individual":
                 this._selectedIndividualId = event.currentTarget.dataset.individual;
                 this.gridCommons.changeActiveModal("view-individual");
+                break;
+            case "view-cohort":
+                this._selectedCohortId = event.currentTarget.dataset.cohort;
+                this.gridCommons.changeActiveModal("view-cohort");
                 break;
             case "view-clinical-analysis":
                 this._selectedClinicalAnalysisId = event.currentTarget?.dataset?.clinicalAnalysis;

@@ -15,11 +15,6 @@
  * limitations under the License.
  */
 
-const CELLBASE_CONFIG = {
-    host: "https://ws.zettagenomics.com/cellbase",
-    version: "v5.1",
-};
-
 const hosts = [
     {
         id: "test",
@@ -33,6 +28,21 @@ const opencga = {
     cookie: {
         prefix: "iva-test-" + hosts[0].id
     }
+};
+
+const CELLBASE = {
+    supportedVersions: [
+        {
+            host: "https://ws.zettagenomics.com/cellbase",
+            version: "v5.2",
+            dataRelease: 3,
+        },
+        {
+            host: "https://ws.zettagenomics.com/cellbase",
+            version: "v5.8",
+            dataRelease: 7,
+        },
+    ],
 };
 
 const SUITE = {

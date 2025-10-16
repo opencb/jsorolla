@@ -555,6 +555,7 @@ export default class OpencgaFileGrid extends LitElement {
                     if (file.type === "FILE") {
                         switch (file.format) {
                             case "VCF":
+                            case "GVCF":
                                 result = `
                                     <div class="my-1">${format}</div>
                                     <div class="text-secondary">${file.attributes?.variantFileMetadata?.header?.version?.replace("VCF", "") || ""}</div>
@@ -562,6 +563,24 @@ export default class OpencgaFileGrid extends LitElement {
                                 break;
                             case "BAM":
                                 result = format;
+                                break;
+                            case "TAB_SEPARATED_VALUES":
+                                result = "TSV";
+                                break;
+                            case "COMMA_SEPARATED_VALUES":
+                                result = "CSV";
+                                break;
+                            case "UNKNOWN":
+                                result = file.name.endsWith(".err") ? "ERROR_LOG" : "-";
+                                break;
+                            case "PLAIN":
+                                result = file.name.endsWith(".log") ? "OUTPUT_LOG" : "PLAIN";
+                                break;
+                            case "NONE":
+                                result = "-";
+                                break;
+                            default:
+                                result = format || "-";
                                 break;
                         }
                     }
@@ -608,16 +627,16 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 id: "index",
                 title: "Variant Index Status",
-                field: "internal.variant.index.status.id",
-                formatter: (status, file) => {
+                field: "internal",
+                formatter: (internal, file) => {
                     let result = "-";
                     if (file.type === "FILE") {
                         switch (file.format) {
                             case "VCF":
-                                result = file.internal?.variant?.index?.status?.id || "-";
+                                result = CatalogGridFormatter.variantStatusFormatter(internal.variant);
                                 break;
                             case "BAM":
-                                result = file.internal?.alignment?.index?.status?.id || "-";
+                                result = CatalogGridFormatter.alignmentStatusFormatter(internal.alignment);
                                 break;
                         }
                     }
@@ -682,6 +701,15 @@ export default class OpencgaFileGrid extends LitElement {
                         </a>
                         <a data-action="download-json" class="dropdown-item cursor-pointer">
                             <i class="fas fa-download me-1" aria-hidden="true"></i> Download JSON
+                        </a>
+                        <hr class="dropdown-divider">
+                         <a data-action="copy-path" class="dropdown-item cursor-pointer">
+                            <i class="fas fa-copy me-1"></i>
+                            <span>Copy Path</span>
+                        </a>
+                        <a data-action="open-folder" class="dropdown-item ${row.type === "DIRECTORY" ? "cursor-pointer" : "disabled"}">
+                            <i class="fas fa-folder-open me-1"></i>
+                            <span>Open Folder</span>
                         </a>
                         <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" || !hasDownloadPermission ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
                             <i class="fas fa-download me-1"></i> Download File
@@ -763,6 +791,13 @@ export default class OpencgaFileGrid extends LitElement {
             case "edit-content":
                 this._selectedFile = file;
                 this.gridCommons.changeActiveModal("edit-content");
+                break;
+            case "copy-path":
+                const path = file.path.startsWith("/") ? file.path : "/" + file.path;
+                UtilsNew.copyToClipboard(path);
+                break;
+            case "open-folder":
+                this.onPathChange(file.path);
                 break;
         }
     }

@@ -119,7 +119,6 @@ class IvaApp extends LitElement {
         this.bsOffcanvas = null;
         const _config = SUITE;
         _config.opencga = opencga;
-        _config.cellbase = typeof cellbase !== "undefined" ? cellbase : null;
         _config.pages = typeof CUSTOM_PAGES !== "undefined" ? CUSTOM_PAGES : [];
         _config.consequenceTypes = CONSEQUENCE_TYPES;
         _config.populationFrequencies = POPULATION_FREQUENCIES;

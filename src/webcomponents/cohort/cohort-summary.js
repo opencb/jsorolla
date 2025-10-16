@@ -115,6 +115,9 @@ export default class CohortSummary extends LitElement {
             sections: [
                 {
                     title: "General",
+                    display: {
+                        defaultValue: "-",
+                    },
                     elements: [
                         {
                             title: "Cohort Id",
@@ -129,12 +132,22 @@ export default class CohortSummary extends LitElement {
                             },
                         },
                         {
-                            title: "Cohort Type",
-                            field: "type",
+                            title: "Cohort Name",
+                            field: "name",
                         },
                         {
                             title: "Description",
                             field: "description",
+                        },
+                        {
+                            title: "Tags",
+                            field: "tags",
+                            type: "custom",
+                            display: {
+                                render: (tags = []) => {
+                                    return tags?.length > 0 ? tags.map(tag => html`<span class="badge bg-secondary me-1 mb-1">${tag}</span>`) : "-";
+                                },
+                            },
                         },
                         {
                             title: "Status",
