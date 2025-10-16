@@ -47,7 +47,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
 
     #init() {
         this.ANALYSIS_TOOL = "ngs-pipeline";
-        this.ANALYSIS_TITLE = "NGS Pipeline";
+        this.ANALYSIS_TITLE = "NGS Preprocessing Parameters";
         this.ANALYSIS_DESCRIPTION = "";
 
         this.DEFAULT_TOOLPARAMS = {
