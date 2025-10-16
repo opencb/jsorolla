@@ -95,6 +95,15 @@ export default class ClinicalPreprocessing extends LitElement {
         this._stepsParams.variantIndex = event.detail;
     }
 
+    onPipelineClear() {
+        this._stepsParams.preprocessing = {
+            ...this._stepsParams.preprocessing,
+            pipeline: null,
+            steps: [],
+        };
+        this.requestUpdate();
+    }
+
     onPipelineCreate() {
         this._stepsParams.preprocessing = {
             ...this._stepsParams.preprocessing,
@@ -264,14 +273,21 @@ export default class ClinicalPreprocessing extends LitElement {
                             </clinical-preprocessing-select-pipeline>
                         ` : nothing}
                         ${this._stepsParams?.preprocessing?.pipeline !== null ? html`
-                            <clinical-preprocessing-analysis
-                                .toolParams="${this._stepsParams?.preprocessing}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .displayConfig="${{
-                                    buttonsVisible: false,
-                                }}"
-                                @paramsChange="${e => this.onPreprocessingParamsChange(e)}">
-                            </clinical-preprocessing-analysis>
+                            <div class="position-relative">
+                                <clinical-preprocessing-analysis
+                                    .toolParams="${this._stepsParams?.preprocessing}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .displayConfig="${{
+                                        buttonsVisible: false,
+                                    }}"
+                                    @paramsChange="${e => this.onPreprocessingParamsChange(e)}">
+                                </clinical-preprocessing-analysis>
+                                <div class="position-absolute top-0 end-0">
+                                    <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onPipelineClear()}">
+                                        <i class="fas fa-edit"></i> Change Pipeline
+                                    </button>
+                                </div>
+                            </div>
                         ` : nothing}
                     `,
                 },
