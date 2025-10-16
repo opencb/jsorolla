@@ -95,6 +95,15 @@ export default class ClinicalPreprocessing extends LitElement {
         this._stepsParams.variantIndex = event.detail;
     }
 
+    onPipelineCreate() {
+        this._stepsParams.preprocessing = {
+            ...this._stepsParams.preprocessing,
+            pipeline: "",
+            steps: [],
+        };
+        this.requestUpdate();
+    }
+
     async onExecute() {
         // avoid clicking twice the run button
         if (this._running) {
@@ -250,7 +259,8 @@ export default class ClinicalPreprocessing extends LitElement {
                     render: () => html`
                         ${this._stepsParams?.preprocessing?.pipeline === null ? html`
                             <clinical-preprocessing-select-pipeline
-                                .opencgaSession="${this.opencgaSession}">
+                                .opencgaSession="${this.opencgaSession}"
+                                @pipelineCreate="${() => this.onPipelineCreate()}">
                             </clinical-preprocessing-select-pipeline>
                         ` : nothing}
                         ${this._stepsParams?.preprocessing?.pipeline !== null ? html`
