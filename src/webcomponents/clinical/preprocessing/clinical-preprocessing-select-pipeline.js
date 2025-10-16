@@ -107,6 +107,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
 
     getDefaultConfig() {
         return {
+            title: "NGS Preprocessing Parameters",
             display: {
                 buttonsVisible: false,
                 className: "row",
