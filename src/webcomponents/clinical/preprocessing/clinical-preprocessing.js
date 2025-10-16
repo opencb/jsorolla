@@ -65,6 +65,15 @@ export default class ClinicalPreprocessing extends LitElement {
         super.update(changedProperties);
     }
 
+    navigationButtonsVisible() {
+        // next/previous buttons are not visible when the pipeline selection is visible
+        if (this._activeStepIndex === 1 && this._stepsParams?.preprocessing?.pipeline === null) {
+            return false;
+        }
+        // other case, buttons are visible
+        return true;
+    }
+
     onChangeActiveStep(event, newStepIndex) {
         event.preventDefault();
         if (!this._running) {
@@ -235,23 +244,25 @@ export default class ClinicalPreprocessing extends LitElement {
             </tool-header>
             <div class="container py-4">
                 ${this._config.steps[this._activeStepIndex]?.render()}
-                <div class="mt-4 d-flex align-items-center justify-content-end gap-2">
-                    ${this._activeStepIndex > 0 ? html`
-                        <button class="btn btn-light ${this._running ? "disabled": ""}" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex - 1)}">
-                            <i class="fas fa-arrow-left me-1"></i> Previous
-                        </button>
-                    ` : nothing}
-                    ${this._activeStepIndex < this._config.steps.length - 1 ? html`
-                        <button class="btn btn-primary" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex + 1)}">
-                            Next <i class="fas fa-arrow-right ms-1"></i>
-                        </button>
-                    ` : nothing}
-                    ${this._activeStepIndex === this._config.steps.length - 1 ? html`
-                        <button class="btn btn-success ${this._running ? "disabled": ""}" @click="${e => this.onExecute(e)}">
-                            <i class="fas fa-play-circle me-1"></i> Run Analysis
-                        </button>
-                    ` : nothing}
-                </div>
+                ${this.navigationButtonsVisible() ? html`
+                    <div class="mt-4 d-flex align-items-center justify-content-end gap-2">
+                        ${this._activeStepIndex > 0 ? html`
+                            <button class="btn btn-light ${this._running ? "disabled": ""}" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex - 1)}">
+                                <i class="fas fa-arrow-left me-1"></i> Previous
+                            </button>
+                        ` : nothing}
+                        ${this._activeStepIndex < this._config.steps.length - 1 ? html`
+                            <button class="btn btn-primary" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex + 1)}">
+                                Next <i class="fas fa-arrow-right ms-1"></i>
+                            </button>
+                        ` : nothing}
+                        ${this._activeStepIndex === this._config.steps.length - 1 ? html`
+                            <button class="btn btn-success ${this._running ? "disabled": ""}" @click="${e => this.onExecute(e)}">
+                                <i class="fas fa-play-circle me-1"></i> Run Analysis
+                            </button>
+                        ` : nothing}
+                    </div>
+                ` : nothing}
             </div>
         `;
     }
