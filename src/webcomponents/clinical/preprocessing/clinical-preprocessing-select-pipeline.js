@@ -111,15 +111,18 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
             title: "Select NGS Preprocessing Pipeline",
             display: {
                 buttonsVisible: false,
-                className: "row",
+                className: "d-flex align-items-stretch gap-3 flex-nowrap w-full",
                 layout: [
                     {
                         id: "select",
-                        className: "col-md-6",
+                        className: "w-full",
                     },
+                    // {
+                    //     id: "spacer",
+                    // },
                     {
                         id: "create",
-                        className: "col-md-6",
+                        className: "w-full",
                     },
                 ],
                 ...this.displayConfig,
@@ -181,6 +184,13 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                             },
                         },
                     ],
+                },
+                {
+                    id: "spacer",
+                    display: {
+                        className: "vr",
+                        render: () => nothing,
+                    },
                 },
                 {
                     id: "create",
