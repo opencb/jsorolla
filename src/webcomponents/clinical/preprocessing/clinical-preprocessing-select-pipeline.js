@@ -88,7 +88,8 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
         }
     }
 
-    onSelectPipeline(pipeline) {
+    onSelectPipeline(event, pipeline) {
+        event.stopPropagation();
         LitUtils.dispatchCustomEvent(this, "pipelineSelect", pipeline);
     }
 
@@ -144,19 +145,26 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                             display: {
                                 contentLayout: "vertical",
                                 listClassName: "d-flex flex-column gap-2",
-                                listItemClassName: "p-3 rounded-4 bg-white border border-gray-200 cursor-pointer d-flex flex-column gap-1",
+                                listItemClassName: "p-3 rounded-4 bg-white border border-gray-200 d-flex justify-content-between align-items-center gap-2",
                                 listItemClick: (event, pipeline) => {
                                     event.stopPropagation();
                                     this.onSelectPipeline(pipeline);
                                 },
                                 format: pipeline => html`
-                                    <div class="d-flex align-items-center">
-                                        <span class="fw-bold">${pipeline.content.name || pipeline.name}</span>
-                                        ${pipeline.content.version ? html`<span class="badge bg-secondary ms-2">v${pipeline.content.version}</span>` : nothing}
+                                    <div class="d-flex flex-column gap-1">
+                                        <div class="d-flex align-items-center">
+                                            <span class="fw-bold">${pipeline.content.name || pipeline.name}</span>
+                                            ${pipeline.content.version ? html`<span class="badge bg-secondary ms-2">v${pipeline.content.version}</span>` : nothing}
+                                        </div>
+                                        ${pipeline.content.description ? html`
+                                            <div class="text-muted">${pipeline.content.description}</div>
+                                        ` : nothing}
                                     </div>
-                                    ${pipeline.content.description ? html`
-                                        <div class="text-muted">${pipeline.content.description}</div>
-                                    ` : nothing}
+                                    <div class="d-flex align-items-center">
+                                        <button class="btn btn-light" @click="${event => this.onSelectPipeline(event, pipeline)}">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>
+                                    </div>
                                 `,
                                 defaultValue: () => html`
                                     <div class="text-center d-flex flex-column align-items-center p-5 bg-white rounded-4 border border-gray-200">
