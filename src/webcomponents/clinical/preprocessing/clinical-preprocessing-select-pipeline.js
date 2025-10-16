@@ -108,7 +108,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "NGS Preprocessing Parameters",
+            title: "Select NGS Preprocessing Pipeline",
             display: {
                 buttonsVisible: false,
                 className: "row",
@@ -127,7 +127,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
             sections: [
                 {
                     id: "select",
-                    title: "Select Pipeline",
+                    title: "Select Existing Pipeline",
                     elements: [
                         {
                             type: "custom",
@@ -184,7 +184,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                 },
                 {
                     id: "create",
-                    title: "Create Pipeline",
+                    title: "Create New Pipeline",
                     elements: [
                         {
                             type: "custom",
