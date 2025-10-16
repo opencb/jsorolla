@@ -162,7 +162,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                                     </div>
                                     <div class="d-flex align-items-center">
                                         <button class="btn btn-light" @click="${event => this.onSelectPipeline(event, pipeline)}">
-                                            <i class="fas fa-check-circle"></i>
+                                            <i class="fas fa-arrow-right"></i>
                                         </button>
                                     </div>
                                 `,
@@ -199,7 +199,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html`
-                                    <button class="btn btn-primary w-full d-flex align-items-center justify-content-center gap-1" @click="${() => this.onCreatePipeline()}">
+                                    <button class="btn btn-lg btn-primary w-full d-flex align-items-center justify-content-center gap-2" @click="${() => this.onCreatePipeline()}">
                                         <i class="fas fa-plus-circle"></i>
                                         <span>Create New Pipeline</span>
                                     </button>
