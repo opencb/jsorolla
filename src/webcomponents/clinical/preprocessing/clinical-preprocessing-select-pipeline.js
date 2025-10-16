@@ -90,7 +90,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
 
     onSelectPipeline(event, pipeline) {
         event.stopPropagation();
-        LitUtils.dispatchCustomEvent(this, "pipelineSelect", pipeline);
+        LitUtils.dispatchCustomEvent(this, "pipelineSelect", null, pipeline);
     }
 
     onCreatePipeline() {

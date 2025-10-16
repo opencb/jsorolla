@@ -37,6 +37,8 @@ export default class ClinicalPreprocessing extends LitElement {
             },
             preprocessing: {
                 pipeline: null,
+                name: "",
+                description: "",
                 input: {
                     files: [],
                     sample: "",
@@ -97,7 +99,7 @@ export default class ClinicalPreprocessing extends LitElement {
 
     onPipelineClear() {
         this._stepsParams.preprocessing = {
-            ...this._stepsParams.preprocessing,
+            input: this._stepsParams.preprocessing.input,
             pipeline: null,
             steps: [],
         };
@@ -106,9 +108,21 @@ export default class ClinicalPreprocessing extends LitElement {
 
     onPipelineCreate() {
         this._stepsParams.preprocessing = {
-            ...this._stepsParams.preprocessing,
+            input: this._stepsParams.preprocessing.input,
             pipeline: "",
             steps: [],
+        };
+        this.requestUpdate();
+    }
+
+    onPipelineSelect(event) {
+        this._stepsParams.preprocessing = {
+            input: this._stepsParams.preprocessing.input,
+            pipeline: event.detail.path,
+            name: event.detail.content?.name || "",
+            description: event.detail.content?.description || "",
+            version: event.detail.content?.version,
+            steps: event.detail.content?.steps || [],
         };
         this.requestUpdate();
     }
@@ -269,7 +283,8 @@ export default class ClinicalPreprocessing extends LitElement {
                         ${this._stepsParams?.preprocessing?.pipeline === null ? html`
                             <clinical-preprocessing-select-pipeline
                                 .opencgaSession="${this.opencgaSession}"
-                                @pipelineCreate="${() => this.onPipelineCreate()}">
+                                @pipelineSelect="${event => this.onPipelineSelect(event)}"
+                                @pipelineCreate="${event => this.onPipelineCreate(event)}">
                             </clinical-preprocessing-select-pipeline>
                         ` : nothing}
                         ${this._stepsParams?.preprocessing?.pipeline !== null ? html`
