@@ -56,7 +56,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             qc: {
                 options: {},
                 tool: {
-                    name: "fastqc",
+                    id: "fastqc",
                     parameters: {
                         threads: 2,
                     },
@@ -65,7 +65,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             alignment: {
                 options: {},
                 tool: {
-                    name: "bwa",
+                    id: "bwa",
                     index: "",
                     parameters: {
                         t: 2,
@@ -77,7 +77,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             vc: {
                 options: {},
                 tool: {
-                    name: "gatk",
+                    id: "gatk",
                     reference: "",
                     parameters: {},
                 }
@@ -117,19 +117,19 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         // 3. merge steps configuration
         if (this.toolParams?.steps?.length) {
             // 3.1. merge quality control step configuration
-            const qualityControl = this.toolParams.steps.find(step => step.name === "quality-control");
+            const qualityControl = this.toolParams.steps.find(step => step.id === "quality-control" || step.name === "quality-control");
             if (qualityControl?.tool) {
                 Object.assign(this._toolParams.qc.tool, qualityControl.tool);
             }
 
             // 3.2. merge alignment step configuration
-            const alignment = this.toolParams.steps.find(step => step.name === "alignment");
+            const alignment = this.toolParams.steps.find(step => step.id === "alignment" || step.name === "alignment");
             if (alignment?.tool) {
                 Object.assign(this._toolParams.alignment.tool, alignment.tool);
             }
 
             // 3.3. merge variant calling step configuration
-            const variantCalling = this.toolParams.steps.find(step => step.name === "variant-calling");
+            const variantCalling = this.toolParams.steps.find(step => step.id === "variant-calling" || step.name === "variant-calling");
             if (variantCalling?.tools?.length) {
                 // currently we only support one variant calling tool
                 const vcTool = variantCalling.tools[0];
@@ -161,15 +161,15 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             },
             steps: [
                 {
-                    name: "quality-control",
+                    id: "quality-control",
                     ...this._toolParams.qc,
                 },
                 {
-                    name: "alignment",
+                    id: "alignment",
                     ...this._toolParams.alignment,
                 },
                 {
-                    name: "variant-calling",
+                    id: "variant-calling",
                     options: this._toolParams.vc.options || {},
                     tools: [
                         this._toolParams.vc.tool,
@@ -317,7 +317,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Alignment Tool",
-                        field: "alignment.tool.name",
+                        field: "alignment.tool.id",
                         type: "select",
                         allowedValues: ["bwa"],
                         defaultValue: "bwa",
@@ -330,22 +330,23 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         field: "alignment.tool.index",
                         type: "custom",
                         display: {
-                            render: (sample, dataFormFilterChange) => {
+                            render: (alignmentIndex, dataFormFilterChange) => {
                                 return html `
                                     <catalog-search-autocomplete
-                                        .value="${sample}"
+                                        .value="${alignmentIndex}"
                                         .resource="${"FILE"}"
                                         .searchField="${"path"}"
-                                        .query="${{study: this.opencgaSession.study.fqn}}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
+                                        .config="${{
+                                            multiple: false,
+                                        }}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
                             },
-                            help: {
-                                text: "Select a sample to run QC. Only Study Admins can execute QC analysis"
-                            },
+                            // help: {
+                            //     text: "Select a sample to run QC. Only Study Admins can execute QC analysis"
+                            // },
                         }
                     },
                     {
@@ -378,7 +379,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Alignment Tool",
-                        field: "vc.tool.name",
+                        field: "vc.tool.id",
                         type: "select",
                         allowedValues: ["gatk"],
                         defaultValue: "gatk",
@@ -388,7 +389,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     },
                     {
                         title: "Variant Callers - GATK",
-                        field: "vc.tool.parameters.joint_germline",
+                        field: "vc.tool.options.joint",
                         type: "checkbox",
                         display: {
                             helpMessage: "Turn on the joint germline variant calling for GATK haplotypecaller. " +
@@ -410,22 +411,23 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         field: "vc.tool.reference",
                         type: "custom",
                         display: {
-                            render: (sample, dataFormFilterChange) => {
+                            render: (reference, dataFormFilterChange) => {
                                 return html `
                                     <catalog-search-autocomplete
-                                        .value="${sample}"
+                                        .value="${reference}"
                                         .resource="${"FILE"}"
                                         .searchField="${"path"}"
-                                        .query="${{study: this.opencgaSession.study.fqn}}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
+                                        .config="${{
+                                            multiple: false,
+                                        }}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
                             },
-                            help: {
-                                text: "Select a sample to run QC. Only Study Admins can execute QC analysis"
-                            },
+                            // help: {
+                            //     text: "Select a sample to run QC. Only Study Admins can execute QC analysis"
+                            // },
                         }
                     },
                 ],
