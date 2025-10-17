@@ -46,9 +46,8 @@ export default class ClinicalPreprocessingSummary extends LitElement {
 
     toolParamsObserver() {
         this._params = {
-            select: this.toolParams?.select,
             input: this.toolParams?.preprocessing?.input,
-            preprocessing: {
+            steps: {
                 qc: this.toolParams?.preprocessing?.steps?.find(step => step.id === "quality-control" || step.name === "quality-control"),
                 alignment: this.toolParams?.preprocessing?.steps?.find(step => step.id === "alignment" || step.name === "alignment"),
                 vc: this.toolParams?.preprocessing?.steps?.find(step => step.id === "variant-calling" || step.name === "variant-calling"),
@@ -136,13 +135,13 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                     elements: [
                         {
                             title: "Tool",
-                            field: "preprocessing.qc.tool.id",
+                            field: "steps.qc.tool.id",
                         },
                         {
                             title: "Parameters",
                             type: "table",
                             display: {
-                                getData: data => this.getParameters(data.preprocessing.qc?.tool?.parameters),
+                                getData: data => this.getParameters(data.steps.qc?.tool?.parameters),
                                 className: "table-borderless table-grid mb-0",
                                 defaultValue: "No parameters available.",
                                 columns: [
@@ -165,11 +164,11 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                     elements: [
                         {
                             title: "Tool",
-                            field: "preprocessing.alignment.tool.id",
+                            field: "steps.alignment.tool.id",
                         },
                         {
                             title: "Alignment Index",
-                            field: "preprocessing.alignment.tool.index",
+                            field: "steps.alignment.tool.index",
                             type: "custom",
                             display: {
                                 render: (index) => {
@@ -181,7 +180,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                             title: "Parameters",
                             type: "table",
                             display: {
-                                getData: data => this.getParameters(data.preprocessing.alignment?.tool?.parameters),
+                                getData: data => this.getParameters(data.steps.alignment?.tool?.parameters),
                                 className: "table-borderless table-grid mb-0",
                                 defaultValue: "No parameters available.",
                                 columns: [
@@ -205,7 +204,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                         {
                             type: "table",
                             display: {
-                                getData: data => data.preprocessing.vc?.tools || [],
+                                getData: data => data.steps.vc?.tools || [],
                                 className: "table-borderless table-grid mb-0",
                                 defaultValue: "No Variant Calling tools available.",
                                 columns: [
@@ -219,12 +218,13 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                                         type: "custom",
                                         display: {
                                             render: (reference) => {
-                                                return reference ? html`<code>${reference}</code>` : "Not specified.";
+                                                return reference ? html`<code class="text-break">${reference}</code>` : "Not specified.";
                                             },
                                         },
                                     },
                                     {
                                         title: "Options",
+                                        field: "options",
                                         type: "custom",
                                         display: {
                                             render: (options) => {
@@ -240,6 +240,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                                     },
                                     {
                                         title: "Parameters",
+                                        field: "parameters",
                                         type: "custom",
                                         display: {
                                             render: (parameters) => {
