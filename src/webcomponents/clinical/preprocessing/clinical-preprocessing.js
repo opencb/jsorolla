@@ -1,8 +1,10 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
+import ModalUtils from "../../commons/modal/modal-utils.js";
 import "./clinical-preprocessing-select-files.js";
 import "./clinical-preprocessing-select-pipeline.js";
+import "./clinical-preprocessing-save-pipeline.js";
 import "./clinical-preprocessing-summary.js";
 import "./clinical-preprocessing-analysis.js";
 import "../../commons/tool-header.js";
@@ -52,6 +54,7 @@ export default class ClinicalPreprocessing extends LitElement {
         this._activeStepIndex = 0;
         this._stepsParams = UtilsNew.objectClone(this.DEFAULT_STEPS_PARAMS);
         this._running = false;
+        this._showPipelineInfoModal = false;
         this._config = this.getDefaultConfig();
     }
 
@@ -62,6 +65,12 @@ export default class ClinicalPreprocessing extends LitElement {
         super.update(changedProperties);
     }
 
+    updated(changedProperties) {
+        if (this._showPipelineInfoModal) {
+            ModalUtils.show("PipelineInfoModal");
+        }
+    }
+
     navigationButtonsVisible() {
         // next/previous buttons are not visible when the pipeline selection is visible
         if (this._activeStepIndex === 1 && this._stepsParams?.preprocessing?.pipeline === null) {
@@ -69,6 +78,10 @@ export default class ClinicalPreprocessing extends LitElement {
         }
         // other case, buttons are visible
         return true;
+    }
+
+    savePipeline(pipeline) {
+        // TODO
     }
 
     onChangeActiveStep(event, newStepIndex) {
@@ -151,6 +164,19 @@ export default class ClinicalPreprocessing extends LitElement {
             steps: event.detail.content?.steps || [],
         };
         this.requestUpdate();
+    }
+
+    onPipelineInfoModalShow() {
+        this._showPipelineInfoModal = true;
+        this.requestUpdate();
+    }
+
+    onPipelineInfoModalHide() {
+        this._showPipelineInfoModal = false;
+        this.requestUpdate();
+    }
+
+    onPipelineSave(event) {
     }
 
     async onExecute() {
@@ -248,6 +274,26 @@ export default class ClinicalPreprocessing extends LitElement {
         `;
     }
 
+    renderPipelineInfoModal() {
+        return ModalUtils.create(this, "PipelineInfoModal", {
+            display: {
+                title: `Save Pipeline`,
+                size: "modal-md",
+                buttonsVisible: false,
+                draggable: false,
+            },
+            render: () => html`
+                <clinical-preprocessing-save-pipeline
+                    .opencgaSession="${this.opencgaSession}"
+                    @pipelineSave="${event => {
+                        // TODO: save pipeline calling the this.onPipelineSave method
+                        this.onPipelineInfoModalHide();
+                    }}">
+                </clinical-preprocessing-save-pipeline>
+            `,
+        });
+    }
+
     render() {
         if (!this.opencgaSession) {
             return nothing;
@@ -281,6 +327,7 @@ export default class ClinicalPreprocessing extends LitElement {
                     </div>
                 ` : nothing}
             </div>
+            ${this._showPipelineInfoModal ? this.renderPipelineInfoModal() : nothing}
         `;
     }
 
@@ -357,13 +404,21 @@ export default class ClinicalPreprocessing extends LitElement {
                     title: "Run",
                     icon: "fas fa-play-circle",
                     render: () => html`
-                        <clinical-preprocessing-summary
-                            .toolParams="${this._stepsParams}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .displayConfig="${{
-                                buttonsVisible: false,
-                            }}">
-                        </clinical-preprocessing-summary>
+                        <div class="position-relative">
+                            <clinical-preprocessing-summary
+                                .toolParams="${this._stepsParams}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .displayConfig="${{
+                                    buttonsVisible: false,
+                                }}">
+                            </clinical-preprocessing-summary>
+                            <div class="position-absolute top-0 end-0">
+                                <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onPipelineInfoModalShow()}">
+                                    <i class="fas fa-save"></i>
+                                    <span>Save As a New Pipeline</span>
+                                </button>
+                            </div>
+                        </div>
                     `,
                 },
             ],
