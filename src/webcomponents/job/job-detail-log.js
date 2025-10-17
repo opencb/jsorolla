@@ -56,24 +56,16 @@ export default class JobDetailLog extends LitElement {
         this.content = null;
     }
 
-    async updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("job")) {
             this.jobId = this.job.id;
-            if (this.active) {
-                this.fetchContent(this.job, {command: this.command, type: this.type});
-            }
         }
 
         if (changedProperties.has("active")) {
             this.content = null;
-            this.requestUpdate();
-            await this.updateComplete;
-            if (this.active) {
-                this.fetchContent(this.job, {command: this.command, type: this.type});
-            } else {
-                this.clearReload();
-            }
         }
+
+        super.update(changedProperties);
     }
 
     setCommand(command) {
