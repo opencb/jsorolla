@@ -287,10 +287,10 @@ export default class CatalogGridFormatter {
     static variantStatusFormatter(internalVariant) {
         let indexHtml = internalVariant?.index?.status?.id === "READY"
             ? `<i class="fas fa-check text-success" title="VCF Variant indexed"></i>`
-            : `<span class="text-danger">${internalVariant.index.status.id}</span>`;
+            : `<span class="text-danger">${internalVariant?.index?.status?.id || "-"}</span>`;
         let annotationHtml = internalVariant?.annotationIndex?.status?.id === "READY"
             ? `<i class="fas fa-check text-success" title="Variant Annotation indexed"></i>`
-            : `<span class="text-danger">${internalVariant.annotationIndex.status.id}</span>`;
+            : `<span class="text-danger">${internalVariant?.annotationIndex?.status?.id || "-"}</span>`;
 
         return `
             <div class="d-flex flex-column gap-1">
@@ -303,7 +303,7 @@ export default class CatalogGridFormatter {
     static alignmentStatusFormatter(internalAlignment) {
         let indexHtml = internalAlignment?.index?.status?.id === "READY"
             ? `<i class="fas fa-check text-success" title="Alignment file indexed"></i>`
-            : `<span class="text-danger">${internalAlignment.index.status.id}</span>`;
+            : `<span class="text-danger">${internalAlignment?.index?.status?.id || "-"}</span>`;
 
         return `
             <div class="d-flex flex-column gap-1">
