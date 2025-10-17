@@ -53,6 +53,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                 vc: this.toolParams?.preprocessing?.steps?.find(step => step.id === "variant-calling" || step.name === "variant-calling"),
             },
         };
+        debugger;
     }
 
     getParameters(data) {
