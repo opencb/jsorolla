@@ -79,6 +79,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 tool: {
                     id: "gatk",
                     reference: "",
+                    options: {},
                     parameters: {},
                 }
             }
@@ -247,7 +248,6 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         title: "Reference Genome Indexes",
                         field: "indexDir",
                         type: "custom",
-                        description: "Folder containing the indexes shared by the different tools used in the pipeline.",
                         display: {
                             render: (indexDir, dataFormFilterChange) => {
                                 return html `
@@ -261,6 +261,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
+                            },
+                            help: {
+                                text: "Folder containing the indexes shared by the different tools used in the pipeline.",
                             },
                         },
                     },
