@@ -52,9 +52,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
 
         this.DEFAULT_TOOLPARAMS = {
             step: "quality-control",
-            // genome: "https://ftp.ensembl.org/pub/release-115/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
-            index: "",
-            files: "",
+            indexDir: "",
             qc: {
                 options: {},
                 tool: {
@@ -112,9 +110,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
 
         // 2. copy toolParams.input.files (array) to internal toolParams.files (string)
-        if (this.toolParams?.input?.files) {
-            this._toolParams.files = this.toolParams.input.files.join(",");
-        }
+        // if (this.toolParams?.input?.files) {
+        //     this._toolParams.files = this.toolParams.input.files.join(",");
+        // }
 
         // 3. merge steps configuration
         if (this.toolParams?.steps?.length) {
@@ -158,8 +156,8 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
     dispatchChange() {
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
             input: {
-                files: this._toolParams.files?.split(",")?.filter(Boolean) || [],
-                index: this._toolParams.index || "",
+                // files: this._toolParams.files?.split(",")?.filter(Boolean) || [],
+                indexDir: this._toolParams.indexDir || "",
             },
             steps: [
                 {
@@ -206,35 +204,35 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             {
                 title: "Input Parameters",
                 elements: [
-                    {
-                        title: "Select FastQ Files",
-                        field: "files",
-                        type: "custom",
-                        required: true,
-                        display: {
-                            render: (sample, dataFormFilterChange) => {
-                                return html `
-                                    <catalog-search-autocomplete
-                                        .value="${sample}"
-                                        .resource="${"FILE"}"
-                                        .query="${{
-                                            study: this.opencgaSession.study.fqn,
-                                            format: "FASTQ",
-                                        }}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{
-                                            multiple: true,
-                                            disabled: (this.toolParams?.input?.files || []).length > 0,
-                                        }}"
-                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                    </catalog-search-autocomplete>
-                                `;
-                            },
-                            help: {
-                                text: "Select a sample to run QC. Only Study Admins can execute QC analysis"
-                            },
-                        }
-                    },
+                    // {
+                    //     title: "Select FastQ Files",
+                    //     field: "files",
+                    //     type: "custom",
+                    //     required: true,
+                    //     display: {
+                    //         render: (sample, dataFormFilterChange) => {
+                    //             return html `
+                    //                 <catalog-search-autocomplete
+                    //                     .value="${sample}"
+                    //                     .resource="${"FILE"}"
+                    //                     .query="${{
+                    //                         study: this.opencgaSession.study.fqn,
+                    //                         format: "FASTQ",
+                    //                     }}"
+                    //                     .opencgaSession="${this.opencgaSession}"
+                    //                     .config="${{
+                    //                         multiple: true,
+                    //                         disabled: (this.toolParams?.input?.files || []).length > 0,
+                    //                     }}"
+                    //                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                    //                 </catalog-search-autocomplete>
+                    //             `;
+                    //         },
+                    //         help: {
+                    //             text: "Select a sample to run QC. Only Study Admins can execute QC analysis"
+                    //         },
+                    //     }
+                    // },
                     {
                         title: "Starting Step",
                         field: "step",
@@ -245,37 +243,27 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                             helpMessage: "Select the starting step of the secondary analysis."
                         }
                     },
-                    // {
-                    //     title: "Download a Reference Genome",
-                    //     field: "genome",
-                    //     type: "input-text",
-                    //     // allowedValues: ["GATK.GRCh38", "GRCh37", ],
-                    //     // defaultValue: "GATK.GRCh38",
-                    //     display: {
-                    //         helpMessage: "Name of iGenomes reference. If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. 'genome GATK.GRCh38'."
-                    //     }
-                    // },
                     {
                         title: "Reference Genome Indexes",
-                        field: "index",
+                        field: "indexDir",
                         type: "custom",
-                        description: "FASTA file with the reference genome indexes. If not provided, the pipeline will download the reference genome from Ensembl.",
+                        description: "Folder containing the indexes shared by the different tools used in the pipeline.",
                         display: {
-                            render: (sample, dataFormFilterChange) => {
+                            render: (indexDir, dataFormFilterChange) => {
                                 return html `
                                     <catalog-search-autocomplete
-                                        .value="${sample}"
+                                        .value="${indexDir}"
                                         .resource="${"DIRECTORY"}"
-                                        .query="${{study: this.opencgaSession.study.fqn}}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
+                                        .config="${{
+                                            multiple: false,
+                                        }}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
                             },
-                        }
+                        },
                     },
-
                 ],
             },
             {
