@@ -89,7 +89,7 @@ export default class ClinicalPreprocessing extends LitElement {
         // 1. get the file objects selected
         const fileIds = new Set(analysisConfig?.fileIds?.split(",")?.filter(Boolean) || []);
         const files = analysisConfig?.files.filter(file => {
-            return fileIds.has(file.id);
+            return fileIds.has(file.fileId);
         });
 
         // 2. generate a list with the samples and their files
@@ -104,7 +104,7 @@ export default class ClinicalPreprocessing extends LitElement {
                 });
             }
             // include the file in the sample files list
-            samplesMap.get(fileObject.sampleId).files.push(fileObject.id);
+            samplesMap.get(fileObject.sampleId).files.push(fileObject.fileId);
         });
         
         // 3. update the preprocessing input samples
