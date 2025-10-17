@@ -117,9 +117,10 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                         id: "select",
                         className: "w-full",
                     },
-                    // {
-                    //     id: "spacer",
-                    // },
+                    {
+                        id: "spacer",
+                        className: "border-end border-gray-200 mx-5",
+                    },
                     {
                         id: "create",
                         className: "w-full",
@@ -187,10 +188,6 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                 },
                 {
                     id: "spacer",
-                    display: {
-                        className: "vr",
-                        render: () => nothing,
-                    },
                 },
                 {
                     id: "create",
