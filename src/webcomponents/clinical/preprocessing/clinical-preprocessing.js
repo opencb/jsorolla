@@ -276,8 +276,8 @@ export default class ClinicalPreprocessing extends LitElement {
     renderPipelineInfoModal() {
         return ModalUtils.create(this, "PipelineInfoModal", {
             display: {
-                title: `Save Pipeline`,
-                size: "modal-md",
+                title: `Save As New Pipeline`,
+                size: "modal-lg",
                 buttonsVisible: false,
                 draggable: false,
             },
@@ -411,10 +411,14 @@ export default class ClinicalPreprocessing extends LitElement {
                                     buttonsVisible: false,
                                 }}">
                             </clinical-preprocessing-summary>
-                            <div class="position-absolute top-0 end-0">
+                            <div class="position-absolute top-0 end-0 d-flex gap-2">
                                 <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onPipelineInfoModalShow()}">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Save As New Pipeline</span>
+                                </button>
+                                <button class="btn btn-primary d-flex align-items-center gap-2">
                                     <i class="fas fa-save"></i>
-                                    <span>Save As a New Pipeline</span>
+                                    <span>Save Pipeline</span>
                                 </button>
                             </div>
                         </div>
