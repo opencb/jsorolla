@@ -47,10 +47,11 @@ export default class ClinicalPreprocessingSummary extends LitElement {
     toolParamsObserver() {
         this._params = {
             select: this.toolParams?.select,
+            input: this.toolParams?.preprocessing?.input,
             preprocessing: {
-                qc: this.toolParams?.preprocessing?.steps?.find(step => step.name === "quality-control"),
-                alignment: this.toolParams?.preprocessing?.steps?.find(step => step.name === "alignment"),
-                vc: this.toolParams?.preprocessing?.steps?.find(step => step.name === "variant-calling"),
+                qc: this.toolParams?.preprocessing?.steps?.find(step => step.id === "quality-control" || step.name === "quality-control"),
+                alignment: this.toolParams?.preprocessing?.steps?.find(step => step.id === "alignment" || step.name === "alignment"),
+                vc: this.toolParams?.preprocessing?.steps?.find(step => step.id === "variant-calling" || step.name === "variant-calling"),
             },
         };
     }
@@ -86,73 +87,56 @@ export default class ClinicalPreprocessingSummary extends LitElement {
             },
             sections: [
                 {
-                    title: "Selected Files",
+                    title: "Input Params",
                     display: {},
                     elements: [
                         {
-                            field: "select.analysisType",
-                            title: "Analysis Type",
-                        },
-                        {
-                            title: "Selected Files",
-                            field: "select",
+                            title: "Samples",
+                            field: "input.samples",
                             type: "table",
                             display: {
                                 getData: data => {
-                                    const analysisType = data.select?.analysisType?.toLowerCase();
-                                    const fileIds = data.select?.[analysisType]?.fileIds?.split(",") || [];
-
-                                    // filter and return only the selected files
-                                    return (data.select?.[analysisType]?.files || []).filter(ffileId => {
-                                        return fileIds.includes(ffileId.fileId);
-                                    });
+                                    return data.input.samples || [];
                                 },
                                 className: "table-borderless table-grid mb-0",
-                                defaultValue: "No files selected.",
+                                defaultValue: "No samples selected.",
                                 columns: [
                                     {
-                                        title: "Individual",
-                                        field: "individualId",
+                                        title: "Sample",
+                                        field: "id",
                                     },
                                     {
-                                        title: "Sample",
-                                        field: "sampleId",
+                                        title: "Type",
+                                        field: "somatic",
                                         type: "custom",
                                         display: {
-                                            render: (sampleId, onFieldChange, updateParams, data, row) => html`
-                                                <div class="mb-1">${sampleId}</div>
-                                                <div class="text-muted fs-7">${row.sampleSomatic ? "Somatic" : "Germline"}</div>
-                                            `,
+                                            render: somatic => somatic ? "Somatic" : "Germline",
                                         },
                                     },
                                     {
-                                        title: "File",
-                                        field: "fileName",
-                                    },
-                                    {
-                                        title: "Format",
-                                        field: "fileFormat",
-                                    },
-                                    {
-                                        title: "Size",
-                                        field: "fileSize",
+                                        title: "Files",
+                                        field: "files",
                                         type: "custom",
                                         display: {
-                                            render: size => UtilsNew.getDiskUsage(size),
+                                            render: files => files ? files.map(file => html`<div>${file}</div>`) : "No files selected.",
                                         },
                                     },
                                 ],
                             },
                         },
+                        {
+                            field: "input.indexDir",
+                            title: "Index Directory",
+                        },
                     ],
                 },
                 {
-                    title: "Quality Control Options",
+                    title: "Quality Control Params",
                     display: {},
                     elements: [
                         {
                             title: "Tool",
-                            field: "preprocessing.qc.tool.name",
+                            field: "preprocessing.qc.tool.id",
                         },
                         {
                             title: "Parameters",
@@ -176,12 +160,12 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                     ],
                 },
                 {
-                    title: "Alignment Options",
+                    title: "Alignment Params",
                     display: {},
                     elements: [
                         {
                             title: "Tool",
-                            field: "preprocessing.alignment.tool.name",
+                            field: "preprocessing.alignment.tool.id",
                         },
                         {
                             title: "Alignment Index",
@@ -215,7 +199,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                     ],
                 },
                 {
-                    title: "Variant Calling Options",
+                    title: "Variant Calling Params",
                     display: {},
                     elements: [
                         {
@@ -226,8 +210,8 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                                 defaultValue: "No Variant Calling tools available.",
                                 columns: [
                                     {
-                                        title: "Tool Name",
-                                        field: "name",
+                                        title: "Tool",
+                                        field: "id",
                                     },
                                     {
                                         title: "Reference",
@@ -236,6 +220,21 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                                         display: {
                                             render: (reference) => {
                                                 return reference ? html`<code>${reference}</code>` : "Not specified.";
+                                            },
+                                        },
+                                    },
+                                    {
+                                        title: "Options",
+                                        type: "custom",
+                                        display: {
+                                            render: (options) => {
+                                                const opts = this.getParameters(options);
+                                                if (opts.length === 0) {
+                                                    return html`<span>No options available.</span>`;
+                                                }
+                                                return opts.map(opt => html`
+                                                    <div><b>${opt.key}:</b> ${opt.value}</div>
+                                                `);
                                             },
                                         },
                                     },
