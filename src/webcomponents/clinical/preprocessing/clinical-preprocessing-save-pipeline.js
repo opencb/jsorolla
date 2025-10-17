@@ -65,8 +65,16 @@ export default class ClinicalPreprocessingSavePipeline extends LitElement {
                     elements: [
                         {
                             type: "input-text",
+                            field: "fileName",
+                            title: "File Name",
+                            required: true,
+                            display: {
+                            },
+                        },
+                        {
+                            type: "input-text",
                             field: "name",
-                            title: "Name",
+                            title: "Pipeline Name",
                             required: true,
                             display: {
                             },
@@ -74,7 +82,7 @@ export default class ClinicalPreprocessingSavePipeline extends LitElement {
                         {
                             type: "input-text",
                             field: "description",
-                            title: "Description",
+                            title: "Pipeline Description",
                             display: {
                             },
                         },
