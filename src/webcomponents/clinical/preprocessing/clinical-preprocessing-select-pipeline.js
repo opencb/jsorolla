@@ -154,22 +154,31 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                                     event.stopPropagation();
                                     this.onSelectPipeline(pipeline);
                                 },
-                                format: pipeline => html`
-                                    <div class="d-flex flex-column gap-1">
-                                        <div class="d-flex align-items-center">
-                                            <span class="fw-bold">${pipeline.content.name || pipeline.name}</span>
-                                            ${pipeline.content.version ? html`<span class="badge bg-secondary ms-2">v${pipeline.content.version}</span>` : nothing}
+                                format: pipeline => {
+                                    // note: we support step.id and step.name for backward compatibility
+                                    const alignmentStep = pipeline.content?.steps?.find(step => step.id === "alignment" || step.name === "alignment");
+                                    const variantCallingStep = pipeline.content?.steps?.find(step => step.id === "variant-_calling" || step.name === "variant-calling");
+                                    return html`
+                                        <div class="d-flex flex-column gap-1">
+                                            <div class="d-flex align-items-center">
+                                                <span class="fw-bold">${pipeline.content.name || pipeline.name}</span>
+                                                ${pipeline.content.version ? html`<span class="badge bg-secondary ms-2">v${pipeline.content.version}</span>` : nothing}
+                                            </div>
+                                            <div class="d-flex gap-3 align-items-center">
+                                                <span>Alignment Tool: <b>${alignmentStep?.tool?.id || alignmentStep?.tool?.name || "-"}</b></span>
+                                                <span>Variant Calling Tools: <b>${(variantCallingStep?.tools || []).map(t => t.id || t.name).join(", ") || "-"}</b></span>
+                                            </div>
+                                            ${pipeline.content.description ? html`
+                                                <div class="text-muted">${pipeline.content.description}</div>
+                                            ` : nothing}
                                         </div>
-                                        ${pipeline.content.description ? html`
-                                            <div class="text-muted">${pipeline.content.description}</div>
-                                        ` : nothing}
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <button class="btn btn-light d-flex py-2" @click="${event => this.onSelectPipeline(event, pipeline)}">
-                                            <i class="fas fa-arrow-right fs-5"></i>
-                                        </button>
-                                    </div>
-                                `,
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-light d-flex py-2" @click="${event => this.onSelectPipeline(event, pipeline)}">
+                                                <i class="fas fa-arrow-right fs-5"></i>
+                                            </button>
+                                        </div>
+                                    `;
+                                },
                                 defaultValue: () => html`
                                     <div class="text-center d-flex flex-column align-items-center p-5 bg-white rounded-4 border border-gray-200">
                                         <div class="d-flex fs-1 text-secondary mb-2">
