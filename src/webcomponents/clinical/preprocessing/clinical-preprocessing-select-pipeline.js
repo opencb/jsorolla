@@ -161,7 +161,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                                     return html`
                                         <div class="d-flex flex-column gap-1">
                                             <div class="d-flex align-items-center">
-                                                <span class="fw-bold">${pipeline.content.name || pipeline.name}</span>
+                                                <span class="fw-bold fs-5">${pipeline.content.name || pipeline.name}</span>
                                                 ${pipeline.content.version ? html`<span class="badge bg-secondary ms-2">v${pipeline.content.version}</span>` : nothing}
                                             </div>
                                             <div class="d-flex gap-3 align-items-center">
