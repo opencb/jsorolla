@@ -68,6 +68,17 @@ export default class JobDetailLog extends LitElement {
         super.update(changedProperties);
     }
 
+    updated(changedProperties) {
+        if (changedProperties.has("active") || changedProperties.has("job")) {
+            if (this.active) {
+                this.fetchContent(this.job, {command: this.command, type: this.type});
+                this.setReloadInterval();
+            } else {
+                this.clearReload();
+            }
+        }
+    }
+
     setCommand(command) {
         this.command = command;
         this.clearReload();
