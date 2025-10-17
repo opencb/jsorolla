@@ -65,12 +65,6 @@ export default class ClinicalPreprocessing extends LitElement {
         super.update(changedProperties);
     }
 
-    updated(changedProperties) {
-        if (this._showPipelineInfoModal) {
-            ModalUtils.show("PipelineInfoModal");
-        }
-    }
-
     navigationButtonsVisible() {
         // next/previous buttons are not visible when the pipeline selection is visible
         if (this._activeStepIndex === 1 && this._stepsParams?.preprocessing?.pipeline === null) {
@@ -169,6 +163,11 @@ export default class ClinicalPreprocessing extends LitElement {
     onPipelineInfoModalShow() {
         this._showPipelineInfoModal = true;
         this.requestUpdate();
+
+        // await to update complete to show the modal to enter the pipeline info
+        this.updateComplete.then(() => {
+            ModalUtils.show("PipelineInfoModal");
+        });
     }
 
     onPipelineInfoModalHide() {
