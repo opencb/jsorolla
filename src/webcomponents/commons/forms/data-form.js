@@ -524,7 +524,7 @@ export default class DataForm extends LitElement {
                 // Render without layout
                 return html`
                     <div class="${layoutClassName} ${className}" style="${style}">
-                        ${this.config.sections.map(section => this._createSection(section, 0))}
+                        ${(this.config.sections || []).map(section => this._createSection(section, 0))}
                     </div>
                 `;
             }
@@ -607,7 +607,7 @@ export default class DataForm extends LitElement {
             // 3. otherwise render vertically
             content = html`
                 <div class="${sectionClassName}" style="${sectionStyle}">
-                    ${section.elements.map(element => this._createElement(element, section))}
+                    ${(section.elements || []).map(element => this._createElement(element, section))}
                 </div>
             `;
         }
