@@ -117,7 +117,11 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                                         field: "files",
                                         type: "custom",
                                         display: {
-                                            render: files => files ? files.map(file => html`<div>${file}</div>`) : "No files selected.",
+                                            render: files => {
+                                                return (files || []).map(file => {
+                                                    return html`<code class="d-block">${file}</code>`;
+                                                });
+                                            },
                                         },
                                     },
                                 ],
@@ -126,6 +130,12 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                         {
                             field: "input.indexDir",
                             title: "Index Directory",
+                            type: "custom",
+                            display: {
+                                render: indexDir => {
+                                    return indexDir ? html`<code class="text-break">${indexDir}</code>` : "Not specified.";
+                                },
+                            },
                         },
                     ],
                 },
