@@ -51,9 +51,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         this.ANALYSIS_DESCRIPTION = "";
 
         this.DEFAULT_TOOLPARAMS = {
-            step: "quality-control",
             indexDir: "",
-            qc: {
+            qualityControl: {
+                active: true,
                 options: {},
                 tool: {
                     id: "fastqc",
@@ -63,6 +63,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 },
             },
             alignment: {
+                active: true,
                 options: {},
                 tool: {
                     id: "bwa",
@@ -74,7 +75,8 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 },
 
             },
-            vc: {
+            variantCalling: {
+                active: true,
                 options: {},
                 tool: {
                     id: "gatk",
@@ -116,27 +118,42 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         // }
 
         // 3. merge steps configuration
-        if (this.toolParams?.steps?.length) {
+        if (this.toolParams?.steps) {
             // 3.1. merge quality control step configuration
-            const qualityControl = this.toolParams.steps.find(step => step.id === "quality-control" || step.name === "quality-control");
-            if (qualityControl?.tool) {
-                Object.assign(this._toolParams.qc.tool, qualityControl.tool);
+            if (this.toolParams.steps?.qualityControl) {
+                this._toolParams.qualityControl = {
+                    ...this._toolParams.qualityControl,
+                    ...this.toolParams.steps.qualityControl,
+                    tool: {
+                        ...this._toolParams.qualityControl.tool,
+                        ...this.toolParams.steps.qualityControl?.tool,
+                    },
+                };
             }
 
             // 3.2. merge alignment step configuration
-            const alignment = this.toolParams.steps.find(step => step.id === "alignment" || step.name === "alignment");
-            if (alignment?.tool) {
-                Object.assign(this._toolParams.alignment.tool, alignment.tool);
+            if (this.toolParams.steps?.alignment) {
+                this._toolParams.alignment = {
+                    ...this._toolParams.alignment,
+                    ...this.toolParams.steps.alignment,
+                    tool: {
+                        ...this._toolParams.alignment.tool,
+                        ...this.toolParams.steps.alignment?.tool,
+                    },
+                };
             }
 
             // 3.3. merge variant calling step configuration
-            const variantCalling = this.toolParams.steps.find(step => step.id === "variant-calling" || step.name === "variant-calling");
-            if (variantCalling?.tools?.length) {
-                // currently we only support one variant calling tool
-                const vcTool = variantCalling.tools[0];
-                if (vcTool) {
-                    Object.assign(this._toolParams.vc.tool, vcTool);
-                }
+            if (this.toolParams.steps?.variantCalling) {
+                const variantCallingTool = (this.toolParams.steps.variantCalling.tools || [])[0] || {};
+                this._toolParams.variantCalling = {
+                    ...this._toolParams.variantCalling,
+                    ...this.toolParams.steps.variantCalling,
+                    tool: {
+                        ...this._toolParams.variantCalling.tool,
+                        ...variantCallingTool,
+                    },
+                };
             }
         }
     }
@@ -157,34 +174,23 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
     dispatchChange() {
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
             input: {
-                // files: this._toolParams.files?.split(",")?.filter(Boolean) || [],
                 indexDir: this._toolParams.indexDir || "",
             },
-            steps: [
-                {
-                    id: "quality-control",
-                    ...this._toolParams.qc,
-                },
-                {
-                    id: "alignment",
-                    ...this._toolParams.alignment,
-                },
-                {
-                    id: "variant-calling",
-                    options: this._toolParams.vc.options || {},
+            steps: {
+                qualityControl: UtilsNew.objectClone(this._toolParams.qualityControl),
+                alignment: UtilsNew.objectClone(this._toolParams.alignment),
+                variantCalling: {
+                    ...UtilsNew.objectClone(this._toolParams.variantCalling),
                     tools: [
-                        this._toolParams.vc.tool,
+                        UtilsNew.objectClone(this._toolParams.variantCalling.tool),
                     ],
                 },
-            ],
+            },
         });
     }
 
     onClear() {
-        // this._toolParams = {
-        //     ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-        //     ...this.toolParams,
-        // };
+        this.toolParamsObserver();
         this.requestUpdate();
     }
 
@@ -234,16 +240,16 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     //         },
                     //     }
                     // },
-                    {
-                        title: "Starting Step",
-                        field: "step",
-                        type: "select",
-                        allowedValues: ["quality-control", "alignment", "variant-calling"],
-                        defaultValue: "quality-control",
-                        display: {
-                            helpMessage: "Select the starting step of the secondary analysis."
-                        }
-                    },
+                    // {
+                    //     title: "Starting Step",
+                    //     field: "step",
+                    //     type: "select",
+                    //     allowedValues: ["quality-control", "alignment", "variant-calling"],
+                    //     defaultValue: "quality-control",
+                    //     display: {
+                    //         helpMessage: "Select the starting step of the secondary analysis."
+                    //     }
+                    // },
                     {
                         title: "Reference Genome Indexes",
                         field: "indexDir",
@@ -275,7 +281,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Number of Threads",
-                        field: "qc.tool.parameters.threads",
+                        field: "qualityControl.tool.parameters.threads",
                         type: "input-num",
                         display: {
                             placeholder: "e.g. 2",
@@ -289,7 +295,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     },
                     {
                         title: "Minimum Length",
-                        field: "qc.tool.parameters.min_length",
+                        field: "qualityControl.tool.parameters.min_length",
                         type: "input-num",
                         display: {
                             helpMessage: "Sets an artificial lower limit on the length of the sequence\n" +
@@ -302,7 +308,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     },
                     {
                         title: "Oxford Nanopore Data",
-                        field: "qc.tool.parameters.nano",
+                        field: "qualityControl.tool.parameters.nano",
                         type: "checkbox",
                         defaultValue: false,
                         display: {
@@ -382,7 +388,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Alignment Tool",
-                        field: "vc.tool.id",
+                        field: "variantCalling.tool.id",
                         type: "select",
                         allowedValues: ["gatk"],
                         defaultValue: "gatk",
@@ -392,7 +398,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     },
                     {
                         title: "Variant Callers - GATK",
-                        field: "vc.tool.options.joint",
+                        field: "variantCalling.tool.options.joint",
                         type: "checkbox",
                         display: {
                             helpMessage: "Turn on the joint germline variant calling for GATK haplotypecaller. " +
@@ -411,7 +417,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     // },
                     {
                         title: "Reference Genome Index",
-                        field: "vc.tool.reference",
+                        field: "variantCalling.tool.reference",
                         type: "custom",
                         display: {
                             render: (reference, dataFormFilterChange) => {
