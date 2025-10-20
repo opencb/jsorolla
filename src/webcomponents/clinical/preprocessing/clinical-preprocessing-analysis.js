@@ -268,9 +268,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     </catalog-search-autocomplete>
                                 `;
                             },
-                            help: {
-                                text: "Folder containing the indexes shared by the different tools used in the pipeline.",
-                            },
+                            helpMessage: "Folder containing the indexes shared by the different tools used in the pipeline.",
                         },
                     },
                 ],
@@ -286,9 +284,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         display: {
                             onText: "Yes",
                             offText: "No",
-                            help: {
-                                text: "Activate or deactivate the quality control step.",
-                            },
+                            helpMessage: "Activate or deactivate the quality control step.",
                         },
                     },
                     {
@@ -296,27 +292,29 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         field: "qualityControl.tool.parameters.threads",
                         type: "input-num",
                         display: {
+                            disabled: data => !data.qualityControl.active,
                             placeholder: "e.g. 2",
                             min: 1,
-                            helpMessage: "Specifies the number of files which can be processed\n" +
-                                "                    simultaneously.  Each thread will be allocated 250MB of\n" +
-                                "                    memory so you shouldn't run more threads than your\n" +
-                                "                    available memory will cope with, and not more than\n" +
-                                "                    6 threads on a 32 bit machine"
-                        }
+                            helpMessage: [
+                                "Specifies the number of files which can be processed simultaneously.",
+                                "Each thread will be allocated 250MB of memory so you shouldn't run more threads than your",
+                                "available memory will cope with, and not more than 6 threads on a 32 bit machine.",
+                            ].join(" "),
+                        },
                     },
                     {
                         title: "Minimum Length",
                         field: "qualityControl.tool.parameters.min_length",
                         type: "input-num",
                         display: {
-                            helpMessage: "Sets an artificial lower limit on the length of the sequence\n" +
-                                "                    to be shown in the report.  As long as you set this to a value\n" +
-                                "                    greater or equal to your longest read length then this will be\n" +
-                                "                    the sequence length used to create your read groups.  This can\n" +
-                                "                    be useful for making directly comaparable statistics from \n" +
-                                "                    datasets with somewhat variable read lengths."
-                        }
+                            disabled: data => !data.qualityControl.active,
+                            helpMessage: [
+                                "Sets an artificial lower limit on the length of the sequence to be shown in the report.",
+                                "As long as you set this to a value greater or equal to your longest read length then this",
+                                "will be the sequence length used to create your read groups. This can be useful for making",
+                                "directly comaparable statistics from datasets with somewhat variable read lengths.",
+                            ].join(" "),
+                        },
                     },
                     {
                         title: "Oxford Nanopore Data",
@@ -324,11 +322,13 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         type: "checkbox",
                         defaultValue: false,
                         display: {
-                            helpMessage: "Files come from nanopore sequences and are in fast5 format. In\n" +
-                                "                    this mode you can pass in directories to process and the program\n" +
-                                "                    will take in all fast5 files within those directories and produce\n" +
-                                "                    a single output file from the sequences found in all files."
-                        }
+                            disabled: data => !data.qualityControl.active,
+                            helpMessage: [
+                                "Files come from nanopore sequences and are in fast5 format. In this mode you can pass in",
+                                "directories to process and the program will take in all fast5 files within those directories",
+                                "and produce a single output file from the sequences found in all files.",
+                            ].join(" "),
+                        },
                     },
                 ],
             },
@@ -343,9 +343,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         display: {
                             onText: "Yes",
                             offText: "No",
-                            help: {
-                                text: "Activate or deactivate the alignment step.",
-                            },
+                            helpMessage: "Activate or deactivate the alignment step.",
                         },
                     },
                     {
@@ -355,8 +353,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         allowedValues: ["bwa"],
                         defaultValue: "bwa",
                         display: {
+                            disabled: data => !data.alignment.active,
                             helpMessage: "Select the alignment tool to use. Options are 'bwa' (BWA-MEM), 'bwa-mem2' (BWA-MEM2) and 'minimap2' (Minimap2)."
-                        }
+                        },
                     },
                     {
                         title: "Alignment Index",
@@ -372,14 +371,12 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{
                                             multiple: false,
+                                            disabled: !this._toolParams?.alignment?.active,
                                         }}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
                             },
-                            // help: {
-                            //     text: "Select a sample to run QC. Only Study Admins can execute QC analysis"
-                            // },
                         }
                     },
                     {
@@ -387,22 +384,24 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         field: "alignment.tool.parameters.t",
                         type: "input-num",
                         display: {
+                            disabled: data => !data.alignment.active,
                             visible: params => params.alignment.tool.name === "bwa" || params.alignment.tool.name === "bwa-mem2",
                             placeholder: "e.g. 2",
                             min: 1,
                             helpMessage: "Number of threads to use for the alignment step."
-                        }
+                        },
                     },
                     {
                         title: "Minimum Seed Length",
                         field: "alignment.tool.parameters.k",
                         type: "input-num",
                         display: {
+                            disabled: data => !data.alignment.active,
                             visible: params => params.alignment.tool.name === "bwa" || params.alignment.tool.name === "bwa-mem2",
                             placeholder: "e.g. 2",
                             min: 1,
                             helpMessage: "Minimum seed length [19]"
-                        }
+                        },
                     },
                 ],
             },
@@ -417,9 +416,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         display: {
                             onText: "Yes",
                             offText: "No",
-                            help: {
-                                text: "Activate or deactivate the variant calling step.",
-                            },
+                            helpMessage: "Activate or deactivate the variant calling step.",
                         },
                     },
                     {
@@ -429,17 +426,21 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         allowedValues: ["gatk"],
                         defaultValue: "gatk",
                         display: {
-                            helpMessage: "Select the variant caller to use. Options are 'GATK' (HaplotypeCaller + GenotypeGVCFs), 'freebayes2' (FreeBayes2) and 'mutect2' (Mutect2)."
-                        }
+                            disabled: data => !data.variantCalling.active,
+                            // helpMessage: "Select the variant caller to use. Options are 'GATK' (HaplotypeCaller + GenotypeGVCFs), 'freebayes2' (FreeBayes2) and 'mutect2' (Mutect2)."
+                        },
                     },
                     {
                         title: "Variant Callers - GATK",
                         field: "variantCalling.tool.options.joint",
                         type: "checkbox",
                         display: {
-                            helpMessage: "Turn on the joint germline variant calling for GATK haplotypecaller. " +
-                                "Uses all normal germline samples (as designated by 'status' in the input csv) in the joint germline variant calling process."
-                        }
+                            disabled: data => !data.variantCalling.active,
+                            helpMessage: [
+                                "Turn on the joint germline variant calling for GATK haplotypecaller.",
+                                "Uses all normal germline samples (as designated by 'status' in the input csv) in the joint germline variant calling process.",
+                            ].join(" "),
+                        },
                     },
                     // {
                     //     title: "Variant Callers - Mutect2",
@@ -465,15 +466,13 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{
                                             multiple: false,
+                                            disabled: !this._toolParams?.variantCalling?.active,
                                         }}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
                             },
-                            // help: {
-                            //     text: "Select a sample to run QC. Only Study Admins can execute QC analysis"
-                            // },
-                        }
+                        },
                     },
                 ],
             },
