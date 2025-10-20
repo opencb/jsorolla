@@ -112,10 +112,10 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         // 1. reset the internal toolParams object to the default values
         this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
 
-        // 2. copy toolParams.input.files (array) to internal toolParams.files (string)
-        // if (this.toolParams?.input?.files) {
-        //     this._toolParams.files = this.toolParams.input.files.join(",");
-        // }
+        // 2. copy indexDir field
+        if (this.toolParams?.input?.indexDir) {
+            this._toolParams.indexDir = this.toolParams.input.indexDir;
+        }
 
         // 3. merge steps configuration
         if (this.toolParams?.steps) {

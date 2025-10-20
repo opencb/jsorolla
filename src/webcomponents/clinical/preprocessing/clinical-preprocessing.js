@@ -123,7 +123,9 @@ export default class ClinicalPreprocessing extends LitElement {
         Object.assign(this._stepsParams.preprocessing.input, event.detail.input);
 
         // 2. update the steps object with the steps selected
-        // this._stepsParams.preprocessing.steps = event.detail.steps || [];
+        if (event.detail.steps) {
+            this._stepsParams.preprocessing.steps = event.detail.steps;
+        }
     }
 
     onVariantIndexParamsChange(event) {
