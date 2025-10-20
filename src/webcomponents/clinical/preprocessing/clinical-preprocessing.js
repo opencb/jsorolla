@@ -2,6 +2,7 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import ModalUtils from "../../commons/modal/modal-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "./clinical-preprocessing-select-files.js";
 import "./clinical-preprocessing-select-pipeline.js";
 import "./clinical-preprocessing-save-pipeline.js";
@@ -74,8 +75,23 @@ export default class ClinicalPreprocessing extends LitElement {
         return true;
     }
 
-    savePipeline(pipeline) {
-        // TODO
+    savePipeline(pipelineFile, pipelineInfo) {
+        const pipelineContent = {
+            ...pipelineInfo,
+            steps: this._stepsParams.preprocessing.steps,
+        };
+        return this.opencgaSession.opencgaClient.files()
+            .updateContent(pipelineFile, pipelineContent, {
+                study: this.opencgaSession.study.fqn,
+            })
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `Pipeline ${pipelineInfo.name} saved.`,
+                });
+            })
+            .catch(error => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            });
     }
 
     onChangeActiveStep(event, newStepIndex) {
@@ -177,7 +193,12 @@ export default class ClinicalPreprocessing extends LitElement {
         this.requestUpdate();
     }
 
-    onPipelineSave(event) {
+    onPipelineSave() {
+        this.savePipeline(this._stepsParams.preprocessing.pipeline, {
+            name: this._stepsParams.preprocessing.name,
+            description: this._stepsParams.preprocessing.description,
+            version: this._stepsParams.preprocessing.version + 1,
+        });
     }
 
     async onExecute() {
@@ -287,7 +308,12 @@ export default class ClinicalPreprocessing extends LitElement {
                 <clinical-preprocessing-save-pipeline
                     .opencgaSession="${this.opencgaSession}"
                     @pipelineSave="${event => {
-                        // TODO: save pipeline calling the this.onPipelineSave method
+                        const pipelineFile = `/RESOURCES/clinical/pipelines/${event.detail.fileName}.json`;
+                        this.savePipeline(pipelineFile, {
+                            name: event.detail.name || "Untitled Pipeline",
+                            description: event.detail.description || "",
+                            version: 1,
+                        });
                         this.onPipelineInfoModalHide();
                     }}">
                 </clinical-preprocessing-save-pipeline>
