@@ -280,6 +280,18 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 description: "These parameters apply to FastQC quality control step",
                 elements: [
                     {
+                        title: "QC Active",
+                        field: "qualityControl.active",
+                        type: "toggle-switch",
+                        display: {
+                            onText: "Yes",
+                            offText: "No",
+                            help: {
+                                text: "Activate or deactivate the quality control step.",
+                            },
+                        },
+                    },
+                    {
                         title: "Number of Threads",
                         field: "qualityControl.tool.parameters.threads",
                         type: "input-num",
@@ -324,6 +336,18 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 title: "Alignment Options",
                 description: "These parameters apply to BWA alignment step",
                 elements: [
+                    {
+                        title: "Alignment Active",
+                        field: "alignment.active",
+                        type: "toggle-switch",
+                        display: {
+                            onText: "Yes",
+                            offText: "No",
+                            help: {
+                                text: "Activate or deactivate the alignment step.",
+                            },
+                        },
+                    },
                     {
                         title: "Alignment Tool",
                         field: "alignment.tool.id",
@@ -387,7 +411,19 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 description: "These parameters apply to variant calling step",
                 elements: [
                     {
-                        title: "Alignment Tool",
+                        title: "Variant Calling Active",
+                        field: "variantCalling.active",
+                        type: "toggle-switch",
+                        display: {
+                            onText: "Yes",
+                            offText: "No",
+                            help: {
+                                text: "Activate or deactivate the variant calling step.",
+                            },
+                        },
+                    },
+                    {
+                        title: "Variant Calling Tool",
                         field: "variantCalling.tool.id",
                         type: "select",
                         allowedValues: ["gatk"],
