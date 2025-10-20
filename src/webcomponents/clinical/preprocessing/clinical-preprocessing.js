@@ -170,6 +170,7 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     onPipelineInfoModalHide() {
+        ModalUtils.close("PipelineInfoModal");
         this._showPipelineInfoModal = false;
         this.requestUpdate();
     }
