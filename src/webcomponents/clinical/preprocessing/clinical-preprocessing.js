@@ -75,25 +75,6 @@ export default class ClinicalPreprocessing extends LitElement {
         return true;
     }
 
-    savePipeline(pipelineFile, pipelineInfo) {
-        const pipelineContent = {
-            ...pipelineInfo,
-            steps: this._stepsParams.preprocessing.steps,
-        };
-        return this.opencgaSession.opencgaClient.files()
-            .updateContent(pipelineFile, pipelineContent, {
-                study: this.opencgaSession.study.fqn,
-            })
-            .then(() => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: `Pipeline ${pipelineInfo.name} saved.`,
-                });
-            })
-            .catch(error => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-            });
-    }
-
     onChangeActiveStep(event, newStepIndex) {
         event.preventDefault();
         if (!this._running) {
@@ -169,7 +150,7 @@ export default class ClinicalPreprocessing extends LitElement {
     onPipelineSelect(event) {
         this._stepsParams.preprocessing = {
             input: this._stepsParams.preprocessing.input,
-            pipeline: event.detail.path,
+            pipeline: event.detail.id,
             name: event.detail.content?.name || "",
             description: event.detail.content?.description || "",
             version: event.detail.content?.version,
@@ -194,11 +175,51 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     onPipelineSave() {
-        this.savePipeline(this._stepsParams.preprocessing.pipeline, {
+        const pipelineContent = JSON.stringify({
             name: this._stepsParams.preprocessing.name,
             description: this._stepsParams.preprocessing.description,
             version: this._stepsParams.preprocessing.version + 1,
+            steps: this._stepsParams.preprocessing.steps,
         });
+        return this.opencgaSession.opencgaClient.files()
+            .updateContent(this._stepsParams.preprocessing.pipeline, pipelineContent, {
+                study: this.opencgaSession.study.fqn,
+            })
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `Pipeline ${this._stepsParams.preprocessing.name} saved.`,
+                });
+            })
+            .catch(error => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            });
+    }
+
+    onPipelineSaveNew(event) {
+        const data = {
+            type: "FILE",
+            resource: true,
+            path: `RESOURCES/clinical/pipelines/${event.detail.fileName}.json`,
+            content: JSON.stringify({
+                name: event.detail.name || "Untitled Pipeline",
+                description: event.detail.description || "",
+                version: 1,
+                steps: this._stepsParams.preprocessing.steps,
+            }),
+        };
+        this.opencgaSession.opencgaClient.files()
+            .create(data, {
+                study: this.opencgaSession.study.fqn,
+            })
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `Pipeline ${event.detail.name} saved.`,
+                });
+                this.onPipelineInfoModalHide();
+            })
+            .catch(error => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            });
     }
 
     async onExecute() {
@@ -307,15 +328,7 @@ export default class ClinicalPreprocessing extends LitElement {
             render: () => html`
                 <clinical-preprocessing-save-pipeline
                     .opencgaSession="${this.opencgaSession}"
-                    @pipelineSave="${event => {
-                        const pipelineFile = `/RESOURCES/clinical/pipelines/${event.detail.fileName}.json`;
-                        this.savePipeline(pipelineFile, {
-                            name: event.detail.name || "Untitled Pipeline",
-                            description: event.detail.description || "",
-                            version: 1,
-                        });
-                        this.onPipelineInfoModalHide();
-                    }}">
+                    @pipelineSave="${event => this.onPipelineSaveNew(event)}">
                 </clinical-preprocessing-save-pipeline>
             `,
         });
