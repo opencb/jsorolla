@@ -147,8 +147,11 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             if (this.toolParams.steps?.variantCalling) {
                 const variantCallingTool = (this.toolParams.steps.variantCalling.tools || [])[0] || {};
                 this._toolParams.variantCalling = {
-                    ...this._toolParams.variantCalling,
-                    ...this.toolParams.steps.variantCalling,
+                    active: !!this.toolParams.steps.variantCalling.active ?? this._toolParams.variantCalling.active ?? true,
+                    options: {
+                        ...this._toolParams.variantCalling.options,
+                        ...this.toolParams.steps.variantCalling.options,
+                    },
                     tool: {
                         ...this._toolParams.variantCalling.tool,
                         ...variantCallingTool,
@@ -180,7 +183,8 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 qualityControl: UtilsNew.objectClone(this._toolParams.qualityControl),
                 alignment: UtilsNew.objectClone(this._toolParams.alignment),
                 variantCalling: {
-                    ...UtilsNew.objectClone(this._toolParams.variantCalling),
+                    active: this._toolParams.variantCalling.active,
+                    options: UtilsNew.objectClone(this._toolParams.variantCalling.options || {}),
                     tools: [
                         UtilsNew.objectClone(this._toolParams.variantCalling.tool),
                     ],
