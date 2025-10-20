@@ -45,7 +45,7 @@ export default class ClinicalPreprocessing extends LitElement {
                     samples: [],
                     indexDir: "",
                 },
-                steps: [],
+                steps: {},
             },
             variantIndex: {
                 file: "",
@@ -122,8 +122,8 @@ export default class ClinicalPreprocessing extends LitElement {
         // 1. update the input section
         Object.assign(this._stepsParams.preprocessing.input, event.detail.input);
 
-        // 2. update the steps array with the steps selected
-        this._stepsParams.preprocessing.steps = event.detail.steps || [];
+        // 2. update the steps object with the steps selected
+        // this._stepsParams.preprocessing.steps = event.detail.steps || [];
     }
 
     onVariantIndexParamsChange(event) {
@@ -134,7 +134,7 @@ export default class ClinicalPreprocessing extends LitElement {
         this._stepsParams.preprocessing = {
             input: this._stepsParams.preprocessing.input,
             pipeline: null,
-            steps: [],
+            steps: {},
         };
         this.requestUpdate();
     }
@@ -143,7 +143,7 @@ export default class ClinicalPreprocessing extends LitElement {
         this._stepsParams.preprocessing = {
             input: this._stepsParams.preprocessing.input,
             pipeline: "",
-            steps: [],
+            steps: {},
         };
         this.requestUpdate();
     }
@@ -155,7 +155,7 @@ export default class ClinicalPreprocessing extends LitElement {
             name: event.detail.content?.name || "",
             description: event.detail.content?.description || "",
             version: event.detail.content?.version,
-            steps: event.detail.content?.steps || [],
+            steps: event.detail.content?.steps || {},
         };
         this.requestUpdate();
     }
