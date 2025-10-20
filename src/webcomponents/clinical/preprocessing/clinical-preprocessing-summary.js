@@ -45,14 +45,15 @@ export default class ClinicalPreprocessingSummary extends LitElement {
     }
 
     toolParamsObserver() {
-        this._params = {
-            input: this.toolParams?.preprocessing?.input,
-            steps: {
-                qc: this.toolParams?.preprocessing?.steps?.find(step => step.id === "quality-control" || step.name === "quality-control"),
-                alignment: this.toolParams?.preprocessing?.steps?.find(step => step.id === "alignment" || step.name === "alignment"),
-                vc: this.toolParams?.preprocessing?.steps?.find(step => step.id === "variant-calling" || step.name === "variant-calling"),
-            },
-        };
+        this._params = this.toolParams?.preprocessing || {};
+        // this._params = {
+        //     input: this.toolParams?.preprocessing?.input,
+        //     steps: {
+        //         qc: this.toolParams?.preprocessing?.steps?.find(step => step.id === "quality-control" || step.name === "quality-control"),
+        //         alignment: this.toolParams?.preprocessing?.steps?.find(step => step.id === "alignment" || step.name === "alignment"),
+        //         vc: this.toolParams?.preprocessing?.steps?.find(step => step.id === "variant-calling" || step.name === "variant-calling"),
+        //     },
+        // };
     }
 
     getParameters(data) {
@@ -145,13 +146,13 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                     elements: [
                         {
                             title: "Tool",
-                            field: "steps.qc.tool.id",
+                            field: "steps.qualityControl.tool.id",
                         },
                         {
                             title: "Parameters",
                             type: "table",
                             display: {
-                                getData: data => this.getParameters(data.steps.qc?.tool?.parameters),
+                                getData: data => this.getParameters(data.steps.qualityControl?.tool?.parameters),
                                 className: "table-borderless table-grid mb-0",
                                 defaultValue: "No parameters available.",
                                 columns: [
@@ -214,7 +215,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                         {
                             type: "table",
                             display: {
-                                getData: data => data.steps.vc?.tools || [],
+                                getData: data => data.steps.variantCalling?.tools || [],
                                 className: "table-borderless table-grid mb-0",
                                 defaultValue: "No Variant Calling tools available.",
                                 columns: [
