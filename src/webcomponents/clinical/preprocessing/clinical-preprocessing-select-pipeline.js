@@ -65,6 +65,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                             })
                             .then(content => {
                                 return {
+                                    id: file.id,
                                     name: file.name,
                                     path: file.path,
                                     content: content,
