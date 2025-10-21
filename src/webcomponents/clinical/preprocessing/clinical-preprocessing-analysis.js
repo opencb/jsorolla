@@ -504,7 +504,10 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             params,
             this.check(),
             {
-                display: this.displayConfig || {},
+                type: "PILLS",
+                display: {
+                    ...this.displayConfig,
+                },
             },
         );
     }
