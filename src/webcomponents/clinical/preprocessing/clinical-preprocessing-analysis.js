@@ -57,7 +57,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 options: {},
                 tool: {
                     id: "fastqc",
-                    parameters: {},
+                    parameters: [],
                 },
             },
             alignment: {
@@ -66,7 +66,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 tool: {
                     id: "bwa",
                     index: "",
-                    parameters: {},
+                    parameters: [],
                 },
 
             },
@@ -369,28 +369,111 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                             },
                         }
                     },
+                    // {
+                    //     title: "Number of Threads",
+                    //     field: "alignment.tool.parameters.t",
+                    //     type: "input-num",
+                    //     display: {
+                    //         disabled: data => !data.alignment.active,
+                    //         visible: params => params.alignment.tool.name === "bwa" || params.alignment.tool.name === "bwa-mem2",
+                    //         placeholder: "e.g. 2",
+                    //         min: 1,
+                    //         helpMessage: "Number of threads to use for the alignment step."
+                    //     },
+                    // },
+                    // {
+                    //     title: "Minimum Seed Length",
+                    //     field: "alignment.tool.parameters.k",
+                    //     type: "input-num",
+                    //     display: {
+                    //         disabled: data => !data.alignment.active,
+                    //         visible: params => params.alignment.tool.name === "bwa" || params.alignment.tool.name === "bwa-mem2",
+                    //         placeholder: "e.g. 2",
+                    //         min: 1,
+                    //         helpMessage: "Minimum seed length [19]"
+                    //     },
+                    // },
                     {
-                        title: "Number of Threads",
-                        field: "alignment.tool.parameters.t",
-                        type: "input-num",
+                        title: "Parameters",
+                        field: "alignment.tool.parameters",
+                        type: "object-list",
                         display: {
-                            disabled: data => !data.alignment.active,
-                            visible: params => params.alignment.tool.name === "bwa" || params.alignment.tool.name === "bwa-mem2",
-                            placeholder: "e.g. 2",
-                            min: 1,
-                            helpMessage: "Number of threads to use for the alignment step."
+                            itemId: "name",
+                            itemAddText: "Add parameter",
+                            itemsNotFoundText: "No parameters found",
+                            itemsTitle: "Parameters:",
+                            // summary: (data, items) => {
+                            //     return html`
+                            //         <div>
+                            //             <span class="fw-bold">Command Line:</span>
+                            //         </div>
+                            //         <div class="m-2">
+                            //             <span>bcftools ${data.command} ${items.map(item => item.name + " " + (item.value ?? "")).join(" ")}</span>
+                            //         </div>
+                            //     `;
+                            // },
+                            view: variable => html`
+                                <div class="m-2">${variable.name} ${variable.value}</div>
+                            `,
                         },
+                        elements: [
+                            {
+                                title: "Parameter Name",
+                                field: "alignment.tool.parameters[].name",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "",
+                                    help: {
+                                        text: "Add parameter name, eg: -t, --threads. Parameters MUST include hyphen (-) or double hyphen (--) at the beginning.",
+                                    }
+                                }
+                            },
+                            {
+                                title: "Is a File Parameter?",
+                                field: "alignment.tool.parameters[].isFile",
+                                type: "checkbox",
+                                display: {},
+                            },
+                            {
+                                title: "Parameter Value",
+                                field: "alignment.tool.parameters[].value",
+                                type: "input-text",
+                                display: {
+                                    visible: (data, item) => {
+                                        return !item.isFile;
+                                    },
+                                }
+                            },
+                            {
+                                title: "Select File",
+                                field: "alignment.tool.parameters[].value",
+                                type: "custom",
+                                display: {
+                                    visible: (data, item) => {
+                                        return item.isFile;
+                                    },
+                                    render: (data, dataFormFilterChange) => html`
+                                        <catalog-search-autocomplete
+                                            .resource="${"FILE"}"
+                                            .config="${{
+                                                multiple: false,
+                                            }}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                        </catalog-search-autocomplete>
+                                    `,
+                                },
+                            }
+                        ],
                     },
                     {
-                        title: "Minimum Seed Length",
-                        field: "alignment.tool.parameters.k",
-                        type: "input-num",
+                        title: "Usage",
+                        field: "usage",
+                        type: "custom",
                         display: {
-                            disabled: data => !data.alignment.active,
-                            visible: params => params.alignment.tool.name === "bwa" || params.alignment.tool.name === "bwa-mem2",
-                            placeholder: "e.g. 2",
-                            min: 1,
-                            helpMessage: "Minimum seed length [19]"
+                            render: () => html`
+                                <iframe src="https://bio-bwa.sourceforge.net/bwa.shtml" width="100%" height="600px"></iframe>
+                            `,
                         },
                     },
                 ],
