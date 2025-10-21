@@ -163,7 +163,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 fetch: filters => this.opencgaSession.opencgaClient.jobs().search(filters),
                 fields: item => ({
                     name: item.id,
-                    Tool: item.tool.id
+                    "#Tool": item.tool.id
                 }),
                 query: {
                     include: "id,tool"

@@ -141,7 +141,7 @@ export default class SelectTokenFilter extends LitElement {
                     ${(rest ? Object.entries(rest)
                         .map(([label, value]) => `
                             <div class="dropdown-item-extra text-secondary">
-                                ${!label.startsWith("#") ? `<label>${label}: </label>` : ""}${value || ""}
+                                ${!label.startsWith("#") ? `<label class="pe-1">${label}: </label>` : ""}${value || ""}
                             </div>
                         `)
                         .join("") : "")}
