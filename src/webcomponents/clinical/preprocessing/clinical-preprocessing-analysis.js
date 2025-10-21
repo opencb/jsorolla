@@ -57,9 +57,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 options: {},
                 tool: {
                     id: "fastqc",
-                    parameters: {
-                        threads: 2,
-                    },
+                    parameters: {},
                 },
             },
             alignment: {
@@ -68,22 +66,14 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 tool: {
                     id: "bwa",
                     index: "",
-                    parameters: {
-                        t: 2,
-                        k: 19
-                    },
+                    parameters: {},
                 },
 
             },
             variantCalling: {
                 active: true,
                 options: {},
-                tool: {
-                    id: "gatk",
-                    reference: "",
-                    options: {},
-                    parameters: {},
-                }
+                tools: [],
             }
         };
 
@@ -145,17 +135,13 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
 
             // 3.3. merge variant calling step configuration
             if (this.toolParams.steps?.variantCalling) {
-                const variantCallingTool = (this.toolParams.steps.variantCalling.tools || [])[0] || {};
                 this._toolParams.variantCalling = {
                     active: !!this.toolParams.steps.variantCalling.active ?? this._toolParams.variantCalling.active ?? true,
                     options: {
                         ...this._toolParams.variantCalling.options,
                         ...this.toolParams.steps.variantCalling.options,
                     },
-                    tool: {
-                        ...this._toolParams.variantCalling.tool,
-                        ...variantCallingTool,
-                    },
+                    tools: this.toolParams.steps.variantCalling.tools || [],
                 };
             }
         }
@@ -175,22 +161,22 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
     }
 
     dispatchChange() {
-        LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
-            input: {
-                indexDir: this._toolParams.indexDir || "",
-            },
-            steps: {
-                qualityControl: UtilsNew.objectClone(this._toolParams.qualityControl),
-                alignment: UtilsNew.objectClone(this._toolParams.alignment),
-                variantCalling: {
-                    active: this._toolParams.variantCalling.active,
-                    options: UtilsNew.objectClone(this._toolParams.variantCalling.options || {}),
-                    tools: [
-                        UtilsNew.objectClone(this._toolParams.variantCalling.tool),
-                    ],
-                },
-            },
-        });
+        // LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
+        //     input: {
+        //         indexDir: this._toolParams.indexDir || "",
+        //     },
+        //     steps: {
+        //         qualityControl: UtilsNew.objectClone(this._toolParams.qualityControl),
+        //         alignment: UtilsNew.objectClone(this._toolParams.alignment),
+        //         variantCalling: {
+        //             active: this._toolParams.variantCalling.active,
+        //             options: UtilsNew.objectClone(this._toolParams.variantCalling.options || {}),
+        //             tools: [
+        //                 UtilsNew.objectClone(this._toolParams.variantCalling.tool),
+        //             ],
+        //         },
+        //     },
+        // });
     }
 
     onClear() {
@@ -424,77 +410,52 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         },
                     },
                     {
-                        title: "Variant Calling Tool",
-                        field: "variantCalling.tool.id",
-                        type: "select",
-                        allowedValues: ["gatk"],
-                        defaultValue: "gatk",
+                        title: "Variant Calling Tools",
+                        field: "variantCalling.tools",
+                        type: "object-list",
                         display: {
                             disabled: data => !data.variantCalling.active,
-                            // helpMessage: "Select the variant caller to use. Options are 'GATK' (HaplotypeCaller + GenotypeGVCFs), 'freebayes2' (FreeBayes2) and 'mutect2' (Mutect2)."
-                        },
-                    },
-                    {
-                        title: "Variant Callers - GATK",
-                        field: "variantCalling.tool.options.joint",
-                        type: "checkbox",
-                        display: {
-                            disabled: data => !data.variantCalling.active,
-                            helpMessage: [
-                                "Turn on the joint germline variant calling for GATK haplotypecaller.",
-                                "Uses all normal germline samples (as designated by 'status' in the input csv) in the joint germline variant calling process.",
-                            ].join(" "),
-                        },
-                    },
-                    // {
-                    //     title: "Variant Callers - Mutect2",
-                    //     field: "vc.tool.parameters.joint_mutect2",
-                    //     type: "checkbox",
-                    //     display: {
-                    //         helpMessage: "Runs Mutect2 in joint (multi-sample) mode for better concordance among variant calls of tumor samples from the same patient. " +
-                    //             "Mutect2 outputs will be stored in a subfolder named with patient ID under variant_calling/mutect2/ folder. " +
-                    //             "Only a single normal sample per patient is allowed. Tumor-only mode is also supported."
-                    //     }
-                    // },
-                    {
-                        title: "Reference Genome Index",
-                        field: "variantCalling.tool.reference",
-                        type: "custom",
-                        display: {
-                            render: (reference, dataFormFilterChange) => {
-                                return html `
-                                    <catalog-search-autocomplete
-                                        .value="${reference}"
-                                        .resource="${"FILE"}"
-                                        .searchField="${"path"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{
-                                            multiple: false,
-                                            disabled: !this._toolParams?.variantCalling?.active,
-                                        }}"
-                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                    </catalog-search-autocomplete>
-                                `;
+                            showAddBatchListButton: false,
+                            showEditItemListButton: true,
+                            showDeleteItemListButton: true,
+                            itemAddText: "Add Tool",
+                            view: tool => {
+                                return html`Tool: <b>${tool.id || "-"}</b>`;
                             },
                         },
+                        elements: [
+                            {
+                                title: "Tool",
+                                field: "variantCalling.tools[].id",
+                                type: "select",
+                                allowedValues: ["gatk", "freebayes"],
+                            },
+                            {
+                                title: "Reference Genome Index",
+                                field: "variantCalling.tools[].reference",
+                                type: "custom",
+                                display: {
+                                    render: (reference, dataFormFilterChange) => {
+                                        return html `
+                                            <catalog-search-autocomplete
+                                                .value="${reference}"
+                                                .resource="${"FILE"}"
+                                                .searchField="${"path"}"
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .config="${{
+                                                    multiple: false,
+                                                    disabled: !this._toolParams?.variantCalling?.active,
+                                                }}"
+                                                @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                            </catalog-search-autocomplete>
+                                        `;
+                                    },
+                                },
+                            },
+                        ],
                     },
                 ],
             },
-            // {
-            //     title: "Other Options",
-            //     elements: [
-            //         {
-            //             title: "Other Parameters",
-            //             type: "input-text",
-            //             display: {
-            //                 rows: 5,
-            //                 placeholder: "--myparam value",
-            //                 helpMessage: "Other parameters not listed above can be passed to the pipeline using this parameter. " +
-            //                     "Please refer to the nf-core/sarek documentation for a full list of parameters that can be used."
-            //             }
-            //         }
-            //     ],
-            // },
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
