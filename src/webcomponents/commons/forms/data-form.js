@@ -1790,7 +1790,7 @@ export default class DataForm extends LitElement {
                                                 </div>
                                             ` : nothing}
                                         </div>
-                                        <div id="${element?.field}_${index}" class="mt-3 ps-3 border-start border-2 ${isOpen ? "d-block" : "d-none"}">
+                                        <div id="${element?.field}_${index}" class="mt-3 ${isOpen ? "d-block" : "d-none"}">
                                             <div class="mb-2">
                                                 ${this._createObjectElement(_element)}
                                             </div>
@@ -2306,33 +2306,38 @@ export default class DataForm extends LitElement {
         pdfDocument.exportToPdf();
     }
 
-    renderContentAsForm(dismiss) {
-        // Buttons values
-        const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
-        const buttonsLayout = this._getButtonsLayout();
-
+    renderTitle() {
         const titleClassName = this.config.display?.titleClassName ?? this.config.display?.title?.class ?? "";
         const titleStyle = this.config.display?.titleStyle ?? this.config.display?.title?.style ?? "";
         const titleVisible = this._getBooleanValue(this.config.display?.titleVisible ?? this.config.display?.showTitle, true);
 
+        if (this.config.title && titleVisible) {
+            return html`
+                <div class="d-flex mb-2">
+                    <h2 class="${titleClassName}" style="${titleStyle}">${this.config.title}</h2>
+                    ${this.config.logo ? html`
+                        <div class="ms-auto">
+                            <img src="${this.config.logo}" />
+                        </div>
+                    ` : nothing}
+                </div>
+            `;
+        }
+
+        // title is not visible
+        return nothing;
+    }
+
+    renderContentAsForm(dismiss) {
+        const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
+        const buttonsLayout = this._getButtonsLayout();
         const notificationHtml = this.getFormNotificationHtml();
 
         return html`
             ${notificationHtml}
 
             <!-- Header -->
-            ${this.config.title && titleVisible ? html`
-                <div class="d-flex mb-2">
-                    <div>
-                        <h2 class="${titleClassName}" style="${titleStyle}">${this.config.title}</h2>
-                    </div>
-                    ${this.config.logo ? html`
-                        <div class="ms-auto">
-                            <img src="${this.config.logo}" />
-                        </div>` : nothing
-                    }
-                </div>` : nothing
-            }
+            ${this.renderTitle()}
 
             <button class="btn btn-primary" style="margin-bottom:14px; display: ${this.config.display?.pdf === true ? "block": "none"}"
                     @click="${this.onDownloadPdf}">
@@ -2447,6 +2452,7 @@ export default class DataForm extends LitElement {
 
         return html`
             ${notificationHtml}
+            ${this.renderTitle()}
             ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
             <div class="${containerClassName}">
                 <div class="${pillsColumnClassName}">
