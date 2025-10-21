@@ -1790,7 +1790,7 @@ export default class DataForm extends LitElement {
                                                 </div>
                                             ` : nothing}
                                         </div>
-                                        <div id="${element?.field}_${index}" class="mt-3 ps-3 border-start border-2 ${isOpen ? "d-block" : "d-none"}">
+                                        <div id="${element?.field}_${index}" class="mt-3 ${isOpen ? "d-block" : "d-none"}">
                                             <div class="mb-2">
                                                 ${this._createObjectElement(_element)}
                                             </div>
