@@ -427,6 +427,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                             itemClassName: "row",
                             itemTitleClassName: "col-md-3",
                             itemContentClassName: "col-md-9",
+                            disabled: data => !data.alignment.active,
                         },
                         elements: [
                             {
@@ -451,6 +452,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         field: "alignment.tool.parameters",
                         type: "object-list",
                         display: {
+                            disabled: data => !data.alignment.active,
                             itemId: "name",
                             itemAddText: "Add parameter",
                             itemsNotFoundText: "No parameters registered for this tool.",
