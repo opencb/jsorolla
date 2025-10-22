@@ -138,12 +138,12 @@ export default class VariantSummary extends LitElement {
             },
             sections: [
                 // 1. Section Interpretation summary, if available
-                // - Clinical Significance selected interpretation
-                // - Variant interpretation selected interpretation
-                // - ACMG Classification selected interpretation
-                // - User classification selected interpretation
+                // - Status, Confidence, Papers, etc.
+                // - Predicted and user CS, ACMG Classification
                 {
-                    display: {},
+                    display: {
+                        separationClassName: "mb-0",
+                    },
                     elements: [
                         {
                             id: "variant-summary-interpretation",

@@ -246,7 +246,7 @@ export default class VariantSummaryQuality extends LitElement {
                     // title: "Section sample quality"
                     display: {
                         separationClassName: "",
-                        className: "d-flex align-items-center",
+                        className: "d-flex align-items-stretch",
                         layout: [
                             {
                                 style: "flex: 1 1 auto",
@@ -258,7 +258,7 @@ export default class VariantSummaryQuality extends LitElement {
                             },
                             {
                                 style: "flex: 0 1 auto",
-                                classes: "d-flex justify-content-center",
+                                classes: "d-flex flex-column justify-content-center",
                                 elements: [
                                     {
                                         id: "allele-balance-chart",
@@ -270,15 +270,29 @@ export default class VariantSummaryQuality extends LitElement {
                     elements: [
                         // 1. Sample Quality Summary
                         {
+                            title: "SAMPLE QUALITY",
                             id: "sample-quality-summary",
                             type: "table",
                             field: "samples",
                             display: {
-                                separationClassName: "",
-                                className: "table table-borderless table-hover table-grid",
-                                style: "font-size: 12px",
+                                titleClassName: "summary-category",
+                                titleStyle: "font-weight: normal !important",
+                                defaultLayout: "vertical",
+                                separationClassName: "mb-0",
+                                className: "table-grid mb-0",
+                                style: "font-size: 12px;",
+                                bodyCellClassName: "align-middle",
+                                headerCellClassName: "bg-transparent",
                                 rowId: true,
-                                defaultValue: "No proband or sample selected.",
+                                defaultValue: () => {
+                                    debugger
+                                    return html`
+                                        <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
+                                            <i class="fas fa-info-circle fs-3"></i>
+                                            <div class="text-break">No proband or sample selected.</div>
+                                        </div>
+                                    `;
+                                },
                                 columns: [
                                     {
                                         title: "Sample",
@@ -381,11 +395,15 @@ export default class VariantSummaryQuality extends LitElement {
                         },
                         // 2. Allele Distribution
                         {
+                            title: "ALLELIC DEPTH RATIO",
                             id: "allele-balance-chart",
                             type: "custom",
                             field: "alleleDepthsChart",
                             display: {
-                                separationClassName: "",
+                                titleClassName: "summary-category",
+                                titleStyle: "font-weight: normal !important",
+                                defaultLayout: "vertical",
+                                separationClassName: "mb-0",
                                 render: alleleDepthsChart => {
                                     return (alleleDepthsChart[0].chartData.length > 0) ? html`
                                             <div class="d-flex align-items-center">
