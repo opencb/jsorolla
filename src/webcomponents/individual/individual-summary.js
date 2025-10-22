@@ -352,7 +352,7 @@ export default class IndividualSummary extends LitElement {
                 {
                     id: "samples",
                     display: {
-                        className: "border border-1 gorder-gray-200 rounded-4 p-4 bg-white",
+                        className: "border border-1 border-gray-200 rounded-4 p-4 bg-white",
                         separationClassName: "mb-0",
                     },
                     elements: [
@@ -438,7 +438,7 @@ export default class IndividualSummary extends LitElement {
                                 ],
                             },
                         },
- 
+
                     ],
                 },
             ],

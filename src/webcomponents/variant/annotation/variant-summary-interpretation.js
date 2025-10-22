@@ -15,8 +15,10 @@
  */
 
 import {html, LitElement, nothing} from "lit";
+import VariantGridFormatter from "../variant-grid-formatter.js";
 import VariantUtils from "../variant-utils.js";
 import UtilsNew from "../../../core/utils-new";
+import WebUtils from "../../commons/utils/web-utils";
 
 export default class VariantSummaryInterpretation extends LitElement {
 
@@ -83,6 +85,16 @@ export default class VariantSummaryInterpretation extends LitElement {
         super.update(changedProperties);
     }
 
+    updated(changedProperties) {
+        UtilsNew.initTooltip(this);
+        this.updateComplete.then(() => {
+            const allDiscussions = this.renderRoot.querySelectorAll('.clamp-text');
+            allDiscussions.forEach(el => {
+                WebUtils.clampText(el, 2, 'text-primary small');
+            });
+        });
+    }
+
     variantObserver() {
         this._variant = UtilsNew.objectClone(this.variant);
     }
@@ -92,14 +104,18 @@ export default class VariantSummaryInterpretation extends LitElement {
             return nothing;
         }
 debugger
-        // const data = this._variant.studies.find(s => s.studyId === this.opencgaSession.study.fqn).
         return html`
-            <div class="card p-3">
-                <div class="card-header border-0">
-                    <h5 class="mb-2 fs-5 fw-bold d-flex">Variant Interpretation</h5>
-                    <div class="d-flex align-items-center justify-content-between">
+            <div class="rounded-4 p-4 bg-white">
+                <div class=" d-flex justify-content-between mb-2">
+                    <h5 class="mb-2 fs-5 fw-bold">Variant Interpretation</h5>
+                    <a tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.interpretationSummaryTooltipContent(POPULATION_FREQUENCIES)}">
+                        <i class="fa fa-info-circle text-dark"></i>
+                    </a>
+                </div>
+                <div class="" id="summary-interpretation">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
                         <div class="d-flex flex-column me-2">
-                            <div class="card-category">
+                            <div class="summary-category">
                                 STATUS
                             </div>
                             ${this._variant.status ? html`
@@ -113,7 +129,7 @@ debugger
                             `}
                         </div>
                         <div class="d-flex flex-column me-2">
-                            <div class="card-category">
+                            <div class="summary-category">
                                 CONFIDENCE
                             </div>
                             ${this._variant?.confidence?.value ? html`
@@ -127,7 +143,7 @@ debugger
                             `}
                         </div>
                         <div class="d-flex flex-column me-2">
-                            <div class="card-category">
+                            <div class="summary-category">
                                 RELEVANCE
                             </div>
                             ${this.primaryFinding ? html`
@@ -140,20 +156,45 @@ debugger
                                 </div>
                             `}
                         </div>
+                        <div class="d-flex flex-column me-2">
+                            <div class="summary-category">
+                                COMMENTS
+                            </div>
+                            ${(() => {
+                                const count = this._variant?.comments?.length ?? [];
+                                return html`<div><b>${count}</b></div>`;
+                            })()}
+                        </div>
+                        <div class="d-flex flex-column me-2">
+                            <div class="summary-category">
+                                REFERENCES
+                            </div>
+                            ${(() => {
+                                const count = this._variant?.references?.length ?? [];
+                                return html`<div><b>${count}</b></div>`;
+                            })()}
+                        </div>
+                        <div class="d-flex flex-column me-2">
+                            <div class="summary-category">
+                                IMAGES
+                            </div>
+                            ${(() => {
+                                const count = this._variant?.images?.length ?? [];
+                                return html`<div><b>${count}</b></div>`;
+                            })()}
+                        </div>
                     </div>
-                </div>
-                <div class="card-body pt-0 pb-0" id="summary-interpretation">
                     <data-form
                         .data="${this._variant}"
                         .config="${this._config}">
                     </data-form>
                 </div>
-                <div class="card-divider"></div>
+                <!--
                 <div class="text-muted fw-light fs-7">
                     <i class="far fa-clock me-2 text-gray-700"></i>
                 </div>
+                -->
             </div>
-
         `;
     }
 
@@ -164,47 +205,242 @@ debugger
             },
             sections: [
                 {
-                    id: "variant-interpretation-discussion",
                     // title: "VARIANT INFO",
                     display: {
                         // visible:
-                        // className: "d-flex flex-column",
+                        // className: "d-flex",
+                        separationClassName: "mb-0",
+                        layout: [
+                            {
+                                className: "d-flex align-items-stretch",
+                                elements: [
+                                    {
+                                        id:"variant-interpretation-evidences",
+                                        style: "flex: 1",
+                                    },
+                                    {
+                                        id:"variant-interpretation-discussion",
+                                        style: "flex: 1",
+                                    },
+                                    /*
+                                    {
+                                        id:"variant-interpretation-recommendation",
+                                        style: "flex: 1",
+                                    },
+                                     */
+                                ],
+                            },
+                        ],
                     },
                     elements: [
                         {
-                            id: "variant-interpretation-latest-activity",
+                            title: "SELECTED EVIDENCES",
+                            id: "variant-interpretation-evidences",
+                            type: "table",
+                            display: {
+                                //visible: false,
+                                titleClassName: "summary-category",
+                                titleStyle: "font-weight: normal !important",
+                                defaultLayout: "vertical",
+                                separationClassName: "mb-0",
+                                className: "table-borderless table-grid mb-0",
+                                style: "font-size: 12px;",
+                                bodyCellClassName: "align-middle",
+                                headerCellClassName: "bg-transparent",
+                                // bodyRowClassName: "bg-gray-100",
+                                getData: variant => {
+                                    const data = (variant?.evidences || []).filter(({review}) => review?.select);
+                                    debugger
+                                    return data;
+                                },
+                                defaultValue: () => {
+                                    debugger
+                                    return html`
+                                        <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
+                                            <i class="fas fa-info-circle fs-3"></i>
+                                            <div class="text-break">No evidences have been selected.</div>
+                                        </div>
+                                    `;
+                                },
+                                columns: [
+                                    {
+                                        title: "Gene",
+                                        field: "genomicFeature.geneName",
+                                        display: {
+                                            defaultValue: "-",
+                                            className: "text-secondary"
+                                        }
+                                    },
+                                    {
+                                        title: "Transcript",
+                                        field: "genomicFeature.transcriptId",
+                                        display: {
+                                            defaultValue: "-",
+                                            className: "text-secondary"
+                                        },
+                                    },
+                                    {
+                                        title: "Pred CS",
+                                        field: "classification.clinicalSignificance",
+                                        type: "custom",
+                                        display: {
+                                            render: clinicalSignificance => {
+                                                if (!clinicalSignificance) {
+                                                    return html`<span class="text-secondary">N/A</span>`;
+                                                }
+                                                const cs = CLINICAL_SIGNIFICANCE.find(cs => cs.id === clinicalSignificance.toLowerCase());
+                                                return html`
+                                                    <span style="color: ${cs.color}">${cs.acronym}</span>
+                                                `;
+                                            },
+                                        },
+                                    },
+                                    {
+                                        title: "Pred ACMG",
+                                        field: "classification.acmg",
+                                        type: "custom",
+                                        display: {
+                                            render: acmgList => {
+                                                if (!acmgList || acmgList.length === 0) {
+                                                    return html`<span class="text-secondary">-</span>`;
+                                                }
+                                                return html`
+                                                    ${acmgList.map(acmg => {
+                                                        const c = ACMG_CRITERIA_COLOR.find(({ id }) => id === acmg.classification) ?? { color: '#000', id: '-' };
+                                                        return html`
+                                                            <span
+                                                                    class="rounded-4 px-1 me-1"
+                                                                    style="border: 1px solid ${c.color}; color: ${c.color};">
+                                                                ${c.id}
+                                                            </span>
+                                                        `;
+                                                    })}
+                                                `;
+                                            },
+                                        },
+                                    },
+                                    {
+                                        title: " User CS",
+                                        field: "review.clinicalSignificance",
+                                        type: "custom",
+                                        display: {
+                                            render: clinicalSignificance => {
+                                                if (!clinicalSignificance) {
+                                                    return html`<span class="text-secondary">N/A</span>`;
+                                                }
+                                                const cs = CLINICAL_SIGNIFICANCE.find(cs => cs.id === clinicalSignificance.toLowerCase());
+                                                return html`
+                                                    <span style="color: ${cs.color}">${cs.acronym}</span>
+                                                `;
+                                            },
+                                        },
+                                    },
+                                    {
+                                        title: "User ACMG",
+                                        field: "review.acmg",
+                                        type: "custom",
+                                        display: {
+                                            render: acmgList => {
+                                                if (!acmgList || acmgList.length === 0) {
+                                                    return html`<span class="text-secondary">-</span>`;
+                                                }
+                                                return html`
+                                                    ${acmgList.map(acmg => {
+                                                        const c = ACMG_CRITERIA_COLOR.find(({ id }) => id === acmg.classification) ?? { color: '#000', id: '-' };
+                                                        return html`
+                                                            <span
+                                                                class="rounded-4 px-1 me-1"
+                                                                style="border: 1px solid ${c.color}; color: ${c.color};">
+                                                                ${c.id}
+                                                            </span>
+                                                        `;
+                                                    })}
+                                                `;
+                                            },
+                                        },
+                                    },
+                                    /*
+                                    {
+                                        title: "User Tier",
+                                        field: "review.tier",
+                                        type: "custom",
+                                        display: {
+                                            render: tier => {
+                                                tier ? html`<span class="text-secondary">${tier}</span>` : "-";
+                                            }
+                                        },
+                                    },
+                                    {
+                                        title: "Score",
+                                        field: "review.score",
+                                        display: {
+                                            className: "text-secondary"
+                                        },
+                                    },
+                                     */
+                                ],
+                            },
+                        },
+                        {
+                            title: "DISCUSSION",
+                            id: "variant-interpretation-discussion",
                             type: "custom",
                             display: {
+                                titleClassName: "summary-category",
+                                titleStyle: "font-weight: normal !important",
+                                defaultLayout: "vertical",
+                                separationClassName: "mb-0",
+                                style: "font-size: 12px;",
                                 render: variant => {
                                     const sortedComments = variant.comments.sort((a, b) => b.date.localeCompare(a.date));
                                     const lastComment = sortedComments[0] ?? null;
                                     return html `
-                                        <div class="d-flex justify-content-between">
-                                            <!-- Discussion -->
-                                            ${variant.discussion ? html`
-                                                <div class="flex-fill border rounded p-3 bg-light me-2">
-                                                <h5 class="mb-2">Discussion</h5>
-                                                <p class="mb-2">
-                                                    ${variant.discussion.text}
-                                                </p>
-                                                <small class="text-muted d-block">${UtilsNew.dateFormatter(variant.discussion.date)}</small>
+                                            <div class="d-flex flex-column me-1 rounded-4 border border-1 p-4 mt-2">
+                                                ${variant.discussion?.text ? html`
+                                                    <div class="clamp-text text-muted fs-6">
+                                                        ${variant.discussion.text}
+                                                    </div>
+                                                    <small class="text-muted fw-bold d-block">
+                                                        By <b>${variant.discussion.author}</b> •
+                                                        ${UtilsNew.dateFormatter(variant.discussion.date)}
+                                                    </small>
+                                                ` : html`
+                                                    <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
+                                                        <i class="fas fa-info-circle fs-3"></i>
+                                                        <div class="text-break">No discussion available.</div>
+                                                    </div>
+                                                `}
                                             </div>
-                                            ` : html`
-                                                No discussion so far
-                                            `}
-                                            <!-- Last Comment -->
-                                            ${lastComment ? html`
-                                                <div class="flex-fill border rounded p-3 bg-light me-2">
-                                                    <h5 class="mb-2">Last Comment</h5>
-                                                    <p class="mb-2">
-                                                        ${lastComment.message}
-                                                    </p>
-                                                    <small class="text-muted d-block">${UtilsNew.dateFormatter(variant.discussion.date)}</small>
-                                                </div>
-                                            ` : html`
-                                                No comments so far
-                                            `}
-                                        </div>
+                                    `;
+                                },
+                            },
+                        },
+                        {
+                            title: "RECOMMENDATION",
+                            id: "variant-interpretation-recommendation",
+                            type: "custom",
+                            display: {
+                                titleClassName: "summary-category",
+                                titleStyle: "font-weight: normal !important",
+                                defaultLayout: "vertical",
+                                separationClassName: "mb-0",
+                                style: "font-size: 12px;",
+                                render: variant => {
+                                    debugger
+                                    return html `
+                                            <!-- Recommendation -->
+                                            <div class="d-flex flex-column me-1 rounded-4 border border-1 p-4 mt-2">
+                                                ${variant?.recommendation ? html`
+                                                    <div class="clamp-text text-muted fs-6">
+                                                        ${variant.recommendation}
+                                                    </div>
+                                                ` : html`
+                                                    <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
+                                                        <i class="fas fa-info-circle fs-3"></i>
+                                                        <div class="text-break">No recommendation available.</div>
+                                                    </div>
+                                                `}
+                                            </div>
                                     `;
                                 },
                             },

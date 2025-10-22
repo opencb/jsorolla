@@ -136,6 +136,7 @@ export default class AnalysisUtils {
             icon: config.icon || "",
             title: config.title || title,
             description: config.description || description,
+            type: config.type || "FORM",
             display: {
                 buttonOkText: config.buttons?.okText || "Run Analysis",
                 ...config?.display

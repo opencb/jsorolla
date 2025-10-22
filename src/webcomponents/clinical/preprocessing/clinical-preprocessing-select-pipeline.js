@@ -158,7 +158,9 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                                 format: pipeline => html`
                                     <div class="d-flex flex-column gap-1">
                                         <div class="d-flex align-items-center">
-                                            <span class="fw-bold fs-5">${pipeline.content.name || pipeline.name}</span>
+                                            <span class="fw-bold fs-5 link cursor-pointer" @click="${event => this.onSelectPipeline(event, pipeline)}">
+                                                ${pipeline.content.name || pipeline.name}
+                                            </span>
                                             ${pipeline.content.version ? html`<span class="badge bg-secondary ms-2">v${pipeline.content.version}</span>` : nothing}
                                         </div>
                                         <div class="d-flex gap-3 align-items-center">
@@ -171,7 +173,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                                     </div>
                                     <div class="d-flex align-items-center">
                                         <button class="btn btn-light d-flex py-2" @click="${event => this.onSelectPipeline(event, pipeline)}">
-                                            <i class="fas fa-arrow-right fs-5"></i>
+                                            <i class="fas fa-arrow-right fs-4"></i>
                                         </button>
                                     </div>
                                 `,
@@ -211,7 +213,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html`
-                                    <div class="mx-4">
+                                    <div class="mx-0">
                                         <button class="btn btn-lg btn-primary w-full d-flex align-items-center justify-content-center gap-2 py-3" @click="${() => this.onCreatePipeline()}">
                                             <i class="fas fa-plus-circle"></i>
                                             <span>Create New Pipeline</span>

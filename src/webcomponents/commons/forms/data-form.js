@@ -1627,56 +1627,53 @@ export default class DataForm extends LitElement {
             contents.push(searchContent);
         }
 
-        for (const childElement of element.elements) {
-            // 1. Check if this filed is visible
+        for (const childElementOriginal of element.elements) {
+            // 1. we have to perform a clone of the element to avoid modifying the original one
+            const childElement = {
+                ...childElementOriginal,
+                display: {
+                    ...childElementOriginal.display,
+                    nested: true,
+                },
+            };
+
+            // 2. check if this filed is visible
             const isVisible = this._getBooleanValue(childElement.display?.visible, true, childElement);
             if (!isVisible) {
                 continue;
             }
 
-            // 2. Check if the element is disabled
-            childElement.display = {
-                ...childElement.display,
-                nested: true
-            };
-
+            // 3.1 If field is autocompleted then we must disable it
             if (!UtilsNew.isEmpty(this.dataAutocomplete) && this._isFieldAutocomplete(childElement.field)) {
                 childElement.display.disabled = true;
             }
 
-            // 2.1 If parent is disabled then we must overwrite disabled field
+            // 3.2 If parent is disabled then we must overwrite disabled field
             if (isDisabled) {
                 childElement.display.disabled = isDisabled;
             }
 
-            // 3. Call to createElement to get HTML content
-            const elemContent = this._createElement(childElement);
-
             // 4. Read Help message and Render assuming vertical layout for nested forms
-            const helpMessage = this._getHelpMessage(element);
-            const helpMode = this._getHelpMode(element);
-            contents.push(
-                html`
-                    <div class="row mb-3">
-                        ${childElement.title ? html`
-                            <div>
-                                <label class="fw-bold form-label pt-0">
-                                    ${childElement.title}
-                                </label>
-                            </div>
-                        ` : nothing
-                        }
-                        <div>
-                            <div>${elemContent}</div>
-                            ${helpMessage && helpMode === "block" ? html`
-                                <div class="col-md-1 p-0 mt-1" title="${helpMessage}">
-                                    <span><i class="${this._getHelpIcon(element)}"></i></span>
-                                </div>
-                            ` : nothing
-                            }
+            const helpMessage = this._getHelpMessage(childElement);
+            const helpMode = this._getHelpMode(childElement);
+
+            contents.push(html`
+                <div class="mb-3 ${element?.display?.itemClassName || ""}">
+                    ${childElement.title ? html`
+                        <div class="${element?.display?.itemTitleClassName || ""}">
+                            <label class="fw-bold form-label pt-0">
+                                ${childElement.title}
+                            </label>
                         </div>
+                    ` : nothing}
+                    <div class="${element?.display?.itemContentClassName || ""}">
+                        ${this._createElement(childElement)}
+                        ${helpMessage && helpMode !== "block" ? html`
+                            <div class="form-text">${helpMessage}</div>
+                        ` : nothing}
                     </div>
-                `);
+                </div>
+            `);
         }
         const content = html`${contents}`;
         return this._createElementTemplate(element, null, content);
@@ -1790,20 +1787,20 @@ export default class DataForm extends LitElement {
                                                 </div>
                                             ` : nothing}
                                         </div>
-                                        <div id="${element?.field}_${index}" class="mt-3 ps-3 border-start border-2 ${isOpen ? "d-block" : "d-none"}">
+                                        <div id="${element?.field}_${index}" class="mt-3 ${isOpen ? "d-block" : "d-none"}">
                                             <div class="mb-2">
                                                 ${this._createObjectElement(_element)}
                                             </div>
                                             <div class="d-flex flex-row-reverse gap-2">
+                                                <button class="btn btn-light d-flex align-items-center gap-2" @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
+                                                    <span>${this._objectListEditAction === "ADD" ? "Add" : "Close"}</span>
+                                                </button>
                                                 ${this._objectListEditAction === "ADD" ? html`
                                                     <button class="btn btn-danger d-flex align-items-center gap-2" @click="${e => this.#removeFromObjectList(e, item, index, element)}">
                                                         <i class="fas fa-trash-alt"></i>
                                                         <span>Discard</span>
                                                     </button>
                                                 ` : nothing}
-                                                <button class="btn btn-light d-flex align-items-center gap-2" @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
-                                                    <span>${this._objectListEditAction === "ADD" ? "Add" : "Close"}</span>
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -2306,33 +2303,38 @@ export default class DataForm extends LitElement {
         pdfDocument.exportToPdf();
     }
 
-    renderContentAsForm(dismiss) {
-        // Buttons values
-        const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
-        const buttonsLayout = this._getButtonsLayout();
-
+    renderTitle() {
         const titleClassName = this.config.display?.titleClassName ?? this.config.display?.title?.class ?? "";
         const titleStyle = this.config.display?.titleStyle ?? this.config.display?.title?.style ?? "";
         const titleVisible = this._getBooleanValue(this.config.display?.titleVisible ?? this.config.display?.showTitle, true);
 
+        if (this.config.title && titleVisible) {
+            return html`
+                <div class="d-flex mb-2">
+                    <h2 class="${titleClassName}" style="${titleStyle}">${this.config.title}</h2>
+                    ${this.config.logo ? html`
+                        <div class="ms-auto">
+                            <img src="${this.config.logo}" />
+                        </div>
+                    ` : nothing}
+                </div>
+            `;
+        }
+
+        // title is not visible
+        return nothing;
+    }
+
+    renderContentAsForm(dismiss) {
+        const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
+        const buttonsLayout = this._getButtonsLayout();
         const notificationHtml = this.getFormNotificationHtml();
 
         return html`
             ${notificationHtml}
 
             <!-- Header -->
-            ${this.config.title && titleVisible ? html`
-                <div class="d-flex mb-2">
-                    <div>
-                        <h2 class="${titleClassName}" style="${titleStyle}">${this.config.title}</h2>
-                    </div>
-                    ${this.config.logo ? html`
-                        <div class="ms-auto">
-                            <img src="${this.config.logo}" />
-                        </div>` : nothing
-                    }
-                </div>` : nothing
-            }
+            ${this.renderTitle()}
 
             <button class="btn btn-primary" style="margin-bottom:14px; display: ${this.config.display?.pdf === true ? "block": "none"}"
                     @click="${this.onDownloadPdf}">
@@ -2447,6 +2449,7 @@ export default class DataForm extends LitElement {
 
         return html`
             ${notificationHtml}
+            ${this.renderTitle()}
             ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
             <div class="${containerClassName}">
                 <div class="${pillsColumnClassName}">

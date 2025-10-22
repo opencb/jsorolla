@@ -935,6 +935,13 @@ export default class VariantGridFormatter {
             <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>
         `;
     }
+    static interpretationSummaryTooltipContent() {
+        return `
+            This summary displays key information about the variant’s clinical interpretation within the case.
+            It appears only within a clinical context when the variant has been selected as a Primary or Secondary Finding.<br>
+            Supporting information such as papers, images, and evidences can be viewed in the Review modal.
+        `;
+    }
 
     static populationFrequenciesSummaryTooltipContent(populationFrequencies) {
         return `
@@ -1024,7 +1031,7 @@ export default class VariantGridFormatter {
                 </td>
             `;
         });
-        
+
         return `
             <table class='population-freq-tooltip'>
                 <thead>
