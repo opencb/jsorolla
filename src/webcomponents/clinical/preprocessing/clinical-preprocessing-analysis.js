@@ -168,6 +168,17 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         }));
     }
 
+    getUsagePage(tool) {
+        switch (tool) {
+            case "bwa":
+            case "bwa-mem2":
+                return "https://bio-bwa.sourceforge.net/bwa.shtml";
+            case "minimap2":
+                return "https://lh3.github.io/minimap2/minimap2.html";
+        }
+        return "";
+    }
+
     dispatchChange() {
         // LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
         //     input: {
@@ -357,8 +368,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         title: "Alignment Tool",
                         field: "alignment.tool.id",
                         type: "select",
-                        allowedValues: ["bwa"],
-                        defaultValue: "bwa",
+                        allowedValues: ["bwa", "bwa-mem2", "minimap2"],
                         display: {
                             disabled: data => !data.alignment.active,
                             helpMessage: "Select the alignment tool to use. Options are 'bwa' (BWA-MEM), 'bwa-mem2' (BWA-MEM2) and 'minimap2' (Minimap2)."
@@ -477,12 +487,23 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     },
                     {
                         title: "Usage",
-                        field: "usage",
+                        field: "alignment.tool.id",
                         type: "custom",
                         display: {
-                            render: () => html`
-                                <iframe src="https://bio-bwa.sourceforge.net/bwa.shtml" width="100%" height="600px"></iframe>
-                            `,
+                            render: tool => {
+                                const usagePage = this.getUsagePage(tool);
+                                if (!tool || !usagePage) {
+                                    return html`
+                                        <div class="alert alert-light d-flex flex-column align-items-center gap-2 text-center py-4">
+                                            <i class="fa fa-book fs-4"></i>
+                                            <span class="fw-bold">No usage information available for the selected tool.</span>
+                                        </div>
+                                    `;
+                                }
+                                return html`
+                                    <iframe src="${usagePage}" width="100%" height="600px"></iframe>
+                                `;
+                            },
                         },
                     },
                 ],
