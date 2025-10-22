@@ -1650,33 +1650,29 @@ export default class DataForm extends LitElement {
             }
 
             // 3. Call to createElement to get HTML content
-            const elemContent = this._createElement(childElement);
+            // const elemContent = this._createElement(childElement);
 
             // 4. Read Help message and Render assuming vertical layout for nested forms
-            const helpMessage = this._getHelpMessage(element);
-            const helpMode = this._getHelpMode(element);
-            contents.push(
-                html`
-                    <div class="row mb-3">
-                        ${childElement.title ? html`
-                            <div>
-                                <label class="fw-bold form-label pt-0">
-                                    ${childElement.title}
-                                </label>
-                            </div>
-                        ` : nothing
-                        }
-                        <div>
-                            <div>${elemContent}</div>
-                            ${helpMessage && helpMode === "block" ? html`
-                                <div class="col-md-1 p-0 mt-1" title="${helpMessage}">
-                                    <span><i class="${this._getHelpIcon(element)}"></i></span>
-                                </div>
-                            ` : nothing
-                            }
+            const helpMessage = this._getHelpMessage(childElement);
+            const helpMode = this._getHelpMode(childElement);
+
+            contents.push(html`
+                <div class="mb-3 ${element?.display?.itemClassName || ""}">
+                    ${childElement.title ? html`
+                        <div class="${element?.display?.itemTitleClassName || ""}">
+                            <label class="fw-bold form-label pt-0">
+                                ${childElement.title}
+                            </label>
                         </div>
+                    ` : nothing}
+                    <div class="${element?.display?.itemContentClassName || ""}">
+                        ${this._createElement(childElement)}
+                        ${helpMessage && helpMode !== "block" ? html`
+                            <div class="form-text">${helpMessage}</div>
+                        ` : nothing}
                     </div>
-                `);
+                </div>
+            `);
         }
         const content = html`${contents}`;
         return this._createElementTemplate(element, null, content);
