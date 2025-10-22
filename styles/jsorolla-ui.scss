@@ -32,7 +32,7 @@ $white: #fff;
 // custom body configuration
 $body-bg: $gray-50;
 
-// overwrite border radius configuration. 
+// overwrite border radius configuration.
 // this overwrite smooths the difference between the xl and xxl values
 $border-radius-xl: 0.75rem;
 $border-radius-xxl: 1rem;
@@ -118,6 +118,13 @@ card .card-header .card-title {
 }
 
 .card .card-category, .card label {
+  font-size: .875rem;
+  font-weight: 400;
+  color: #9a9a9a;
+  margin-bottom: 0;
+}
+
+.summary-category{
   font-size: .875rem;
   font-weight: 400;
   color: #9a9a9a;

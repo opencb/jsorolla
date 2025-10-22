@@ -99,4 +99,50 @@ export default class WebUtils {
         });
     }
 
+    /**
+     * Apply line clamping to a container and attach a toggle
+     * @param {HTMLElement} container - element containing the text
+     * @param {number} [lines=2] - number of lines to clamp
+     * @param {string} [toggleTextClass='text-primary'] - optional CSS class for the toggle
+     */
+    static clampText(container, lines = 2, toggleTextClass = "text-primary fw-semibold") {
+        if (!(container instanceof HTMLElement)) {
+            console.warn("clampText: container is not a valid HTMLElement", container);
+            return;
+        }
+
+        // Add clamping CSS safely
+        container.style.display = '-webkit-box';
+        container.style.webkitBoxOrient = 'vertical';
+        container.style.webkitLineClamp = String(lines);
+        container.style.overflow = 'hidden';
+        container.style.textOverflow = 'ellipsis';
+
+        // Create toggle only if not already present
+        let toggle = container.nextElementSibling;
+        if (!toggle || !toggle.classList.contains("clamp-toggle")) {
+            toggle = document.createElement("span");
+            toggle.className = `clamp-toggle mb-2 ${toggleTextClass}`;
+            toggle.style.cursor = "pointer";
+            toggle.style.marginLeft = "";
+            toggle.style.userSelect = "none";
+            toggle.style.color = "indigo-700";
+            toggle.textContent = "Read more";
+            container.insertAdjacentElement("afterend", toggle);
+        }
+
+        // Hide toggle if text fits
+        const isOverflowing = container.scrollHeight > container.clientHeight + 1;
+        toggle.style.display = isOverflowing ? "inline" : "none";
+
+        // Toggle click handler
+        let expanded = false;
+        toggle.onclick = () => {
+            expanded = !expanded;
+            container.style.webkitLineClamp = expanded ? "unset" : String(lines);
+            container.style.overflow = expanded ? "visible" : "hidden";
+            toggle.textContent = expanded ? "Read less" : "Read more";
+        };
+    }
+
 }
