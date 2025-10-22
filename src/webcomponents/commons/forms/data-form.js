@@ -1627,30 +1627,31 @@ export default class DataForm extends LitElement {
             contents.push(searchContent);
         }
 
-        for (const childElement of element.elements) {
-            // 1. Check if this filed is visible
+        for (const childElementOriginal of element.elements) {
+            // 1. we have to perform a clone of the element to avoid modifying the original one
+            const childElement = {
+                ...childElementOriginal,
+                display: {
+                    ...childElementOriginal.display,
+                    nested: true,
+                },
+            };
+
+            // 2. check if this filed is visible
             const isVisible = this._getBooleanValue(childElement.display?.visible, true, childElement);
             if (!isVisible) {
                 continue;
             }
 
-            // 2. Check if the element is disabled
-            childElement.display = {
-                ...childElement.display,
-                nested: true
-            };
-
+            // 3.1 If field is autocompleted then we must disable it
             if (!UtilsNew.isEmpty(this.dataAutocomplete) && this._isFieldAutocomplete(childElement.field)) {
                 childElement.display.disabled = true;
             }
 
-            // 2.1 If parent is disabled then we must overwrite disabled field
+            // 3.2 If parent is disabled then we must overwrite disabled field
             if (isDisabled) {
                 childElement.display.disabled = isDisabled;
             }
-
-            // 3. Call to createElement to get HTML content
-            // const elemContent = this._createElement(childElement);
 
             // 4. Read Help message and Render assuming vertical layout for nested forms
             const helpMessage = this._getHelpMessage(childElement);
