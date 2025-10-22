@@ -136,16 +136,16 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             }
 
             // 3.3. merge variant calling step configuration
-            if (this.toolParams.steps?.variantCalling) {
-                this._toolParams.variantCalling = {
-                    active: !!this.toolParams.steps.variantCalling.active ?? this._toolParams.variantCalling.active ?? true,
-                    options: {
-                        ...this._toolParams.variantCalling.options,
-                        ...this.toolParams.steps.variantCalling.options,
-                    },
-                    tools: this.toolParams.steps.variantCalling.tools || [],
-                };
-            }
+            // if (this.toolParams.steps?.variantCalling) {
+            //     this._toolParams.variantCalling = {
+            //         active: !!this.toolParams.steps.variantCalling.active ?? this._toolParams.variantCalling.active ?? true,
+            //         options: {
+            //             ...this._toolParams.variantCalling.options,
+            //             ...this.toolParams.steps.variantCalling.options,
+            //         },
+            //         tools: this.toolParams.steps.variantCalling.tools || [],
+            //     };
+            // }
         }
     }
 
@@ -227,7 +227,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "Input Parameters",
+                title: "General Parameters",
                 elements: [
                     // {
                     //     title: "Select FastQ Files",
@@ -448,7 +448,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         ],
                     },
                     {
-                        title: "Aligment Parameters",
+                        title: "Alignment Parameters",
                         field: "alignment.tool.parameters",
                         type: "object-list",
                         display: {
@@ -592,6 +592,69 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                         `;
                                     },
                                 },
+                            },
+                            {
+                                title: "Tool Parameters",
+                                field: "variantCalling.tools[].parameters",
+                                type: "object-list",
+                                display: {
+                                    disabled: data => !data.alignment.active,
+                                    itemId: "name",
+                                    itemAddText: "Add parameter",
+                                    itemsNotFoundText: "No parameters registered for this tool.",
+                                    view: variable => html`
+                                        <div class="">
+                                            <b>${variable.name || ""}</b> ${typeof variable.value !== "undefined" ? html` = ${variable.value}` : nothing}
+                                        </div>
+                                    `,
+                                },
+                                elements: [
+                                    {
+                                        title: "Parameter Name",
+                                        field: "alignment.tool.parameters[].name",
+                                        type: "input-text",
+                                        display: {
+                                            placeholder: "",
+                                        }
+                                    },
+                                    {
+                                        title: "Is a File Parameter?",
+                                        field: "alignment.tool.parameters[].isFile",
+                                        type: "checkbox",
+                                        display: {},
+                                    },
+                                    {
+                                        title: "Parameter Value",
+                                        field: "alignment.tool.parameters[].value",
+                                        type: "input-text",
+                                        display: {
+                                            visible: (data, item) => {
+                                                return !item.isFile;
+                                            },
+                                        }
+                                    },
+                                    {
+                                        title: "Select File",
+                                        field: "alignment.tool.parameters[].value",
+                                        type: "custom",
+                                        display: {
+                                            visible: (data, item) => {
+                                                return item.isFile;
+                                            },
+                                            render: (data, dataFormFilterChange) => html`
+                                                <catalog-search-autocomplete
+                                                    .resource="${"FILE"}"
+                                                    .searchField="${"path"}"
+                                                    .config="${{
+                                                        multiple: false,
+                                                    }}"
+                                                    .opencgaSession="${this.opencgaSession}"
+                                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                                </catalog-search-autocomplete>
+                                            `,
+                                        },
+                                    }
+                                ],
                             },
                         ],
                     },
