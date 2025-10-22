@@ -421,7 +421,33 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     //     },
                     // },
                     {
-                        title: "Parameters",
+                        title: "Alignment Options",
+                        type: "object",
+                        display: {
+                            itemClassName: "row",
+                            itemTitleClassName: "col-md-3",
+                            itemContentClassName: "col-md-9",
+                        },
+                        elements: [
+                            {
+                                title: "Clean",
+                                field: "alignment.options.clean",
+                                type: "toggle-switch",
+                            },
+                            {
+                                title: "Cram",
+                                field: "alignment.options.cram",
+                                type: "toggle-switch",
+                            },
+                            {
+                                title: "Quality Control",
+                                field: "alignment.options.qc",
+                                type: "toggle-switch",
+                            },
+                        ],
+                    },
+                    {
+                        title: "Aligment Parameters",
                         field: "alignment.tool.parameters",
                         type: "object-list",
                         display: {
