@@ -520,6 +520,9 @@ export default class VariantInterpreterGrid extends LitElement {
             ];
         }
 
+        // check if we are in xetabase mode to hide the Reported column
+        const isXetabase = (this.opencgaSession?.about?.Program || "").includes("XetaBase");
+
         // Prepare Grid columns
         this._columns = [
             [
@@ -826,7 +829,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     formatter: (value, row) => VariantGridFormatter.reportedVariantFormatter(value, this.queriedVariants[row.id]),
                     align: "center",
-                    visible: this.gridCommons.isColumnVisible("reported", "interpretation"),
+                    visible: !isXetabase && this.gridCommons.isColumnVisible("reported", "interpretation"),
+                    excludeFromSettings: isXetabase,
                 },
                 {
                     id: "prediction",
