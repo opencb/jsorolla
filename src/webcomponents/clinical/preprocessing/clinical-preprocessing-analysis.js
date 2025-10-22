@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
@@ -117,6 +117,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     tool: {
                         ...this._toolParams.qualityControl.tool,
                         ...this.toolParams.steps.qualityControl?.tool,
+                        parameters: this.parseParametersObject(this.toolParams.steps.qualityControl?.tool?.parameters),
                     },
                 };
             }
@@ -129,6 +130,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     tool: {
                         ...this._toolParams.alignment.tool,
                         ...this.toolParams.steps.alignment?.tool,
+                        parameters: this.parseParametersObject(this.toolParams.steps.alignment?.tool?.parameters),
                     },
                 };
             }
@@ -151,13 +153,19 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         return null;
     }
 
-    onFieldChange() {
-        this._toolParams = {
-            ...this._toolParams,
-        };
+    parseParametersObject(parameters = {}) {
+        return Object.keys(parameters).map(key => {
+            return {
+                name: key,
+                value: parameters[key],
+            };
+        });
+    }
 
-        this.dispatchChange();
-        this.requestUpdate();
+    formatParametersList(parameters = []) {
+        return Object.fromEntries(parameters.map(parameter => {
+            return [parameter.name, parameter.value];
+        }));
     }
 
     dispatchChange() {
@@ -177,6 +185,15 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         //         },
         //     },
         // });
+    }
+
+    onFieldChange() {
+        this._toolParams = {
+            ...this._toolParams,
+        };
+
+        this.dispatchChange();
+        this.requestUpdate();
     }
 
     onClear() {
@@ -400,20 +417,11 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         display: {
                             itemId: "name",
                             itemAddText: "Add parameter",
-                            itemsNotFoundText: "No parameters found",
-                            itemsTitle: "Parameters:",
-                            // summary: (data, items) => {
-                            //     return html`
-                            //         <div>
-                            //             <span class="fw-bold">Command Line:</span>
-                            //         </div>
-                            //         <div class="m-2">
-                            //             <span>bcftools ${data.command} ${items.map(item => item.name + " " + (item.value ?? "")).join(" ")}</span>
-                            //         </div>
-                            //     `;
-                            // },
+                            itemsNotFoundText: "No parameters registered for this tool.",
                             view: variable => html`
-                                <div class="m-2">${variable.name} ${variable.value}</div>
+                                <div class="">
+                                    <b>${variable.name || ""}</b> ${typeof variable.value !== "undefined" ? html` = ${variable.value}` : nothing}
+                                </div>
                             `,
                         },
                         elements: [
@@ -424,7 +432,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                 display: {
                                     placeholder: "",
                                     help: {
-                                        text: "Add parameter name, eg: -t, --threads. Parameters MUST include hyphen (-) or double hyphen (--) at the beginning.",
+                                        text: "Add parameter name, eg: t, -t, or --threads. Parameters can include hyphen (-) or double hyphen (--) at the beginning.",
                                     }
                                 }
                             },
@@ -455,6 +463,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     render: (data, dataFormFilterChange) => html`
                                         <catalog-search-autocomplete
                                             .resource="${"FILE"}"
+                                            .searchField="${"path"}"
                                             .config="${{
                                                 multiple: false,
                                             }}"
