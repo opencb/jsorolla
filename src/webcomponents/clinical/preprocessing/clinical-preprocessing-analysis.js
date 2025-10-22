@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
@@ -117,6 +117,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     tool: {
                         ...this._toolParams.qualityControl.tool,
                         ...this.toolParams.steps.qualityControl?.tool,
+                        parameters: this.parseParametersObject(this.toolParams.steps.qualityControl?.tool?.parameters),
                     },
                 };
             }
@@ -129,21 +130,22 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     tool: {
                         ...this._toolParams.alignment.tool,
                         ...this.toolParams.steps.alignment?.tool,
+                        parameters: this.parseParametersObject(this.toolParams.steps.alignment?.tool?.parameters),
                     },
                 };
             }
 
             // 3.3. merge variant calling step configuration
-            if (this.toolParams.steps?.variantCalling) {
-                this._toolParams.variantCalling = {
-                    active: !!this.toolParams.steps.variantCalling.active ?? this._toolParams.variantCalling.active ?? true,
-                    options: {
-                        ...this._toolParams.variantCalling.options,
-                        ...this.toolParams.steps.variantCalling.options,
-                    },
-                    tools: this.toolParams.steps.variantCalling.tools || [],
-                };
-            }
+            // if (this.toolParams.steps?.variantCalling) {
+            //     this._toolParams.variantCalling = {
+            //         active: !!this.toolParams.steps.variantCalling.active ?? this._toolParams.variantCalling.active ?? true,
+            //         options: {
+            //             ...this._toolParams.variantCalling.options,
+            //             ...this.toolParams.steps.variantCalling.options,
+            //         },
+            //         tools: this.toolParams.steps.variantCalling.tools || [],
+            //     };
+            // }
         }
     }
 
@@ -151,13 +153,30 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         return null;
     }
 
-    onFieldChange() {
-        this._toolParams = {
-            ...this._toolParams,
-        };
+    parseParametersObject(parameters = {}) {
+        return Object.keys(parameters).map(key => {
+            return {
+                name: key,
+                value: parameters[key],
+            };
+        });
+    }
 
-        this.dispatchChange();
-        this.requestUpdate();
+    formatParametersList(parameters = []) {
+        return Object.fromEntries(parameters.map(parameter => {
+            return [parameter.name, parameter.value];
+        }));
+    }
+
+    getUsagePage(tool) {
+        switch (tool) {
+            case "bwa":
+            case "bwa-mem2":
+                return "https://bio-bwa.sourceforge.net/bwa.shtml";
+            case "minimap2":
+                return "https://lh3.github.io/minimap2/minimap2.html";
+        }
+        return "";
     }
 
     dispatchChange() {
@@ -177,6 +196,15 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         //         },
         //     },
         // });
+    }
+
+    onFieldChange() {
+        this._toolParams = {
+            ...this._toolParams,
+        };
+
+        this.dispatchChange();
+        this.requestUpdate();
     }
 
     onClear() {
@@ -199,7 +227,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
     getDefaultConfig() {
         const params = [
             {
-                title: "Input Parameters",
+                title: "General Parameters",
                 elements: [
                     // {
                     //     title: "Select FastQ Files",
@@ -340,8 +368,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         title: "Alignment Tool",
                         field: "alignment.tool.id",
                         type: "select",
-                        allowedValues: ["bwa"],
-                        defaultValue: "bwa",
+                        allowedValues: ["bwa", "bwa-mem2", "minimap2"],
                         display: {
                             disabled: data => !data.alignment.active,
                             helpMessage: "Select the alignment tool to use. Options are 'bwa' (BWA-MEM), 'bwa-mem2' (BWA-MEM2) and 'minimap2' (Minimap2)."
@@ -394,26 +421,45 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     //     },
                     // },
                     {
-                        title: "Parameters",
+                        title: "Alignment Options",
+                        type: "object",
+                        display: {
+                            itemClassName: "row",
+                            itemTitleClassName: "col-md-3",
+                            itemContentClassName: "col-md-9",
+                            disabled: data => !data.alignment.active,
+                        },
+                        elements: [
+                            {
+                                title: "Clean",
+                                field: "alignment.options.clean",
+                                type: "toggle-switch",
+                            },
+                            {
+                                title: "Cram",
+                                field: "alignment.options.cram",
+                                type: "toggle-switch",
+                            },
+                            {
+                                title: "Quality Control",
+                                field: "alignment.options.qc",
+                                type: "toggle-switch",
+                            },
+                        ],
+                    },
+                    {
+                        title: "Alignment Parameters",
                         field: "alignment.tool.parameters",
                         type: "object-list",
                         display: {
+                            disabled: data => !data.alignment.active,
                             itemId: "name",
                             itemAddText: "Add parameter",
-                            itemsNotFoundText: "No parameters found",
-                            itemsTitle: "Parameters:",
-                            // summary: (data, items) => {
-                            //     return html`
-                            //         <div>
-                            //             <span class="fw-bold">Command Line:</span>
-                            //         </div>
-                            //         <div class="m-2">
-                            //             <span>bcftools ${data.command} ${items.map(item => item.name + " " + (item.value ?? "")).join(" ")}</span>
-                            //         </div>
-                            //     `;
-                            // },
+                            itemsNotFoundText: "No parameters registered for this tool.",
                             view: variable => html`
-                                <div class="m-2">${variable.name} ${variable.value}</div>
+                                <div class="">
+                                    <b>${variable.name || ""}</b> ${typeof variable.value !== "undefined" ? html` = ${variable.value}` : nothing}
+                                </div>
                             `,
                         },
                         elements: [
@@ -424,7 +470,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                 display: {
                                     placeholder: "",
                                     help: {
-                                        text: "Add parameter name, eg: -t, --threads. Parameters MUST include hyphen (-) or double hyphen (--) at the beginning.",
+                                        text: "Add parameter name, eg: t, -t, or --threads. Parameters can include hyphen (-) or double hyphen (--) at the beginning.",
                                     }
                                 }
                             },
@@ -455,6 +501,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     render: (data, dataFormFilterChange) => html`
                                         <catalog-search-autocomplete
                                             .resource="${"FILE"}"
+                                            .searchField="${"path"}"
                                             .config="${{
                                                 multiple: false,
                                             }}"
@@ -468,12 +515,23 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     },
                     {
                         title: "Usage",
-                        field: "usage",
+                        field: "alignment.tool.id",
                         type: "custom",
                         display: {
-                            render: () => html`
-                                <iframe src="https://bio-bwa.sourceforge.net/bwa.shtml" width="100%" height="600px"></iframe>
-                            `,
+                            render: tool => {
+                                const usagePage = this.getUsagePage(tool);
+                                if (!tool || !usagePage) {
+                                    return html`
+                                        <div class="alert alert-light d-flex flex-column align-items-center gap-2 text-center py-4">
+                                            <i class="fa fa-book fs-4"></i>
+                                            <span class="fw-bold">No usage information available for the selected tool.</span>
+                                        </div>
+                                    `;
+                                }
+                                return html`
+                                    <iframe src="${usagePage}" width="100%" height="600px"></iframe>
+                                `;
+                            },
                         },
                     },
                 ],
@@ -534,6 +592,69 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                         `;
                                     },
                                 },
+                            },
+                            {
+                                title: "Tool Parameters",
+                                field: "variantCalling.tools[].parameters",
+                                type: "object-list",
+                                display: {
+                                    disabled: data => !data.alignment.active,
+                                    itemId: "name",
+                                    itemAddText: "Add parameter",
+                                    itemsNotFoundText: "No parameters registered for this tool.",
+                                    view: variable => html`
+                                        <div class="">
+                                            <b>${variable.name || ""}</b> ${typeof variable.value !== "undefined" ? html` = ${variable.value}` : nothing}
+                                        </div>
+                                    `,
+                                },
+                                elements: [
+                                    {
+                                        title: "Parameter Name",
+                                        field: "alignment.tool.parameters[].name",
+                                        type: "input-text",
+                                        display: {
+                                            placeholder: "",
+                                        }
+                                    },
+                                    {
+                                        title: "Is a File Parameter?",
+                                        field: "alignment.tool.parameters[].isFile",
+                                        type: "checkbox",
+                                        display: {},
+                                    },
+                                    {
+                                        title: "Parameter Value",
+                                        field: "alignment.tool.parameters[].value",
+                                        type: "input-text",
+                                        display: {
+                                            visible: (data, item) => {
+                                                return !item.isFile;
+                                            },
+                                        }
+                                    },
+                                    {
+                                        title: "Select File",
+                                        field: "alignment.tool.parameters[].value",
+                                        type: "custom",
+                                        display: {
+                                            visible: (data, item) => {
+                                                return item.isFile;
+                                            },
+                                            render: (data, dataFormFilterChange) => html`
+                                                <catalog-search-autocomplete
+                                                    .resource="${"FILE"}"
+                                                    .searchField="${"path"}"
+                                                    .config="${{
+                                                        multiple: false,
+                                                    }}"
+                                                    .opencgaSession="${this.opencgaSession}"
+                                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                                </catalog-search-autocomplete>
+                                            `,
+                                        },
+                                    }
+                                ],
                             },
                         ],
                     },

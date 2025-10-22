@@ -37,6 +37,13 @@ export default class ClinicalPreprocessingSavePipeline extends LitElement {
         super.update(changedProperties);
     }
 
+    onFieldChange(event) {
+        this._data = {
+            ...this._data,
+        };
+        this.requestUpdate();
+    }
+
     onSubmit() {
         LitUtils.dispatchCustomEvent(this, "pipelineSave", null, this._data);
     }
@@ -46,6 +53,7 @@ export default class ClinicalPreprocessingSavePipeline extends LitElement {
             <data-form
                 .data="${this._data}"
                 .config="${this._config}"
+                @fieldChange="${event => this.onFieldChange(event)}"
                 @submit="${event=> this.onSubmit(event)}">
             </data-form>
         `;

@@ -213,7 +213,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html`
-                                    <div class="mx-4">
+                                    <div class="mx-0">
                                         <button class="btn btn-lg btn-primary w-full d-flex align-items-center justify-content-center gap-2 py-3" @click="${() => this.onCreatePipeline()}">
                                             <i class="fas fa-plus-circle"></i>
                                             <span>Create New Pipeline</span>
