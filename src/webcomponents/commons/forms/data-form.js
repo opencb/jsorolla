@@ -1795,15 +1795,15 @@ export default class DataForm extends LitElement {
                                                 ${this._createObjectElement(_element)}
                                             </div>
                                             <div class="d-flex flex-row-reverse gap-2">
+                                                <button class="btn btn-light d-flex align-items-center gap-2" @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
+                                                    <span>${this._objectListEditAction === "ADD" ? "Add" : "Close"}</span>
+                                                </button>
                                                 ${this._objectListEditAction === "ADD" ? html`
                                                     <button class="btn btn-danger d-flex align-items-center gap-2" @click="${e => this.#removeFromObjectList(e, item, index, element)}">
                                                         <i class="fas fa-trash-alt"></i>
                                                         <span>Discard</span>
                                                     </button>
                                                 ` : nothing}
-                                                <button class="btn btn-light d-flex align-items-center gap-2" @click="${e => this.#toggleEditItemOfObjectList(e, item, index, element)}">
-                                                    <span>${this._objectListEditAction === "ADD" ? "Add" : "Close"}</span>
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
