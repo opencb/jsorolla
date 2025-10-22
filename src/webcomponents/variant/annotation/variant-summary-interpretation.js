@@ -212,22 +212,25 @@ debugger
                         separationClassName: "mb-0",
                         layout: [
                             {
-                                className: "d-flex align-items-stretch",
+                                className: "d-flex align-items-stretch mt-2",
                                 elements: [
                                     {
                                         id:"variant-interpretation-evidences",
                                         style: "flex: 1",
                                     },
+                                ],
+                            },
+                            {
+                                className: "d-flex align-items-stretch mt-2",
+                                elements: [
                                     {
                                         id:"variant-interpretation-discussion",
                                         style: "flex: 1",
                                     },
-                                    /*
                                     {
                                         id:"variant-interpretation-recommendation",
                                         style: "flex: 1",
                                     },
-                                     */
                                 ],
                             },
                         ],
@@ -243,7 +246,7 @@ debugger
                                 titleStyle: "font-weight: normal !important",
                                 defaultLayout: "vertical",
                                 separationClassName: "mb-0",
-                                className: "table-borderless table-grid mb-0",
+                                className: "table-grid mb-0",
                                 style: "font-size: 12px;",
                                 bodyCellClassName: "align-middle",
                                 headerCellClassName: "bg-transparent",
@@ -280,104 +283,139 @@ debugger
                                         },
                                     },
                                     {
-                                        title: "Pred CS",
-                                        field: "classification.clinicalSignificance",
-                                        type: "custom",
+                                        title: "Predicted",
                                         display: {
-                                            render: clinicalSignificance => {
-                                                if (!clinicalSignificance) {
-                                                    return html`<span class="text-secondary">N/A</span>`;
-                                                }
-                                                const cs = CLINICAL_SIGNIFICANCE.find(cs => cs.id === clinicalSignificance.toLowerCase());
-                                                return html`
+                                            separationClassName: "mb-0",
+                                            className: "table-grid mb-0",
+                                            style: "font-size: 12px;",
+                                            bodyCellClassName: "align-middle",
+                                            headerCellClassName: "bg-transparent",
+                                            columns: [
+                                                {
+                                                    title: "CS",
+                                                    field: "classification.clinicalSignificance",
+                                                    type: "custom",
+                                                    display: {
+                                                        render: clinicalSignificance => {
+                                                            if (!clinicalSignificance) {
+                                                                return html`<span class="text-secondary">N/A</span>`;
+                                                            }
+                                                            const cs = CLINICAL_SIGNIFICANCE.find(cs => cs.id === clinicalSignificance.toLowerCase());
+                                                            return html`
+                                                                <span style="color: ${cs.color}">${cs.acronym}</span>
+                                                            `;
+                                                        },
+                                                    },
+                                                },
+                                                {
+                                                    title: "ACMG",
+                                                    field: "classification.acmg",
+                                                    type: "custom",
+                                                    display: {
+                                                        render: acmgList => {
+                                                            if (!acmgList || acmgList.length === 0) {
+                                                                return html`<span class="text-secondary">-</span>`;
+                                                            }
+                                                            return html`
+                                                                ${acmgList.map(acmg => {
+                                                                    const c = ACMG_CRITERIA_COLOR.find(({ id }) => id === acmg.classification) ?? { color: '#000', id: '-' };
+                                                                    return html`
+                                                                        <span
+                                                                            class="rounded-4 px-1 me-1"
+                                                                            style="border: 1px solid ${c.color}; color: ${c.color};">
+                                                                            ${c.id}
+                                                                        </span>
+                                                                    `;
+                                                                })}
+                                                            `;
+                                                        },
+                                                    },
+                                                },
+                                                {
+                                                    title: "Tier",
+                                                    field: "review.tier",
+                                                    type: "custom",
+                                                    display: {
+                                                        render: tier => {
+                                                            debugger
+                                                            tier ? html`<span class="text-secondary">${tier}</span>` : "-";
+                                                        }
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    },
+                                    {
+                                        title: "User",
+                                        display: {
+                                            columns: [
+                                                {
+                                                    title: "Clinical Significance",
+                                                    field: "review.clinicalSignificance",
+                                                    type: "custom",
+                                                    display: {
+                                                        render: clinicalSignificance => {
+                                                            if (!clinicalSignificance) {
+                                                                return html`<span class="text-secondary">N/A</span>`;
+                                                            }
+                                                            const cs = CLINICAL_SIGNIFICANCE.find(cs => cs.id === clinicalSignificance.toLowerCase());
+                                                            return html`
                                                     <span style="color: ${cs.color}">${cs.acronym}</span>
                                                 `;
-                                            },
+                                                        },
+                                                    },
+                                                },
+                                                {
+                                                    title: "ACMG",
+                                                    field: "review.acmg",
+                                                    type: "custom",
+                                                    display: {
+                                                        render: acmgList => {
+                                                            if (!acmgList || acmgList.length === 0) {
+                                                                return html`<span class="text-secondary">-</span>`;
+                                                            }
+                                                            return html`
+                                                                ${acmgList.map(({ classification, strength }) => {
+                                                                    const { color, id } =
+                                                                    ACMG_CRITERIA_COLOR.find(c => c.id === classification) ?? { color: '#000', id: '-' };
+                                                                    return html`
+                                                                        <div class="d-inline-flex flex-column align-items-center text-center me-1 mb-2">
+                                                                            <span
+                                                                                class="rounded-4 px-2 py-1"
+                                                                                style="border: 1px solid ${color}; color: ${color}; min-width: 2.5rem;">
+                                                                                    ${id}
+                                                                            </span>
+                                                                            ${strength ? html`<small class="text-muted mt-1 fs-9">${strength}</small>` : ''}
+                                                                        </div>
+                                                                  `;
+                                                                })}
+                                                            `;
+                                                        },
+                                                    },
+                                                },
+                                                {
+                                                    title: "Tier",
+                                                    field: "review.tier",
+                                                    type: "custom",
+                                                    display: {
+                                                        render: tier => {
+                                                            debugger
+                                                            tier ? html`<span class="text-secondary">${tier}</span>` : "-";
+                                                        }
+                                                    },
+                                                },
+                                                {
+                                                    title: "Score",
+                                                    field: "review.score",
+                                                    display: {
+                                                        defaultValue: "-",
+                                                        className: "text-secondary"
+                                                    },
+                                                },
+                                            ],
                                         },
                                     },
-                                    {
-                                        title: "Pred ACMG",
-                                        field: "classification.acmg",
-                                        type: "custom",
-                                        display: {
-                                            render: acmgList => {
-                                                if (!acmgList || acmgList.length === 0) {
-                                                    return html`<span class="text-secondary">-</span>`;
-                                                }
-                                                return html`
-                                                    ${acmgList.map(acmg => {
-                                                        const c = ACMG_CRITERIA_COLOR.find(({ id }) => id === acmg.classification) ?? { color: '#000', id: '-' };
-                                                        return html`
-                                                            <span
-                                                                    class="rounded-4 px-1 me-1"
-                                                                    style="border: 1px solid ${c.color}; color: ${c.color};">
-                                                                ${c.id}
-                                                            </span>
-                                                        `;
-                                                    })}
-                                                `;
-                                            },
-                                        },
-                                    },
-                                    {
-                                        title: " User CS",
-                                        field: "review.clinicalSignificance",
-                                        type: "custom",
-                                        display: {
-                                            render: clinicalSignificance => {
-                                                if (!clinicalSignificance) {
-                                                    return html`<span class="text-secondary">N/A</span>`;
-                                                }
-                                                const cs = CLINICAL_SIGNIFICANCE.find(cs => cs.id === clinicalSignificance.toLowerCase());
-                                                return html`
-                                                    <span style="color: ${cs.color}">${cs.acronym}</span>
-                                                `;
-                                            },
-                                        },
-                                    },
-                                    {
-                                        title: "User ACMG",
-                                        field: "review.acmg",
-                                        type: "custom",
-                                        display: {
-                                            render: acmgList => {
-                                                if (!acmgList || acmgList.length === 0) {
-                                                    return html`<span class="text-secondary">-</span>`;
-                                                }
-                                                return html`
-                                                    ${acmgList.map(acmg => {
-                                                        const c = ACMG_CRITERIA_COLOR.find(({ id }) => id === acmg.classification) ?? { color: '#000', id: '-' };
-                                                        return html`
-                                                            <span
-                                                                class="rounded-4 px-1 me-1"
-                                                                style="border: 1px solid ${c.color}; color: ${c.color};">
-                                                                ${c.id}
-                                                            </span>
-                                                        `;
-                                                    })}
-                                                `;
-                                            },
-                                        },
-                                    },
-                                    /*
-                                    {
-                                        title: "User Tier",
-                                        field: "review.tier",
-                                        type: "custom",
-                                        display: {
-                                            render: tier => {
-                                                tier ? html`<span class="text-secondary">${tier}</span>` : "-";
-                                            }
-                                        },
-                                    },
-                                    {
-                                        title: "Score",
-                                        field: "review.score",
-                                        display: {
-                                            className: "text-secondary"
-                                        },
-                                    },
-                                     */
+
                                 ],
                             },
                         },
@@ -389,28 +427,26 @@ debugger
                                 titleClassName: "summary-category",
                                 titleStyle: "font-weight: normal !important",
                                 defaultLayout: "vertical",
-                                separationClassName: "mb-0",
+                                separationClassName: "mb-0 me-1",
                                 style: "font-size: 12px;",
                                 render: variant => {
-                                    const sortedComments = variant.comments.sort((a, b) => b.date.localeCompare(a.date));
-                                    const lastComment = sortedComments[0] ?? null;
                                     return html `
-                                            <div class="d-flex flex-column me-1 rounded-4 border border-1 p-4 mt-2">
-                                                ${variant.discussion?.text ? html`
-                                                    <div class="clamp-text text-muted fs-6">
-                                                        ${variant.discussion.text}
-                                                    </div>
-                                                    <small class="text-muted fw-bold d-block">
-                                                        By <b>${variant.discussion.author}</b> •
-                                                        ${UtilsNew.dateFormatter(variant.discussion.date)}
-                                                    </small>
-                                                ` : html`
-                                                    <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
-                                                        <i class="fas fa-info-circle fs-3"></i>
-                                                        <div class="text-break">No discussion available.</div>
-                                                    </div>
-                                                `}
-                                            </div>
+                                        <div class="d-flex flex-column mt-2">
+                                            ${variant.discussion?.text ? html`
+                                                <div class="clamp-text text-muted fs-6">
+                                                    ${variant.discussion.text}
+                                                </div>
+                                                <small class="text-muted fw-bold d-block">
+                                                    By <b>${variant.discussion.author}</b> •
+                                                    ${UtilsNew.dateFormatter(variant.discussion.date)}
+                                                </small>
+                                            ` : html`
+                                                <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
+                                                    <i class="fas fa-info-circle fs-3"></i>
+                                                    <div class="text-break">No discussion available.</div>
+                                                </div>
+                                            `}
+                                        </div>
                                     `;
                                 },
                             },
@@ -423,13 +459,13 @@ debugger
                                 titleClassName: "summary-category",
                                 titleStyle: "font-weight: normal !important",
                                 defaultLayout: "vertical",
-                                separationClassName: "mb-0",
+                                separationClassName: "mb-0 ms-1",
                                 style: "font-size: 12px;",
                                 render: variant => {
                                     debugger
                                     return html `
                                             <!-- Recommendation -->
-                                            <div class="d-flex flex-column me-1 rounded-4 border border-1 p-4 mt-2">
+                                            <div class="d-flex flex-column mt-2">
                                                 ${variant?.recommendation ? html`
                                                     <div class="clamp-text text-muted fs-6">
                                                         ${variant.recommendation}
