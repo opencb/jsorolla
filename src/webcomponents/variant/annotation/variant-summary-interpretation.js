@@ -158,7 +158,7 @@ debugger
                         </div>
                         <div class="d-flex flex-column me-2">
                             <div class="summary-category">
-                                COMMENTS
+                                #COMMENTS
                             </div>
                             ${(() => {
                                 const count = this._variant?.comments?.length ?? [];
@@ -167,7 +167,7 @@ debugger
                         </div>
                         <div class="d-flex flex-column me-2">
                             <div class="summary-category">
-                                REFERENCES
+                                #REFERENCES
                             </div>
                             ${(() => {
                                 const count = this._variant?.references?.length ?? [];
@@ -176,7 +176,7 @@ debugger
                         </div>
                         <div class="d-flex flex-column me-2">
                             <div class="summary-category">
-                                IMAGES
+                                #IMAGES
                             </div>
                             ${(() => {
                                 const count = this._variant?.images?.length ?? [];
@@ -246,9 +246,10 @@ debugger
                                 titleStyle: "font-weight: normal !important",
                                 defaultLayout: "vertical",
                                 separationClassName: "mb-0",
-                                className: "table-grid mb-0",
+                                //className: "table mb-0",
+                                className: "fixed-table-loading table",
                                 style: "font-size: 12px;",
-                                bodyCellClassName: "align-middle",
+                                bodyCellClassName: "align-middle bg-transparent",
                                 headerCellClassName: "bg-transparent",
                                 // bodyRowClassName: "bg-gray-100",
                                 getData: variant => {
@@ -286,19 +287,19 @@ debugger
                                         title: "Predicted",
                                         display: {
                                             separationClassName: "mb-0",
-                                            className: "table-grid mb-0",
+                                            className: "table mb-0",
                                             style: "font-size: 12px;",
                                             bodyCellClassName: "align-middle",
                                             headerCellClassName: "bg-transparent",
                                             columns: [
                                                 {
-                                                    title: "CS",
+                                                    title: "Clinical Significance",
                                                     field: "classification.clinicalSignificance",
                                                     type: "custom",
                                                     display: {
                                                         render: clinicalSignificance => {
                                                             if (!clinicalSignificance) {
-                                                                return html`<span class="text-secondary">N/A</span>`;
+                                                                return html`<span class="text-secondary">-</span>`;
                                                             }
                                                             const cs = CLINICAL_SIGNIFICANCE.find(cs => cs.id === clinicalSignificance.toLowerCase());
                                                             return html`
@@ -336,10 +337,7 @@ debugger
                                                     field: "review.tier",
                                                     type: "custom",
                                                     display: {
-                                                        render: tier => {
-                                                            debugger
-                                                            tier ? html`<span class="text-secondary">${tier}</span>` : "-";
-                                                        }
+                                                        render: tier => tier ? html`<span class="text-secondary">${tier}</span>` : "-"
                                                     },
                                                 },
                                             ],
@@ -356,7 +354,7 @@ debugger
                                                     display: {
                                                         render: clinicalSignificance => {
                                                             if (!clinicalSignificance) {
-                                                                return html`<span class="text-secondary">N/A</span>`;
+                                                                return html`<span class="text-secondary">-</span>`;
                                                             }
                                                             const cs = CLINICAL_SIGNIFICANCE.find(cs => cs.id === clinicalSignificance.toLowerCase());
                                                             return html`
@@ -379,7 +377,7 @@ debugger
                                                                     const { color, id } =
                                                                     ACMG_CRITERIA_COLOR.find(c => c.id === classification) ?? { color: '#000', id: '-' };
                                                                     return html`
-                                                                        <div class="d-inline-flex flex-column align-items-center text-center me-1 mb-2">
+                                                                        <div class="d-inline-flex flex-column align-items-center text-center me-1">
                                                                             <span
                                                                                 class="rounded-4 px-2 py-1"
                                                                                 style="border: 1px solid ${color}; color: ${color}; min-width: 2.5rem;">
@@ -398,10 +396,7 @@ debugger
                                                     field: "review.tier",
                                                     type: "custom",
                                                     display: {
-                                                        render: tier => {
-                                                            debugger
-                                                            tier ? html`<span class="text-secondary">${tier}</span>` : "-";
-                                                        }
+                                                        render: tier => tier ? html`<span class="text-secondary">${tier}</span>` : "-"
                                                     },
                                                 },
                                                 {
