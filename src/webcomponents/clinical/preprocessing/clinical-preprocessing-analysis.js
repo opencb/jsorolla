@@ -52,6 +52,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
 
         this.DEFAULT_TOOLPARAMS = {
             indexDir: "",
+            outputDir: "",
             qualityControl: {
                 active: true,
                 options: {},
@@ -107,9 +108,14 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             this._toolParams.indexDir = this.toolParams.input.indexDir;
         }
 
-        // 3. merge steps configuration
+        // 3. copy outputDir field
+        if (this.toolParams?.outputDir) {
+            this._toolParams.outputDir = this.toolParams.outputDir;
+        }
+
+        // 4. merge steps configuration
         if (this.toolParams?.steps) {
-            // 3.1. merge quality control step configuration
+            // 4.1. merge quality control step configuration
             if (this.toolParams.steps?.qualityControl) {
                 this._toolParams.qualityControl = {
                     ...this._toolParams.qualityControl,
@@ -122,7 +128,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 };
             }
 
-            // 3.2. merge alignment step configuration
+            // 4.2. merge alignment step configuration
             if (this.toolParams.steps?.alignment) {
                 this._toolParams.alignment = {
                     ...this._toolParams.alignment,
@@ -135,7 +141,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 };
             }
 
-            // 3.3. merge variant calling step configuration
+            // 4.3. merge variant calling step configuration
             // if (this.toolParams.steps?.variantCalling) {
             //     this._toolParams.variantCalling = {
             //         active: !!this.toolParams.steps.variantCalling.active ?? this._toolParams.variantCalling.active ?? true,
@@ -272,7 +278,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     // },
                     {
                         title: "Index Directory",
-                        // description: "Folder containing the indexes shared by the different tools used in the pipeline.",
+                        description: "Folder containing the indexes shared by the different tools used in the pipeline.",
                         field: "indexDir",
                         type: "custom",
                         display: {
@@ -289,7 +295,27 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     </catalog-search-autocomplete>
                                 `;
                             },
-                            helpMessage: "Folder containing the indexes shared by the different tools used in the pipeline.",
+                        },
+                    },
+                    {
+                        title: "Output Directory",
+                        description: "Output directory where all the analysis results will be stored.",
+                        field: "outputDir",
+                        type: "custom",
+                        display: {
+                            render: (outputDir, dataFormFilterChange) => {
+                                return html `
+                                    <catalog-search-autocomplete
+                                        .value="${outputDir}"
+                                        .resource="${"DIRECTORY"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            multiple: false,
+                                        }}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `;
+                            },
                         },
                     },
                 ],
