@@ -612,30 +612,6 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                             },
                         ],
                     },
-                    // {
-                    //     title: "Number of Threads",
-                    //     field: "alignment.tool.parameters.t",
-                    //     type: "input-num",
-                    //     display: {
-                    //         disabled: data => !data.alignment.active,
-                    //         visible: params => params.alignment.tool.name === "bwa" || params.alignment.tool.name === "bwa-mem2",
-                    //         placeholder: "e.g. 2",
-                    //         min: 1,
-                    //         helpMessage: "Number of threads to use for the alignment step."
-                    //     },
-                    // },
-                    // {
-                    //     title: "Minimum Seed Length",
-                    //     field: "alignment.tool.parameters.k",
-                    //     type: "input-num",
-                    //     display: {
-                    //         disabled: data => !data.alignment.active,
-                    //         visible: params => params.alignment.tool.name === "bwa" || params.alignment.tool.name === "bwa-mem2",
-                    //         placeholder: "e.g. 2",
-                    //         min: 1,
-                    //         helpMessage: "Minimum seed length [19]"
-                    //     },
-                    // },
                     {
                         title: "Common Aligner Parameters",
                         // description: "Common parameters for the selected alignment tool.",
@@ -678,69 +654,11 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         title: "Other Aligner Parameters",
                         field: "alignment.tool.parameters",
                         // description: "Add additional parameters for the selected alignment tool.",
-                        type: "object-list",
+                        type: "input-parameters",
                         display: {
                             disabled: data => !data.alignment.active,
-                            itemId: "name",
-                            itemAddText: "Add parameter",
                             itemsNotFoundText: "No parameters registered for this tool.",
-                            view: variable => html`
-                                <div class="">
-                                    <b>${variable.name || ""}</b> ${variable.value ? html` = ${variable.value}` : nothing}
-                                </div>
-                            `,
                         },
-                        elements: [
-                            {
-                                title: "Parameter Name",
-                                field: "alignment.tool.parameters[].name",
-                                description: "Parameter name.",
-                                type: "input-text",
-                                display: {
-                                    placeholder: "",
-                                    helpMessage: "Add parameter name, eg: t, -t, or --threads. Parameters can include hyphen (-) or double hyphen (--) at the beginning.",
-                                }
-                            },
-                            {
-                                title: "Is a File Parameter?",
-                                field: "alignment.tool.parameters[].isFile",
-                                description: "Check if the parameter value is a file path.",
-                                type: "checkbox",
-                                display: {},
-                            },
-                            {
-                                title: "Parameter Value",
-                                field: "alignment.tool.parameters[].value",
-                                description: "Parameter value.",
-                                type: "input-text",
-                                display: {
-                                    visible: (data, item) => {
-                                        return !item.isFile;
-                                    },
-                                }
-                            },
-                            {
-                                title: "Select File",
-                                field: "alignment.tool.parameters[].value",
-                                type: "custom",
-                                display: {
-                                    visible: (data, item) => {
-                                        return item.isFile;
-                                    },
-                                    render: (data, dataFormFilterChange) => html`
-                                        <catalog-search-autocomplete
-                                            .resource="${"FILE"}"
-                                            .searchField="${"path"}"
-                                            .config="${{
-                                                multiple: false,
-                                            }}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </catalog-search-autocomplete>
-                                    `,
-                                },
-                            }
-                        ],
                     },
                     {
                         title: "Tool Usage Documentation",
