@@ -19,6 +19,7 @@ import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
+import "../../commons/filters/catalog-search-autocomplete.js";
 
 export default class ClinicalPreprocessingAnalysis extends LitElement {
 
@@ -450,75 +451,28 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     {
                         title: "FastQC Parameters",
                         field: "qualityControl.tool.parameters",
-                        // description: "Add additional parameters for the selected alignment tool.",
-                        type: "object-list",
+                        type: "input-parameters",
                         display: {
                             disabled: data => !data.alignment.active,
                             itemId: "name",
                             itemAddText: "Add parameter",
-                            itemsNotFoundText: "No parameters registered for this tool.",
-                            view: variable => html`
-                                <div class="">
-                                    <b>${variable.name || ""}</b> ${variable.value ? html` = ${variable.value}` : nothing}
-                                </div>
+                            fileRender: (selectedFile, dataFormFilterChange) => html`
+                                <catalog-search-autocomplete
+                                    .value="${selectedFile}"
+                                    .resource="${"FILE"}"
+                                    .searchField="${"path"}"
+                                    .config="${{
+                                        multiple: false,
+                                    }}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                </catalog-search-autocomplete>
                             `,
                         },
-                        elements: [
-                            {
-                                title: "Parameter Name",
-                                field: "qualityControl.tool.parameters[].name",
-                                description: "Parameter name.",
-                                type: "input-text",
-                                display: {
-                                    placeholder: "",
-                                    helpMessage: "Add parameter name, eg: t, -t, or --threads. Parameters can include hyphen (-) or double hyphen (--) at the beginning.",
-                                }
-                            },
-                            {
-                                title: "Is a File Parameter?",
-                                field: "qualityControl.tool.parameters[].isFile",
-                                description: "Check if the parameter value is a file path.",
-                                type: "checkbox",
-                                display: {},
-                            },
-                            {
-                                title: "Parameter Value",
-                                field: "qualityControl.tool.parameters[].value",
-                                description: "Parameter value.",
-                                type: "input-text",
-                                display: {
-                                    visible: (data, item) => {
-                                        return !item.isFile;
-                                    },
-                                }
-                            },
-                            {
-                                title: "Select File",
-                                field: "qualityControl.tool.parameters[].value",
-                                type: "custom",
-                                display: {
-                                    visible: (data, item) => {
-                                        return item.isFile;
-                                    },
-                                    render: (data, dataFormFilterChange) => html`
-                                        <catalog-search-autocomplete
-                                            .resource="${"FILE"}"
-                                            .searchField="${"path"}"
-                                            .config="${{
-                                                multiple: false,
-                                            }}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </catalog-search-autocomplete>
-                                    `,
-                                },
-                            }
-                        ],
                     },
                     {
                         title: "Tool Usage Documentation",
                         field: "qualityControl.tool.id",
-                        // description: "Alignment tool usage documentation.",
                         type: "custom",
                         display: {
                             render: tool => {
@@ -696,6 +650,18 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         display: {
                             disabled: data => !data.alignment.active,
                             itemsNotFoundText: "No parameters registered for this tool.",
+                            fileRender: (selectedFile, dataFormFilterChange) => html`
+                                <catalog-search-autocomplete
+                                    .value="${selectedFile}"
+                                    .resource="${"FILE"}"
+                                    .searchField="${"path"}"
+                                    .config="${{
+                                        multiple: false,
+                                    }}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                </catalog-search-autocomplete>
+                            `,
                         },
                     },
                     {
