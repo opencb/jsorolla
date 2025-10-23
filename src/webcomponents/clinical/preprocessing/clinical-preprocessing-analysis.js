@@ -762,8 +762,10 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     title: "",
                                     type: "custom",
                                     display: {
+                                        bodyCellClassName: "d-flex justify-content-end",
                                         render: tool => html`
-                                            <button class="btn btn-primary">
+                                            <button class="btn btn-primary d-flex align-items-center gap-1">
+                                                <i class="fa fa-cog"></i>
                                                 <span>Configure</span>
                                             </button>
                                         `,
