@@ -1653,10 +1653,6 @@ export default class DataForm extends LitElement {
                 childElement.display.disabled = isDisabled;
             }
 
-            // 4. Read Help message and Render assuming vertical layout for nested forms
-            const helpMessage = this._getHelpMessage(childElement);
-            const helpMode = this._getHelpMode(childElement);
-
             contents.push(html`
                 <div class="mb-3 ${element?.display?.itemClassName || ""}">
                     ${childElement.title ? html`
@@ -1669,9 +1665,6 @@ export default class DataForm extends LitElement {
                     ` : nothing}
                     <div class="${element?.display?.itemContentClassName || ""}">
                         ${this._createElement(childElement)}
-                        ${helpMessage && helpMode !== "block" ? html`
-                            <div class="form-text">${helpMessage}</div>
-                        ` : nothing}
                     </div>
                 </div>
             `);
