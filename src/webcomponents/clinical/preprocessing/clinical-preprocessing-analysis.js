@@ -170,6 +170,8 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
 
     getUsagePage(tool) {
         switch (tool) {
+            case "fastqc":
+                return "https://home.cc.umanitoba.ca/~psgendb/doc/fastqc.help";
             case "bwa":
             case "bwa-mem2":
                 return "https://bio-bwa.sourceforge.net/bwa.shtml";
@@ -269,7 +271,8 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     //     }
                     // },
                     {
-                        title: "Reference Genome Indexes",
+                        title: "Index Directory",
+                        // description: "Folder containing the indexes shared by the different tools used in the pipeline.",
                         field: "indexDir",
                         type: "custom",
                         display: {
@@ -292,7 +295,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 ],
             },
             {
-                title: "FastQC - Quality Control Options",
+                title: "Quality Control Options",
                 description: "These parameters apply to FastQC quality control step",
                 elements: [
                     {
@@ -305,47 +308,195 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                             helpMessage: "Activate or deactivate the quality control step.",
                         },
                     },
+                    // {
+                    //     title: "Number of Threads",
+                    //     field: "qualityControl.tool.parameters.threads",
+                    //     type: "input-num",
+                    //     display: {
+                    //         disabled: data => !data.qualityControl.active,
+                    //         placeholder: "e.g. 2",
+                    //         min: 1,
+                    //         helpMessage: [
+                    //             "Specifies the number of files which can be processed simultaneously.",
+                    //             "Each thread will be allocated 250MB of memory so you shouldn't run more threads than your",
+                    //             "available memory will cope with, and not more than 6 threads on a 32 bit machine.",
+                    //         ].join(" "),
+                    //     },
+                    // },
+                    // {
+                    //     title: "Minimum Length",
+                    //     field: "qualityControl.tool.parameters.min_length",
+                    //     type: "input-num",
+                    //     display: {
+                    //         disabled: data => !data.qualityControl.active,
+                    //         helpMessage: [
+                    //             "Sets an artificial lower limit on the length of the sequence to be shown in the report.",
+                    //             "As long as you set this to a value greater or equal to your longest read length then this",
+                    //             "will be the sequence length used to create your read groups. This can be useful for making",
+                    //             "directly comaparable statistics from datasets with somewhat variable read lengths.",
+                    //         ].join(" "),
+                    //     },
+                    // },
+                    // {
+                    //     title: "Oxford Nanopore Data",
+                    //     field: "qualityControl.tool.parameters.nano",
+                    //     type: "checkbox",
+                    //     defaultValue: false,
+                    //     display: {
+                    //         disabled: data => !data.qualityControl.active,
+                    //         helpMessage: [
+                    //             "Files come from nanopore sequences and are in fast5 format. In this mode you can pass in",
+                    //             "directories to process and the program will take in all fast5 files within those directories",
+                    //             "and produce a single output file from the sequences found in all files.",
+                    //         ].join(" "),
+                    //     },
+                    // },
                     {
-                        title: "Number of Threads",
-                        field: "qualityControl.tool.parameters.threads",
-                        type: "input-num",
+                        title: "Common FastQC Parameters",
+                        // description: "Common parameters for the selected alignment tool.",
+                        type: "object",
                         display: {
+                            itemClassName: "row",
+                            itemTitleClassName: "col-md-3",
+                            itemContentClassName: "col-md-9",
                             disabled: data => !data.qualityControl.active,
-                            placeholder: "e.g. 2",
-                            min: 1,
-                            helpMessage: [
-                                "Specifies the number of files which can be processed simultaneously.",
-                                "Each thread will be allocated 250MB of memory so you shouldn't run more threads than your",
-                                "available memory will cope with, and not more than 6 threads on a 32 bit machine.",
-                            ].join(" "),
                         },
+                        elements: [
+                            {
+                                title: "Number of Threads",
+                                field: "qualityControl.tool.parameters.threads",
+                                type: "input-num",
+                                display: {
+                                    disabled: data => !data.qualityControl.active,
+                                    defaultValue: "2",
+                                    min: 1,
+                                    helpMessage: [
+                                        "Specifies the number of files which can be processed simultaneously.",
+                                        "Each thread will be allocated 250MB of memory so you shouldn't run more threads than your",
+                                        "available memory will cope with, and not more than 6 threads on a 32 bit machine.",
+                                    ].join(" "),
+                                },
+                            },
+                            {
+                                title: "Minimum Length",
+                                field: "qualityControl.tool.parameters.min_length",
+                                type: "input-num",
+                                display: {
+                                    disabled: data => !data.qualityControl.active,
+                                    helpMessage: [
+                                        "Sets an artificial lower limit on the length of the sequence to be shown in the report.",
+                                        "As long as you set this to a value greater or equal to your longest read length then this",
+                                        "will be the sequence length used to create your read groups. This can be useful for making",
+                                        "directly comaparable statistics from datasets with somewhat variable read lengths.",
+                                    ].join(" "),
+                                },
+                            },
+                            {
+                                title: "Oxford Nanopore Data",
+                                field: "qualityControl.tool.parameters.nano",
+                                type: "checkbox",
+                                defaultValue: false,
+                                display: {
+                                    disabled: data => !data.qualityControl.active,
+                                    helpMessage: [
+                                        "Files come from nanopore sequences and are in fast5 format. In this mode you can pass in",
+                                        "directories to process and the program will take in all fast5 files within those directories",
+                                        "and produce a single output file from the sequences found in all files.",
+                                    ].join(" "),
+                                },
+                            },
+                        ],
                     },
                     {
-                        title: "Minimum Length",
-                        field: "qualityControl.tool.parameters.min_length",
-                        type: "input-num",
+                        title: "Other FastQC Parameters",
+                        field: "qualityControl.tool.parameters",
+                        // description: "Add additional parameters for the selected alignment tool.",
+                        type: "object-list",
                         display: {
-                            disabled: data => !data.qualityControl.active,
-                            helpMessage: [
-                                "Sets an artificial lower limit on the length of the sequence to be shown in the report.",
-                                "As long as you set this to a value greater or equal to your longest read length then this",
-                                "will be the sequence length used to create your read groups. This can be useful for making",
-                                "directly comaparable statistics from datasets with somewhat variable read lengths.",
-                            ].join(" "),
+                            disabled: data => !data.alignment.active,
+                            itemId: "name",
+                            itemAddText: "Add parameter",
+                            itemsNotFoundText: "No parameters registered for this tool.",
+                            view: variable => html`
+                                <div class="">
+                                    <b>${variable.name || ""}</b> ${variable.value ? html` = ${variable.value}` : nothing}
+                                </div>
+                            `,
                         },
+                        elements: [
+                            {
+                                title: "Parameter Name",
+                                field: "qualityControl.tool.parameters[].name",
+                                description: "Parameter name.",
+                                type: "input-text",
+                                display: {
+                                    placeholder: "",
+                                    helpMessage: "Add parameter name, eg: t, -t, or --threads. Parameters can include hyphen (-) or double hyphen (--) at the beginning.",
+                                }
+                            },
+                            {
+                                title: "Is a File Parameter?",
+                                field: "qualityControl.tool.parameters[].isFile",
+                                description: "Check if the parameter value is a file path.",
+                                type: "checkbox",
+                                display: {},
+                            },
+                            {
+                                title: "Parameter Value",
+                                field: "qualityControl.tool.parameters[].value",
+                                description: "Parameter value.",
+                                type: "input-text",
+                                display: {
+                                    visible: (data, item) => {
+                                        return !item.isFile;
+                                    },
+                                }
+                            },
+                            {
+                                title: "Select File",
+                                field: "qualityControl.tool.parameters[].value",
+                                type: "custom",
+                                display: {
+                                    visible: (data, item) => {
+                                        return item.isFile;
+                                    },
+                                    render: (data, dataFormFilterChange) => html`
+                                        <catalog-search-autocomplete
+                                            .resource="${"FILE"}"
+                                            .searchField="${"path"}"
+                                            .config="${{
+                                                multiple: false,
+                                            }}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                        </catalog-search-autocomplete>
+                                    `,
+                                },
+                            }
+                        ],
                     },
                     {
-                        title: "Oxford Nanopore Data",
-                        field: "qualityControl.tool.parameters.nano",
-                        type: "checkbox",
-                        defaultValue: false,
+                        title: "Tool Usage Documentation",
+                        field: "qualityControl.tool.id",
+                        // description: "Alignment tool usage documentation.",
+                        type: "custom",
                         display: {
-                            disabled: data => !data.qualityControl.active,
-                            helpMessage: [
-                                "Files come from nanopore sequences and are in fast5 format. In this mode you can pass in",
-                                "directories to process and the program will take in all fast5 files within those directories",
-                                "and produce a single output file from the sequences found in all files.",
-                            ].join(" "),
+                            render: tool => {
+                                const usagePage = "https://home.cc.umanitoba.ca/~psgendb/doc/fastqc.help";
+                                if (!tool || !usagePage) {
+                                    return html`
+                                        <div class="alert alert-light d-flex flex-column align-items-center gap-2 text-center py-4">
+                                            <i class="fa fa-book fs-4"></i>
+                                            <span class="fw-bold">No usage information available for the selected tool.</span>
+                                        </div>
+                                    `;
+                                }
+                                return html`
+                                    <div class="border rounded p-2 shadow-lg bg-white py-3" style="box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);">
+                                        <iframe src="${usagePage}" width="100%" height="720px" class="w-100 border-0"></iframe>
+                                    </div>
+                                `;
+                            },
                         },
                     },
                 ],
@@ -355,7 +506,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 description: "These parameters apply to BWA alignment step",
                 elements: [
                     {
-                        title: "Alignment Active",
+                        title: "Active",
                         field: "alignment.active",
                         type: "toggle-switch",
                         display: {
@@ -365,7 +516,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         },
                     },
                     {
-                        title: "Alignment Tool",
+                        title: "Aligner Tool",
                         field: "alignment.tool.id",
                         type: "select",
                         allowedValues: ["bwa", "bwa-mem2", "minimap2"],
@@ -375,8 +526,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         },
                     },
                     {
-                        title: "Alignment Index",
+                        title: "Aligner Index Directory",
                         field: "alignment.tool.index",
+                        // description: "Aligner index to be used for the alignment step. This overrides the general index directory.",
                         type: "custom",
                         display: {
                             render: (alignmentIndex, dataFormFilterChange) => {
@@ -394,7 +546,45 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     </catalog-search-autocomplete>
                                 `;
                             },
+                            helpMessage: "Aligner index directory to be used for the alignment step. This overrides the general index directory."
                         }
+                    },
+                    {
+                        title: "Alignment Step Options",
+                        // description: "Select options for the alignment step.",
+                        type: "object",
+                        display: {
+                            itemClassName: "row",
+                            itemTitleClassName: "col-md-3",
+                            itemContentClassName: "col-md-9",
+                            disabled: data => !data.alignment.active,
+                        },
+                        elements: [
+                            {
+                                title: "Clean Intermediate Files",
+                                field: "alignment.options.clean",
+                                type: "toggle-switch",
+                                display: {
+                                    helpMessage: "If enabled, intermediate files generated during the alignment process will be deleted to save disk space.",
+                                },
+                            },
+                            {
+                                title: "Create CRAM Files",
+                                field: "alignment.options.cram",
+                                type: "toggle-switch",
+                                display: {
+                                    helpMessage: "If enabled, the output files will be in CRAM format instead of BAM format.",
+                                },
+                            },
+                            {
+                                title: "Calculate Quality Control",
+                                field: "alignment.options.qc",
+                                type: "toggle-switch",
+                                display: {
+                                    helpMessage: "If enabled, quality control will be performed on the aligned data after the alignment step.",
+                                },
+                            },
+                        ],
                     },
                     // {
                     //     title: "Number of Threads",
@@ -421,7 +611,8 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     //     },
                     // },
                     {
-                        title: "Alignment Options",
+                        title: "Common Aligner Parameters",
+                        // description: "Common parameters for the selected alignment tool.",
                         type: "object",
                         display: {
                             itemClassName: "row",
@@ -431,25 +622,36 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         },
                         elements: [
                             {
-                                title: "Clean",
-                                field: "alignment.options.clean",
-                                type: "toggle-switch",
+                                title: "Number of Threads",
+                                field: "alignment.tool.parameters.t",
+                                description: "Parameter: -t",
+                                type: "input-num",
+                                display: {
+                                    visible: params => params.alignment.tool.id === "bwa" || params.alignment.tool.id === "bwa-mem2",
+                                    placeholder: "2",
+                                    min: 1,
+                                    helpMessage: "Number of threads to use for the alignment step. [1]"
+                                },
                             },
                             {
-                                title: "Cram",
-                                field: "alignment.options.cram",
-                                type: "toggle-switch",
-                            },
-                            {
-                                title: "Quality Control",
-                                field: "alignment.options.qc",
-                                type: "toggle-switch",
+                                title: "Minimum Seed Length",
+                                field: "alignment.tool.parameters.k",
+                                description: "Parameter: -k",
+                                type: "input-num",
+                                display: {
+                                    visible: params => params.alignment.tool.id === "bwa" || params.alignment.tool.id === "bwa-mem2",
+                                    placeholder: "19",
+                                    min: 1,
+                                    helpMessage: "Minimum seed length. Matches shorter than INT will be missed. " +
+                                        "The alignment speed is usually insensitive to this value unless it significantly deviates 20. [19]"
+                                },
                             },
                         ],
                     },
                     {
-                        title: "Alignment Parameters",
+                        title: "Other Aligner Parameters",
                         field: "alignment.tool.parameters",
+                        // description: "Add additional parameters for the selected alignment tool.",
                         type: "object-list",
                         display: {
                             disabled: data => !data.alignment.active,
@@ -458,7 +660,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                             itemsNotFoundText: "No parameters registered for this tool.",
                             view: variable => html`
                                 <div class="">
-                                    <b>${variable.name || ""}</b> ${typeof variable.value !== "undefined" ? html` = ${variable.value}` : nothing}
+                                    <b>${variable.name || ""}</b> ${variable.value ? html` = ${variable.value}` : nothing}
                                 </div>
                             `,
                         },
@@ -466,23 +668,24 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                             {
                                 title: "Parameter Name",
                                 field: "alignment.tool.parameters[].name",
+                                description: "Parameter name.",
                                 type: "input-text",
                                 display: {
                                     placeholder: "",
-                                    help: {
-                                        text: "Add parameter name, eg: t, -t, or --threads. Parameters can include hyphen (-) or double hyphen (--) at the beginning.",
-                                    }
+                                    helpMessage: "Add parameter name, eg: t, -t, or --threads. Parameters can include hyphen (-) or double hyphen (--) at the beginning.",
                                 }
                             },
                             {
                                 title: "Is a File Parameter?",
                                 field: "alignment.tool.parameters[].isFile",
+                                description: "Check if the parameter value is a file path.",
                                 type: "checkbox",
                                 display: {},
                             },
                             {
                                 title: "Parameter Value",
                                 field: "alignment.tool.parameters[].value",
+                                description: "Parameter value.",
                                 type: "input-text",
                                 display: {
                                     visible: (data, item) => {
@@ -514,8 +717,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         ],
                     },
                     {
-                        title: "Usage",
+                        title: "Tool Usage Documentation",
                         field: "alignment.tool.id",
+                        // description: "Alignment tool usage documentation.",
                         type: "custom",
                         display: {
                             render: tool => {
@@ -529,7 +733,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     `;
                                 }
                                 return html`
-                                    <iframe src="${usagePage}" width="100%" height="600px"></iframe>
+                                    <div class="border rounded p-2 shadow-lg bg-white py-3" style="box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);">
+                                        <iframe src="${usagePage}" width="100%" height="720px" class="w-100 border-0"></iframe>
+                                    </div>
                                 `;
                             },
                         },

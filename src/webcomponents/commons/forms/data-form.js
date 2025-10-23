@@ -1664,6 +1664,7 @@ export default class DataForm extends LitElement {
                             <label class="fw-bold form-label pt-0">
                                 ${childElement.title}
                             </label>
+                            <div><span class="text-secondary">${childElement.description ?? ""}</span></div>
                         </div>
                     ` : nothing}
                     <div class="${element?.display?.itemContentClassName || ""}">
