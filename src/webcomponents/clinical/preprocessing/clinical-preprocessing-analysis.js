@@ -53,6 +53,11 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         this.ANALYSIS_TITLE = "NGS Preprocessing Parameters";
         this.ANALYSIS_DESCRIPTION = "";
 
+        this.VARIANT_CALLING_TOOLS = [
+            {id: "gatk", name: "GATK"},
+            {id: "freebayes", name: "FreeBayes"},
+        ];
+
         this.DEFAULT_TOOLPARAMS = {
             indexDir: "",
             outputDir: "",
@@ -732,6 +737,39 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                             onText: "Yes",
                             offText: "No",
                             helpMessage: "Activate or deactivate the variant calling step.",
+                        },
+                    },
+                    {
+                        title: "Variant Calling Tools",
+                        field: "variantCalling.tools",
+                        type: "table",
+                        display: {
+                            className: "table-borderless table-grid mb-0",
+                            bodyCellClassName: "align-middle",
+                            getData: data => {
+                                return this.VARIANT_CALLING_TOOLS;
+                            },
+                            columns: [
+                                {
+                                    title: "Tool",
+                                    field: "name",
+                                },
+                                {
+                                    title: "Active?",
+                                    field: "name",
+                                },
+                                {
+                                    title: "",
+                                    type: "custom",
+                                    display: {
+                                        render: tool => html`
+                                            <button class="btn btn-primary">
+                                                <span>Configure</span>
+                                            </button>
+                                        `,
+                                    },
+                                },
+                            ],
                         },
                     },
                     {
