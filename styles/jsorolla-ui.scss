@@ -196,6 +196,17 @@ card .card-header .card-title {
 }
 
 // table for grids styles
+.table {
+  & thead {
+    & th {
+      color: $gray-600;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      padding: 0 0.75rem !important;
+      vertical-align: bottom;;
+    }
+  }
+}
 .table-grid {
     border-collapse: separate;
     border-spacing: 0 0.5rem;
@@ -218,6 +229,7 @@ card .card-header .card-title {
             margin: 4px 4px 0 4px;
         }
     }
+
     // overwrite the default styles of tbody cells
     & tbody tr {
         background-color: $white;
