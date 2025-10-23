@@ -62,7 +62,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     parameters: [
                         {
                             name: "threads",
-                            value: 2,
+                            value: "2",
                         }
                     ],
                 },
@@ -80,8 +80,12 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     parameters: [
                         {
                             name: "t",
-                            value: 2,
-                        }
+                            value: "2",
+                        },
+                        {
+                            name: "k",
+                            value: "19",
+                        },
                     ],
                 },
 
