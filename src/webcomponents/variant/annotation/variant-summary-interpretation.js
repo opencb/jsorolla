@@ -113,7 +113,8 @@ debugger
                     </a>
                 </div>
                 <div class="" id="summary-interpretation">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
+                    <!-- TODO: Move this bit to data-form -->
+                    <div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex flex-column me-2">
                             <div class="summary-category">
                                 STATUS
