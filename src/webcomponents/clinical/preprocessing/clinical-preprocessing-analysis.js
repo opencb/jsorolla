@@ -52,6 +52,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
 
         this.DEFAULT_TOOLPARAMS = {
             indexDir: "",
+            outputDir: "",
             qualityControl: {
                 active: true,
                 options: {},
@@ -121,9 +122,14 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             this._toolParams.indexDir = this.toolParams.input.indexDir;
         }
 
-        // 3. merge steps configuration
+        // 3. copy outputDir field
+        if (this.toolParams?.outputDir) {
+            this._toolParams.outputDir = this.toolParams.outputDir;
+        }
+
+        // 4. merge steps configuration
         if (this.toolParams?.steps) {
-            // 3.1. merge quality control step configuration
+            // 4.1. merge quality control step configuration
             if (this.toolParams.steps?.qualityControl) {
                 this._toolParams.qualityControl = {
                     ...this._toolParams.qualityControl,
@@ -136,7 +142,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 };
             }
 
-            // 3.2. merge alignment step configuration
+            // 4.2. merge alignment step configuration
             if (this.toolParams.steps?.alignment) {
                 this._toolParams.alignment = {
                     ...this._toolParams.alignment,
@@ -149,7 +155,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 };
             }
 
-            // 3.3. merge variant calling step configuration
+            // 4.3. merge variant calling step configuration
             // if (this.toolParams.steps?.variantCalling) {
             //     this._toolParams.variantCalling = {
             //         active: !!this.toolParams.steps.variantCalling.active ?? this._toolParams.variantCalling.active ?? true,
@@ -286,7 +292,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     // },
                     {
                         title: "Index Directory",
-                        // description: "Folder containing the indexes shared by the different tools used in the pipeline.",
+                        description: "Folder containing the indexes shared by the different tools used in the pipeline.",
                         field: "indexDir",
                         type: "custom",
                         display: {
@@ -303,7 +309,27 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     </catalog-search-autocomplete>
                                 `;
                             },
-                            helpMessage: "Folder containing the indexes shared by the different tools used in the pipeline.",
+                        },
+                    },
+                    {
+                        title: "Output Directory",
+                        description: "Output directory where all the analysis results will be stored.",
+                        field: "outputDir",
+                        type: "custom",
+                        display: {
+                            render: (outputDir, dataFormFilterChange) => {
+                                return html `
+                                    <catalog-search-autocomplete
+                                        .value="${outputDir}"
+                                        .resource="${"DIRECTORY"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            multiple: false,
+                                        }}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `;
+                            },
                         },
                     },
                 ],
@@ -665,75 +691,12 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     {
                         title: "Aligner Parameters",
                         field: "alignment.tool.parameters",
-                        description: "Check below to add additional parameters.",
-                        type: "object-list",
+                        // description: "Add additional parameters for the selected alignment tool.",
+                        type: "input-parameters",
                         display: {
                             disabled: data => !data.alignment.active,
-                            itemId: "name",
-                            itemAddText: "Add parameter",
                             itemsNotFoundText: "No parameters registered for this tool.",
-                            summary: () => {
-                                return html`
-
-                                `;
-                            },
-                            view: variable => html`
-                                <div class="">
-                                    <b>${variable.name || ""}</b> ${variable.value ? html` = ${variable.value}` : nothing}
-                                </div>
-                            `,
                         },
-                        elements: [
-                            {
-                                title: "Parameter Name",
-                                field: "alignment.tool.parameters[].name",
-                                // description: "Parameter name.",
-                                type: "input-text",
-                                display: {
-                                    placeholder: "",
-                                    helpMessage: "Add parameter name, eg: t, -t, or --threads. Parameters can include hyphen (-) or double hyphen (--) at the beginning.",
-                                }
-                            },
-                            {
-                                title: "Check if the parameter value is a file path",
-                                field: "alignment.tool.parameters[].isFile",
-                                // description: "Check if the parameter value is a file path.",
-                                type: "checkbox",
-                                display: {},
-                            },
-                            {
-                                title: "Parameter Value",
-                                field: "alignment.tool.parameters[].value",
-                                // description: "Parameter value.",
-                                type: "input-text",
-                                display: {
-                                    visible: (data, item) => {
-                                        return !item.isFile;
-                                    },
-                                }
-                            },
-                            {
-                                title: "Select File",
-                                field: "alignment.tool.parameters[].value",
-                                type: "custom",
-                                display: {
-                                    visible: (data, item) => {
-                                        return item.isFile;
-                                    },
-                                    render: (data, dataFormFilterChange) => html`
-                                        <catalog-search-autocomplete
-                                            .resource="${"FILE"}"
-                                            .searchField="${"path"}"
-                                            .config="${{
-                                                multiple: false,
-                                            }}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </catalog-search-autocomplete>
-                                    `,
-                                },
-                            }
-                        ],
                     },
                     {
                         title: "Tool Usage Documentation",

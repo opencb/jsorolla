@@ -731,6 +731,10 @@ export default class DataForm extends LitElement {
                 case "object-list":
                     content = this._createObjectListElement(element);
                     break;
+                case "input-parameters":
+                case "parameters-list":
+                    content = this._createInputParametersElement(element);
+                    break;
                 default:
                     throw new Error("Element type not supported:" + element.type);
             }
@@ -1653,10 +1657,6 @@ export default class DataForm extends LitElement {
                 childElement.display.disabled = isDisabled;
             }
 
-            // 4. Read Help message and Render assuming vertical layout for nested forms
-            const helpMessage = this._getHelpMessage(childElement);
-            const helpMode = this._getHelpMode(childElement);
-
             contents.push(html`
                 <div class="mb-3 ${element?.display?.itemClassName || ""}">
                     ${childElement.title ? html`
@@ -1669,9 +1669,6 @@ export default class DataForm extends LitElement {
                     ` : nothing}
                     <div class="${element?.display?.itemContentClassName || ""}">
                         ${this._createElement(childElement)}
-                        ${helpMessage && helpMode !== "block" ? html`
-                            <div class="form-text">${helpMessage}</div>
-                        ` : nothing}
                     </div>
                 </div>
             `);
@@ -1882,6 +1879,72 @@ export default class DataForm extends LitElement {
             contents.push(createHtml);
         }
         return this._createElementTemplate(element, null, contents);
+    }
+
+    _createInputParametersElement(element) {
+        return this._createObjectListElement({
+            title: element.title,
+            description: element.description,
+            field: element.field,
+            display: {
+                itemId: "name",
+                itemAddText: "Add parameter",
+                itemsNotFoundText: "No parameters registered.",
+                view: variable => html`
+                    <div class="">
+                        <b>${variable.name || ""}</b> ${variable.value ? html` = ${variable.value}` : nothing}
+                    </div>
+                `,
+                ...element.display,
+            },
+            elements: [
+                {
+                    title: "Parameter Name",
+                    field: `${element.field}[].name`,
+                    type: "input-text",
+                    display: {
+                        placeholder: "",
+                        helpMessage: "Add parameter name, eg: t, -t, or --threads. Parameters can include hyphen (-) or double hyphen (--) at the beginning.",
+                    }
+                },
+                // {
+                //     title: "Check if the parameter value is a file path.",
+                //     field: `${element.field}[].isFile`,
+                //     type: "checkbox",
+                // },
+                {
+                    title: "Parameter Value",
+                    field: `${element.field}[].value`,
+                    type: "input-text",
+                    // display: {
+                    //     visible: (data, item) => {
+                    //         return !item.isFile;
+                    //     },
+                    // }
+                },
+                // {
+                //     title: "Select File",
+                //     field: `${element.field}[].value`,
+                //     type: "custom",
+                //     display: {
+                //         visible: (data, item) => {
+                //             return item.isFile;
+                //         },
+                //         render: (data, dataFormFilterChange) => html`
+                //             <catalog-search-autocomplete
+                //                 .resource="${"FILE"}"
+                //                 .searchField="${"path"}"
+                //                 .config="${{
+                //                     multiple: false,
+                //                 }}"
+                //                 .opencgaSession="${this.opencgaSession}"
+                //                 @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                //             </catalog-search-autocomplete>
+                //         `,
+                //     },
+                // }
+            ],
+        });
     }
 
     #toggleEditItemOfObjectList(e, item, index, element) {
