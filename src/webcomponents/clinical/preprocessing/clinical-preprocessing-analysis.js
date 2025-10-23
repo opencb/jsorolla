@@ -18,8 +18,10 @@ import {html, LitElement, nothing} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
+import ModalUtils from "../../commons/modal/modal-utils.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
+import "./clinical-preprocessing-variant-calling-tool-configure.js";
 
 export default class ClinicalPreprocessingAnalysis extends LitElement {
 
@@ -100,6 +102,10 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         // Make a deep copy to avoid modifying default object.
         this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
         this._config = this.getDefaultConfig();
+
+        // internal variables to manage the selected variant calling tool to configure
+        this._selectedVariantCallingToolName = null;
+        this._selectedVariantCallingToolData = null;
     }
 
     update(changedProperties) {
@@ -239,6 +245,24 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         this.requestUpdate();
     }
 
+    renderPipelineInfoModal() {
+        return ModalUtils.create(this, "VariantCallingToolConfigure", {
+            display: {
+                title: `Configure ${this._selectedVariantCallingToolName}`,
+                size: "modal-xl",
+                buttonsVisible: false,
+                draggable: false,
+            },
+            render: () => html`
+                <clinical-preprocessing-variant-calling-tool-configure
+                    .opencgaSession="${this.opencgaSession}"
+                    .toolName="${this._selectedVariantCallingToolName}"
+                    .toolData="${this._selectedVariantCallingToolData}">
+                </clinical-preprocessing-variant-calling-tool-configure>
+            `,
+        });
+    }
+
     render() {
         return html`
             <data-form
@@ -248,6 +272,8 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
             </data-form>
+
+            ${this._selectedVariantCallingToolName ? this.renderPipelineInfoModal() : nothing}
         `;
     }
 
