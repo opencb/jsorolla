@@ -937,9 +937,10 @@ export default class VariantGridFormatter {
     }
     static interpretationSummaryTooltipContent() {
         return `
-            This summary displays key information about the variant’s clinical interpretation within the case.
-            It appears only within a clinical context when the variant has been selected as a Primary or Secondary Finding.<br>
-            Supporting information such as papers, images, and evidences can be viewed in the Review modal.
+            This summary presents key information about the variant’s clinical interpretation within the case.
+            It is shown only when the variant is classified as a Primary or Secondary Finding in a clinical context.
+            Supporting information — including evidences, status, or number of publications or images among others —
+            is also visualized here, and can be further explored in the Variant Review modal.
         `;
     }
 
