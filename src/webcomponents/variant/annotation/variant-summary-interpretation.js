@@ -221,7 +221,7 @@ debugger
                                 ],
                             },
                             {
-                                className: "d-flex align-items-stretch mt-2",
+                                className: "d-flex align-items-stretch",
                                 elements: [
                                     {
                                         id:"variant-interpretation-discussion",
@@ -245,9 +245,7 @@ debugger
                                 titleClassName: "summary-category",
                                 titleStyle: "font-weight: normal !important",
                                 defaultLayout: "vertical",
-                                separationClassName: "mb-0",
-                                //className: "table mb-0",
-                                className: "fixed-table-loading table",
+                                className: "table",
                                 style: "font-size: 12px;",
                                 bodyCellClassName: "align-middle bg-transparent",
                                 headerCellClassName: "bg-transparent",
