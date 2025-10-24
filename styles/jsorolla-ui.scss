@@ -402,6 +402,11 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
 .select2-search.select2-search--inline {
     display: inline-block;
 }
+/* this fixes text overflow when the select2 is inside a modal */
+.select2-selection__rendered {
+    white-space: break-spaces !important;
+    word-break: break-word !important;
+}
 
 // bootstrap-table styles override
 .bootstrap-table .fixed-table-loading {
