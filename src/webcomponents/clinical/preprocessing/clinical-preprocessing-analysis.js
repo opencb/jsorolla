@@ -20,6 +20,8 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import ModalUtils from "../../commons/modal/modal-utils.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
+import "../../commons/forms/data-form.js";
+import "../../commons/forms/toggle-switch.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 import "./clinical-preprocessing-variant-calling-tool-configure.js";
 
@@ -248,6 +250,10 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
     onClear() {
         this.toolParamsObserver();
         this.requestUpdate();
+    }
+
+    onVariantCallingToolToggle(event, toolId) {
+        // TODO
     }
 
     onVariantCallingToolConfigure(event, toolId) {
@@ -777,7 +783,21 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                 },
                                 {
                                     title: "Active?",
-                                    field: "name",
+                                    field: "id",
+                                    type: "custom",
+                                    display: {
+                                        render: toolId => {
+                                            const active = (this._toolParams?.variantCalling?.tools || []).some(t => t.id === toolId);
+                                            return html`
+                                                <toggle-switch
+                                                    .value="${active}"
+                                                    .onText="${"Yes"}"
+                                                    .offText="${"No"}"
+                                                    @filterChange="${event => this.onVariantCallingToolToggle(event, toolId)}">
+                                                </toggle-switch>
+                                            `;
+                                        },
+                                    },
                                 },
                                 {
                                     title: "",
@@ -785,8 +805,8 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     type: "custom",
                                     display: {
                                         bodyCellClassName: "d-flex justify-content-end",
-                                        render: tool => html`
-                                            <button class="btn btn-light d-flex align-items-center" @click="${event => this.onVariantCallingToolConfigure(event, tool)}">
+                                        render: toolId => html`
+                                            <button class="btn btn-light d-flex align-items-center" @click="${event => this.onVariantCallingToolConfigure(event, toolId)}">
                                                 <i class="fa fa-cog me-1"></i>
                                                 <span>Configure</span>
                                             </button>
