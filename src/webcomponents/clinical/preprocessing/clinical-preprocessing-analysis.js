@@ -254,10 +254,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
 
     onVariantCallingToolToggle(event, toolId) {
         const toolIndex = (this._toolParams?.variantCalling?.tools || []).findIndex(t => t.id === toolId);
-        // if the tool exists, we have to remove it from the list
-        if (toolIndex >= 0) {
+        if (toolIndex >= 0 && !event.detail.value) {
             this._toolParams.variantCalling.tools.splice(toolIndex, 1);
-        } else {
+        } else if (toolIndex < 0 && event.detail.value) {
             this._toolParams.variantCalling.tools.push({
                 id: toolId,
                 parameters: [],
