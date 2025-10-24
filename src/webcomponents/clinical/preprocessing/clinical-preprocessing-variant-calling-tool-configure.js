@@ -1,7 +1,8 @@
 import {html, LitElement, nothing} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import "../../commons/forms/data-form.js";
 import UtilsNew from "../../../core/utils-new.js";
+import "../../commons/forms/data-form.js";
+import "../../commons/filters/catalog-search-autocomplete.js";
 
 export default class ClinicalPreprocessingVariantCallingToolConfigure extends LitElement {
 
@@ -83,26 +84,44 @@ export default class ClinicalPreprocessingVariantCallingToolConfigure extends Li
                     title: "",
                     elements: [
                         {
-                            type: "input-text",
-                            field: "fileName",
-                            title: "File Name",
-                            required: true,
+                            title: "Reference Genome Index",
+                            field: "reference",
+                            type: "custom",
                             display: {
+                                render: (reference, dataFormFilterChange) => {
+                                    return html`
+                                        <catalog-search-autocomplete
+                                            .value="${reference}"
+                                            .resource="${"FILE"}"
+                                            .searchField="${"path"}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .config="${{
+                                                multiple: false,
+                                            }}"
+                                            @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                        </catalog-search-autocomplete>
+                                    `;
+                                },
                             },
                         },
                         {
-                            type: "input-text",
-                            field: "name",
-                            title: "Pipeline Name",
-                            required: true,
+                            title: "Tool Parameters",
+                            field: "parameters",
+                            type: "input-parameters",
                             display: {
-                            },
-                        },
-                        {
-                            type: "input-text",
-                            field: "description",
-                            title: "Pipeline Description",
-                            display: {
+                                itemsNotFoundText: "No parameters registered for this tool.",
+                                fileRender: (selectedFile, dataFormFilterChange) => html`
+                                    <catalog-search-autocomplete
+                                        .value="${selectedFile}"
+                                        .resource="${"FILE"}"
+                                        .searchField="${"path"}"
+                                        .config="${{
+                                            multiple: false,
+                                        }}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `,
                             },
                         },
                     ],
