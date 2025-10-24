@@ -280,12 +280,19 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
     }
 
     onVariantCallingToolConfigureSave(event) {
-        // TODO
+        // 1. update the internal _toolParams object with the new variant calling tool data
+        const toolIndex = (this._toolParams?.variantCalling?.tools || []).findIndex(t => t.id === this._selectedVariantCallingToolData.id);
+        if (toolIndex >= 0) {
+            this._toolParams.variantCalling.tools[toolIndex] = event.detail;
+            this._toolParams = {
+                ...this._toolParams,
+            };
+        }
+
+        // 2. reset selected variant calling tool internal variables and force an update
         this._selectedVariantCallingToolName = null;
+        this._selectedVariantCallingToolData = null;
         this.requestUpdate();
-        this.updateComplete.then(() => {
-            ModalUtils.close("VariantCallingToolConfigure");
-        });
     }
 
     renderVariantCallingToolConfigureModal() {
@@ -303,6 +310,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     .toolData="${this._selectedVariantCallingToolData}"
                     @toolConfigureSave="${event => {
                         this.onVariantCallingToolConfigureSave(event);
+                        ModalUtils.close("VariantCallingToolConfigure");
                     }}">
                 </clinical-preprocessing-variant-calling-tool-configure>
             `,
