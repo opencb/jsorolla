@@ -298,7 +298,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
     renderVariantCallingToolConfigureModal() {
         return ModalUtils.create(this, "VariantCallingToolConfigure", {
             display: {
-                title: `Configure ${this._selectedVariantCallingToolName}`,
+                title: `Variant Calling Tools - Configure ${this._selectedVariantCallingToolName}`,
                 size: "modal-lg",
                 buttonsVisible: false,
                 draggable: false,
