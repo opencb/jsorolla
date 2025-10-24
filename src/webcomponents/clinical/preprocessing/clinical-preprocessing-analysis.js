@@ -805,12 +805,15 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     type: "custom",
                                     display: {
                                         bodyCellClassName: "d-flex justify-content-end",
-                                        render: toolId => html`
-                                            <button class="btn btn-light d-flex align-items-center" @click="${event => this.onVariantCallingToolConfigure(event, toolId)}">
-                                                <i class="fa fa-cog me-1"></i>
-                                                <span>Configure</span>
-                                            </button>
-                                        `,
+                                        render: toolId => {
+                                            const active = (this._toolParams?.variantCalling?.tools || []).some(t => t.id === toolId);
+                                            return html`
+                                                <button class="btn btn-light d-flex align-items-center ${active ? "" : "disabled"}" @click="${event => this.onVariantCallingToolConfigure(event, toolId)}">
+                                                    <i class="fa fa-cog me-1"></i>
+                                                    <span>Configure</span>
+                                                </button>
+                                            `;
+                                        },
                                     },
                                 },
                             ],
