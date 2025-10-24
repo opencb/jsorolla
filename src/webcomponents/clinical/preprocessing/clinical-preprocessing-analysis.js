@@ -250,7 +250,25 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         this.requestUpdate();
     }
 
-    renderPipelineInfoModal() {
+    onVariantCallingToolConfigure(event, toolId) {
+        this._selectedVariantCallingToolName = this.VARIANT_CALLING_TOOLS.find(t => t.id === toolId).name;
+        this._selectedVariantCallingToolData = this._toolParams.variantCalling.tools.find(t => t.id === toolId);
+        this.requestUpdate();
+        this.updateComplete.then(() => {
+            ModalUtils.show("VariantCallingToolConfigure");
+        });
+    }
+
+    onVariantCallingToolConfigureSave(event) {
+        // TODO
+        this._selectedVariantCallingToolName = null;
+        this.requestUpdate();
+        this.updateComplete.then(() => {
+            ModalUtils.close("VariantCallingToolConfigure");
+        });
+    }
+
+    renderVariantCallingToolConfigureModal() {
         return ModalUtils.create(this, "VariantCallingToolConfigure", {
             display: {
                 title: `Configure ${this._selectedVariantCallingToolName}`,
@@ -262,7 +280,10 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 <clinical-preprocessing-variant-calling-tool-configure
                     .opencgaSession="${this.opencgaSession}"
                     .toolName="${this._selectedVariantCallingToolName}"
-                    .toolData="${this._selectedVariantCallingToolData}">
+                    .toolData="${this._selectedVariantCallingToolData}"
+                    @toolConfigureSave="${event => {
+                        this.onVariantCallingToolConfigureSave(event);
+                    }}">
                 </clinical-preprocessing-variant-calling-tool-configure>
             `,
         });
@@ -278,7 +299,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 @submit="${this.onSubmit}">
             </data-form>
 
-            ${this._selectedVariantCallingToolName ? this.renderPipelineInfoModal() : nothing}
+            ${this._selectedVariantCallingToolName ? this.renderVariantCallingToolConfigureModal() : nothing}
         `;
     }
 
@@ -760,12 +781,13 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                 },
                                 {
                                     title: "",
+                                    field: "id",
                                     type: "custom",
                                     display: {
                                         bodyCellClassName: "d-flex justify-content-end",
                                         render: tool => html`
-                                            <button class="btn btn-primary d-flex align-items-center gap-1">
-                                                <i class="fa fa-cog"></i>
+                                            <button class="btn btn-light d-flex align-items-center" @click="${event => this.onVariantCallingToolConfigure(event, tool)}">
+                                                <i class="fa fa-cog me-1"></i>
                                                 <span>Configure</span>
                                             </button>
                                         `,

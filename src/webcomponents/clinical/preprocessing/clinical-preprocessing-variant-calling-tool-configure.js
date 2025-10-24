@@ -1,6 +1,7 @@
 import {html, LitElement, nothing} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "../../commons/forms/data-form.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class ClinicalPreprocessingVariantCallingToolConfigure extends LitElement {
 
@@ -36,6 +37,10 @@ export default class ClinicalPreprocessingVariantCallingToolConfigure extends Li
     }
 
     update(changedProperties) {
+        if (changedProperties.has("toolData")) {
+            this._data = UtilsNew.objectClone(this.toolData || {});
+        }
+
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
