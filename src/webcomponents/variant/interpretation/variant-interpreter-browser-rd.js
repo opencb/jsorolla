@@ -17,11 +17,6 @@
 import {html, LitElement} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "./variant-interpreter-browser-template.js";
-import "./exomiser/variant-interpreter-exomiser-view.js";
-import "../variant-samples.js";
-import "../variant-notes.js";
-import "../../visualization/protein-lollipop-variant-view.js";
-import "../annotation/variant-annotation-pharmacogenomics-view.js";
 
 class VariantInterpreterBrowserRd extends LitElement {
 
@@ -255,7 +250,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             });
 
             // Add 'file' filter if 'fileData' exists
-            if (this.files) {
+            if (this.files?.length > 1) {
                 const fileNames = this.files.map(f => f.name).join(",");
                 for (const filter of _activeFilterFilters) {
                     if (filter.query?.fileData && !filter.query?.file) {
@@ -332,36 +327,16 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
                                 visible: () => this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "CANCER",
-                                // params: {
-                                //     genotypes: [
-                                //         {
-                                //             id: "0/1", name: "HET (0/1)"
-                                //         },
-                                //         {
-                                //             id: "1/1", name: "HOM_ALT (1/1)"
-                                //         },
-                                //         {
-                                //             separator: true
-                                //         },
-                                //         {
-                                //             id: "1", name: "HAPLOID (1)"
-                                //         },
-                                //         {
-                                //             id: "1/2", name: "BIALLELIC (1/2)"
-                                //         },
-                                //         {
-                                //             id: "NA", name: "NA"
-                                //         }
-                                //     ]
-                                // },
                                 tooltip: tooltips.sample,
+                                quick: this.clinicalAnalysis?.type?.toUpperCase() === "SINGLE" || this.clinicalAnalysis?.type?.toUpperCase() === "CANCER"
                             },
                             {
                                 id: "family-genotype",
-                                title: "Sample Genotype",
-                                tooltip: tooltips.sample,
+                                title: "Family Genotype",
                                 clinicalAnalysis: this.clinicalAnalysis,
-                                visible: () => this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                                visible: () => this.clinicalAnalysis.type.toUpperCase() === "FAMILY",
+                                tooltip: tooltips.sample,
+                                quick: this.clinicalAnalysis?.type?.toUpperCase() === "FAMILY"
                             },
                             {
                                 id: "individual-hpo",
@@ -415,8 +390,15 @@ class VariantInterpreterBrowserRd extends LitElement {
                         collapsed: true,
                         filters: [
                             {
+                                id: "variant",
+                                title: "Variant ID",
+                                description: "Introduce a comma separated list of variant IDs. Accepted format is chrom:position:ref:alt, eg: 11:66923381:-:A",
+                                tooltip: tooltips.variant,
+                                quick: true,
+                            },
+                            {
                                 id: "region",
-                                title: "Genomic Location",
+                                title: "Genomic Region",
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Regions will be intersected with selected panels.",
@@ -425,12 +407,14 @@ class VariantInterpreterBrowserRd extends LitElement {
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs (gene, SNPs, ...)",
+                                title: "Feature ID",
+                                description: "Select a feature from the list (gene, SNP, etc.)",
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLocked,
                                     text: "Feature regions will be intersected with selected panels.",
                                 },
                                 tooltip: tooltips.feature,
+                                quick: true
                             },
                             {
                                 id: "biotype",
@@ -443,8 +427,10 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 title: "Variant Type",
                                 tooltip: tooltips.type,
                                 params: {
-                                    types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV"]
+                                    // types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV"]
+                                    types: VARIANT_TYPES
                                 },
+                                quick: true
                             }
                         ]
                     },
@@ -454,8 +440,9 @@ class VariantInterpreterBrowserRd extends LitElement {
                         filters: [
                             {
                                 id: "consequence-type",
-                                title: "Select SO terms",
-                                tooltip: tooltips.consequenceTypeSelect
+                                title: "Consequence Type",
+                                tooltip: tooltips.consequenceTypeSelect,
+                                quick: true
                             }
                         ]
                     },
@@ -465,7 +452,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                         filters: [
                             {
                                 id: "populationFrequency",
-                                title: "Select Population Frequency",
+                                title: "Population Frequency",
                                 tooltip: tooltips.populationFrequencies,
                                 params: {
                                     showSetAll: false,
@@ -481,18 +468,20 @@ class VariantInterpreterBrowserRd extends LitElement {
                         filters: [
                             {
                                 id: "diseasePanels",
-                                title: "Disease Panels",
+                                title: "Disease Panel",
                                 disabled: () => this.clinicalAnalysis.panelLock,
                                 message: {
                                     visible: () => this.clinicalAnalysis.panelLock,
                                     text: "Case Panel is locked, you are not allowed to change selected panel(s)."
                                 },
-                                tooltip: tooltips.diseasePanels
+                                tooltip: tooltips.diseasePanels,
+                                quick: true
                             },
                             {
                                 id: "clinical-annotation",
                                 title: "Clinical Annotation",
-                                tooltip: tooltips.clinical
+                                tooltip: tooltips.clinical,
+                                quick: true
                             }
                         ]
                     },
@@ -582,155 +571,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                         variantTypes: ["SNV", "INDEL", "INSERTION", "DELETION"],
                     }
                 },
-                detail: {
-                    title: "Selected Variant: ",
-                    showTitle: true,
-                    items: [
-                        {
-                            id: "annotationSummary",
-                            name: "Summary",
-                            active: true,
-                            render: variant => html`
-                                <cellbase-variant-annotation-summary
-                                    .variantAnnotation="${variant?.annotation}"
-                                    .consequenceTypes="${CONSEQUENCE_TYPES}"
-                                    .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
-                                    .assembly=${this.opencgaSession.project.organism.assembly}>
-                                </cellbase-variant-annotation-summary>
-                            `,
-                        },
-                        {
-                            id: "annotationConsType",
-                            name: "Consequence Type",
-                            render: (variant, active) => html`
-                                <variant-consequence-type-view
-                                    .consequenceTypes="${variant?.annotation?.consequenceTypes}"
-                                    .active="${active}">
-                                </variant-consequence-type-view>
-                            `,
-                        },
-                        {
-                            id: "annotationPropFreq",
-                            name: "Population Frequencies",
-                            render: (variant, active) => html`
-                                <cellbase-population-frequency-grid
-                                    .populationFrequencies="${variant?.annotation?.populationFrequencies}"
-                                    .active="${active}">
-                                </cellbase-population-frequency-grid>
-                            `,
-                        },
-                        {
-                            id: "annotationClinical",
-                            name: "Clinical",
-                            render: variant => html`
-                                <variant-annotation-clinical-view
-                                    .traitAssociation="${variant?.annotation?.traitAssociation}"
-                                    .geneTraitAssociation="${variant?.annotation?.geneTraitAssociation}">
-                                </variant-annotation-clinical-view>
-                            `,
-                        },
-                        {
-                            id: "annotationPharmacogenomics",
-                            name: "Pharmacogenomics",
-                            render: variant => html`
-                                <variant-annotation-pharmacogenomics-view
-                                    .pharmacogenomics="${variant?.annotation?.pharmacogenomics}">
-                                </variant-annotation-pharmacogenomics-view>
-                            `,
-                        },
-                        {
-                            id: "fileMetrics",
-                            name: "File Metrics",
-                            render: (variant, active, opencgaSession) => html`
-                                <opencga-variant-file-metrics
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variant}"
-                                    .files="${this.clinicalAnalysis}">
-                                </opencga-variant-file-metrics>
-                            `,
-                        },
-                        {
-                            id: "cohortStats",
-                            name: "Cohort Stats",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-cohort-stats
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variant}"
-                                    .active="${active}">
-                                </variant-cohort-stats>
-                            `,
-                        },
-                        {
-                            id: "samples",
-                            name: "Samples",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-samples
-                                    .opencgaSession="${opencgaSession}"
-                                    .variantId="${variant?.id}"
-                                    .active="${active}">
-                                </variant-samples>
-                            `,
-                        },
-                        {
-                            id: "notes",
-                            name: "Notes",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-notes
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variant}"
-                                    .active="${active}">
-                                </variant-notes>
-                            `,
-                        },
-                        {
-                            id: "protein",
-                            name: "Protein (Beta)",
-                            render: (variant, active, opencgaSession) => html`
-                                <protein-lollipop-variant-view
-                                    .opencgaSession="${opencgaSession}"
-                                    .variant="${variant}"
-                                    .query="${this.query}"
-                                    .active="${active}">
-                                </protein-lollipop-variant-view>
-                            `,
-                        },
-                        {
-                            id: "beacon",
-                            name: "Beacon",
-                            render: (variant, active, opencgaSession) => html`
-                                <variant-beacon-network
-                                    .variant="${variant.id}"
-                                    .assembly="${opencgaSession.project.organism.assembly}"
-                                    .config="${this.beaconConfig}"
-                                    .active="${active}">
-                                </variant-beacon-network>
-                            `,
-                        },
-                        {
-                            id: "exomiser",
-                            name: "Exomiser",
-                            visible: () => {
-                                return this.clinicalAnalysis?.interpretation?.method?.name === "interpretation-exomiser";
-                            },
-                            render: (variant, active) => html`
-                                <variant-interpreter-exomiser-view
-                                    .variant="${variant}"
-                                    .active="${active}">
-                                </variant-interpreter-exomiser-view>
-                            `,
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (variant, active) => html`
-                                <json-viewer
-                                    .data="${variant}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        }
-                    ]
-                }
             },
             aggregation: {}
         };

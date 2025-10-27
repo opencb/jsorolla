@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import Types from "../commons/types.js";
 import LitUtils from "../commons/utils/lit-utils.js";
@@ -22,8 +22,8 @@ import ClinicalAnalysisManager from "./clinical-analysis-manager.js";
 import FormUtils from "../commons/forms/form-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 // import PdfBuilder, {stylePdf} from "../../core/pdf-builder.js";
-import "./clinical-analysis-summary.js";
-import "../variant/interpretation/variant-interpreter-grid.js";
+import "./clinical-analysis-review-summary.js";
+import "../variant/interpretation/variant-interpreter-review.js";
 import "../disease-panel/disease-panel-grid.js";
 import "./interpretation/clinical-interpretation-view.js";
 
@@ -225,7 +225,7 @@ export default class ClinicalAnalysisReview extends LitElement {
         console.error("An error occurred updating clinicalAnalysis: ", response);
     }
 
-    postUpdate(response) {
+    postUpdate() {
         // NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
             message: "Updated successfully",
@@ -317,7 +317,6 @@ export default class ClinicalAnalysisReview extends LitElement {
     }
 
     onSubmit(e) {
-        // By Sections
         switch (e.detail?.value) {
             case "caseInfo":
                 this.submitCaseComments();
@@ -344,26 +343,18 @@ export default class ClinicalAnalysisReview extends LitElement {
     }
 
     render() {
-        if (!this.clinicalAnalysis) {
-            return "";
+        if (!this.opencgaSession || !this.clinicalAnalysis) {
+            return nothing;
         }
 
         return html`
-
-            <!--
-            Fixme 20240220: enable this button through pdf: true/false in config
-            <button class="btn btn-primary" style="margin-bottom:14px"
-                @click="$this.onDownloadPdf}">
-                <i class="fas fa-file-pdf"></i>
-                Export PDF (Beta)
-            </button>
-            -->
             <data-form
                 .data="${this.clinicalAnalysis}"
-                .config="${this._config}"
+                .config="${this._config || {}}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @submit=${e => this.onSubmit(e)}>
-            </data-form>`;
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
@@ -394,10 +385,10 @@ export default class ClinicalAnalysisReview extends LitElement {
                                         <div style="font-size:24px;font-weight: bold;margin-bottom: 12px">
                                             <span>${isLocked(data)} Case Info</span>
                                         </div>
-                                        <clinical-analysis-summary
+                                        <clinical-analysis-review-summary
                                             .clinicalAnalysis="${data}"
                                             .opencgaSession="${this.opencgaSession}">
-                                        </clinical-analysis-summary>
+                                        </clinical-analysis-review-summary>
                                     `;
                                 }
                             }
@@ -489,26 +480,30 @@ export default class ClinicalAnalysisReview extends LitElement {
                             type: "custom",
                             display: {
                                 render: data => {
-                                    const variantsReported = data?.interpretation?.primaryFindings?.filter(
-                                        variant => variant?.status === "REPORTED");
-                                    return UtilsNew.isNotEmptyArray(variantsReported) ?
-                                        html`
-                                            <variant-interpreter-grid
-                                                review
-                                                .clinicalAnalysis=${this.clinicalAnalysis}
-                                                .clinicalVariants="${variantsReported}"
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .config=${
-                                                    {
-                                                        showExport: true,
-                                                        showSettings: false,
-                                                        showActions: false,
-                                                        showEditReview: false,
-                                                    }
-                                                }>
-                                            </variant-interpreter-grid>
-                                        `:
-                                        "No reported variants to display";
+                                    const reportedVariants = data?.interpretation?.primaryFindings?.filter(variant => {
+                                        return variant?.status === "REPORTED";
+                                    });
+                                    if (reportedVariants?.length === 0) {
+                                        return html`
+                                            <div class="alert alert-warning">
+                                                <i class="fas fa-exclamation-circle me-2"></i>
+                                                <span>No <b>Reported Variants</b> to display.</span>
+                                            </div>
+                                        `;
+                                    }
+                                    return html`
+                                        <variant-interpreter-review
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                            .variants="${reportedVariants}"
+                                            .gridConfig="${{
+                                                showSettings: false,
+                                                showActions: false,
+                                                showEditReview: false,
+                                                showSelectCheckbox: false,
+                                            }}">
+                                        </variant-interpreter-review>
+                                    `;
                                 }
                             }
                         }
@@ -543,7 +538,6 @@ export default class ClinicalAnalysisReview extends LitElement {
                             display: {
                                 rows: 10,
                                 helpMessage: discussion.author ? html`Last discussion added by <b>${discussion.author}</b> on <b>${UtilsNew.dateFormatter(discussion.date)}</b>.` : null,
-
                             },
                         },
                         {

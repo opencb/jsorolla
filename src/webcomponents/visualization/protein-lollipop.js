@@ -1,6 +1,5 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 import ProteinLollipopViz from "../../core/visualisation/protein-lollipop.js";
 import "../loading-spinner.js";
 
@@ -66,7 +65,6 @@ export default class ProteinLollipop extends LitElement {
         }
 
         if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
             this.rendered = false;
         }
 
@@ -81,20 +79,9 @@ export default class ProteinLollipop extends LitElement {
         this.drawProteinLollipop();
     }
 
-    opencgaSessionObserver() {
-        this.cellbaseClient = null;
-        if (this.opencgaSession?.project && this.opencgaSession?.project?.cellbase?.url) {
-            this.cellbaseClient = new CellBaseClient({
-                host: this.opencgaSession.project.cellbase.url.replace(/\/$/, ""),
-                version: this.opencgaSession.project.cellbase.version,
-                species: this.opencgaSession.project.organism.scientificName,
-            });
-        }
-    }
-
     // This is a terrible hack to find the correct protein ID and the transcript ID
     getProtein() {
-        return this.cellbaseClient
+        return this.opencgaSession.cellbaseClient
             .getProteinClient(null, "search", {
                 gene: this.geneId,
             })
@@ -105,7 +92,7 @@ export default class ProteinLollipop extends LitElement {
     }
 
     getTranscript(protein) {
-        return this.cellbaseClient
+        return this.opencgaSession.cellbaseClient
             .getGeneClient(this.geneId, "transcript", {})
             .then(response => {
                 // We need to find the transcript using the proteinSequence
@@ -129,6 +116,11 @@ export default class ProteinLollipop extends LitElement {
             .queryVariant(params)
             .then(response => {
                 return response.responses?.[0]?.results || [];
+            })
+            .catch(error => {
+                console.error(error);
+                this.error = `Error fetching variants for gene '${this.geneId}' in study '${this.opencgaSession.study.fqn}': ${error}`;
+                return [];
             });
     }
 
@@ -145,7 +137,7 @@ export default class ProteinLollipop extends LitElement {
                         break;
                     case ProteinLollipopViz.TRACK_TYPES.CELLBASE_VARIANTS:
                         try {
-                            const response = await this.cellbaseClient.get("clinical", "variant", null, "search", {
+                            const response = await this.opencgaSession.cellbaseClient.get("clinical", "variant", null, "search", {
                                 feature: this.geneId,
                                 // source: "clinvar",
                                 consequenceType: ProteinLollipopViz.CONSEQUENCE_TYPES.join(","),

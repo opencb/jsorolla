@@ -150,7 +150,7 @@ const CATALOG_SETTINGS = {
             // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
             sections: [
                 {
-                    filters: ["name", "sampleIds", /* "path",*/ "directory", "jobId", "format", "bioformat", "internal.index.status.name", "date", "annotations"]
+                    filters: ["name", "sampleIds", "directory", "jobId", "format", "bioformat", "tags", "internalVariantIndexStatus", "date", "annotations"]
                 }
             ],
             // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.

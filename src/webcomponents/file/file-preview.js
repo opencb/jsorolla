@@ -65,9 +65,6 @@ export default class FilePreview extends LitElement {
         this.files = [];
         this.filesWithContent = [];
 
-        // list with the known binary extensions that we can not fetch the content
-        this._binaryExtensions = new Set(["tbi", "bai", "zip", "bigWig", "pbi"]);
-
         this._config = this.getDefaultConfig();
     }
 
@@ -143,7 +140,7 @@ export default class FilePreview extends LitElement {
                     format = "HTML";
                 } else if (fileWithContent.name.endsWith(".pdf")) {
                     format = "PDF";
-                } else if (this._binaryExtensions.has(fileWithContent.name.split(".").pop())) {
+                } else if (UtilsNew.isBinaryFile(fileWithContent.name)) {
                     format = "BINARY";
                 }
             }
@@ -291,7 +288,10 @@ export default class FilePreview extends LitElement {
                 return html`
                     <json-viewer
                         .active="${this.active}"
-                        .data="${fileWithContent.content || {}}">
+                        .data="${fileWithContent.content || {}}"
+                        .config="${{
+                            showDownloadButton: false,
+                        }}">
                     </json-viewer>
                 `;
             case "html":
