@@ -163,8 +163,11 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             // 4.2. merge alignment step configuration
             if (this.toolParams.steps?.alignment) {
                 this._toolParams.alignment = {
-                    ...this._toolParams.alignment,
-                    ...this.toolParams.steps.alignment,
+                    active: this.toolParams.steps.alignment.active ?? this._toolParams.alignment.active,
+                    options: {
+                        ...this._toolParams.alignment.options,
+                        ...this.toolParams.steps.alignment.options,
+                    },
                     tool: {
                         ...this._toolParams.alignment.tool,
                         ...this.toolParams.steps.alignment?.tool,
