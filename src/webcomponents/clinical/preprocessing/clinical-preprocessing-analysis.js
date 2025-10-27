@@ -432,105 +432,6 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                             helpMessage: "Activate or deactivate the quality control step.",
                         },
                     },
-                    // {
-                    //     title: "Number of Threads",
-                    //     field: "qualityControl.tool.parameters.threads",
-                    //     type: "input-num",
-                    //     display: {
-                    //         disabled: data => !data.qualityControl.active,
-                    //         placeholder: "e.g. 2",
-                    //         min: 1,
-                    //         helpMessage: [
-                    //             "Specifies the number of files which can be processed simultaneously.",
-                    //             "Each thread will be allocated 250MB of memory so you shouldn't run more threads than your",
-                    //             "available memory will cope with, and not more than 6 threads on a 32 bit machine.",
-                    //         ].join(" "),
-                    //     },
-                    // },
-                    // {
-                    //     title: "Minimum Length",
-                    //     field: "qualityControl.tool.parameters.min_length",
-                    //     type: "input-num",
-                    //     display: {
-                    //         disabled: data => !data.qualityControl.active,
-                    //         helpMessage: [
-                    //             "Sets an artificial lower limit on the length of the sequence to be shown in the report.",
-                    //             "As long as you set this to a value greater or equal to your longest read length then this",
-                    //             "will be the sequence length used to create your read groups. This can be useful for making",
-                    //             "directly comaparable statistics from datasets with somewhat variable read lengths.",
-                    //         ].join(" "),
-                    //     },
-                    // },
-                    // {
-                    //     title: "Oxford Nanopore Data",
-                    //     field: "qualityControl.tool.parameters.nano",
-                    //     type: "checkbox",
-                    //     defaultValue: false,
-                    //     display: {
-                    //         disabled: data => !data.qualityControl.active,
-                    //         helpMessage: [
-                    //             "Files come from nanopore sequences and are in fast5 format. In this mode you can pass in",
-                    //             "directories to process and the program will take in all fast5 files within those directories",
-                    //             "and produce a single output file from the sequences found in all files.",
-                    //         ].join(" "),
-                    //     },
-                    // },
-                    // {
-                    //     title: "Common FastQC Parameters",
-                    //     // description: "Common parameters for the selected alignment tool.",
-                    //     type: "object",
-                    //     display: {
-                    //         itemClassName: "row",
-                    //         itemTitleClassName: "col-md-3",
-                    //         itemContentClassName: "col-md-9",
-                    //         disabled: data => !data.qualityControl.active,
-                    //     },
-                    //     elements: [
-                    //         {
-                    //             title: "Number of Threads",
-                    //             field: "qualityControl.tool.parameters.threads",
-                    //             type: "input-num",
-                    //             display: {
-                    //                 disabled: data => !data.qualityControl.active,
-                    //                 defaultValue: "2",
-                    //                 min: 1,
-                    //                 helpMessage: [
-                    //                     "Specifies the number of files which can be processed simultaneously.",
-                    //                     "Each thread will be allocated 250MB of memory so you shouldn't run more threads than your",
-                    //                     "available memory will cope with, and not more than 6 threads on a 32 bit machine.",
-                    //                 ].join(" "),
-                    //             },
-                    //         },
-                    //         {
-                    //             title: "Minimum Length",
-                    //             field: "qualityControl.tool.parameters.min_length",
-                    //             type: "input-num",
-                    //             display: {
-                    //                 disabled: data => !data.qualityControl.active,
-                    //                 helpMessage: [
-                    //                     "Sets an artificial lower limit on the length of the sequence to be shown in the report.",
-                    //                     "As long as you set this to a value greater or equal to your longest read length then this",
-                    //                     "will be the sequence length used to create your read groups. This can be useful for making",
-                    //                     "directly comaparable statistics from datasets with somewhat variable read lengths.",
-                    //                 ].join(" "),
-                    //             },
-                    //         },
-                    //         {
-                    //             title: "Oxford Nanopore Data",
-                    //             field: "qualityControl.tool.parameters.nano",
-                    //             type: "checkbox",
-                    //             defaultValue: false,
-                    //             display: {
-                    //                 disabled: data => !data.qualityControl.active,
-                    //                 helpMessage: [
-                    //                     "Files come from nanopore sequences and are in fast5 format. In this mode you can pass in",
-                    //                     "directories to process and the program will take in all fast5 files within those directories",
-                    //                     "and produce a single output file from the sequences found in all files.",
-                    //                 ].join(" "),
-                    //             },
-                    //         },
-                    //     ],
-                    // },
                     {
                         title: "FastQC Parameters",
                         field: "qualityControl.tool.parameters",
@@ -605,7 +506,6 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     {
                         title: "Aligner Index Directory",
                         field: "alignment.tool.index",
-                        // description: "Aligner index to be used for the alignment step. This overrides the general index directory.",
                         type: "custom",
                         display: {
                             render: (alignmentIndex, dataFormFilterChange) => {
@@ -628,7 +528,6 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     },
                     {
                         title: "Alignment Step Options",
-                        // description: "Select options for the alignment step.",
                         type: "object",
                         display: {
                             itemClassName: "row",
@@ -663,72 +562,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                             },
                         ],
                     },
-                    // {
-                    //     title: "Number of Threads",
-                    //     field: "alignment.tool.parameters.t",
-                    //     type: "input-num",
-                    //     display: {
-                    //         disabled: data => !data.alignment.active,
-                    //         visible: params => params.alignment.tool.name === "bwa" || params.alignment.tool.name === "bwa-mem2",
-                    //         placeholder: "e.g. 2",
-                    //         min: 1,
-                    //         helpMessage: "Number of threads to use for the alignment step."
-                    //     },
-                    // },
-                    // {
-                    //     title: "Minimum Seed Length",
-                    //     field: "alignment.tool.parameters.k",
-                    //     type: "input-num",
-                    //     display: {
-                    //         disabled: data => !data.alignment.active,
-                    //         visible: params => params.alignment.tool.name === "bwa" || params.alignment.tool.name === "bwa-mem2",
-                    //         placeholder: "e.g. 2",
-                    //         min: 1,
-                    //         helpMessage: "Minimum seed length [19]"
-                    //     },
-                    // },
-                    // {
-                    //     title: "Common Aligner Parameters",
-                    //     // description: "Common parameters for the selected alignment tool.",
-                    //     type: "object",
-                    //     display: {
-                    //         itemClassName: "row",
-                    //         itemTitleClassName: "col-md-3",
-                    //         itemContentClassName: "col-md-9",
-                    //         disabled: data => !data.alignment.active,
-                    //     },
-                    //     elements: [
-                    //         {
-                    //             title: "Number of Threads",
-                    //             field: "alignment.tool.parameters.t",
-                    //             description: "Parameter: -t",
-                    //             type: "input-num",
-                    //             display: {
-                    //                 visible: params => params.alignment.tool.id === "bwa" || params.alignment.tool.id === "bwa-mem2",
-                    //                 placeholder: "2",
-                    //                 min: 1,
-                    //                 helpMessage: "Number of threads to use for the alignment step. [1]"
-                    //             },
-                    //         },
-                    //         {
-                    //             title: "Minimum Seed Length",
-                    //             field: "alignment.tool.parameters.k",
-                    //             description: "Parameter: -k",
-                    //             type: "input-num",
-                    //             display: {
-                    //                 visible: params => params.alignment.tool.id === "bwa" || params.alignment.tool.id === "bwa-mem2",
-                    //                 placeholder: "19",
-                    //                 min: 1,
-                    //                 helpMessage: "Minimum seed length. Matches shorter than INT will be missed. " +
-                    //                     "The alignment speed is usually insensitive to this value unless it significantly deviates 20. [19]"
-                    //             },
-                    //         },
-                    //     ],
-                    // },
                     {
                         title: "Aligner Parameters",
                         field: "alignment.tool.parameters",
-                        // description: "Add additional parameters for the selected alignment tool.",
                         type: "input-parameters",
                         display: {
                             disabled: data => !data.alignment.active,
@@ -750,7 +586,6 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                     {
                         title: "Tool Usage Documentation",
                         field: "alignment.tool.id",
-                        // description: "Alignment tool usage documentation.",
                         type: "custom",
                         display: {
                             render: tool => {
