@@ -49,8 +49,6 @@ export default class FileReferenceGenome extends LitElement {
 
     #init() {
         this.JOB_ID = "fetch-reference-genome";
-        this._data = {};
-
         this.GENOME_ALIASES = [
             {
                 id: "Ensembl v115",
@@ -63,14 +61,16 @@ export default class FileReferenceGenome extends LitElement {
             },
         ];
 
+        this._data = {};
         this._config = this.getDefaultConfig();
         this.initOriginalObjects();
     }
 
     initOriginalObjects() {
         this._data = {
-            path: this.path || "/",
-            alignerIndexes: true
+            outdir: this.path || "/",
+            alignerIndexes: true,
+            jobId: `${this.JOB_ID}-${UtilsNew.getDatetime()}`,
         };
     }
 
@@ -83,9 +83,11 @@ export default class FileReferenceGenome extends LitElement {
         if (changedProperties.has("path")) {
             this.initOriginalObjects();
         }
+
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -118,26 +120,26 @@ export default class FileReferenceGenome extends LitElement {
     }
 
     onSubmit() {
-        const {jobId, ...data} = this._data;
-
-        const bodyParam = {
-            command: "prepare",
-            input: [data.referenceGenome],
-            prepareIndices: this._data.alignerIndexes ? ["reference-genome,bwa"] : [],
+        const body = {
+            outdir: this._data.outdir,
+            pipelineParams: {
+                referenceGenome: this._data.referenceGenome,
+                alignerIndexes: this._data.alignerIndexes ? ["reference-genome", "bwa", "bwa-mem2", "minimap2"] : [],
+            },
         }
 
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.clinical()
-            .runNgsPipeline(bodyParam, {
+            .runPipelinePrepare(body, {
                 study: this.opencgaSession.study.fqn,
-                jobId: jobId ?? `${this.JOB_ID}-${UtilsNew.getDatetime()}`,
+                jobId: this._data?.jobId ?? `${this.JOB_ID}-${UtilsNew.getDatetime()}`,
             })
             .then(() => {
-                this.initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: `Fetch Reference Genome Job has been launched successfully`,
                 });
-                LitUtils.dispatchCustomEvent(this, "fileReferenceGenome", data);
+                LitUtils.dispatchCustomEvent(this, "fileReferenceGenome", this._data);
+                this.initOriginalObjects();
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -179,13 +181,13 @@ export default class FileReferenceGenome extends LitElement {
                     title: "",
                     elements: [
                         {
-                            title: "Path",
-                            field: "path",
+                            title: "Output Directory",
+                            field: "outdir",
                             type: "custom",
                             display: {
-                                render: (path, onFieldChange) => html`
+                                render: (outdir, onFieldChange) => html`
                                     <catalog-search-autocomplete
-                                        .value="${path}"
+                                        .value="${outdir}"
                                         .resource="${"DIRECTORY"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{
@@ -194,7 +196,7 @@ export default class FileReferenceGenome extends LitElement {
                                         @filterChange="${e => onFieldChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `,
-                                helpMessage: "Path where the file will be downloaded.",
+                                helpMessage: "Directory where the indexes will be saved.",
                             },
                         },
                         {
