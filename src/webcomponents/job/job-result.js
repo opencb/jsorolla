@@ -169,8 +169,8 @@ export default class JobResult extends LitElement {
                 <h3 class="mb-3">${this._config.title}</h3>
             ` : nothing}
 
-            <div class="row" style="min-height:480px;">
-                <div class="col-md-3">
+            <div class="row" style="min-height:640px;">
+                <div class="col-md-2 px-3 py-1">
                     <div class="mb-2">
                         <static-autocomplete
                             .values="${[...this.job.output, this.job.stdout, this.job.stderr].filter(file => !!file && file?.type === "FILE")}"
@@ -191,7 +191,7 @@ export default class JobResult extends LitElement {
                     </file-tree>
                 </div>
 
-                <div class="col-md-9 ps-4">
+                <div class="col-md-10 px-3 py-1">
                     ${this.renderFilePreview()}
                 </div>
             </div>

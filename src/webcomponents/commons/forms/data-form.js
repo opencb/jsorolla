@@ -363,7 +363,9 @@ export default class DataForm extends LitElement {
 
     _getVisibleSections() {
         return this.config.sections
-            .filter(section => section.elements[0]?.type !== "notification" || section.elements.length > 1)
+            .filter(section => {
+                return section?.elements?.[0]?.type !== "notification" || section?.elements?.length > 1 || typeof section.render === "function" || typeof section.display?.render === "function";
+            })
             .filter(section => this._getBooleanValue(section?.display?.visible, true));
     }
 
@@ -458,7 +460,7 @@ export default class DataForm extends LitElement {
                     ${this._getVisibleSections()
                         .map((section, index) => html`
                             <div class="d-${this.activeSection === index ? "block": "none"}">
-                                ${this._createSection(section)}
+                                ${this._createSection(section, index)}
                             </div>
                         `)}
                 </div>
@@ -477,7 +479,7 @@ export default class DataForm extends LitElement {
                                 if (section.id) {
                                     return html`
                                         <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
-                                            ${this._createSection(this.config.sections.find(s => s.id === section.id))}
+                                            ${this._createSection(this.config.sections.find(s => s.id === section.id), 0)}
                                         </div>
                                     `;
                                 } else {
@@ -491,7 +493,7 @@ export default class DataForm extends LitElement {
                                                     if (subsection.id) {
                                                         return html`
                                                             <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
-                                                                ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
+                                                                ${this._createSection(this.config.sections.find(s => s.id === subsection.id), 0)}
                                                             </div>
                                                         `;
                                                     } else {
@@ -509,14 +511,14 @@ export default class DataForm extends LitElement {
                 // Render without layout
                 return html`
                     <div class="${layoutClassName} ${className}" style="${style}">
-                        ${this.config.sections.map(section => this._createSection(section))}
+                        ${this.config.sections.map(section => this._createSection(section, 0))}
                     </div>
                 `;
             }
         }
     }
 
-    _createSection(section) {
+    _createSection(section, sectionIndex) {
         // Check if the section is visible
         if (section.display && !this._getBooleanValue(section.display.visible)) {
             return nothing;
@@ -540,9 +542,16 @@ export default class DataForm extends LitElement {
         const buttonsVisible = this._getBooleanValue(section.display?.buttonsVisible ?? false);
 
         let content;
-        // Check if a custom layout has been provided
-        if (section.display?.layout && Array.isArray(section.display.layout)) {
-            // Render with a specific layout
+        // 1. check if a custom render has been provided
+        if (typeof section.render === "function" || typeof section.display?.render === "function") {
+            const render = section.render || section.display.render;
+            content = html`
+                <div class="${sectionClassName}" style="${sectionStyle}">
+                    ${render(this.data, this.activeSection === sectionIndex, section)}
+                </div>
+            `;
+        } else if (section.display?.layout && Array.isArray(section.display.layout)) {
+            // 2. render with a specific layout
             content = html`
                 <div class="${sectionClassName}" style="${sectionStyle}">
                     ${section.display.layout
@@ -582,7 +591,7 @@ export default class DataForm extends LitElement {
                 </div>
             `;
         } else {
-            // Otherwise render vertically
+            // 3. otherwise render vertically
             content = html`
                 <div class="${sectionClassName}" style="${sectionStyle}">
                     ${section.elements.map(element => this._createElement(element, section))}
@@ -595,7 +604,7 @@ export default class DataForm extends LitElement {
                 <div class="${sectionWidth}">
                     ${section.title ? html`
                         <div class="mb-3">
-                            ${this._getTitleHeader(titleHeader, section.title, titleClassName, titleStyle)}
+                            ${this._getTitleHeader(titleHeader, section.title || section.name, titleClassName, titleStyle)}
                         </div>
                     ` : nothing}
                     ${description ? html`
@@ -2351,7 +2360,7 @@ export default class DataForm extends LitElement {
                             return html`
                                 <li class="nav-item ${active ? "show" : ""}" role="presentation">
                                     <a class="nav-link fw-bold" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                        ${section.title || ""}
+                                        ${section.title || section.name || ""}
                                     </a>
                                 </li>
                             `;
@@ -2391,7 +2400,7 @@ export default class DataForm extends LitElement {
                                 return html`
                                     <li class="nav-item" role="presentation">
                                         <a class="nav-link fw-bold ${active ? "active" : ""}" style="cursor:pointer" data-section-index="${index}" @click="${e => this.onSectionChange(e)}">
-                                            ${section.title || ""}
+                                            ${section.title || section.name || ""}
                                         </a>
                                     </li>
                                 `;
@@ -2399,7 +2408,7 @@ export default class DataForm extends LitElement {
                         }
                     </ul>
                 </div>
-                <div class="col-md-9">
+                <div class="${this.config?.display?.pillsRightColumnClass || "col-md-9"}">
                     ${this.renderData()}
                 </div>
             </div>

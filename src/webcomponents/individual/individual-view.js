@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import UtilsNew from "../../core/utils-new.js";
-import Types from "../commons/types.js";
-import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import LitUtils from "../commons/utils/lit-utils.js";
+import {LitElement, html, nothing} from "lit";
+import ExtensionsManager from "../extensions-manager.js";
 import "../commons/forms/data-form.js";
-import "../commons/filters/catalog-search-autocomplete.js";
-import "../loading-spinner.js";
+import "../commons/json-viewer.js";
+import "../clinical/clinical-analysis-grid.js";
+import "./individual-summary.js";
+import "./qc/individual-qc-inferred-sex.js";
+import "./qc/individual-qc-mendelian-errors.js";
 
 export default class IndividualView extends LitElement {
 
     constructor() {
         super();
-
         this.#init();
     }
 
@@ -37,16 +36,13 @@ export default class IndividualView extends LitElement {
 
     static get properties() {
         return {
-            individual: {
+            opencgaSession: {
                 type: Object,
             },
             individualId: {
                 type: String,
             },
-            search: {
-                type: Boolean,
-            },
-            opencgaSession: {
+            individual: {
                 type: Object,
             },
             displayConfig: {
@@ -56,379 +52,139 @@ export default class IndividualView extends LitElement {
     }
 
     #init() {
-        this.individual = {};
-        this.search = false;
-
-        this.isLoading = false;
-        this.displayConfigDefault = {
-            collapsable: true,
-            titleVisible: false,
-            titleWidth: 2,
-            defaultValue: "-",
-            defaultLayout: "horizontal",
-            buttonsVisible: false,
-            pdf: false,
-        };
+        this.COMPONENT_ID = "individual-view";
+        this._individual = null;
         this._config = this.getDefaultConfig();
     }
 
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
-    }
-
     update(changedProperties) {
-        // to update disorders if it has more than one
-        // if (changedProperties.has("individual")) {
-        //     this._config = this.getDefaultConfig();
-        // }
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
-        if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig
-            };
+
+        if (changedProperties.has("individual")) {
+            this.individualObserver();
+        }
+
+        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
     individualIdObserver() {
-        if (this.individualId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-            };
-            let error;
-            this.#setLoading(true);
+        if (this.opencgaSession && this.individualId) {
             this.opencgaSession.opencgaClient.individuals()
-                .info(this.individualId, params)
+                .info(this.individualId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
-                    this.individual = response.responses[0].results[0];
+                    this._individual = response.getResult(0);
+                    this.requestUpdate();
                 })
-                .catch(reason => {
-                    this.individual = {};
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    this._config = this.getDefaultConfig();
-                    LitUtils.dispatchCustomEvent(this, "individualSearch", this.individual, {}, error);
-                    this.#setLoading(false);
+                .catch(response => {
+                    console.error(response);
                 });
-        } else {
-            this.individual = {};
         }
     }
 
-    onFilterChange(e) {
-        this.individualId = e.detail.value;
+    individualObserver() {
+        this._individual = {...this.individual};
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
-
-        if (!this.individual?.id && this.search === false) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-                    Individual ID not found.
-                </div>
-            `;
+        if (!this.opencgaSession || !this._individual) {
+            return nothing;
         }
 
         return html`
             <data-form
-                .data="${this.individual}"
+                .data="${this._individual}"
                 .config="${this._config}">
             </data-form>
         `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            title: "Summary",
-            icon: "",
-            display: this.displayConfig || this.displayConfigDefault,
+        return {
+            display: {
+                type: "pills",
+                pillsLeftColumnClass: "col-md-2",
+                pillsRightColumnClass: "col-md-10",
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
-                    title: "Search",
-                    display: {
-                        visible: individual => !individual?.id && this.search === true,
-                    },
-                    elements: [
-                        {
-                            title: "Individual ID",
-                            // field: "individualId",
-                            type: "custom",
-                            display: {
-                                render: () => html `
-                                    <catalog-search-autocomplete
-                                        .value="${this.sample?.id}"
-                                        .resource="${"INDIVIDUAL"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false}}"
-                                        @filterChange="${e => this.onFilterChange(e)}">
-                                    </catalog-search-autocomplete>`,
-                            },
-                        },
-                    ],
+                    id: "individual-summary",
+                    name: "Overview",
+                    render: (individual, active) => html`
+                        <individual-summary
+                            .individual="${individual}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </individual-summary>
+                    `,
                 },
                 {
-                    title: "General",
-                    collapsed: false,
-                    display: {
-                        visible: individual => individual?.id,
-                        // layout: [
-                        //     {
-                        //         id: "name",
-                        //         className: ""
-                        //     },
-                        //     {
-                        //         id: "",
-                        //         className: "row",
-                        //         elements: [
-                        //             {
-                        //                 id: "father",
-                        //                 className: "col-md-6"
-                        //             },
-                        //             {
-                        //                 id: "mother",
-                        //                 className: "col-md-6"
-                        //             }
-                        //         ]
-                        //     },
-                        //     {
-                        //         id: "sex",
-                        //         className: ""
-                        //     },
-                        // ]
-                    },
-                    elements: [
-                        {
-                            title: "Individual ID",
-                            // type: "custom",
-                            type: "complex",
-                            display: {
-                                // render: data => `
-                                //     <span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})
-                                // `,
-                                template: "${id} (UUID: ${uuid})",
-                                // transform: {
-                                //     id: id => id.toLowerCase(),
-                                // },
-                                style: {
-                                    id: {
-                                        "font-weight": "bold",
-                                    }
-                                }
-                            },
-                        },
-                        {
-                            id: "name",
-                            title: "Name",
-                            field: "name",
-                        },
-                        {
-                            id: "father",
-                            title: "Father ID",
-                            field: "father.id",
-                            // type: "basic",
-                        },
-                        {
-                            id: "mother",
-                            title: "Mother ID",
-                            field: "mother.id",
-                            // type: "basic",
-                        },
-                        {
-                            id: "sex",
-                            title: "Reported Sex (Karyotypic)",
-                            // type: "custom",
-                            type: "complex",
-                            display: {
-                                // render: individual => `
-                                //     ${individual.sex?.id ?? "Not specified"} (${individual.karyotypicSex ?? "Not specified"})
-                                // `,
-                                defaultValue: "Not specified",
-                                template: "${sex.id} (${karyotypicSex})"
-                            },
-                        },
-                        {
-                            title: "Inferred Karyotypic Sex",
-                            // type: "custom",
-                            field: "qualityControl",
-                            display: {
-                                // render: data => {
-                                //     if (data?.qualityControl?.inferredSexReports?.length > 0) {
-                                //         return data.qualityControl.inferredSexReports[0].inferredKaryotypicSex;
-                                //     } else {
-                                //         return "-";
-                                //     }
-                                // },
-                                format: qualityControl => qualityControl?.inferredSexReports?.length > 0 ? qualityControl.inferredSexReports[0].inferredKaryotypicSex : "-"
-                            },
-                        },
-                        {
-                            title: "Ethnicity",
-                            field: "ethnicity.id",
-                        },
-                        {
-                            title: "Disorders",
-                            field: "disorders",
-                            type: "list",
-                            display: {
-                                contentLayout: "vertical",
-                                // render: disorder => CatalogGridFormatter.disorderFormatter(disorder),
-                                format: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
-                                defaultValue: "N/A",
-                            },
-                        },
-                        {
-                            title: "Phenotypes",
-                            field: "phenotypes",
-                            type: "list",
-                            display: {
-                                contentLayout: "vertical",
-                                // filter: phenotypes => [phenotypes[0]],
-                                // transform: phenotypes => phenotypes.map(phenotype => {
-                                //     phenotype.id = phenotype.id.toLowerCase();
-                                //     return phenotype;
-                                // }),
-                                // render: phenotype => {
-                                //     let id = phenotype.id;
-                                //     if (phenotype.id.startsWith("HP:")) {
-                                //         id = html`
-                                //             <a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">
-                                //                 ${phenotype.id}
-                                //             </a>
-                                //         `;
-                                //     }
-                                //     return html`${phenotype.name} (${id})`;
-                                // },
-                                format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
-                                defaultValue: "N/A",
-                            },
-                        },
-                        {
-                            title: "Date of Birth",
-                            field: "dateOfBirth",
-                            display: {
-                                format: date => UtilsNew.dateFormatter(date)
-                            },
-                        },
-                        {
-                            title: "Life Status",
-                            field: "lifeStatus",
-                        },
-                        {
-                            title: "Version",
-                            field: "version",
-                        },
-                        {
-                            title: "Status",
-                            type: "complex",
-                            display: {
-                                template: "${internal.status.id} (${internal.status.date})",
-                                format: {
-                                    "internal.status.date": date => UtilsNew.dateFormatter(date)
-                                }
-                            },
-                        },
-                        {
-                            title: "Creation Date",
-                            field: "creationDate",
-                            display: {
-                                // render: field => field ? UtilsNew.dateFormatter(field) : "-"
-                                format: date => UtilsNew.dateFormatter(date)
-                            },
-                        },
-                        {
-                            title: "Modification Date",
-                            field: "modificationDate",
-                            // type: "custom",
-                            display: {
-                                format: modificationDate => UtilsNew.dateFormatter(modificationDate),
-                            },
-                        },
-                        {
-                            title: "Description",
-                            field: "description",
-                        },
-                        /*
-                        // Fixme: fix export to pdf
-                        {
-                            title: "Annotation sets",
-                            field: "annotationSets",
-                            type: "custom",
-                            display: {
-                                showPDF: false,
-                                render: field => html`
-                                    <annotation-set-view
-                                        .annotationSets="${field}">
-                                    </annotation-set-view>
-                                `,
-                                defaultValue: "N/A",
-                            },
-                        },
-                        */
-                    ],
+                    id: "clinical-analysis-grid",
+                    name: "Clinical Analysis",
+                    render: (individual, active) => html`
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span>Clinical Analysis in which the individual <b>${individual.id}</b> is the proband.</span>
+                        </div>
+                        <div class="overflow-y-auto">
+                            <clinical-analysis-grid
+                                .active="${active}"
+                                .query="${{
+                                    proband: individual.id,
+                                }}"
+                                .config=${{
+                                    showToolbar: false,
+                                    showActions: false,
+                                }}
+                                .opencgaSession="${this.opencgaSession}">
+                            </clinical-analysis-grid>
+                        </div>
+                    `,
                 },
                 {
-                    title: "Samples",
-                    display: {
-                        visible: individual => individual?.id,
-                    },
-                    elements: [
-                        {
-                            title: "List of samples",
-                            field: "samples",
-                            type: "table",
-                            display: {
-                                className: "",
-                                style: "",
-                                headerClassName: "",
-                                headerStyle: "",
-                                headerVisible: true,
-                                // filter: array => array.filter(item => item.somatic),
-                                // transform: array => array.map(item => {
-                                //     item.somatic = true;
-                                //     return item;
-                                // }),
-                                defaultValue: "No phenotypes found",
-                                columns: [
-                                    {
-                                        title: "Samples ID",
-                                        field: "id",
-                                        display: {
-                                            style: {
-                                                "font-weight": "bold"
-                                            }
-                                        }
-                                    },
-                                    {
-                                        title: "Somatic",
-                                        field: "somatic",
-                                    },
-                                    {
-                                        title: "Phenotypes",
-                                        field: "phenotypes",
-                                        type: "list",
-                                        display: {
-                                            contentLayout: "bullets",
-                                            format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
-                                        },
-                                    },
-                                ],
-                            },
-                        },
-                    ],
+                    id: "individual-inferred-sex",
+                    name: "Inferred Sex",
+                    render: (individual, active) => html`
+                        <individual-qc-inferred-sex
+                            .individual="${individual}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </individual-qc-inferred-sex>
+                    `,
+                },
+                {
+                    id: "individual-mendelian-error",
+                    name: "Mendelian Error",
+                    render: (individual, active) => html`
+                        <individual-qc-mendelian-errors
+                            .individual="${individual}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </individual-qc-mendelian-errors>
+                    `,
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (individual, active) => html`
+                        <json-viewer
+                            .data="${individual}"
+                            .active="${active}">
+                        </json-viewer>
+                    `,
                 },
             ],
-        });
+            ...ExtensionsManager.getViews(this.COMPONENT_ID, this.opencgaSession),
+        };
     }
 
 }

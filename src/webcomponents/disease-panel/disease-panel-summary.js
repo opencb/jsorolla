@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
-import LitUtils from "../commons/utils/lit-utils.js";
-import Types from "../commons/types.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
 import "../study/annotationset/annotation-set-view.js";
-import "../loading-spinner.js";
 
 export default class DiseasePanelSummary extends LitElement {
 
@@ -54,110 +51,70 @@ export default class DiseasePanelSummary extends LitElement {
     }
 
     #init() {
-        this.diseasePanel = {};
-        this.isLoading = false;
-
-        this.displayConfigDefault = {
-            collapsable: true,
-            titleVisible: false,
-            titleWidth: 2,
-            defaultValue: "-",
-            defaultLayout: "horizontal",
-            buttonsVisible: false,
-            showTitle: false,
-            labelWidth: 3,
-            pdf: false,
-        };
+        this._diseasePanel = null;
         this._config = this.getDefaultConfig();
-    }
-
-    #setLoading(value) {
-        this.isLoading = value;
-        this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("diseasePanelId")) {
             this.diseasePanelIdObserver();
         }
+
+        if (changedProperties.has("diseasePanel")) {
+            this.diseasePanelObserver();
+        }
+
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {
-                ...this.displayConfigDefault,
-                ...this.displayConfig
-            };
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
     diseasePanelIdObserver() {
+        this._diseasePanel = null;
         if (this.diseasePanelId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-            };
-            let error;
-            this.#setLoading(true);
-            this.opencgaSession.opencgaClient.panels().info(this.diseasePanelId, params)
+            this.opencgaSession.opencgaClient.panels()
+                .info(this.diseasePanelId, {
+                    study: this.opencgaSession.study.fqn,
+                })
                 .then(response => {
-                    this.diseasePanel = response.responses[0].results[0];
+                    this._diseasePanel = response.responses[0].results[0];
+                    this.requestUpdate();
                 })
                 .catch(reason => {
-                    this.diseasePanel = {};
-                    error = reason;
                     console.error(reason);
-                })
-                .finally(() => {
-                    this._config = {...this.getDefaultConfig(), ...this.config};
-                    LitUtils.dispatchCustomEvent(this, "diseasePanelSearch", this.diseasePanel, {
-                        status: {
-                            // true if error is defined and not empty
-                            error: !!error,
-                            message: error
-                        }}, error);
-                    this.#setLoading(false);
                 });
-        } else {
-            this.diseasePanel = {};
         }
     }
 
-    onFilterChange(e) {
-        this.diseasePanelId = e.detail.value;
+    diseasePanelObserver() {
+        this._diseasePanel = {...this.diseasePanel};
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
-        }
-
-        if (!this.diseasePanel?.id) {
-            return html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle pe-2"></i>
-                    No Disease Panel ID found.
-                </div>
-            `;
+        if (!this.opencgaSession || !this._diseasePanel) {
+            return nothing;
         }
 
         return html`
             <data-form
-                .data=${this.diseasePanel}
-                .config="${this._config}">
-            </data-form>`;
+                .data=${this._diseasePanel}
+                .config="${this._config || {}}">
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            title: "Summary",
-            icon: "",
-            display: this.displayConfig || this.displayConfigDefault,
+        return {
+            display: {
+                titleVisible: false,
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General",
-                    collapsed: false,
-                    display: {
-                        visible: diseasePanel => diseasePanel?.id,
-                    },
                     elements: [
                         {
                             title: "Disease Panel ID",
@@ -176,23 +133,23 @@ export default class DiseasePanelSummary extends LitElement {
                             display: {
                                 contentLayout: "vertical",
                                 format: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
-                                defaultValue: "N/A",
+                                defaultValue: "-",
                             },
                         },
                         {
                             title: "Number of Genes",
                             field: "stats.numberOfGenes",
-                            defaultValue: "N/A",
+                            defaultValue: "-",
                         },
                         {
                             title: "Number of Regions",
                             field: "stats.numberOfRegions",
-                            defaultValue: "N/A",
+                            defaultValue: "-",
                         },
                         {
                             title: "Number of Variants",
                             field: "stats.numberOfVariants",
-                            defaultValue: "N/A",
+                            defaultValue: "-",
                         },
                         {
                             title: "Creation Date",
@@ -211,12 +168,12 @@ export default class DiseasePanelSummary extends LitElement {
                         {
                             title: "Description",
                             field: "description",
-                            defaultValue: "N/A",
+                            defaultValue: "-",
                         },
-                    ]
-                }
-            ]
-        });
+                    ],
+                },
+            ],
+        };
     }
 
 }

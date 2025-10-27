@@ -24,7 +24,7 @@ import "./rga-gene-view.js";
 import "./rga-filter.js";
 import "./rga-individual-view.js";
 import "./rga-variant-view.js";
-import "../../commons/opencb-grid-toolbar.js";
+import "../../commons/grid-toolbar.js";
 
 export default class RgaBrowser extends LitElement {
 

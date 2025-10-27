@@ -13,7 +13,7 @@ jobs:
     uses: ./.github/workflows/deploy-docker-jsorolla.yml
     needs: build
     with:
-      cli: python3 ./docker/docker-build.py push
+      cli: python3 ./docker/docker-build.py push --org zettagenomics
     secrets: inherit
 
   deploy-web:

@@ -75,7 +75,7 @@ export default class ToolSettingsRestore extends LitElement {
         // };
         this._study = this.study || this.opencgaSession?.study || {};
         this._data = {
-            listStudies: [
+            studies: [
                 this._study.fqn,
             ],
         };
@@ -102,7 +102,6 @@ export default class ToolSettingsRestore extends LitElement {
                 }
             });
         }
-
         // Refresh configuration object to read new this.allowedValues array.
         this._config = this.getDefaultConfig();
     }
@@ -128,7 +127,7 @@ export default class ToolSettingsRestore extends LitElement {
         const activeTab = this._availableTabs[e.detail.value];
         // 2. Query
         this.#setLoading(true);
-        const toolSettingsRestorePromises = this._data.listStudies.map(studyFqn => {
+        const toolSettingsRestorePromises = this._data.studies.map(studyFqn => {
             // 2.1. Retrieve the backup or default tool settings of each study
             const study = OpencgaCatalogUtils.getStudyInSession(this.opencgaSession, studyFqn);
             const allToolSettings = OpencgaCatalogUtils.getRestoreIVASettings(this.opencgaSession, study, activeTab);
@@ -205,13 +204,13 @@ export default class ToolSettingsRestore extends LitElement {
                     elements: [
                         {
                             title: "Study",
-                            field: "listStudies",
+                            field: "studies",
                             type: "select",
                             multiple: true,
                             all: true,
                             required: true,
                             save: value => value?.split(",") || [], // Array when select and multiple
-                            defaultValue: this._study.fqn,
+                            defaultValue: this._study?.fqn,
                             allowedValues: this._availableStudies,
                             display: {
                                 placeholder: "Select study or studies..."
@@ -222,19 +221,17 @@ export default class ToolSettingsRestore extends LitElement {
                             type: "custom",
                             display: {
                                 defaultLayout: "vertical",
-                                render: () => {
-                                    return html`
-                                        <div class="pt-3 pe-3">
-                                            <tool-settings-editor
-                                                .toolSettings="${UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings)}"
-                                                .selectSettings="${true}"
-                                                .readOnly="${true}"
-                                                .study="${this._study}"
-                                                .opencgaSession="${this.opencgaSession}">
-                                            </tool-settings-editor>
-                                        </div>
-                                    `;
-                                },
+                                render: () => html`
+                                    <div class="pt-3 pe-3">
+                                        <tool-settings-editor
+                                            .toolSettings="${UtilsNew.objectClone(this.opencgaSession.ivaDefaultSettings.settings)}"
+                                            .selectSettings="${true}"
+                                            .readOnly="${true}"
+                                            .study="${this._study}"
+                                            .opencgaSession="${this.opencgaSession}">
+                                        </tool-settings-editor>
+                                    </div>
+                                `,
                             },
                         },
                     ],
@@ -255,13 +252,13 @@ export default class ToolSettingsRestore extends LitElement {
                         },
                         {
                             title: "Study",
-                            field: "listStudies",
+                            field: "studies",
                             type: "select",
                             multiple: true,
                             all: true,
                             required: true,
                             save: value => value?.split(",") || [], 
-                            defaultValue: this._study.fqn,
+                            defaultValue: this._study?.fqn,
                             allowedValues: this._availableStudies,
                             display: {
                                 visible: !!this._study?.attributes?.[SETTINGS_NAME + "_BACKUP"]?.settings,
@@ -272,16 +269,14 @@ export default class ToolSettingsRestore extends LitElement {
                             type: "custom",
                             display: {
                                 visible: !!this._study?.attributes?.[SETTINGS_NAME + "_BACKUP"]?.settings,
-                                render: () => {
-                                    return html`
-                                        <tool-settings-editor
-                                            .toolSettings="${UtilsNew.objectClone(this._study.attributes[SETTINGS_NAME + "_BACKUP"].settings)}"
-                                            .readOnly="${true}"
-                                            .study="${this._study}"
-                                            .opencgaSession="${this.opencgaSession}">
-                                        </tool-settings-editor>
-                                    `;
-                                },
+                                render: () => html`
+                                    <tool-settings-editor
+                                        .toolSettings="${UtilsNew.objectClone(this._study.attributes[SETTINGS_NAME + "_BACKUP"].settings)}"
+                                        .readOnly="${true}"
+                                        .study="${this._study}"
+                                        .opencgaSession="${this.opencgaSession}">
+                                    </tool-settings-editor>
+                                `,
                             },
                         },
                     ],
