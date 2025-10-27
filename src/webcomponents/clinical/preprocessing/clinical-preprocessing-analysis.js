@@ -180,16 +180,20 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             }
 
             // 4.3. merge variant calling step configuration
-            // if (this.toolParams.steps?.variantCalling) {
-            //     this._toolParams.variantCalling = {
-            //         active: !!this.toolParams.steps.variantCalling.active ?? this._toolParams.variantCalling.active ?? true,
-            //         options: {
-            //             ...this._toolParams.variantCalling.options,
-            //             ...this.toolParams.steps.variantCalling.options,
-            //         },
-            //         tools: this.toolParams.steps.variantCalling.tools || [],
-            //     };
-            // }
+            if (this.toolParams.steps?.variantCalling) {
+                this._toolParams.variantCalling = {
+                    active: this.toolParams.steps.variantCalling.active ?? this._toolParams.variantCalling.active,
+                    options: {
+                        ...this._toolParams.variantCalling.options,
+                        ...this.toolParams.steps.variantCalling.options,
+                    },
+                    tools: (this.toolParams.steps.variantCalling.tools || []).map(variantCallingTool => ({
+                        id: variantCallingTool.id,
+                        options: variantCallingTool.options || {},
+                        parameters: this.parseParametersObject(variantCallingTool.parameters),
+                    })),
+                };
+            }
         }
     }
 
