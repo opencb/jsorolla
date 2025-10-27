@@ -150,8 +150,11 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             // 4.1. merge quality control step configuration
             if (this.toolParams.steps?.qualityControl) {
                 this._toolParams.qualityControl = {
-                    ...this._toolParams.qualityControl,
-                    ...this.toolParams.steps.qualityControl,
+                    active: this.toolParams.steps.qualityControl.active ?? this._toolParams.qualityControl.active,
+                    options: {
+                        ...this._toolParams.qualityControl.options,
+                        ...this.toolParams.steps.qualityControl.options,
+                    },
                     tool: {
                         ...this._toolParams.qualityControl.tool,
                         ...this.toolParams.steps.qualityControl?.tool,
