@@ -19,7 +19,6 @@ import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "../commons/facet-filter.js";
 import "./family-grid.js";
-import "./family-detail.js";
 
 export default class FamilyBrowser extends LitElement {
 
@@ -128,17 +127,9 @@ export default class FamilyBrowser extends LitElement {
                             .active="${true}"
                             .eventNotifyName="${params.eventNotifyName}"
                             @queryComplete="${e => params.onQueryComplete(e)}"
-                            @selectrow="${e => params.onClickRow(e)}"
                             @familyUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </family-grid>
-                        ${params?.detail ? html`
-                            <family-detail
-                                .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}"
-                                .familyId="${params.detail?.id}">
-                            </family-detail>
-                        ` : nothing}
                     `,
                 },
                 {
@@ -220,48 +211,6 @@ export default class FamilyBrowser extends LitElement {
                         showSelectCheckbox: false
                     }
                 },
-                detail: {
-                    title: "Family",
-                    showTitle: true,
-                    display: {
-                        titleClass: "mt-4",
-                        contentClass: "p-3"
-                    },
-                    items: [
-                        {
-                            id: "family-view",
-                            name: "Overview",
-                            active: true,
-                            render: (family, active, opencgaSession) => html`
-                                <family-view
-                                    .opencgaSession="${opencgaSession}"
-                                    .family="${family}"
-                                    .settings="${OPENCGA_FAMILY_VIEW_SETTINGS}">
-                                </family-view>
-                            `,
-                        },
-                        {
-                            id: "family-relatedness",
-                            name: "Relatedness",
-                            render: (family, active, opencgaSession) => html`
-                                <opencga-family-relatedness-view
-                                    .family="${family}"
-                                    .opencgaSession="${opencgaSession}">
-                                </opencga-family-relatedness-view>
-                            `,
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (family, active) => html`
-                                <json-viewer
-                                    .data="${family}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        }
-                    ]
-                }
             },
             aggregation: {
                 default: ["disorders", "creationYear[MONTH]"],

@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import "../job/job-grid";
-import "../commons/forms/data-form.js";
-import "../commons/filters/catalog-search-autocomplete.js";
-import "../loading-spinner.js";
 
 export default class WorkflowJobs extends LitElement {
 
@@ -44,23 +41,16 @@ export default class WorkflowJobs extends LitElement {
                 type: Object,
             },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
     #init() {
-        this.jobQuery = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("workflow")) {
-            this.workflowObserver();
-        }
-        if (changedProperties.has("workflowId")) {
-            this.workflowIdObserver();
-        }
         if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
@@ -70,43 +60,22 @@ export default class WorkflowJobs extends LitElement {
         super.update(changedProperties);
     }
 
-    workflowObserver() {
-        if (this.workflow) {
-            this.workflowId = this.workflow.id;
-        }
-    }
-
-    workflowIdObserver() {
-        if (this.workflowId && this.opencgaSession) {
-            this.jobQuery = {
-                study: this.opencgaSession.study.fqn,
-                tags: this.workflowId
-            };
-            // this.requestUpdate();
-        }
-    }
-
     render() {
-        // if (!this.workflow?.id && this.search === false) {
-        //     return html`
-        //         <div class="alert alert-info">
-        //             <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i>
-        //             Workflow ID not found.
-        //         </div>
-        //     `;
-        // }
+        if (!this.opencgaSession || (!this.workflowId && !this.workflow?.id)) {
+            return nothing;
+        }
 
         return html`
-            <div class="p-3">
-                <h3>Jobs executed for workflow '${this.workflowId}'</h3>
-                <job-grid
-                    .toolId="workflow-jobs"
-                    .opencgaSession="${this.opencgaSession}"
-                    .config="${this._config}"
-                    .query="${this.jobQuery}"
-                    @settingsUpdate="${() => this.onSettingsUpdate()}">
-                </job-grid>
-            </div>
+            <h3>Jobs executed for workflow '${this.workflowId || this.workflow?.id}'</h3>
+            <job-grid
+                .toolId="${"workflow-jobs"}"
+                .opencgaSession="${this.opencgaSession}"
+                .config="${this._config}"
+                .query="${{
+                    study: this.opencgaSession.study.fqn,
+                    tags: this.workflowId || this.workflow?.id,
+                }}">
+            </job-grid>
         `;
     }
 
@@ -114,12 +83,8 @@ export default class WorkflowJobs extends LitElement {
         return {
             pageSize: 10,
             pageList: [5, 10, 25],
-            multiSelection: false,
             showSelectCheckbox: false,
-
-            showNew: false,
-            showExport: false,
-            exportTabs: ["download", "link", "code"]
+            showToolbar: false,
         };
     }
 

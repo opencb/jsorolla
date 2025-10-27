@@ -19,6 +19,7 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
 import "../commons/aggregation-stats.js";
+import "../commons/filters/file-filter.js";
 import "./file-grid.js";
 import "./file-tree.js";
 
@@ -97,17 +98,12 @@ export default class FileBrowser extends LitElement {
     }
 
     onTreePathChange(event, params) {
-        const query = {
-            ...params.executedQuery,
-        };
+        // note: clicking on a folder in the tree will clear the current query
+        const query = {};
 
-        // check if the path is empty --> in that case we have clicked in the root folder
-        // so we should remove the path from the query
-        if (!event.detail.value) {
-            delete query.path;
-            delete query.directory;
-        } else {
-            query.path = "~^" + event.detail.value + ".+";
+        // only include the directory field if the event.detail.value is not empty
+        if (event.detail.value) {
+            query.directory = event.detail.value;
         }
 
         // execute the onQuerySearch method of OpencgaBrowser
@@ -154,7 +150,7 @@ export default class FileBrowser extends LitElement {
                                 <file-tree
                                     .opencgaSession="${params.opencgaSession}"
                                     .rootDirectoryId="${":"}"
-                                    .currentPath="${params.executedQuery?.directory || (params.executedQuery?.path || "").slice(2, -2)}"
+                                    .currentPath="${params.executedQuery?.directory}"
                                     .lastCreatedPath="${this._lastCreatedPath}"
                                     .config="${{
                                         rootDirectoryName: "DATA",
@@ -171,7 +167,6 @@ export default class FileBrowser extends LitElement {
                                     .config="${params.config.filter.result.grid}"
                                     .eventNotifyName="${params.eventNotifyName}"
                                     @queryComplete="${e => params.onQueryComplete(e)}"
-                                    @selectrow="${e => params.onClickRow(e)}"
                                     @fileUpdate="${e => params.onComponentUpdate(e)}"
                                     @settingsUpdate="${() => this.onSettingsUpdate()}"
                                     @pathChange="${e => this.onTreePathChange(e, params)}"
@@ -199,7 +194,9 @@ export default class FileBrowser extends LitElement {
             ],
             filter: {
                 activeFilters: {
-                    lockedFields: [{id: "path"}]
+                    alias: {
+                        path: "name",
+                    },
                 },
                 sections: [
                     {
@@ -208,10 +205,19 @@ export default class FileBrowser extends LitElement {
                         filters: [
                             {
                                 id: "name",
-                                title: "File Name",
+                                title: "File",
                                 type: "string",
                                 placeholder: "accepted_hits.bam, phenotypes.vcf...",
                                 description: "",
+                                render: (onFilterChange, query, opencgaSession) => {
+                                    return html`
+                                        <file-filter
+                                            .opencgaSession="${opencgaSession}"
+                                            .query="${query}"
+                                            @filterChange="${event => onFilterChange(event.detail.field, event.detail.value)}">
+                                        </file-filter>
+                                    `;
+                                },
                                 quick: true,
                             },
                             {
@@ -221,6 +227,7 @@ export default class FileBrowser extends LitElement {
                                 placeholder: "genomes/resources/files/...",
                                 description: "",
                                 quick: true,
+                                multiple: false,
                             },
                             {
                                 id: "format",
@@ -266,6 +273,12 @@ export default class FileBrowser extends LitElement {
                                 quick: true,
                             },
                             {
+                                id: "tags",
+                                title: "Tags",
+                                multiple: true,
+                                quick: true,
+                            },
+                            {
                                 id: "date",
                                 title: "Date",
                                 type: "date",
@@ -276,7 +289,6 @@ export default class FileBrowser extends LitElement {
                                 id: "annotations",
                                 title: "File Annotations",
                                 description: "",
-                                quick: true,
                             }
                         ]
                     }
@@ -285,56 +297,6 @@ export default class FileBrowser extends LitElement {
                 result: {
                     grid: {}
                 },
-                detail: {
-                    title: "File",
-                    showTitle: true,
-                    items: [
-                        {
-                            id: "file-view",
-                            name: "Overview",
-                            active: true,
-                            render: (file, active, opencgaSession) => html`
-                                <file-view
-                                    .opencgaSession="${opencgaSession}"
-                                    .file="${file}">
-                                </file-view>
-                            `,
-                        },
-                        {
-                            id: "file-preview",
-                            name: "Preview",
-                            render: (file, active, opencgaSession) => {
-                                let title = "";
-                                switch (file.format) {
-                                    case "VCF":
-                                        title = "VCF HEAD";
-                                        break;
-                                    case "IMAGE":
-                                        title = "IMAGE";
-                                        break;
-                                }
-                                return html`
-                                    <div><h3>${title}</h3></div>
-                                    <file-preview
-                                        .active="${active}"
-                                        .file="${file}"
-                                        .opencgaSession="${opencgaSession}">
-                                    </file-preview>
-                                `;
-                            }
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            render: (file, active) => html`
-                                <json-viewer
-                                    .data="${file}"
-                                    .active="${active}">
-                                </json-viewer>
-                            `,
-                        },
-                    ]
-                }
             },
             aggregation: {
                 default: ["format", "status", "size[0..214748364800]:10737418240"],

@@ -233,9 +233,16 @@ export default class FamilyGenotypeFilter extends LitElement {
     }
 
     // Update state on genotype change
-    async onSampleTableChange(e) {
+    onSampleTableChange(e) {
         e.preventDefault();
         const {gt, sampleId} = e.target.dataset;
+        // initialize the genotypes of this sample if not already in the state
+        if (!this.state[sampleId]) {
+            this.state[sampleId] = {
+                id: sampleId,
+                genotypes: []
+            };
+        }
         if (e.target.checked) {
             this.state[sampleId].genotypes.push(gt);
         } else {
@@ -254,11 +261,10 @@ export default class FamilyGenotypeFilter extends LitElement {
         }
 
         // make sure the proband has at least 1 GT checked
-        this.errorState = !this.state[probandSampleId].genotypes.length ? "At least one genotype have to be selected for the proband." : false;
+        this.errorState = !this.state[probandSampleId]?.genotypes?.length ? "At least one genotype have to be selected for the proband." : false;
         this.state = {...this.state};
         this.noGtSamples = [...this.noGtSamples];
         this.requestUpdate();
-        await this.updateComplete;
         this.notifySampleFilterChange();
     }
 
@@ -316,7 +322,8 @@ export default class FamilyGenotypeFilter extends LitElement {
                     <div class="form-check-label mode-button">
                         <select-field-filter
                             .data="${this.modeSelectData}"
-                            value="${this.mode}"
+                            .value="${this.mode}"
+                            .forceSelection="${true}"
                             .config="${{
                                 liveSearch: false,
                                 multiple: false,

@@ -17,11 +17,8 @@
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/opencga-browser.js";
-import "./clinical-analysis-view.js";
 import "./clinical-analysis-grid.js";
-import "./clinical-analysis-detail.js";
 import "./clinical-analysis-group.js";
-
 
 export default class ClinicalAnalysisBrowser extends LitElement {
 
@@ -136,18 +133,10 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                             .query="${params.executedQuery}"
                             .active="${params.active}"
                             @queryComplete="${e => params.onQueryComplete(e)}"
-                            @selectrow="${e => params.onClickRow(e)}"
                             @rowUpdate="${e => params.onComponentUpdate(e)}"
                             @clinicalAnalysisUpdate="${e => params.onComponentUpdate(e)}"
                             @settingsUpdate="${() => this.onSettingsUpdate()}">
                         </clinical-analysis-grid>
-                        ${params?.detail ? html`
-                            <clinical-analysis-detail
-                                .opencgaSession="${params.opencgaSession}"
-                                .config="${params.config.filter.detail}"
-                                .clinicalAnalysisId="${params.detail?.id}">
-                            </clinical-analysis-detail>
-                        ` : nothing}
                     `,
                 },
                 {
@@ -256,27 +245,6 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                         showCreate: false,
                     }
                 },
-                detail: {
-                    title: "Clinical Analysis",
-                    showTitle: true,
-                    display: {
-                        titleClass: "mt-4",
-                        contentClass: "p-3"
-                    },
-                    items: [
-                        {
-                            id: "clinical-analysis-view",
-                            name: "Overview",
-                            active: true,
-                            render: (clinicalAnalysis, active, opencgaSession) => html`
-                                <clinical-analysis-view
-                                    .opencgaSession="${opencgaSession}"
-                                    .clinicalAnalysis="${clinicalAnalysis}">
-                                </clinical-analysis-view>
-                            `,
-                        }
-                    ]
-                }
             },
             aggregation: {
                 default: ["disorders"],

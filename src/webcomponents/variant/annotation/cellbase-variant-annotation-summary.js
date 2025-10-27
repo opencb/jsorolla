@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
+import "../../commons/forms/data-form.js";
 
 export default class CellbaseVariantAnnotationSummary extends LitElement {
 
@@ -45,7 +46,10 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
             },
             assembly: {
                 type: String
-            }
+            },
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
@@ -65,9 +69,15 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
         if (changedProperties.has("consequenceTypes")) {
             this.consequenceTypesObserver();
         }
+
         if (changedProperties.has("variantAnnotation")) {
             this.variantAnnotationObserver();
         }
+
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
+        }
+
         super.update(changedProperties);
     }
 
@@ -192,6 +202,10 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
 
     getDefaultConfig() {
         return {
+            display: {
+                buttonsVisible: false,
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General",
