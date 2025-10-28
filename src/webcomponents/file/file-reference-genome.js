@@ -196,7 +196,7 @@ export default class FileReferenceGenome extends LitElement {
                                         @filterChange="${e => onFieldChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `,
-                                helpMessage: "Directory where the indexes will be saved.",
+                                helpMessage: "Directory where the indexes will be saved. You can click in the cross and leave empty to use the Job default directory.",
                             },
                         },
                         {
