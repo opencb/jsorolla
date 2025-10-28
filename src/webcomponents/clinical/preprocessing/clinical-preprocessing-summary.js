@@ -107,7 +107,9 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                             type: "custom",
                             display: {
                                 render: file => {
-                                    return html`<code class="text-break">${file}</code>`;
+                                    return html`
+                                        <code class="text-break">${(file || "-").replaceAll(":", "/")}</code>
+                                    `;
                                 },
                             },
                         },
