@@ -45,7 +45,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
     }
 
     toolParamsObserver() {
-        this._params = this.toolParams?.preprocessing || {};
+        this._params = this.toolParams;
         // this._params = {
         //     input: this.toolParams?.preprocessing?.input,
         //     steps: {
@@ -87,6 +87,32 @@ export default class ClinicalPreprocessingSummary extends LitElement {
             },
             sections: [
                 {
+                    title: "Pipeline",
+                    display: {
+                        visible: data => !!data?.pipeline?.file,
+                    },
+                    elements: [
+                        {
+                            title: "Name",
+                            field: "pipeline.name",
+                        },
+                        {
+                            title: "Description",
+                            field: "pipeline.description",
+                        },
+                        {
+                            title: "File",
+                            field: "pipeline.file",
+                            type: "custom",
+                            display: {
+                                render: file => {
+                                    return html`<code class="text-break">${file}</code>`;
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
                     title: "Input Params",
                     display: {},
                     elements: [
@@ -95,9 +121,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                             field: "input.samples",
                             type: "table",
                             display: {
-                                getData: data => {
-                                    return data.input.samples || [];
-                                },
+                                getData: data => data.samples || [],
                                 className: "table-borderless table-grid mb-0",
                                 defaultValue: "No samples selected.",
                                 columns: [
@@ -129,12 +153,22 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                             },
                         },
                         {
-                            field: "input.indexDir",
+                            field: "preprocessing.indexDir",
                             title: "Index Directory",
                             type: "custom",
                             display: {
                                 render: indexDir => {
                                     return indexDir ? html`<code class="text-break">${indexDir}</code>` : "Not specified.";
+                                },
+                            },
+                        },
+                        {
+                            field: "preprocessing.outdir",
+                            title: "Output Directory",
+                            type: "custom",
+                            display: {
+                                render: outdir => {
+                                    return outdir ? html`<code class="text-break">${outdir}</code>` : "Not specified.";
                                 },
                             },
                         },
@@ -146,13 +180,15 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                     elements: [
                         {
                             title: "Tool",
-                            field: "steps.qualityControl.tool.id",
+                            field: "preprocessing.steps.qualityControl.tool.id",
                         },
                         {
                             title: "Parameters",
                             type: "table",
                             display: {
-                                getData: data => this.getParameters(data.steps.qualityControl?.tool?.parameters),
+                                getData: data => {
+                                    return this.getParameters(data.preprocessing?.steps?.qualityControl?.tool?.parameters || {});
+                                },
                                 className: "table-borderless table-grid mb-0",
                                 defaultValue: "No parameters available.",
                                 columns: [
@@ -175,11 +211,11 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                     elements: [
                         {
                             title: "Tool",
-                            field: "steps.alignment.tool.id",
+                            field: "preprocessing.steps.alignment.tool.id",
                         },
                         {
                             title: "Alignment Index",
-                            field: "steps.alignment.tool.index",
+                            field: "preprocessing.steps.alignment.tool.index",
                             type: "custom",
                             display: {
                                 render: (index) => {
@@ -191,7 +227,9 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                             title: "Parameters",
                             type: "table",
                             display: {
-                                getData: data => this.getParameters(data.steps.alignment?.tool?.parameters),
+                                getData: data => {
+                                    return this.getParameters(data.preprocessing?.steps?.alignment?.tool?.parameters || {});
+                                },
                                 className: "table-borderless table-grid mb-0",
                                 defaultValue: "No parameters available.",
                                 columns: [
@@ -215,7 +253,9 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                         {
                             type: "table",
                             display: {
-                                getData: data => data.steps.variantCalling?.tools || [],
+                                getData: data => {
+                                    return data.preprocessing?.steps?.variantCalling?.tools || [];
+                                },
                                 className: "table-borderless table-grid mb-0",
                                 defaultValue: "No Variant Calling tools available.",
                                 columns: [
