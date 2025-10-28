@@ -446,7 +446,7 @@ export default class ClinicalPreprocessing extends LitElement {
                                     <i class="fas fa-plus"></i>
                                     <span>Save As New Pipeline</span>
                                 </button>
-                                ${this._stepsParams?.pipeline ? html`
+                                ${this._stepsParams?.pipeline?.file ? html`
                                     <button class="btn btn-primary d-flex align-items-center gap-2" @click="${() => this.onPipelineSave()}">
                                         <i class="fas fa-save"></i>
                                         <span>Update Pipeline</span>
