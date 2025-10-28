@@ -222,17 +222,16 @@ export default class ClinicalPreprocessing extends LitElement {
         this.requestUpdate();
 
         // 1. prepare data object for ngsPipeline job
-        const bodyParam = {
-            command: "run",
-            input: this._stepsParams.preprocessing.input.files,
+        const data = {
+            outdir: this._stepsParams.preprocessing.outputDir,
             pipelineParams: {
-                name: "ngs-pipeline",
-                ...this._stepsParams.preprocessing,
+                samples: this._stepsParams.samples,
+                indexDir: this._stepsParams.preprocessing.indexDir,
+                pipeline: {
+                    steps: this._stepsParams.preprocessing.steps,
+                },
             },
-            indexDir: this._stepsParams.preprocessing.input.index || "JOBS/test/test/20251008/fetch-reference-genome-20251008121516/"
         };
-        bodyParam.pipelineParams.input.sample = this._stepsParams.select.single.files[0]?.sampleId;
-        this._stepsParams
 
         // 2. Submit ngs pipeline job
         const jobParams = {
@@ -243,7 +242,7 @@ export default class ClinicalPreprocessing extends LitElement {
         await AnalysisUtils.submit(
             "NGS Pipeline Analysis",
             this.opencgaSession.opencgaClient.clinical()
-                .runNgsPipeline(bodyParam, jobParams),
+                .runPipelineGenomics(data, jobParams),
             this,
         );
 
