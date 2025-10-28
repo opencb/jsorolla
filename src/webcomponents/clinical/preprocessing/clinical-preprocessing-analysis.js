@@ -230,22 +230,40 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
     }
 
     dispatchChange() {
-        // LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
-        //     input: {
-        //         indexDir: this._toolParams.indexDir || "",
-        //     },
-        //     steps: {
-        //         qualityControl: UtilsNew.objectClone(this._toolParams.qualityControl),
-        //         alignment: UtilsNew.objectClone(this._toolParams.alignment),
-        //         variantCalling: {
-        //             active: this._toolParams.variantCalling.active,
-        //             options: UtilsNew.objectClone(this._toolParams.variantCalling.options || {}),
-        //             tools: [
-        //                 UtilsNew.objectClone(this._toolParams.variantCalling.tool),
-        //             ],
-        //         },
-        //     },
-        // });
+        LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
+            outdir: this._toolParams.outputDir || "",
+            input: {
+                indexDir: this._toolParams.indexDir || "",
+            },
+            steps: {
+                qualityControl: {
+                    active: !!this._toolParams.qualityControl?.active,
+                    options: UtilsNew.objectClone(this._toolParams.qualityControl.options || {}),
+                    tool: {
+                        id: this._toolParams.qualityControl.tool.id || "fastqc",
+                        parameters: this.formatParametersList(this._toolParams.qualityControl.tool.parameters || []),
+                    },
+                },
+                alignment: {
+                    active: !!this._toolParams.alignment.active,
+                    options: UtilsNew.objectClone(this._toolParams.alignment.options || {}),
+                    tool: {
+                        id: this._toolParams.alignment.tool.id,
+                        index: this._toolParams.alignment.tool.index,
+                        parameters: this.formatParametersList(this._toolParams.alignment.tool.parameters || []),
+                    },
+                },
+                variantCalling: {
+                    active: this._toolParams.variantCalling.active,
+                    options: UtilsNew.objectClone(this._toolParams.variantCalling.options || {}),
+                    tools: (this._toolParams.variantCalling.tools || []).map(variantCallingTool => ({
+                        ...variantCallingTool,
+                        options: UtilsNew.objectClone(variantCallingTool.options || {}),
+                        parameters: this.formatParametersList(variantCallingTool.parameters || []),
+                    })),
+                },
+            },
+        });
     }
 
     onFieldChange() {
