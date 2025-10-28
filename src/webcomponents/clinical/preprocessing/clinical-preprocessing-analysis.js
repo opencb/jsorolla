@@ -136,8 +136,8 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
 
         // 2. copy indexDir field
-        if (this.toolParams?.input?.indexDir) {
-            this._toolParams.indexDir = this.toolParams.input.indexDir;
+        if (this.toolParams?.indexDir) {
+            this._toolParams.indexDir = this.toolParams.indexDir;
         }
 
         // 3. copy outputDir field
@@ -232,9 +232,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
     dispatchChange() {
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
             outdir: this._toolParams.outputDir || "",
-            input: {
-                indexDir: this._toolParams.indexDir || "",
-            },
+            indexDir: this._toolParams.indexDir || "",
             steps: {
                 qualityControl: {
                     active: !!this._toolParams.qualityControl?.active,
