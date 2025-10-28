@@ -42,6 +42,7 @@ export default class ClinicalPreprocessing extends LitElement {
                 pipeline: null,
                 name: "",
                 description: "",
+                outdir: "",
                 input: {
                     samples: [],
                     indexDir: "",
@@ -119,7 +120,12 @@ export default class ClinicalPreprocessing extends LitElement {
         // 1. update the input section
         Object.assign(this._stepsParams.preprocessing.input, event.detail.input);
 
-        // 2. update the steps object with the steps selected
+        // 2. save output directory
+        if (event.detail.outdir) {
+            this._stepsParams.preprocessing.outdir = event.detail.outdir;
+        }
+
+        // 3. update the steps object with the steps selected
         if (event.detail.steps) {
             this._stepsParams.preprocessing.steps = event.detail.steps;
         }
@@ -139,23 +145,25 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     onPipelineCreate() {
-        this._stepsParams.preprocessing = {
-            input: this._stepsParams.preprocessing.input,
+        Object.assign(this._stepsParams.preprocessing, {
             pipeline: "",
+            name: "",
+            description: "",
+            version: 0,
             steps: {},
-        };
+        });
         this.requestUpdate();
     }
 
     onPipelineSelect(event) {
-        this._stepsParams.preprocessing = {
+        Object.assign(this._stepsParams.preprocessing, {
             input: this._stepsParams.preprocessing.input,
             pipeline: event.detail.id,
             name: event.detail.content?.name || "",
             description: event.detail.content?.description || "",
             version: event.detail.content?.version,
             steps: event.detail.content?.steps || {},
-        };
+        });
         this.requestUpdate();
     }
 
@@ -411,7 +419,7 @@ export default class ClinicalPreprocessing extends LitElement {
                                     .displayConfig="${{
                                         buttonsVisible: false,
                                     }}"
-                                    @paramsChange="${e => this.onPreprocessingParamsChange(e)}">
+                                    @paramsChange="${event => this.onPreprocessingParamsChange(event)}">
                                 </clinical-preprocessing-analysis>
                                 <div class="position-absolute top-0 end-0">
                                     <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onPipelineClear()}">
@@ -436,7 +444,7 @@ export default class ClinicalPreprocessing extends LitElement {
                             .displayConfig="${{
                                 buttonsVisible: false,
                             }}"
-                            @paramsChange="${e => {this.onVariantIndexParamsChange(e)}}">
+                            @paramsChange="${event => {this.onVariantIndexParamsChange(event)}}">
                         </variant-index-operation>
                     `,
                 },
