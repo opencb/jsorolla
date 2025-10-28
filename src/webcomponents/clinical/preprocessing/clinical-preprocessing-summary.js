@@ -191,7 +191,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                                     return this.getParameters(data.preprocessing?.steps?.qualityControl?.tool?.parameters || {});
                                 },
                                 className: "table-borderless table-grid mb-0",
-                                defaultValue: "No parameters available.",
+                                defaultValue: "No parameters specified.",
                                 columns: [
                                     {
                                         title: "Parameter",
@@ -232,7 +232,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                                     return this.getParameters(data.preprocessing?.steps?.alignment?.tool?.parameters || {});
                                 },
                                 className: "table-borderless table-grid mb-0",
-                                defaultValue: "No parameters available.",
+                                defaultValue: "No parameters specified.",
                                 columns: [
                                     {
                                         title: "Parameter",
@@ -252,6 +252,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                     display: {},
                     elements: [
                         {
+                            title: "Tools",
                             type: "table",
                             display: {
                                 getData: data => {
@@ -282,7 +283,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                                             render: (options) => {
                                                 const opts = this.getParameters(options);
                                                 if (opts.length === 0) {
-                                                    return html`<span>No options available.</span>`;
+                                                    return html`<span>No options specified.</span>`;
                                                 }
                                                 return opts.map(opt => html`
                                                     <div><b>${opt.key}:</b> ${opt.value}</div>
@@ -298,7 +299,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                                             render: (parameters) => {
                                                 const params = this.getParameters(parameters);
                                                 if (params.length === 0) {
-                                                    return html`<span>No parameters available.</span>`;
+                                                    return html`<span>No parameters specified.</span>`;
                                                 }
                                                 return params.map(param => html`
                                                     <div><b>${param.key}:</b> ${param.value}</div>
