@@ -295,11 +295,12 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             ...this._toolParams,
         };
         this.requestUpdate();
+        this.dispatchChange();
     }
 
     onVariantCallingToolConfigure(event, toolId) {
         this._selectedVariantCallingToolName = this.VARIANT_CALLING_TOOLS.find(t => t.id === toolId).name;
-        this._selectedVariantCallingToolData = this._toolParams.variantCalling.tools.find(t => t.id === toolId);
+        this._selectedVariantCallingToolData = UtilsNew.objectClone(this._toolParams.variantCalling.tools.find(t => t.id === toolId));
         this.requestUpdate();
         this.updateComplete.then(() => {
             ModalUtils.show("VariantCallingToolConfigure");
@@ -320,6 +321,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
         this._selectedVariantCallingToolName = null;
         this._selectedVariantCallingToolData = null;
         this.requestUpdate();
+        this.dispatchChange();
     }
 
     renderVariantCallingToolConfigureModal() {
