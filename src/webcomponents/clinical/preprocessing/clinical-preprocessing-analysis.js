@@ -231,7 +231,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
 
     dispatchChange() {
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
-            outdir: this._toolParams.outputDir || "",
+            outputDir: this._toolParams.outputDir || "",
             indexDir: this._toolParams.indexDir || "",
             steps: {
                 qualityControl: {

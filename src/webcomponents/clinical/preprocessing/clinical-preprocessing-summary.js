@@ -163,7 +163,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                             },
                         },
                         {
-                            field: "preprocessing.outdir",
+                            field: "preprocessing.outputDir",
                             title: "Output Directory",
                             type: "custom",
                             display: {

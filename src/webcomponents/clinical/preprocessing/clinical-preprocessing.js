@@ -41,7 +41,7 @@ export default class ClinicalPreprocessing extends LitElement {
             samples: [],
             pipeline: null,
             preprocessing: {
-                outdir: "",
+                outputDir: "",
                 indexDir: "",
                 steps: {},
             },
