@@ -132,22 +132,15 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
     }
 
     toolParamsObserver() {
-        // 1. reset the internal toolParams object to the default values
-        this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
+        // 1. reset the internal toolParams object to the default values and merge with the new incoming toolParams
+        this._toolParams = {
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            ...this._toolParams,
+        };
 
-        // 2. copy indexDir field
-        if (this.toolParams?.indexDir) {
-            this._toolParams.indexDir = this.toolParams.indexDir;
-        }
-
-        // 3. copy outputDir field
-        if (this.toolParams?.outputDir) {
-            this._toolParams.outputDir = this.toolParams.outputDir;
-        }
-
-        // 4. merge steps configuration
+        // 2. merge steps configuration
         if (this.toolParams?.steps) {
-            // 4.1. merge quality control step configuration
+            // 2.1. merge quality control step configuration
             if (this.toolParams.steps?.qualityControl) {
                 this._toolParams.qualityControl = {
                     active: this.toolParams.steps.qualityControl.active ?? this._toolParams.qualityControl.active,
@@ -163,7 +156,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 };
             }
 
-            // 4.2. merge alignment step configuration
+            // 2.2. merge alignment step configuration
             if (this.toolParams.steps?.alignment) {
                 this._toolParams.alignment = {
                     active: this.toolParams.steps.alignment.active ?? this._toolParams.alignment.active,
@@ -179,7 +172,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                 };
             }
 
-            // 4.3. merge variant calling step configuration
+            // 2.3. merge variant calling step configuration
             if (this.toolParams.steps?.variantCalling) {
                 this._toolParams.variantCalling = {
                     active: this.toolParams.steps.variantCalling.active ?? this._toolParams.variantCalling.active,
@@ -231,6 +224,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
 
     dispatchChange() {
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
+            ...this._toolParams,
             outputDir: this._toolParams.outputDir || "",
             indexDir: this._toolParams.indexDir || "",
             steps: {
