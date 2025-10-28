@@ -669,6 +669,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                             return html`
                                                 <toggle-switch
                                                     .value="${active}"
+                                                    .disabled="${!this._toolParams?.variantCalling?.active}"
                                                     .onText="${"Yes"}"
                                                     .offText="${"No"}"
                                                     @filterChange="${event => this.onVariantCallingToolToggle(event, toolId)}">
@@ -684,7 +685,7 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     display: {
                                         bodyCellClassName: "d-flex justify-content-end",
                                         render: toolId => {
-                                            const active = (this._toolParams?.variantCalling?.tools || []).some(t => t.id === toolId);
+                                            const active = (this._toolParams?.variantCalling?.tools || []).some(t => t.id === toolId) && this._toolParams?.variantCalling?.active;
                                             return html`
                                                 <button class="btn btn-light d-flex align-items-center ${active ? "" : "disabled"}" @click="${event => this.onVariantCallingToolConfigure(event, toolId)}">
                                                     <i class="fa fa-cog me-1"></i>
