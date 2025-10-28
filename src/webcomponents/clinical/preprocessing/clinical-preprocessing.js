@@ -38,15 +38,11 @@ export default class ClinicalPreprocessing extends LitElement {
                 family: {},
                 cancer: {}
             },
+            files: [],
+            pipeline: null,
             preprocessing: {
-                pipeline: null,
-                name: "",
-                description: "",
                 outdir: "",
-                input: {
-                    samples: [],
-                    indexDir: "",
-                },
+                indexDir: "",
                 steps: {},
             },
             variantIndex: {
@@ -91,44 +87,33 @@ export default class ClinicalPreprocessing extends LitElement {
         const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
         const analysisConfig = this._stepsParams.select?.[analysisType];
 
-        // 1. get the file objects selected
+        // get the selected file objects
         const fileIds = new Set(analysisConfig?.fileIds?.split(",")?.filter(Boolean) || []);
-        const files = analysisConfig?.files.filter(file => {
+        this._stepsParams.files = analysisConfig?.files.filter(file => {
             return fileIds.has(file.fileId);
         });
 
-        // 2. generate a list with the samples and their files
-        const samplesMap = new Map();
-        files.forEach(fileObject => {
-            if (!samplesMap.has(fileObject.sampleId)) {
-                samplesMap.set(fileObject.sampleId, {
-                    id: fileObject.sampleId,
-                    somatic: fileObject.sampleSomatic || false,
-                    files: [],
-                    role: "",
-                });
-            }
-            // include the file in the sample files list
-            samplesMap.get(fileObject.sampleId).files.push(fileObject.fileId);
-        });
+        // // 2. generate a list with the samples and their files
+        // const samplesMap = new Map();
+        // files.forEach(fileObject => {
+        //     if (!samplesMap.has(fileObject.sampleId)) {
+        //         samplesMap.set(fileObject.sampleId, {
+        //             id: fileObject.sampleId,
+        //             somatic: fileObject.sampleSomatic || false,
+        //             files: [],
+        //             role: "",
+        //         });
+        //     }
+        //     // include the file in the sample files list
+        //     samplesMap.get(fileObject.sampleId).files.push(fileObject.fileId);
+        // });
         
-        // 3. update the preprocessing input samples
-        this._stepsParams.preprocessing.input.samples = Array.from(samplesMap.values());
+        // // 3. update the preprocessing input samples
+        // this._stepsParams.preprocessing.input.samples = Array.from(samplesMap.values());
     }
 
     onPreprocessingParamsChange(event) {
-        // 1. update the input section
-        Object.assign(this._stepsParams.preprocessing.input, event.detail.input);
-
-        // 2. save output directory
-        if (event.detail.outdir) {
-            this._stepsParams.preprocessing.outdir = event.detail.outdir;
-        }
-
-        // 3. update the steps object with the steps selected
-        if (event.detail.steps) {
-            this._stepsParams.preprocessing.steps = event.detail.steps;
-        }
+        this._stepsParams.preprocessing = event.detail;
     }
 
     onVariantIndexParamsChange(event) {
@@ -136,34 +121,29 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     onPipelineClear() {
-        this._stepsParams.preprocessing = {
-            input: this._stepsParams.preprocessing.input,
-            pipeline: null,
-            steps: {},
-        };
+        this._stepsParams.pipeline = null;
+        this._stepsParams.preprocessing.steps = {}; // reset steps
         this.requestUpdate();
     }
 
     onPipelineCreate() {
-        Object.assign(this._stepsParams.preprocessing, {
-            pipeline: "",
-            name: "",
-            description: "",
+        // initialize pipeline information
+        this._stepsParams.pipeline = {
+            file: "",
             version: 0,
-            steps: {},
-        });
+        };
         this.requestUpdate();
     }
 
     onPipelineSelect(event) {
-        Object.assign(this._stepsParams.preprocessing, {
-            input: this._stepsParams.preprocessing.input,
-            pipeline: event.detail.id,
+        this._stepsParams.pipeline = {
+            file: event.detail.id,
+            version: event.detail.content?.version,
             name: event.detail.content?.name || "",
             description: event.detail.content?.description || "",
-            version: event.detail.content?.version,
-            steps: event.detail.content?.steps || {},
-        });
+        };
+        // update pipeline steps
+        this._stepsParams.preprocessing.steps = event.detail.content?.steps || {};
         this.requestUpdate();
     }
 
@@ -185,18 +165,18 @@ export default class ClinicalPreprocessing extends LitElement {
 
     onPipelineSave() {
         const pipelineContent = JSON.stringify({
-            name: this._stepsParams.preprocessing.name,
-            description: this._stepsParams.preprocessing.description,
-            version: this._stepsParams.preprocessing.version + 1,
+            name: this._stepsParams.pipeline.name,
+            description: this._stepsParams.pipeline.description,
+            version: this._stepsParams.pipeline.version + 1,
             steps: this._stepsParams.preprocessing.steps,
         });
         return this.opencgaSession.opencgaClient.files()
-            .updateContent(this._stepsParams.preprocessing.pipeline, pipelineContent, {
+            .updateContent(this._stepsParams.pipeline.file, pipelineContent, {
                 study: this.opencgaSession.study.fqn,
             })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: `Pipeline ${this._stepsParams.preprocessing.name} saved.`,
+                    message: `Pipeline ${this._stepsParams.pipeline.name} saved.`,
                 });
             })
             .catch(error => {
@@ -404,14 +384,14 @@ export default class ClinicalPreprocessing extends LitElement {
                     title: "Preprocessing Parameters",
                     icon: "fas fa-sliders-h",
                     render: () => html`
-                        ${this._stepsParams?.preprocessing?.pipeline === null ? html`
+                        ${this._stepsParams?.pipeline === null ? html`
                             <clinical-preprocessing-select-pipeline
                                 .opencgaSession="${this.opencgaSession}"
                                 @pipelineSelect="${event => this.onPipelineSelect(event)}"
                                 @pipelineCreate="${event => this.onPipelineCreate(event)}">
                             </clinical-preprocessing-select-pipeline>
                         ` : nothing}
-                        ${this._stepsParams?.preprocessing?.pipeline !== null ? html`
+                        ${this._stepsParams?.pipeline !== null ? html`
                             <div class="position-relative">
                                 <clinical-preprocessing-analysis
                                     .toolParams="${this._stepsParams?.preprocessing}"
