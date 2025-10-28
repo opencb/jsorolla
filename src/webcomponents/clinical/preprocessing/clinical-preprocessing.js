@@ -38,7 +38,7 @@ export default class ClinicalPreprocessing extends LitElement {
                 family: {},
                 cancer: {}
             },
-            files: [],
+            samples: [],
             pipeline: null,
             preprocessing: {
                 outdir: "",
@@ -87,29 +87,29 @@ export default class ClinicalPreprocessing extends LitElement {
         const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
         const analysisConfig = this._stepsParams.select?.[analysisType];
 
-        // get the selected file objects
+        // 1. get the selected file objects
         const fileIds = new Set(analysisConfig?.fileIds?.split(",")?.filter(Boolean) || []);
-        this._stepsParams.files = analysisConfig?.files.filter(file => {
+        const files = analysisConfig?.files.filter(file => {
             return fileIds.has(file.fileId);
         });
 
-        // // 2. generate a list with the samples and their files
-        // const samplesMap = new Map();
-        // files.forEach(fileObject => {
-        //     if (!samplesMap.has(fileObject.sampleId)) {
-        //         samplesMap.set(fileObject.sampleId, {
-        //             id: fileObject.sampleId,
-        //             somatic: fileObject.sampleSomatic || false,
-        //             files: [],
-        //             role: "",
-        //         });
-        //     }
-        //     // include the file in the sample files list
-        //     samplesMap.get(fileObject.sampleId).files.push(fileObject.fileId);
-        // });
+        // 2. generate a list with the samples and their files
+        const samplesMap = new Map();
+        files.forEach(fileObject => {
+            if (!samplesMap.has(fileObject.sampleId)) {
+                samplesMap.set(fileObject.sampleId, {
+                    id: fileObject.sampleId,
+                    somatic: fileObject.sampleSomatic || false,
+                    files: [],
+                    role: "",
+                });
+            }
+            // include the file in the sample files list
+            samplesMap.get(fileObject.sampleId).files.push(fileObject.fileId);
+        });
         
-        // // 3. update the preprocessing input samples
-        // this._stepsParams.preprocessing.input.samples = Array.from(samplesMap.values());
+        // 3. update the preprocessing input samples
+        this._stepsParams.samples = Array.from(samplesMap.values());
     }
 
     onPreprocessingParamsChange(event) {
