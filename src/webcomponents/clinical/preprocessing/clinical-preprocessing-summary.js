@@ -1,5 +1,4 @@
 import {LitElement, html, nothing} from "lit";
-import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 
 export default class ClinicalPreprocessingSummary extends LitElement {
@@ -46,14 +45,6 @@ export default class ClinicalPreprocessingSummary extends LitElement {
 
     toolParamsObserver() {
         this._params = this.toolParams;
-        // this._params = {
-        //     input: this.toolParams?.preprocessing?.input,
-        //     steps: {
-        //         qc: this.toolParams?.preprocessing?.steps?.find(step => step.id === "quality-control" || step.name === "quality-control"),
-        //         alignment: this.toolParams?.preprocessing?.steps?.find(step => step.id === "alignment" || step.name === "alignment"),
-        //         vc: this.toolParams?.preprocessing?.steps?.find(step => step.id === "variant-calling" || step.name === "variant-calling"),
-        //     },
-        // };
     }
 
     getParameters(data) {
@@ -95,6 +86,16 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                         {
                             title: "Name",
                             field: "pipeline.name",
+                        },
+                        {
+                            title: "Version",
+                            field: "pipeline.version",
+                            type: "custom",
+                            display: {
+                                render: version => {
+                                    return html`<span class="badge bg-secondary">${version}</span>`;
+                                },
+                            },
                         },
                         {
                             title: "Description",
