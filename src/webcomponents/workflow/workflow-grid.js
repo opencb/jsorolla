@@ -125,8 +125,6 @@ export default class WorkflowGrid extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .displayConfig="${{
                             type: "tabs",
-                            buttonClearText: "Cancel",
-                            buttonsLayout: "upper"
                         }}"
                         @workflowCreate="${() => {
                             this.gridCommons.clearActiveModal();

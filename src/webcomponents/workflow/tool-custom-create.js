@@ -132,7 +132,9 @@ export default class ToolCustomCreate extends LitElement {
         return {
             display: {
                 buttonsVisible: true,
+                buttonsLayout: "bottom",
                 buttonOkText: "Create",
+                buttonClearText: "Cancel",
                 titleWidth: 3,
                 defaultLayout: "horizontal",
                 ...this.displayConfig,
