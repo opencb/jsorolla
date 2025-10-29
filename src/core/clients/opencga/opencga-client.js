@@ -19,7 +19,6 @@ import Alignment from "./api/Alignment.js";
 import ClinicalAnalysis from "./api/ClinicalAnalysis.js";
 import Cohort from "./api/Cohort.js";
 import DiseasePanel from "./api/DiseasePanel.js";
-import ExternalTool from "./api/ExternalTool.js";
 import Family from "./api/Family.js";
 import File from "./api/File.js";
 import GA4GH from "./api/GA4GH.js";
@@ -31,6 +30,7 @@ import Project from "./api/Project.js";
 import Sample from "./api/Sample.js";
 import Study from "./api/Study.js";
 import User from "./api/User.js";
+import UserTool from "./api/UserTool.js";
 import Variant from "./api/Variant.js";
 import VariantOperation from "./api/VariantOperation.js";
 import Workflow from "./api/Workflow.js";
@@ -154,11 +154,11 @@ export class OpenCGAClient {
         return this.clients.get("individuals");
     }
 
-    externalTool() {
-        if (!this.clients.has("externalTool")) {
-            this.clients.set("externalTool", new ExternalTool(this._config));
+    userTool() {
+        if (!this.clients.has("userTool")) {
+            this.clients.set("userTool", new UserTool(this._config));
         }
-        return this.clients.get("externalTool");
+        return this.clients.get("userTool");
     }
 
     families() {
@@ -259,8 +259,8 @@ export class OpenCGAClient {
                 return this.samples();
             case "INDIVIDUAL":
                 return this.individuals();
-            case "EXTERNAL_TOOL":
-                return this.externalTool();
+            case "USER_TOOL":
+                return this.userTool();
             case "FAMILY":
                 return this.families();
             case "COHORT":
