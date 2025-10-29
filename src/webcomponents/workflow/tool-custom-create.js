@@ -59,6 +59,10 @@ export default class ToolCustomCreate extends LitElement {
             this._config = this.getDefaultConfig();
         }
 
+        if (changedProperties.has("type")) {
+            this._customTool = {};
+        }
+
         super.update(changedProperties);
     }
 
