@@ -951,7 +951,7 @@ export default class DataForm extends LitElement {
                         .checked="${value}"
                         ?disabled="${disabled}"
                         @click="${e => this.onFilterChange(element, e.currentTarget.checked)}">
-                        ${element.text}
+                    ${element.text}
                 </label>
             </div>
         `;
@@ -1569,7 +1569,7 @@ export default class DataForm extends LitElement {
         }
     }
 
-     _createDownloadElement(element) {
+    _createDownloadElement(element) {
         const content = html`
             <download-button
                 .json="${this.data}"
@@ -1634,28 +1634,52 @@ export default class DataForm extends LitElement {
             // 4. Read Help message and Render assuming vertical layout for nested forms
             const helpMessage = this._getHelpMessage(element);
             const helpMode = this._getHelpMode(element);
-            contents.push(
-                html`
-                    <div class="row mb-3">
-                        ${childElement.title ? html`
-                            <div>
-                                <label class="fw-bold form-label pt-0">
-                                    ${childElement.title}
-                                </label>
-                            </div>
-                        ` : nothing
-                        }
-                        <div>
-                            <div>${elemContent}</div>
-                            ${helpMessage && helpMode === "block" ? html`
-                                <div class="col-md-1 p-0 mt-1" title="${helpMessage}">
-                                    <span><i class="${this._getHelpIcon(element)}"></i></span>
+            const defaultLayout = this._getDefaultLayout(element);
+            if (defaultLayout === "vertical") {
+                contents.push(
+                    html`
+                        <div class="row mb-1 ms-3">
+                            ${childElement.title ? html`
+                                <div>
+                                    <label class="fw-bold form-label pt-0">
+                                        ${childElement.title}
+                                    </label>
                                 </div>
                             ` : nothing
                             }
+                            <div>
+                                <div>${elemContent}</div>
+                                ${helpMessage && helpMode === "block" ? html`
+                                    <div class="col-md-1 p-0 mt-1" title="${helpMessage}">
+                                        <span><i class="${this._getHelpIcon(element)}"></i></span>
+                                    </div>
+                                ` : nothing
+                                }
+                            </div>
                         </div>
-                    </div>
-                `);
+                    `);
+            } else {
+                contents.push(
+                    html`
+                        <div class="row mb-1">
+                            ${childElement.title ? html`
+                                <div>
+                                    <label class="fw-bold form-label pt-0">
+                                        ${childElement.title}:
+                                    </label>
+                                    <span>${elemContent}</span>
+                                </div>
+                                ${helpMessage && helpMode === "block" ? html`
+                                    <div class="col-md-1 p-0 mt-1" title="${helpMessage}">
+                                        <span><i class="${this._getHelpIcon(element)}"></i></span>
+                                    </div>
+                                ` : nothing
+                                }
+                            ` : nothing
+                            }
+                        </div>
+                    `);
+            }
         }
         const content = html`${contents}`;
         return this._createElementTemplate(element, null, content);

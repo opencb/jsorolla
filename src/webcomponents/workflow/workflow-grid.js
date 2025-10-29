@@ -23,8 +23,10 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/grid-toolbar.js";
 import "./workflow-create.js";
 import "./workflow-import.js";
+import "./workflow-nf-import.js";
 import "./workflow-view.js";
 import "./workflow-update.js";
+import "./tool-custom-create.js";
 import "./analysis/workflow-analysis.js";
 
 export default class WorkflowGrid extends LitElement {
@@ -111,6 +113,28 @@ export default class WorkflowGrid extends LitElement {
         };
 
         this.gridCommons.registerModals({
+            "create-tool": {
+                display: {
+                    modalTitle: "Create New Tool",
+                    modalSize: "modal-xl",
+                    modalCyDataName: "modal-tool-create",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <tool-custom-create
+                        .opencgaSession="${this.opencgaSession}"
+                        .displayConfig="${{
+                            type: "tabs",
+                            buttonClearText: "Cancel",
+                            buttonsLayout: "upper"
+                        }}"
+                        @workflowCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </tool-custom-create>
+                `,
+            },
             "view-workflow": () => ({
                 display: {
                     modalTitle: `Workflow ${this._selectedWorkflow?.id}`,
@@ -127,8 +151,8 @@ export default class WorkflowGrid extends LitElement {
             }),
             "create-workflow": {
                 display: {
-                    modalTitle: "Create Workflow",
-                    modalSize: "modal-lg",
+                    modalTitle: "Create New Workflow",
+                    modalSize: "modal-xl",
                     modalCyDataName: "modal-workflow-create",
                     modalDraggable: true,
                 },
@@ -136,45 +160,62 @@ export default class WorkflowGrid extends LitElement {
                     <workflow-create
                         .opencgaSession="${this.opencgaSession}"
                         .displayConfig="${{
-                        type: "tabs",
-                        buttonClearText: "Cancel",
-                        buttonsLayout: "upper"
-                    }}"
+                            type: "tabs",
+                            buttonClearText: "Cancel",
+                            buttonsLayout: "upper"
+                        }}"
                         @workflowCreate="${() => {
-                        this.gridCommons.clearActiveModal();
-                        this.table.bootstrapTable("refresh");
-                    }}">
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
                     </workflow-create>
                 `,
             },
             "import-workflow": {
                 display: {
-                    modalTitle: "Import Workflow",
+                    modalTitle: "Import Workflow from GitHub",
                     modalCyDataName: "modal-workflow-import",
-                    modalSize: "modal-lg",
+                    modalSize: "modal-xl",
                     modalDraggable: true,
                 },
                 render: () => html`
                     <workflow-import
                         .opencgaSession="${this.opencgaSession}"
                         @workflowImport="${() => {
-                        // this.gridCommons.clearActiveModal();
-                        this.table.bootstrapTable("refresh");
-                    }}">
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
                     </workflow-import>
+                `,
+            },
+            "import-nf-workflow": {
+                display: {
+                    modalTitle: "Import Workflow from Nextflow nf-core",
+                    modalCyDataName: "modal-workflow-nf-core-import",
+                    modalSize: "modal-xl",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <workflow-nf-import
+                        .opencgaSession="${this.opencgaSession}"
+                        @workflowImport="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </workflow-nf-import>
                 `,
             },
             "execute-workflow": () => ({
                 display: {
                     modalTitle: "Execute Workflow",
                     modalCyDataName: "modal-workflow-execute",
-                    modalSize: "modal-lg",
+                    modalSize: "modal-xl",
                 },
                 render: () => html`
                     <workflow-analysis
                         .toolParams="${{
-                        id: this._selectedWorkflow?.id,
-                    }}"
+                            id: this._selectedWorkflow?.id,
+                        }}"
                         .search="${false}"
                         .opencgaSession="${this.opencgaSession}">
                     </workflow-analysis>
@@ -184,21 +225,21 @@ export default class WorkflowGrid extends LitElement {
                 display: {
                     modalTitle: `Update Workflow ${this._selectedWorkflow?.id}`,
                     modalCyDataName: "modal-workflow-update",
-                    modalSize: "modal-lg",
+                    modalSize: "modal-xl",
                 },
                 render: () => html`
                     <workflow-update
                         .workflowId="${this._selectedWorkflow?.id}"
                         .displayConfig="${{
-                        type: "tabs",
-                        buttonClearText: "Cancel",
-                        buttonsLayout: "upper"
-                    }}"
+                            type: "tabs",
+                            buttonClearText: "Cancel",
+                            buttonsLayout: "upper"
+                        }}"
                         .opencgaSession="${this.opencgaSession}"
                         @workflowUpdate="${() => {
-                        this.gridCommons.clearActiveModal();
-                        this.table.bootstrapTable("refresh");
-                    }}">
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
                     </workflow-update>
                 `,
             }),
@@ -328,12 +369,12 @@ export default class WorkflowGrid extends LitElement {
         this._columns = [
             {
                 id: "id",
-                title: "Workflow",
+                title: "Tool",
                 field: "id",
                 formatter: (workflowId, workflow) => {
                     return `
                         <a class="fw-bold link my-1" data-action="view">${workflowId}</a>
-                        <div class="text-secondary my-1">version ${workflow.version}</div>
+                        <div class="text-secondary my-1">${workflow.type || "Unknown"}</div>
                     `;
                 },
                 events: {
@@ -352,19 +393,6 @@ export default class WorkflowGrid extends LitElement {
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("name")
-            },
-            {
-                id: "type",
-                title: "Type",
-                field: "type",
-                formatter: type => {
-                    return `
-                        <span>
-                            ${type || "Unknown"}
-                        </span>
-                    `;
-                },
-                visible: this.gridCommons.isColumnVisible("type")
             },
             {
                 id: "scope",
@@ -413,6 +441,7 @@ export default class WorkflowGrid extends LitElement {
                             </div>
                         `;
                     } else {
+                        // Both CUSTOM TOOLS and VARIANT_WALKER use docker executor
                         const docker = userTool?.docker;
                         return `
                             <div class="">
@@ -427,19 +456,9 @@ export default class WorkflowGrid extends LitElement {
                             </div>
                     `;
                     }
-
                 },
                 visible: this.gridCommons.isColumnVisible("repository")
             },
-            // {
-            //     id: "scripts",
-            //     title: "Scripts",
-            //     field: "scripts",
-            //     formatter: scripts => {
-            //         return (scripts || []).map(script => `<div>${script.fileName}</div>`).join("") || "-";
-            //     },
-            //     visible: this.gridCommons.isColumnVisible("scripts")
-            // },
             {
                 id: "minimumRequirements",
                 title: "Minimum Requirements",
@@ -448,13 +467,14 @@ export default class WorkflowGrid extends LitElement {
                     return `
                         <div class="my-1"><b>CPU</b>: ${minimumRequirements?.cpu || "-"} core(s)</div>
                         <div class="my-1"><b>Memory</b>: ${minimumRequirements?.memory?.split(".")[0] || "-"} GB</div>
+                        <div class="my-1"><b>Processor</b>: ${minimumRequirements?.processorType || "CPU"}</div>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("minimumRequirements")
             },
             {
                 id: "ownerId",
-                title: "Owner ID",
+                title: "Author",
                 field: "internal.registrationUserId",
                 formatter: ownerId => ownerId || "-",
                 visible: this.gridCommons.isColumnVisible("ownerId")
@@ -489,8 +509,8 @@ export default class WorkflowGrid extends LitElement {
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
-                excludeFromSettings: true,
                 visible: this._config.showActions,
+                excludeFromSettings: true,
             },
         ];
 
@@ -639,18 +659,66 @@ export default class WorkflowGrid extends LitElement {
 
     getRightToolbar() {
         return [
+            // {
+            //     icon: "fas fa-plus",
+            //     title: "Create Workflow",
+            //     disabled: !this.gridCommons.hasPermission("WRITE"),
+            //     onClick: () => this.gridCommons.changeActiveModal("create-workflow"),
+            // },
             {
                 icon: "fas fa-plus",
-                title: "Create Workflow",
+                title: "Create Tool",
                 disabled: !this.gridCommons.hasPermission("WRITE"),
-                onClick: () => this.gridCommons.changeActiveModal("create-workflow"),
+                onClick: () => this.gridCommons.changeActiveModal("create-tool"),
             },
             {
-                icon: "fas fa-file-import",
-                title: "Import Workflow",
-                disabled: !this.gridCommons.hasPermission("WRITE"),
-                onClick: () => this.gridCommons.changeActiveModal("import-workflow"),
+                // icon: "fas fa-file-import",
+                // title: "Import Workflow",
+                render: () => {
+                    return html`
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-file-import me-1"></i>
+                                Import Workflow
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item cursor-pointer" @click="${() => this.gridCommons.changeActiveModal('import-workflow')}">
+                                        Import from GitHub
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item cursor-pointer" @click="${() => this.gridCommons.changeActiveModal('import-nf-workflow')}">
+                                        Import from Nextflow nf-core
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item cursor-pointer" @click="${() => this.gridCommons.changeActiveModal('create-workflow')}">
+                                        Import from Scripts
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    `;
+                },
+                // disabled: !this.gridCommons.hasPermission("WRITE"),
+                // onClick: () => this.gridCommons.changeActiveModal("import-workflow"),
             },
+            {
+                icon: "fas fa-plus",
+                title: "Create Variant Walker",
+                disabled: !this.gridCommons.hasPermission("WRITE"),
+                onClick: () => this.gridCommons.changeActiveModal("create-tool"),
+            },
+            // {
+            //     icon: "fas fa-file-import",
+            //     title: `Import nf-core Workflow`,
+            //     disabled: !this.gridCommons.hasPermission("WRITE"),
+            //     onClick: () => this.gridCommons.changeActiveModal("import-nf-workflow"),
+            // },
         ];
     }
 

@@ -151,6 +151,9 @@ export default class WorkflowSummary extends LitElement {
                             title: "Minimum Requirements",
                             field: "minimumRequirements",
                             type: "object",
+                            display: {
+                                defaultLayout: "horizontal",
+                            },
                             elements: [
                                 {
                                     title: "Min CPU cores",
@@ -159,6 +162,13 @@ export default class WorkflowSummary extends LitElement {
                                 {
                                     title: "Min memory",
                                     field: "minimumRequirements.memory",
+                                },
+                                {
+                                    title: "Processor Type",
+                                    field: "minimumRequirements.processorType",
+                                    display: {
+                                        defaultValue: "CPU",
+                                    },
                                 },
                             ]
                         },

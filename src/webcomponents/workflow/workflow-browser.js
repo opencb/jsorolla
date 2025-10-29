@@ -47,7 +47,7 @@ export default class WorkflowBrowser extends LitElement {
     }
 
     #init() {
-        this.COMPONENT_ID = "workflow-browser";
+        this.COMPONENT_ID = "tool-browser";
         this._config = this.getDefaultConfig();
     }
 
@@ -111,7 +111,7 @@ export default class WorkflowBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Workflow Manager",
+            title: "My Tools Manager",
             views: [
                 {
                     id: "table",
@@ -120,7 +120,7 @@ export default class WorkflowBrowser extends LitElement {
                     active: true,
                     render: params => html`
                         <workflow-grid
-                            .toolId="${this.COMPONENT_ID}"
+                            .toolId="${this.COMPONENT_ID || ""}"
                             .opencgaSession="${params.opencgaSession}"
                             .query="${params.executedQuery}"
                             .config="${params.config.filter.result.grid}"
