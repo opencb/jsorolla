@@ -306,7 +306,7 @@ export default class WorkflowGrid extends LitElement {
 
                     // Store the current filters
                     this.lastFilters = filters;
-                    this.opencgaSession.opencgaClient.workflows()
+                    this.opencgaSession.opencgaClient.userTool()
                         .search(filters)
                         .then(response => {
                             workflowResponse = response;
