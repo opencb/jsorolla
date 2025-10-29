@@ -33,29 +33,19 @@ export default class ToolCustomCreate extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
-            // mode: {
-            //     type: String
-            // },
+            type: {
+                type: String,
+            },
             displayConfig: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
     #init() {
-        this.customTool = {};
-        this.updatedFields = {};
-        this.mode = "";
-        this.displayConfigDefault = {
-            buttonsVisible: true,
-            buttonOkText: "Create",
-            titleWidth: 3,
-            with: "8",
-            defaultValue: "",
-            defaultLayout: "horizontal"
-        };
+        this._customTool = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -66,9 +56,9 @@ export default class ToolCustomCreate extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = { ...this.displayConfigDefault, ...this.displayConfig };
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -92,7 +82,7 @@ export default class ToolCustomCreate extends LitElement {
             title: "Clear tool",
             message: "Are you sure to clear?",
             ok: () => {
-                this.customTool = {};
+                this._customTool = {};
                 this._config = this.getDefaultConfig();
                 this.requestUpdate();
             },
@@ -100,28 +90,22 @@ export default class ToolCustomCreate extends LitElement {
     }
 
     onSubmit() {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            includeResult: true
-        };
-        let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.userTool()
-            .createCustom(this.customTool, params)
+            .createCustom(this._customTool, {
+                study: this.opencgaSession.study.fqn,
+            })
             .then(() => {
-                this.customTool = {};
-                this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Custom Tool Create",
                     message: "New custom tool created correctly"
                 });
+                LitUtils.dispatchCustomEvent(this, "customToolCreate", this._customTool);
+                this._customTool = {};
             })
             .catch(reason => {
-                error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "customToolCreate", this.customTool, {}, error);
                 this.#setLoading(false);
             });
     }
@@ -133,7 +117,7 @@ export default class ToolCustomCreate extends LitElement {
 
         return html`
                 <data-form
-                    .data="${this.customTool}"
+                    .data="${this._customTool}"
                     .config="${this._config}"
                     @fieldChange="${e => this.onFieldChange(e)}"
                     @clear="${e => this.onClear(e)}"
@@ -144,7 +128,13 @@ export default class ToolCustomCreate extends LitElement {
 
     getDefaultConfig() {
         return {
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                buttonsVisible: true,
+                buttonOkText: "Create",
+                titleWidth: 3,
+                defaultLayout: "horizontal",
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
