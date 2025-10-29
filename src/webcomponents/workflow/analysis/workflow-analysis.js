@@ -50,14 +50,14 @@ export default class WorkflowAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "workflow";
-        this.ANALYSIS_TITLE = "Workflow Parameters";
-        this.ANALYSIS_DESCRIPTION = "Executes a workflow analysis job";
+        this.ANALYSIS_TOOL = "user-tool";
+        this.ANALYSIS_TITLE = "User Tool Parameters";
+        this.ANALYSIS_DESCRIPTION = "Executes a custom tool or workflow analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
         this.search = true;
 
-        this._workflow = null;
+        this._tool = null;
         this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
         this._config = this.getDefaultConfig();
     }
@@ -81,8 +81,8 @@ export default class WorkflowAnalysis extends LitElement {
         };
         this._config = this.getDefaultConfig();
 
-        if (this._toolParams.id) {
-            this.#fetchWorkflow();
+        if (this.toolParams?.id) {
+            this.#fetchUserTool();
         }
     }
 
@@ -90,35 +90,30 @@ export default class WorkflowAnalysis extends LitElement {
         return false;
     }
 
-    #fetchWorkflow() {
+    #fetchUserTool() {
         this.opencgaSession.opencgaClient.userTool()
             .search({
                 id: this._toolParams.id,
                 study: this.opencgaSession.study.fqn,
             })
-            .then(restResponse => {
-                const results = restResponse.getResults();
-                if (results.length > 0) {
-                    this._workflow = results[0];
-                } else {
-                    console.error("Error in result format");
+            .then(response => {
+                if (response.responses?.[0]?.results?.length > 0) {
+                    this._tool = response.responses[0].results[0];
+                    this._config = this.getDefaultConfig();
+                    this.requestUpdate();
                 }
             })
             .catch(response => {
                 console.log(response);
-            })
-            .finally(() => {
-                this._config = this.getDefaultConfig();
-                this.requestUpdate();
             });
     }
 
-    onFieldChange(e) {
+    onFieldChange(event) {
         this._toolParams = {...this._toolParams};
 
-        if (this._toolParams?.id) {
-            this.#fetchWorkflow();
-        }
+        // if (this._toolParams?.id) {
+        //     this.#fetchWorkflow();
+        // }
     }
 
     onSubmit() {
@@ -134,21 +129,37 @@ export default class WorkflowAnalysis extends LitElement {
             }
         }
 
-        const toolParams = {
-            id: this._toolParams.id,
-            version: this._toolParams.version,
-            params: formParams,
-        };
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL),
-        };
-        AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.workflows()
-                .run(toolParams, params),
-            this,
-        );
+        // prepare the job params
+        const jobParams = AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL);
+
+        // check the type of tool to choose the right run method
+        let toolRunPromise = null;
+        switch (this._tool.type) {
+            case "CUSTOM_TOOL":
+                const toolParams = {
+                    commandLine: this._toolParams.commandLine,
+                    params: formParams,
+                };
+                toolRunPromise = this.opencgaSession.opencgaClient.userTool()
+                    .runCustom(this._tool.id, toolParams, {
+                        study: this.opencgaSession.study.fqn,
+                        ...jobParams,
+                    });
+                break;
+            case "WORKFLOW":
+                toolRunPromise = this.opencgaSession.opencgaClient.userTool()
+                    .runWorkflow(this._tool.id, formParams, {
+                        study: this.opencgaSession.study.fqn,
+                        ...jobParams,
+                    });
+                break;
+            default:
+                console.error("Tool type not supported: ", this._tool.type);
+                return;
+        }
+        
+        // submit analysis
+        AnalysisUtils.submit(this.ANALYSIS_TITLE, toolRunPromise, this);
     }
 
     onClear() {
@@ -205,49 +216,51 @@ export default class WorkflowAnalysis extends LitElement {
         const params = [
             {
                 title: "Configuration",
-                display: {
-                    className: "p-2"
-                },
                 elements: [
                     {
-                        title: "Workflow ID",
+                        title: "Tool ID",
                         field: "id",
                         type: "custom",
                         required: true,
                         display: {
-                            render: (caseCohort, dataFormFilterChange) => html`
+                            render: (toolId, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
-                                    .value="${caseCohort}"
-                                    .resource="${"WORKFLOW"}"
+                                    .value="${toolId}"
+                                    .resource="${"USER_TOOL"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{
                                         multiple: false,
-                                        disabled: !this.search,
+                                        disabled: !!this.toolParams?.id,
                                     }}"
-                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    @filterChange="${event => dataFormFilterChange(event.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
+                    // {
+                    //     title: "Workflow Version",
+                    //     field: "version",
+                    //     type: "input-text",
+                    //     required: false,
+                    //     display: {
+                    //         defaultValue: this._workflow?.version || "",
+                    //         help: {
+                    //             text: "Default version is the latest available",
+                    //         }
+                    //     }
+                    // }
                     {
-                        title: "Workflow Version",
-                        field: "version",
+                        title: "Command Line",
+                        field: "commandLine",
                         type: "input-text",
-                        required: false,
                         display: {
-                            defaultValue: this._workflow?.version || "",
-                            help: {
-                                text: "Default version is the latest available",
-                            }
-                        }
-                    }
+                            visible: this._tool?.type === "CUSTOM_TOOL",
+                        },
+                    },
                 ]
             },
             {
                 title: "Parameters",
-                display: {
-                    className: "p-2"
-                },
                 elements: [
                     ...variables,
                     {
