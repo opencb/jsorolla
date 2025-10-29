@@ -25,16 +25,16 @@ import OpenCGAParentClass from "./../opencga-parent-class.js";
 
 
 /**
- * This class contains the methods for the "ExternalTool" resource
+ * This class contains the methods for the "UserTool" resource
  */
 
-export default class ExternalTool extends OpenCGAParentClass {
+export default class UserTool extends OpenCGAParentClass {
 
     constructor(config) {
         super(config);
     }
 
-    /** Update the set of external tool permissions granted for the member
+    /** Update the set of user tool permissions granted for the member
     * @param {String} members - Comma separated list of user or group ids.
     * @param {Object} data - JSON containing the parameters to update the permissions.
     * @param {"SET ADD REMOVE RESET"} action = "ADD" - Action to be performed [ADD, SET, REMOVE or RESET]. The default value is ADD.
@@ -46,7 +46,7 @@ export default class ExternalTool extends OpenCGAParentClass {
         return this._post("tools", null, "acl", members, "update", data, {action, ...params});
     }
 
-    /** Fetch external tool stats
+    /** Fetch user tool stats
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[organization@]project:]study where study and project can be either the ID or UUID.
     * @param {String} [params.id] - Comma separated list of external tool IDs up to a maximum of 100. Also admits basic regular expressions
@@ -92,11 +92,11 @@ export default class ExternalTool extends OpenCGAParentClass {
     *     validate that all parameters and prerequisites are correctly set for successful execution, but the job will not actually run.
     * @returns {Promise} Promise object in the form of RestResponse instance.
     */
-    buildCustom(data, params) {
-        return this._post("tools", null, "custom", null, "build", data, params);
+    runCustomBuilder(data, params) {
+        return this._post("tools", null, "custom/builder", null, "run", data, params);
     }
 
-    /** Register a new external tool of type CUSTOM_TOOL
+    /** Register a new user tool of type CUSTOM_TOOL
     * @param {Object} data - JSON containing workflow information.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.include] - Fields included in the response, whole JSON path must be provided.
@@ -151,7 +151,7 @@ export default class ExternalTool extends OpenCGAParentClass {
         return this._post("tools", null, "custom", toolId, "run", data, params);
     }
 
-    /** Update some custom external tool attributes
+    /** Update some custom user tool attributes
     * @param {String} toolId - Comma separated list of external tool IDs up to a maximum of 100. Also admits basic regular expressions using
     *     the operator '~', i.e. '~{perl-regex}' e.g. '~value' for case sensitive, '~/value/i' for case insensitive search.
     * @param {Object} [data] - body.
@@ -167,7 +167,7 @@ export default class ExternalTool extends OpenCGAParentClass {
         return this._post("tools", null, "custom", toolId, "update", data, params);
     }
 
-    /** External tool distinct method
+    /** User tool distinct method
     * @param {String} field - Comma separated list of fields for which to obtain the distinct values.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[organization@]project:]study where study and project can be either the ID or UUID.
@@ -197,7 +197,7 @@ export default class ExternalTool extends OpenCGAParentClass {
         return this._get("tools", null, null, null, "distinct", {field, ...params});
     }
 
-    /** External tool search method
+    /** User tool search method
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.include] - Fields included in the response, whole JSON path must be provided.
     * @param {String} [params.exclude] - Fields excluded in the response, whole JSON path must be provided.
@@ -232,7 +232,21 @@ export default class ExternalTool extends OpenCGAParentClass {
         return this._get("tools", null, null, null, "search", params);
     }
 
-    /** Register a new external tool of type WORKFLOW
+    /** Register a new user tool of type VARIANT_WALKER
+    * @param {Object} data - JSON containing workflow information.
+    * @param {Object} [params] - The Object containing the following optional parameters:
+    * @param {String} [params.include] - Fields included in the response, whole JSON path must be provided.
+    * @param {String} [params.exclude] - Fields excluded in the response, whole JSON path must be provided.
+    * @param {String} [params.study] - Study [[organization@]project:]study where study and project can be either the ID or UUID.
+    * @param {Boolean} [params.includeResult = "false"] - Flag indicating to include the created or updated document result in the response.
+    *     The default value is false.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
+    */
+    createWalker(data, params) {
+        return this._post("tools", null, "walker", null, "create", data, params);
+    }
+
+    /** Register a new user tool of type WORKFLOW
     * @param {Object} data - JSON containing workflow information.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.include] - Fields included in the response, whole JSON path must be provided.
@@ -246,7 +260,7 @@ export default class ExternalTool extends OpenCGAParentClass {
         return this._post("tools", null, "workflow", null, "create", data, params);
     }
 
-    /** Import an external tool of type WORKFLOW
+    /** Import a user tool of type WORKFLOW
     * @param {Object} data - Repository parameters.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[organization@]project:]study where study and project can be either the ID or UUID.
@@ -256,7 +270,7 @@ export default class ExternalTool extends OpenCGAParentClass {
         return this._post("tools", null, "workflow", null, "import", data, params);
     }
 
-    /** Execute an external tool of type WORKFLOW
+    /** Execute a user tool of type WORKFLOW
     * @param {String} toolId - Comma separated list of external tool IDs up to a maximum of 100. Also admits basic regular expressions using
     *     the operator '~', i.e. '~{perl-regex}' e.g. '~value' for case sensitive, '~/value/i' for case insensitive search.
     * @param {Object} data - External tool run parameters.
@@ -278,7 +292,7 @@ export default class ExternalTool extends OpenCGAParentClass {
         return this._post("tools", null, "workflow", toolId, "run", data, params);
     }
 
-    /** Update some external tool attributes
+    /** Update some user tool attributes
     * @param {String} toolId - Comma separated list of external tool IDs up to a maximum of 100. Also admits basic regular expressions using
     *     the operator '~', i.e. '~{perl-regex}' e.g. '~value' for case sensitive, '~/value/i' for case insensitive search.
     * @param {Object} [data] - body.
@@ -294,7 +308,7 @@ export default class ExternalTool extends OpenCGAParentClass {
         return this._post("tools", null, "workflow", toolId, "update", data, params);
     }
 
-    /** Returns the acl of the external tools. If member is provided, it will only return the acl for the member.
+    /** Returns the acl of the user tools. If member is provided, it will only return the acl for the member.
     * @param {String} tools - Comma separated of external tool ids.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[organization@]project:]study where study and project can be either the ID or UUID.
@@ -307,7 +321,7 @@ export default class ExternalTool extends OpenCGAParentClass {
         return this._get("tools", tools, null, null, "acl", params);
     }
 
-    /** Delete external tools
+    /** Delete user tools
     * @param {String} tools - Comma separated of external tool ids.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[organization@]project:]study where study and project can be either the ID or UUID.
@@ -317,7 +331,7 @@ export default class ExternalTool extends OpenCGAParentClass {
         return this._delete("tools", tools, null, null, "delete", params);
     }
 
-    /** Get external tool information
+    /** Get user tool information
     * @param {String} tools - Comma separated of external tool ids.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.include] - Fields included in the response, whole JSON path must be provided.
