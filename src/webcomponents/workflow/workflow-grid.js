@@ -227,7 +227,6 @@ export default class WorkflowGrid extends LitElement {
                 },
                 render: () => html`
                     <workflow-analysis
-                        .search="${false}"
                         .toolParams="${{
                             id: this._selectedWorkflow?.id,
                         }}"

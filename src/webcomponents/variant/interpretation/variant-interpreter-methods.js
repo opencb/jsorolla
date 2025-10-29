@@ -143,7 +143,6 @@ class VariantInterpreterMethods extends LitElement {
                         <div class="container">
                             <tool-header title="Execute ${tool.name || tool.id}"></tool-header>
                             <workflow-analysis
-                                .search="${false}"
                                 .toolParams="${{
                                     id: tool.id,
                                 }}"
