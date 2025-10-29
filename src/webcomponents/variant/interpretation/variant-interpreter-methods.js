@@ -18,13 +18,14 @@ import {LitElement, html} from "lit";
 import "../../commons/view/detail-tabs.js";
 import "../../clinical/analysis/rd-tiering-analysis.js";
 import "../../clinical/analysis/exomiser-analysis.js";
+import "../../workflow/analysis/workflow-analysis.js";
 
 class VariantInterpreterMethods extends LitElement {
 
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,11 +49,16 @@ class VariantInterpreterMethods extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
+        this._customTools = [];
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
@@ -62,6 +68,21 @@ class VariantInterpreterMethods extends LitElement {
         }
 
         super.update(changedProperties);
+    }
+
+    opencgaSessionObserver() {
+        this._customTools = [];
+        if (this.opencgaSession) {
+            this.opencgaSession.opencgaClient.userTool()
+                .search({
+                    study: this.opencgaSession.study.fqn,
+                    scope: "CLINICAL_INTERPRETATION_ANALYSIS",
+                })
+                .then(response => {
+                    this._customTools = response.responses[0].results;
+                    this._config = this.getDefaultConfig();
+                });
+        }
     }
 
     clinicalAnalysisIdObserver() {
@@ -111,6 +132,29 @@ class VariantInterpreterMethods extends LitElement {
     getDefaultConfig() {
         const items = [];
 
+        // add custom tools
+        (this._customTools || []).forEach(tool => {
+            items.push({
+                id: tool.id,
+                name: tool.name || tool.id,
+                render: (clinicalAnalysis, active, opencgaSession) => {
+                    return html`
+                        <workflow-analysis
+                            .search="${false}"
+                            .toolParams="${{
+                                id: tool.id,
+                            }}"
+                            .displayConfig="${{
+                                titleVisible: false,
+                            }}"
+                            .opencgaSession="${opencgaSession}">
+                        </workflow-analysis>
+                    `;
+                },
+            });
+        });
+
+        // add built-in methods
         if (this.clinicalAnalysis && this.settings) {
             const probandId = this.clinicalAnalysis.proband?.id || "";
             const type = this.clinicalAnalysis.type?.toUpperCase() || "";
