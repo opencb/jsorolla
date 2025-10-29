@@ -110,6 +110,7 @@ export default class WorkflowAnalysis extends LitElement {
 
     onFieldChange(event) {
         this._toolParams = {...this._toolParams};
+        this.requestUpdate();
 
         // if (this._toolParams?.id) {
         //     this.#fetchWorkflow();
@@ -134,7 +135,7 @@ export default class WorkflowAnalysis extends LitElement {
 
         // check the type of tool to choose the right run method
         let toolRunPromise = null;
-        switch (this._tool.type) {
+        switch (this._tool.type.toUpperCase()) {
             case "CUSTOM_TOOL":
                 const toolParams = {
                     commandLine: this._toolParams.commandLine,
