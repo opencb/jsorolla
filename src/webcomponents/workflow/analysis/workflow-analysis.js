@@ -18,8 +18,6 @@ import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
-import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
-import NotificationUtils from "../../commons/utils/notification-utils";
 
 
 export default class WorkflowAnalysis extends LitElement {
@@ -45,7 +43,7 @@ export default class WorkflowAnalysis extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            config: {
+            displayConfig: {
                 type: Object
             },
         };
@@ -57,48 +55,47 @@ export default class WorkflowAnalysis extends LitElement {
         this.ANALYSIS_DESCRIPTION = "Executes a workflow analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
-        // Make a deep copy to avoid modifying default object.
-        this.toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-        };
         this.search = true;
 
-        this.config = this.getDefaultConfig();
+        this._workflow = null;
+        this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
             this.toolParamsObserver();
         }
+
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
+        }
+
         super.update(changedProperties);
     }
 
     toolParamsObserver() {
-        this.toolParams = {
+        this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             ...this.toolParams,
         };
-        this.config = this.getDefaultConfig();
+        this._config = this.getDefaultConfig();
 
-        if (this.toolParams.id) {
+        if (this._toolParams.id) {
             this.#fetchWorkflow();
         }
     }
 
     check() {
-        // FIXME decide if this must be displayed
-        // if (!this.toolParams.caseCohort) {
-        //     return {
-        //         message: "You must select a cohort or sample",
-        //         notificationType: "warning"
-        //     };
-        // }
         return false;
     }
 
     #fetchWorkflow() {
         this.opencgaSession.opencgaClient.workflows()
-            .search({id: this.toolParams.id, study: this.opencgaSession.study.fqn})
+            .search({
+                id: this._toolParams.id,
+                study: this.opencgaSession.study.fqn,
+            })
             .then(restResponse => {
                 const results = restResponse.getResults();
                 if (results.length > 0) {
@@ -111,14 +108,15 @@ export default class WorkflowAnalysis extends LitElement {
                 console.log(response);
             })
             .finally(() => {
-                this.config = this.getDefaultConfig();
+                this._config = this.getDefaultConfig();
                 this.requestUpdate();
             });
     }
-    onFieldChange(e) {
-        this.toolParams = {...this.toolParams};
 
-        if (this.toolParams?.id) {
+    onFieldChange(e) {
+        this._toolParams = {...this._toolParams};
+
+        if (this._toolParams?.id) {
             this.#fetchWorkflow();
         }
     }
@@ -126,8 +124,8 @@ export default class WorkflowAnalysis extends LitElement {
     onSubmit() {
         // Parse form params
         const formParams = {};
-        if (this.toolParams.params) {
-            const lines = this.toolParams.params.split("\n");
+        if (this._toolParams.params) {
+            const lines = this._toolParams.params.split("\n");
             for (const line of lines) {
                 if (line.includes("=")) {
                     const [key, value] = line.split("=");
@@ -137,13 +135,13 @@ export default class WorkflowAnalysis extends LitElement {
         }
 
         const toolParams = {
-            id: this.toolParams.id,
-            version: this.toolParams.version,
+            id: this._toolParams.id,
+            version: this._toolParams.version,
             params: formParams,
         };
         const params = {
             study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            ...AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL),
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
@@ -154,20 +152,21 @@ export default class WorkflowAnalysis extends LitElement {
     }
 
     onClear() {
-        this.toolParams = {
+        this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            ...this.toolParams,
         };
-        this.config = this.getDefaultConfig();
+        this._config = this.getDefaultConfig();
     }
 
     render() {
         return html`
             <data-form
-                .data="${this.toolParams}"
-                .config="${this.config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                .data="${this._toolParams}"
+                .config="${this._config}"
+                @fieldChange="${event => this.onFieldChange(event)}"
+                @clear="${event => this.onClear(event)}"
+                @submit="${event => this.onSubmit(event)}">
             </data-form>
         `;
     }
@@ -221,7 +220,10 @@ export default class WorkflowAnalysis extends LitElement {
                                     .value="${caseCohort}"
                                     .resource="${"WORKFLOW"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !this.search}}"
+                                    .config="${{
+                                        multiple: false,
+                                        disabled: !this.search,
+                                    }}"
                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
@@ -284,7 +286,11 @@ export default class WorkflowAnalysis extends LitElement {
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check(),
-            this.config
+            {
+                display: {
+                    ...this.displayConfig,
+                },
+            },
         );
     }
 
