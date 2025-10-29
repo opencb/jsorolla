@@ -91,10 +91,23 @@ export default class ToolCustomCreate extends LitElement {
 
     onSubmit() {
         this.#setLoading(true);
-        this.opencgaSession.opencgaClient.userTool()
-            .createCustom(this._customTool, {
-                study: this.opencgaSession.study.fqn,
-            })
+        let toolCreatePromise = null;
+        
+        // call the right create method according to the tool type
+        if (this.type === "VARIANT_WALKER") {
+            toolCreatePromise = this.opencgaSession.opencgaClient.userTool()
+                .createWalker(this._customTool, {
+                    study: this.opencgaSession.study.fqn,
+                });
+        } else {
+            toolCreatePromise = this.opencgaSession.opencgaClient.userTool()
+                .createCustom(this._customTool, {
+                    study: this.opencgaSession.study.fqn,
+                });
+        }
+
+        // wait for the promise to finish
+        toolCreatePromise
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: "New custom tool created correctly"
