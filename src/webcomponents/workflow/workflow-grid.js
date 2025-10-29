@@ -221,16 +221,19 @@ export default class WorkflowGrid extends LitElement {
             },
             "execute-workflow": () => ({
                 display: {
-                    modalTitle: "Execute Workflow",
+                    modalTitle: "Execute Tool",
                     modalCyDataName: "modal-workflow-execute",
                     modalSize: "modal-xl",
                 },
                 render: () => html`
                     <workflow-analysis
+                        .search="${false}"
                         .toolParams="${{
                             id: this._selectedWorkflow?.id,
                         }}"
-                        .search="${false}"
+                        .displayConfig="${{
+                            titleVisible: false,
+                        }}"
                         .opencgaSession="${this.opencgaSession}">
                     </workflow-analysis>
                 `,
