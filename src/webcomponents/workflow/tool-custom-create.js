@@ -112,18 +112,20 @@ export default class ToolCustomCreate extends LitElement {
 
     render() {
         if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
 
         return html`
-                <data-form
-                    .data="${this._customTool}"
-                    .config="${this._config}"
-                    @fieldChange="${e => this.onFieldChange(e)}"
-                    @clear="${e => this.onClear(e)}"
-                    @submit="${this.onSubmit}">
-                </data-form>
-            `;
+            <data-form
+                .data="${this._customTool}"
+                .config="${this._config}"
+                @fieldChange="${event => this.onFieldChange(event)}"
+                @clear="${event => this.onClear(event)}"
+                @submit="${event => this.onSubmit(event)}">
+            </data-form>
+        `;
     }
 
     getDefaultConfig() {
