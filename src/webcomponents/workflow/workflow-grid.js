@@ -118,13 +118,13 @@ export default class WorkflowGrid extends LitElement {
                     modalTitle: "Create Tool",
                     modalSize: "modal-xl",
                     modalCyDataName: "modal-tool-create",
-                    modalDraggable: true,
+                    // modalDraggable: true,
                 },
                 render: () => html`
                     <tool-custom-create
                         .opencgaSession="${this.opencgaSession}"
                         .type="${"CUSTOM_TOOL"}"
-                        @workflowCreate="${() => {
+                        @customToolCreate="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
@@ -136,13 +136,13 @@ export default class WorkflowGrid extends LitElement {
                     modalTitle: "Create Variant Walker",
                     modalSize: "modal-xl",
                     modalCyDataName: "modal-variant-walker-create",
-                    modalDraggable: true,
+                    // modalDraggable: true,
                 },
                 render: () => html`
                     <tool-custom-create
                         .opencgaSession="${this.opencgaSession}"
                         .type="${"VARIANT_WALKER"}"
-                        @workflowCreate="${() => {
+                        @customToolCreate="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
@@ -154,7 +154,7 @@ export default class WorkflowGrid extends LitElement {
                     modalTitle: `Workflow ${this._selectedWorkflow?.id}`,
                     modalCyDataName: `modal-workflow-view`,
                     modalSize: "modal-3xl",
-                    modalDraggable: true,
+                    // modalDraggable: true,
                 },
                 render: () => html`
                     <workflow-view
@@ -168,7 +168,7 @@ export default class WorkflowGrid extends LitElement {
                     modalTitle: "Create New Workflow",
                     modalSize: "modal-xl",
                     modalCyDataName: "modal-workflow-create",
-                    modalDraggable: true,
+                    // modalDraggable: true,
                 },
                 render: () => html`
                     <workflow-create
@@ -190,7 +190,7 @@ export default class WorkflowGrid extends LitElement {
                     modalTitle: "Import Workflow from GitHub",
                     modalCyDataName: "modal-workflow-import",
                     modalSize: "modal-xl",
-                    modalDraggable: true,
+                    // modalDraggable: true,
                 },
                 render: () => html`
                     <workflow-import
@@ -207,7 +207,7 @@ export default class WorkflowGrid extends LitElement {
                     modalTitle: "Import Workflow from Nextflow nf-core",
                     modalCyDataName: "modal-workflow-nf-core-import",
                     modalSize: "modal-xl",
-                    modalDraggable: true,
+                    // modalDraggable: true,
                 },
                 render: () => html`
                     <workflow-nf-import
@@ -607,7 +607,7 @@ export default class WorkflowGrid extends LitElement {
             title: `Delete Workflow`,
             message: `Are you sure you want to delete the workflow ${workflow.id}?`,
             ok: () => {
-                this.opencgaSession.opencgaClient.workflows()
+                this.opencgaSession.opencgaClient.userTool()
                     .delete(workflow.id, {
                         study: this.opencgaSession.study.fqn,
                         jobId: `workflow-delete-${UtilsNew.getDatetime()}`,
@@ -636,7 +636,7 @@ export default class WorkflowGrid extends LitElement {
             limit: 1000,
             count: false
         };
-        this.opencgaSession.opencgaClient.workflows()
+        this.opencgaSession.opencgaClient.userTool()
             .search(filters)
             .then(restResponse => {
                 const results = restResponse.getResults();
