@@ -115,7 +115,7 @@ export default class WorkflowGrid extends LitElement {
         this.gridCommons.registerModals({
             "create-tool": {
                 display: {
-                    modalTitle: "Create New Tool",
+                    modalTitle: "Create Tool",
                     modalSize: "modal-xl",
                     modalCyDataName: "modal-tool-create",
                     modalDraggable: true,
@@ -123,9 +123,25 @@ export default class WorkflowGrid extends LitElement {
                 render: () => html`
                     <tool-custom-create
                         .opencgaSession="${this.opencgaSession}"
-                        .displayConfig="${{
-                            type: "tabs",
-                        }}"
+                        .type="${"CUSTOM_TOOL"}"
+                        @workflowCreate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </tool-custom-create>
+                `,
+            },
+            "create-variant-walker": {
+                display: {
+                    modalTitle: "Create Variant Walker",
+                    modalSize: "modal-xl",
+                    modalCyDataName: "modal-variant-walker-create",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <tool-custom-create
+                        .opencgaSession="${this.opencgaSession}"
+                        .type="${"VARIANT_WALKER"}"
                         @workflowCreate="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
@@ -709,7 +725,7 @@ export default class WorkflowGrid extends LitElement {
                 icon: "fas fa-plus",
                 title: "Create Variant Walker",
                 disabled: !this.gridCommons.hasPermission("WRITE"),
-                onClick: () => this.gridCommons.changeActiveModal("create-tool"),
+                onClick: () => this.gridCommons.changeActiveModal("create-variant-walker"),
             },
             // {
             //     icon: "fas fa-file-import",

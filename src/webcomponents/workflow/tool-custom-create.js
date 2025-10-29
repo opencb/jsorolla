@@ -137,6 +137,7 @@ export default class ToolCustomCreate extends LitElement {
                 buttonClearText: "Cancel",
                 titleWidth: 3,
                 defaultLayout: "horizontal",
+                type: "tabs",
                 ...this.displayConfig,
             },
             sections: [
