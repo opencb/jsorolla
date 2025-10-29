@@ -91,7 +91,7 @@ export default class WorkflowAnalysis extends LitElement {
     }
 
     #fetchWorkflow() {
-        this.opencgaSession.opencgaClient.workflows()
+        this.opencgaSession.opencgaClient.userTool()
             .search({
                 id: this._toolParams.id,
                 study: this.opencgaSession.study.fqn,
