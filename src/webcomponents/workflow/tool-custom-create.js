@@ -73,7 +73,7 @@ export default class ToolCustomCreate extends LitElement {
             }
         }
 
-        this.customTool = { ...e.detail.data, tags: tags };
+        this._customTool = { ...e.detail.data, tags: tags };
         this.requestUpdate();
     }
 
