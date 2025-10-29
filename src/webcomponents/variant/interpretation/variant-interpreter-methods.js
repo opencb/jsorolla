@@ -81,6 +81,7 @@ class VariantInterpreterMethods extends LitElement {
                 .then(response => {
                     this._customTools = response.responses[0].results;
                     this._config = this.getDefaultConfig();
+                    this.requestUpdate();
                 });
         }
     }
@@ -139,16 +140,19 @@ class VariantInterpreterMethods extends LitElement {
                 name: tool.name || tool.id,
                 render: (clinicalAnalysis, active, opencgaSession) => {
                     return html`
-                        <workflow-analysis
-                            .search="${false}"
-                            .toolParams="${{
-                                id: tool.id,
-                            }}"
-                            .displayConfig="${{
-                                titleVisible: false,
-                            }}"
-                            .opencgaSession="${opencgaSession}">
-                        </workflow-analysis>
+                        <div class="container">
+                            <tool-header title="Execute ${tool.name || tool.id}"></tool-header>
+                            <workflow-analysis
+                                .search="${false}"
+                                .toolParams="${{
+                                    id: tool.id,
+                                }}"
+                                .displayConfig="${{
+                                    titleVisible: false,
+                                }}"
+                                .opencgaSession="${opencgaSession}">
+                            </workflow-analysis>
+                        </div>
                     `;
                 },
             });
