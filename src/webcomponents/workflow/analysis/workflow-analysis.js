@@ -37,9 +37,6 @@ export default class WorkflowAnalysis extends LitElement {
             toolParams: {
                 type: Object,
             },
-            search: {
-                type: Boolean,
-            },
             opencgaSession: {
                 type: Object,
             },
@@ -55,7 +52,6 @@ export default class WorkflowAnalysis extends LitElement {
         this.ANALYSIS_DESCRIPTION = "Executes a custom tool or workflow analysis job";
 
         this.DEFAULT_TOOLPARAMS = {};
-        this.search = true;
 
         this._tool = null;
         this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
