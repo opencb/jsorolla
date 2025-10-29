@@ -106,7 +106,7 @@ export default class ToolCustomCreate extends LitElement {
         };
         let error;
         this.#setLoading(true);
-        this.opencgaSession.opencgaClient.externalTool()
+        this.opencgaSession.opencgaClient.userTool()
             .createCustom(this.customTool, params)
             .then(() => {
                 this.customTool = {};

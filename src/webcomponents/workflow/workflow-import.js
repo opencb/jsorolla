@@ -94,7 +94,7 @@ export default class WorkflowImport extends LitElement {
         };
         let error;
         this.#setLoading(true);
-        this.opencgaSession.opencgaClient.externalTool()
+        this.opencgaSession.opencgaClient.userTool()
             .importWorkflow({ name: this.workflow.name }, params)
             .then(() => {
                 this.workflow = {};

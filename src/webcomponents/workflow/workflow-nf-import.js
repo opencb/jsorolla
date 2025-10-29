@@ -64,7 +64,7 @@ export default class WorkflowNfImport extends LitElement {
         };
         let error;
         this.#setLoading(true);
-        this.opencgaSession.opencgaClient.externalTool()
+        this.opencgaSession.opencgaClient.userTool()
             .importWorkflow({name: row.full_name}, params)
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
