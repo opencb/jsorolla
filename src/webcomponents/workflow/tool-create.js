@@ -92,7 +92,10 @@ export default class ToolCreate extends LitElement {
         let toolCreatePromise = null;
         switch (this.type) {
             case "WORKFLOW":
-                // TODO: to be implemented
+                toolCreatePromise = this.opencgaSession.opencgaClient.userTool()
+                    .createWorkflow(this._customTool, {
+                        study: this.opencgaSession.study.fqn,
+                    });
                 break;
             case "VARIANT_WALKER":
                 toolCreatePromise = this.opencgaSession.opencgaClient.userTool()
@@ -339,12 +342,9 @@ export default class ToolCreate extends LitElement {
                             field: "variables",
                             type: "object-list",
                             display: {
-                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                // CAUTION 20231024 Vero: "collapsedUpdate" not considered in data-form.js. Perhaps "collapsed" (L1324 in data-form.js) ?
-                                // collapsedUpdate: true,
                                 view: variable => html`
-                                        <div>${variable.id}</div>
-                                    `,
+                                    <div>${variable.id}</div>
+                                `,
                             },
                             elements: [
                                 {
