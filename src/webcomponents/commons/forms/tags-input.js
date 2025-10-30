@@ -28,7 +28,19 @@ export default class TagsInput extends LitElement {
 
     #init() {
         this.value = [];
+        this.disabled = false;
         this._config = this.getDefaultConfig();
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+        }
+
+        super.update(changedProperties);
     }
 
     onKeyUp(event) {
@@ -44,7 +56,7 @@ export default class TagsInput extends LitElement {
         // if the tag is not empty and not already in the value array, add it
         if (tag && this.value.indexOf(tag) === -1) {
             this.value = [...this.value, tag];
-            LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
+            LitUtils.dispatchCustomEvent(this, "change", this.value);
         }
 
         // after submitting, we have to clear the input
@@ -54,7 +66,7 @@ export default class TagsInput extends LitElement {
 
     onRemoveTag(tag) {
         this.value = this.value.filter(t => t !== tag);
-        LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
+        LitUtils.dispatchCustomEvent(this, "change", this.value);
         this.requestUpdate();
     }
 
@@ -91,7 +103,9 @@ export default class TagsInput extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            placeholder: "Add a tag...",
+        };
     }
 
 }
