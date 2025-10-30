@@ -51,7 +51,9 @@ export default class UserToolExecutor extends LitElement {
         this.ANALYSIS_TITLE = "User Tool Parameters";
         this.ANALYSIS_DESCRIPTION = "Executes a custom tool or workflow analysis job";
 
-        this.DEFAULT_TOOLPARAMS = {};
+        this.DEFAULT_TOOLPARAMS = {
+            toolVariables: {},
+        };
 
         this._tool = null;
         this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
@@ -76,7 +78,7 @@ export default class UserToolExecutor extends LitElement {
         this._config = this.getDefaultConfig();
 
         if (this.toolParams?.id) {
-            this.#fetchUserTool();
+            this.fetchUserTool();
         }
     }
 
@@ -84,7 +86,7 @@ export default class UserToolExecutor extends LitElement {
         return false;
     }
 
-    #fetchUserTool() {
+    fetchUserTool() {
         this.opencgaSession.opencgaClient.userTool()
             .search({
                 id: this._toolParams.id,
@@ -112,10 +114,14 @@ export default class UserToolExecutor extends LitElement {
     }
 
     onSubmit() {
-        // Parse form params
-        const formParams = {};
-        if (this._toolParams.params) {
-            const lines = this._toolParams.params.split("\n");
+        // initialize form params object
+        const formParams = {
+            ...this._toolParams.toolVariables,
+        };
+
+        // add other variables from the text area, with the format key=value
+        if (this._toolParams.otherVariables) {
+            const lines = this._toolParams.otherVariables.split("\n");
             for (const line of lines) {
                 if (line.includes("=")) {
                     const [key, value] = line.split("=");
@@ -185,7 +191,7 @@ export default class UserToolExecutor extends LitElement {
             for (const variable of this._tool.variables) {
                 const dataFormElement = {
                     title: variable.id,
-                    field: variable.id,
+                    field: `toolVariables.${variable.id}`,
                     required: variable.required || false,
                     display: {
                         defaultValue: variable.defaultValue,
@@ -261,7 +267,7 @@ export default class UserToolExecutor extends LitElement {
                     ...variables,
                     {
                         title: "Parameters",
-                        field: "params",
+                        field: "otherVariables",
                         type: "input-text",
                         display: {
                             rows: 5,
@@ -274,7 +280,7 @@ export default class UserToolExecutor extends LitElement {
                     },
                     {
                         title: "Other Parameters",
-                        field: "params",
+                        field: "otherVariables",
                         type: "input-text",
                         display: {
                             rows: 5,
