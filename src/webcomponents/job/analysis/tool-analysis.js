@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
@@ -82,6 +83,7 @@ export default class ToolAnalysis extends LitElement {
     }
 
     onSubmit() {
+        // 1. prepare tool parameters
         const toolParams = {
             commandLine: this._toolParams.commandLine,
             docker: {
@@ -91,15 +93,18 @@ export default class ToolAnalysis extends LitElement {
             },
         };
 
-        AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.jobs()
-                .runTool(toolParams, {
-                    study: this.opencgaSession.study.fqn,
-                    ...AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL),
-                }),
-            this,
-        );
+        // 2. initialize the promise to execute the tool job
+        const jobPromise = this.opencgaSession.opencgaClient.jobs()
+            .runTool(toolParams, {
+                study: this.opencgaSession.study.fqn,
+                ...AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL),
+            });
+
+        // 3. submit the analysis job and emit the tool analysis events
+        AnalysisUtils.submit(this.ANALYSIS_TITLE, jobPromise, this)
+            .then(() => {
+                LitUtils.dispatchCustomEvent(this, "toolAnalysisSubmit", null, toolParams);
+            });
     }
 
     onClear() {
