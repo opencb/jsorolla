@@ -17,6 +17,7 @@
 import { html, LitElement } from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import "../commons/forms/data-form.js";
 
 export default class ToolCreate extends LitElement {
 
@@ -66,18 +67,8 @@ export default class ToolCreate extends LitElement {
         super.update(changedProperties);
     }
 
-    onFieldChange(e) {
-        let tags = [];
-        if (e.detail.data?.tags) {
-            // e.detail.data.tags = e.detail.data?.tags?.split(",") || [];
-            if (typeof e.detail.data?.tags === "string") {
-                tags = e.detail.data?.tags?.split(",") || [];
-            } else {
-                tags = e.detail.data?.tags || [];
-            }
-        }
-
-        this._customTool = { ...e.detail.data, tags: tags };
+    onFieldChange() {
+        this._customTool = { ...this._customTool };
         this.requestUpdate();
     }
 
@@ -193,12 +184,9 @@ export default class ToolCreate extends LitElement {
                         {
                             title: "Tags",
                             field: "tags",
-                            type: "input-text",
+                            type: "input-tags",
                             display: {
                                 placeholder: "Add tags...",
-                                help: {
-                                    text: "Comma-separated tags",
-                                },
                             },
                         },
                         {
