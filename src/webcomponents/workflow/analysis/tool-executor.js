@@ -239,18 +239,6 @@ export default class UserToolExecutor extends LitElement {
                             `,
                         },
                     },
-                    // {
-                    //     title: "Workflow Version",
-                    //     field: "version",
-                    //     type: "input-text",
-                    //     required: false,
-                    //     display: {
-                    //         defaultValue: this._workflow?.version || "",
-                    //         help: {
-                    //             text: "Default version is the latest available",
-                    //         }
-                    //     }
-                    // }
                     {
                         title: "Command Line",
                         field: "commandLine",
