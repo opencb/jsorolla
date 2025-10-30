@@ -106,12 +106,16 @@ export default class MyAnalysisTools extends LitElement {
     }
 
     render() {
+        if (!this.opencgaSession) {
+            return nothing;
+        }
+
         return html`
             <tool-header
                 .title="${this._config.title}"
                 .rightContent="${this.renderRightContent()}">
             </tool-header>
-            ${keyed(this.opencgaSession?.study?.fqn, html`
+            ${keyed(this.opencgaSession?.study?.fqn + "." + this._customTools?.length, html`
                 <vertical-menu
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config}">
