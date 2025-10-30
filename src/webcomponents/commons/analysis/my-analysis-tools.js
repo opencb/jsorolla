@@ -26,8 +26,45 @@ export default class MyAnalysisTools extends LitElement {
     }
 
     #init() {
+        this.MENU_SECTIONS = [
+            {type: "CUSTOM_TOOL", name: "Custom Tools"},
+            {type: "WORKFLOW", name: "Workflows"},
+            // {type: "VARIANT_WALKER", name: "Variant Walker"},
+        ];
+
+        this._customTools = [];
         this._showExecuteDockerToolModal = false;
         this._config = this.getDefaultConfig();
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+
+        super.update(changedProperties);
+    }
+
+    opencgaSessionObserver() {
+        this._customTools = [];
+        if (this.opencgaSession) {
+            this.opencgaSession.opencgaClient.userTool()
+                .search({
+                    study: this.opencgaSession.study.fqn,
+                    limit: 1000,
+                    include: "id,name,type",
+                })
+                .then(response => {
+                    this._customTools = response.responses[0].results;
+                })
+                .catch(response => {
+                    console.error(response);
+                })
+                .finally(() => {
+                    this._config = this.getDefaultConfig();
+                    this.requestUpdate();
+                });
+        }
     }
 
     onExecuteDockerToolModalShow() {
@@ -90,61 +127,34 @@ export default class MyAnalysisTools extends LitElement {
                 contentStyle: "max-width:920px;",
                 menuStyle: "width:240px",
             },
-            menu: [
-                {
-                    id: "custom-tools",
-                    name: "Custom Tools",
-                    submenu: [
-                        {
-                            id: "tool-analysis",
-                            name: "Execute Docker Tool",
-                            render: opencgaSession => html`
-                                <tool-analysis
-                                    .opencgaSession="${opencgaSession}">
-                                </tool-analysis>
-                            `,
-                        },
-                        {
-                            id: "custom-tool-builder",
-                            name: "Tool Docker Builder",
-                            render: opencgaSession => html`
-                                <custom-tool-builder
-                                    .opencgaSession="${opencgaSession}">
-                                </custom-tool-builder>
-                            `,
-                        },
-                    ],
-                },
-                {
-                    id: "workflows",
-                    name: "Workflows",
-                    submenu: [
-                        {
-                            id: "workflow-analysis",
-                            name: "Workflow Executor",
-                            render: opencgaSession => html`
-                                <tool-executor
-                                    .opencgaSession="${opencgaSession}">
-                                </tool-executor>
-                            `,
-                        },
-                    ],
-                },
-                {
-                    id: "variant-walker",
-                    name: "Variant Walker",
-                    submenu: [
-                        {
-                            id: "variant-walker",
-                            name: "Custom Variant Walker",
-                            description: "",
-                            render: opencgaSession => html`
-                                <div>Variant Walker tool</div>
-                            `,
-                        },
-                    ],
-                },
-            ],
+            menu: this.MENU_SECTIONS.map(section => {
+                // 1. filter tools included in this section type
+                const tools = this._customTools.filter(tool => {
+                    return tool.type === section.type;
+                });
+
+                // 2. return the section configuration
+                return {
+                    id: section.type.toLowerCase(),
+                    name: section.name,
+                    submenu: tools.map(tool => ({
+                        id: tool.id,
+                        name: tool.name || tool.id,
+                        render: opencgaSession => html`
+                            <h2 class="fw-bold mb-3">Execute ${tool.name || tool.id}</h2>
+                            <tool-executor
+                                .toolParams="${{
+                                    id: tool.id,
+                                }}"
+                                .displayConfig="${{
+                                    titleVisible: false,
+                                }}"
+                                .opencgaSession="${opencgaSession}">
+                            </tool-executor>
+                        `,
+                    })),
+                };
+            }),
         };
     }
 
