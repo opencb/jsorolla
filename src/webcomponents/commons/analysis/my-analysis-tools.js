@@ -1,4 +1,4 @@
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import "../tool-header.js";
 import "../view/vertical-menu.js";
 import "../../job/analysis/tool-analysis.js";
@@ -28,9 +28,23 @@ export default class MyAnalysisTools extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    renderRightContent() {
+        return html`
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-light d-flex align-items-center gap-2">
+                    <i class="fas fa-rocket"></i>
+                    <span>Execute Docker Tool</span>
+                </button>
+            </div>
+        `;
+    }
+
     render() {
         return html`
-            <tool-header .title="${this._config.title}"></tool-header>
+            <tool-header
+                .title="${this._config.title}"
+                .rightContent="${this.renderRightContent()}">
+            </tool-header>
             <vertical-menu
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config || {}}">
