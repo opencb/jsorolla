@@ -199,7 +199,7 @@ export default class CohortCreate extends LitElement {
                                 render: (tags, dataFormFilterChange) => html`
                                     <tags-input
                                         .value="${tags || []}"
-                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                        @change="${event => dataFormFilterChange(event.detail.value)}">
                                     </tags-input>
                                 `,
                             },
