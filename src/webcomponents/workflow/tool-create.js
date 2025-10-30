@@ -18,7 +18,7 @@ import { html, LitElement } from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
-export default class ToolCustomCreate extends LitElement {
+export default class ToolCreate extends LitElement {
 
     constructor() {
         super();
@@ -350,4 +350,4 @@ export default class ToolCustomCreate extends LitElement {
 
 }
 
-customElements.define("tool-custom-create", ToolCustomCreate);
+customElements.define("tool-create", ToolCreate);

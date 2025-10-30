@@ -26,7 +26,7 @@ import "./workflow-import.js";
 import "./workflow-nf-import.js";
 import "./workflow-view.js";
 import "./workflow-update.js";
-import "./tool-custom-create.js";
+import "./tool-create.js";
 import "./analysis/tool-executor.js";
 
 export default class WorkflowGrid extends LitElement {
@@ -153,14 +153,14 @@ export default class WorkflowGrid extends LitElement {
                     // modalDraggable: true,
                 },
                 render: () => html`
-                    <tool-custom-create
+                    <tool-create
                         .opencgaSession="${this.opencgaSession}"
                         .type="${"CUSTOM_TOOL"}"
                         @customToolCreate="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
-                    </tool-custom-create>
+                    </tool-create>
                 `,
             },
             "create-variant-walker": {
@@ -171,14 +171,14 @@ export default class WorkflowGrid extends LitElement {
                     // modalDraggable: true,
                 },
                 render: () => html`
-                    <tool-custom-create
+                    <tool-create
                         .opencgaSession="${this.opencgaSession}"
                         .type="${"VARIANT_WALKER"}"
                         @customToolCreate="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
-                    </tool-custom-create>
+                    </tool-create>
                 `,
             },
             "view-tool": () => ({
