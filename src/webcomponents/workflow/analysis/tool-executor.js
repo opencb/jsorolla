@@ -20,7 +20,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 
 
-export default class WorkflowAnalysis extends LitElement {
+export default class UserToolExecutor extends LitElement {
 
     constructor() {
         super();
@@ -62,11 +62,9 @@ export default class WorkflowAnalysis extends LitElement {
         if (changedProperties.has("toolParams")) {
             this.toolParamsObserver();
         }
-
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
@@ -128,6 +126,7 @@ export default class WorkflowAnalysis extends LitElement {
 
         // prepare the job params
         const jobParams = AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL);
+        jobParams.jobTags = this._tool.id;
 
         // check the type of tool to choose the right run method
         let toolRunPromise = null;
@@ -154,7 +153,7 @@ export default class WorkflowAnalysis extends LitElement {
                 console.error("Tool type not supported: ", this._tool.type);
                 return;
         }
-        
+
         // submit analysis
         AnalysisUtils.submit(this.ANALYSIS_TITLE, toolRunPromise, this);
     }
@@ -182,8 +181,8 @@ export default class WorkflowAnalysis extends LitElement {
     getDefaultConfig() {
         // Create automatic form based on the workflow variables
         const variables = [];
-        if (this._workflow?.variables?.length > 0) {
-            for (const variable of this._workflow.variables) {
+        if (this._tool?.variables?.length > 0) {
+            for (const variable of this._tool.variables) {
                 const dataFormElement = {
                     title: variable.id,
                     field: variable.id,
@@ -306,4 +305,4 @@ export default class WorkflowAnalysis extends LitElement {
 
 }
 
-customElements.define("workflow-analysis", WorkflowAnalysis);
+customElements.define("tool-executor", UserToolExecutor);

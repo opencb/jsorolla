@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import "../../commons/view/detail-tabs.js";
 import "../../clinical/analysis/rd-tiering-analysis.js";
 import "../../clinical/analysis/exomiser-analysis.js";
-import "../../workflow/analysis/workflow-analysis.js";
+import "../../workflow/analysis/tool-executor.js";
 
 class VariantInterpreterMethods extends LitElement {
 

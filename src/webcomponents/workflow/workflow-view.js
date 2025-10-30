@@ -127,16 +127,16 @@ export default class WorkflowView extends LitElement {
                         </workflow-summary>
                     `,
                 },
-                {
-                    id: "workflow-scripts",
-                    name: "Scripts",
-                    render: (workflow, active) => html`
-                        <workflow-scripts-view
-                            .active="${active}"
-                            .workflow="${workflow}">
-                        </workflow-scripts-view>
-                    `,
-                },
+                // {
+                //     id: "workflow-scripts",
+                //     name: "Scripts",
+                //     render: (workflow, active) => html`
+                //         <workflow-scripts-view
+                //             .active="${active}"
+                //             .workflow="${workflow}">
+                //         </workflow-scripts-view>
+                //     `,
+                // },
                 {
                     id: "workflow-jobs",
                     name: "Jobs",
