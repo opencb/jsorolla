@@ -120,7 +120,7 @@ export default class ToolCreate extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: "New custom tool created correctly"
                 });
-                LitUtils.dispatchCustomEvent(this, "customToolCreate", this._customTool);
+                LitUtils.dispatchCustomEvent(this, "toolCreateSubmit", this._customTool);
                 this._customTool = {};
             })
             .catch(reason => {
