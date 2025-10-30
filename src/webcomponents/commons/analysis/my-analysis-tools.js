@@ -99,6 +99,11 @@ export default class MyAnalysisTools extends LitElement {
                     .opencgaSession="${this.opencgaSession}"
                     .displayConfig="${{
                         showTitle: false,
+                    }}"
+                    @toolAnalysisSubmit="${() => {
+                        ModalUtils.close("ExecuteDockerTool");
+                        this._showExecuteDockerToolModal = false;
+                        this.requestUpdate();
                     }}">
                 </tool-analysis>
             `,
