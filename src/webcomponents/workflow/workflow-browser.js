@@ -111,7 +111,7 @@ export default class WorkflowBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "My Tools Manager",
+            title: "User Tools Manager",
             views: [
                 {
                     id: "table",
@@ -139,7 +139,7 @@ export default class WorkflowBrowser extends LitElement {
                         filters: [
                             {
                                 id: "id",
-                                title: "Workflow ID",
+                                title: "Tool ID",
                                 type: "string",
                                 placeholder: "eg. wf1, wf2, ...",
                                 description: "",
@@ -157,7 +157,15 @@ export default class WorkflowBrowser extends LitElement {
                                 id: "type",
                                 title: "Type",
                                 type: "string",
-                                placeholder: "eg. RESEARCH_ANALYSIS,...",
+                                // placeholder: "eg. CUSTOM_TOOL, ...",
+                                description: "",
+                                quick: true
+                            },
+                            {
+                                id: "scope",
+                                title: "Scope",
+                                type: "string",
+                                // placeholder: "eg. RESEARCH_ANALYSIS,...",
                                 description: "",
                                 quick: true
                             },
