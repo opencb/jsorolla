@@ -1,4 +1,5 @@
 import {html, LitElement, nothing} from "lit";
+import ModalUtils from "../modal/modal-utils.js";
 import "../tool-header.js";
 import "../view/vertical-menu.js";
 import "../../job/analysis/tool-analysis.js";
@@ -25,18 +26,45 @@ export default class MyAnalysisTools extends LitElement {
     }
 
     #init() {
+        this._showExecuteDockerToolModal = false;
         this._config = this.getDefaultConfig();
+    }
+
+    onExecuteDockerToolModalShow() {
+        this._showExecuteDockerToolModal = true;
+        this.requestUpdate();
+        this.updateComplete.then(() => {
+            ModalUtils.show("ExecuteDockerTool");
+        });
     }
 
     renderRightContent() {
         return html`
             <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-light d-flex align-items-center gap-2">
+                <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onExecuteDockerToolModalShow()}">
                     <i class="fas fa-rocket"></i>
                     <span>Execute Docker Tool</span>
                 </button>
             </div>
         `;
+    }
+
+    renderExecuteDockerToolModal() {
+        return ModalUtils.create(this, "ExecuteDockerTool", {
+            display: {
+                modalTitle: "Execute Docker Tool",
+                modalSize: "modal-xl",
+                modalCyDataName: "modal-execute-docker-tool",
+            },
+            render: () => html`
+                <tool-analysis
+                    .opencgaSession="${this.opencgaSession}"
+                    .displayConfig="${{
+                        showTitle: false,
+                    }}">
+                </tool-analysis>
+            `,
+        });
     }
 
     render() {
@@ -49,6 +77,8 @@ export default class MyAnalysisTools extends LitElement {
                 .opencgaSession="${this.opencgaSession}"
                 .config="${this._config || {}}">
             </vertical-menu>
+
+            ${this._showExecuteDockerToolModal ? this.renderExecuteDockerToolModal() : nothing}
         `;
     }
 
