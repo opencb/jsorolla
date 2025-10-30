@@ -57,7 +57,7 @@ export default class ToolCreate extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("displayConfig")) {
+        if (changedProperties.has("displayConfig") || changedProperties.has("type")) {
             this._config = this.getDefaultConfig();
         }
 
@@ -237,6 +237,9 @@ export default class ToolCreate extends LitElement {
                 },
                 {
                     title: "Docker Configuration",
+                    display: {
+                        visible: this.type === "CUSTOM_TOOL" || this.type === "VARIANT_WALKER",
+                    },
                     elements: [
                         {
                             title: "Docker Name",
@@ -278,6 +281,49 @@ export default class ToolCreate extends LitElement {
                             display: {
                                 placeholder: "Add docker password or token...",
                             },
+                        },
+                    ],
+                },
+                {
+                    title: "Scripts",
+                    display: {
+                        visible: this.type === "WORKFLOW",
+                    },
+                    elements: [
+                        {
+                            title: "Scripts",
+                            field: "scripts",
+                            type: "object-list",
+                            display: {
+                                view: workflow => html`
+                                    <div>${workflow.fileName}</div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "File Name",
+                                    field: "scripts[].fileName",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add workflow file name...",
+                                    }
+                                },
+                                {
+                                    title: "is main script?",
+                                    field: "scripts[].main",
+                                    type: "checkbox",
+                                    display: {}
+                                },
+                                {
+                                    title: "Content",
+                                    field: "scripts[].content",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 50,
+                                        placeholder: "Add a content...",
+                                    },
+                                },
+                            ],
                         },
                     ],
                 },
