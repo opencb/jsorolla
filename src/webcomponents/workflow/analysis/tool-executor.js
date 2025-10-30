@@ -64,9 +64,11 @@ export default class UserToolExecutor extends LitElement {
         if (changedProperties.has("toolParams")) {
             this.toolParamsObserver();
         }
+
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -75,8 +77,8 @@ export default class UserToolExecutor extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             ...this.toolParams,
         };
-        this._config = this.getDefaultConfig();
 
+        // check if we need to fetch tool information
         if (this.toolParams?.id) {
             this.fetchUserTool();
         }
@@ -87,6 +89,7 @@ export default class UserToolExecutor extends LitElement {
     }
 
     fetchUserTool() {
+        this._tool = null;
         this.opencgaSession.opencgaClient.userTool()
             .search({
                 id: this._toolParams.id,
@@ -95,12 +98,14 @@ export default class UserToolExecutor extends LitElement {
             .then(response => {
                 if (response.responses?.[0]?.results?.length > 0) {
                     this._tool = response.responses[0].results[0];
-                    this._config = this.getDefaultConfig();
-                    this.requestUpdate();
                 }
             })
             .catch(response => {
                 console.log(response);
+            })
+            .finally(() => {
+                this._config = this.getDefaultConfig();
+                this.requestUpdate();
             });
     }
 
@@ -108,9 +113,10 @@ export default class UserToolExecutor extends LitElement {
         this._toolParams = {...this._toolParams};
         this.requestUpdate();
 
-        // if (this._toolParams?.id) {
-        //     this.#fetchWorkflow();
-        // }
+        // fetch selected tool information
+        if (event.detail?.param === "id" && event.detail?.value) {
+            this.fetchUserTool();
+        }
     }
 
     onSubmit() {
