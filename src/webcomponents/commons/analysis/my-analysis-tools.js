@@ -1,4 +1,5 @@
 import {html, LitElement, nothing} from "lit";
+import {keyed} from "lit/directives/keyed.js";
 import ModalUtils from "../modal/modal-utils.js";
 import "../tool-header.js";
 import "../view/vertical-menu.js";
@@ -110,10 +111,12 @@ export default class MyAnalysisTools extends LitElement {
                 .title="${this._config.title}"
                 .rightContent="${this.renderRightContent()}">
             </tool-header>
-            <vertical-menu
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config || {}}">
-            </vertical-menu>
+            ${keyed(this.opencgaSession?.study?.fqn, html`
+                <vertical-menu
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${this._config}">
+                </vertical-menu>
+            `)}
 
             ${this._showExecuteDockerToolModal ? this.renderExecuteDockerToolModal() : nothing}
         `;
