@@ -46,6 +46,7 @@ export default class ToolCreate extends LitElement {
     }
 
     #init() {
+        this.type = "CUSTOM_TOOL";
         this._customTool = {};
         this._config = this.getDefaultConfig();
     }
@@ -86,19 +87,28 @@ export default class ToolCreate extends LitElement {
 
     onSubmit() {
         this.#setLoading(true);
-        let toolCreatePromise = null;
         
         // call the right create method according to the tool type
-        if (this.type === "VARIANT_WALKER") {
-            toolCreatePromise = this.opencgaSession.opencgaClient.userTool()
-                .createWalker(this._customTool, {
-                    study: this.opencgaSession.study.fqn,
-                });
-        } else {
-            toolCreatePromise = this.opencgaSession.opencgaClient.userTool()
-                .createCustom(this._customTool, {
-                    study: this.opencgaSession.study.fqn,
-                });
+        let toolCreatePromise = null;
+        switch (this.type) {
+            case "WORKFLOW":
+                // TODO: to be implemented
+                break;
+            case "VARIANT_WALKER":
+                toolCreatePromise = this.opencgaSession.opencgaClient.userTool()
+                    .createWalker(this._customTool, {
+                        study: this.opencgaSession.study.fqn,
+                    });
+                break;
+            case "CUSTOM_TOOL":
+                toolCreatePromise = this.opencgaSession.opencgaClient.userTool()
+                    .createCustom(this._customTool, {
+                        study: this.opencgaSession.study.fqn,
+                    });
+                break;
+            default:
+                console.error("Tool type not supported");
+                return;
         }
 
         // wait for the promise to finish
