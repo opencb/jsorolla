@@ -322,7 +322,7 @@ export default class ToolCreate extends LitElement {
                                     field: "scripts[].content",
                                     type: "input-text",
                                     display: {
-                                        rows: 50,
+                                        rows: 25,
                                         placeholder: "Add a content...",
                                     },
                                 },
