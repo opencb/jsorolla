@@ -21,7 +21,6 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/grid-toolbar.js";
-import "./workflow-create.js";
 import "./workflow-import.js";
 import "./workflow-nf-import.js";
 import "./workflow-view.js";
@@ -156,7 +155,7 @@ export default class WorkflowGrid extends LitElement {
                     <tool-create
                         .opencgaSession="${this.opencgaSession}"
                         .type="${"CUSTOM_TOOL"}"
-                        @customToolCreate="${() => {
+                        @toolCreateSubmit="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
@@ -174,7 +173,7 @@ export default class WorkflowGrid extends LitElement {
                     <tool-create
                         .opencgaSession="${this.opencgaSession}"
                         .type="${"VARIANT_WALKER"}"
-                        @customToolCreate="${() => {
+                        @toolCreateSubmit="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
@@ -203,18 +202,14 @@ export default class WorkflowGrid extends LitElement {
                     // modalDraggable: true,
                 },
                 render: () => html`
-                    <workflow-create
+                    <tool-create
                         .opencgaSession="${this.opencgaSession}"
-                        .displayConfig="${{
-                            type: "tabs",
-                            buttonClearText: "Cancel",
-                            buttonsLayout: "upper"
-                        }}"
-                        @workflowCreate="${() => {
+                        .type="${"WORKFLOW"}"
+                        @toolCreateSubmit="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
-                    </workflow-create>
+                    </tool-create>
                 `,
             },
             "import-workflow": {
