@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import "../../commons/view/detail-tabs.js";
 import "../../clinical/analysis/rd-tiering-analysis.js";
 import "../../clinical/analysis/exomiser-analysis.js";
@@ -142,7 +142,7 @@ class VariantInterpreterMethods extends LitElement {
                     return html`
                         <div class="container">
                             <tool-header title="Execute ${tool.name || tool.id}"></tool-header>
-                            <workflow-analysis
+                            <tool-executor
                                 .toolParams="${{
                                     id: tool.id,
                                 }}"
@@ -150,7 +150,7 @@ class VariantInterpreterMethods extends LitElement {
                                     titleVisible: false,
                                 }}"
                                 .opencgaSession="${opencgaSession}">
-                            </workflow-analysis>
+                            </tool-executor>
                         </div>
                     `;
                 },

@@ -1,4 +1,4 @@
-import {LitElement, html, nothing, render} from "lit";
+import {html, LitElement} from "lit";
 import "../tool-header.js";
 import "../view/vertical-menu.js";
 import "../../job/analysis/tool-analysis.js";
@@ -53,7 +53,7 @@ export default class MyAnalysisTools extends LitElement {
                     submenu: [
                         {
                             id: "tool-analysis",
-                            name: "Tool Executor",
+                            name: "Execute Docker Tool",
                             render: opencgaSession => html`
                                 <tool-analysis
                                     .opencgaSession="${opencgaSession}">
@@ -62,7 +62,7 @@ export default class MyAnalysisTools extends LitElement {
                         },
                         {
                             id: "custom-tool-builder",
-                            name: "Custom Tool Builder",
+                            name: "Tool Docker Builder",
                             render: opencgaSession => html`
                                 <custom-tool-builder
                                     .opencgaSession="${opencgaSession}">
@@ -79,9 +79,9 @@ export default class MyAnalysisTools extends LitElement {
                             id: "workflow-analysis",
                             name: "Workflow Executor",
                             render: opencgaSession => html`
-                                <workflow-analysis
+                                <tool-executor
                                     .opencgaSession="${opencgaSession}">
-                                </workflow-analysis>
+                                </tool-executor>
                             `,
                         },
                     ],

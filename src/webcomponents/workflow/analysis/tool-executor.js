@@ -222,7 +222,7 @@ export default class UserToolExecutor extends LitElement {
                             render: (toolId, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
                                     .value="${toolId}"
-                                    .resource="${"USER_TOOL"}"
+                                    .resource="${"WORKFLOW"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{
                                         multiple: false,

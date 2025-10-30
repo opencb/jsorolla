@@ -91,12 +91,12 @@ export default class AnalysisTools extends LitElement {
                             `,
                         },
                         {
-                            id: "workflow-analysis",
-                            name: "Workflow Executor",
+                            id: "tool-executor",
+                            name: "User Tool Executor",
                             render: opencgaSession => html`
-                                <workflow-analysis
+                                <tool-executor
                                     .opencgaSession="${opencgaSession}">
-                                </workflow-analysis>
+                                </tool-executor>
                             `,
                         },
                     ],
