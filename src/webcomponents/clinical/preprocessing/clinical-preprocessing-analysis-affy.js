@@ -60,42 +60,26 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                 active: true,
                 options: {},
                 tool: {
-                    id: "fastqc",
+                    id: "apt-geno-qc-axiom",
                     parameters: [
                         {
                             name: "threads",
-                            value: "2",
+                            value: "4",
                         }
                     ],
                 },
             },
-            alignment: {
+            genotype: {
                 active: true,
                 options: {
                     clean: true,
-                    cram: false,
                     qc: true,
                 },
                 tool: {
-                    id: "bwa",
-                    index: "",
-                    parameters: [
-                        {
-                            name: "t",
-                            value: "2",
-                        },
-                        {
-                            name: "k",
-                            value: "19",
-                        },
-                    ],
+                    id: "apt-genotype-axiom",
+                    parameters: [],
                 },
             },
-            variantCalling: {
-                active: true,
-                options: {},
-                tools: [],
-            }
         };
 
         // Make a deep copy to avoid modifying default object.
@@ -144,35 +128,19 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                 };
             }
 
-            // 2.2. merge alignment step configuration
-            if (this.toolParams.steps?.alignment) {
-                this._toolParams.alignment = {
-                    active: this.toolParams.steps.alignment.active ?? this._toolParams.alignment.active,
+            // 2.2. merge genotype step configuration
+            if (this.toolParams.steps?.genotype) {
+                this._toolParams.genotype = {
+                    active: this.toolParams.steps.genotype.active ?? this._toolParams.genotype.active,
                     options: {
-                        ...this._toolParams.alignment.options,
-                        ...this.toolParams.steps.alignment.options,
+                        ...this._toolParams.genotype.options,
+                        ...this.toolParams.steps.genotype.options,
                     },
                     tool: {
-                        ...this._toolParams.alignment.tool,
-                        ...this.toolParams.steps.alignment?.tool,
-                        parameters: this.parseParametersObject(this.toolParams.steps.alignment?.tool?.parameters),
+                        ...this._toolParams.genotype.tool,
+                        ...this.toolParams.steps.genotype?.tool,
+                        parameters: this.parseParametersObject(this.toolParams.steps.genotype?.tool?.parameters),
                     },
-                };
-            }
-
-            // 2.3. merge variant calling step configuration
-            if (this.toolParams.steps?.variantCalling) {
-                this._toolParams.variantCalling = {
-                    active: this.toolParams.steps.variantCalling.active ?? this._toolParams.variantCalling.active,
-                    options: {
-                        ...this._toolParams.variantCalling.options,
-                        ...this.toolParams.steps.variantCalling.options,
-                    },
-                    tools: (this.toolParams.steps.variantCalling.tools || []).map(variantCallingTool => ({
-                        id: variantCallingTool.id,
-                        options: variantCallingTool.options || {},
-                        parameters: this.parseParametersObject(variantCallingTool.parameters),
-                    })),
                 };
             }
         }
@@ -220,27 +188,17 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                     active: !!this._toolParams.qualityControl?.active,
                     options: UtilsNew.objectClone(this._toolParams.qualityControl.options || {}),
                     tool: {
-                        id: this._toolParams.qualityControl.tool.id || "fastqc",
+                        id: this._toolParams.qualityControl.tool.id || "apt-geno-qc-axiom",
                         parameters: this.formatParametersList(this._toolParams.qualityControl.tool.parameters || []),
                     },
                 },
-                alignment: {
-                    active: !!this._toolParams.alignment.active,
-                    options: UtilsNew.objectClone(this._toolParams.alignment.options || {}),
+                genotype: {
+                    active: !!this._toolParams.genotype.active,
+                    options: UtilsNew.objectClone(this._toolParams.genotype.options || {}),
                     tool: {
-                        id: this._toolParams.alignment.tool.id,
-                        index: this._toolParams.alignment.tool.index,
-                        parameters: this.formatParametersList(this._toolParams.alignment.tool.parameters || []),
+                        id: this._toolParams.genotype.tool.id,
+                        parameters: this.formatParametersList(this._toolParams.genotype.tool.parameters || []),
                     },
-                },
-                variantCalling: {
-                    active: this._toolParams.variantCalling.active,
-                    options: UtilsNew.objectClone(this._toolParams.variantCalling.options || {}),
-                    tools: (this._toolParams.variantCalling.tools || []).map(variantCallingTool => ({
-                        ...variantCallingTool,
-                        options: UtilsNew.objectClone(variantCallingTool.options || {}),
-                        parameters: this.formatParametersList(variantCallingTool.parameters || []),
-                    })),
                 },
             },
         });
@@ -324,9 +282,6 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
             {
                 title: "Affy Options",
                 description: "These parameters apply to BWA alignment step",
-                display: {
-                    visible: () => this.pipelineType === "affy",
-                },
                 elements: [
                     // {
                     //     title: "Active",
