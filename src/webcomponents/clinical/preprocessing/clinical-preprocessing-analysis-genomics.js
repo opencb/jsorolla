@@ -41,9 +41,6 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
             toolParams: {
                 type: Object,
             },
-            pipelineType: {
-                type: String,
-            },
             opencgaSession: {
                 type: Object,
             },
