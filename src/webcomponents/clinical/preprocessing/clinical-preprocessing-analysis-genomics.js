@@ -25,7 +25,7 @@ import "../../commons/forms/toggle-switch.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 import "./clinical-preprocessing-variant-calling-tool-configure.js";
 
-export default class ClinicalPreprocessingAnalysis extends LitElement {
+export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
 
     constructor() {
         super();
@@ -862,4 +862,4 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
 
 }
 
-customElements.define("clinical-preprocessing-analysis", ClinicalPreprocessingAnalysis);
+customElements.define("clinical-preprocessing-analysis-genomics", ClinicalPreprocessingAnalysisGenomics);

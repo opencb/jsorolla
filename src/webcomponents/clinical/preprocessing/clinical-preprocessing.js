@@ -7,7 +7,7 @@ import "./clinical-preprocessing-select-files.js";
 import "./clinical-preprocessing-select-pipeline.js";
 import "./clinical-preprocessing-save-pipeline.js";
 import "./clinical-preprocessing-summary.js";
-import "./clinical-preprocessing-analysis.js";
+import "./clinical-preprocessing-analysis-genomics.js";
 import "../../commons/tool-header.js";
 import "../../variant/operation/variant-index-operation.js";
 
@@ -396,7 +396,7 @@ export default class ClinicalPreprocessing extends LitElement {
                         ` : nothing}
                         ${this._stepsParams?.pipeline !== null ? html`
                             <div class="position-relative">
-                                <clinical-preprocessing-analysis
+                                <clinical-preprocessing-analysis-genomics
                                     .toolParams="${this._stepsParams?.preprocessing}"
                                     .pipelineType="${this._stepsParams?.pipeline?.type || "genomics"}"
                                     .opencgaSession="${this.opencgaSession}"
@@ -404,7 +404,7 @@ export default class ClinicalPreprocessing extends LitElement {
                                         buttonsVisible: false,
                                     }}"
                                     @paramsChange="${event => this.onPreprocessingParamsChange(event)}">
-                                </clinical-preprocessing-analysis>
+                                </clinical-preprocessing-analysis-genomics>
                                 <div class="position-absolute top-0 end-0">
                                     <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onPipelineClear()}">
                                         <i class="fas fa-edit"></i> Change Pipeline
