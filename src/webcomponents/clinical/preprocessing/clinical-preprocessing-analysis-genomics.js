@@ -17,8 +17,9 @@
 import {html, LitElement, nothing} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import UtilsNew from "../../../core/utils-new.js";
+import WebUtils from "../../commons/utils/web-utils.js";
 import ModalUtils from "../../commons/modal/modal-utils.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/forms/toggle-switch.js";
@@ -150,7 +151,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                     tool: {
                         ...this._toolParams.qualityControl.tool,
                         ...this.toolParams.steps.qualityControl?.tool,
-                        parameters: this.parseParametersObject(this.toolParams.steps.qualityControl?.tool?.parameters),
+                        parameters: WebUtils.parseParametersObject(this.toolParams.steps.qualityControl?.tool?.parameters),
                     },
                 };
             }
@@ -166,7 +167,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                     tool: {
                         ...this._toolParams.alignment.tool,
                         ...this.toolParams.steps.alignment?.tool,
-                        parameters: this.parseParametersObject(this.toolParams.steps.alignment?.tool?.parameters),
+                        parameters: WebUtils.parseParametersObject(this.toolParams.steps.alignment?.tool?.parameters),
                     },
                 };
             }
@@ -182,7 +183,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                     tools: (this.toolParams.steps.variantCalling.tools || []).map(variantCallingTool => ({
                         id: variantCallingTool.id,
                         options: variantCallingTool.options || {},
-                        parameters: this.parseParametersObject(variantCallingTool.parameters),
+                        parameters: WebUtils.parseParametersObject(variantCallingTool.parameters),
                     })),
                 };
             }
@@ -191,21 +192,6 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
 
     check() {
         return null;
-    }
-
-    parseParametersObject(parameters = {}) {
-        return Object.keys(parameters).map(key => {
-            return {
-                name: key,
-                value: parameters[key],
-            };
-        });
-    }
-
-    formatParametersList(parameters = []) {
-        return Object.fromEntries(parameters.map(parameter => {
-            return [parameter.name, parameter.value];
-        }));
     }
 
     getUsagePage(tool) {
@@ -232,7 +218,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                     options: UtilsNew.objectClone(this._toolParams.qualityControl.options || {}),
                     tool: {
                         id: this._toolParams.qualityControl.tool.id || "fastqc",
-                        parameters: this.formatParametersList(this._toolParams.qualityControl.tool.parameters || []),
+                        parameters: WebUtils.formatParametersList(this._toolParams.qualityControl.tool.parameters || []),
                     },
                 },
                 alignment: {
@@ -241,7 +227,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                     tool: {
                         id: this._toolParams.alignment.tool.id,
                         index: this._toolParams.alignment.tool.index,
-                        parameters: this.formatParametersList(this._toolParams.alignment.tool.parameters || []),
+                        parameters: WebUtils.formatParametersList(this._toolParams.alignment.tool.parameters || []),
                     },
                 },
                 variantCalling: {
@@ -250,7 +236,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                     tools: (this._toolParams.variantCalling.tools || []).map(variantCallingTool => ({
                         ...variantCallingTool,
                         options: UtilsNew.objectClone(variantCallingTool.options || {}),
-                        parameters: this.formatParametersList(variantCallingTool.parameters || []),
+                        parameters: WebUtils.formatParametersList(variantCallingTool.parameters || []),
                     })),
                 },
             },
