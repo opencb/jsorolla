@@ -66,7 +66,7 @@ export default class ClinicalPreprocessing extends LitElement {
 
     navigationButtonsVisible() {
         // next/previous buttons are not visible when the pipeline selection is visible
-        if (this._activeStepIndex === 1 && this._stepsParams?.preprocessing?.pipeline === null) {
+        if (this._activeStepIndex === 1 && this._stepsParams?.pipeline === null) {
             return false;
         }
         // other case, buttons are visible
