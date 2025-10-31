@@ -234,10 +234,11 @@ export default class VariantSummaryInterpretation extends LitElement {
                                 titleClassName: "summary-category",
                                 titleStyle: "font-weight: normal !important",
                                 defaultLayout: "vertical",
-                                className: "table",
-                                style: "font-size: 12px;",
+                                className: " table-borderless table-grid table-hover mt-2",
+                                style: "font-size: 12px; background-color: #f9fafa; padding: 4px 12px",
                                 bodyCellClassName: "align-middle bg-transparent",
                                 headerCellClassName: "bg-transparent",
+                                separationClassName: "mb-0",
                                 // bodyRowClassName: "bg-gray-100",
                                 getData: variant => (variant?.evidences || []).filter(({review}) => review?.select),
                                 columns: [
@@ -272,8 +273,8 @@ export default class VariantSummaryInterpretation extends LitElement {
                                                             }
                                                             const cs = CLINICAL_SIGNIFICANCE.find(cs => cs.id === clinicalSignificance.toLowerCase());
                                                             return html`
-                                                    <span style="color: ${cs.color}">${cs.acronym}</span>
-                                                `;
+                                                                <span style="color: ${cs.color}">${cs.acronym}</span>
+                                                            `;
                                                         },
                                                     },
                                                 },
@@ -288,18 +289,17 @@ export default class VariantSummaryInterpretation extends LitElement {
                                                             }
                                                             return html`
                                                                 ${acmgList.map(({ classification, strength }) => {
-                                                                const { color, id } =
-                                                                ACMG_CRITERIA_COLOR.find(c => c.id === classification) ?? { color: '#000', id: '-' };
+                                                                const { color, id } = ACMG_CRITERIA_COLOR.find(c => c.id === classification) ?? { color: '#000', id: '-' };
                                                                 return html`
-                                                                        <div class="d-inline-flex flex-column align-items-center text-center me-1">
-                                                                            <span
-                                                                                class="rounded-4 px-2 py-1"
-                                                                                style="border: 1px solid ${color}; color: ${color}; min-width: 2.5rem;">
-                                                                                    ${id}
-                                                                            </span>
-                                                                            ${strength ? html`<small class="text-muted mt-1 fs-9">${strength}</small>` : ''}
-                                                                        </div>
-                                                                  `;
+                                                                    <div class="d-inline-flex flex-column align-items-center text-center me-1">
+                                                                        <span
+                                                                            class="rounded-4 px-2 py-1"
+                                                                            style="border: 1px solid ${color}; color: ${color}; min-width: 2.5rem;">
+                                                                                ${id}
+                                                                        </span>
+                                                                        ${strength ? html`<small class="text-muted mt-1 fs-9">${strength}</small>` : ''}
+                                                                    </div>
+                                                              `;
                                                             })}
                                                             `;
                                                         },

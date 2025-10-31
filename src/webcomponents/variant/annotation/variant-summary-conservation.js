@@ -218,11 +218,11 @@ export default class VariantSummaryConservation extends LitElement {
                                                         <div class="summary-category" style="min-width: 100px;">
                                                             ${method}
                                                         </div>
-                                                        <h4 class="d-flex">
+                                                        <h5 class="d-flex">
                                                             <div class="" style="color: ${color}">
                                                                 ${score}
                                                             </div>
-                                                        </h4>
+                                                        </h5>
                                                     </div>
                                                 `;
                                             })}

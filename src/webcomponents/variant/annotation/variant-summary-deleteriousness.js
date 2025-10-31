@@ -526,11 +526,11 @@ export default class VariantSummaryDeleteriousness extends LitElement {
                                                     <div class="summary-category">
                                                         ${VariantGridFormatter.getDeleteriousPredictorDisplayName(predictor)}
                                                     </div>
-                                                    <h4 class="d-flex flex-column">
+                                                    <h5 class="d-flex flex-column">
                                                         <div style="color: ${value?.color}">
                                                             ${value?.qualitative}
                                                         </div>
-                                                    </h4>
+                                                    </h5>
                                                 </div>
                                             `)}
                                         </div>
