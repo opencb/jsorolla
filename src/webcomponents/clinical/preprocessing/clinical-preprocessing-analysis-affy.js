@@ -285,7 +285,7 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                         type: "select",
                         allowedValues: ["bwa", "bwa-mem2", "minimap2"],
                         display: {
-                            disabled: data => !data.alignment.active,
+                            // disabled: data => !data.alignment.active,
                             helpMessage: "Select the alignment tool to use. Options are 'bwa' (BWA-MEM), 'bwa-mem2' (BWA-MEM2) and 'minimap2' (Minimap2)."
                         },
                     },
@@ -302,9 +302,9 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                                         .searchField="${"path"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{
-                                    multiple: false,
-                                    disabled: !this._toolParams?.alignment?.active,
-                                }}"
+                                            multiple: false,
+                                            // disabled: !this._toolParams?.alignment?.active,
+                                        }}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
@@ -319,7 +319,7 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                             itemClassName: "row",
                             itemTitleClassName: "col-md-3",
                             itemContentClassName: "col-md-9",
-                            disabled: data => !data.alignment.active,
+                            // disabled: data => !data.alignment.active,
                         },
                         elements: [
                             {
@@ -353,7 +353,7 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                         field: "alignment.tool.parameters",
                         type: "input-parameters",
                         display: {
-                            disabled: data => !data.alignment.active,
+                            // disabled: data => !data.alignment.active,
                             itemsNotFoundText: "No parameters registered for this tool.",
                             fileRender: (selectedFile, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
@@ -361,8 +361,8 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                                     .resource="${"FILE"}"
                                     .searchField="${"path"}"
                                     .config="${{
-                                multiple: false,
-                            }}"
+                                        multiple: false,
+                                    }}"
                                     .opencgaSession="${this.opencgaSession}"
                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                 </catalog-search-autocomplete>
