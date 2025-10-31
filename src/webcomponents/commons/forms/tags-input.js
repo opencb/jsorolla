@@ -44,7 +44,7 @@ export default class TagsInput extends LitElement {
         // if the tag is not empty and not already in the value array, add it
         if (tag && this.value.indexOf(tag) === -1) {
             this.value = [...this.value, tag];
-            LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
+            LitUtils.dispatchCustomEvent(this, "change", this.value);
         }
 
         // after submitting, we have to clear the input
@@ -54,7 +54,7 @@ export default class TagsInput extends LitElement {
 
     onRemoveTag(tag) {
         this.value = this.value.filter(t => t !== tag);
-        LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
+        LitUtils.dispatchCustomEvent(this, "change", this.value);
         this.requestUpdate();
     }
 
