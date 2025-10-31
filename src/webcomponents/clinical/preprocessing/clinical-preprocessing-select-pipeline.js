@@ -94,8 +94,12 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
         LitUtils.dispatchCustomEvent(this, "pipelineSelect", null, pipeline);
     }
 
-    onCreatePipeline() {
-        LitUtils.dispatchCustomEvent(this, "pipelineCreate");
+    onGenomicsPipelineCreate() {
+        LitUtils.dispatchCustomEvent(this, "genomicsPipelineCreate");
+    }
+
+    onAffyPipelineCreate() {
+        LitUtils.dispatchCustomEvent(this, "affyPipelineCreate");
     }
 
     renderPipelineItem(pipeline) {
@@ -244,12 +248,21 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html`
-                                    <div class="mx-0">
-                                        <button class="btn btn-lg btn-primary w-full d-flex align-items-center justify-content-center gap-2 py-3" @click="${() => this.onCreatePipeline()}">
-                                            <i class="fas fa-plus-circle"></i>
-                                            <span>Create New Pipeline</span>
-                                        </button>
-                                    </div>
+                                    <button class="btn btn-lg btn-primary w-full d-flex flex-column align-items-center justify-content-center gap-2 py-3" @click="${() => this.onGenomicsPipelineCreate()}">
+                                        <i class="fas fa-dna fs-2"></i>
+                                        <span>Create New <b>Genomics</b> Pipeline</span>
+                                    </button>
+                                `,
+                            },
+                        },
+                        {
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <button class="btn btn-lg btn-secondary w-full d-flex flex-column align-items-center justify-content-center gap-2 py-3" @click="${() => this.onAffyPipelineCreate()}">
+                                        <i class="fas fa-microscope fs-2"></i>
+                                        <span>Create New <b>Affy</b> Pipeline</span>
+                                    </button>
                                 `,
                             },
                         }
