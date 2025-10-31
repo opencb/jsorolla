@@ -107,7 +107,7 @@ export default class ClinicalPreprocessing extends LitElement {
             // include the file in the sample files list
             samplesMap.get(fileObject.sampleId).files.push(fileObject.fileId);
         });
-        
+
         // 3. update the preprocessing input samples
         this._stepsParams.samples = Array.from(samplesMap.values());
     }
@@ -131,6 +131,7 @@ export default class ClinicalPreprocessing extends LitElement {
         this._stepsParams.pipeline = {
             file: "",
             version: 0,
+            type: "genomics",
         };
         this.requestUpdate();
     }
@@ -138,8 +139,9 @@ export default class ClinicalPreprocessing extends LitElement {
     onPipelineSelect(event) {
         this._stepsParams.pipeline = {
             file: event.detail.id,
-            version: event.detail.content?.version,
             name: event.detail.content?.name || "",
+            version: event.detail.content?.version,
+            type: event.detail.content.type || "genomics",
             description: event.detail.content?.description || "",
         };
         // update pipeline steps
@@ -168,6 +170,7 @@ export default class ClinicalPreprocessing extends LitElement {
             name: this._stepsParams.pipeline.name,
             description: this._stepsParams.pipeline.description,
             version: this._stepsParams.pipeline.version + 1,
+            type: this._stepsParams.pipeline.type || "genomics",
             steps: this._stepsParams.preprocessing.steps,
         });
         return this.opencgaSession.opencgaClient.files()
@@ -193,6 +196,7 @@ export default class ClinicalPreprocessing extends LitElement {
                 name: event.detail.name || "Untitled Pipeline",
                 description: event.detail.description || "",
                 version: 1,
+                type: event.detail.type || "genomics",
                 steps: this._stepsParams.preprocessing.steps,
             }),
         };
@@ -394,6 +398,7 @@ export default class ClinicalPreprocessing extends LitElement {
                             <div class="position-relative">
                                 <clinical-preprocessing-analysis
                                     .toolParams="${this._stepsParams?.preprocessing}"
+                                    .pipelineType="${this._stepsParams?.pipeline?.type || "genomics"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .displayConfig="${{
                                         buttonsVisible: false,

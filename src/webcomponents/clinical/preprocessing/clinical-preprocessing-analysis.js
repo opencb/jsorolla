@@ -41,6 +41,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             toolParams: {
                 type: Object,
             },
+            pipelineType: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object,
             },
@@ -97,7 +100,6 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                         },
                     ],
                 },
-
             },
             variantCalling: {
                 active: true,
@@ -443,6 +445,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             {
                 title: "Quality Control Options",
                 description: "These parameters apply to FastQC quality control step",
+                display: {
+                    visible: () => this.pipelineType === "genomics",
+                },
                 elements: [
                     {
                         title: "QC Active",
@@ -504,6 +509,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             {
                 title: "Alignment Options",
                 description: "These parameters apply to BWA alignment step",
+                display: {
+                    visible: () => this.pipelineType === "genomics",
+                },
                 elements: [
                     {
                         title: "Active",
@@ -633,6 +641,9 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
             {
                 title: "Variant Calling Options",
                 description: "These parameters apply to variant calling step",
+                display: {
+                    visible: () => this.pipelineType === "genomics",
+                },
                 elements: [
                     {
                         title: "Variant Calling Active",
@@ -696,6 +707,138 @@ export default class ClinicalPreprocessingAnalysis extends LitElement {
                                     },
                                 },
                             ],
+                        },
+                    },
+                ],
+            },
+            {
+                title: "Affy Options",
+                description: "These parameters apply to BWA alignment step",
+                display: {
+                    visible: () => this.pipelineType === "affy",
+                },
+                elements: [
+                    // {
+                    //     title: "Active",
+                    //     field: "alignment.active",
+                    //     type: "toggle-switch",
+                    //     display: {
+                    //         onText: "Yes",
+                    //         offText: "No",
+                    //         helpMessage: "Activate or deactivate the alignment step.",
+                    //     },
+                    // },
+                    {
+                        title: "APT Tool",
+                        field: "alignment.tool.id",
+                        type: "select",
+                        allowedValues: ["bwa", "bwa-mem2", "minimap2"],
+                        display: {
+                            disabled: data => !data.alignment.active,
+                            helpMessage: "Select the alignment tool to use. Options are 'bwa' (BWA-MEM), 'bwa-mem2' (BWA-MEM2) and 'minimap2' (Minimap2)."
+                        },
+                    },
+                    {
+                        title: "Aligner Index Directory",
+                        field: "alignment.tool.index",
+                        type: "custom",
+                        display: {
+                            render: (alignmentIndex, dataFormFilterChange) => {
+                                return html `
+                                    <catalog-search-autocomplete
+                                        .value="${alignmentIndex}"
+                                        .resource="${"FILE"}"
+                                        .searchField="${"path"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                    multiple: false,
+                                    disabled: !this._toolParams?.alignment?.active,
+                                }}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `;
+                            },
+                            helpMessage: "Aligner index directory to be used for the alignment step. This overrides the general index directory."
+                        }
+                    },
+                    {
+                        title: "Alignment Step Options",
+                        type: "object",
+                        display: {
+                            itemClassName: "row",
+                            itemTitleClassName: "col-md-3",
+                            itemContentClassName: "col-md-9",
+                            disabled: data => !data.alignment.active,
+                        },
+                        elements: [
+                            {
+                                title: "Clean Intermediate Files",
+                                field: "alignment.options.clean",
+                                type: "toggle-switch",
+                                display: {
+                                    helpMessage: "If enabled, intermediate files generated during the alignment process will be deleted to save disk space.",
+                                },
+                            },
+                            {
+                                title: "Create CRAM Files",
+                                field: "alignment.options.cram",
+                                type: "toggle-switch",
+                                display: {
+                                    helpMessage: "If enabled, the output files will be in CRAM format instead of BAM format.",
+                                },
+                            },
+                            {
+                                title: "Calculate Quality Control",
+                                field: "alignment.options.qc",
+                                type: "toggle-switch",
+                                display: {
+                                    helpMessage: "If enabled, quality control will be performed on the aligned data after the alignment step.",
+                                },
+                            },
+                        ],
+                    },
+                    {
+                        title: "Aligner Parameters",
+                        field: "alignment.tool.parameters",
+                        type: "input-parameters",
+                        display: {
+                            disabled: data => !data.alignment.active,
+                            itemsNotFoundText: "No parameters registered for this tool.",
+                            fileRender: (selectedFile, dataFormFilterChange) => html`
+                                <catalog-search-autocomplete
+                                    .value="${selectedFile}"
+                                    .resource="${"FILE"}"
+                                    .searchField="${"path"}"
+                                    .config="${{
+                                multiple: false,
+                            }}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                </catalog-search-autocomplete>
+                            `,
+                        },
+                    },
+                    {
+                        title: "Tool Usage Documentation",
+                        field: "alignment.tool.id",
+                        type: "custom",
+                        display: {
+                            render: tool => {
+                                const usagePage = this.getUsagePage(tool);
+                                if (!tool || !usagePage) {
+                                    return html`
+                                        <div class="alert alert-light d-flex flex-column align-items-center gap-2 text-center py-4">
+                                            <i class="fa fa-book fs-4"></i>
+                                            <span class="fw-bold">No usage information available for the selected tool.</span>
+                                        </div>
+                                    `;
+                                }
+                                return html`
+                                    <div class="border rounded p-2 shadow-lg bg-white py-3" style="box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);">
+                                        <iframe src="${usagePage}" width="100%" height="720px" class="w-100 border-0"></iframe>
+                                    </div>
+                                `;
+                            },
                         },
                     },
                 ],

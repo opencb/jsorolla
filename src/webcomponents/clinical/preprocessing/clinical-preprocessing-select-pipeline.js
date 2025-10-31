@@ -54,7 +54,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                     const files = (response.responses?.[0]?.results || []).filter(file => {
                         return file.name.endsWith(".json");
                     });
-                    // 2. donwload each file and parse the content
+                    // 2. download each file and parse the content
                     return Promise.all(files.map(file => {
                         return this.opencgaSession.opencgaClient.files()
                             .download(file.id, {
@@ -107,6 +107,45 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
         `;
     }
 
+    renderPipelineItem(pipeline) {
+        return html`
+            <div class="d-flex flex-column gap-1">
+                <div class="d-flex align-items-center">
+                    <span class="fw-bold fs-5 link cursor-pointer" @click="${event => this.onSelectPipeline(event, pipeline)}">
+                        ${pipeline.content.name || pipeline.name}
+                    </span>
+                    ${pipeline.content.version ? html`<span class="badge bg-secondary ms-2">v${pipeline.content.version}</span>` : nothing}
+                </div>
+                <div class="d-flex gap-3 align-items-center">
+                    <span>Alignment Tool: <b>${pipeline.content?.steps?.alignment?.tool?.id || "-"}</b></span>
+                    <span>Variant Calling Tools: <b>${(pipeline.content?.steps?.variantCalling?.tools || []).map(t => t.id || t.name).join(", ") || "-"}</b></span>
+                </div>
+                ${pipeline.content.description ? html`
+                    <div class="text-muted">${pipeline.content.description}</div>
+                ` : nothing}
+            </div>
+            <div class="d-flex align-items-center">
+                <button class="btn btn-light d-flex py-2" @click="${event => this.onSelectPipeline(event, pipeline)}">
+                    <i class="fas fa-arrow-right fs-4"></i>
+                </button>
+            </div>
+        `;
+    }
+
+    renderEmtpyPipelineList() {
+        return html`
+            <div class="text-center d-flex flex-column align-items-center p-5 bg-white rounded-4 border border-gray-200">
+                <div class="d-flex fs-1 text-secondary mb-2">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="fw-bold fs-5 mb-1">No pipelines available</div>
+                <div class="text-muted">
+                    No predefined preprocessing pipelines were found in the <code>RESOURCES/clinical/pipelines</code> folder of the study.
+                    You can create a new custom pipeline by clicking the button on the right.
+                </div>
+            </div>
+        `;
+    }
     getDefaultConfig() {
         return {
             title: "Select NGS Preprocessing Pipeline",
@@ -145,6 +184,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                             },
                         },
                         {
+                            title: "Genomic Pipelines",
                             type: "list",
                             field: "pipelines",
                             display: {
@@ -155,40 +195,30 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                                     event.stopPropagation();
                                     this.onSelectPipeline(pipeline);
                                 },
-                                format: pipeline => html`
-                                    <div class="d-flex flex-column gap-1">
-                                        <div class="d-flex align-items-center">
-                                            <span class="fw-bold fs-5 link cursor-pointer" @click="${event => this.onSelectPipeline(event, pipeline)}">
-                                                ${pipeline.content.name || pipeline.name}
-                                            </span>
-                                            ${pipeline.content.version ? html`<span class="badge bg-secondary ms-2">v${pipeline.content.version}</span>` : nothing}
-                                        </div>
-                                        <div class="d-flex gap-3 align-items-center">
-                                            <span>Alignment Tool: <b>${pipeline.content?.steps?.alignment?.tool?.id || "-"}</b></span>
-                                            <span>Variant Calling Tools: <b>${(pipeline.content?.steps?.variantCalling?.tools || []).map(t => t.id || t.name).join(", ") || "-"}</b></span>
-                                        </div>
-                                        ${pipeline.content.description ? html`
-                                            <div class="text-muted">${pipeline.content.description}</div>
-                                        ` : nothing}
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <button class="btn btn-light d-flex py-2" @click="${event => this.onSelectPipeline(event, pipeline)}">
-                                            <i class="fas fa-arrow-right fs-4"></i>
-                                        </button>
-                                    </div>
-                                `,
-                                defaultValue: () => html`
-                                    <div class="text-center d-flex flex-column align-items-center p-5 bg-white rounded-4 border border-gray-200">
-                                        <div class="d-flex fs-1 text-secondary mb-2">
-                                            <i class="fas fa-info-circle"></i>
-                                        </div>
-                                        <div class="fw-bold fs-5 mb-1">No pipelines available</div>
-                                        <div class="text-muted">
-                                            No predefined preprocessing pipelines were found in the <code>RESOURCES/clinical/pipelines</code> folder of the study.
-                                            You can create a new custom pipeline by clicking the button on the right.
-                                        </div>
-                                    </div>
-                                `,
+                                filter: pipelines => {
+                                    return pipelines.filter(pipeline => !pipeline.content?.type || pipeline.content?.type === "genomics");
+                                },
+                                format: pipeline => this.renderPipelineItem(pipeline),
+                                defaultValue: () => this.renderEmtpyPipelineList(),
+                            },
+                        },
+                        {
+                            title: "Affy Pipelines",
+                            type: "list",
+                            field: "pipelines",
+                            display: {
+                                contentLayout: "vertical",
+                                listClassName: "d-flex flex-column gap-2",
+                                listItemClassName: "p-3 rounded-4 bg-white border border-gray-200 d-flex justify-content-between align-items-center gap-2 shadow-sm",
+                                listItemClick: (event, pipeline) => {
+                                    event.stopPropagation();
+                                    this.onSelectPipeline(pipeline);
+                                },
+                                filter: pipelines => {
+                                    return pipelines.filter(pipeline => pipeline.content?.type === "affy");
+                                },
+                                format: pipeline => this.renderPipelineItem(pipeline),
+                                defaultValue: () => this.renderEmtpyPipelineList(),
                             },
                         },
                     ],

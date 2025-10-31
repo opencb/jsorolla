@@ -1,4 +1,4 @@
-import {html, LitElement, nothing} from "lit";
+import {html, LitElement} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "../../commons/forms/data-form.js";
 
@@ -33,7 +33,6 @@ export default class ClinicalPreprocessingSavePipeline extends LitElement {
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
@@ -64,7 +63,7 @@ export default class ClinicalPreprocessingSavePipeline extends LitElement {
             display: {
                 buttonsVisible: true,
                 buttonClearText: "",
-                buttonOkText: "Save Pipeline",
+                buttonOkText: "Save",
                 ...this.displayConfig,
             },
             sections: [
@@ -72,26 +71,36 @@ export default class ClinicalPreprocessingSavePipeline extends LitElement {
                     title: "",
                     elements: [
                         {
-                            type: "input-text",
-                            field: "fileName",
                             title: "File Name",
+                            field: "fileName",
+                            type: "input-text",
                             required: true,
                             display: {
                             },
                         },
                         {
-                            type: "input-text",
-                            field: "name",
                             title: "Pipeline Name",
+                            field: "name",
+                            type: "input-text",
                             required: true,
                             display: {
                             },
                         },
                         {
-                            type: "input-text",
-                            field: "description",
-                            title: "Pipeline Description",
+                            title: "Type",
+                            field: "type",
+                            type: "select",
+                            allowedValues: ["genomics", "affy"],
+                            defaultValue: "genomics",
                             display: {
+                            },
+                        },
+                        {
+                            title: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
                             },
                         },
                     ],
