@@ -19,7 +19,6 @@ import Types from "../commons/types.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
 import "../commons/forms/data-form.js";
-import "../commons/forms/tags-input.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class WorkflowUpdate extends LitElement {
@@ -131,15 +130,7 @@ export default class WorkflowUpdate extends LitElement {
                         {
                             title: "Tags",
                             field: "tags",
-                            type: "custom",
-                            display: {
-                                render: (tags, onFilterChange) => html`
-                                    <tags-input
-                                        .value="${tags || []}"
-                                        @filterChange="${e => onFilterChange(e.detail.value)}">
-                                    </tags-input>
-                                `,
-                            },
+                            type: "input-tags",
                         },
                         {
                             title: "Draft",

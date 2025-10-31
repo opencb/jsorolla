@@ -30,6 +30,7 @@ import Project from "./api/Project.js";
 import Sample from "./api/Sample.js";
 import Study from "./api/Study.js";
 import User from "./api/User.js";
+import UserTool from "./api/UserTool.js";
 import Variant from "./api/Variant.js";
 import VariantOperation from "./api/VariantOperation.js";
 import Workflow from "./api/Workflow.js";
@@ -161,6 +162,13 @@ export class OpenCGAClient {
         return this.clients.get("individuals");
     }
 
+    userTool() {
+        if (!this.clients.has("userTool")) {
+            this.clients.set("userTool", new UserTool(this._config));
+        }
+        return this.clients.get("userTool");
+    }
+
     families() {
         if (!this.clients.has("families")) {
             this.clients.set("families", new Family(this._config));
@@ -259,6 +267,8 @@ export class OpenCGAClient {
                 return this.samples();
             case "INDIVIDUAL":
                 return this.individuals();
+            case "USER_TOOL":
+                return this.userTool();
             case "FAMILY":
                 return this.families();
             case "COHORT":

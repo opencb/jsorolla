@@ -195,6 +195,18 @@ export default class CatalogSearchAutocomplete extends LitElement {
                     include: "id,name,type,format,size,path",
                 }
             },
+            "USER_TOOL": {
+                searchField: "id",
+                placeholder: "Start typing",
+                fetch: filters => this.opencgaSession.opencgaClient.userTools().search(filters),
+                fields: item => ({
+                    id: item.id,
+                    name: item.id,
+                }),
+                query: {
+                    include: "id,name",
+                },
+            },
             "DIRECTORY": {
                 searchField: "path",
                 placeholder: "eg. /data/platinum-grch38...",

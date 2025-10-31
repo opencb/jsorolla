@@ -19,7 +19,6 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/filters/acmg-filter.js";
 import "../../commons/forms/data-form.js";
-import "../../commons/forms/tags-input.js";
 
 export default class ClinicalVariantEvidenceReview extends LitElement {
 
@@ -303,15 +302,9 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
                         {
                             title: "Tags",
                             field: "tags",
-                            type: "custom",
+                            type: "input-tags",
                             display: {
-                                render: (tags, onFilterChange) => html`
-                                    <tags-input
-                                        .value="${tags || []}"
-                                        .disabled="${!this._review?.select}"
-                                        @filterChange="${e => onFilterChange(e.detail.value)}">
-                                    </tags-input>
-                                `,
+                                disabled: () => !this._review?.select,
                             },
                         },
                     ]

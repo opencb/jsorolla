@@ -50,7 +50,12 @@ export default class VerticalMenu extends LitElement {
     }
 
     renderMenu() {
-        return this._config.menu.map(item => {
+        // prevent displaying empty menu items
+        const nonEmptyMenuItems = (this._config?.menu || []).filter(item => {
+            return item.submenu && item.submenu.length > 0;
+        });
+
+        return nonEmptyMenuItems.map(item => {
             const id = (item.name || item.id).replace(/ /g, "-").toLowerCase();
             return html`
                 <div class="">

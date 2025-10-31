@@ -67,6 +67,7 @@ import "../../webcomponents/api/rest-api.js";
 import "../../webcomponents/api/swagger-ui.js";
 import "../../webcomponents/note/note-browser.js";
 import "../../webcomponents/commons/analysis/analysis-tools.js";
+import "../../webcomponents/commons/analysis/my-analysis-tools.js";
 import "../../webcomponents/commons/analysis/jupyter-notebook.js";
 
 import "../../webcomponents/clinical/preprocessing/clinical-file-upload.js";
@@ -1352,6 +1353,13 @@ class IvaApp extends LitElement {
                     <analysis-tools
                         .opencgaSession="${this.opencgaSession}">
                     </analysis-tools>
+                `;
+                break;
+            case "my-analysis-tools":
+                content = html`
+                    <my-analysis-tools
+                        .opencgaSession="${this.opencgaSession}">
+                    </my-analysis-tools>
                 `;
                 break;
             case "tool-analysis":

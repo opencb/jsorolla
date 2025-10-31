@@ -23,7 +23,6 @@ import UtilsNew from "../../core/utils-new.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 import ClinicalVariantUtils from "./variant/clinical-variant-utils.js";
 import "../commons/forms/data-form.js";
-import "../commons/forms/tags-input.js";
 import "../commons/forms/select-token-filter.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/catalog-search-autocomplete.js";
@@ -951,15 +950,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                                 {
                                     title: "Tags",
                                     field: "comments[].tags",
-                                    type: "custom",
-                                    display: {
-                                        render: (tags, onFilterChange) => html`
-                                            <tags-input
-                                                .value="${tags || []}"
-                                                @filterChange="${event => onFilterChange(event.detail.value)}">
-                                            </tags-input>
-                                        `,
-                                    }
+                                    type: "input-tags",
                                 },
                             ]
                         },

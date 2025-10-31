@@ -27,6 +27,7 @@ import "../../download-button.js";
 import "../forms/text-field-filter.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
+import "./tags-input.js";
 import "../data-table.js";
 import PdfBuilder from "./pdf-builder.js";
 
@@ -710,6 +711,10 @@ export default class DataForm extends LitElement {
                 case "input-date":
                     content = this._createInputDateElement(element, section);
                     break;
+                case "input-tags":
+                case "tags":
+                    content = this._createInputTagsElement(element, section);
+                    break;
                 case "checkbox":
                     content = this._createCheckboxElement(element);
                     break;
@@ -968,6 +973,27 @@ export default class DataForm extends LitElement {
         return this._createElementTemplate(element, value, content);
     }
 
+    _createInputTagsElement(element, section) {
+        const value = this.getValue(element.field) || this._getDefaultValue(element, section) || [];
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
+
+        const content = html`
+            <tags-input
+                .value="${value}"
+                .disabled="${disabled}"
+                .config="${{
+                    placeholder: element.display?.placeholder || "",
+                }}"
+                @change="${event => {
+                    event.stopPropagation();
+                    this.onFilterChange(element, event.detail.value);
+                }}">
+            </tags-input>
+        `;
+
+        return this._createElementTemplate(element, value, content);
+    }
+
     _createCheckboxElement(element) {
         let value = this.getValue(element.field);
         const disabled = this._getBooleanValue(element.display?.disabled, false, element);
@@ -989,7 +1015,7 @@ export default class DataForm extends LitElement {
                         .checked="${value}"
                         ?disabled="${disabled}"
                         @click="${e => this.onFilterChange(element, e.currentTarget.checked)}">
-                        ${element.text}
+                    ${element.text}
                 </label>
             </div>
         `;
@@ -1597,7 +1623,7 @@ export default class DataForm extends LitElement {
         }
     }
 
-     _createDownloadElement(element) {
+    _createDownloadElement(element) {
         const content = html`
             <download-button
                 .json="${this.data}"
@@ -1658,7 +1684,7 @@ export default class DataForm extends LitElement {
             }
 
             contents.push(html`
-                <div class="mb-3 ${element?.display?.itemClassName || ""}">
+                <div class="${this._getSeparationClass(childElement, null)} ${element?.display?.itemClassName || ""}">
                     ${childElement.title ? html`
                         <div class="${element?.display?.itemTitleClassName || ""}">
                             <label class="fw-bold form-label pt-0">

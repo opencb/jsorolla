@@ -23,7 +23,6 @@ import ClinicalVariantUtils from "./variant/clinical-variant-utils.js";
 import "./filters/clinical-priority-filter.js";
 import "./filters/clinical-flag-filter.js";
 import "../commons/forms/data-form.js";
-import "../commons/forms/tags-input.js";
 import "../commons/filters/disease-panel-filter.js";
 import Types from "../commons/types";
 
@@ -493,15 +492,7 @@ export default class ClinicalAnalysisUpdate extends LitElement {
                                 {
                                     title: "Tags",
                                     field: "comments[].tags",
-                                    type: "custom",
-                                    display: {
-                                        render: (tags, onFilterChange) => html`
-                                            <tags-input
-                                                .value="${tags || []}"
-                                                @filterChange="${event => onFilterChange(event.detail.value)}">
-                                            </tags-input>
-                                        `,
-                                    }
+                                    type: "input-tags",
                                 },
                             ]
                         },

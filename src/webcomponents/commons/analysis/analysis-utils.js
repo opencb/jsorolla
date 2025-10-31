@@ -31,7 +31,6 @@ export default class AnalysisUtils {
     static submit(id, promise, context) {
         return promise
             .then(response => {
-                console.log(response);
                 NotificationUtils.dispatch(context, NotificationUtils.NOTIFY_SUCCESS, {
                     title: `${id} launched`,
                     message: `${id} has been launched successfully`,
