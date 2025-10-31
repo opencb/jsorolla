@@ -189,7 +189,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                             type: "list",
                             field: "pipelines",
                             display: {
-                                contentLayout: "vertical",
+                                defaultLayout: "vertical",
                                 listClassName: "d-flex flex-column gap-2",
                                 listItemClassName: "p-3 rounded-4 bg-white border border-gray-200 d-flex justify-content-between align-items-center gap-2 shadow-sm",
                                 listItemClick: (event, pipeline) => {
@@ -208,7 +208,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                             type: "list",
                             field: "pipelines",
                             display: {
-                                contentLayout: "vertical",
+                                defaultLayout: "vertical",
                                 listClassName: "d-flex flex-column gap-2",
                                 listItemClassName: "p-3 rounded-4 bg-white border border-gray-200 d-flex justify-content-between align-items-center gap-2 shadow-sm",
                                 listItemClick: (event, pipeline) => {
