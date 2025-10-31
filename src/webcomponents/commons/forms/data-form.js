@@ -936,7 +936,7 @@ export default class DataForm extends LitElement {
     }
 
     _createInputTagsElement(element, section) {
-        const value = this.getValue(element.field) || this._getDefaultValue(element, section);
+        const value = this.getValue(element.field) || this._getDefaultValue(element, section) || [];
         const disabled = this._getBooleanValue(element.display?.disabled, false, element);
 
         const content = html`
@@ -945,7 +945,7 @@ export default class DataForm extends LitElement {
                 .disabled="${disabled}"
                 .config="${{
                     placeholder: element.display?.placeholder || "",
-                }}
+                }}"
                 @change="${event => {
                     event.stopPropagation();
                     this.onFilterChange(element, event.detail.value);
