@@ -27,6 +27,7 @@ import "../../download-button.js";
 import "../forms/text-field-filter.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
+import "./tags-input.js";
 import "../data-table.js";
 import PdfBuilder from "./pdf-builder.js";
 
@@ -710,6 +711,10 @@ export default class DataForm extends LitElement {
                 case "input-date":
                     content = this._createInputDateElement(element, section);
                     break;
+                case "input-tags":
+                case "tags":
+                    content = this._createInputTagsElement(element, section);
+                    break;
                 case "checkbox":
                     content = this._createCheckboxElement(element);
                     break;
@@ -963,6 +968,27 @@ export default class DataForm extends LitElement {
                 class="form-control ${this._isUpdated(element) ? "updated" : ""}"
                 @change="${e => this.onFilterChange(element, parseInputDate(e))}"
                 ?disabled="${disabled}">
+        `;
+
+        return this._createElementTemplate(element, value, content);
+    }
+
+    _createInputTagsElement(element, section) {
+        const value = this.getValue(element.field) || this._getDefaultValue(element, section) || [];
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
+
+        const content = html`
+            <tags-input
+                .value="${value}"
+                .disabled="${disabled}"
+                .config="${{
+                    placeholder: element.display?.placeholder || "",
+                }}
+                @change="${event => {
+                    event.stopPropagation();
+                    this.onFilterChange(element, event.detail.value);
+                }}">
+            </tags-input>
         `;
 
         return this._createElementTemplate(element, value, content);
