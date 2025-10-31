@@ -6,7 +6,6 @@ import VariantUtils from "../../variant/variant-utils.js";
 import ClinicalVariantUtils from "./clinical-variant-utils.js";
 import "../../commons/image-loader.js";
 import "../../commons/forms/data-form.js";
-import "../../commons/forms/tags-input.js";
 import "../../commons/filters/pubmed-search.js";
 import "../../variant/annotation/cellbase-variant-annotation-summary.js";
 import "./clinical-variant-evidences-grid.js";
@@ -616,15 +615,7 @@ export default class ClinicalVariantReview extends LitElement {
                                 {
                                     title: "Tags",
                                     field: "comments[].tags",
-                                    type: "custom",
-                                    display: {
-                                        render: (tags, onFilterChange) => html`
-                                            <tags-input
-                                                .value="${tags || []}"
-                                                @filterChange="${event => onFilterChange(event.detail.value)}">
-                                            </tags-input>
-                                        `,
-                                    },
+                                    type: "input-tags",
                                 },
                             ]
                         },
