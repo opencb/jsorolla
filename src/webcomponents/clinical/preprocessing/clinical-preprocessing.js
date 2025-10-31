@@ -127,12 +127,12 @@ export default class ClinicalPreprocessing extends LitElement {
         this.requestUpdate();
     }
 
-    onPipelineCreate() {
+    onPipelineCreate(event, pipelineType) {
         // initialize pipeline information
         this._stepsParams.pipeline = {
             file: "",
             version: 0,
-            type: "genomics",
+            type: pipelineType,
         };
         this.requestUpdate();
     }
@@ -392,7 +392,12 @@ export default class ClinicalPreprocessing extends LitElement {
                             <clinical-preprocessing-select-pipeline
                                 .opencgaSession="${this.opencgaSession}"
                                 @pipelineSelect="${event => this.onPipelineSelect(event)}"
-                                @pipelineCreate="${event => this.onPipelineCreate(event)}">
+                                @genomicsPipelineCreate="${event => {
+                                    this.onPipelineCreate(event, "genomics");
+                                }}"
+                                @affyPipelineCreate="${event => {
+                                    this.onPipelineCreate(event, "affy");
+                                }}">
                             </clinical-preprocessing-select-pipeline>
                         ` : nothing}
                         ${this._stepsParams?.pipeline !== null ? html`
