@@ -342,9 +342,9 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
             <data-form
                 .data="${this._toolParams}"
                 .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                @fieldChange="${event => this.onFieldChange(event)}"
+                @clear="${event => this.onClear(event)}"
+                @submit="${event => this.onSubmit(event)}">
             </data-form>
 
             ${this._selectedVariantCallingToolName ? this.renderVariantCallingToolConfigureModal() : nothing}
