@@ -8,6 +8,7 @@ import "./clinical-preprocessing-select-pipeline.js";
 import "./clinical-preprocessing-save-pipeline.js";
 import "./clinical-preprocessing-summary.js";
 import "./clinical-preprocessing-analysis-genomics.js";
+import "./clinical-preprocessing-analysis-affy.js";
 import "../../commons/tool-header.js";
 import "../../variant/operation/variant-index-operation.js";
 
@@ -405,6 +406,16 @@ export default class ClinicalPreprocessing extends LitElement {
                                         }}"
                                         @paramsChange="${event => this.onPreprocessingParamsChange(event)}">
                                     </clinical-preprocessing-analysis-genomics>
+                                ` : nothing}
+                                ${this._stepsParams?.pipeline?.type === "affy" ? html`
+                                    <clinical-preprocessing-analysis-affy
+                                        .toolParams="${this._stepsParams?.preprocessing}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .displayConfig="${{
+                                            buttonsVisible: false,
+                                        }}"
+                                        @paramsChange="${event => this.onPreprocessingParamsChange(event)}">
+                                    </clinical-preprocessing-analysis-affy>
                                 ` : nothing}
                                 <div class="position-absolute top-0 end-0">
                                     <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onPipelineClear()}">
