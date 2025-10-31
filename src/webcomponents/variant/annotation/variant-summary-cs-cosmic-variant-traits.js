@@ -57,109 +57,123 @@ export default class VariantSummaryCSCosmicVariantTraits extends LitElement {
     updated(changedProperties) {
         UtilsNew.initTooltip(this);
         this.querySelector("#summary-cosmic-traits data-form").updateComplete.then(() => {
-            Object.keys(this._variantSummary).forEach((gene, idx) => {
-                    this.#renderChart(gene, idx)
-            });
+            this.#renderChart()
         });
+    }
+
+    // Helper
+    _getAdditionalProp(item, propName) {
+        var found = null;
+        for (var i = 0; i < item.additionalProperties.length; i++) {
+            if (item.additionalProperties[i].name === propName) {
+                found = item.additionalProperties[i].value;
+                break;
+            }
+        }
+        return found;
     }
 
     variantObserver() {
         if (this.variant) {
             this._variantSummary = this._summarize();
         }
-        debugger
-    }
-
-    _mapFathmmColor(pred) {
-        const map = {
-            "PATHOGENIC": "#d73027",
-            "NEUTRAL": "#4575b4",
-            "UNKNOWN": "#999999"
-        };
-        return map[pred?.toUpperCase()] || "#cccccc";
     }
 
     _summarize() {
-        // Aggregate data per gene and tumour site
-        const geneSiteData = {};
-        (this.variant.annotation?.traitAssociation || [])
-            .filter(t => t.source?.name?.toLowerCase() === 'cosmic')
-            .forEach(t => {
-                const geneFeature = t.genomicFeatures.find(g => g.featureType === "gene" && isNaN(g.xrefs.symbol));
-                const gene = geneFeature ? geneFeature.xrefs.symbol : "Unknown";
-                const site = t.somaticInformation.primarySite || "Unknown";
-                const histology = t.somaticInformation.primaryHistology || "Unknown";
-                const transcriptFeature = t.genomicFeatures.find(g => g.featureType === "transcript");
-                const transcriptId = transcriptFeature ? transcriptFeature.xrefs.symbol : "Unknown";
+        // Step 1: Filter data by rules
+        const filtered = this.variant.annotation.traitAssociation.filter(item => {
+            const isCosmic = item.source?.name?.toLowerCase() === "cosmic";
+            const isPrimary = item.somaticInformation?.tumourOrigin?.toLowerCase() === "primary";
+            const somaticStatus = this._getAdditionalProp(item, "Mutation Somatic Status");
+            const isConfirmedSomatic = somaticStatus && somaticStatus.toLowerCase().includes("confirmed somatic");
+            const geneSymbols = item.genomicFeatures
+                .filter(f => f.featureType === "gene")
+                .map(f => f.xrefs?.symbol)
+                .filter(sym => sym && isNaN(sym)); // exclude numeric-only
+            return isCosmic && isPrimary && isConfirmedSomatic && geneSymbols.length > 0;
+        });
 
-                const fathmmPrediction = (t.additionalProperties.find(p => p.id === "FATHMM_PREDICTION") || {}).value || "Unknown";
-                const fathmmScore = (t.additionalProperties.find(p => p.id === "FATHMM_SCORE") || {}).value || "N/A";
+        // Step 2: Group by histologySubtype + primarySite
+        const groups = {};
+        filtered.forEach(item => {
+            const subtype = item.somaticInformation?.histologySubtype || "Unknown";
+            const site = item.somaticInformation?.primarySite || "Unknown";
+            const key = `${subtype}||${site}`;
+            if (!groups[key]) {
+                groups[key] = {
+                    histologySubtype: subtype,
+                    primarySite: site,
+                    fathmmScores: [],
+                    count: 0
+                };
+            }
+            const fathmmScore = parseFloat(this._getAdditionalProp(item, "FATHMM Score"));
+            if (!isNaN(fathmmScore)) groups[key].fathmmScores.push(fathmmScore);
+            groups[key].count += 1;
+        });
 
-                const key = `${gene}||${site}||${fathmmPrediction}||${histology}`;
-                if (!geneSiteData[gene]) geneSiteData[gene] = {};
-                if (!geneSiteData[gene][key]) {
-                    geneSiteData[gene][key] = {
-                        name: site,
-                        weight: 0,
-                        color: this._mapFathmmColor(fathmmPrediction),
-                        histology,
-                        fathmmPrediction,
-                        fathmmScore,
-                        transcripts: new Set()
-                    };
-                }
-                geneSiteData[gene][key].weight++;
-                geneSiteData[gene][key].transcripts.add(transcriptId);
-            });
-        debugger
+        // Median helper
+        const median = arr => {
+            const sorted = [...arr].sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+            return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+        };
 
-        const cleanedGeneSiteData = Object.fromEntries(
-            Object.entries(geneSiteData).filter(([key]) => key !== "Unknown")
-        );
-        return cleanedGeneSiteData;
+        // Step 3: Prepare chart data
+        const xCategories = [...new Set(Object.values(groups).map(g => g.histologySubtype))];
+        const yCategories = [...new Set(Object.values(groups).map(g => g.primarySite))];
+
+        const chartData = Object.values(groups).map(g => ({
+            name: `${g.histologySubtype} - ${g.primarySite}`,
+            x: xCategories.indexOf(g.histologySubtype),
+            y: yCategories.indexOf(g.primarySite),
+            z: g.count, // This is size (replace with proportion if available)
+            colorValue: median(g.fathmmScores) || 0
+        }));
+        return {chartData, xCategories, yCategories};
 
     }
 
-    #renderChart(gene, idx) {
-        debugger
-        const containerId = `container-${idx}`;
-        const div = document.createElement("div");
-        div.id = containerId;
-        div.style.height = "300px";
-        document.querySelector(`#${this._chartId}`).appendChild(div);
-
-        const data = Object.values(this._variantSummary[gene]).map(d => ({
-            name: d.name,
-            weight: d.weight,
-            color: d.color,
-            histology: d.histology,
-            fathmmPrediction: d.fathmmPrediction,
-            fathmmScore: d.fathmmScore,
-            transcriptIds: Array.from(d.transcripts)
-        }));
-
-        Highcharts.chart(containerId, {
-            series: [{
-                type: 'wordcloud',
-                data,
-                name: 'Transcript count'
-            }],
-            title: { text: `Tumour Sites for Gene: ${gene}` },
+    #renderChart() {
+        Highcharts.chart(`${this._chartId}`, {
+            chart: {
+                type: 'bubble',
+                plotBorderWidth: 1,
+                zoomType: 'xy'
+            },
+            title: {
+                text: 'Primary Tumor Drivers by Histology and Site'
+            },
+            xAxis: {
+                categories: this._variantSummary.yCategories,
+                title: { text: 'Primary Site' },
+            },
+            yAxis: {
+                categories: this._variantSummary.xCategories,
+                title: { text: 'Histopathology Subtype' },
+            },
+            colorAxis: {
+                min: 0,
+                max: 1,
+                stops: [
+                    [0, '#3060cf'],
+                    [0.5, '#fffbbc'],
+                    [1, '#c4463a']
+                ]
+            },
             tooltip: {
-                useHTML: true,
-                pointFormatter: function() {
-                    return `<b>${this.name}</b><br/>
-                        Histology: ${this.histology}<br/>
-                        Transcripts: ${this.weight}<br/>
-                        FATHMM Prediction: ${this.fathmmPrediction}<br/>
-                        FATHMM Score: ${this.fathmmScore}<br/>
-                        Transcript IDs: ${this.transcriptIds.join(", ")}
-                    `;
-                }
+                pointFormat: `
+                    <b>{point.name}</b><br/>
+                    Count: {point.z}<br/>
+                    Median FATHMM: {point.colorValue:.3f}
+                `,
             },
-            credits: {
-                enabled: false
-            },
+            series: [{
+                data: this._variantSummary.chartData,
+                minSize: 10,
+                maxSize: 50,
+                colorKey: 'colorValue'
+            }]
         });
     }
 
@@ -167,7 +181,6 @@ export default class VariantSummaryCSCosmicVariantTraits extends LitElement {
         if (!this._variantSummary) {
             return nothing;
         }
-
 
         return html`
             <div class="card p-3">

@@ -18,7 +18,7 @@ import {html, LitElement, nothing} from "lit";
 import "./variant-summary-interpretation.js"
 import "./variant-summary-clinical-significance.js"
 import "./variant-summary-clinical-significance-variant-traits.js"
-import "./variant-summary-cs-cosmic-variant-traits.js"
+// import "./variant-summary-cs-cosmic-variant-traits.js"
 import "./variant-summary-quality.js"
 import "./variant-summary-population.js"
 import "./variant-summary-info.js"
@@ -27,7 +27,7 @@ import "./variant-summary-ct-no-selected.js"
 import "./variant-summary-gene.js"
 import "./variant-summary-deleteriousness.js";
 import "./variant-summary-conservation.js";
-import UtilsNew from "../../../core/utils-new";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class VariantSummary extends LitElement {
 
@@ -138,8 +138,6 @@ export default class VariantSummary extends LitElement {
             },
             sections: [
                 // 1. Section Interpretation summary, if available
-                // - Status, Confidence, Papers, etc.
-                // - Predicted and user CS, ACMG Classification
                 {
                     display: {
                         separationClassName: "mb-0",
@@ -170,13 +168,15 @@ export default class VariantSummary extends LitElement {
                 },
                 // 2. Section Variant quality
                 {
+                    display: {
+                        separationClassName: "mb-0",
+                    },
                     elements: [
                         {
                             id: "variant-summary-quality",
                             type: "custom",
                             title: "",
                             display: {
-                                separationClassName: "",
                                 render: variant => {
                                     const samplesQuality = variant.studies.find(study => study.studyId === this.opencgaSession.study.fqn)
                                     return html`
@@ -194,16 +194,15 @@ export default class VariantSummary extends LitElement {
                 },
                 // 3. Section Population Summary
                 {
+                    display: {
+                        separationClassName: "mb-0",
+                    },
                     elements: [
                         {
                             id: "variant-summary-population",
                             type: "custom",
                             title: "",
                             display: {
-                                separationClassName: "",
-                                containerClassName: "",
-                                titleClassName: "",
-                                titleStyle: "",
                                 render: variant => {
                                     return html`
                                         <variant-summary-population
@@ -220,19 +219,19 @@ export default class VariantSummary extends LitElement {
                 {
                     // title: "Clinical Significance",
                     display: {
-                        //visible: null,// individual => individual?.id,
+                        separationClassName: "mb-0",
                         layout: [
                             {
                                 className: "d-flex align-items-stretch",
                                 elements: [
                                     {
                                         id:"variant-summary-deleteriousness",
-                                        style: "flex: 1 0 auto",
+                                        style: "flex: 1",
 
                                     },
                                     {
                                         id:"variant-summary-conservation",
-                                        style: "flex: 1 0 auto",
+                                        style: "flex: 1",
                                     }
                                 ],
                             },
@@ -241,11 +240,11 @@ export default class VariantSummary extends LitElement {
                                 elements: [
                                     {
                                         id: "variant-summary-info",
-                                        style: "flex: 1 0 auto",
+                                        style: "flex: 1",
                                     },
                                     {
                                         id: "variant-summary-ct-selected",
-                                        style: "flex: 1 0 auto",
+                                        style: "flex: 1",
                                     },
                                     /*
                                     {
@@ -260,23 +259,24 @@ export default class VariantSummary extends LitElement {
                                 elements: [
                                     {
                                         id:"variant-summary-clinical-significance",
-                                        style: "flex: 1 0 auto",
+                                        style: "flex: 1",
                                         className: "me-2",
                                     },
                                     {
                                         id:"variant-summary-clinical-significance-variant-traits",
-                                        style: "flex: 1 0 auto",
+                                        style: "flex: 1",
+                                        className: "ms-2",
                                     },
                                 ]
                             },
                             {
                                 className: "d-flex align-items-stretch",
                                 elements: [
+                                    /*
                                     {
                                         id:"variant-summary-cs-cosmic-variant-traits",
                                         style: "flex: 1 0 auto",
                                     },
-                                    /*
                                     {
                                         id:"variant-summary-clinical-significance-variant-traits",
                                         style: "flex: 1 0 auto",
@@ -378,6 +378,7 @@ export default class VariantSummary extends LitElement {
                             },
                         },
                         // Variant trait association cosmic
+                        /*
                         {
                             id: "variant-summary-cs-cosmic-variant-traits",
                             type: "custom",
@@ -394,6 +395,7 @@ export default class VariantSummary extends LitElement {
                                 }
                             },
                         },
+                        */
                         /*
                         {
                             id: "variant-summary-gene",
