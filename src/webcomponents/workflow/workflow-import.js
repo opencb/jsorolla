@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
-import LitUtils from "../commons/utils/lit-utils";
-import GridCommons from "../commons/grid-commons";
-import NotificationUtils from "../commons/utils/notification-utils";
-import UtilsNew from "../../core/utils-new";
-import "../commons/filters/catalog-search-autocomplete.js";
-import "../commons/data-list.js";
+import { html, LitElement } from "lit";
+import LitUtils from "../commons/utils/lit-utils.js";
+import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class WorkflowImport extends LitElement {
 
@@ -36,16 +32,29 @@ export default class WorkflowImport extends LitElement {
 
     static get properties() {
         return {
-            repositories: {
-                type: Array
-            },
             opencgaSession: {
+                type: Object
+            },
+            displayConfig: {
                 type: Object
             },
         };
     }
 
     #init() {
+        this.workflow = {
+            name: "",
+            tag: "",
+            user: "",
+            password: ""
+        };
+        this.isLoading = false;
+        this.displayConfigDefault = {
+            style: "margin: 10px",
+            titleWidth: 3,
+            defaultLayout: "horizontal",
+            buttonOkText: "Import"
+        };
         this._config = this.getDefaultConfig();
     }
 
@@ -54,22 +63,45 @@ export default class WorkflowImport extends LitElement {
         this.requestUpdate();
     }
 
-    firstUpdated() {
-        this.fetchRepositories("nf-core");
+    update(changedProperties) {
+        if (changedProperties.has("displayConfig")) {
+            this.displayConfig = { ...this.displayConfigDefault, ...this.displayConfig };
+            this._config = this.getDefaultConfig();
+        }
+        super.update(changedProperties);
     }
 
-    onAdd(e, row) {
+    onFieldChange(e) {
+        this.workflow = { ...e.detail.data };
+        this.requestUpdate();
+    }
+
+    onClear() {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear Workflow",
+            message: "Are you sure to clear?",
+            ok: () => {
+                this.workflow = {};
+                this._config = this.getDefaultConfig();
+                this.requestUpdate();
+            },
+        });
+    }
+
+    onSubmit(e, row) {
         const params = {
             study: this.opencgaSession.study.fqn,
         };
         let error;
         this.#setLoading(true);
-        this.opencgaSession.opencgaClient.workflows()
-            .importWorkflow({id: row.full_name}, params)
+        this.opencgaSession.opencgaClient.userTool()
+            .importWorkflow({ name: this.workflow.name }, params)
             .then(() => {
+                this.workflow = {};
+                this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Workflow Import",
-                    message: `New workflow ${row.full_name} imported correctly`
+                    message: `New workflow ${this.workflow.name} imported correctly`
                 });
             })
             .catch(reason => {
@@ -77,172 +109,74 @@ export default class WorkflowImport extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "workflowImport", {id: row.full_name}, {}, error);
+                LitUtils.dispatchCustomEvent(this, "workflowImport", { id: this.workflow.name }, {}, error);
                 this.#setLoading(false);
             });
     }
 
-    async fetchRepositories(org) {
-        this.repositories = [];
-
-        try {
-            const response = await fetch("https://raw.githubusercontent.com/nf-core/website/refs/heads/main/public/pipelines.json");
-            if (response.ok) {
-                const data = await response.json();
-                this.repositories = data?.remote_workflows || [];
-                console.log(this.repositories)
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
     render() {
         if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
 
         return html`
             <div>
-                <data-list
-                    .data="${this.repositories || []}"
-                    .config="${this._config}">
-                </data-list>
+                <data-form
+                    .data="${this.workflow}"
+                    .config="${this._config}"
+                    @fieldChange="${e => this.onFieldChange(e)}"
+                    @clear="${e => this.onClear(e)}"
+                    @submit="${e => this.onSubmit(e)}">
+                </data-form>
             </div>
         `;
     }
 
     getDefaultConfig() {
         return {
-            display: {
-                float: "left"
-            },
-            search: {
-                fields: ["name", "topics", "description"],
-                ignoreCase: true
-            },
-            sortBy: {
-                options: [
-                    {
-                        id: "name",
-                        name: "Name",
-                    },
-                    {
-                        id: "stargazers_count",
-                        name: "Stars",
-                        order: "desc"
-                    }
-                ]
-            },
-            groupBy: {
-                options: []
-            },
-            table: {
-                showHeader: true,
-                options: {
-                    classes: "table table-hover table-borderless",
-                    theadClasses: "table-light",
-                    buttonsClass: "light",
-                    iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
-                    icons: GridCommons.GRID_ICONS,
-                    pagination: true,
-                    pageSize: 50,
-                    pageList: [25, 50, 100],
-                    detailView: false,
-                    rowStyle: "",
-                },
-                columns: [
-                    {
-                        title: "Name",
-                        field: "full_name",
-                        formatter: (value, row) => {
-                            return `
-                                <div class="d-flex flex-column gap-1">
-                                    <div>
-                                        ${value} <a href="${row.homepage}"  target="_blank"><i class="fas fa-external-link-alt ps-2"></i></a>
-                                    </div>
-                                    <div class="d-block text-secondary">${row.description}</div>
-                                </div>
-                            `;
+            display: this.displayConfig || this.displayConfigDefault,
+            sections: [
+                {
+                    title: "GitHub Repository Details",
+                    elements: [
+                        {
+                            title: "Name",
+                            field: "name",
+                            type: "input-text",
+                            required: true,
+                            display: {
+                                placeholder: "e.g., nf-core/rnaseq"
+                            }
                         },
-                        width: "50",
-                        widthUnit: "%"
-                    },
-                    {
-                        title: "Version",
-                        field: "releases",
-                        formatter: value => {
-                            return `
-                                <div class="d-flex flex-column gap-1">
-                                    <div>
-                                        ${value[0]?.tag_name}
-                                    </div>
-                                    <div class="d-block text-secondary">Published at ${UtilsNew.dateFormatter(value[0].published_at)}</div>
-                                </div>
-                            `;
-                        }
-                    },
-                    {
-                        title: "Default Branch",
-                        field: "default_branch",
-                        formatter: (value, row) => {
-                            return `
-                                <div class="d-flex flex-column gap-1">
-                                    <div>
-                                        <span>Branch: ${value}</span>
-                                        <a href="${row.html_url}" target="_blank"><i class="fab fa-github fa-lg ps-1"></i></a>
-                                    </div>
-                                    <div class="d-block text-secondary">Updated at ${UtilsNew.dateFormatter(row.updated_at)}</div>
-                                </div>
-                            `;
-                        }
-                    },
-                    {
-                        title: "Stars",
-                        field: "stargazers_count",
-                        formatter: value => {
-                            return `
-                                <div style="text-wrap:nowrap;">
-                                    <i class="fas fa-star" aria-hidden="true" style="color: darkgoldenrod"></i> ${value}
-                                </div>
-                            `;
-                        }
-                    },
-                    {
-                        title: "Add",
-                        field: "add",
-                        formatter: () => {
-                            return `
-                                <button type="button" class="btn btn-primary">Add</button>
-                            `;
+                        {
+                            title: "Tag/Version",
+                            field: "tag",
+                            type: "input-text",
+                            display: {
+                                placeholder: "e.g., v3.0"
+                            }
                         },
-                        events: {
-                            "click button": (e, value, row) => this.onAdd(e, row)
+                        {
+                            title: "User ID",
+                            field: "user",
+                            type: "input-text",
+                            display: {
+                                placeholder: "GitHub username (optional)"
+                            }
+                        },
+                        {
+                            title: "Password/Token",
+                            field: "password",
+                            type: "input-password",
+                            display: {
+                                placeholder: "GitHub token or password (optional)"
+                            }
                         }
-                    },
-                ],
-            },
-            grid: {
-                display: {
-                    columns: 3,
-                    rowClass: "g-2",
-                    cellClass: "p-2"
-                },
-                render: data => {
-                    return html`
-                        <div class="card">
-                            <div class="card-header">
-                                <h4 class="card-title">
-                                    ${data.id}
-                                </h4>
-                            </div>
-                            <div class="card-body">
-                                ${data.description}
-                            </div>
-                        </div>
-                    `;
+                    ]
                 }
-            }
+            ]
         };
     }
 

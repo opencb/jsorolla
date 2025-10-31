@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-import {html, LitElement, nothing} from "lit";
+import { html, LitElement, nothing } from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/grid-toolbar.js";
-import "./workflow-create.js";
 import "./workflow-import.js";
+import "./workflow-nf-import.js";
 import "./workflow-view.js";
 import "./workflow-update.js";
-import "./analysis/workflow-analysis.js";
+import "./tool-create.js";
+import "./analysis/tool-executor.js";
 
 export default class WorkflowGrid extends LitElement {
 
@@ -69,7 +70,40 @@ export default class WorkflowGrid extends LitElement {
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
         this.lastFilters = null;
-        this._selectedWorkflow = null;
+        this._selectedUserTool = null;
+
+        // Define user tool types
+        this.TOOL_TYPE = [
+            {
+                id: "SECONDARY_ANALYSIS",
+                displayLabel: "SECONDARY",
+                displayColor: "#25283D",
+                displayOutline: "btn-outline-success",
+                description: "",
+            },
+            {
+                id: "RESEARCH_ANALYSIS",
+                displayLabel: "RESEARCH",
+                displayColor: "#98DFEA",
+                displayOutline: "btn-outline-success",
+                description: "",
+            },
+            {
+                id: "CLINICAL_INTERPRETATION_ANALYSIS",
+                displayLabel: "CLINICAL INTERPRETATION",
+                displayColor: "#9F1F93",
+                displayOutline: "btn-outline-success",
+                description: "",
+            },
+            {
+                id: "OTHER",
+                displayLabel: "OTHER",
+                displayColor: "#C2CBCF",
+                displayOutline: "btn-outline-success",
+                description: "",
+            }
+        ];
+
         this._config = this.getDefaultConfig();
     }
 
@@ -80,7 +114,6 @@ export default class WorkflowGrid extends LitElement {
             changedProperties.has("config")) {
             this.propertyObserver();
         }
-
         super.update(changedProperties);
     }
 
@@ -111,84 +144,135 @@ export default class WorkflowGrid extends LitElement {
         };
 
         this.gridCommons.registerModals({
-            "view-workflow": () => ({
+            "create-tool": {
                 display: {
-                    modalTitle: `Workflow ${this._selectedWorkflow?.id}`,
+                    modalTitle: "Create User Tool",
+                    modalSize: "modal-xl",
+                    modalCyDataName: "modal-tool-create",
+                    // modalDraggable: true,
+                },
+                render: () => html`
+                    <tool-create
+                        .opencgaSession="${this.opencgaSession}"
+                        .type="${"CUSTOM_TOOL"}"
+                        @toolCreateSubmit="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </tool-create>
+                `,
+            },
+            "create-variant-walker": {
+                display: {
+                    modalTitle: "Create Variant Walker",
+                    modalSize: "modal-xl",
+                    modalCyDataName: "modal-variant-walker-create",
+                    // modalDraggable: true,
+                },
+                render: () => html`
+                    <tool-create
+                        .opencgaSession="${this.opencgaSession}"
+                        .type="${"VARIANT_WALKER"}"
+                        @toolCreateSubmit="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </tool-create>
+                `,
+            },
+            "view-tool": () => ({
+                display: {
+                    modalTitle: `Tool ${this._selectedUserTool?.id}`,
                     modalCyDataName: `modal-workflow-view`,
-                    modalSize: "modal-3xl",
-                    modalDraggable: true,
+                    modalSize: "modal-2xl",
+                    // modalDraggable: true,
                 },
                 render: () => html`
                     <workflow-view
-                        .workflowId="${this._selectedWorkflow?.id}"
+                        .workflowId="${this._selectedUserTool?.id}"
                         .opencgaSession="${this.opencgaSession}">
                     </workflow-view>
                 `,
             }),
             "create-workflow": {
                 display: {
-                    modalTitle: "Create Workflow",
-                    modalSize: "modal-lg",
+                    modalTitle: "Create New Workflow",
+                    modalSize: "modal-xl",
                     modalCyDataName: "modal-workflow-create",
-                    modalDraggable: true,
+                    // modalDraggable: true,
                 },
                 render: () => html`
-                    <workflow-create
+                    <tool-create
                         .opencgaSession="${this.opencgaSession}"
-                        .displayConfig="${{
-                            type: "tabs",
-                            buttonClearText: "Cancel",
-                            buttonsLayout: "upper"
-                        }}"
-                        @workflowCreate="${() => {
+                        .type="${"WORKFLOW"}"
+                        @toolCreateSubmit="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
-                    </workflow-create>
+                    </tool-create>
                 `,
             },
             "import-workflow": {
                 display: {
-                    modalTitle: "Import Workflow",
+                    modalTitle: "Import Workflow from GitHub",
                     modalCyDataName: "modal-workflow-import",
-                    modalSize: "modal-lg",
-                    modalDraggable: true,
+                    modalSize: "modal-xl",
+                    // modalDraggable: true,
                 },
                 render: () => html`
                     <workflow-import
                         .opencgaSession="${this.opencgaSession}"
                         @workflowImport="${() => {
-                            // this.gridCommons.clearActiveModal();
+                            this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
                     </workflow-import>
                 `,
             },
-            "execute-workflow": () => ({
+            "import-nf-workflow": {
                 display: {
-                    modalTitle: "Execute Workflow",
-                    modalCyDataName: "modal-workflow-execute",
-                    modalSize: "modal-lg",
+                    modalTitle: "Import Workflow from Nextflow nf-core",
+                    modalCyDataName: "modal-workflow-nf-core-import",
+                    modalSize: "modal-xl",
+                    // modalDraggable: true,
                 },
                 render: () => html`
-                    <workflow-analysis
+                    <workflow-nf-import
+                        .opencgaSession="${this.opencgaSession}"
+                        @workflowImport="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </workflow-nf-import>
+                `,
+            },
+            "execute-tool": () => ({
+                display: {
+                    modalTitle: "Execute Tool",
+                    modalCyDataName: "modal-workflow-execute",
+                    modalSize: "modal-xl",
+                },
+                render: () => html`
+                    <tool-executor
                         .toolParams="${{
-                            id: this._selectedWorkflow?.id,
+                            id: this._selectedUserTool?.id,
                         }}"
-                        .search="${false}"
+                        .displayConfig="${{
+                            titleVisible: false,
+                        }}"
                         .opencgaSession="${this.opencgaSession}">
-                    </workflow-analysis>
+                    </tool-executor>
                 `,
             }),
             "update-workflow": () => ({
                 display: {
-                    modalTitle: `Update Workflow ${this._selectedWorkflow?.id}`,
+                    modalTitle: `Update Workflow ${this._selectedUserTool?.id}`,
                     modalCyDataName: "modal-workflow-update",
-                    modalSize: "modal-lg",
+                    modalSize: "modal-xl",
                 },
                 render: () => html`
                     <workflow-update
-                        .workflowId="${this._selectedWorkflow?.id}"
+                        .workflowId="${this._selectedUserTool?.id}"
                         .displayConfig="${{
                             type: "tabs",
                             buttonClearText: "Cancel",
@@ -251,7 +335,7 @@ export default class WorkflowGrid extends LitElement {
 
                     // Store the current filters
                     this.lastFilters = filters;
-                    this.opencgaSession.opencgaClient.workflows()
+                    this.opencgaSession.opencgaClient.userTool()
                         .search(filters)
                         .then(response => {
                             workflowResponse = response;
@@ -319,7 +403,7 @@ export default class WorkflowGrid extends LitElement {
             pageList: this._config.pageList,
             loadingTemplate: () => GridCommons.loadingFormatter(),
             onPostBody: data => {
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length});
+                this.gridCommons.onLoadSuccess({ rows: data, total: data.length });
             },
         });
     }
@@ -328,12 +412,12 @@ export default class WorkflowGrid extends LitElement {
         this._columns = [
             {
                 id: "id",
-                title: "Workflow",
+                title: "Tool",
                 field: "id",
-                formatter: (workflowId, workflow) => {
-                    return`
-                        <a class="fw-bold link my-1" data-action="view">${workflowId}</a>
-                        <div class="text-secondary my-1">version ${workflow.version}</div>
+                formatter: (toolId, tool) => {
+                    return `
+                        <a class="fw-bold link my-1" data-action="view">${toolId}</a>
+                        <div class="text-secondary my-1">${tool.type || "Unknown"}</div>
                     `;
                 },
                 events: {
@@ -345,6 +429,8 @@ export default class WorkflowGrid extends LitElement {
                 id: "name",
                 title: "Name",
                 field: "name",
+                width: "35",
+                widthUnit: "%",
                 formatter: (name, workflow) => {
                     return `
                         <div class="fw-bold my-1">${name}</div>
@@ -354,18 +440,18 @@ export default class WorkflowGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("name")
             },
             {
-                id: "type",
-                title: "Type",
-                field: "type",
-                formatter: type => {
-                    const typeConfig = this._config.workflowType.find(t => t.id === type);
-                    return`
-                        <span class="badge" style="background-color: ${typeConfig.displayColor}">
-                            ${typeConfig.displayLabel}
+                id: "scope",
+                title: "Scope",
+                field: "scope",
+                formatter: scope => {
+                    const scopeConfig = this.TOOL_TYPE.find(t => t.id === scope);
+                    return `
+                        <span class="badge fs-7" style="background-color: ${scopeConfig?.displayColor || "black"};">
+                            ${scopeConfig?.displayLabel || "Unknown"}
                         </span>
                     `;
                 },
-                visible: this.gridCommons.isColumnVisible("type")
+                visible: this.gridCommons.isColumnVisible("scope")
             },
             {
                 id: "tags",
@@ -377,31 +463,43 @@ export default class WorkflowGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("tags")
             },
             {
-                id: "repository",
-                title: "GitHub Repository",
-                field: "repository",
-                formatter: repository => {
-                    return `
-                        <div class="">
-                            ${repository?.id ? `
-                                <a class="link d-inline-flex align-items-center gap-1" href="https://github.com/${repository.id}" target="_blank">
-                                    <span>${repository.id} v${repository.version}</span>
-                                    <i class="fa fa-external-link-alt fs-8"></i>
-                                </a>
-                            ` : "-"}
-                        </div>
+                id: "executor",
+                title: "Executor",
+                formatter: (_, userTool) => {
+                    if (userTool.type === "WORKFLOW") {
+                        const repository = userTool?.workflow?.repository;
+                        return `
+                            <div class="">
+                                ${repository?.name ? `
+                                    <div>
+                                        <a class="link d-inline-flex align-items-center gap-1" href="https://github.com/${repository.name}" target="_blank">
+                                            <span>${repository.name} v${repository.tag}</span>
+                                            <i class="fa fa-external-link-alt fs-8"></i>
+                                        </a>
+                                    </div>
+                                    <div class="text-secondary my-1">${userTool.workflow.manager.id} v${userTool.workflow.manager.version}</div>
+                                ` : "-"}
+                            </div>
+                        `;
+                    } else {
+                        // Both CUSTOM TOOLS and VARIANT_WALKER use docker executor
+                        const docker = userTool?.docker;
+                        return `
+                            <div class="">
+                                ${docker?.name ? `
+                                    <div>
+                                        <a class="link d-inline-flex align-items-center gap-1" href="https://github.com/${docker.name}" target="_blank">
+                                            <span>${docker.name} v${docker.tag}</span>
+                                            <i class="fa fa-external-link-alt fs-8"></i>
+                                        </a>
+                                    </div>
+                                    <div class="text-secondary my-1">DOCKER</div>
+                                ` : "-"}
+                            </div>
                     `;
+                    }
                 },
-                visible: this.gridCommons.isColumnVisible("repository")
-            },
-            {
-                id: "scripts",
-                title: "Scripts",
-                field: "scripts",
-                formatter: scripts => {
-                    return (scripts || []).map(script => `<div>${script.fileName}</div>`).join("") || "-";
-                },
-                visible: this.gridCommons.isColumnVisible("scripts")
+                visible: this.gridCommons.isColumnVisible("executor")
             },
             {
                 id: "minimumRequirements",
@@ -411,13 +509,14 @@ export default class WorkflowGrid extends LitElement {
                     return `
                         <div class="my-1"><b>CPU</b>: ${minimumRequirements?.cpu || "-"} core(s)</div>
                         <div class="my-1"><b>Memory</b>: ${minimumRequirements?.memory?.split(".")[0] || "-"} GB</div>
+                        <div class="my-1"><b>Processor</b>: ${minimumRequirements?.processorType || "CPU"}</div>
                     `;
                 },
                 visible: this.gridCommons.isColumnVisible("minimumRequirements")
             },
             {
                 id: "ownerId",
-                title: "Owner ID",
+                title: "Author",
                 field: "internal.registrationUserId",
                 formatter: ownerId => ownerId || "-",
                 visible: this.gridCommons.isColumnVisible("ownerId")
@@ -435,7 +534,7 @@ export default class WorkflowGrid extends LitElement {
                 field: "execute",
                 formatter: _ => {
                     return `
-                        <a class="btn btn-primary cursor-pointer" data-action="execute">
+                        <a class="btn btn-primary cursor-pointer d-inline-flex align-items-center gap-1" data-action="execute">
                             <i class="fas fa-play me-1"></i>
                             <span>Execute</span>
                         </a>
@@ -452,8 +551,8 @@ export default class WorkflowGrid extends LitElement {
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
-                excludeFromSettings: true,
                 visible: this._config.showActions,
+                excludeFromSettings: true,
             },
         ];
 
@@ -504,46 +603,46 @@ export default class WorkflowGrid extends LitElement {
         `;
     }
 
-    onActionClick(event, workflow) {
+    onActionClick(event, userTool) {
         const action = (event.currentTarget?.dataset?.action || "").toLowerCase();
         switch (action) {
             case "view":
-                this._selectedWorkflow = workflow;
-                this.gridCommons.changeActiveModal("view-workflow");
+                this._selectedUserTool = userTool;
+                this.gridCommons.changeActiveModal("view-tool");
                 break;
             case "copy-json":
-                UtilsNew.copyToClipboard(JSON.stringify(workflow, null, "\t"));
+                UtilsNew.copyToClipboard(JSON.stringify(userTool, null, "\t"));
                 break;
             case "download-json":
-                UtilsNew.downloadData([JSON.stringify(workflow, null, "\t")], workflow.id + ".json");
+                UtilsNew.downloadData([JSON.stringify(userTool, null, "\t")], userTool.id + ".json");
                 break;
             case "execute":
-                this._selectedWorkflow = workflow;
-                this.gridCommons.changeActiveModal("execute-workflow");
+                this._selectedUserTool = userTool;
+                this.gridCommons.changeActiveModal("execute-tool");
                 break;
             case "update":
-                this._selectedWorkflow = workflow;
+                this._selectedUserTool = userTool;
                 this.gridCommons.changeActiveModal("update-workflow");
                 break;
             case "delete":
-                this.onDelete(workflow);
+                this.onDelete(userTool);
                 break;
         }
     }
 
-    onDelete(workflow) {
+    onDelete(userTool) {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
             title: `Delete Workflow`,
-            message: `Are you sure you want to delete the workflow ${workflow.id}?`,
+            message: `Are you sure you want to delete the tool ${userTool.id}?`,
             ok: () => {
-                this.opencgaSession.opencgaClient.workflows()
-                    .delete(workflow.id, {
+                this.opencgaSession.opencgaClient.userTool()
+                    .delete(userTool.id, {
                         study: this.opencgaSession.study.fqn,
                         jobId: `workflow-delete-${UtilsNew.getDatetime()}`,
                     })
                     .then(() => {
                         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                            message: `Workflow '${workflow.id}' has been deleted.`,
+                            message: `Workflow '${userTool.id}' has been deleted.`,
                         });
                         this.table.bootstrapTable("refresh");
                     })
@@ -555,7 +654,7 @@ export default class WorkflowGrid extends LitElement {
     }
 
     async onDownload(e) {
-        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        this.toolbarConfig = { ...this.toolbarConfig, downloading: true };
         this.requestUpdate();
         await this.updateComplete;
 
@@ -565,7 +664,7 @@ export default class WorkflowGrid extends LitElement {
             limit: 1000,
             count: false
         };
-        this.opencgaSession.opencgaClient.workflows()
+        this.opencgaSession.opencgaClient.userTool()
             .search(filters)
             .then(restResponse => {
                 const results = restResponse.getResults();
@@ -576,9 +675,9 @@ export default class WorkflowGrid extends LitElement {
                         const data = UtilsNew.toTableString(results, fields, {
                             "sex.id": CatalogGridFormatter.sexFormatter,
                         });
-                        UtilsNew.downloadData(data, "workflows_" + this.opencgaSession.study.id + ".tsv", "text/plain");
+                        UtilsNew.downloadData(data, "tool_" + this.opencgaSession.study.id + ".tsv", "text/plain");
                     } else {
-                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "workflows_" + this.opencgaSession.study.id + ".json", "application/json");
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "tool_" + this.opencgaSession.study.id + ".json", "application/json");
                     }
                 } else {
                     console.error("Error in result format");
@@ -589,7 +688,7 @@ export default class WorkflowGrid extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             })
             .finally(() => {
-                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.toolbarConfig = { ...this.toolbarConfig, downloading: false };
                 this.requestUpdate();
             });
     }
@@ -604,15 +703,48 @@ export default class WorkflowGrid extends LitElement {
         return [
             {
                 icon: "fas fa-plus",
-                title: "Create Workflow",
+                title: "Create Tool",
                 disabled: !this.gridCommons.hasPermission("WRITE"),
-                onClick: () => this.gridCommons.changeActiveModal("create-workflow"),
+                onClick: () => this.gridCommons.changeActiveModal("create-tool"),
             },
             {
-                icon: "fas fa-file-import",
-                title: "Import Workflow",
+                render: () => {
+                    return html`
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-file-import me-1"></i>
+                                Import Workflow
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item cursor-pointer" @click="${() => this.gridCommons.changeActiveModal('import-workflow')}">
+                                        Import from GitHub
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item cursor-pointer" @click="${() => this.gridCommons.changeActiveModal('import-nf-workflow')}">
+                                        Import from Nextflow nf-core
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item cursor-pointer" @click="${() => this.gridCommons.changeActiveModal('create-workflow')}">
+                                        Import from Scripts
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    `;
+                },
                 disabled: !this.gridCommons.hasPermission("WRITE"),
-                onClick: () => this.gridCommons.changeActiveModal("import-workflow"),
+            },
+            {
+                icon: "fas fa-plus",
+                title: "Create Variant Walker",
+                disabled: !this.gridCommons.hasPermission("WRITE"),
+                onClick: () => this.gridCommons.changeActiveModal("create-variant-walker"),
             },
         ];
     }
@@ -652,37 +784,6 @@ export default class WorkflowGrid extends LitElement {
             showExport: true,
             showSettings: true,
             exportTabs: ["download", "link", "code"],
-
-            workflowType: [
-                {
-                    id: "SECONDARY_ANALYSIS",
-                    displayLabel: "SECONDARY",
-                    displayColor: "#25283D",
-                    displayOutline: "btn-outline-success",
-                    description: "",
-                },
-                {
-                    id: "RESEARCH_ANALYSIS",
-                    displayLabel: "RESEARCH",
-                    displayColor: "#98DFEA",
-                    displayOutline: "btn-outline-success",
-                    description: "",
-                },
-                {
-                    id: "CLINICAL_INTERPRETATION_ANALYSIS",
-                    displayLabel: "CLINICAL INTERPRETATION",
-                    displayColor: "#9F1F93",
-                    displayOutline: "btn-outline-success",
-                    description: "",
-                },
-                {
-                    id: "OTHER",
-                    displayLabel: "OTHER",
-                    displayColor: "#C2CBCF",
-                    displayOutline: "btn-outline-success",
-                    description: "",
-                }
-            ],
         };
     }
 }

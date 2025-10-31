@@ -1015,7 +1015,7 @@ export default class DataForm extends LitElement {
                         .checked="${value}"
                         ?disabled="${disabled}"
                         @click="${e => this.onFilterChange(element, e.currentTarget.checked)}">
-                        ${element.text}
+                    ${element.text}
                 </label>
             </div>
         `;
@@ -1623,7 +1623,7 @@ export default class DataForm extends LitElement {
         }
     }
 
-     _createDownloadElement(element) {
+    _createDownloadElement(element) {
         const content = html`
             <download-button
                 .json="${this.data}"
@@ -1684,7 +1684,7 @@ export default class DataForm extends LitElement {
             }
 
             contents.push(html`
-                <div class="mb-3 ${element?.display?.itemClassName || ""}">
+                <div class="${this._getSeparationClass(childElement, null)} ${element?.display?.itemClassName || ""}">
                     ${childElement.title ? html`
                         <div class="${element?.display?.itemTitleClassName || ""}">
                             <label class="fw-bold form-label pt-0">

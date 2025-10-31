@@ -18,11 +18,9 @@ import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
-import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
-import NotificationUtils from "../../commons/utils/notification-utils";
 
 
-export default class WorkflowAnalysis extends LitElement {
+export default class UserToolExecutor extends LitElement {
 
     constructor() {
         super();
@@ -39,95 +37,97 @@ export default class WorkflowAnalysis extends LitElement {
             toolParams: {
                 type: Object,
             },
-            search: {
-                type: Boolean,
-            },
             opencgaSession: {
                 type: Object,
             },
-            config: {
+            displayConfig: {
                 type: Object
             },
         };
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "workflow";
-        this.ANALYSIS_TITLE = "Workflow Parameters";
-        this.ANALYSIS_DESCRIPTION = "Executes a workflow analysis job";
+        this.ANALYSIS_TOOL = "user-tool";
+        this.ANALYSIS_TITLE = "User Tool Parameters";
+        this.ANALYSIS_DESCRIPTION = "Executes a custom tool or workflow analysis job";
 
-        this.DEFAULT_TOOLPARAMS = {};
-        // Make a deep copy to avoid modifying default object.
-        this.toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+        this.DEFAULT_TOOLPARAMS = {
+            toolVariables: {},
         };
-        this.search = true;
 
-        this.config = this.getDefaultConfig();
+        this._tool = null;
+        this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
             this.toolParamsObserver();
         }
+
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
+        }
+
         super.update(changedProperties);
     }
 
     toolParamsObserver() {
-        this.toolParams = {
+        this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             ...this.toolParams,
         };
-        this.config = this.getDefaultConfig();
 
-        if (this.toolParams.id) {
-            this.#fetchWorkflow();
+        // check if we need to fetch tool information
+        if (this.toolParams?.id) {
+            this.fetchUserTool();
         }
     }
 
     check() {
-        // FIXME decide if this must be displayed
-        // if (!this.toolParams.caseCohort) {
-        //     return {
-        //         message: "You must select a cohort or sample",
-        //         notificationType: "warning"
-        //     };
-        // }
         return false;
     }
 
-    #fetchWorkflow() {
-        this.opencgaSession.opencgaClient.workflows()
-            .search({id: this.toolParams.id, study: this.opencgaSession.study.fqn})
-            .then(restResponse => {
-                const results = restResponse.getResults();
-                if (results.length > 0) {
-                    this._workflow = results[0];
-                } else {
-                    console.error("Error in result format");
+    fetchUserTool() {
+        this._tool = null;
+        this.opencgaSession.opencgaClient.userTool()
+            .search({
+                id: this._toolParams.id,
+                study: this.opencgaSession.study.fqn,
+            })
+            .then(response => {
+                if (response.responses?.[0]?.results?.length > 0) {
+                    this._tool = response.responses[0].results[0];
                 }
             })
             .catch(response => {
                 console.log(response);
             })
             .finally(() => {
-                this.config = this.getDefaultConfig();
+                this._config = this.getDefaultConfig();
                 this.requestUpdate();
             });
     }
-    onFieldChange(e) {
-        this.toolParams = {...this.toolParams};
 
-        if (this.toolParams?.id) {
-            this.#fetchWorkflow();
+    onFieldChange(event) {
+        this._toolParams = {...this._toolParams};
+        this.requestUpdate();
+
+        // fetch selected tool information
+        if (event.detail?.param === "id" && event.detail?.value) {
+            this.fetchUserTool();
         }
     }
 
     onSubmit() {
-        // Parse form params
-        const formParams = {};
-        if (this.toolParams.params) {
-            const lines = this.toolParams.params.split("\n");
+        // initialize form params object
+        const formParams = {
+            ...this._toolParams.toolVariables,
+        };
+
+        // add other variables from the text area, with the format key=value
+        if (this._toolParams.otherVariables) {
+            const lines = this._toolParams.otherVariables.split("\n");
             for (const line of lines) {
                 if (line.includes("=")) {
                     const [key, value] = line.split("=");
@@ -136,38 +136,56 @@ export default class WorkflowAnalysis extends LitElement {
             }
         }
 
-        const toolParams = {
-            id: this.toolParams.id,
-            version: this.toolParams.version,
-            params: formParams,
-        };
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
-        };
-        AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.workflows()
-                .run(toolParams, params),
-            this,
-        );
+        // prepare the job params
+        const jobParams = AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL);
+        jobParams.jobTags = this._tool.id;
+
+        // check the type of tool to choose the right run method
+        let toolRunPromise = null;
+        switch (this._tool.type.toUpperCase()) {
+            case "CUSTOM_TOOL":
+                const toolParams = {
+                    commandLine: this._toolParams.commandLine,
+                    params: formParams,
+                };
+                toolRunPromise = this.opencgaSession.opencgaClient.userTool()
+                    .runCustom(this._tool.id, toolParams, {
+                        study: this.opencgaSession.study.fqn,
+                        ...jobParams,
+                    });
+                break;
+            case "WORKFLOW":
+                toolRunPromise = this.opencgaSession.opencgaClient.userTool()
+                    .runWorkflow(this._tool.id, formParams, {
+                        study: this.opencgaSession.study.fqn,
+                        ...jobParams,
+                    });
+                break;
+            default:
+                console.error("Tool type not supported: ", this._tool.type);
+                return;
+        }
+
+        // submit analysis
+        AnalysisUtils.submit(this.ANALYSIS_TITLE, toolRunPromise, this);
     }
 
     onClear() {
-        this.toolParams = {
+        this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            ...this.toolParams,
         };
-        this.config = this.getDefaultConfig();
+        this._config = this.getDefaultConfig();
     }
 
     render() {
         return html`
             <data-form
-                .data="${this.toolParams}"
-                .config="${this.config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                .data="${this._toolParams}"
+                .config="${this._config}"
+                @fieldChange="${event => this.onFieldChange(event)}"
+                @clear="${event => this.onClear(event)}"
+                @submit="${event => this.onSubmit(event)}">
             </data-form>
         `;
     }
@@ -175,11 +193,11 @@ export default class WorkflowAnalysis extends LitElement {
     getDefaultConfig() {
         // Create automatic form based on the workflow variables
         const variables = [];
-        if (this._workflow?.variables?.length > 0) {
-            for (const variable of this._workflow.variables) {
+        if (this._tool?.variables?.length > 0) {
+            for (const variable of this._tool.variables) {
                 const dataFormElement = {
                     title: variable.id,
-                    field: variable.id,
+                    field: `toolVariables.${variable.id}`,
                     required: variable.required || false,
                     display: {
                         defaultValue: variable.defaultValue,
@@ -206,51 +224,44 @@ export default class WorkflowAnalysis extends LitElement {
         const params = [
             {
                 title: "Configuration",
-                display: {
-                    className: "p-2"
-                },
                 elements: [
                     {
-                        title: "Workflow ID",
+                        title: "Tool ID",
                         field: "id",
                         type: "custom",
                         required: true,
                         display: {
-                            render: (caseCohort, dataFormFilterChange) => html`
+                            render: (toolId, dataFormFilterChange) => html`
                                 <catalog-search-autocomplete
-                                    .value="${caseCohort}"
+                                    .value="${toolId}"
                                     .resource="${"WORKFLOW"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !this.search}}"
-                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    .config="${{
+                                        multiple: false,
+                                        disabled: !!this.toolParams?.id,
+                                    }}"
+                                    @filterChange="${event => dataFormFilterChange(event.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
                     {
-                        title: "Workflow Version",
-                        field: "version",
+                        title: "Command Line",
+                        field: "commandLine",
                         type: "input-text",
-                        required: false,
                         display: {
-                            defaultValue: this._workflow?.version || "",
-                            help: {
-                                text: "Default version is the latest available",
-                            }
-                        }
-                    }
+                            visible: this._tool?.type === "CUSTOM_TOOL",
+                        },
+                    },
                 ]
             },
             {
                 title: "Parameters",
-                display: {
-                    className: "p-2"
-                },
                 elements: [
                     ...variables,
                     {
                         title: "Parameters",
-                        field: "params",
+                        field: "otherVariables",
                         type: "input-text",
                         display: {
                             rows: 5,
@@ -263,7 +274,7 @@ export default class WorkflowAnalysis extends LitElement {
                     },
                     {
                         title: "Other Parameters",
-                        field: "params",
+                        field: "otherVariables",
                         type: "input-text",
                         display: {
                             rows: 5,
@@ -284,10 +295,14 @@ export default class WorkflowAnalysis extends LitElement {
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check(),
-            this.config
+            {
+                display: {
+                    ...this.displayConfig,
+                },
+            },
         );
     }
 
 }
 
-customElements.define("workflow-analysis", WorkflowAnalysis);
+customElements.define("tool-executor", UserToolExecutor);

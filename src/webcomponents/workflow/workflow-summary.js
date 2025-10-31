@@ -151,14 +151,31 @@ export default class WorkflowSummary extends LitElement {
                             title: "Minimum Requirements",
                             field: "minimumRequirements",
                             type: "object",
+                            display: {
+                                itemClassName: "d-flex gap-2",
+                            },
                             elements: [
                                 {
                                     title: "Min CPU cores",
                                     field: "minimumRequirements.cpu",
+                                    display: {
+                                        separationClassName: "mb-0",
+                                    },
                                 },
                                 {
                                     title: "Min memory",
                                     field: "minimumRequirements.memory",
+                                    display: {
+                                        separationClassName: "mb-0",
+                                    },
+                                },
+                                {
+                                    title: "Processor Type",
+                                    field: "minimumRequirements.processorType",
+                                    display: {
+                                        defaultValue: "CPU",
+                                        separationClassName: "mb-0",
+                                    },
                                 },
                             ]
                         },

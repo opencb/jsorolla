@@ -28,7 +28,19 @@ export default class TagsInput extends LitElement {
 
     #init() {
         this.value = [];
+        this.disabled = false;
         this._config = this.getDefaultConfig();
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+        }
+
+        super.update(changedProperties);
     }
 
     onKeyUp(event) {
@@ -91,7 +103,9 @@ export default class TagsInput extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            placeholder: "Add a tag...",
+        };
     }
 
 }
