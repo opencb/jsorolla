@@ -937,10 +937,65 @@ export default class VariantGridFormatter {
     }
     static interpretationSummaryTooltipContent() {
         return `
-            This summary presents key information about the variant’s clinical interpretation within the case.
+            The Variant Interpretation summary presents key information about the variant’s clinical interpretation within the case.
             It is shown only when the variant is classified as a Primary or Secondary Finding in a clinical context.
             Supporting information — including evidences, status, or number of publications or images among others —
             is also visualized here, and can be further explored in the Variant Review modal.
+        `;
+    }
+
+    static transcriptsSummaryTooltipContent() {
+        return `
+            Consequence types linked to transcripts flagged as MANE-selected and source Ensembl.
+        `;
+    }
+
+    static variantInfoSummaryTooltipContent() {
+        return `
+            Description of variant info.
+        `;
+    }
+
+    static clinicalSignificanceSummaryTooltipContent() {
+        return `
+            Clinical significance in the consequence types evidences.
+        `;
+    }
+
+    static csClinvarSummaryTooltipContent() {
+        return `
+            ClinVar variant traits by clinical significance and germline review stars.
+        `;
+    }
+
+    static qualitySummaryTooltipContent() {
+        return `
+        The Sample Quality summary provides a clear overview of variant quality across all sequenced individuals in a case
+        to help assess the variant reliability and review evidences effectively.<br>
+        The table on the left-hand side, includes information about:
+        <ul>
+            <li>
+                <b>Genotype / Zygosity:</b> Called genotype (e.g., het, hom, hemi).
+            </li>
+            <li>
+                <b>Read Depth (DP):</b> Total reads covering the site — higher means stronger support.
+            </li>
+            <li>
+                <b>Genotype Quality (GQ):</b> Confidence in the genotype call — low values may indicate uncertainty.
+            </li>
+            <li>
+                <b>Allelic Depth (AD):</b> Reads supporting reference vs. alternate alleles — imbalance may suggest noise or mosaicism.
+            </li>
+            <li>
+                <b>Variant Allele Fraction (EXT_VAF):</b>Fraction of reads carrying the alternate allele.
+            </li>
+            <li>
+                <b>Quality (QUAL) / Filter (FILTER):</b> Overall variant quality and applied filters.
+            </li>
+        </ul>
+        The pichart on the right-hand side shows the proportion of reads supporting the reference (REF)
+        and alternate (ALT) alleles in the proband. Balanced 50:50 suggest a reliable heterozygous call,
+        where strong imbalance may indicate sequencing or alignment issues.
         `;
     }
 
