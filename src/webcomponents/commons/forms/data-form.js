@@ -983,7 +983,7 @@ export default class DataForm extends LitElement {
                 .disabled="${disabled}"
                 .config="${{
                     placeholder: element.display?.placeholder || "",
-                }}
+                }}"
                 @change="${event => {
                     event.stopPropagation();
                     this.onFilterChange(element, event.detail.value);
