@@ -17,8 +17,8 @@
 import {html, LitElement, nothing} from "lit";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import VariantUtils from "../variant-utils.js";
-import UtilsNew from "../../../core/utils-new";
-import WebUtils from "../../commons/utils/web-utils";
+import UtilsNew from "../../../core/utils-new.js";
+import WebUtils from "../../commons/utils/web-utils.js";
 
 export default class VariantSummaryInterpretation extends LitElement {
 
@@ -103,7 +103,7 @@ export default class VariantSummaryInterpretation extends LitElement {
         if (!this._variant) {
             return nothing;
         }
-debugger
+
         return html`
             <div class="rounded-4 p-4 bg-white">
                 <div class=" d-flex justify-content-between mb-2">
@@ -116,9 +116,7 @@ debugger
                     <!-- TODO: Move this bit to data-form -->
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex flex-column me-2">
-                            <div class="summary-category">
-                                STATUS
-                            </div>
+                            <div class="summary-category">STATUS</div>
                             ${this._variant.status ? html`
                                 <h4 class="d-flex flex-column badge ${VariantUtils.getStatusColor(this._variant.status || "")} user-select-none my-2">
                                     <b>${this._variant.status}</b>
@@ -130,9 +128,7 @@ debugger
                             `}
                         </div>
                         <div class="d-flex flex-column me-2">
-                            <div class="summary-category">
-                                CONFIDENCE
-                            </div>
+                            <div class="summary-category">CONFIDENCE</div>
                             ${this._variant?.confidence?.value ? html`
                                 <div class="">
                                     <b>${this._variant?.confidence?.value }</b>
@@ -144,9 +140,7 @@ debugger
                             `}
                         </div>
                         <div class="d-flex flex-column me-2">
-                            <div class="summary-category">
-                                RELEVANCE
-                            </div>
+                            <div class="summary-category">RELEVANCE</div>
                             ${this.primaryFinding ? html`
                                 <div class="">
                                     <b>PRIMARY_FINDING</b>
@@ -158,27 +152,21 @@ debugger
                             `}
                         </div>
                         <div class="d-flex flex-column me-2">
-                            <div class="summary-category">
-                                #COMMENTS
-                            </div>
+                            <div class="summary-category">#COMMENTS</div>
                             ${(() => {
                                 const count = this._variant?.comments?.length ?? [];
                                 return html`<div><b>${count}</b></div>`;
                             })()}
                         </div>
                         <div class="d-flex flex-column me-2">
-                            <div class="summary-category">
-                                #REFERENCES
-                            </div>
+                            <div class="summary-category">#REFERENCES</div>
                             ${(() => {
                                 const count = this._variant?.references?.length ?? [];
                                 return html`<div><b>${count}</b></div>`;
                             })()}
                         </div>
                         <div class="d-flex flex-column me-2">
-                            <div class="summary-category">
-                                #IMAGES
-                            </div>
+                            <div class="summary-category">#IMAGES</div>
                             ${(() => {
                                 const count = this._variant?.images?.length ?? [];
                                 return html`<div><b>${count}</b></div>`;
@@ -251,26 +239,13 @@ debugger
                                 bodyCellClassName: "align-middle bg-transparent",
                                 headerCellClassName: "bg-transparent",
                                 // bodyRowClassName: "bg-gray-100",
-                                getData: variant => {
-                                    const data = (variant?.evidences || []).filter(({review}) => review?.select);
-                                    debugger
-                                    return data;
-                                },
-                                defaultValue: () => {
-                                    debugger
-                                    return html`
-                                        <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
-                                            <i class="fas fa-info-circle fs-3"></i>
-                                            <div class="text-break">No evidences have been selected.</div>
-                                        </div>
-                                    `;
-                                },
+                                getData: variant => (variant?.evidences || []).filter(({review}) => review?.select),
                                 columns: [
                                     {
                                         title: "Gene",
                                         field: "genomicFeature.geneName",
                                         display: {
-                                            defaultValue: "-",
+                                            defaultValue: "N/A",
                                             className: "text-secondary"
                                         }
                                     },
@@ -278,12 +253,79 @@ debugger
                                         title: "Transcript",
                                         field: "genomicFeature.transcriptId",
                                         display: {
-                                            defaultValue: "-",
+                                            defaultValue: "N/A",
                                             className: "text-secondary"
                                         },
                                     },
                                     {
-                                        title: "Predicted",
+                                        title: "Manual User Review",
+                                        display: {
+                                            columns: [
+                                                {
+                                                    title: "Clinical Significance",
+                                                    field: "review.clinicalSignificance",
+                                                    type: "custom",
+                                                    display: {
+                                                        render: clinicalSignificance => {
+                                                            if (!clinicalSignificance) {
+                                                                return html`<span class="text-secondary">-</span>`;
+                                                            }
+                                                            const cs = CLINICAL_SIGNIFICANCE.find(cs => cs.id === clinicalSignificance.toLowerCase());
+                                                            return html`
+                                                    <span style="color: ${cs.color}">${cs.acronym}</span>
+                                                `;
+                                                        },
+                                                    },
+                                                },
+                                                {
+                                                    title: "ACMG",
+                                                    field: "review.acmg",
+                                                    type: "custom",
+                                                    display: {
+                                                        render: acmgList => {
+                                                            if (!acmgList || acmgList.length === 0) {
+                                                                return html`<span class="text-secondary">-</span>`;
+                                                            }
+                                                            return html`
+                                                                ${acmgList.map(({ classification, strength }) => {
+                                                                const { color, id } =
+                                                                ACMG_CRITERIA_COLOR.find(c => c.id === classification) ?? { color: '#000', id: '-' };
+                                                                return html`
+                                                                        <div class="d-inline-flex flex-column align-items-center text-center me-1">
+                                                                            <span
+                                                                                class="rounded-4 px-2 py-1"
+                                                                                style="border: 1px solid ${color}; color: ${color}; min-width: 2.5rem;">
+                                                                                    ${id}
+                                                                            </span>
+                                                                            ${strength ? html`<small class="text-muted mt-1 fs-9">${strength}</small>` : ''}
+                                                                        </div>
+                                                                  `;
+                                                            })}
+                                                            `;
+                                                        },
+                                                    },
+                                                },
+                                                {
+                                                    title: "Tier",
+                                                    field: "review.tier",
+                                                    type: "custom",
+                                                    display: {
+                                                        render: tier => tier ? html`<span class="text-secondary">${tier}</span>` : "N/A"
+                                                    },
+                                                },
+                                                {
+                                                    title: "Score",
+                                                    field: "review.score",
+                                                    display: {
+                                                        defaultValue: "N/A",
+                                                        className: "text-secondary"
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    },
+                                    {
+                                        title: "Automatic Prediction",
                                         display: {
                                             separationClassName: "mb-0",
                                             className: "table mb-0",
@@ -342,75 +384,15 @@ debugger
                                             ],
                                         },
                                     },
-                                    {
-                                        title: "User",
-                                        display: {
-                                            columns: [
-                                                {
-                                                    title: "Clinical Significance",
-                                                    field: "review.clinicalSignificance",
-                                                    type: "custom",
-                                                    display: {
-                                                        render: clinicalSignificance => {
-                                                            if (!clinicalSignificance) {
-                                                                return html`<span class="text-secondary">-</span>`;
-                                                            }
-                                                            const cs = CLINICAL_SIGNIFICANCE.find(cs => cs.id === clinicalSignificance.toLowerCase());
-                                                            return html`
-                                                    <span style="color: ${cs.color}">${cs.acronym}</span>
-                                                `;
-                                                        },
-                                                    },
-                                                },
-                                                {
-                                                    title: "ACMG",
-                                                    field: "review.acmg",
-                                                    type: "custom",
-                                                    display: {
-                                                        render: acmgList => {
-                                                            if (!acmgList || acmgList.length === 0) {
-                                                                return html`<span class="text-secondary">-</span>`;
-                                                            }
-                                                            return html`
-                                                                ${acmgList.map(({ classification, strength }) => {
-                                                                    const { color, id } =
-                                                                    ACMG_CRITERIA_COLOR.find(c => c.id === classification) ?? { color: '#000', id: '-' };
-                                                                    return html`
-                                                                        <div class="d-inline-flex flex-column align-items-center text-center me-1">
-                                                                            <span
-                                                                                class="rounded-4 px-2 py-1"
-                                                                                style="border: 1px solid ${color}; color: ${color}; min-width: 2.5rem;">
-                                                                                    ${id}
-                                                                            </span>
-                                                                            ${strength ? html`<small class="text-muted mt-1 fs-9">${strength}</small>` : ''}
-                                                                        </div>
-                                                                  `;
-                                                                })}
-                                                            `;
-                                                        },
-                                                    },
-                                                },
-                                                {
-                                                    title: "Tier",
-                                                    field: "review.tier",
-                                                    type: "custom",
-                                                    display: {
-                                                        render: tier => tier ? html`<span class="text-secondary">${tier}</span>` : "-"
-                                                    },
-                                                },
-                                                {
-                                                    title: "Score",
-                                                    field: "review.score",
-                                                    display: {
-                                                        defaultValue: "-",
-                                                        className: "text-secondary"
-                                                    },
-                                                },
-                                            ],
-                                        },
-                                    },
-
                                 ],
+                                defaultValue: () => {
+                                    return html`
+                                        <div class="alert alert-light border-0 mb-0 d-flex align-items-center gap-1">
+                                            <i class="fas fa-info-circle fs-4 me-2"></i>
+                                            <div class="text-break">No evidences have been selected.</div>
+                                        </div>
+                                    `;
+                                },
                             },
                         },
                         {
@@ -435,8 +417,8 @@ debugger
                                                     ${UtilsNew.dateFormatter(variant.discussion.date)}
                                                 </small>
                                             ` : html`
-                                                <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
-                                                    <i class="fas fa-info-circle fs-3"></i>
+                                                <div class="alert alert-light border-0 mb-0 d-flex align-items-center gap-1">
+                                                    <i class="fas fa-info-circle fs-4 me-2"></i>
                                                     <div class="text-break">No discussion available.</div>
                                                 </div>
                                             `}
@@ -456,7 +438,6 @@ debugger
                                 separationClassName: "mb-0 ms-1",
                                 style: "font-size: 12px;",
                                 render: variant => {
-                                    debugger
                                     return html `
                                             <!-- Recommendation -->
                                             <div class="d-flex flex-column mt-2">
@@ -465,8 +446,8 @@ debugger
                                                         ${variant.recommendation}
                                                     </div>
                                                 ` : html`
-                                                    <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
-                                                        <i class="fas fa-info-circle fs-3"></i>
+                                                    <div class="alert alert-light border-0 mb-0 d-flex align-items-center gap-1">
+                                                        <i class="fas fa-info-circle fs-4 me-2"></i>
                                                         <div class="text-break">No recommendation available.</div>
                                                     </div>
                                                 `}

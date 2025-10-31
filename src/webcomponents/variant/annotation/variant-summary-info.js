@@ -15,8 +15,8 @@
  */
 
 import {html, LitElement, nothing} from "lit";
+import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utils-new";
-import VariantGridFormatter from "../variant-grid-formatter";
 
 export default class VariantSummaryInfo extends LitElement {
 
@@ -65,7 +65,6 @@ export default class VariantSummaryInfo extends LitElement {
                 consequenceTypeToColor[name] = CONSEQUENCE_TYPES.style[impact];
             }
         }
-
         this._consequenceTypeToColor = consequenceTypeToColor;
     }
 
@@ -78,9 +77,12 @@ export default class VariantSummaryInfo extends LitElement {
         super.update(changedProperties);
     }
 
+    updated() {
+        UtilsNew.initTooltip(this);
+    }
+
     variantObserver() {
         if (this.settings && this.variant) {
-
             // 1. DISPLAY MOST SEVER CONSEQUENCE TYPE:
             // Find the gene and transcript that exhibit the display consequence type
             // CAUTION 1: This code, copy&paste from previous component cellbase-variant-annotation-summary.js, it is selecting
@@ -103,15 +105,10 @@ export default class VariantSummaryInfo extends LitElement {
                 }
             }
              */
-            // 1. Get the list of consequence types selected in settings
             const mostSevereCT = this.variant.annotation.displayConsequenceType;
-
             const matchesMostSevere = ct =>
                 ct.sequenceOntologyTerms?.some(so => so.name === mostSevereCT); // All most severe
-
-
             let mostSevere = this.variant.annotation.consequenceTypes.filter(matchesMostSevere)[0] || {};
-
             this._variant = {
                 displayConsequenceType: mostSevereCT,
                 mostSevere,
@@ -124,28 +121,26 @@ export default class VariantSummaryInfo extends LitElement {
         if (!this._variant) {
             return nothing;
         }
-        // const data = this._variant.studies.find(s => s.studyId === this.opencgaSession.study.fqn).
         return html`
-            <div class="card p-3 me-2">
-                <div class="card-header border-0">
+            <div class="rounded-4 p-4 bg-white me-2">
+                <div class=" d-flex justify-content-between mb-2">
                     <h5 class="mb-2 fs-5 fw-bold d-flex">Variant Info</h5>
-                    <p class="text-secondary">Description of variant info</p>
-
+                    <a tooltip-title="Variant Info" tooltip-text="${VariantGridFormatter.interpretationSummaryTooltipContent(POPULATION_FREQUENCIES)}">
+                        <i class="fa fa-info-circle text-dark"></i>
+                    </a>
                 </div>
-                <div class="card-body pt-0 pb-0">
+                <div id="summary-variant-info">
                     <data-form
                         .data="${this._variant}"
                         .config="${this._config}">
                     </data-form>
                 </div>
                 <!--
-                <div class="card-footer text-muted">
-                    <i class="far fa-clock me-2"></i>
-                    Last updated
+                <div class="text-muted fw-light fs-7">
+                    <i class="far fa-clock me-2 text-gray-700"></i> Last Updated:
                 </div>
                 -->
             </div>
-
         `;
     }
 
@@ -153,23 +148,21 @@ export default class VariantSummaryInfo extends LitElement {
         return {
             display: {
                 buttonsVisible: false,
-                // className: "d-flex",
             },
             sections: [
                 {
                     id: "variant-info",
-                    // title: "VARIANT INFO",
                     display: {
-                        // visible:
-                        // className: "d-flex flex-column",
+                        separationClassName: "mb-0",
                     },
                     elements: [
                         {
                             id: "variant-id",
-                            title: "Id",
+                            title: "ID",
                             field: "id",
                             type: "custom",
                             display: {
+                                titleClassName: "summary-category",
                                 render: id => {
                                     return html`
                                         <div class="fw-bold text-truncate" style="max-width:350px">
@@ -181,10 +174,11 @@ export default class VariantSummaryInfo extends LitElement {
                         },
                         {
                             id: "variant-type",
-                            title: "Type",
+                            title: "TYPE",
                             field: "type",
                             type: "custom",
                             display: {
+                                titleClassName: "summary-category",
                                 render: type => {
                                     const {displayLabel, color} = VariantGridFormatter.typeGetColour(type);
                                     return html`
@@ -197,9 +191,10 @@ export default class VariantSummaryInfo extends LitElement {
                         },
                         // Most severe consequence type
                         {
-                            title: "Most Severe",
+                            title: "MOST SEVERE",
                             type: "custom",
                             display: {
+                                titleClassName: "summary-category",
                                 render: data => {
                                     const consequenceTypeColor = this._consequenceTypeToColor?.[data.displayConsequenceType] || "black";
                                     return html`

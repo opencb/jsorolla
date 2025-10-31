@@ -16,9 +16,9 @@
 
 import {html, LitElement, nothing} from "lit";
 import VariantInterpreterGridFormatter from "../interpretation/variant-interpreter-grid-formatter.js";
+import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utils-new.js";
-import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
-import genotype from "lodash";
+import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 
 export default class VariantSummaryQuality extends LitElement {
 
@@ -63,6 +63,7 @@ export default class VariantSummaryQuality extends LitElement {
     }
 
     updated(changedProperties) {
+        UtilsNew.initTooltip(this);
         this.querySelector("#summary-sample-quality data-form").updateComplete.then(() => {
             const chartContainer = this.querySelector(`#${this._chartId}`);
             if (chartContainer) {
@@ -216,11 +217,14 @@ export default class VariantSummaryQuality extends LitElement {
 
         // const data = this._variant.studies.find(s => s.studyId === this.opencgaSession.study.fqn).
         return html`
-            <div class="card p-3">
-                <div class="card-header border-0">
-                    <h5 class="mb-2 fs-5 fw-bold d-flex">Sample Quality</h5>
+            <div class="rounded-4 p-4 bg-white">
+                <div class=" d-flex justify-content-between mb-2">
+                    <h5 class="mb-2 fs-5 fw-bold">Sample Quality</h5>
+                    <a tooltip-title="Sample Quality" tooltip-text="${VariantGridFormatter.qualitySummaryTooltipContent()}">
+                        <i class="fa fa-info-circle text-dark"></i>
+                    </a>
                 </div>
-                <div class="card-body pt-0 pb-0" id="summary-sample-quality">
+                <div class="" id="summary-sample-quality">
                     <data-form
                         .data="${this._samplesQuality}"
                         .config="${this._config}">
@@ -258,7 +262,6 @@ export default class VariantSummaryQuality extends LitElement {
                             },
                             {
                                 style: "flex: 0 1 auto",
-                                classes: "d-flex flex-column justify-content-center",
                                 elements: [
                                     {
                                         id: "allele-balance-chart",
@@ -275,20 +278,19 @@ export default class VariantSummaryQuality extends LitElement {
                             type: "table",
                             field: "samples",
                             display: {
-                                titleClassName: "summary-category",
+                                titleClassName: "summary-category mb-4",
                                 titleStyle: "font-weight: normal !important",
                                 defaultLayout: "vertical",
                                 separationClassName: "mb-0",
-                                className: "table-grid mb-0",
+                                className: "table mb-0",
                                 style: "font-size: 12px;",
-                                bodyCellClassName: "align-middle",
+                                bodyCellClassName: "align-middle bg-transparent",
                                 headerCellClassName: "bg-transparent",
                                 rowId: true,
                                 defaultValue: () => {
-                                    debugger
                                     return html`
-                                        <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
-                                            <i class="fas fa-info-circle fs-3"></i>
+                                        <div class="alert alert-light border-0 mb-0 d-flex align-items-center gap-1">
+                                            <i class="fas fa-info-circle fs-4"></i>
                                             <div class="text-break">No proband or sample selected.</div>
                                         </div>
                                     `;

@@ -166,25 +166,25 @@ export default class VariantSummaryConservation extends LitElement {
         }
 
         return html`
-            <div class="card p-3">
-                <div class="card-header border-0 d-flex justify-content-between mb-2">
-                    <h5 class="fs-5 fw-bold me-2">
-                        Conservation
-                    </h5>
+            <div class="rounded-4 p-4 bg-white ms-2">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h5 class="mb-2 fs-5 fw-bold">Conservation</h5>
                     <a tooltip-title="Conservation Scores" tooltip-text="${VariantGridFormatter.conservationTooltipSummaryContent()}">
-                        <i class="fa fa-info-circle text-info"></i>
+                        <i class="fa fa-info-circle text-dark"></i>
                     </a>
                 </div>
-                <div class="card-body pt-0 pb-0" id="summary-conservation">
+                <div id="summary-conservation">
                     <data-form
                         .data="${this._variant}"
                         .config="${this._config}">
                     </data-form>
                 </div>
+                <!--
                 <div class="card-divider"></div>
                 <div class="text-muted fw-light fs-7">
-                    <i class="far fa-clock me-2 text-gray-700"></i> ${this._dateSummary.join(' · ')}
+                    <i class="far fa-clock me-2 text-gray-700"></i> $this._dateSummary.join(' · ')}
                 </div>
+                -->
             </div>
 
         `;
@@ -200,32 +200,28 @@ export default class VariantSummaryConservation extends LitElement {
                 {
                     id: "ct-conservation",
                     display: {
-                        separationClassName: "",
+                        separationClassName: "mb-0",
                     },
                     elements: [
                         {
                             id: "conservation",
                             type: "custom",
                             display: {
-                                separationClassName: "",
                                 visible: variant => variant.type === "SNV",
                                 render: variant => {
                                     return html`
-                                        <div class="d-flex">
+                                        <div class="d-flex justify-content-between">
                                             ${Object.entries(variant.dataCons).map(([method, scores]) => {
                                                 const { score, color, description } = scores[0]; // First score per method
                                                 return html`
-                                                    <div class="d-flex flex-column">
-                                                        <div class="card-category" style="min-width: 100px;">${method}</div>
+                                                    <div class="d-flex flex-column me-2">
+                                                        <div class="summary-category" style="min-width: 100px;">
+                                                            ${method}
+                                                        </div>
                                                         <h4 class="d-flex">
                                                             <div class="" style="color: ${color}">
                                                                 ${score}
                                                             </div>
-                                                            <!--
-                                                                <div class="text-secondary text-uppercase small fw-semibold">
-                                                                    ${description}
-                                                                </div>
-                                                            -->
                                                         </h4>
                                                     </div>
                                                 `;
@@ -244,7 +240,6 @@ export default class VariantSummaryConservation extends LitElement {
                                 visible: variant => variant.type === "MNV" || variant.type === "INDEL",
                                 render: variant => {
                                     // Render scores heatmap for MNV or INDEL
-                                    debugger
                                     return html`
                                         <div class="" id="${this._chartConsId}" style="flex: 0 0 auto"></div>
                                     `;
@@ -253,7 +248,7 @@ export default class VariantSummaryConservation extends LitElement {
                         },
                          */
                         {
-                            id: "conservation",
+                            id: "conservation-empty-state",
                             type: "custom",
                             display: {
                                 // EMPTY STATE: No conservation or different from SNV
@@ -263,20 +258,20 @@ export default class VariantSummaryConservation extends LitElement {
                                 },
                                 render: variant => {
                                     const conservation = variant.annotation?.conservation;
-                                    if (!conservation || conservation.length === 0) {
-                                        return html`
-                                            <div class="d-flex align-items-center text-gray-600">
-                                                No conservation data associated to this variant.
+                                    return (!conservation || conservation.length === 0) ?
+                                         html`
+                                            <div class="alert alert-light border-0 mb-0 d-flex align-items-center gap-1">
+                                                <i class="fas fa-info-circle fs-4 me-2"></i>
+                                                <div class="text-break">No conservation data associated to this variant.</div>
+                                            </div>
+                                        ` :
+                                        html`
+                                            <div class="alert alert-light border-0 mb-0 d-flex align-items-center gap-1">
+                                                <i class="fas fa-info-circle fs-4 me-2"></i>
+                                                <div class="text-break">Conservation summary is only available for SNV variant type.</div>
                                             </div>
                                         `;
-                                    } else {
-                                        return html`
-                                            <div class="d-flex align-items-center text-gray-600">
-                                                Conservation summary is only available for SNV variant type.
-                                            </div>
-                                        `;
-                                    }
-                                },
+                                }
                             },
                         },
                     ],

@@ -16,7 +16,7 @@
 
 import {html, LitElement, nothing} from "lit";
 import VariantGridFormatter from "../variant-grid-formatter.js";
-import UtilsNew from "../../../core/utils-new";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class VariantSummaryDeleteriousness extends LitElement {
 
@@ -473,30 +473,30 @@ export default class VariantSummaryDeleteriousness extends LitElement {
         `;
 
         return html`
-            <div class="card p-3 me-2">
-                <div class="card-header border-0 d-flex align-items-center justify-content-between mb-2">
-                    <h5 class="fs-5 fw-bold me-2">
-                        Deleteriousness
-                    </h5>
+            <div class="rounded-4 p-4 bg-white me-2">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div><h5 class="fs-5 fw-bold me-2">Deleteriousness</h5></div>
                     <div>
-                    <a tooltip-title="Deleterious scores per transcript" tooltip-text="${tooltipHTML}">
-                        <i class="fas fa-border-all me-2 text-info"></i>
-                    </a>
-                    <a tooltip-title="Deleterious Scores" tooltip-text="${VariantGridFormatter.deleteriousTooltipSummaryContent()}">
-                        <i class="fa fa-info-circle text-info"></i>
-                    </a>
+                        <a tooltip-title="Deleterious Scores Per Transcript" tooltip-text="${tooltipHTML}">
+                            <i class="fas fa-border-all me-2 text-dark"></i>
+                        </a>
+                        <a tooltip-title="Deleterious Scores" tooltip-text="${VariantGridFormatter.deleteriousTooltipSummaryContent()}">
+                            <i class="fa fa-info-circle text-dark"></i>
+                        </a>
                     </div>
                 </div>
-                <div class="card-body pt-0 pb-0" id="summary-deleteriousness">
+                <div id="summary-deleteriousness">
                     <data-form
                         .data="${this._variant}"
                         .config="${this._config}">
                     </data-form>
                 </div>
+                <!--
                 <div class="card-divider"></div>
                 <div class="text-muted fw-light fs-7">
-                    <i class="far fa-clock me-2 text-gray-700"></i> ${this._dateSummary.join(' · ')}
+                    <i class="far fa-clock me-2 text-gray-700"></i> $this._dateSummary.join(' · ')}
                 </div>
+                -->
             </div>
         `;
     }
@@ -510,7 +510,7 @@ export default class VariantSummaryDeleteriousness extends LitElement {
                 {
                     id: "ct-deleriousness",
                     display: {
-                        separationClassName: "",
+                        separationClassName: "mb-0",
                     },
                     elements: [
                         {
@@ -518,24 +518,12 @@ export default class VariantSummaryDeleteriousness extends LitElement {
                             type: "custom",
                             field: "summaryDel",
                             display: {
-                                separationClassName: "",
                                 render: summaryDel => {
-                                    /*
-                                    // Unique wrapper ID to avoid conflicts
-                                    const wrapperId = `${this._chartDelId}-wrapper`;
-
-                                    // Create the tooltip HTML with a scrollable wrapper
-                                    const tooltipHTML = `
-                                        <div id="${wrapperId}" style="max-height:300px; overflow-y:auto; padding:5px;">
-                                            <div id='${this._chartDelId}' style="min-width:300px;"></div>
-                                        </div>
-                                    `;
-                                     */
                                     return html`
                                         <div class="d-flex justify-content-between">
                                             ${Object.entries(summaryDel).map(([predictor, value]) => html`
                                                 <div class="d-flex flex-column me-2">
-                                                    <div class="card-category">
+                                                    <div class="summary-category">
                                                         ${VariantGridFormatter.getDeleteriousPredictorDisplayName(predictor)}
                                                     </div>
                                                     <h4 class="d-flex flex-column">

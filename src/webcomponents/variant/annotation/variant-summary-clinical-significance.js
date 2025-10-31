@@ -15,8 +15,9 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import VariantUtils from "../variant-utils.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
+import VariantUtils from "../variant-utils.js";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class VariantSummaryClinicalSignificance extends LitElement {
 
@@ -62,6 +63,7 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
     }
 
     updated(changedProperties) {
+        UtilsNew.initTooltip(this);
         this.querySelector("data-form").updateComplete.then(() => {
             if (this.querySelector(`#${this._chartCSId}`)) {
                 this.#renderClinicalSignificanceSummary();
@@ -209,13 +211,14 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
         }
 
         return html`
-            <div class="card p-3">
-                <div class="card-header border-0">
-                    <h5 class="mb-2 fs-5 fw-bold d-flex">Clinical Significance</h5>
-                    <p class="text-secondary">Clinical significance in the consequence types evidences</p>
-
+            <div class="rounded-4 p-4 bg-white">
+                <div class=" d-flex justify-content-between mb-2">
+                    <h5 class="mb-2 fs-5 fw-bold">Clinical Significance Evidences</h5>
+                    <a tooltip-title="Clinical Significance" tooltip-text="${VariantGridFormatter.clinicalSignificanceSummaryTooltipContent(POPULATION_FREQUENCIES)}">
+                        <i class="fa fa-info-circle text-dark"></i>
+                    </a>
                 </div>
-                <div class="card-body pt-0 pb-0">
+                <div>
                     <data-form
                         .data="${this._variant}"
                         .config="${this._config}"
@@ -259,22 +262,24 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                     elements: [
                         {
                             id: "is-mane",
-                            // title: "Mane",
+                            title: "TRANSCRIPTS",
                             type: "toggle-buttons",
                             allowedValues: ["MANE", "ALL"],
                             defaultValue: "MANE",
                             field: "isMane",
                             display: {
+                                titleClassName: "summary-category",
                                 width: "9",
                                 classesLabel: "btn btn-outline-dark px-2 py-0 fs-7"
                             }
                         },
                         {
                             id: "total-evidences",
-                            title: "Evidences",
+                            title: "COUNT",
                             type: "custom",
                             field: "evidences",
                             display: {
+                                titleClassName: "summary-category",
                                 render: evidences => {
                                     let selectedEvidences = evidences;
                                     if (this._variant.isMane === "MANE") {
@@ -283,7 +288,7 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                                         );
                                     }
                                     return html`
-                                        <div class="">${selectedEvidences.length}</div>
+                                        <div class="fw-bold">${selectedEvidences.length}</div>
                                     `;
                                 }
                             },
@@ -314,7 +319,12 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                             id: "evidences-clinical-significance-chart",
                             type: "custom",
                             field: "evidences",
+                            title: "BY CLINICAL SIGNIFICANCE",
                             display: {
+                                layout: "horizontal",
+                                separationClassName: "mb-0",
+                                titleWidth: "12",
+                                titleClassName: "summary-category",
                                 render: evidences => {
                                     // Reset CS data
                                     this._dataCS = [];
@@ -328,15 +338,17 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                                     // Validate data
                                     const hasData = countsCS && Object.values(countsCS).some(val => val && val !== 0);
                                     if (!hasData) {
-                                        return html`<div>No clinical significance data available to display</div>`;
+                                        return html`
+                                            <div class="alert alert-light border-0 my-5 d-flex align-items-center gap-1 me-1" style="flex: 1">
+                                                <i class="fas fa-info-circle fs-4 me-2"></i>
+                                                <div class="text-break">No data available to display.</div>
+                                            </div>
+                                        `;
                                     }
                                     // Map and render chart
                                     this._dataCS = VariantUtils.mapClinicalSignificanceToColor(countsCS);
                                     return html`
-                                        <div
-                                            class="d-flex"
-                                            id="${this._chartCSId}">
-                                        </div>
+                                        <div class="d-flex" style="flex: 1" id="${this._chartCSId}"></div>
                                     `;
                                 }
                             },
@@ -345,7 +357,12 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                             id: "evidences-acmg-chart",
                             type: "custom",
                             field: "evidences",
+                            title: "BY ACMG",
                             display: {
+                                layout: "horizontal",
+                                separationClassName: "mb-0",
+                                titleWidth: "12",
+                                titleClassName: "summary-category",
                                 render: evidences => {
                                     // Reset data
                                     this._dataAcmg = [];
@@ -361,15 +378,17 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                                     // Check if there's valid ACMG data to display
                                     const hasData = countsAcmg && Object.values(countsAcmg).some(val => val && val !== 0);
                                     if (!hasData) {
-                                        return html`<div>No acmg data available to display.</div>`;
+                                        return html`
+                                            <div class="alert alert-light border-0 my-5 d-flex align-items-center gap-1 ms-1" style="flex: 1">
+                                                <i class="fas fa-info-circle fs-4 me-2"></i>
+                                                <div class="text-break">No data available to display.</div>
+                                            </div>
+                                        `;
                                     }
                                     // Map and render chart
                                     this._dataAcmg = VariantUtils.mapAcmgToColor(countsAcmg);
                                     return html`
-                                        <div
-                                            class="d-flex"
-                                            id="${this._chartAcmgId}"
-                                        ></div>
+                                        <div class="d-flex" style="flex: 1" id="${this._chartAcmgId}"></div>
                                     `;
                                 }
                             },

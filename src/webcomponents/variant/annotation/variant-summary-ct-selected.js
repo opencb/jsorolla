@@ -15,7 +15,8 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import VariantGridFormatter from "../variant-grid-formatter";
+import VariantGridFormatter from "../variant-grid-formatter.js";
+import UtilsNew from "../../../core/utils-new";
 
 export default class VariantSummaryCtSelected extends LitElement {
 
@@ -64,7 +65,6 @@ export default class VariantSummaryCtSelected extends LitElement {
                 consequenceTypeToColor[name] = CONSEQUENCE_TYPES.style[impact];
             }
         }
-
         this._consequenceTypeToColor = consequenceTypeToColor;
     }
 
@@ -77,9 +77,12 @@ export default class VariantSummaryCtSelected extends LitElement {
         super.update(changedProperties);
     }
 
+    updated(_changedProperties) {
+        UtilsNew.initTooltip(this);
+    }
+
     variantObserver() {
         if (this.settings && this.variant) {
-
             // 1. DISPLAY MOST SEVER CONSEQUENCE TYPE:
             // Find the gene and transcript that exhibit the display consequence type
             // CAUTION 1: This code, copy&paste from previous component cellbase-variant-annotation-summary.js, it is selecting
@@ -123,7 +126,6 @@ export default class VariantSummaryCtSelected extends LitElement {
             const {maneConsequenceTypes, notManeConsequenceTypes, indexes} = VariantGridFormatter._consequenceTypeManeFilter(this.variant.annotation.consequenceTypes);
 
             this._variant = {
-                // selected: selectedConsequenceTypes,
                 selectedGene: "",
                 selected: maneConsequenceTypes,
                 ...this.variant
@@ -222,15 +224,15 @@ export default class VariantSummaryCtSelected extends LitElement {
             return nothing;
         }
 
-        // const data = this._variant.studies.find(s => s.studyId === this.opencgaSession.study.fqn).
         return html`
-            <div class="card p-3 me-2">
-                <div class="card-header border-0">
-                    <h5 class="mb-2 fs-5 fw-bold d-flex">Relevant transcripts</h5>
-                    <p class="text-secondary">Consequence types linked to transcripts flagged as MANE-selected and source Ensembl</p>
-
+            <div class="rounded-4 p-4 bg-white ms-2">
+                <div class=" d-flex justify-content-between mb-2">
+                    <h5 class="mb-2 fs-5 fw-bold d-flex">Relevant Transcripts (MANE selected and Ensembl)</h5>
+                    <a tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.transcriptsSummaryTooltipContent(POPULATION_FREQUENCIES)}">
+                        <i class="fa fa-info-circle text-dark"></i>
+                    </a>
                 </div>
-                <div class="card-body pt-0 pb-0">
+                <div id="summary-transcripts">
                     <data-form
                         .data="${this._variant}"
                         .config="${this._config}">
@@ -255,7 +257,9 @@ export default class VariantSummaryCtSelected extends LitElement {
             sections: [
                 {
                     id: "ct-selected",
-                    display: {},
+                    display: {
+                        separationClassName: "mb-0",
+                    },
                     elements: [
                         // Transcript selected and query ct
                         {
@@ -264,7 +268,12 @@ export default class VariantSummaryCtSelected extends LitElement {
                             display: {
                                 render: variant => {
                                     const ctsGroupByGene = this._groupConsequenceTypesByGene(variant.selected);
-                                    return this._renderConsequenceTypesNew(ctsGroupByGene)
+                                    return UtilsNew.isEmpty(ctsGroupByGene) ? html `
+                                        <div class="alert alert-light border-0 my-4 d-flex align-items-center gap-1">
+                                            <i class="fas fa-info-circle fs-4 me-2"></i>
+                                            <div class="text-break">No relevant consequence types.</div>
+                                        </div>
+                                    ` : this._renderConsequenceTypesNew(ctsGroupByGene);
                                 }
                             },
                         },
@@ -308,7 +317,6 @@ export default class VariantSummaryCtSelected extends LitElement {
                                 }
                             },
                         },
-
                     ],
                 },
                  */

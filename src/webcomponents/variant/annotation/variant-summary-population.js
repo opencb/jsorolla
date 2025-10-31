@@ -16,7 +16,7 @@
 
 import {html, LitElement, nothing} from "lit";
 import VariantGridFormatter from "../variant-grid-formatter.js";
-import UtilsNew from "../../../core/utils-new";
+import UtilsNew from "../../../core/utils-new.js";
 
 export default class VariantSummaryPopulation extends LitElement {
 
@@ -66,9 +66,16 @@ export default class VariantSummaryPopulation extends LitElement {
         UtilsNew.initTooltip(this);
         this.querySelector("#summary-population data-form").updateComplete.then(() => {
             Object.keys(this._dataCohortsTransformed).forEach(study => {
-                (this._dataCohorts[study]?.total && this._dataCohorts[study]?.total !== 0) ?
-                    this.#renderCharts(study) :
-                    this.querySelector(`div#stats-${study}`).innerHTML = "<div>No population data available</div>";
+                if (study !== "GNOMAD_EXOMES") {
+                    (this._dataCohorts[study]?.total && this._dataCohorts[study]?.total !== 0) ?
+                        this.#renderCharts(study) :
+                        this.querySelector(`div#stats-${study}`).innerHTML = `
+                            <div class="alert alert-light border-0 mb-0 d-flex align-items-center gap-1 me-1" style="flex: 1">
+                                <i class="fas fa-info-circle fs-4 me-2"></i>
+                                <div class="text-break">No population data available.</div>
+                            </div>
+                        `;
+                }
             });
         });
     }
@@ -222,25 +229,26 @@ export default class VariantSummaryPopulation extends LitElement {
             return nothing;
         }
         return html`
-            <div class="card p-3">
-                <div class="card-header border-0 d-flex justify-content-between mb-2">
+            <div class="rounded-4 p-4 bg-white">
+                <div class=" d-flex justify-content-between mb-2">
                     <h5 class="mb-2 fs-5 fw-bold">Population Frequencies</h5>
                     <a tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesSummaryTooltipContent(POPULATION_FREQUENCIES)}">
-                        <i class="fa fa-info-circle text-info"></i>
+                        <i class="fa fa-info-circle text-dark"></i>
                     </a>
                 </div>
-                <div class="card-body pt-0 pb-0" id="summary-population">
+                <div id="summary-population">
                     <data-form
                         .data="${this.variant}"
                         .config="${this._config}">
                     </data-form>
                 </div>
+                <!--
                 <div class="card-divider"></div>
                 <div class="text-muted fw-light fs-7">
-                    <i class="far fa-clock me-2 text-gray-700"></i> ${this._dateSummary.join(' · ')}
+                    <i class="far fa-clock me-2 text-gray-700"></i> $this._dateSummary.join(' · ')}
                 </div>
+                -->
             </div>
-
         `;
     }
 
@@ -280,12 +288,12 @@ export default class VariantSummaryPopulation extends LitElement {
                                 className: "",
                                 headerCellClassName: "",
                                 rowId: true,
-                                defaultValue: "",
                                 render: populationFrequencies => {
                                     if (!populationFrequencies || populationFrequencies.length === 0)  {
                                         return html`
-                                            <div class="d-flex align-items-center text-gray-600">
-                                                No population data associated to this variant
+                                            <div class="alert alert-light border-0 mb-0 d-flex align-items-center gap-1">
+                                                <i class="fas fa-info-circle fs-4"></i>
+                                                <div class="text-break">No population data associated to this variant.</div>
                                             </div>
                                         `;
                                     }
@@ -307,11 +315,11 @@ export default class VariantSummaryPopulation extends LitElement {
                                                     const minMore = dataMaxMin[study].minMAF.populations.length > 1 || false;
                                                     return html`
                                                         <div class="d-flex flex-column" style="flex: 1 1 auto;">
-                                                            <div class="fw-bold fs-7 text-secondary">Population ${study}</div>
+                                                            <div class="summary-category">POPULATION ${study}</div>
                                                             <div class="d-flex align-items-center" style="flex: 1 1 auto;">
                                                             <!--Stats box-->
                                                             <div class="ps-3" id="${statsId}" style="border-left: 1px solid #d9dada; flex: 0 1 auto">
-                                                                <div class="d-flex align-items-center text-dark">
+                                                                <div class="d-flex align-items-center flex-wrap text-dark">
                                                                     <div class="me-2" style="width: 10px;height: 10px;background: ${all.color};border-radius: 2px;"></div>
                                                                     <div class="me-2 fw-bold">Population ALL:</div>
                                                                     <div class="me-2 text-secondary">${prettyCategory}</div>

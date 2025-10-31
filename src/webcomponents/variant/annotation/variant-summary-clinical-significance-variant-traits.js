@@ -15,7 +15,9 @@
  */
 
 import {html, LitElement, nothing} from "lit";
-import VariantUtils from "../variant-utils.js";
+import VariantGridFormatter from "../variant-grid-formatter.js";
+import UtilsNew from "../../../core/utils-new.js";
+
 
 export default class VariantSummaryClinicalSignificanceVariantTraits extends LitElement {
 
@@ -69,6 +71,7 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
 
 
     update(changedProperties) {
+        UtilsNew.initTooltip(this);
         if (changedProperties.has("variant")) {
             this.variantObserver();
         }
@@ -77,6 +80,7 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
     }
 
     updated() {
+
         this.querySelector("#summary-cs-clinvar data-form").updateComplete.then(() => {
             const chartContainer = this.querySelector(`#${this._chartId}`);
             if (chartContainer) {
@@ -210,13 +214,14 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
         }
 
         return html`
-            <div class="card p-3">
-                <div class="card-header border-0">
-                    <h5 class="mb-2 fs-5 fw-bold d-flex">Traits by Clinical Significance, Stacked by Clinvar Stars</h5>
-                    <p class="text-secondary">ClinVar variant traits by clinical significance and germline review stars</p>
-
+            <div class="rounded-4 p-4 bg-white">
+                <div class=" d-flex justify-content-between mb-2">
+                    <h5 class="mb-2 fs-5 fw-bold">Traits by Clinical Significance, Stacked by ClinVar Stars</h5>
+                    <a tooltip-title="Clinical Significance" tooltip-text="${VariantGridFormatter.csClinvarSummaryTooltipContent(POPULATION_FREQUENCIES)}">
+                        <i class="fa fa-info-circle text-dark"></i>
+                    </a>
                 </div>
-                <div class="card-body pt-0 pb-0" id="summary-cs-clinvar">
+                <div class="" id="summary-cs-clinvar">
                     <data-form
                         .data="${this._variant}"
                         .config="${this._config}">
@@ -252,7 +257,12 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
                                     // Check if trait association exists. Filter evidences from ClinVar source only
                                     this._data = traitAssociation.filter(e => e.source?.name?.toLowerCase() === 'clinvar');
                                     if (this._data?.length === 0) {
-                                        return html`<div>No clinvar traits association data available to display</div>`;
+                                        return html`
+                                            <div class="alert alert-light border-0 mb-0 d-flex align-items-center gap-1 ms-1" style="flex: 1">
+                                                <i class="fas fa-info-circle fs-4 me-2"></i>
+                                                <div class="text-break">No ClinVar traits association data available to display.</div>
+                                            </div>
+                                        `;
                                     }
                                     return html `
                                         <div class="d-flex justify-content-start" id="${this._chartId}"></div>
