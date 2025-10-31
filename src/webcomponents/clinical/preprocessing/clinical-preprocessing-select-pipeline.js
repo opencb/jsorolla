@@ -98,15 +98,6 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
         LitUtils.dispatchCustomEvent(this, "pipelineCreate");
     }
 
-    render() {
-        return html`
-            <data-form
-                .data="${this._data}"
-                .config="${this._config}">
-            </data-form>
-        `;
-    }
-
     renderPipelineItem(pipeline) {
         return html`
             <div class="d-flex flex-column gap-1">
@@ -146,6 +137,16 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
             </div>
         `;
     }
+
+    render() {
+        return html`
+            <data-form
+                .data="${this._data}"
+                .config="${this._config}">
+            </data-form>
+        `;
+    }
+
     getDefaultConfig() {
         return {
             title: "Select NGS Preprocessing Pipeline",
