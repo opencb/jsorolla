@@ -145,4 +145,27 @@ export default class WebUtils {
         };
     }
 
+    // Converts a parameters object into a list of {name, value} objects
+    // Example: 
+    // Input: { "param1": "value1", "param2": "value2" }
+    // Output: [ { name: "param1", value: "value1" }, { name: "param2", value: "value2" } ]
+    static parseParametersObject(parameters = {}) {
+        return Object.keys(parameters).map(key => {
+            return {
+                name: key,
+                value: parameters[key],
+            };
+        });
+    }
+
+    // Converts a list of {name, value} objects into a parameters object
+    // Example:
+    // Input: [ { name: "param1", value: "value1" }, { name: "param2", value: "value2" } ]
+    // Output: { "param1": "value1", "param2": "value2" }
+    static formatParametersList(parameters = []) {
+        return Object.fromEntries(parameters.map(parameter => {
+            return [parameter.name, parameter.value];
+        }));
+    }
+
 }
