@@ -213,6 +213,7 @@ const SUITE = {
                     id: "my-analysis-tools",
                     name: "My Tools",
                     icon: "fa-cog",
+                    category: "Data Analysis",
                     visibility: "public",
                     description: "Manage your personal analysis tools.",
                 },
