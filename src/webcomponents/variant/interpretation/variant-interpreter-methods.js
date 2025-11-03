@@ -15,6 +15,7 @@
  */
 
 import {html, LitElement} from "lit";
+import {keyed} from "lit/directives/keyed.js";
 import "../../commons/view/detail-tabs.js";
 import "../../clinical/analysis/rd-tiering-analysis.js";
 import "../../clinical/analysis/exomiser-analysis.js";
@@ -121,13 +122,13 @@ class VariantInterpreterMethods extends LitElement {
             `;
         }
 
-        return html`
+        return keyed(this.opencgaSession.study.fqn + ":" + this._config.items.length, html`
             <detail-tabs
                 .data="${this.clinicalAnalysis}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
-        `;
+        `);
     }
 
     getDefaultConfig() {
