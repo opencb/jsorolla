@@ -231,7 +231,7 @@ export default class ClinicalPreprocessing extends LitElement {
         const data = {
             outdir: this._stepsParams.preprocessing.outputDir,
             pipelineParams: {
-                samples: this._stepsParams?.pipeline?.type === "genomics" ? this._stepsParams.samples : this._stepsParams.preprocessing.samples,
+                samples: this._stepsParams?.pipeline?.type === "genomics" ? this._stepsParams.samples : [this._stepsParams.preprocessing.samples],
                 indexDir: this._stepsParams.preprocessing.indexDir,
                 pipeline: {
                     steps: this._stepsParams.preprocessing.steps,
