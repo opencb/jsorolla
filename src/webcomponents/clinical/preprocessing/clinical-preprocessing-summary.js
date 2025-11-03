@@ -124,6 +124,7 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                             field: "input.samples",
                             type: "table",
                             display: {
+                                visible: data => data?.pipeline?.type === "genomics",
                                 getData: data => data.samples || [],
                                 className: "table-borderless table-grid mb-0",
                                 defaultValue: "No samples selected.",
@@ -153,6 +154,17 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                                         },
                                     },
                                 ],
+                            },
+                        },
+                        {
+                            title: "Samples",
+                            field: "preprocessing.samples",
+                            type: "custom",
+                            display: {
+                                visible: data => data?.pipeline?.type === "affy",
+                                render: samples => {
+                                    return outdir ? html`<code class="text-break">${samples}</code>` : "Not specified.";
+                                },
                             },
                         },
                         {
