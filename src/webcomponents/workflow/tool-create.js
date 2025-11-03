@@ -87,7 +87,7 @@ export default class ToolCreate extends LitElement {
 
     onSubmit() {
         this.#setLoading(true);
-        
+
         // call the right create method according to the tool type
         let toolCreatePromise = null;
         switch (this.type) {
@@ -247,15 +247,18 @@ export default class ToolCreate extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
-                                placeholder: "Add docker image name...",
+                                placeholder: "",
+                                helpMessage: "E.g., biocontainers/bwa or quay.io/biocontainers/bwa",
                             },
                         },
                         {
                             title: "Docker Tag",
                             field: "docker.tag",
                             type: "input-text",
+                            required: true,
                             display: {
-                                placeholder: "Add docker image tag...",
+                                placeholder: "",
+                                helpMessage: "E.g., 0.7.17--hed695b0_8",
                             },
                         },
                         {
@@ -263,7 +266,8 @@ export default class ToolCreate extends LitElement {
                             field: "docker.commandLine",
                             type: "input-text",
                             display: {
-                                placeholder: "Add docker command line...",
+                                placeholder: "",
+                                helpMessage: "You can use ${input} and ${output} as placeholders for input and output files. E.g., 'bwa mem ${input} > ${output}'",
                             },
                         },
                         {
@@ -271,7 +275,8 @@ export default class ToolCreate extends LitElement {
                             field: "docker.user",
                             type: "input-text",
                             display: {
-                                placeholder: "Add docker user id...",
+                                placeholder: "",
+                                helpMessage: "Docker user ID for private repositories.",
                             },
                         },
                         {
@@ -279,7 +284,8 @@ export default class ToolCreate extends LitElement {
                             field: "docker.password",
                             type: "input-password",
                             display: {
-                                placeholder: "Add docker password or token...",
+                                placeholder: "",
+                                helpMessage: "Docker password or token for private repositories.",
                             },
                         },
                     ],

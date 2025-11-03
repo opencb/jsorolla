@@ -114,6 +114,7 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     onPreprocessingParamsChange(event) {
+        debugger
         this._stepsParams.preprocessing = event.detail;
     }
 
@@ -230,13 +231,14 @@ export default class ClinicalPreprocessing extends LitElement {
         const data = {
             outdir: this._stepsParams.preprocessing.outputDir,
             pipelineParams: {
-                samples: this._stepsParams.samples,
+                samples: this._stepsParams?.pipeline?.type === "genomics" ? this._stepsParams.samples : this._stepsParams.preprocessing.samples,
                 indexDir: this._stepsParams.preprocessing.indexDir,
                 pipeline: {
                     steps: this._stepsParams.preprocessing.steps,
                 },
             },
         };
+        debugger
 
         // 2. Submit ngs pipeline job
         const jobParams = {

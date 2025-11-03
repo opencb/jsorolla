@@ -111,10 +111,12 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                     </span>
                     ${pipeline.content.version ? html`<span class="badge bg-secondary ms-2">v${pipeline.content.version}</span>` : nothing}
                 </div>
-                <div class="d-flex gap-3 align-items-center">
-                    <span>Alignment Tool: <b>${pipeline.content?.steps?.alignment?.tool?.id || "-"}</b></span>
-                    <span>Variant Calling Tools: <b>${(pipeline.content?.steps?.variantCalling?.tools || []).map(t => t.id || t.name).join(", ") || "-"}</b></span>
-                </div>
+                ${!pipeline.content?.type || pipeline.content?.type === "genomics" ? html`
+                    <div class="d-flex gap-3 align-items-center">
+                        <span>Alignment Tool: <b>${pipeline.content?.steps?.alignment?.tool?.id || "-"}</b></span>
+                        <span>Variant Calling Tools: <b>${(pipeline.content?.steps?.variantCalling?.tools || []).map(t => t.id || t.name).join(", ") || "-"}</b></span>
+                    </div>
+                ` : nothing}
                 ${pipeline.content.description ? html`
                     <div class="text-muted">${pipeline.content.description}</div>
                 ` : nothing}

@@ -57,6 +57,7 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
         this.DEFAULT_TOOLPARAMS = {
             indexDir: "",
             outputDir: "",
+            samples: "",
             qualityControl: {
                 active: true,
                 options: {},
@@ -151,24 +152,12 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
         return null;
     }
 
-    getUsagePage(tool) {
-        switch (tool) {
-            case "fastqc":
-                return "https://home.cc.umanitoba.ca/~psgendb/doc/fastqc.help";
-            case "bwa":
-            case "bwa-mem2":
-                return "https://bio-bwa.sourceforge.net/bwa.shtml";
-            case "minimap2":
-                return "https://lh3.github.io/minimap2/minimap2.html";
-        }
-        return "";
-    }
-
     dispatchChange() {
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
             ...this._toolParams,
             outputDir: this._toolParams.outputDir || "",
             indexDir: this._toolParams.indexDir || "",
+            samples: this._toolParams.samples || "",
             steps: {
                 qualityControl: {
                     active: !!this._toolParams.qualityControl?.active,
@@ -222,8 +211,29 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                 title: "General Parameters",
                 elements: [
                     {
-                        title: "Index Directory",
-                        description: "Folder containing the indexes shared by the different tools used in the pipeline.",
+                        title: "Input Directory",
+                        description: "Directory where the sample *.CEL files are located.",
+                        field: "samples",
+                        type: "custom",
+                        display: {
+                            render: (outputDir, dataFormFilterChange) => {
+                                return html `
+                                    <catalog-search-autocomplete
+                                        .value="${outputDir}"
+                                        .resource="${"DIRECTORY"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            multiple: false,
+                                        }}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `;
+                            },
+                        },
+                    },
+                    {
+                        title: "Axiom Index Directory",
+                        description: "Directory where the Axiom resources are stored.",
                         field: "indexDir",
                         type: "custom",
                         display: {
@@ -266,8 +276,8 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                 ],
             },
             {
-                title: "Affy Options",
-                description: "These parameters apply to BWA alignment step",
+                title: "Quality Control Options",
+                description: "These parameters apply to the quality control step of the Affy preprocessing pipeline.",
                 elements: [
                     // {
                     //     title: "Active",
@@ -279,41 +289,31 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                     //         helpMessage: "Activate or deactivate the alignment step.",
                     //     },
                     // },
+                    // {
+                    //     title: "Axiom Index Directory",
+                    //     field: "qualityControl.tool.index",
+                    //     type: "custom",
+                    //     display: {
+                    //         render: (alignmentIndex, dataFormFilterChange) => {
+                    //             return html `
+                    //                 <catalog-search-autocomplete
+                    //                     .value="${alignmentIndex}"
+                    //                     .resource="${"FILE"}"
+                    //                     .searchField="${"path"}"
+                    //                     .opencgaSession="${this.opencgaSession}"
+                    //                     .config="${{
+                    //                         multiple: false,
+                    //                         // disabled: !this._toolParams?.alignment?.active,
+                    //                     }}"
+                    //                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                    //                 </catalog-search-autocomplete>
+                    //             `;
+                    //         },
+                    //         helpMessage: "Aligner index directory to be used for the alignment step. This overrides the general index directory."
+                    //     }
+                    // },
                     {
-                        title: "APT Tool",
-                        field: "alignment.tool.id",
-                        type: "select",
-                        allowedValues: ["bwa", "bwa-mem2", "minimap2"],
-                        display: {
-                            // disabled: data => !data.alignment.active,
-                            helpMessage: "Select the alignment tool to use. Options are 'bwa' (BWA-MEM), 'bwa-mem2' (BWA-MEM2) and 'minimap2' (Minimap2)."
-                        },
-                    },
-                    {
-                        title: "Aligner Index Directory",
-                        field: "alignment.tool.index",
-                        type: "custom",
-                        display: {
-                            render: (alignmentIndex, dataFormFilterChange) => {
-                                return html `
-                                    <catalog-search-autocomplete
-                                        .value="${alignmentIndex}"
-                                        .resource="${"FILE"}"
-                                        .searchField="${"path"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .config="${{
-                                            multiple: false,
-                                            // disabled: !this._toolParams?.alignment?.active,
-                                        }}"
-                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                    </catalog-search-autocomplete>
-                                `;
-                            },
-                            helpMessage: "Aligner index directory to be used for the alignment step. This overrides the general index directory."
-                        }
-                    },
-                    {
-                        title: "Alignment Step Options",
+                        title: "Quality Control Step Options",
                         type: "object",
                         display: {
                             itemClassName: "row",
@@ -324,33 +324,17 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                         elements: [
                             {
                                 title: "Clean Intermediate Files",
-                                field: "alignment.options.clean",
+                                field: "qualityControl.options.clean",
                                 type: "toggle-switch",
                                 display: {
                                     helpMessage: "If enabled, intermediate files generated during the alignment process will be deleted to save disk space.",
                                 },
                             },
-                            {
-                                title: "Create CRAM Files",
-                                field: "alignment.options.cram",
-                                type: "toggle-switch",
-                                display: {
-                                    helpMessage: "If enabled, the output files will be in CRAM format instead of BAM format.",
-                                },
-                            },
-                            {
-                                title: "Calculate Quality Control",
-                                field: "alignment.options.qc",
-                                type: "toggle-switch",
-                                display: {
-                                    helpMessage: "If enabled, quality control will be performed on the aligned data after the alignment step.",
-                                },
-                            },
                         ],
                     },
                     {
-                        title: "Aligner Parameters",
-                        field: "alignment.tool.parameters",
+                        title: "Quality Control Parameters",
+                        field: "qualityControl.tool.parameters",
                         type: "input-parameters",
                         display: {
                             // disabled: data => !data.alignment.active,
@@ -369,27 +353,105 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                             `,
                         },
                     },
+                    // {
+                    //     title: "Tool Usage Documentation",
+                    //     field: "alignment.tool.id",
+                    //     type: "custom",
+                    //     display: {
+                    //         render: tool => {
+                    //             const usagePage = this.getUsagePage(tool);
+                    //             if (!tool || !usagePage) {
+                    //                 return html`
+                    //                     <div class="alert alert-light d-flex flex-column align-items-center gap-2 text-center py-4">
+                    //                         <i class="fa fa-book fs-4"></i>
+                    //                         <span class="fw-bold">No usage information available for the selected tool.</span>
+                    //                     </div>
+                    //                 `;
+                    //             }
+                    //             return html`
+                    //                 <div class="border rounded p-2 shadow-lg bg-white py-3" style="box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);">
+                    //                     <iframe src="${usagePage}" width="100%" height="720px" class="w-100 border-0"></iframe>
+                    //                 </div>
+                    //             `;
+                    //         },
+                    //     },
+                    // },
+                ],
+            },
+            {
+                title: "Genotype Options",
+                description: "These parameters apply to the quality control step of the Affy preprocessing pipeline.",
+                elements: [
+                    // {
+                    //     title: "Axiom Index Directory",
+                    //     field: "genotype.tool.index",
+                    //     type: "custom",
+                    //     display: {
+                    //         render: (alignmentIndex, dataFormFilterChange) => {
+                    //             return html `
+                    //                 <catalog-search-autocomplete
+                    //                     .value="${alignmentIndex}"
+                    //                     .resource="${"FILE"}"
+                    //                     .searchField="${"path"}"
+                    //                     .opencgaSession="${this.opencgaSession}"
+                    //                     .config="${{
+                    //                         multiple: false,
+                    //                         // disabled: !this._toolParams?.alignment?.active,
+                    //                     }}"
+                    //                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                    //                 </catalog-search-autocomplete>
+                    //             `;
+                    //         },
+                    //         helpMessage: "Aligner index directory to be used for the alignment step. This overrides the general index directory."
+                    //     }
+                    // },
                     {
-                        title: "Tool Usage Documentation",
-                        field: "alignment.tool.id",
-                        type: "custom",
+                        title: "Quality Control Step Options",
+                        type: "object",
                         display: {
-                            render: tool => {
-                                const usagePage = this.getUsagePage(tool);
-                                if (!tool || !usagePage) {
-                                    return html`
-                                        <div class="alert alert-light d-flex flex-column align-items-center gap-2 text-center py-4">
-                                            <i class="fa fa-book fs-4"></i>
-                                            <span class="fw-bold">No usage information available for the selected tool.</span>
-                                        </div>
-                                    `;
-                                }
-                                return html`
-                                    <div class="border rounded p-2 shadow-lg bg-white py-3" style="box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);">
-                                        <iframe src="${usagePage}" width="100%" height="720px" class="w-100 border-0"></iframe>
-                                    </div>
-                                `;
+                            itemClassName: "row",
+                            itemTitleClassName: "col-md-3",
+                            itemContentClassName: "col-md-9",
+                            // disabled: data => !data.alignment.active,
+                        },
+                        elements: [
+                            {
+                                title: "Clean Intermediate Files",
+                                field: "genotype.options.clean",
+                                type: "toggle-switch",
+                                display: {
+                                    helpMessage: "If enabled, intermediate files generated during the alignment process will be deleted to save disk space.",
+                                },
                             },
+                            {
+                                title: "Quality Control Step Options",
+                                field: "genotype.options.qc",
+                                type: "toggle-switch",
+                                display: {
+                                    helpMessage: "If enabled, intermediate files generated during the alignment process will be deleted to save disk space.",
+                                },
+                            },
+                        ],
+                    },
+                    {
+                        title: "Genotype Parameters",
+                        field: "genotype.tool.parameters",
+                        type: "input-parameters",
+                        display: {
+                            // disabled: data => !data.alignment.active,
+                            itemsNotFoundText: "No parameters registered for this tool.",
+                            fileRender: (selectedFile, dataFormFilterChange) => html`
+                                <catalog-search-autocomplete
+                                    .value="${selectedFile}"
+                                    .resource="${"FILE"}"
+                                    .searchField="${"path"}"
+                                    .config="${{
+                                        multiple: false,
+                                    }}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                </catalog-search-autocomplete>
+                            `,
                         },
                     },
                 ],
