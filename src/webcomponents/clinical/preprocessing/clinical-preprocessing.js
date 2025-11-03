@@ -238,20 +238,35 @@ export default class ClinicalPreprocessing extends LitElement {
                 },
             },
         };
-        debugger
 
-        // 2. Submit ngs pipeline job
-        const jobParams = {
-            study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this._stepsParams.preprocessing, "ngs-pipeline"),
-        };
+        // 2. prepare the promise to submit the job
+        let submitPromise = null;
+        switch (this._stepsParams?.pipeline?.type || "genomics") {
+            case "genomics":
+                submitPromise = this.opencgaSession.opencgaClient.clinical()
+                    .runPipelineGenomics(data, {
+                        study: this.opencgaSession.study.fqn,
+                        ...AnalysisUtils.fillJobParams(this._stepsParams.preprocessing, "ngs-pipeline"),
+                    });
+                break;
+            case "affy":
+                submitPromise = this.opencgaSession.opencgaClient.clinical()
+                    .runPipelineAffy(data, {
+                        study: this.opencgaSession.study.fqn,
+                        ...AnalysisUtils.fillJobParams(this._stepsParams.preprocessing, "ngs-pipeline"),
+                    });
+                break;
+            default:
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
+                    message: `Pipeline type ${this._stepsParams?.pipeline?.type} not supported.`,
+                });
+                this._running = false;
+                this.requestUpdate();
+                return;
+        }
 
-        await AnalysisUtils.submit(
-            "NGS Pipeline Analysis",
-            this.opencgaSession.opencgaClient.clinical()
-                .runPipelineGenomics(data, jobParams),
-            this,
-        );
+        // 3. submit job
+        await AnalysisUtils.submit("NGS Pipeline Analysis", submitPromise, this);
 
         // 5. Prepare data and Submit variant index job
         // const variantIndexJobData = {
