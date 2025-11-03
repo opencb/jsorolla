@@ -162,8 +162,8 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                             type: "custom",
                             display: {
                                 visible: data => data?.pipeline?.type === "affy",
-                                render: samples => {
-                                    return outdir ? html`<code class="text-break">${samples}</code>` : "Not specified.";
+                                render: samplesDir => {
+                                    return samplesDir ? html`<code class="text-break">${samplesDir}</code>` : "Not specified.";
                                 },
                             },
                         },
