@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import {keyed} from "lit/directives/keyed.js";
 import "../../commons/view/detail-tabs.js";
 import "../../clinical/analysis/rd-tiering-analysis.js";
@@ -103,12 +103,8 @@ class VariantInterpreterMethods extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession?.project) {
-            return html`
-                <div>
-                    <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
+        if (!this.opencgaSession) {
+            return nothing;
         }
 
         // If no methods have been configured, we will display a warning message
@@ -171,7 +167,7 @@ class VariantInterpreterMethods extends LitElement {
                         name: "Exomiser",
                         render: (clinicalAnalysis, active, opencgaSession) => {
                             return html`
-                                <div class="col-md-6 offset-md-3">
+                                <div class="container">
                                     <tool-header title="Exomiser - ${probandId}"></tool-header>
                                     <exomiser-analysis
                                         .toolParams="${{clinicalAnalysis: clinicalAnalysis.id}}"
@@ -194,7 +190,7 @@ class VariantInterpreterMethods extends LitElement {
                                 panels: clinicalAnalysis.panels?.map(panel => panel.id).join(","),
                             };
                             return html`
-                                <div class="col-md-6 offset-md-3">
+                                <div class="container">
                                     <tool-header title="RD Tiering - ${probandId}"></tool-header>
                                     <rd-tiering-analysis
                                         .toolParams="${toolParams}"
