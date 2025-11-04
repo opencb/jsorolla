@@ -264,7 +264,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         }
 
         // 3. if user has selected a family, we have to fetch all samples and files related to the members of that family
-        if (e.detail.param === "family.familyId") {
+        if (event.detail.param === "family.familyId") {
             await this.onFamilyChange();
             this._config = this.getDefaultConfig();
         }
