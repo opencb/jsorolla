@@ -273,6 +273,9 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
     }
 
     onIndividualChange() {
+        this._toolParams.files = [];
+        this._toolParams.fileIds = "";
+
         if (this._toolParams.individualId) {
             let individual = null;
             return this.opencgaSession.opencgaClient.individuals()
