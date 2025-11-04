@@ -262,10 +262,11 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
             this._config = this.getDefaultConfig();
         }
 
-        // if (e.detail.param === "family.familyId") {
-        //     await this.#onFamilyChange();
-        //     this._config = this.getDefaultConfig();
-        // }
+        // 3. if user has selected a family, we have to fetch all samples and files related to the members of that family
+        if (e.detail.param === "family.familyId") {
+            await this.onFamilyChange();
+            this._config = this.getDefaultConfig();
+        }
 
         this.dispatchChange();
         this.requestUpdate();
@@ -338,6 +339,73 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                 });
         }
     }
+
+    onFamilyChange() {
+        this._toolParams.files = [];
+        this._toolParams.fileIds = "";
+
+        if (this._toolParams.familyId) {
+            let family = null;
+            return this.opencgaSession.opencgaClient.families()
+                .info(this._toolParams.familyId, {
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,members.id,members.father,members.mother,members.sex,members.samples.id,members.samples.somatic,members.samples.fileIds",
+                })
+                .then(response => {
+                    family = response.responses[0].results[0];
+
+                    // we have to get all files from all samples from all members
+                    const allFileIds = new Set();
+                    family.members.forEach(member => {
+                        member.samples.forEach(sample => {
+                            sample.fileIds.forEach(fileId => allFileIds.add(fileId));
+                        });
+                    });
+
+                    return this.opencgaSession.opencgaClient.files()
+                        .search({
+                            study: this.opencgaSession.study.fqn,
+                            id: Array.from(allFileIds).join(","),
+                            type: "FILE",
+                            format: "FASTQ,BAM,VCF",
+                            exclude: "qualityControl,attributes",
+                            limit: 100,
+                        });
+                })
+                .then(response => {
+                    // we have to generate a list of files with sampleId and individualId included
+                    const fileIdsMap = new Map();
+                    response.responses[0].results.forEach(file => {
+                        fileIdsMap.set(file.id, file);
+                    });
+
+                    // now we can generate the list of files including sampleId and individualId
+                    this._toolParams.files = [];
+                    family.members.forEach(member => {
+                        member.samples.forEach(sample => {
+                            sample.fileIds.forEach(fileId => {
+                                if (fileIdsMap.has(fileId)) {
+                                    const file = fileIdsMap.get(fileId);
+                                    this._toolParams.family.files.push({
+                                        fileId: fileId,
+                                        fileName: file.name,
+                                        fileFormat: file.format,
+                                        fileSize: file.size,
+                                        sampleId: sample.id,
+                                        sampleSomatic: sample.somatic,
+                                        individualId: member.id,
+                                    });
+                                }
+                            });
+                        });
+                    });
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
+        }
+    }
+
 
     onVariantCallingToolToggle(event, toolId) {
         const toolIndex = (this._toolParams?.variantCalling?.tools || []).findIndex(t => t.id === toolId);
@@ -450,6 +518,25 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                         },
                     },
                     {
+                        title: "Select a Family",
+                        field: "familyId",
+                        type: "custom",
+                        display: {
+                            visible: data => data.analysisType === "FAMILY",
+                            render: (familyId, onFieldChange) => html`
+                                <catalog-search-autocomplete
+                                    .value="${familyId}"
+                                    .resource="${"FAMILY"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{
+                                        multiple: false,
+                                    }}"
+                                    @filterChange="${e => onFieldChange(e.detail.value)}">
+                                </catalog-search-autocomplete>
+                            `,
+                        },
+                    },
+                    {
                         title: "Select Files",
                         field: "fileIds",
                         type: "table",
@@ -490,6 +577,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                                     field: "fileId",
                                     type: "custom",
                                     display: {
+                                        headerCellClassName: "text-center",
                                         className: "d-flex justify-content-center align-items-center",
                                         render: (fileId, dataFormFieldChange) => html`
                                             <input
