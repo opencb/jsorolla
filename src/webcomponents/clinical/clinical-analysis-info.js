@@ -157,7 +157,10 @@ class ClinicalAnalysisInfo extends LitElement {
                                 <tool-header title="Clinical Data"></tool-header>
                                 <individual-summary
                                     .individual="${clinicalAnalysis.proband}"
-                                    .opencgaSession="${opencgaSession}">
+                                    .opencgaSession="${opencgaSession}"
+                                    .displayConfig="${{
+                                        titleVisible: false,
+                                    }}">
                                 </individual-summary>
                             </div>
                         `;
