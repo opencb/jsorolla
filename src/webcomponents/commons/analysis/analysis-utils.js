@@ -14,6 +14,22 @@ export default class AnalysisUtils {
     //     };
     // }
 
+    static renderUsage(usageUrl) {
+        if (!usageUrl) {
+            return html`
+                <div class="alert alert-light d-flex flex-column align-items-center gap-2 text-center py-4">
+                    <i class="fa fa-book fs-4"></i>
+                    <span class="fw-bold">No usage information available for the selected tool.</span>
+                </div>
+            `;
+        }
+        return html`
+            <div class="border rounded p-2 shadow-lg bg-white py-3" style="box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);">
+                <iframe src="${usageUrl}" width="100%" height="720px" class="w-100 border-0"></iframe>
+            </div>
+        `;
+    }
+
     static extToolsDocker(opencgaSession) {
         return {
             id: "opencb/opencga-ext-tools",
