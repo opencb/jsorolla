@@ -115,18 +115,15 @@ class ClinicalAnalysisInfo extends LitElement {
                     name: "Case Manager",
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => {
-                        const displayConfig = {
-                            width: 8,
-                            modalButtonClassName: "btn-light btn-sm",
-                            titleVisible: false,
-                        };
                         return html`
                             <div class="container">
                                 <tool-header title="Case Manager - ${clinicalAnalysis?.id ?? ""}"></tool-header>
                                 <clinical-analysis-update
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .opencgaSession="${opencgaSession}"
-                                    .displayConfig="${displayConfig}"
+                                    .displayConfig="${{
+                                        titleVisible: false,
+                                    }}"
                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                 </clinical-analysis-update>
                             </div>
