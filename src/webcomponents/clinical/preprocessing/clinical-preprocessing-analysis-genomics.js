@@ -64,6 +64,9 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         this.DEFAULT_TOOLPARAMS = {
             indexDir: "",
             outputDir: "",
+            analysisType: "SINGLE",
+            files: [],
+            fileIds: "",
             qualityControl: {
                 active: true,
                 options: {},
@@ -243,10 +246,28 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         });
     }
 
-    onFieldChange() {
-        this._toolParams = {
-            ...this._toolParams,
-        };
+    async onFieldChange(event) {
+        this._toolParams = {...this._toolParams};
+
+        // 1. if user has changed the analysis type, we have to clear all fields related to individuals/families/samples
+        if (event.detail.param === "analysisType") {
+            this._toolParams.individualId = "";
+            this._toolParams.files = [];
+            this._toolParams.fileIds = "";
+            this._config = this.getDefaultConfig();
+        }
+
+        // 2. if user has selected an individual, we have to fetch all samples and files related to that individual
+        if (event.detail.param === "individualId") {
+            await this.onIndividualChange();
+            this._config = this.getDefaultConfig();
+        }
+
+        // 3. if user has selected a family, we have to fetch all samples and files related to the members of that family
+        if (e.detail.param === "family.familyId") {
+            await this.onFamilyChange();
+            this._config = this.getDefaultConfig();
+        }
 
         this.dispatchChange();
         this.requestUpdate();
@@ -256,6 +277,136 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         this.toolParamsObserver();
         this.requestUpdate();
     }
+
+    onIndividualChange() {
+        this._toolParams.files = [];
+        this._toolParams.fileIds = "";
+
+        if (this._toolParams.individualId) {
+            let individual = null;
+            return this.opencgaSession.opencgaClient.individuals()
+                .info(this._toolParams.individualId, {
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,father,mother,sex,samples.id,samples.somatic,samples.fileIds",
+                })
+                .then(response => {
+                    individual = response.responses[0].results[0];
+
+                    // prepare the list of file ids to fetch
+                    const allFileIds = new Set();
+                    individual.samples.forEach(sample => {
+                        sample.fileIds.forEach(fileId => {
+                            allFileIds.add(fileId);
+                        });
+                    });
+
+                    return this.opencgaSession.opencgaClient.files()
+                        .search({
+                            study: this.opencgaSession.study.fqn,
+                            id: Array.from(allFileIds).join(","),
+                            type: "FILE",
+                            format: "FASTQ,BAM,VCF",
+                            exclude: "qualityControl,attributes",
+                            limit: 100,
+                        });
+                })
+                .then(response => {
+                    const fileIdsMap = new Map();
+                    response.responses[0].results.forEach(file => {
+                        fileIdsMap.set(file.id, file);
+                    });
+
+                    // now we can generate the list of files including sampleId
+                    this._toolParams.files = [];
+                    individual.samples.forEach(sample => {
+                        sample.fileIds.forEach(fileId => {
+                            if (fileIdsMap.has(fileId)) {
+                                const file = fileIdsMap.get(fileId);
+                                this._toolParams.files.push({
+                                    fileId: fileId,
+                                    fileName: file.name,
+                                    fileFormat: file.format,
+                                    fileSize: file.size,
+                                    sampleId: sample.id,
+                                    sampleSomatic: sample.somatic,
+                                    individualId: this._toolParams.individualId
+                                });
+                            }
+                        });
+                    });
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
+        }
+    }
+
+    onFamilyChange() {
+        this._toolParams.files = [];
+        this._toolParams.fileIds = "";
+
+        if (this._toolParams.familyId) {
+            let family = null;
+            return this.opencgaSession.opencgaClient.families()
+                .info(this._toolParams.familyId, {
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,members.id,members.father,members.mother,members.sex,members.samples.id,members.samples.somatic,members.samples.fileIds",
+                })
+                .then(response => {
+                    family = response.responses[0].results[0];
+
+                    // we have to get all files from all samples from all members
+                    const allFileIds = new Set();
+                    family.members.forEach(member => {
+                        member.samples.forEach(sample => {
+                            sample.fileIds.forEach(fileId => allFileIds.add(fileId));
+                        });
+                    });
+
+                    return this.opencgaSession.opencgaClient.files()
+                        .search({
+                            study: this.opencgaSession.study.fqn,
+                            id: Array.from(allFileIds).join(","),
+                            type: "FILE",
+                            format: "FASTQ,BAM,VCF",
+                            exclude: "qualityControl,attributes",
+                            limit: 100,
+                        });
+                })
+                .then(response => {
+                    // we have to generate a list of files with sampleId and individualId included
+                    const fileIdsMap = new Map();
+                    response.responses[0].results.forEach(file => {
+                        fileIdsMap.set(file.id, file);
+                    });
+
+                    // now we can generate the list of files including sampleId and individualId
+                    this._toolParams.files = [];
+                    family.members.forEach(member => {
+                        member.samples.forEach(sample => {
+                            sample.fileIds.forEach(fileId => {
+                                if (fileIdsMap.has(fileId)) {
+                                    const file = fileIdsMap.get(fileId);
+                                    this._toolParams.family.files.push({
+                                        fileId: fileId,
+                                        fileName: file.name,
+                                        fileFormat: file.format,
+                                        fileSize: file.size,
+                                        sampleId: sample.id,
+                                        sampleSomatic: sample.somatic,
+                                        individualId: member.id,
+                                    });
+                                }
+                            });
+                        });
+                    });
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
+        }
+    }
+
 
     onVariantCallingToolToggle(event, toolId) {
         const toolIndex = (this._toolParams?.variantCalling?.tools || []).findIndex(t => t.id === toolId);
@@ -339,6 +490,119 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
 
     getDefaultConfig() {
         const params = [
+            {
+                title: "Input Parameters",
+                elements: [
+                    {
+                        title: "Analysis Type",
+                        field: "analysisType",
+                        type: "toggle-buttons",
+                        allowedValues: ["SINGLE", "FAMILY", "CANCER"],
+                    },
+                    {
+                        title: "Select Proband",
+                        field: "individualId",
+                        type: "custom",
+                        display: {
+                            visible: data => data.analysisType === "SINGLE",
+                            render: (individualId, dataFormFieldChange) => html`
+                                <catalog-search-autocomplete
+                                    .value="${individualId}"
+                                    .resource="${"INDIVIDUAL"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config=${{
+                                        multiple: false,
+                                    }}
+                                    @filterChange="${e => dataFormFieldChange(e.detail.value)}">
+                                </catalog-search-autocomplete>
+                            `,
+                        },
+                    },
+                    {
+                        title: "Select a Family",
+                        field: "familyId",
+                        type: "custom",
+                        display: {
+                            visible: data => data.analysisType === "FAMILY",
+                            render: (familyId, onFieldChange) => html`
+                                <catalog-search-autocomplete
+                                    .value="${familyId}"
+                                    .resource="${"FAMILY"}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{
+                                        multiple: false,
+                                    }}"
+                                    @filterChange="${e => onFieldChange(e.detail.value)}">
+                                </catalog-search-autocomplete>
+                            `,
+                        },
+                    },
+                    {
+                        title: "Select Files",
+                        field: "fileIds",
+                        type: "table",
+                        display: {
+                            visible: data => data.files?.length > 0,
+                            getData: data => data?.files || [],
+                            className: "table-borderless table-grid mb-0",
+                            columns: [
+                                {
+                                    title: "Sample",
+                                    field: "sampleId",
+                                    type: "custom",
+                                    display: {
+                                        render: (sampleId, onFieldChange, updateParams, data, row) => html`
+                                            <div class="mb-1">${sampleId}</div>
+                                            <div class="text-muted fs-7">${row.sampleSomatic ? "Somatic" : "Germline"}</div>
+                                        `,
+                                    },
+                                },
+                                {
+                                    title: "File",
+                                    field: "fileName",
+                                },
+                                {
+                                    title: "Format",
+                                    field: "fileFormat",
+                                },
+                                {
+                                    title: "Size",
+                                    field: "fileSize",
+                                    type: "custom",
+                                    display: {
+                                        render: size => UtilsNew.getDiskUsage(size),
+                                    },
+                                },
+                                {
+                                    title: "Select",
+                                    field: "fileId",
+                                    type: "custom",
+                                    display: {
+                                        headerCellClassName: "text-center",
+                                        className: "d-flex justify-content-center align-items-center",
+                                        render: (fileId, dataFormFieldChange) => html`
+                                            <input
+                                                type="checkbox"
+                                                class="form-check-input"
+                                                ?checked="${this._toolParams.fileIds?.split(",").includes(fileId)}"
+                                                @change="${event => {
+                                                    // note: using 'filter' to remove empty strings
+                                                    const selectedFiles = new Set(this._toolParams.fileIds?.split(",").filter(Boolean));
+                                                    if (event.target.checked) {
+                                                        selectedFiles.add(fileId);
+                                                    } else {
+                                                        selectedFiles.delete(fileId);
+                                                    }
+                                                    dataFormFieldChange(Array.from(selectedFiles).join(","));
+                                                }}">
+                                        `,
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
             {
                 title: "General Parameters",
                 elements: [

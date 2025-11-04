@@ -65,12 +65,13 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     navigationButtonsVisible() {
-        // next/previous buttons are not visible when the pipeline selection is visible
-        if (this._activeStepIndex === 1 && this._stepsParams?.pipeline === null) {
-            return false;
-        }
-        // other case, buttons are visible
-        return true;
+        // // next/previous buttons are not visible when the pipeline selection is visible
+        // if (this._activeStepIndex === 1 && this._stepsParams?.pipeline === null) {
+        //     return false;
+        // }
+        // // other case, buttons are visible
+        // return true;
+        return this._activeStepIndex > 0;
     }
 
     onChangeActiveStep(event, newStepIndex) {
@@ -122,11 +123,11 @@ export default class ClinicalPreprocessing extends LitElement {
         this._stepsParams.variantIndex = event.detail;
     }
 
-    onPipelineClear() {
-        this._stepsParams.pipeline = null;
-        this._stepsParams.preprocessing.steps = {}; // reset steps
-        this.requestUpdate();
-    }
+    // onPipelineClear() {
+    //     this._stepsParams.pipeline = null;
+    //     this._stepsParams.preprocessing.steps = {}; // reset steps
+    //     this.requestUpdate();
+    // }
 
     onPipelineCreate(event, pipelineType) {
         // initialize pipeline information
@@ -135,6 +136,7 @@ export default class ClinicalPreprocessing extends LitElement {
             version: 0,
             type: pipelineType,
         };
+        this._activeStepIndex = 1; // move to next step
         this.requestUpdate();
     }
 
@@ -148,6 +150,7 @@ export default class ClinicalPreprocessing extends LitElement {
         };
         // update pipeline steps
         this._stepsParams.preprocessing.steps = event.detail.content?.steps || {};
+        this._activeStepIndex = 1; // move to next step
         this.requestUpdate();
     }
 
@@ -386,37 +389,42 @@ export default class ClinicalPreprocessing extends LitElement {
             title: "Clinical Preprocessing",
             steps: [
                 {
-                    id: "select",
-                    title: "Select Files",
-                    icon: "fas fa-file-medical",
+                    id: "select-pipeline",
+                    title: "Select Pipeline",
+                    icon: "fa fa-file-medical",
                     render: () => html`
-                        <clinical-preprocessing-select-files
-                            .toolParams="${this._stepsParams?.select}"
+                        <clinical-preprocessing-select-pipeline
                             .opencgaSession="${this.opencgaSession}"
-                            .displayConfig="${{
-                                buttonsVisible: false,
+                            @pipelineSelect="${event => this.onPipelineSelect(event)}"
+                            @genomicsPipelineCreate="${event => {
+                                this.onPipelineCreate(event, "genomics");
                             }}"
-                            @paramsChange="${event => this.onSelectFilesParamsChange(event)}">
-                        </clinical-preprocessing-select-files>
+                            @affyPipelineCreate="${event => {
+                                this.onPipelineCreate(event, "affy");
+                            }}">
+                        </clinical-preprocessing-select-pipeline>
                     `,
                 },
+                // {
+                //     id: "select",
+                //     title: "Select Files",
+                //     icon: "fas fa-file-medical",
+                //     render: () => html`
+                //         <clinical-preprocessing-select-files
+                //             .toolParams="${this._stepsParams?.select}"
+                //             .opencgaSession="${this.opencgaSession}"
+                //             .displayConfig="${{
+                //                 buttonsVisible: false,
+                //             }}"
+                //             @paramsChange="${event => this.onSelectFilesParamsChange(event)}">
+                //         </clinical-preprocessing-select-files>
+                //     `,
+                // },
                 {
                     id: "preprocessing",
                     title: "Preprocessing Parameters",
                     icon: "fas fa-sliders-h",
                     render: () => html`
-                        ${this._stepsParams?.pipeline === null ? html`
-                            <clinical-preprocessing-select-pipeline
-                                .opencgaSession="${this.opencgaSession}"
-                                @pipelineSelect="${event => this.onPipelineSelect(event)}"
-                                @genomicsPipelineCreate="${event => {
-                                    this.onPipelineCreate(event, "genomics");
-                                }}"
-                                @affyPipelineCreate="${event => {
-                                    this.onPipelineCreate(event, "affy");
-                                }}">
-                            </clinical-preprocessing-select-pipeline>
-                        ` : nothing}
                         ${this._stepsParams?.pipeline !== null ? html`
                             <div class="position-relative">
                                 ${this._stepsParams?.pipeline?.type === "genomics" ? html`
@@ -439,11 +447,6 @@ export default class ClinicalPreprocessing extends LitElement {
                                         @paramsChange="${event => this.onPreprocessingParamsChange(event)}">
                                     </clinical-preprocessing-analysis-affy>
                                 ` : nothing}
-                                <div class="position-absolute top-0 end-0">
-                                    <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onPipelineClear()}">
-                                        <i class="fas fa-edit"></i> Change Pipeline
-                                    </button>
-                                </div>
                             </div>
                         ` : nothing}
                     `,

@@ -176,7 +176,7 @@ class VariantInterpreterQc extends LitElement {
                             active: true,
                             render: (clinicalAnalysis, active, opencgaSession) => {
                                 return html`
-                                    <div class="col-md-10 offset-md-1">
+                                    <div class="container">
                                         <tool-header title="Quality Control Overview - ${probandId}"></tool-header>
                                         <variant-interpreter-qc-overview
                                             .opencgaSession="${opencgaSession}"
@@ -196,7 +196,7 @@ class VariantInterpreterQc extends LitElement {
                                 name: "Individual QC Analysis",
                                 render: (clinicalAnalysis, active, opencgaSession) => {
                                     return html`
-                                        <div class="col-md-12">
+                                        <div class="container">
                                             <tool-header title="Individual QC Analysis - ${probandId}"></tool-header>
                                             <individual-qc-analysis
                                                 .toolParams="${{individual: clinicalAnalysis.proband?.id}}"
@@ -212,7 +212,7 @@ class VariantInterpreterQc extends LitElement {
                                 name: "Sample Variant Stats",
                                 render: (clinicalAnalysis, active, opencgaSession) => {
                                     return html`
-                                        <div class="col-md-12">
+                                        <div class="">
                                             <tool-header title="Sample Variant Stats - ${probandId} (${this.sample?.id})"></tool-header>
                                             <sample-variant-stats-browser
                                                 .opencgaSession="${opencgaSession}"
@@ -232,7 +232,7 @@ class VariantInterpreterQc extends LitElement {
                                 name: "Family QC Analysis",
                                 render: (clinicalAnalysis, active, opencgaSession) => {
                                     return html`
-                                        <div class="col-md-10 offset-md-1">
+                                        <div class="container">
                                             <tool-header title="Family QC Analysis - ${probandId} (${clinicalAnalysis.family?.id})"></tool-header>
                                             <family-qc-analysis
                                                 .toolParams="${{family: clinicalAnalysis.family?.id}}"
@@ -248,7 +248,7 @@ class VariantInterpreterQc extends LitElement {
                                 name: "Individual QC Analysis",
                                 render: (clinicalAnalysis, active, opencgaSession) => {
                                     return html`
-                                        <div class="col-md-10 offset-md-1">
+                                        <div class="container">
                                             <tool-header title="Individual QC Analysis - ${probandId}"></tool-header>
                                             <individual-qc-analysis
                                                 .toolParams="${{individual: clinicalAnalysis.proband?.id}}"
@@ -264,7 +264,7 @@ class VariantInterpreterQc extends LitElement {
                                 name: "Sample Variant Stats",
                                 render: (clinicalAnalysis, active, opencgaSession) => {
                                     return html`
-                                        <div class="col-md-10 offset-md-1">
+                                        <div class="container">
                                             <tool-header title="Sample Variant Stats - ${probandId} (${this.sample?.id})"></tool-header>
                                             <sample-variant-stats-browser
                                                 .opencgaSession="${opencgaSession}"
@@ -286,7 +286,7 @@ class VariantInterpreterQc extends LitElement {
                                 name: "Somatic Variant Stats",
                                 render: (clinicalAnalysis, active, opencgaSession) => {
                                     return html`
-                                        <div class="col-md-12">
+                                        <div class="">
                                             <tool-header title="Somatic Variant Stats - ${probandId} (${this.somaticSample?.id})"></tool-header>
                                             <sample-variant-stats-browser
                                                 .opencgaSession="${opencgaSession}"
@@ -308,7 +308,7 @@ class VariantInterpreterQc extends LitElement {
                                 name: "Germline Variant Stats",
                                 render: (clinicalAnalysis, active, opencgaSession) => {
                                     return html`
-                                        <div class="col-md-12">
+                                        <div class="">
                                             <tool-header title="Germline Variant Stats - ${probandId} (${this.sample?.id})"></tool-header>
                                             <sample-variant-stats-browser
                                                 .opencgaSession="${opencgaSession}"
@@ -329,7 +329,7 @@ class VariantInterpreterQc extends LitElement {
                             name: "Gene Coverage Stats",
                             render: (clinicalAnalysis, active, opencgaSession) => {
                                 return html`
-                                    <div class="col-md-12">
+                                    <div class="">
                                         <tool-header title="Gene Coverage Stats - ${probandId}"></tool-header>
                                         <variant-interpreter-qc-gene-coverage
                                             .opencgaSession="${opencgaSession}"
