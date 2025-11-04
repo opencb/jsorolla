@@ -250,7 +250,11 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         this._toolParams = {...this._toolParams};
 
         // 1. if user has changed the analysis type, we have to clear all fields related to individuals/families/samples
-        // TODO
+        if (event.detail.param === "analysisType") {
+            this._toolParams.individualId = "";
+            this._toolParams.files = [];
+            this._toolParams.fileIds = "";
+        }
 
         // 2. if user has selected an individual, we have to fetch all samples and files related to that individual
         if (event.detail.param === "individualId") {
