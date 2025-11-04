@@ -474,6 +474,20 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         });
     }
 
+    renderCatalogSearchAutocomplete(value, resource, onFieldChange) {
+        return html`
+            <catalog-search-autocomplete
+                .value="${value}"
+                .resource="${resource}"
+                .opencgaSession="${this.opencgaSession}"
+                .config=${{
+                    multiple: false,
+                }}
+                @filterChange="${event => onFieldChange(event.detail.value)}">
+            </catalog-search-autocomplete>
+        `;
+    }
+
     render() {
         return html`
             <data-form
@@ -505,17 +519,9 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                         type: "custom",
                         display: {
                             visible: data => data.analysisType === "SINGLE",
-                            render: (individualId, dataFormFieldChange) => html`
-                                <catalog-search-autocomplete
-                                    .value="${individualId}"
-                                    .resource="${"INDIVIDUAL"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config=${{
-                                        multiple: false,
-                                    }}
-                                    @filterChange="${e => dataFormFieldChange(e.detail.value)}">
-                                </catalog-search-autocomplete>
-                            `,
+                            render: (individualId, onFieldChange) => {
+                                return this.renderCatalogSearchAutocomplete(individualId, "INDIVIDUAL", onFieldChange);
+                            },
                         },
                     },
                     {
@@ -524,17 +530,9 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                         type: "custom",
                         display: {
                             visible: data => data.analysisType === "FAMILY",
-                            render: (familyId, onFieldChange) => html`
-                                <catalog-search-autocomplete
-                                    .value="${familyId}"
-                                    .resource="${"FAMILY"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{
-                                        multiple: false,
-                                    }}"
-                                    @filterChange="${e => onFieldChange(e.detail.value)}">
-                                </catalog-search-autocomplete>
-                            `,
+                            render: (familyId, onFieldChange) => {
+                                return this.renderCatalogSearchAutocomplete(familyId, "FAMILY", onFieldChange);
+                            },
                         },
                     },
                     {
