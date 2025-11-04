@@ -254,6 +254,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
             this._toolParams.individualId = "";
             this._toolParams.files = [];
             this._toolParams.fileIds = "";
+            this._config = this.getDefaultConfig();
         }
 
         // 2. if user has selected an individual, we have to fetch all samples and files related to that individual
