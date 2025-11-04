@@ -226,7 +226,7 @@ export default class ClinicalInterpretationManager extends LitElement {
 
         return html`
             <div class="">
-                <div class="mb-3 d-flex align-items-center justify-content-end">
+                <div class="mb-0 d-flex align-items-center justify-content-end">
                     <clinical-interpretation-create
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .opencgaSession="${this.opencgaSession}"
@@ -245,16 +245,16 @@ export default class ClinicalInterpretationManager extends LitElement {
                     </clinical-interpretation-create>
                 </div>
 
-                <div class="mb-3">
-                    <h2 class="fw-bold">Primary Interpretation</h2>
+                <div class="mb-5">
+                    <h2 class="mb-4">Primary Interpretation</h2>
                     ${this.renderInterpretation(this.clinicalAnalysis.interpretation, true)}
                 </div>
 
-                <div class="mb-3">
-                    <h2 class="fw-bold">Secondary Interpretations</h2>
+                <div class="">
+                    <h2 class="mb-4">Secondary Interpretations</h2>
                     ${this.clinicalAnalysis?.secondaryInterpretations?.length > 0 ? html`
                         ${this.clinicalAnalysis.secondaryInterpretations.map(interpretation => html`
-                            <div style="margin-bottom:16px">
+                            <div class="mb-4">
                                 ${this.renderInterpretation(interpretation, false)}
                             </div>
                         `)}
