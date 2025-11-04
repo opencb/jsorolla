@@ -123,11 +123,11 @@ export default class ClinicalPreprocessing extends LitElement {
         this._stepsParams.variantIndex = event.detail;
     }
 
-    onPipelineClear() {
-        this._stepsParams.pipeline = null;
-        this._stepsParams.preprocessing.steps = {}; // reset steps
-        this.requestUpdate();
-    }
+    // onPipelineClear() {
+    //     this._stepsParams.pipeline = null;
+    //     this._stepsParams.preprocessing.steps = {}; // reset steps
+    //     this.requestUpdate();
+    // }
 
     onPipelineCreate(event, pipelineType) {
         // initialize pipeline information
@@ -447,11 +447,6 @@ export default class ClinicalPreprocessing extends LitElement {
                                         @paramsChange="${event => this.onPreprocessingParamsChange(event)}">
                                     </clinical-preprocessing-analysis-affy>
                                 ` : nothing}
-                                <div class="position-absolute top-0 end-0">
-                                    <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onPipelineClear()}">
-                                        <i class="fas fa-edit"></i> Change Pipeline
-                                    </button>
-                                </div>
                             </div>
                         ` : nothing}
                     `,
