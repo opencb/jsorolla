@@ -225,47 +225,42 @@ export default class ClinicalInterpretationManager extends LitElement {
         }
 
         return html`
-            <div class="interpreter-content-tab">
-                <div class="row">
-                    <div class="col-md-8 mb-3">
-                        <h3 style="pb-2">Interpretations</h3>
-                        <div class="float-end">
-                            <clinical-interpretation-create
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .mode="${"modal"}"
-                                .displayConfig="${{
-                                    modalSize: "modal-lg",
-                                    modalButtonClassName: "btn-primary",
-                                    modalButtonName: "Create Interpretation",
-                                    modalTitle: "Create Interpretation",
-                                    modalButtonIcon: "fas fa-solid fa-file-medical",
-                                    buttonClearText: "Cancel",
-                                    modalDisabled: this.clinicalAnalysis.locked,
-                                    modalButtonsVisible: false,
-                                    type: "tabs", buttonsLayout: "upper"
-                                }}">
-                            </clinical-interpretation-create>
-                        </div>
-                    </div>
+            <div class="">
+                <div class="mb-3 d-flex align-items-center justify-content-end">
+                    <clinical-interpretation-create
+                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .mode="${"modal"}"
+                        .displayConfig="${{
+                            modalSize: "modal-lg",
+                            modalButtonClassName: "btn-primary",
+                            modalButtonName: "Create Interpretation",
+                            modalTitle: "Create Interpretation",
+                            modalButtonIcon: "fas fa-plus",
+                            buttonClearText: "Cancel",
+                            modalDisabled: this.clinicalAnalysis.locked,
+                            modalButtonsVisible: false,
+                            type: "tabs", buttonsLayout: "upper"
+                        }}">
+                    </clinical-interpretation-create>
+                </div>
 
-                    <div class="col-md-8 mb-3">
-                        <h4>Primary Interpretation</h4>
-                        ${this.renderInterpretation(this.clinicalAnalysis.interpretation, true)}
-                    </div>
+                <div class="mb-3">
+                    <h2 class="fw-bold">Primary Interpretation</h2>
+                    ${this.renderInterpretation(this.clinicalAnalysis.interpretation, true)}
+                </div>
 
-                    <div class="col-md-8 mb-3">
-                        <h4>Secondary Interpretations</h4>
-                        ${this.clinicalAnalysis?.secondaryInterpretations?.length > 0 ? html`
-                            ${this.clinicalAnalysis.secondaryInterpretations.map(interpretation => html`
-                                <div style="margin-bottom:16px">
-                                    ${this.renderInterpretation(interpretation, false)}
-                                </div>
-                            `)}
-                        ` : html`
-                            <label>No secondary interpretations found</label>
-                        `}
-                    </div>
+                <div class="mb-3">
+                    <h2 class="fw-bold">Secondary Interpretations</h2>
+                    ${this.clinicalAnalysis?.secondaryInterpretations?.length > 0 ? html`
+                        ${this.clinicalAnalysis.secondaryInterpretations.map(interpretation => html`
+                            <div style="margin-bottom:16px">
+                                ${this.renderInterpretation(interpretation, false)}
+                            </div>
+                        `)}
+                    ` : html`
+                        <label>No secondary interpretations found</label>
+                    `}
                 </div>
             </div>
         `;
