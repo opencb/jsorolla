@@ -121,7 +121,7 @@ class ClinicalAnalysisInfo extends LitElement {
                             titleVisible: false,
                         };
                         return html`
-                            <div class="col-md-10 offset-md-1">
+                            <div class="container">
                                 <tool-header title="Case Manager - ${clinicalAnalysis?.id ?? ""}"></tool-header>
                                 <clinical-analysis-update
                                     .clinicalAnalysis="${clinicalAnalysis}"
@@ -139,7 +139,7 @@ class ClinicalAnalysisInfo extends LitElement {
                     active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 offset-md-1">
+                            <div class="container">
                                 <tool-header title="Interpretation Manager"></tool-header>
                                 <clinical-interpretation-manager
                                     .clinicalAnalysis="${clinicalAnalysis}"
@@ -156,7 +156,7 @@ class ClinicalAnalysisInfo extends LitElement {
                     active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 offset-md-1">
+                            <div class="container">
                                 <tool-header title="Clinical Data"></tool-header>
                                 <individual-summary
                                     .individual="${clinicalAnalysis.proband}"
@@ -172,7 +172,7 @@ class ClinicalAnalysisInfo extends LitElement {
                     active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 offset-md-1">
+                            <div class="container">
                                 <tool-header title="CellBase Info"></tool-header>
                                 <project-cellbase-info
                                     .projects="${opencgaSession.project}"
@@ -188,7 +188,7 @@ class ClinicalAnalysisInfo extends LitElement {
                     active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 offset-md-1">
+                            <div class="container">
                                 <tool-header title="Consents - ${clinicalAnalysis?.proband.id || ""}"></tool-header>
                                 <clinical-analysis-consents
                                     .active="${active}"
@@ -205,7 +205,7 @@ class ClinicalAnalysisInfo extends LitElement {
                     active: false,
                     render: (clinicalAnalysis, active, opencgaSession) => {
                         return html`
-                            <div class="col-md-10 offset-md-1">
+                            <div class="container">
                                 <tool-header title="Audit Log"></tool-header>
                                 <clinical-analysis-audit-browser
                                     .clinicalAnalysis="${clinicalAnalysis}"
