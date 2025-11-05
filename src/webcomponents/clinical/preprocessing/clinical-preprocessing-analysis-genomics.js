@@ -210,6 +210,55 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         return "";
     }
 
+    fetchFilesForIndividuals(individuals) {
+        // 1. we have to get all files from all samples from all individuals
+        const allFileIds = new Set();
+        individuals.forEach(individual => {
+            individual.samples.forEach(sample => {
+                sample.fileIds.forEach(fileId => allFileIds.add(fileId));
+            });
+        });
+
+        // 2. fetch all files
+        return this.opencgaSession.opencgaClient.files()
+            .search({
+                study: this.opencgaSession.study.fqn,
+                id: Array.from(allFileIds).join(","),
+                type: "FILE",
+                format: "FASTQ,BAM,VCF",
+                exclude: "qualityControl,attributes",
+                limit: 100,
+            })
+            .then(response => {
+                // 3. generate a map of fileId -> file object to facilitate lookup
+                const fileIdsMap = new Map();
+                response.responses[0].results.forEach(file => {
+                    fileIdsMap.set(file.id, file);
+                });
+
+                // 4. iterate over all individuals, samples and files to generate the final list of files
+                this._toolParams.files = [];
+                individuals.forEach(individual => {
+                    individual.samples.forEach(sample => {
+                        sample.fileIds.forEach(fileId => {
+                            if (fileIdsMap.has(fileId)) {
+                                const file = fileIdsMap.get(fileId);
+                                this._toolParams.files.push({
+                                    fileId: fileId,
+                                    fileName: file.name,
+                                    fileFormat: file.format,
+                                    fileSize: file.size,
+                                    sampleId: sample.id,
+                                    sampleSomatic: sample.somatic,
+                                    individualId: individual.id,
+                                });
+                            }
+                        });
+                    });
+                });
+            })
+    }
+
     dispatchChange() {
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
             ...this._toolParams,
@@ -283,57 +332,13 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         this._toolParams.fileIds = "";
 
         if (this._toolParams.individualId) {
-            let individual = null;
             return this.opencgaSession.opencgaClient.individuals()
                 .info(this._toolParams.individualId, {
                     study: this.opencgaSession.study.fqn,
                     include: "id,father,mother,sex,samples.id,samples.somatic,samples.fileIds",
                 })
                 .then(response => {
-                    individual = response.responses[0].results[0];
-
-                    // prepare the list of file ids to fetch
-                    const allFileIds = new Set();
-                    individual.samples.forEach(sample => {
-                        sample.fileIds.forEach(fileId => {
-                            allFileIds.add(fileId);
-                        });
-                    });
-
-                    return this.opencgaSession.opencgaClient.files()
-                        .search({
-                            study: this.opencgaSession.study.fqn,
-                            id: Array.from(allFileIds).join(","),
-                            type: "FILE",
-                            format: "FASTQ,BAM,VCF",
-                            exclude: "qualityControl,attributes",
-                            limit: 100,
-                        });
-                })
-                .then(response => {
-                    const fileIdsMap = new Map();
-                    response.responses[0].results.forEach(file => {
-                        fileIdsMap.set(file.id, file);
-                    });
-
-                    // now we can generate the list of files including sampleId
-                    this._toolParams.files = [];
-                    individual.samples.forEach(sample => {
-                        sample.fileIds.forEach(fileId => {
-                            if (fileIdsMap.has(fileId)) {
-                                const file = fileIdsMap.get(fileId);
-                                this._toolParams.files.push({
-                                    fileId: fileId,
-                                    fileName: file.name,
-                                    fileFormat: file.format,
-                                    fileSize: file.size,
-                                    sampleId: sample.id,
-                                    sampleSomatic: sample.somatic,
-                                    individualId: this._toolParams.individualId
-                                });
-                            }
-                        });
-                    });
+                    return this.fetchFilesForIndividuals(response.responses[0].results);
                 })
                 .catch(reason => {
                     console.error(reason);
@@ -346,60 +351,14 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         this._toolParams.fileIds = "";
 
         if (this._toolParams.familyId) {
-            let family = null;
             return this.opencgaSession.opencgaClient.families()
                 .info(this._toolParams.familyId, {
                     study: this.opencgaSession.study.fqn,
                     include: "id,members.id,members.father,members.mother,members.sex,members.samples.id,members.samples.somatic,members.samples.fileIds",
                 })
                 .then(response => {
-                    family = response.responses[0].results[0];
-
-                    // we have to get all files from all samples from all members
-                    const allFileIds = new Set();
-                    family.members.forEach(member => {
-                        member.samples.forEach(sample => {
-                            sample.fileIds.forEach(fileId => allFileIds.add(fileId));
-                        });
-                    });
-
-                    return this.opencgaSession.opencgaClient.files()
-                        .search({
-                            study: this.opencgaSession.study.fqn,
-                            id: Array.from(allFileIds).join(","),
-                            type: "FILE",
-                            format: "FASTQ,BAM,VCF",
-                            exclude: "qualityControl,attributes",
-                            limit: 100,
-                        });
-                })
-                .then(response => {
-                    // we have to generate a list of files with sampleId and individualId included
-                    const fileIdsMap = new Map();
-                    response.responses[0].results.forEach(file => {
-                        fileIdsMap.set(file.id, file);
-                    });
-
-                    // now we can generate the list of files including sampleId and individualId
-                    this._toolParams.files = [];
-                    family.members.forEach(member => {
-                        member.samples.forEach(sample => {
-                            sample.fileIds.forEach(fileId => {
-                                if (fileIdsMap.has(fileId)) {
-                                    const file = fileIdsMap.get(fileId);
-                                    this._toolParams.family.files.push({
-                                        fileId: fileId,
-                                        fileName: file.name,
-                                        fileFormat: file.format,
-                                        fileSize: file.size,
-                                        sampleId: sample.id,
-                                        sampleSomatic: sample.somatic,
-                                        individualId: member.id,
-                                    });
-                                }
-                            });
-                        });
-                    });
+                    const family = response.responses[0].results[0];
+                    return this.fetchFilesForIndividuals(family.members);
                 })
                 .catch(reason => {
                     console.error(reason);
