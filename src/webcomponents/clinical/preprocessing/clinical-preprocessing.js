@@ -298,7 +298,22 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     renderToolbarRightContent() {
-        return nothing;
+        const pipelineName = this._stepsParams?.pipeline?.name || "Untitled Pipeline";
+        return html`
+            <div class="d-flex flex-column align-items-end w-full" style="max-width:320px;">
+                ${this._stepsParams?.pipeline ? html`
+                    <div class="fw-bold fs-3 w-full text-truncate" title="${pipelineName}">
+                        <span>${pipelineName}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="">Version <b>${this._stepsParams?.pipeline?.version || 0}</b></div>
+                        <div class="badge bg-primary text-white">
+                            <span>${(this._stepsParams?.pipeline?.type || "genomics").toUpperCase()} PIPELINE</span>
+                        </div>
+                    </div>
+                ` : nothing}
+            </div>  
+        `;
     }
 
     renderPipelineInfoModal() {
