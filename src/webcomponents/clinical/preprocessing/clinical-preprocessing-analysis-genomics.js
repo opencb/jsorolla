@@ -260,10 +260,35 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
     }
 
     dispatchChange() {
+        // 1. get the selected file objects
+        const fileIds = new Set(this._toolParams?.fileIds?.split(",")?.filter(Boolean) || []);
+        const files = (this._toolParams?.files || []).filter(file => {
+            return fileIds.has(file.fileId);
+        });
+
+        // 2. generate a list with the samples and their files
+        const samplesMap = new Map();
+        files.forEach(fileObject => {
+            if (!samplesMap.has(fileObject.sampleId)) {
+                samplesMap.set(fileObject.sampleId, {
+                    id: fileObject.sampleId,
+                    somatic: fileObject.sampleSomatic || false,
+                    files: [],
+                    role: "",
+                });
+            }
+            // include the file in the sample files list
+            samplesMap.get(fileObject.sampleId).files.push(fileObject.fileId);
+        });
+
+        // 3. dispatch the paramsChange event with the formatted tool parameters
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
             ...this._toolParams,
             outputDir: this._toolParams.outputDir || "",
             indexDir: this._toolParams.indexDir || "",
+            fileIds: this._toolParams.fileIds || "",
+            files: this._toolParams.files || [],
+            samples: Array.from(samplesMap.values()),
             steps: {
                 qualityControl: {
                     active: !!this._toolParams.qualityControl?.active,
