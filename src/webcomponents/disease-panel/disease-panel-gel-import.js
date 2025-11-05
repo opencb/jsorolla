@@ -55,7 +55,7 @@ export default class DiseasePanelGelImport extends LitElement {
     }
 
     firstUpdated() {
-        this.fetchRepositories("nf-core");
+        this.fetchRepositories();
     }
 
     onAdd(e, row) {
@@ -82,19 +82,35 @@ export default class DiseasePanelGelImport extends LitElement {
             });
     }
 
-    async fetchRepositories(org) {
+    async fetchRepositories() {
         this.repositories = [];
 
-        try {
-            const response = await fetch("https://raw.githubusercontent.com/nf-core/website/refs/heads/main/public/pipelines.json");
-            if (response.ok) {
-                const data = await response.json();
-                this.repositories = data?.remote_workflows || [];
-                console.log(this.repositories)
+        // Create different promises for each API call to PanelApp https://panelapp.genomicsengland.co.uk/api/v1/panels/?format=json&page=1
+        for (let page = 1; page <= 5; page++) {
+            // create a promise for each page
+            const url = `https://panelapp.genomicsengland.co.uk/api/v1/panels/?format=json&page=${page}`;
+            try {
+                const response = await fetch(url);
+                if (response.ok) {
+                    const data = await response.json();
+                    this.repositories = this.repositories.concat(data.results);
+                }
+            } catch (error) {
+                console.error(error);
             }
-        } catch (error) {
-            console.error(error);
         }
+        // debugger
+
+        // try {
+        //     const response = await fetch("https://raw.githubusercontent.com/nf-core/website/refs/heads/main/public/pipelines.json");
+        //     if (response.ok) {
+        //         const data = await response.json();
+        //         this.repositories = data?.remote_workflows || [];
+        //         console.log(this.repositories)
+        //     }
+        // } catch (error) {
+        //     console.error(error);
+        // }
     }
 
     render() {
@@ -126,11 +142,6 @@ export default class DiseasePanelGelImport extends LitElement {
                     {
                         id: "name",
                         name: "Name",
-                    },
-                    {
-                        id: "stargazers_count",
-                        name: "Stars",
-                        order: "desc"
                     }
                 ]
             },
@@ -154,56 +165,69 @@ export default class DiseasePanelGelImport extends LitElement {
                 columns: [
                     {
                         title: "Name",
-                        field: "full_name",
-                        formatter: (value, row) => {
+                        field: "name",
+                        formatter: (name, panel) => {
                             return `
                                 <div class="d-flex flex-column gap-1">
                                     <div>
-                                        ${value} <a href="${row.homepage}"  target="_blank"><i class="fas fa-external-link-alt ps-2"></i></a>
+                                        ${name}
+                                        <a href="https://panelapp.genomicsengland.co.uk/panels/${panel.id}" target="_blank">
+                                            <i class="fas fa-external-link-alt ps-2"></i>
+                                        </a>
                                     </div>
-                                    <div class="d-block text-secondary">${row.description}</div>
+                                    <div class="d-block text-secondary">${panel.types?.map(t => t.name).join(", ") || ""}</div>
                                 </div>
                             `;
                         },
-                        width: "50",
-                        widthUnit: "%"
+                    },
+                    {
+                        title: "Disease",
+                        formatter: (_, panel) => {
+                            return `
+                                <div class="d-flex flex-column gap-1">
+                                    <div>
+                                        <span>${panel.disease_sub_group || "-"}</span>
+                                    </div>
+                                    <div class="d-block text-secondary">${panel.disease_group || ""}</div>
+                                </div>
+                            `;
+                        }
+                    },
+                    {
+                        title: "Relevant Disorders",
+                        field: "relevant_disorders",
+                        formatter: (relevant_disorders, panel) => {
+                            return `
+                                <div class="d-flex flex-column gap-1">
+                                    <div>
+                                        <span>${relevant_disorders?.join(", ") || "-"}</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
                     },
                     {
                         title: "Version",
-                        field: "releases",
-                        formatter: value => {
+                        field: "version",
+                        formatter: (value, panel) => {
                             return `
                                 <div class="d-flex flex-column gap-1">
                                     <div>
-                                        ${value[0]?.tag_name}
+                                        ${value}
                                     </div>
-                                    <div class="d-block text-secondary">Published at ${UtilsNew.dateFormatter(value[0].published_at)}</div>
+                                    <div class="d-block text-secondary" style="text-wrap:nowrap">Published at ${UtilsNew.dateFormatter(panel.version_created)}</div>
                                 </div>
                             `;
                         }
                     },
                     {
-                        title: "Default Branch",
-                        field: "default_branch",
-                        formatter: (value, row) => {
+                        title: "Stats",
+                        field: "stats",
+                        formatter: stats => {
                             return `
-                                <div class="d-flex flex-column gap-1">
-                                    <div>
-                                        <span>Branch: ${value}</span>
-                                        <a href="${row.html_url}" target="_blank"><i class="fab fa-github fa-lg ps-1"></i></a>
-                                    </div>
-                                    <div class="d-block text-secondary">Updated at ${UtilsNew.dateFormatter(row.updated_at)}</div>
-                                </div>
-                            `;
-                        }
-                    },
-                    {
-                        title: "Stars",
-                        field: "stargazers_count",
-                        formatter: value => {
-                            return `
-                                <div style="text-wrap:nowrap;">
-                                    <i class="fas fa-star" aria-hidden="true" style="color: darkgoldenrod"></i> ${value}
+                                <div style="text-wrap:nowrap">
+                                    Number of genes: ${stats?.number_of_genes || 0}<br>
+                                    Number of regions: ${stats?.number_of_regions || 0}
                                 </div>
                             `;
                         }
