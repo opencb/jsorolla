@@ -299,6 +299,7 @@ export default class ClinicalPreprocessing extends LitElement {
 
     renderToolbarRightContent() {
         const pipelineName = this._stepsParams?.pipeline?.name || "Untitled Pipeline";
+
         return html`
             <div class="d-flex flex-column align-items-end w-full" style="max-width:320px;">
                 ${this._stepsParams?.pipeline ? html`
@@ -306,10 +307,22 @@ export default class ClinicalPreprocessing extends LitElement {
                         <span>${pipelineName}</span>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <div class="">Version <b>${this._stepsParams?.pipeline?.version || 0}</b></div>
+                        <div class="">Version <b>v${this._stepsParams?.pipeline?.version || 0}</b></div>
                         <div class="badge bg-primary text-white">
                             <span>${(this._stepsParams?.pipeline?.type || "genomics").toUpperCase()} PIPELINE</span>
                         </div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-end gap-2 mt-2">
+                        <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onPipelineInfoModalShow()}">
+                            <i class="fas fa-plus"></i>
+                            <span>Save As New Pipeline</span>
+                        </button>
+                        ${this._stepsParams?.pipeline?.file ? html`
+                            <button class="btn btn-primary d-flex align-items-center gap-2" @click="${() => this.onPipelineSave()}">
+                                <i class="fas fa-save"></i>
+                                <span>Update Pipeline</span>
+                            </button>
+                        ` : nothing}
                     </div>
                 ` : nothing}
             </div>  
@@ -445,27 +458,13 @@ export default class ClinicalPreprocessing extends LitElement {
                     title: "Run",
                     icon: "fas fa-play-circle",
                     render: () => html`
-                        <div class="position-relative">
-                            <clinical-preprocessing-summary
-                                .toolParams="${this._stepsParams}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .displayConfig="${{
-                                    buttonsVisible: false,
-                                }}">
-                            </clinical-preprocessing-summary>
-                            <div class="position-absolute top-0 end-0 d-flex gap-2">
-                                <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onPipelineInfoModalShow()}">
-                                    <i class="fas fa-plus"></i>
-                                    <span>Save As New Pipeline</span>
-                                </button>
-                                ${this._stepsParams?.pipeline?.file ? html`
-                                    <button class="btn btn-primary d-flex align-items-center gap-2" @click="${() => this.onPipelineSave()}">
-                                        <i class="fas fa-save"></i>
-                                        <span>Update Pipeline</span>
-                                    </button>
-                                ` : nothing}
-                            </div>
-                        </div>
+                        <clinical-preprocessing-summary
+                            .toolParams="${this._stepsParams}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig="${{
+                                buttonsVisible: false,
+                            }}">
+                        </clinical-preprocessing-summary>
                     `,
                 },
             ],
