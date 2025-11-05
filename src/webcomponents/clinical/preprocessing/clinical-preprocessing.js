@@ -3,7 +3,6 @@ import UtilsNew from "../../../core/utils-new.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import ModalUtils from "../../commons/modal/modal-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
-import "./clinical-preprocessing-select-files.js";
 import "./clinical-preprocessing-select-pipeline.js";
 import "./clinical-preprocessing-save-pipeline.js";
 import "./clinical-preprocessing-summary.js";
@@ -33,17 +32,11 @@ export default class ClinicalPreprocessing extends LitElement {
 
     #init() {
         this.DEFAULT_STEPS_PARAMS = {
-            select: {
-                analysisType: "SINGLE",
-                single: {},
-                family: {},
-                cancer: {}
-            },
-            samples: [],
             pipeline: null,
             preprocessing: {
                 outputDir: "",
                 indexDir: "",
+                samples: [],
                 steps: {},
             },
             variantIndex: {
@@ -82,40 +75,7 @@ export default class ClinicalPreprocessing extends LitElement {
         }
     }
 
-    onSelectFilesParamsChange(event) {
-        this._stepsParams.select = event.detail;
-
-        // we have to update the params for the next step (preprocessing) with the files selected
-        const analysisType = this._stepsParams.select?.analysisType.toLowerCase();
-        const analysisConfig = this._stepsParams.select?.[analysisType];
-
-        // 1. get the selected file objects
-        const fileIds = new Set(analysisConfig?.fileIds?.split(",")?.filter(Boolean) || []);
-        const files = analysisConfig?.files.filter(file => {
-            return fileIds.has(file.fileId);
-        });
-
-        // 2. generate a list with the samples and their files
-        const samplesMap = new Map();
-        files.forEach(fileObject => {
-            if (!samplesMap.has(fileObject.sampleId)) {
-                samplesMap.set(fileObject.sampleId, {
-                    id: fileObject.sampleId,
-                    somatic: fileObject.sampleSomatic || false,
-                    files: [],
-                    role: "",
-                });
-            }
-            // include the file in the sample files list
-            samplesMap.get(fileObject.sampleId).files.push(fileObject.fileId);
-        });
-
-        // 3. update the preprocessing input samples
-        this._stepsParams.samples = Array.from(samplesMap.values());
-    }
-
     onPreprocessingParamsChange(event) {
-        debugger
         this._stepsParams.preprocessing = event.detail;
     }
 
@@ -405,21 +365,6 @@ export default class ClinicalPreprocessing extends LitElement {
                         </clinical-preprocessing-select-pipeline>
                     `,
                 },
-                // {
-                //     id: "select",
-                //     title: "Select Files",
-                //     icon: "fas fa-file-medical",
-                //     render: () => html`
-                //         <clinical-preprocessing-select-files
-                //             .toolParams="${this._stepsParams?.select}"
-                //             .opencgaSession="${this.opencgaSession}"
-                //             .displayConfig="${{
-                //                 buttonsVisible: false,
-                //             }}"
-                //             @paramsChange="${event => this.onSelectFilesParamsChange(event)}">
-                //         </clinical-preprocessing-select-files>
-                //     `,
-                // },
                 {
                     id: "preprocessing",
                     title: "Preprocessing Parameters",
