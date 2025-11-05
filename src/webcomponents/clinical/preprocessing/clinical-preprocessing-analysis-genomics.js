@@ -138,7 +138,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         // 1. reset the internal toolParams object to the default values and merge with the new incoming toolParams
         this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            ...this._toolParams,
+            ...this.toolParams,
         };
 
         // 2. merge steps configuration
