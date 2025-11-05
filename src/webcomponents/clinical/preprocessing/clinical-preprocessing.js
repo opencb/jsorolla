@@ -194,7 +194,6 @@ export default class ClinicalPreprocessing extends LitElement {
         const data = {
             outdir: this._stepsParams.preprocessing.outputDir,
             pipelineParams: {
-                samples: this._stepsParams?.pipeline?.type === "genomics" ? this._stepsParams.samples : [this._stepsParams.preprocessing.samples],
                 indexDir: this._stepsParams.preprocessing.indexDir,
                 pipeline: {
                     steps: this._stepsParams.preprocessing.steps,
@@ -206,6 +205,10 @@ export default class ClinicalPreprocessing extends LitElement {
         let submitPromise = null;
         switch (this._stepsParams?.pipeline?.type || "genomics") {
             case "genomics":
+                // 2.1. add genomics pipeline specific params
+                data.pipelineParams.samples = this._stepsParams.preprocessing.samples;
+
+                // 2.2. create the submit promise
                 submitPromise = this.opencgaSession.opencgaClient.clinical()
                     .runPipelineGenomics(data, {
                         study: this.opencgaSession.study.fqn,
@@ -213,6 +216,10 @@ export default class ClinicalPreprocessing extends LitElement {
                     });
                 break;
             case "affy":
+                // 2.1. add affy pipeline specific params
+                data.pipelineParams.samples = this._stepsParams.preprocessing.samples;
+
+                // 2.2. create the submit promise
                 submitPromise = this.opencgaSession.opencgaClient.clinical()
                     .runPipelineAffy(data, {
                         study: this.opencgaSession.study.fqn,
@@ -290,6 +297,10 @@ export default class ClinicalPreprocessing extends LitElement {
         `;
     }
 
+    renderToolbarRightContent() {
+        return nothing;
+    }
+
     renderPipelineInfoModal() {
         return ModalUtils.create(this, "PipelineInfoModal", {
             display: {
@@ -315,7 +326,7 @@ export default class ClinicalPreprocessing extends LitElement {
         return html`
             <tool-header
                 .title="${this._config.title}"
-                .rightContent="${nothing}"
+                .rightContent="${this.renderToolbarRightContent()}"
                 .centerContent="${this.renderToolbarCenterContent()}">
             </tool-header>
             <div class="container py-4">
