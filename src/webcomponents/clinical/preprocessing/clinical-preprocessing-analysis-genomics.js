@@ -138,7 +138,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         // 1. reset the internal toolParams object to the default values and merge with the new incoming toolParams
         this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            ...this._toolParams,
+            ...this.toolParams,
         };
 
         // 2. merge steps configuration
@@ -210,11 +210,85 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         return "";
     }
 
+    fetchFilesForIndividuals(individuals) {
+        // 1. we have to get all files from all samples from all individuals
+        const allFileIds = new Set();
+        individuals.forEach(individual => {
+            individual.samples.forEach(sample => {
+                sample.fileIds.forEach(fileId => allFileIds.add(fileId));
+            });
+        });
+
+        // 2. fetch all files
+        return this.opencgaSession.opencgaClient.files()
+            .search({
+                study: this.opencgaSession.study.fqn,
+                id: Array.from(allFileIds).join(","),
+                type: "FILE",
+                format: "FASTQ,BAM,VCF",
+                exclude: "qualityControl,attributes",
+                limit: 100,
+            })
+            .then(response => {
+                // 3. generate a map of fileId -> file object to facilitate lookup
+                const fileIdsMap = new Map();
+                response.responses[0].results.forEach(file => {
+                    fileIdsMap.set(file.id, file);
+                });
+
+                // 4. iterate over all individuals, samples and files to generate the final list of files
+                this._toolParams.files = [];
+                individuals.forEach(individual => {
+                    individual.samples.forEach(sample => {
+                        sample.fileIds.forEach(fileId => {
+                            if (fileIdsMap.has(fileId)) {
+                                const file = fileIdsMap.get(fileId);
+                                this._toolParams.files.push({
+                                    fileId: fileId,
+                                    fileName: file.name,
+                                    fileFormat: file.format,
+                                    fileSize: file.size,
+                                    sampleId: sample.id,
+                                    sampleSomatic: sample.somatic,
+                                    individualId: individual.id,
+                                });
+                            }
+                        });
+                    });
+                });
+            })
+    }
+
     dispatchChange() {
+        // 1. get the selected file objects
+        const fileIds = new Set(this._toolParams?.fileIds?.split(",")?.filter(Boolean) || []);
+        const files = (this._toolParams?.files || []).filter(file => {
+            return fileIds.has(file.fileId);
+        });
+
+        // 2. generate a list with the samples and their files
+        const samplesMap = new Map();
+        files.forEach(fileObject => {
+            if (!samplesMap.has(fileObject.sampleId)) {
+                samplesMap.set(fileObject.sampleId, {
+                    id: fileObject.sampleId,
+                    somatic: fileObject.sampleSomatic || false,
+                    files: [],
+                    role: "",
+                });
+            }
+            // include the file in the sample files list
+            samplesMap.get(fileObject.sampleId).files.push(fileObject.fileId);
+        });
+
+        // 3. dispatch the paramsChange event with the formatted tool parameters
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
             ...this._toolParams,
             outputDir: this._toolParams.outputDir || "",
             indexDir: this._toolParams.indexDir || "",
+            fileIds: this._toolParams.fileIds || "",
+            files: this._toolParams.files || [],
+            samples: Array.from(samplesMap.values()),
             steps: {
                 qualityControl: {
                     active: !!this._toolParams.qualityControl?.active,
@@ -252,6 +326,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         // 1. if user has changed the analysis type, we have to clear all fields related to individuals/families/samples
         if (event.detail.param === "analysisType") {
             this._toolParams.individualId = "";
+            this._toolParams.familyId = "";
             this._toolParams.files = [];
             this._toolParams.fileIds = "";
             this._config = this.getDefaultConfig();
@@ -264,7 +339,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         }
 
         // 3. if user has selected a family, we have to fetch all samples and files related to the members of that family
-        if (event.detail.param === "family.familyId") {
+        if (event.detail.param === "familyId") {
             await this.onFamilyChange();
             this._config = this.getDefaultConfig();
         }
@@ -283,57 +358,13 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         this._toolParams.fileIds = "";
 
         if (this._toolParams.individualId) {
-            let individual = null;
             return this.opencgaSession.opencgaClient.individuals()
                 .info(this._toolParams.individualId, {
                     study: this.opencgaSession.study.fqn,
                     include: "id,father,mother,sex,samples.id,samples.somatic,samples.fileIds",
                 })
                 .then(response => {
-                    individual = response.responses[0].results[0];
-
-                    // prepare the list of file ids to fetch
-                    const allFileIds = new Set();
-                    individual.samples.forEach(sample => {
-                        sample.fileIds.forEach(fileId => {
-                            allFileIds.add(fileId);
-                        });
-                    });
-
-                    return this.opencgaSession.opencgaClient.files()
-                        .search({
-                            study: this.opencgaSession.study.fqn,
-                            id: Array.from(allFileIds).join(","),
-                            type: "FILE",
-                            format: "FASTQ,BAM,VCF",
-                            exclude: "qualityControl,attributes",
-                            limit: 100,
-                        });
-                })
-                .then(response => {
-                    const fileIdsMap = new Map();
-                    response.responses[0].results.forEach(file => {
-                        fileIdsMap.set(file.id, file);
-                    });
-
-                    // now we can generate the list of files including sampleId
-                    this._toolParams.files = [];
-                    individual.samples.forEach(sample => {
-                        sample.fileIds.forEach(fileId => {
-                            if (fileIdsMap.has(fileId)) {
-                                const file = fileIdsMap.get(fileId);
-                                this._toolParams.files.push({
-                                    fileId: fileId,
-                                    fileName: file.name,
-                                    fileFormat: file.format,
-                                    fileSize: file.size,
-                                    sampleId: sample.id,
-                                    sampleSomatic: sample.somatic,
-                                    individualId: this._toolParams.individualId
-                                });
-                            }
-                        });
-                    });
+                    return this.fetchFilesForIndividuals(response.responses[0].results);
                 })
                 .catch(reason => {
                     console.error(reason);
@@ -346,60 +377,14 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         this._toolParams.fileIds = "";
 
         if (this._toolParams.familyId) {
-            let family = null;
             return this.opencgaSession.opencgaClient.families()
                 .info(this._toolParams.familyId, {
                     study: this.opencgaSession.study.fqn,
                     include: "id,members.id,members.father,members.mother,members.sex,members.samples.id,members.samples.somatic,members.samples.fileIds",
                 })
                 .then(response => {
-                    family = response.responses[0].results[0];
-
-                    // we have to get all files from all samples from all members
-                    const allFileIds = new Set();
-                    family.members.forEach(member => {
-                        member.samples.forEach(sample => {
-                            sample.fileIds.forEach(fileId => allFileIds.add(fileId));
-                        });
-                    });
-
-                    return this.opencgaSession.opencgaClient.files()
-                        .search({
-                            study: this.opencgaSession.study.fqn,
-                            id: Array.from(allFileIds).join(","),
-                            type: "FILE",
-                            format: "FASTQ,BAM,VCF",
-                            exclude: "qualityControl,attributes",
-                            limit: 100,
-                        });
-                })
-                .then(response => {
-                    // we have to generate a list of files with sampleId and individualId included
-                    const fileIdsMap = new Map();
-                    response.responses[0].results.forEach(file => {
-                        fileIdsMap.set(file.id, file);
-                    });
-
-                    // now we can generate the list of files including sampleId and individualId
-                    this._toolParams.files = [];
-                    family.members.forEach(member => {
-                        member.samples.forEach(sample => {
-                            sample.fileIds.forEach(fileId => {
-                                if (fileIdsMap.has(fileId)) {
-                                    const file = fileIdsMap.get(fileId);
-                                    this._toolParams.family.files.push({
-                                        fileId: fileId,
-                                        fileName: file.name,
-                                        fileFormat: file.format,
-                                        fileSize: file.size,
-                                        sampleId: sample.id,
-                                        sampleSomatic: sample.somatic,
-                                        individualId: member.id,
-                                    });
-                                }
-                            });
-                        });
-                    });
+                    const family = response.responses[0].results[0];
+                    return this.fetchFilesForIndividuals(family.members);
                 })
                 .catch(reason => {
                     console.error(reason);
@@ -543,14 +528,19 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                             visible: data => data.files?.length > 0,
                             getData: data => data?.files || [],
                             className: "table-borderless table-grid mb-0",
+                            bodyCellClassName: "align-middle",
                             columns: [
+                                {
+                                    title: "Individual",
+                                    field: "individualId",
+                                },
                                 {
                                     title: "Sample",
                                     field: "sampleId",
                                     type: "custom",
                                     display: {
                                         render: (sampleId, onFieldChange, updateParams, data, row) => html`
-                                            <div class="mb-1">${sampleId}</div>
+                                            <div class="mb-0">${sampleId}</div>
                                             <div class="text-muted fs-7">${row.sampleSomatic ? "Somatic" : "Germline"}</div>
                                         `,
                                     },
@@ -558,6 +548,12 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                                 {
                                     title: "File",
                                     field: "fileName",
+                                    type: "custom",
+                                    display: {
+                                        render: (fileName) => html`
+                                            <code class="text-break">${fileName}</code>
+                                        `,
+                                    },
                                 },
                                 {
                                     title: "Format",
@@ -572,12 +568,12 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                                     },
                                 },
                                 {
-                                    title: "Select",
+                                    title: " ",
                                     field: "fileId",
                                     type: "custom",
                                     display: {
                                         headerCellClassName: "text-center",
-                                        className: "d-flex justify-content-center align-items-center",
+                                        className: "text-center",
                                         render: (fileId, dataFormFieldChange) => html`
                                             <input
                                                 type="checkbox"
