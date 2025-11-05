@@ -502,6 +502,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                             visible: data => data.files?.length > 0,
                             getData: data => data?.files || [],
                             className: "table-borderless table-grid mb-0",
+                            bodyCellClassName: "align-middle",
                             columns: [
                                 {
                                     title: "Individual",
@@ -513,7 +514,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                                     type: "custom",
                                     display: {
                                         render: (sampleId, onFieldChange, updateParams, data, row) => html`
-                                            <div class="mb-1">${sampleId}</div>
+                                            <div class="mb-0">${sampleId}</div>
                                             <div class="text-muted fs-7">${row.sampleSomatic ? "Somatic" : "Germline"}</div>
                                         `,
                                     },
@@ -521,6 +522,12 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                                 {
                                     title: "File",
                                     field: "fileName",
+                                    type: "custom",
+                                    display: {
+                                        render: (fileName) => html`
+                                            <code class="text-break">${fileName}</code>
+                                        `,
+                                    },
                                 },
                                 {
                                     title: "Format",
@@ -540,7 +547,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                                     type: "custom",
                                     display: {
                                         headerCellClassName: "text-center",
-                                        className: "d-flex justify-content-center align-items-center",
+                                        className: "text-center",
                                         render: (fileId, dataFormFieldChange) => html`
                                             <input
                                                 type="checkbox"
