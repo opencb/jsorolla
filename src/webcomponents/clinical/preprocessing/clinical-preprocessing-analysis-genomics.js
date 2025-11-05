@@ -474,6 +474,20 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
         });
     }
 
+    renderCatalogSearchAutocomplete(value, resource, onFieldChange) {
+        return html`
+            <catalog-search-autocomplete
+                .value="${value}"
+                .resource="${resource}"
+                .opencgaSession="${this.opencgaSession}"
+                .config=${{
+                    multiple: false,
+                }}
+                @filterChange="${event => onFieldChange(event.detail.value)}">
+            </catalog-search-autocomplete>
+        `;
+    }
+
     render() {
         return html`
             <data-form
@@ -505,17 +519,9 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                         type: "custom",
                         display: {
                             visible: data => data.analysisType === "SINGLE",
-                            render: (individualId, dataFormFieldChange) => html`
-                                <catalog-search-autocomplete
-                                    .value="${individualId}"
-                                    .resource="${"INDIVIDUAL"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config=${{
-                                        multiple: false,
-                                    }}
-                                    @filterChange="${e => dataFormFieldChange(e.detail.value)}">
-                                </catalog-search-autocomplete>
-                            `,
+                            render: (individualId, onFieldChange) => {
+                                return this.renderCatalogSearchAutocomplete(individualId, "INDIVIDUAL", onFieldChange);
+                            },
                         },
                     },
                     {
@@ -524,17 +530,9 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                         type: "custom",
                         display: {
                             visible: data => data.analysisType === "FAMILY",
-                            render: (familyId, onFieldChange) => html`
-                                <catalog-search-autocomplete
-                                    .value="${familyId}"
-                                    .resource="${"FAMILY"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{
-                                        multiple: false,
-                                    }}"
-                                    @filterChange="${e => onFieldChange(e.detail.value)}">
-                                </catalog-search-autocomplete>
-                            `,
+                            render: (familyId, onFieldChange) => {
+                                return this.renderCatalogSearchAutocomplete(familyId, "FAMILY", onFieldChange);
+                            },
                         },
                     },
                     {
@@ -691,21 +689,8 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                         field: "qualityControl.tool.id",
                         type: "custom",
                         display: {
-                            render: tool => {
-                                const usagePage = "https://home.cc.umanitoba.ca/~psgendb/doc/fastqc.help";
-                                if (!tool || !usagePage) {
-                                    return html`
-                                        <div class="alert alert-light d-flex flex-column align-items-center gap-2 text-center py-4">
-                                            <i class="fa fa-book fs-4"></i>
-                                            <span class="fw-bold">No usage information available for the selected tool.</span>
-                                        </div>
-                                    `;
-                                }
-                                return html`
-                                    <div class="border rounded p-2 shadow-lg bg-white py-3" style="box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);">
-                                        <iframe src="${usagePage}" width="100%" height="720px" class="w-100 border-0"></iframe>
-                                    </div>
-                                `;
+                            render: () => {
+                                return AnalysisUtils.renderUsage("https://home.cc.umanitoba.ca/~psgendb/doc/fastqc.help");
                             },
                         },
                     },
@@ -821,20 +806,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                         type: "custom",
                         display: {
                             render: tool => {
-                                const usagePage = this.getUsagePage(tool);
-                                if (!tool || !usagePage) {
-                                    return html`
-                                        <div class="alert alert-light d-flex flex-column align-items-center gap-2 text-center py-4">
-                                            <i class="fa fa-book fs-4"></i>
-                                            <span class="fw-bold">No usage information available for the selected tool.</span>
-                                        </div>
-                                    `;
-                                }
-                                return html`
-                                    <div class="border rounded p-2 shadow-lg bg-white py-3" style="box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);">
-                                        <iframe src="${usagePage}" width="100%" height="720px" class="w-100 border-0"></iframe>
-                                    </div>
-                                `;
+                                return AnalysisUtils.renderUsage(this.getUsagePage(tool));
                             },
                         },
                     },
