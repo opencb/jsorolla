@@ -217,7 +217,7 @@ export default class ClinicalPreprocessing extends LitElement {
                 break;
             case "affy":
                 // 2.1. add affy pipeline specific params
-                data.pipelineParams.samples = this._stepsParams.preprocessing.samples;
+                data.pipelineParams.samples = [this._stepsParams.preprocessing.samples];
 
                 // 2.2. create the submit promise
                 submitPromise = this.opencgaSession.opencgaClient.clinical()
@@ -301,13 +301,15 @@ export default class ClinicalPreprocessing extends LitElement {
         const pipelineName = this._stepsParams?.pipeline?.name || "Untitled Pipeline";
 
         return html`
-            <div class="d-flex flex-column align-items-center w-full" style="max-width:320px;">
+            <div class="d-flex flex-column align-items-center" style="width:320px;max-width:320px;">
                 ${this._stepsParams?.pipeline ? html`
                     <div class="fw-bold fs-3 w-full text-truncate text-center" title="${pipelineName}">
                         <span>${pipelineName}</span>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <div class="">Version <b>v${this._stepsParams?.pipeline?.version || 0}</b></div>
+                        <div class="badge bg-secondary text-white">
+                            <span>VERSION <b>${this._stepsParams?.pipeline?.version || 0}</b></span>
+                        </div>
                         <div class="badge bg-primary text-white">
                             <span>${(this._stepsParams?.pipeline?.type || "genomics").toUpperCase()} PIPELINE</span>
                         </div>
