@@ -504,6 +504,10 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                             className: "table-borderless table-grid mb-0",
                             columns: [
                                 {
+                                    title: "Individual",
+                                    field: "individualId",
+                                },
+                                {
                                     title: "Sample",
                                     field: "sampleId",
                                     type: "custom",
@@ -531,7 +535,7 @@ export default class ClinicalPreprocessingAnalysisGenomics extends LitElement {
                                     },
                                 },
                                 {
-                                    title: "Select",
+                                    title: " ",
                                     field: "fileId",
                                     type: "custom",
                                     display: {
