@@ -301,30 +301,35 @@ export default class ClinicalPreprocessing extends LitElement {
         const pipelineName = this._stepsParams?.pipeline?.name || "Untitled Pipeline";
 
         return html`
-            <div class="d-flex flex-column align-items-center" style="width:320px;max-width:320px;">
+            <div class="d-flex align-items-center justify-content-end gap-4" style="width:320px;max-width:320px;">
                 ${this._stepsParams?.pipeline ? html`
-                    <div class="fw-bold fs-3 w-full text-truncate text-center" title="${pipelineName}">
-                        <span>${pipelineName}</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="badge bg-secondary text-white">
-                            <span>VERSION <b>${this._stepsParams?.pipeline?.version || 0}</b></span>
+                    <div class="w-full d-flex flex-column align-items-end">
+                        <div class="fw-bold fs-3 w-full text-truncate text-end" title="${pipelineName}">
+                            <span>${pipelineName}</span>
                         </div>
-                        <div class="badge bg-primary text-white">
-                            <span>${(this._stepsParams?.pipeline?.type || "genomics").toUpperCase()} PIPELINE</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="badge bg-secondary text-white">
+                                <span>VERSION <b>${this._stepsParams?.pipeline?.version || 0}</b></span>
+                            </div>
+                            <div class="badge bg-primary text-white">
+                                <span>${(this._stepsParams?.pipeline?.type || "genomics").toUpperCase()} PIPELINE</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center justify-content-end gap-2 mt-2">
-                        <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onPipelineInfoModalShow()}">
-                            <i class="fas fa-plus"></i>
-                            <span>Save As New Pipeline</span>
+                    <div class="dropdown">
+                        <button class="btn d-flex" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v fs-4"></i>
                         </button>
-                        ${this._stepsParams?.pipeline?.file ? html`
-                            <button class="btn btn-primary d-flex align-items-center gap-2" @click="${() => this.onPipelineSave()}">
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <div class="dropdown-item d-flex align-items-center gap-2 ${this._stepsParams?.pipeline?.file ? "cursor-pointer" : "disabled"}" @click="${() => this.onPipelineSave()}">
                                 <i class="fas fa-save"></i>
                                 <span>Update Pipeline</span>
-                            </button>
-                        ` : nothing}
+                            </div>
+                            <div class="dropdown-item d-flex align-items-center gap-2 cursor-pointer" @click="${() => this.onPipelineInfoModalShow()}">
+                                <i class="fas fa-file-export"></i>
+                                <span>Save As New Pipeline</span>
+                            </div>
+                        </div>
                     </div>
                 ` : nothing}
             </div>  
