@@ -59,22 +59,26 @@ export default class ClinicalReport extends LitElement {
                     name: "Overview",
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <clinical-analysis-summary
-                            .active="${active}"
-                            .clinicalAnalysis="${clinicalAnalysis}"
-                            .opencgaSession="${opencgaSession}">
-                        </clinical-analysis-summary>
+                        <div class="container">
+                            <clinical-analysis-summary
+                                .active="${active}"
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}">
+                            </clinical-analysis-summary>
+                        </div>
                     `,
                 },
                 {
                     id: "review",
                     name: "Review Tool",
                     render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <clinical-report-review
-                            .active="${active}"
-                            .clinicalAnalysis="${clinicalAnalysis}"
-                            .opencgaSession="${opencgaSession}">
-                        </clinical-report-review>
+                        <div class="container">
+                            <clinical-report-review
+                                .active="${active}"
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}">
+                            </clinical-report-review>
+                        </div>
                     `,
                 },
                 {
