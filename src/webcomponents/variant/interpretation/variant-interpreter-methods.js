@@ -16,6 +16,7 @@
 
 import {html, LitElement, nothing} from "lit";
 import {keyed} from "lit/directives/keyed.js";
+import "../../commons/empty-state.js";
 import "../../commons/view/detail-tabs.js";
 import "../../clinical/analysis/rd-tiering-analysis.js";
 import "../../clinical/analysis/exomiser-analysis.js";
@@ -110,10 +111,15 @@ class VariantInterpreterMethods extends LitElement {
         // If no methods have been configured, we will display a warning message
         if (!this._config || this._config.items.length === 0) {
             return html`
-                <div class="col-md-10 offset-md-1">
-                    <div class="alert alert-warning" role="alert">
-                        No automatic methods available at this time.
-                    </div>
+                <div class="container">
+                    <empty-state
+                        .icon="${"fa-sync"}"
+                        .title="${"No Interpretation Methods Available"}"
+                        .description="${html`
+                            <span>There are no interpretation methods available to be executed. </span>
+                            <span>Please, contact your administrator to configure interpretation methods for this study.</span>
+                        `}">
+                    </empty-state>
                 </div>
             `;
         }
