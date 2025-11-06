@@ -58,12 +58,6 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     navigationButtonsVisible() {
-        // // next/previous buttons are not visible when the pipeline selection is visible
-        // if (this._activeStepIndex === 1 && this._stepsParams?.pipeline === null) {
-        //     return false;
-        // }
-        // // other case, buttons are visible
-        // return true;
         return this._activeStepIndex > 0;
     }
 
@@ -82,12 +76,6 @@ export default class ClinicalPreprocessing extends LitElement {
     onVariantIndexParamsChange(event) {
         this._stepsParams.variantIndex = event.detail;
     }
-
-    // onPipelineClear() {
-    //     this._stepsParams.pipeline = null;
-    //     this._stepsParams.preprocessing.steps = {}; // reset steps
-    //     this.requestUpdate();
-    // }
 
     onPipelineCreate(event, pipelineType) {
         // initialize pipeline information
