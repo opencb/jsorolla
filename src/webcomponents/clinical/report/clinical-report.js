@@ -31,7 +31,14 @@ export default class ClinicalReport extends LitElement {
     }
 
     #init() {
+        this._editingTemplate = false;
         this._config = this.getDefaultConfig();
+    }
+
+    onTemplateEditionToggle(event) {
+        this._editingTemplate = !!event.detail.value;
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     render() {
@@ -91,12 +98,15 @@ export default class ClinicalReport extends LitElement {
                     id: "preview",
                     name: "Preview",
                     render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <div class="container">
+                        <div class="${this._editingTemplate ? "" : "container"}">
                             <tool-header .title="${"Report Preview"}"></tool-header>
                             <clinical-report-preview
                                 .active="${active}"
                                 .clinicalAnalysis="${clinicalAnalysis}"
-                                .opencgaSession="${opencgaSession}">
+                                .opencgaSession="${opencgaSession}"
+                                @templateEditionToggle="${event => {
+                                    this.onTemplateEditionToggle(event);
+                                }}">
                             </clinical-report-preview>
                         </div>
                     `,
