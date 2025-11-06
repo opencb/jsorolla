@@ -1,4 +1,5 @@
 import {LitElement, html, nothing} from "lit";
+import "../../commons/tool-header.js";
 import "../../commons/view/detail-tabs.js";
 import "../clinical-analysis-summary.js";
 import "./clinical-report-preview.js";
@@ -60,10 +61,14 @@ export default class ClinicalReport extends LitElement {
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => html`
                         <div class="container">
+                            <tool-header .title="${"Clinical Analysis Overview"}"></tool-header>
                             <clinical-analysis-summary
                                 .active="${active}"
                                 .clinicalAnalysis="${clinicalAnalysis}"
-                                .opencgaSession="${opencgaSession}">
+                                .opencgaSession="${opencgaSession}"
+                                .displayConfig="${{
+                                    titleVisible: false,
+                                }}">
                             </clinical-analysis-summary>
                         </div>
                     `,
@@ -73,6 +78,7 @@ export default class ClinicalReport extends LitElement {
                     name: "Review Tool",
                     render: (clinicalAnalysis, active, opencgaSession) => html`
                         <div class="container">
+                            <tool-header .title="${"Review Tool"}"></tool-header>
                             <clinical-report-review
                                 .active="${active}"
                                 .clinicalAnalysis="${clinicalAnalysis}"
@@ -85,6 +91,7 @@ export default class ClinicalReport extends LitElement {
                     id: "preview",
                     name: "Preview",
                     render: (clinicalAnalysis, active, opencgaSession) => html`
+                        <tool-header .title="${"Report Preview"}"></tool-header>
                         <clinical-report-preview
                             .active="${active}"
                             .clinicalAnalysis="${clinicalAnalysis}"
