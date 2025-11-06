@@ -131,10 +131,11 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     onPipelineSave() {
+        const newPipelineVersion = (parseInt(this._stepsParams.pipeline.version) || 0) + 1;
         const pipelineContent = JSON.stringify({
             name: this._stepsParams.pipeline.name,
             description: this._stepsParams.pipeline.description,
-            version: (parseInt(this._stepsParams.pipeline.version) || 0) + 1,
+            version: newPipelineVersion,
             type: this._stepsParams.pipeline.type || "genomics",
             steps: this._stepsParams.preprocessing.steps,
         });
@@ -146,6 +147,9 @@ export default class ClinicalPreprocessing extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: `Pipeline ${this._stepsParams.pipeline.name} saved.`,
                 });
+                // note: we have to update the version in the local pipeline info
+                this._stepsParams.pipeline.version = newPipelineVersion;
+                this.requestUpdate();
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
