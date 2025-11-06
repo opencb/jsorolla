@@ -73,11 +73,22 @@ export default class ClinicalPreprocessingSavePipeline extends LitElement {
                         {
                             title: "File Name",
                             field: "fileName",
-                            type: "input-text",
+                            type: "custom",
                             required: true,
                             display: {
-                                placeholder: "my-pipeline.json",
-                                helpMessage: "Name of the file to save in RESOURCES folder. It must end with .json",
+                                render: (filename, onFieldChange) => html`
+                                    <div class="input-group">
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            placeholder="my-pipeline"
+                                            .value="${filename || ""}"
+                                            @input="${event => onFieldChange(event.target.value)}"
+                                        />
+                                        <span class="input-group-text">.json</span>
+                                    </div>
+                                `,
+                                helpMessage: "Name of the file to save in RESOURCES folder.",
                             },
                         },
                         {
