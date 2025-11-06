@@ -134,7 +134,7 @@ export default class ClinicalPreprocessing extends LitElement {
         const pipelineContent = JSON.stringify({
             name: this._stepsParams.pipeline.name,
             description: this._stepsParams.pipeline.description,
-            version: this._stepsParams.pipeline.version + 1,
+            version: (parseInt(this._stepsParams.pipeline.version) || 0) + 1,
             type: this._stepsParams.pipeline.type || "genomics",
             steps: this._stepsParams.preprocessing.steps,
         });
@@ -161,7 +161,7 @@ export default class ClinicalPreprocessing extends LitElement {
                 name: event.detail.name || "Untitled Pipeline",
                 description: event.detail.description || "",
                 version: 1,
-                type: event.detail.type || "genomics",
+                type: this._stepsParams.pipeline.type || "genomics",
                 steps: this._stepsParams.preprocessing.steps,
             }),
         };
