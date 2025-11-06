@@ -91,12 +91,14 @@ export default class ClinicalReport extends LitElement {
                     id: "preview",
                     name: "Preview",
                     render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <tool-header .title="${"Report Preview"}"></tool-header>
-                        <clinical-report-preview
-                            .active="${active}"
-                            .clinicalAnalysis="${clinicalAnalysis}"
-                            .opencgaSession="${opencgaSession}">
-                        </clinical-report-preview>
+                        <div class="container">
+                            <tool-header .title="${"Report Preview"}"></tool-header>
+                            <clinical-report-preview
+                                .active="${active}"
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}">
+                            </clinical-report-preview>
+                        </div>
                     `,
                 },
             ],
