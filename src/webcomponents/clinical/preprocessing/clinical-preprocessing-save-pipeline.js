@@ -76,6 +76,8 @@ export default class ClinicalPreprocessingSavePipeline extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
+                                placeholder: "my-pipeline.json",
+                                helpMessage: "Name of the file to save in RESOURCES folder. It must end with .json",
                             },
                         },
                         {
@@ -84,15 +86,7 @@ export default class ClinicalPreprocessingSavePipeline extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
-                            },
-                        },
-                        {
-                            title: "Type",
-                            field: "type",
-                            type: "select",
-                            allowedValues: ["genomics", "affy"],
-                            defaultValue: "genomics",
-                            display: {
+                                helpMessage: "Type a name for the pipeline.",
                             },
                         },
                         {
@@ -101,6 +95,7 @@ export default class ClinicalPreprocessingSavePipeline extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
+                                helpMessage: "Add a description for the pipeline.",
                             },
                         },
                     ],
