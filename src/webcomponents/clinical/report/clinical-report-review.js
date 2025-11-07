@@ -283,7 +283,7 @@ export default class ClinicalReportReview extends LitElement {
                 ${interpretations.map(interpretation => html`
                     <div class="">
                         <div class="mb-3 d-flex align-items-center gap-3">
-                            <h4 class="">Interpretation ${interpretation.id}</h4>
+                            <h4 class="mb-0">Interpretation ${interpretation.id}</h4>
                             ${interpretation.primary ? html`
                                 <div class="badge bg-primary text-white">PRIMARY</div>
                             ` : nothing}
