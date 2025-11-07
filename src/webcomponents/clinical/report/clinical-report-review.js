@@ -144,6 +144,7 @@ export default class ClinicalReportReview extends LitElement {
 
     onVariantInfo(event) {
         this._selectedVariant = event.detail.variant;
+        this._selectedVariantInterpretationId = event.detail.interpretationId;
         this._gridCommons.changeActiveModal("view-variant");
     }
 
@@ -302,7 +303,7 @@ export default class ClinicalReportReview extends LitElement {
                                     .opencgaSession="${this.opencgaSession}"
                                     .interpretationId="${interpretation.id}"
                                     .variant="${variant}"
-                                    .selected="${this._selectedVariant?.id === variant.id}"
+                                    .selected="${this._selectedVariant?.id === variant.id && this._selectedVariantInterpretationId === interpretation.id}"
                                     @variantInfo="${event => this.onVariantInfo(event)}"
                                     @variantReviewInfo="${event => this.onVariantReviewInfo(event)}"
                                     @variantReviewUpdate="${event => this.onVariantReviewUpdate(event)}">
