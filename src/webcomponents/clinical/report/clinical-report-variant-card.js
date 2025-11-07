@@ -20,6 +20,9 @@ export default class ClinicalReportVariantCard extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            interpretationId: {
+                type: String,
+            },
             variant: {
                 type: Object,
             },
@@ -48,6 +51,7 @@ export default class ClinicalReportVariantCard extends LitElement {
         event.stopPropagation();
         LitUtils.dispatchCustomEvent(this, "variantInfo", null, {
             variant: this.variant,
+            interpretationId: this.interpretationId,
         });
     }
 
@@ -55,6 +59,7 @@ export default class ClinicalReportVariantCard extends LitElement {
         event.stopPropagation();
         LitUtils.dispatchCustomEvent(this, "variantReviewInfo", null, {
             variant: this.variant,
+            interpretationId: this.interpretationId,
         });
     }
 
@@ -62,6 +67,7 @@ export default class ClinicalReportVariantCard extends LitElement {
         event.stopPropagation();
         LitUtils.dispatchCustomEvent(this, "variantReviewUpdate", null, {
             variant: this.variant,
+            interpretationId: this.interpretationId,
         });
     }
 
