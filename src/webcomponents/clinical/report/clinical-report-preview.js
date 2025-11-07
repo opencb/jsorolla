@@ -130,19 +130,6 @@ export default class ClinicalReportPreview extends LitElement {
         }
     }
 
-    // loadTemplateFromFile(file, content) {
-    //     return this.evaluateTemplate(content).then(data => {
-    //         return {
-    //             id: file.id,
-    //             content: content,
-    //             title: data?.name || data?.title || file.name.replace(".js", ""),
-    //             description: data?.description || "",
-    //             version: data?.version || "",
-    //             config: data?.config || data?.template || {}
-    //         };
-    //     });
-    // }
-
     onTemplateChange(event) {
         const selectedTemplate = this._templates.find(template => {
             return template.id === event.target.value;
