@@ -92,7 +92,7 @@ export default class ClinicalReportPreview extends LitElement {
                                 };
                             })
                             .catch(error => {
-                                console.error(`Error loading template from file ${file.name}:`, error);
+                                // console.error(`Error loading template from file ${file.name}:`, error);
                                 // this._invalidTemplates.push(file.name);
                                 // return null; // Return null for failed templates
                                 return {
@@ -171,7 +171,7 @@ export default class ClinicalReportPreview extends LitElement {
                     this._activeTemplateConfig = data?.config || data?.template || {};
                 })
                 .catch(error => {
-                    console.error("Error evaluating template:", error);
+                    // console.error("Error evaluating template:", error);
                     this._editingTemplateError = error?.message || "Error evaluating template";
                 })
                 .finally(() => {
@@ -199,7 +199,7 @@ export default class ClinicalReportPreview extends LitElement {
                 this._editingTemplateError = null;
             })
             .catch(error => {
-                console.error("Error evaluating template:", error);
+                // console.error("Error evaluating template:", error);
                 // note: we have to update the active template to mark it as invalid and save the error message
                 // generated when evaluating the template
                 Object.assign(this._activeTemplate, {
