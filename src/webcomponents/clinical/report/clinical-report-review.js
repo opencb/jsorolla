@@ -279,10 +279,15 @@ export default class ClinicalReportReview extends LitElement {
         }
 
         return html`
-            <div class="d-flex flex-column gap-4">
+            <div class="d-flex flex-column gap-5">
                 ${interpretations.map(interpretation => html`
                     <div class="">
-                        <h4 class="mb-3">Interpretation ${interpretation.id}</h4>
+                        <div class="mb-3 d-flex align-items-center gap-3">
+                            <h4 class="">Interpretation ${interpretation.id}</h4>
+                            ${interpretation.primary ? html`
+                                <div class="badge bg-primary text-white">PRIMARY</div>
+                            ` : nothing}
+                        </div>
                         <div class="gap-3" style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));">
                             ${interpretation.variants.map(variant => html`
                                 <clinical-report-variant-card
