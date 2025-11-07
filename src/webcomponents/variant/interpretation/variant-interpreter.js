@@ -32,6 +32,7 @@ import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
 import "../../clinical/clinical-analysis-info.js"
+import "../../clinical/clinical-analysis-view.js";
 import "../../clinical/interpretation/clinical-interpretation-update.js";
 import "../../clinical/report/clinical-report.js";
 
@@ -191,6 +192,14 @@ class VariantInterpreter extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     };
+
+    onClinicalAnalysisView() {
+        this._activeModal = "view-clinical-analysis";
+        this.requestUpdate();
+        this.updateComplete.then(() => {
+            ModalUtils.show(`${this._prefix}ClinicalAnalysisViewModal`);
+        });
+    }
 
     onChangePrimaryInterpretation = e => {
         const interpretationId = e.currentTarget.dataset.id;
@@ -383,6 +392,10 @@ class VariantInterpreter extends LitElement {
                         ` : nothing}
                         <hr class="dropdown-divider">
                         <h6 class="dropdown-header">Case Actions</h6>
+                        <a class="dropdown-item cursor-pointer" @click="${() => this.onClinicalAnalysisView()}">
+                            <i class="fas fa-info-circle pe-1"></i>
+                            <span>View Case</span>
+                        </a>
                         <a class="dropdown-item cursor-pointer" @click="${this.onClinicalAnalysisLock}">
                             <i class="fas ${this.clinicalAnalysis?.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
                             ${this.clinicalAnalysis?.locked ? "Unlock" : "Lock"} Case
@@ -427,6 +440,24 @@ class VariantInterpreter extends LitElement {
         });
     }
 
+    renderClinicalAnalysisViewModal() {
+        return ModalUtils.create(this, `${this._prefix}ClinicalAnalysisViewModal`, {
+            display: {
+                modalTitle: `Clinical Analysis ${this.clinicalAnalysis?.id}`,
+                modalDraggable: false,
+                modalSize: "modal-3xl"
+            },
+            render: () => html`
+                <clinical-analysis-view
+                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .displayConfig="${{
+                    }}">
+                </clinical-analysis-view>
+            `,
+        });
+    }
+
     render() {
         // Check if project exists
         if (!this.opencgaSession || !this.opencgaSession.study) {
@@ -446,6 +477,7 @@ class VariantInterpreter extends LitElement {
             </div>
 
             ${this._activeModal === "update-interpretation" ? this.renderInterpretationUpdateModal() : nothing}
+            ${this._activeModal === "view-clinical-analysis" ? this.renderClinicalAnalysisViewModal() : nothing}
         `;
     }
 
