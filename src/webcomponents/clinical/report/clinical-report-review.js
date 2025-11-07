@@ -122,6 +122,25 @@ export default class ClinicalReportReview extends LitElement {
         }));
     }
 
+    getInterpretations() {
+        // 1. prepare all the interpretations
+        const interpretations = [
+            {
+                id: this.clinicalAnalysis.interpretation.id,
+                primary: true,
+                variants: (this.clinicalAnalysis.interpretation.primaryFindings || []).filter(variant => variant.status === "REPORTED"),
+            },
+            ...(this.clinicalAnalysis?.secondaryInterpretations || []).map(interpretation => ({
+                id: interpretation.id,
+                primary: false,
+                variants: (interpretation.primaryFindings || []).filter(variant => variant.status === "REPORTED"),
+            })),
+        ];
+
+        // 2. filter only those interpretations with reported variants
+        return interpretations.filter(interpretation => interpretation.variants.length > 0);
+    }
+
     onVariantInfo(event) {
         this._selectedVariant = event.detail.variant;
         this._gridCommons.changeActiveModal("view-variant");
@@ -246,32 +265,37 @@ export default class ClinicalReportReview extends LitElement {
     }
 
     renderReportedVariants() {
-        // get only variants with status "REPORTED"
-        const reportedVariants = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).filter(variant => {
-            return variant.status === "REPORTED";
-        });
+        //  get all the interpretations with reported variants
+        const interpretations = this.getInterpretations();
 
-        if (reportedVariants.length === 0) {
+        if (interpretations.length === 0) {
             return html`
                 <div class="alert alert-warning">
                     <i class="fas fa-exclamation-triangle pe-1"></i>
-                    <span>No variants have been reported in the primary interpretation of this clinical analysis. </span>
+                    <span>No variants have been reported in any interpretations of this clinical analysis. </span>
                     <span>Please, go to the <b>Variant Browser</b> step to report variants.</span>
                 </div>
             `;
         }
 
         return html`
-            <div class="gap-3" style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));">
-                ${reportedVariants.map(variant => html`
-                    <clinical-report-variant-card
-                        .opencgaSession="${this.opencgaSession}"
-                        .variant="${variant}"
-                        .selected="${this._selectedVariant?.id === variant.id}"
-                        @variantInfo="${event => this.onVariantInfo(event)}"
-                        @variantReviewInfo="${event => this.onVariantReviewInfo(event)}"
-                        @variantReviewUpdate="${event => this.onVariantReviewUpdate(event)}">
-                    </clinical-report-variant-card>
+            <div class="d-flex flex-column gap-4">
+                ${interpretations.map(interpretation => html`
+                    <div class="">
+                        <h4 class="mb-3">Interpretation ${interpretation.id}</h4>
+                        <div class="gap-3" style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));">
+                            ${interpretation.variants.map(variant => html`
+                                <clinical-report-variant-card
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .variant="${variant}"
+                                    .selected="${this._selectedVariant?.id === variant.id}"
+                                    @variantInfo="${event => this.onVariantInfo(event)}"
+                                    @variantReviewInfo="${event => this.onVariantReviewInfo(event)}"
+                                    @variantReviewUpdate="${event => this.onVariantReviewUpdate(event)}">
+                                </clinical-report-variant-card>
+                            `)}
+                        </div>
+                    </div>
                 `)}
             </div>
         `;
