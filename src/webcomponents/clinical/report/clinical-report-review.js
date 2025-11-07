@@ -128,11 +128,13 @@ export default class ClinicalReportReview extends LitElement {
         const interpretations = [
             {
                 id: this.clinicalAnalysis.interpretation.id,
+                name: this.clinicalAnalysis.interpretation.name,
                 primary: true,
                 variants: (this.clinicalAnalysis.interpretation.primaryFindings || []).filter(variant => variant.status === "REPORTED"),
             },
             ...(this.clinicalAnalysis?.secondaryInterpretations || []).map(interpretation => ({
                 id: interpretation.id,
+                name: interpretation.name,
                 primary: false,
                 variants: (interpretation.primaryFindings || []).filter(variant => variant.status === "REPORTED"),
             })),
@@ -292,7 +294,9 @@ export default class ClinicalReportReview extends LitElement {
                 ${interpretations.map(interpretation => html`
                     <div class="">
                         <div class="mb-3 d-flex align-items-center gap-3">
-                            <h4 class="mb-0">Interpretation ${interpretation.id}</h4>
+                            <h4 class="mb-0">
+                                Interpretation ${WebUtils.formatDisplayName(interpretation.id, interpretation.name, "")}
+                            </h4>
                             ${interpretation.primary ? html`
                                 <div class="badge bg-primary text-white">PRIMARY</div>
                             ` : nothing}
