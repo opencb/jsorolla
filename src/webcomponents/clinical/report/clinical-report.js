@@ -1,4 +1,5 @@
 import {LitElement, html, nothing} from "lit";
+import "../../commons/tool-header.js";
 import "../../commons/view/detail-tabs.js";
 import "../clinical-analysis-summary.js";
 import "./clinical-report-preview.js";
@@ -30,7 +31,14 @@ export default class ClinicalReport extends LitElement {
     }
 
     #init() {
+        this._editingTemplate = false;
         this._config = this.getDefaultConfig();
+    }
+
+    onTemplateEditionToggle(event) {
+        this._editingTemplate = !!event.detail.value;
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     render() {
@@ -59,33 +67,48 @@ export default class ClinicalReport extends LitElement {
                     name: "Overview",
                     active: true,
                     render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <clinical-analysis-summary
-                            .active="${active}"
-                            .clinicalAnalysis="${clinicalAnalysis}"
-                            .opencgaSession="${opencgaSession}">
-                        </clinical-analysis-summary>
+                        <div class="container">
+                            <tool-header .title="${"Clinical Analysis Overview"}"></tool-header>
+                            <clinical-analysis-summary
+                                .active="${active}"
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}"
+                                .displayConfig="${{
+                                    titleVisible: false,
+                                }}">
+                            </clinical-analysis-summary>
+                        </div>
                     `,
                 },
                 {
                     id: "review",
                     name: "Review Tool",
                     render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <clinical-report-review
-                            .active="${active}"
-                            .clinicalAnalysis="${clinicalAnalysis}"
-                            .opencgaSession="${opencgaSession}">
-                        </clinical-report-review>
+                        <div class="container">
+                            <tool-header .title="${"Review Tool"}"></tool-header>
+                            <clinical-report-review
+                                .active="${active}"
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}">
+                            </clinical-report-review>
+                        </div>
                     `,
                 },
                 {
                     id: "preview",
                     name: "Preview",
                     render: (clinicalAnalysis, active, opencgaSession) => html`
-                        <clinical-report-preview
-                            .active="${active}"
-                            .clinicalAnalysis="${clinicalAnalysis}"
-                            .opencgaSession="${opencgaSession}">
-                        </clinical-report-preview>
+                        <div class="${this._editingTemplate ? "" : "container"}">
+                            <tool-header .title="${"Report Preview"}"></tool-header>
+                            <clinical-report-preview
+                                .active="${active}"
+                                .clinicalAnalysis="${clinicalAnalysis}"
+                                .opencgaSession="${opencgaSession}"
+                                @templateEditionToggle="${event => {
+                                    this.onTemplateEditionToggle(event);
+                                }}">
+                            </clinical-report-preview>
+                        </div>
                     `,
                 },
             ],

@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/empty-state.js";
 import "../../file/file-editor.js";
@@ -155,6 +156,8 @@ export default class ClinicalReportPreview extends LitElement {
             this._activeTemplateConfig = this._activeTemplate.config;
         }
 
+        // dispatch a templateEditionToggle event
+        LitUtils.dispatchCustomEvent(this, "templateEditionToggle", this._editingTemplate);
         this.requestUpdate();
     }
 

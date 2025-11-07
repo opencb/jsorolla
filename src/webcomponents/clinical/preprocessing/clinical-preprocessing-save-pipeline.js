@@ -73,9 +73,22 @@ export default class ClinicalPreprocessingSavePipeline extends LitElement {
                         {
                             title: "File Name",
                             field: "fileName",
-                            type: "input-text",
+                            type: "custom",
                             required: true,
                             display: {
+                                render: (filename, onFieldChange) => html`
+                                    <div class="input-group">
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            placeholder="my-pipeline"
+                                            .value="${filename || ""}"
+                                            @input="${event => onFieldChange(event.target.value)}"
+                                        />
+                                        <span class="input-group-text">.json</span>
+                                    </div>
+                                `,
+                                helpMessage: "Name of the file to save in RESOURCES folder.",
                             },
                         },
                         {
@@ -84,15 +97,7 @@ export default class ClinicalPreprocessingSavePipeline extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
-                            },
-                        },
-                        {
-                            title: "Type",
-                            field: "type",
-                            type: "select",
-                            allowedValues: ["genomics", "affy"],
-                            defaultValue: "genomics",
-                            display: {
+                                helpMessage: "Type a name for the pipeline.",
                             },
                         },
                         {
@@ -101,6 +106,7 @@ export default class ClinicalPreprocessingSavePipeline extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
+                                helpMessage: "Add a description for the pipeline.",
                             },
                         },
                     ],

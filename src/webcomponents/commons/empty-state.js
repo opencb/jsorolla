@@ -47,8 +47,8 @@ export default class EmptyState extends LitElement {
         return html`
             <div class="d-flex flex-column align-items-center justify-content-between py-5 my-5 bg-white rounded-3 border border-1 border-gray-200">
                 ${this.icon ? html`
-                    <div class="d-flex text-gray-800 mb-2">
-                        <i class="fas ${this.icon} display-1"></i>
+                    <div class="d-flex text-gray-800 mb-3">
+                        <i class="fas ${this.icon} ${this._config?.iconClassName}" style="${this._config?.iconStyle}"></i>
                     </div>
                 ` : nothing}
                 ${(this.title || this.description) ? html`
@@ -66,7 +66,10 @@ export default class EmptyState extends LitElement {
     }
 
     getDefaultConfig() {
-        return {};
+        return {
+            iconClassName: "display-1",
+            iconStyle: "font-weight:900!important;",
+        };
     }
 
 }

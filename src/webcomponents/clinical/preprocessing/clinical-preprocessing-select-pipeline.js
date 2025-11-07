@@ -196,7 +196,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                             field: "pipelines",
                             display: {
                                 defaultLayout: "vertical",
-                                titleClassName: "fs-3 my-2",
+                                titleClassName: "fs-5 my-2",
                                 listClassName: "d-flex flex-column gap-2",
                                 listItemClassName: "p-3 rounded-4 bg-white border border-gray-200 d-flex justify-content-between align-items-center gap-2 shadow-sm",
                                 listItemClick: (event, pipeline) => {
@@ -216,7 +216,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                             field: "pipelines",
                             display: {
                                 defaultLayout: "vertical",
-                                titleClassName: "fs-3 my-2",
+                                titleClassName: "fs-5 my-2",
                                 listClassName: "d-flex flex-column gap-2",
                                 listItemClassName: "p-3 rounded-4 bg-white border border-gray-200 d-flex justify-content-between align-items-center gap-2 shadow-sm",
                                 listItemClick: (event, pipeline) => {

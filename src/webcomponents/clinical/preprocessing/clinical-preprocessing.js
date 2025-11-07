@@ -58,12 +58,6 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     navigationButtonsVisible() {
-        // // next/previous buttons are not visible when the pipeline selection is visible
-        // if (this._activeStepIndex === 1 && this._stepsParams?.pipeline === null) {
-        //     return false;
-        // }
-        // // other case, buttons are visible
-        // return true;
         return this._activeStepIndex > 0;
     }
 
@@ -82,12 +76,6 @@ export default class ClinicalPreprocessing extends LitElement {
     onVariantIndexParamsChange(event) {
         this._stepsParams.variantIndex = event.detail;
     }
-
-    // onPipelineClear() {
-    //     this._stepsParams.pipeline = null;
-    //     this._stepsParams.preprocessing.steps = {}; // reset steps
-    //     this.requestUpdate();
-    // }
 
     onPipelineCreate(event, pipelineType) {
         // initialize pipeline information
@@ -131,10 +119,11 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     onPipelineSave() {
+        const newPipelineVersion = (parseInt(this._stepsParams.pipeline.version) || 0) + 1;
         const pipelineContent = JSON.stringify({
             name: this._stepsParams.pipeline.name,
             description: this._stepsParams.pipeline.description,
-            version: this._stepsParams.pipeline.version + 1,
+            version: newPipelineVersion,
             type: this._stepsParams.pipeline.type || "genomics",
             steps: this._stepsParams.preprocessing.steps,
         });
@@ -146,6 +135,9 @@ export default class ClinicalPreprocessing extends LitElement {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: `Pipeline ${this._stepsParams.pipeline.name} saved.`,
                 });
+                // note: we have to update the version in the local pipeline info
+                this._stepsParams.pipeline.version = newPipelineVersion;
+                this.requestUpdate();
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -161,7 +153,7 @@ export default class ClinicalPreprocessing extends LitElement {
                 name: event.detail.name || "Untitled Pipeline",
                 description: event.detail.description || "",
                 version: 1,
-                type: event.detail.type || "genomics",
+                type: this._stepsParams.pipeline.type || "genomics",
                 steps: this._stepsParams.preprocessing.steps,
             }),
         };
@@ -298,7 +290,42 @@ export default class ClinicalPreprocessing extends LitElement {
     }
 
     renderToolbarRightContent() {
-        return nothing;
+        const pipelineName = this._stepsParams?.pipeline?.name || "Untitled Pipeline";
+
+        return html`
+            <div class="d-flex align-items-center justify-content-end gap-4" style="width:320px;max-width:320px;">
+                ${this._stepsParams?.pipeline ? html`
+                    <div class="w-full d-flex flex-column align-items-end">
+                        <div class="fw-bold fs-3 w-full text-truncate text-end" title="${pipelineName}">
+                            <span>${pipelineName}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="badge bg-secondary text-white">
+                                <span>VERSION <b>${this._stepsParams?.pipeline?.version || 0}</b></span>
+                            </div>
+                            <div class="badge bg-primary text-white">
+                                <span>${(this._stepsParams?.pipeline?.type || "genomics").toUpperCase()} PIPELINE</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn d-flex" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v fs-4"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <div class="dropdown-item d-flex align-items-center gap-2 ${this._stepsParams?.pipeline?.file ? "cursor-pointer" : "disabled"}" @click="${() => this.onPipelineSave()}">
+                                <i class="fas fa-save"></i>
+                                <span>Update Pipeline</span>
+                            </div>
+                            <div class="dropdown-item d-flex align-items-center gap-2 cursor-pointer" @click="${() => this.onPipelineInfoModalShow()}">
+                                <i class="fas fa-file-export"></i>
+                                <span>Save As New Pipeline</span>
+                            </div>
+                        </div>
+                    </div>
+                ` : nothing}
+            </div>  
+        `;
     }
 
     renderPipelineInfoModal() {
@@ -430,27 +457,13 @@ export default class ClinicalPreprocessing extends LitElement {
                     title: "Run",
                     icon: "fas fa-play-circle",
                     render: () => html`
-                        <div class="position-relative">
-                            <clinical-preprocessing-summary
-                                .toolParams="${this._stepsParams}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .displayConfig="${{
-                                    buttonsVisible: false,
-                                }}">
-                            </clinical-preprocessing-summary>
-                            <div class="position-absolute top-0 end-0 d-flex gap-2">
-                                <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onPipelineInfoModalShow()}">
-                                    <i class="fas fa-plus"></i>
-                                    <span>Save As New Pipeline</span>
-                                </button>
-                                ${this._stepsParams?.pipeline?.file ? html`
-                                    <button class="btn btn-primary d-flex align-items-center gap-2" @click="${() => this.onPipelineSave()}">
-                                        <i class="fas fa-save"></i>
-                                        <span>Update Pipeline</span>
-                                    </button>
-                                ` : nothing}
-                            </div>
-                        </div>
+                        <clinical-preprocessing-summary
+                            .toolParams="${this._stepsParams}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .displayConfig="${{
+                                buttonsVisible: false,
+                            }}">
+                        </clinical-preprocessing-summary>
                     `,
                 },
             ],
