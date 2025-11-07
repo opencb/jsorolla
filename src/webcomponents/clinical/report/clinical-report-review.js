@@ -40,6 +40,7 @@ export default class ClinicalReportReview extends LitElement {
 
         this._clinicalAnalysisManager = null;
         this._selectedVariant = null;
+        this._selectedVariantInterpretationId = null;
         this._selectedVariantPrimary = null;
         this._selectedVariantChecked = null;
         this._gridCommons = new GridCommons(null, this, null);
@@ -148,6 +149,7 @@ export default class ClinicalReportReview extends LitElement {
 
     onVariantReviewInfo(event) {
         this._selectedVariant = event.detail.variant;
+        this._selectedVariantInterpretationId = event.detail.interpretationId;
         this.requestUpdate();
 
         // when update is complete, show the offcanvas
@@ -172,6 +174,7 @@ export default class ClinicalReportReview extends LitElement {
 
     onVariantReviewCancel() {
         this._selectedVariant = null;
+        this._selectedVariantInterpretationId = null;
         this._gridCommons.clearActiveModal();
     }
 
@@ -180,15 +183,20 @@ export default class ClinicalReportReview extends LitElement {
         const action = this._selectedVariantChecked ? "UPDATE" : "REMOVE";
 
         // 2. call the updateVariants method to update the variant in the interpretation
-        this._clinicalAnalysisManager.updateVariants(this._selectedVariant, this._selectedVariantPrimary, action)
+        this._clinicalAnalysisManager.updateVariants(this._selectedVariantInterpretationId, this._selectedVariant, this._selectedVariantPrimary, action)
             .then(() => {
                 LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
                     clinicalAnalysis: this.clinicalAnalysis,
                 });
+            })
+            .catch(response => {
+                console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
 
         // 3. clear selected variant to review
         this._selectedVariant = null;
+        this._selectedVariantInterpretationId = null;
         this._gridCommons.clearActiveModal();
     }
 
@@ -292,6 +300,7 @@ export default class ClinicalReportReview extends LitElement {
                             ${interpretation.variants.map(variant => html`
                                 <clinical-report-variant-card
                                     .opencgaSession="${this.opencgaSession}"
+                                    .interpretationId="${interpretation.id}"
                                     .variant="${variant}"
                                     .selected="${this._selectedVariant?.id === variant.id}"
                                     @variantInfo="${event => this.onVariantInfo(event)}"
