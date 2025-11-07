@@ -163,6 +163,7 @@ export default class ClinicalPreprocessing extends LitElement {
         this.opencgaSession.opencgaClient.files()
             .create(data, {
                 study: this.opencgaSession.study.fqn,
+                parents: true,
             })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
