@@ -3,6 +3,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import ModalUtils from "../../commons/modal/modal-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "./clinical-preprocessing-select-pipeline.js";
 import "./clinical-preprocessing-save-pipeline.js";
 import "./clinical-preprocessing-summary.js";
@@ -293,6 +294,12 @@ export default class ClinicalPreprocessing extends LitElement {
     renderToolbarRightContent() {
         const pipelineName = this._stepsParams?.pipeline?.name || "Untitled Pipeline";
 
+        // check if the user has permissions to save/update pipelines
+        // note: study admin is required to write templates into RESOURCES folder of the study
+        const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
+        const hasWritePermission = OpencgaCatalogUtils.hasPermissionInCurrentStudy(this.opencgaSession, "FILES_WRITE");
+        const hasPermission = isStudyAdmin && hasWritePermission;
+
         return html`
             <div class="d-flex align-items-center justify-content-end gap-4" style="width:320px;max-width:320px;">
                 ${this._stepsParams?.pipeline ? html`
@@ -314,11 +321,11 @@ export default class ClinicalPreprocessing extends LitElement {
                             <i class="fas fa-ellipsis-v fs-4"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <div class="dropdown-item d-flex align-items-center gap-2 ${this._stepsParams?.pipeline?.file ? "cursor-pointer" : "disabled"}" @click="${() => this.onPipelineSave()}">
+                            <div class="dropdown-item d-flex align-items-center gap-2 ${hasPermission && this._stepsParams?.pipeline?.file ? "cursor-pointer" : "disabled"}" @click="${() => this.onPipelineSave()}">
                                 <i class="fas fa-save"></i>
                                 <span>Update Pipeline</span>
                             </div>
-                            <div class="dropdown-item d-flex align-items-center gap-2 cursor-pointer" @click="${() => this.onPipelineInfoModalShow()}">
+                            <div class="dropdown-item d-flex align-items-center gap-2 ${hasPermission ? "cursor-pointer" : "disabled"}" @click="${() => this.onPipelineInfoModalShow()}">
                                 <i class="fas fa-file-export"></i>
                                 <span>Save As New Pipeline</span>
                             </div>
