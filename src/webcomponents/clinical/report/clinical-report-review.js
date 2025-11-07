@@ -125,22 +125,31 @@ export default class ClinicalReportReview extends LitElement {
 
     getInterpretations() {
         // 1. prepare all the interpretations
-        const interpretations = [
-            {
+        const interpretations = [];
+
+        // 2. include the primary interpretation if exists
+        if (this.clinicalAnalysis?.interpretation) {
+            interpretations.push({
                 id: this.clinicalAnalysis.interpretation.id,
                 name: this.clinicalAnalysis.interpretation.name,
                 primary: true,
                 variants: (this.clinicalAnalysis.interpretation.primaryFindings || []).filter(variant => variant.status === "REPORTED"),
-            },
-            ...(this.clinicalAnalysis?.secondaryInterpretations || []).map(interpretation => ({
-                id: interpretation.id,
-                name: interpretation.name,
-                primary: false,
-                variants: (interpretation.primaryFindings || []).filter(variant => variant.status === "REPORTED"),
-            })),
-        ];
+            });
+        }
 
-        // 2. filter only those interpretations with reported variants
+        // 3. include secondary interpretations if exist
+        if (this.clinicalAnalysis?.secondaryInterpretations) {
+            this.clinicalAnalysis.secondaryInterpretations.forEach(interpretation => {
+                interpretations.push({
+                    id: interpretation.id,
+                    name: interpretation.name,
+                    primary: false,
+                    variants: (interpretation.primaryFindings || []).filter(variant => variant.status === "REPORTED"),
+                });
+            });
+        }
+
+        // 4. filter only those interpretations with reported variants
         return interpretations.filter(interpretation => interpretation.variants.length > 0);
     }
 
