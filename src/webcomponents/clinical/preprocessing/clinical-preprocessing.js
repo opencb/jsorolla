@@ -9,6 +9,7 @@ import "./clinical-preprocessing-summary.js";
 import "./clinical-preprocessing-analysis-genomics.js";
 import "./clinical-preprocessing-analysis-affy.js";
 import "../../commons/tool-header.js";
+import "../../commons/empty-state.js";
 import "../../variant/operation/variant-index-operation.js";
 
 export default class ClinicalPreprocessing extends LitElement {
@@ -357,26 +358,34 @@ export default class ClinicalPreprocessing extends LitElement {
                 .centerContent="${this.renderToolbarCenterContent()}">
             </tool-header>
             <div class="container py-4">
-                ${this._config.steps[this._activeStepIndex]?.render()}
-                ${this.navigationButtonsVisible() ? html`
-                    <div class="mt-4 d-flex align-items-center justify-content-end gap-2">
-                        ${this._activeStepIndex > 0 ? html`
-                            <button class="btn btn-light ${this._running ? "disabled": ""}" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex - 1)}">
-                                <i class="fas fa-arrow-left me-1"></i> Previous
-                            </button>
-                        ` : nothing}
-                        ${this._activeStepIndex < this._config.steps.length - 1 ? html`
-                            <button class="btn btn-primary" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex + 1)}">
-                                Next <i class="fas fa-arrow-right ms-1"></i>
-                            </button>
-                        ` : nothing}
-                        ${this._activeStepIndex === this._config.steps.length - 1 ? html`
-                            <button class="btn btn-success ${this._running ? "disabled": ""}" @click="${e => this.onExecute(e)}">
-                                <i class="fas fa-play-circle me-1"></i> Run Analysis
-                            </button>
-                        ` : nothing}
-                    </div>
-                ` : nothing}
+                ${this._activeStepIndex === 0 || !!this._stepsParams?.pipeline ? html`
+                    ${this._config.steps[this._activeStepIndex]?.render()}
+                    ${this.navigationButtonsVisible() ? html`
+                        <div class="mt-4 d-flex align-items-center justify-content-end gap-2">
+                            ${this._activeStepIndex > 0 ? html`
+                                <button class="btn btn-light ${this._running ? "disabled": ""}" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex - 1)}">
+                                    <i class="fas fa-arrow-left me-1"></i> Previous
+                                </button>
+                            ` : nothing}
+                            ${this._activeStepIndex < this._config.steps.length - 1 ? html`
+                                <button class="btn btn-primary" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex + 1)}">
+                                    Next <i class="fas fa-arrow-right ms-1"></i>
+                                </button>
+                            ` : nothing}
+                            ${this._activeStepIndex === this._config.steps.length - 1 ? html`
+                                <button class="btn btn-success ${this._running ? "disabled": ""}" @click="${e => this.onExecute(e)}">
+                                    <i class="fas fa-play-circle me-1"></i> Run Analysis
+                                </button>
+                            ` : nothing}
+                        </div>
+                    ` : nothing}
+                ` : html`
+                    <empty-state
+                        .icon="${"fa-times-circle"}"
+                        .title="${`No pipeline selected`}"
+                        .description="${`Please select an existing pipeline or create a new one to proceed.`}">
+                    </empty-state>
+                `}
             </div>
             ${this._showPipelineInfoModal ? this.renderPipelineInfoModal() : nothing}
         `;
