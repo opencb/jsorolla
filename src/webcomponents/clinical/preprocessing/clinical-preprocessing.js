@@ -54,6 +54,7 @@ export default class ClinicalPreprocessing extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
+            this._activeStepIndex = 0; // reset to first step
             this._stepsParams = UtilsNew.objectClone(this.DEFAULT_STEPS_PARAMS);
         }
         super.update(changedProperties);
