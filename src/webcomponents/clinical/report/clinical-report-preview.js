@@ -88,6 +88,7 @@ export default class ClinicalReportPreview extends LitElement {
                                     description: template?.description || "",
                                     version: template?.version || "",
                                     config: template?.config || template?.template || null,
+                                    error: null,
                                 };
                             })
                             .catch(error => {
@@ -99,6 +100,7 @@ export default class ClinicalReportPreview extends LitElement {
                                     invalid: true,
                                     title: file.name.replace(".js", ""),
                                     config: null,
+                                    error: error?.message,
                                 };
                             });
                     }));
@@ -204,13 +206,20 @@ export default class ClinicalReportPreview extends LitElement {
                     description: template?.description || this._activeTemplate.description,
                     version: template?.version || this._activeTemplate.version,
                     config: template?.config || template?.template || this._activeTemplate.config,
+                    error: null,
                 });
                 this._activeTemplateConfig = this._activeTemplate.config;
                 this._editingTemplateError = null;
             })
             .catch(error => {
                 console.error("Error evaluating template:", error);
-                this._activeTemplate.invalid = true;
+                // note: we have to update the active template to mark it as invalid and save the error message
+                // generated when evaluating the template
+                Object.assign(this._activeTemplate, {
+                    invalud: true,
+                    config: null,
+                    error: error?.message,
+                });
                 this._editingTemplateError = error?.message || "Error evaluating template";
             })
             .finally(() => {
