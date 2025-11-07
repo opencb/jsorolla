@@ -217,7 +217,7 @@ export default class ClinicalPreprocessing extends LitElement {
                 break;
             case "affy":
                 // 2.1. add affy pipeline specific params
-                data.pipelineParams.samples = this._stepsParams.preprocessing.samples;
+                data.pipelineParams.samples = [this._stepsParams.preprocessing.samples];
 
                 // 2.2. create the submit promise
                 submitPromise = this.opencgaSession.opencgaClient.clinical()
