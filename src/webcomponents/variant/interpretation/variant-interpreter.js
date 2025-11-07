@@ -74,6 +74,7 @@ class VariantInterpreter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.clinicalAnalysisManager = null;
 
+        this._activeModal = null;
         this._config = this.getDefaultConfig();
         this.#updateInterpreterTools();
     }
@@ -199,7 +200,11 @@ class VariantInterpreter extends LitElement {
     }
 
     onInterpreationEdit() {
-        ModalUtils.show(`${this._prefix}InterpretationUpdateModal`);
+        this._activeModal = "update-interpretation";
+        this.requestUpdate();
+        this.updateComplete.then(() => {
+            ModalUtils.show(`${this._prefix}InterpretationUpdateModal`);
+        });
     }
 
     onInterpretationLock() {
@@ -401,27 +406,24 @@ class VariantInterpreter extends LitElement {
     renderInterpretationUpdateModal() {
         return ModalUtils.create(this, `${this._prefix}InterpretationUpdateModal`, {
             display: {
-                modalTitle: `Interpretation Update: ${this.clinicalAnalysis?.interpretation?.id}`,
+                modalTitle: `Update Interpretation ${this.clinicalAnalysis?.interpretation?.id}`,
                 modalDraggable: false,
                 modalSize: "modal-lg"
             },
-            render: () => {
-                const displayConfig = {
-                    buttonClearText: "Cancel",
-                    buttonOkText: "Update",
-                    buttonsLayout: "upper",
-                    type: "tabs",
-                };
-                return html `
-                    <clinical-interpretation-update
-                        .clinicalInterpretation="${this.clinicalAnalysis?.interpretation}"
-                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .displayConfig="${displayConfig}"
-                        @clinicalInterpretationUpdate="${() => this.onClinicalAnalysisUpdate()}">
-                    </clinical-interpretation-update>
-                `;
-            },
+            render: () => html`
+                <clinical-interpretation-update
+                    .clinicalInterpretation="${this.clinicalAnalysis?.interpretation}"
+                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .displayConfig="${{
+                        buttonClearText: "Cancel",
+                        buttonOkText: "Update Interpretation",
+                        buttonsLayout: "bottom",
+                        type: "tabs",
+                    }}"
+                    @clinicalInterpretationUpdate="${() => this.onClinicalAnalysisUpdate()}">
+                </clinical-interpretation-update>
+            `,
         });
     }
 
@@ -438,13 +440,12 @@ class VariantInterpreter extends LitElement {
                     .centerContent="${this.renderToolbarCenterContent()}"
                     .rightContent="${this.renderToolbarRightContent()}">
                 </tool-header>
-
                 <div class="py-4">
                     ${(this._config?.tools || []).map(tool => this.renderTool(tool))}
                 </div>
             </div>
 
-            ${this.renderInterpretationUpdateModal()}
+            ${this._activeModal === "update-interpretation" ? this.renderInterpretationUpdateModal() : nothing}
         `;
     }
 
