@@ -88,10 +88,11 @@ export default class ClinicalReportPreview extends LitElement {
                                     description: template?.description || "",
                                     version: template?.version || "",
                                     config: template?.config || template?.template || null,
+                                    error: null,
                                 };
                             })
                             .catch(error => {
-                                console.error(`Error loading template from file ${file.name}:`, error);
+                                // console.error(`Error loading template from file ${file.name}:`, error);
                                 // this._invalidTemplates.push(file.name);
                                 // return null; // Return null for failed templates
                                 return {
@@ -99,6 +100,7 @@ export default class ClinicalReportPreview extends LitElement {
                                     invalid: true,
                                     title: file.name.replace(".js", ""),
                                     config: null,
+                                    error: error?.message,
                                 };
                             });
                     }));
@@ -119,23 +121,14 @@ export default class ClinicalReportPreview extends LitElement {
     }
 
     evaluateTemplate(templateString) {
-        const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
-        const fn = new AsyncFunction(templateString);
-        return Promise.resolve(fn());
+        try {
+            const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
+            const fn = new AsyncFunction(templateString);
+            return Promise.resolve(fn());
+        } catch (error) {
+            return Promise.reject(error);
+        }
     }
-
-    // loadTemplateFromFile(file, content) {
-    //     return this.evaluateTemplate(content).then(data => {
-    //         return {
-    //             id: file.id,
-    //             content: content,
-    //             title: data?.name || data?.title || file.name.replace(".js", ""),
-    //             description: data?.description || "",
-    //             version: data?.version || "",
-    //             config: data?.config || data?.template || {}
-    //         };
-    //     });
-    // }
 
     onTemplateChange(event) {
         const selectedTemplate = this._templates.find(template => {
@@ -178,7 +171,7 @@ export default class ClinicalReportPreview extends LitElement {
                     this._activeTemplateConfig = data?.config || data?.template || {};
                 })
                 .catch(error => {
-                    console.error("Error evaluating template:", error);
+                    // console.error("Error evaluating template:", error);
                     this._editingTemplateError = error?.message || "Error evaluating template";
                 })
                 .finally(() => {
@@ -200,13 +193,20 @@ export default class ClinicalReportPreview extends LitElement {
                     description: template?.description || this._activeTemplate.description,
                     version: template?.version || this._activeTemplate.version,
                     config: template?.config || template?.template || this._activeTemplate.config,
+                    error: null,
                 });
                 this._activeTemplateConfig = this._activeTemplate.config;
                 this._editingTemplateError = null;
             })
             .catch(error => {
-                console.error("Error evaluating template:", error);
-                this._activeTemplate.invalid = true;
+                // console.error("Error evaluating template:", error);
+                // note: we have to update the active template to mark it as invalid and save the error message
+                // generated when evaluating the template
+                Object.assign(this._activeTemplate, {
+                    invalud: true,
+                    config: null,
+                    error: error?.message,
+                });
                 this._editingTemplateError = error?.message || "Error evaluating template";
             })
             .finally(() => {
@@ -284,7 +284,21 @@ export default class ClinicalReportPreview extends LitElement {
             ${this._activeTemplate && this.active ? html`
                 <div class="row">
                     <div class="${this._editingTemplate ? "col-7" : "col-12"}">
-                        ${this._activeTemplateConfig ? html`
+                        ${this._activeTemplate?.invalid || this._editingTemplateError ? html`
+                            <div class="alert alert-danger mb-4 d-flex gap-3 align-items-start">
+                                <i class="fas fa-times-circle fs-4 d-flex my-1"></i>
+                                <div class="w-full">
+                                    <div class="fw-bold fs-5 mb-2">Error Evaluating Template</div>
+                                    <div>The template is invalid and cannot be displayed. Please contact with the study administrator or with the author of the template.</div>
+                                    ${this._editingTemplateError ? html`
+                                        <div class="mt-3 bg-danger text-white font-monospace p-3 rounded-3">
+                                            <span>${this._editingTemplateError}</span>
+                                        </div>
+                                    ` : nothing}
+                                </div>
+                            </div>
+                        ` : nothing}
+                        ${this._activeTemplateConfig && !this._activeTemplate?.invalid && !this._editingTemplateError ? html`
                             <data-form
                                 .data="${this.clinicalAnalysis}"
                                 .config="${{

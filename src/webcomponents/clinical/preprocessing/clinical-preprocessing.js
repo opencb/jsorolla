@@ -3,12 +3,14 @@ import UtilsNew from "../../../core/utils-new.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import ModalUtils from "../../commons/modal/modal-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "./clinical-preprocessing-select-pipeline.js";
 import "./clinical-preprocessing-save-pipeline.js";
 import "./clinical-preprocessing-summary.js";
 import "./clinical-preprocessing-analysis-genomics.js";
 import "./clinical-preprocessing-analysis-affy.js";
 import "../../commons/tool-header.js";
+import "../../commons/empty-state.js";
 import "../../variant/operation/variant-index-operation.js";
 
 export default class ClinicalPreprocessing extends LitElement {
@@ -52,6 +54,7 @@ export default class ClinicalPreprocessing extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
+            this._activeStepIndex = 0; // reset to first step
             this._stepsParams = UtilsNew.objectClone(this.DEFAULT_STEPS_PARAMS);
         }
         super.update(changedProperties);
@@ -160,6 +163,7 @@ export default class ClinicalPreprocessing extends LitElement {
         this.opencgaSession.opencgaClient.files()
             .create(data, {
                 study: this.opencgaSession.study.fqn,
+                parents: true,
             })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -292,6 +296,12 @@ export default class ClinicalPreprocessing extends LitElement {
     renderToolbarRightContent() {
         const pipelineName = this._stepsParams?.pipeline?.name || "Untitled Pipeline";
 
+        // check if the user has permissions to save/update pipelines
+        // note: study admin is required to write templates into RESOURCES folder of the study
+        const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
+        const hasWritePermission = OpencgaCatalogUtils.hasPermissionInCurrentStudy(this.opencgaSession, "FILES_WRITE");
+        const hasPermission = isStudyAdmin && hasWritePermission;
+
         return html`
             <div class="d-flex align-items-center justify-content-end gap-4" style="width:320px;max-width:320px;">
                 ${this._stepsParams?.pipeline ? html`
@@ -313,11 +323,11 @@ export default class ClinicalPreprocessing extends LitElement {
                             <i class="fas fa-ellipsis-v fs-4"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <div class="dropdown-item d-flex align-items-center gap-2 ${this._stepsParams?.pipeline?.file ? "cursor-pointer" : "disabled"}" @click="${() => this.onPipelineSave()}">
+                            <div class="dropdown-item d-flex align-items-center gap-2 ${hasPermission && this._stepsParams?.pipeline?.file ? "cursor-pointer" : "disabled"}" @click="${() => this.onPipelineSave()}">
                                 <i class="fas fa-save"></i>
                                 <span>Update Pipeline</span>
                             </div>
-                            <div class="dropdown-item d-flex align-items-center gap-2 cursor-pointer" @click="${() => this.onPipelineInfoModalShow()}">
+                            <div class="dropdown-item d-flex align-items-center gap-2 ${hasPermission ? "cursor-pointer" : "disabled"}" @click="${() => this.onPipelineInfoModalShow()}">
                                 <i class="fas fa-file-export"></i>
                                 <span>Save As New Pipeline</span>
                             </div>
@@ -357,26 +367,34 @@ export default class ClinicalPreprocessing extends LitElement {
                 .centerContent="${this.renderToolbarCenterContent()}">
             </tool-header>
             <div class="container py-4">
-                ${this._config.steps[this._activeStepIndex]?.render()}
-                ${this.navigationButtonsVisible() ? html`
-                    <div class="mt-4 d-flex align-items-center justify-content-end gap-2">
-                        ${this._activeStepIndex > 0 ? html`
-                            <button class="btn btn-light ${this._running ? "disabled": ""}" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex - 1)}">
-                                <i class="fas fa-arrow-left me-1"></i> Previous
-                            </button>
-                        ` : nothing}
-                        ${this._activeStepIndex < this._config.steps.length - 1 ? html`
-                            <button class="btn btn-primary" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex + 1)}">
-                                Next <i class="fas fa-arrow-right ms-1"></i>
-                            </button>
-                        ` : nothing}
-                        ${this._activeStepIndex === this._config.steps.length - 1 ? html`
-                            <button class="btn btn-success ${this._running ? "disabled": ""}" @click="${e => this.onExecute(e)}">
-                                <i class="fas fa-play-circle me-1"></i> Run Analysis
-                            </button>
-                        ` : nothing}
-                    </div>
-                ` : nothing}
+                ${this._activeStepIndex === 0 || !!this._stepsParams?.pipeline ? html`
+                    ${this._config.steps[this._activeStepIndex]?.render()}
+                    ${this.navigationButtonsVisible() ? html`
+                        <div class="mt-4 d-flex align-items-center justify-content-end gap-2">
+                            ${this._activeStepIndex > 0 ? html`
+                                <button class="btn btn-light ${this._running ? "disabled": ""}" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex - 1)}">
+                                    <i class="fas fa-arrow-left me-1"></i> Previous
+                                </button>
+                            ` : nothing}
+                            ${this._activeStepIndex < this._config.steps.length - 1 ? html`
+                                <button class="btn btn-primary" @click="${e => this.onChangeActiveStep(e, this._activeStepIndex + 1)}">
+                                    Next <i class="fas fa-arrow-right ms-1"></i>
+                                </button>
+                            ` : nothing}
+                            ${this._activeStepIndex === this._config.steps.length - 1 ? html`
+                                <button class="btn btn-success ${this._running ? "disabled": ""}" @click="${e => this.onExecute(e)}">
+                                    <i class="fas fa-play-circle me-1"></i> Run Analysis
+                                </button>
+                            ` : nothing}
+                        </div>
+                    ` : nothing}
+                ` : html`
+                    <empty-state
+                        .icon="${"fa-times-circle"}"
+                        .title="${`No pipeline selected`}"
+                        .description="${`Please select an existing pipeline or create a new one to proceed.`}">
+                    </empty-state>
+                `}
             </div>
             ${this._showPipelineInfoModal ? this.renderPipelineInfoModal() : nothing}
         `;

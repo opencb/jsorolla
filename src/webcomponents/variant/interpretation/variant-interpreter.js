@@ -32,6 +32,7 @@ import "../../commons/opencga-active-filters.js";
 import "../../download-button.js";
 import "../../loading-spinner.js";
 import "../../clinical/clinical-analysis-info.js"
+import "../../clinical/clinical-analysis-view.js";
 import "../../clinical/interpretation/clinical-interpretation-update.js";
 import "../../clinical/report/clinical-report.js";
 
@@ -74,6 +75,7 @@ class VariantInterpreter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.clinicalAnalysisManager = null;
 
+        this._activeModal = null;
         this._config = this.getDefaultConfig();
         this.#updateInterpreterTools();
     }
@@ -191,6 +193,14 @@ class VariantInterpreter extends LitElement {
             });
     };
 
+    onClinicalAnalysisView() {
+        this._activeModal = "view-clinical-analysis";
+        this.requestUpdate();
+        this.updateComplete.then(() => {
+            ModalUtils.show(`${this._prefix}ClinicalAnalysisViewModal`);
+        });
+    }
+
     onChangePrimaryInterpretation = e => {
         const interpretationId = e.currentTarget.dataset.id;
         this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, () => {
@@ -199,7 +209,11 @@ class VariantInterpreter extends LitElement {
     }
 
     onInterpreationEdit() {
-        ModalUtils.show(`${this._prefix}InterpretationUpdateModal`);
+        this._activeModal = "update-interpretation";
+        this.requestUpdate();
+        this.updateComplete.then(() => {
+            ModalUtils.show(`${this._prefix}InterpretationUpdateModal`);
+        });
     }
 
     onInterpretationLock() {
@@ -378,6 +392,10 @@ class VariantInterpreter extends LitElement {
                         ` : nothing}
                         <hr class="dropdown-divider">
                         <h6 class="dropdown-header">Case Actions</h6>
+                        <a class="dropdown-item cursor-pointer" @click="${() => this.onClinicalAnalysisView()}">
+                            <i class="fas fa-info-circle pe-1"></i>
+                            <span>View Case</span>
+                        </a>
                         <a class="dropdown-item cursor-pointer" @click="${this.onClinicalAnalysisLock}">
                             <i class="fas ${this.clinicalAnalysis?.locked ? "fa-unlock" : "fa-lock"} pe-1"></i>
                             ${this.clinicalAnalysis?.locked ? "Unlock" : "Lock"} Case
@@ -401,27 +419,42 @@ class VariantInterpreter extends LitElement {
     renderInterpretationUpdateModal() {
         return ModalUtils.create(this, `${this._prefix}InterpretationUpdateModal`, {
             display: {
-                modalTitle: `Interpretation Update: ${this.clinicalAnalysis?.interpretation?.id}`,
+                modalTitle: `Update Interpretation ${this.clinicalAnalysis?.interpretation?.id}`,
                 modalDraggable: false,
                 modalSize: "modal-lg"
             },
-            render: () => {
-                const displayConfig = {
-                    buttonClearText: "Cancel",
-                    buttonOkText: "Update",
-                    buttonsLayout: "upper",
-                    type: "tabs",
-                };
-                return html `
-                    <clinical-interpretation-update
-                        .clinicalInterpretation="${this.clinicalAnalysis?.interpretation}"
-                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                        .opencgaSession="${this.opencgaSession}"
-                        .displayConfig="${displayConfig}"
-                        @clinicalInterpretationUpdate="${() => this.onClinicalAnalysisUpdate()}">
-                    </clinical-interpretation-update>
-                `;
+            render: () => html`
+                <clinical-interpretation-update
+                    .clinicalInterpretation="${this.clinicalAnalysis?.interpretation}"
+                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .displayConfig="${{
+                        buttonClearText: "Cancel",
+                        buttonOkText: "Update Interpretation",
+                        buttonsLayout: "bottom",
+                        type: "tabs",
+                    }}"
+                    @clinicalInterpretationUpdate="${() => this.onClinicalAnalysisUpdate()}">
+                </clinical-interpretation-update>
+            `,
+        });
+    }
+
+    renderClinicalAnalysisViewModal() {
+        return ModalUtils.create(this, `${this._prefix}ClinicalAnalysisViewModal`, {
+            display: {
+                modalTitle: `Clinical Analysis ${this.clinicalAnalysis?.id}`,
+                modalDraggable: false,
+                modalSize: "modal-3xl"
             },
+            render: () => html`
+                <clinical-analysis-view
+                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .displayConfig="${{
+                    }}">
+                </clinical-analysis-view>
+            `,
         });
     }
 
@@ -438,13 +471,13 @@ class VariantInterpreter extends LitElement {
                     .centerContent="${this.renderToolbarCenterContent()}"
                     .rightContent="${this.renderToolbarRightContent()}">
                 </tool-header>
-
                 <div class="py-4">
                     ${(this._config?.tools || []).map(tool => this.renderTool(tool))}
                 </div>
             </div>
 
-            ${this.renderInterpretationUpdateModal()}
+            ${this._activeModal === "update-interpretation" ? this.renderInterpretationUpdateModal() : nothing}
+            ${this._activeModal === "view-clinical-analysis" ? this.renderClinicalAnalysisViewModal() : nothing}
         `;
     }
 

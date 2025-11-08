@@ -60,6 +60,21 @@ export default class ClinicalAnalysisManager {
             });
     }
 
+    getInterpretation(interpretationId) {
+        // 1. check if the requested interpretation is the primary interpretation
+        if (this.clinicalAnalysis?.interpretation?.id === interpretationId) {
+            return this.clinicalAnalysis.interpretation;
+        }
+
+        // 2. if not, look for it in the secondary interpretations
+        if (this.clinicalAnalysis?.secondaryInterpretations) {
+            return this.clinicalAnalysis.secondaryInterpretations.find(interpretation => interpretation.id === interpretationId);
+        }
+
+        // 3. not found
+        return null;
+    }
+
     createInterpretation(interpretation, callback) {
         const newInterpretation = interpretation || {
             clinicalAnalysisId: this.clinicalAnalysis.id,
@@ -153,12 +168,13 @@ export default class ClinicalAnalysisManager {
             });
     }
 
-    updateVariants(variants, primaryFinding = true, action = "UPDATE") {
+    updateVariants(interpretationId, variants, primaryFinding = true, action = "UPDATE") {
         const field = primaryFinding ? "primaryFindings" : "secondaryFindings";
+        const originalInterpretation = this.getInterpretation(interpretationId); // get the interpretation to update
         // prepare interpretation object for the update
         const interpretation = {
-            primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings || [],
-            secondaryFindings: this.clinicalAnalysis.interpretation.secondaryFindings || [],
+            primaryFindings: originalInterpretation.primaryFindings || [],
+            secondaryFindings: originalInterpretation.secondaryFindings || [],
         };
         // check the action to perform
         // NOTE: variant can be an array of variants (for example in rearrangements)
@@ -202,7 +218,6 @@ export default class ClinicalAnalysisManager {
             }
         }
         // update the interpretation
-        const interpretationId = this.clinicalAnalysis.interpretation.id;
         return this.opencgaSession.opencgaClient.clinical()
             .updateInterpretation(this.clinicalAnalysis.id, interpretationId, interpretation, {
                 study: this.opencgaSession.study.fqn,

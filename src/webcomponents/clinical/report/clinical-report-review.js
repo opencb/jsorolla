@@ -40,6 +40,7 @@ export default class ClinicalReportReview extends LitElement {
 
         this._clinicalAnalysisManager = null;
         this._selectedVariant = null;
+        this._selectedVariantInterpretationId = null;
         this._selectedVariantPrimary = null;
         this._selectedVariantChecked = null;
         this._gridCommons = new GridCommons(null, this, null);
@@ -122,13 +123,45 @@ export default class ClinicalReportReview extends LitElement {
         }));
     }
 
+    getInterpretations() {
+        // 1. prepare all the interpretations
+        const interpretations = [];
+
+        // 2. include the primary interpretation if exists
+        if (this.clinicalAnalysis?.interpretation) {
+            interpretations.push({
+                id: this.clinicalAnalysis.interpretation.id,
+                name: this.clinicalAnalysis.interpretation.name,
+                primary: true,
+                variants: (this.clinicalAnalysis.interpretation.primaryFindings || []).filter(variant => variant.status === "REPORTED"),
+            });
+        }
+
+        // 3. include secondary interpretations if exist
+        if (this.clinicalAnalysis?.secondaryInterpretations) {
+            this.clinicalAnalysis.secondaryInterpretations.forEach(interpretation => {
+                interpretations.push({
+                    id: interpretation.id,
+                    name: interpretation.name,
+                    primary: false,
+                    variants: (interpretation.primaryFindings || []).filter(variant => variant.status === "REPORTED"),
+                });
+            });
+        }
+
+        // 4. filter only those interpretations with reported variants
+        return interpretations.filter(interpretation => interpretation.variants.length > 0);
+    }
+
     onVariantInfo(event) {
         this._selectedVariant = event.detail.variant;
+        this._selectedVariantInterpretationId = event.detail.interpretationId;
         this._gridCommons.changeActiveModal("view-variant");
     }
 
     onVariantReviewInfo(event) {
         this._selectedVariant = event.detail.variant;
+        this._selectedVariantInterpretationId = event.detail.interpretationId;
         this.requestUpdate();
 
         // when update is complete, show the offcanvas
@@ -153,6 +186,7 @@ export default class ClinicalReportReview extends LitElement {
 
     onVariantReviewCancel() {
         this._selectedVariant = null;
+        this._selectedVariantInterpretationId = null;
         this._gridCommons.clearActiveModal();
     }
 
@@ -161,15 +195,20 @@ export default class ClinicalReportReview extends LitElement {
         const action = this._selectedVariantChecked ? "UPDATE" : "REMOVE";
 
         // 2. call the updateVariants method to update the variant in the interpretation
-        this._clinicalAnalysisManager.updateVariants(this._selectedVariant, this._selectedVariantPrimary, action)
+        this._clinicalAnalysisManager.updateVariants(this._selectedVariantInterpretationId, this._selectedVariant, this._selectedVariantPrimary, action)
             .then(() => {
                 LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
                     clinicalAnalysis: this.clinicalAnalysis,
                 });
+            })
+            .catch(response => {
+                console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
 
         // 3. clear selected variant to review
         this._selectedVariant = null;
+        this._selectedVariantInterpretationId = null;
         this._gridCommons.clearActiveModal();
     }
 
@@ -246,32 +285,45 @@ export default class ClinicalReportReview extends LitElement {
     }
 
     renderReportedVariants() {
-        // get only variants with status "REPORTED"
-        const reportedVariants = (this.clinicalAnalysis?.interpretation?.primaryFindings || []).filter(variant => {
-            return variant.status === "REPORTED";
-        });
+        //  get all the interpretations with reported variants
+        const interpretations = this.getInterpretations();
 
-        if (reportedVariants.length === 0) {
+        if (interpretations.length === 0) {
             return html`
                 <div class="alert alert-warning">
                     <i class="fas fa-exclamation-triangle pe-1"></i>
-                    <span>No variants have been reported in the primary interpretation of this clinical analysis. </span>
+                    <span>No variants have been reported in any interpretations of this clinical analysis. </span>
                     <span>Please, go to the <b>Variant Browser</b> step to report variants.</span>
                 </div>
             `;
         }
 
         return html`
-            <div class="gap-3" style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));">
-                ${reportedVariants.map(variant => html`
-                    <clinical-report-variant-card
-                        .opencgaSession="${this.opencgaSession}"
-                        .variant="${variant}"
-                        .selected="${this._selectedVariant?.id === variant.id}"
-                        @variantInfo="${event => this.onVariantInfo(event)}"
-                        @variantReviewInfo="${event => this.onVariantReviewInfo(event)}"
-                        @variantReviewUpdate="${event => this.onVariantReviewUpdate(event)}">
-                    </clinical-report-variant-card>
+            <div class="d-flex flex-column gap-5">
+                ${interpretations.map(interpretation => html`
+                    <div class="">
+                        <div class="mb-3 d-flex align-items-center gap-3">
+                            <h4 class="mb-0">
+                                Interpretation ${WebUtils.formatDisplayName(interpretation.id, interpretation.name, "")}
+                            </h4>
+                            ${interpretation.primary ? html`
+                                <div class="badge bg-primary text-white">PRIMARY</div>
+                            ` : nothing}
+                        </div>
+                        <div class="gap-3" style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));">
+                            ${interpretation.variants.map(variant => html`
+                                <clinical-report-variant-card
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .interpretationId="${interpretation.id}"
+                                    .variant="${variant}"
+                                    .selected="${this._selectedVariant?.id === variant.id && this._selectedVariantInterpretationId === interpretation.id}"
+                                    @variantInfo="${event => this.onVariantInfo(event)}"
+                                    @variantReviewInfo="${event => this.onVariantReviewInfo(event)}"
+                                    @variantReviewUpdate="${event => this.onVariantReviewUpdate(event)}">
+                                </clinical-report-variant-card>
+                            `)}
+                        </div>
+                    </div>
                 `)}
             </div>
         `;
