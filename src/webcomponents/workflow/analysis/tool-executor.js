@@ -52,7 +52,7 @@ export default class UserToolExecutor extends LitElement {
         this.ANALYSIS_DESCRIPTION = "Executes a custom tool or workflow analysis job";
 
         this.DEFAULT_TOOLPARAMS = {
-            toolVariables: {},
+            variables: {},
         };
 
         this._tool = null;
@@ -122,7 +122,7 @@ export default class UserToolExecutor extends LitElement {
     onSubmit() {
         // initialize form params object
         const formParams = {
-            ...this._toolParams.toolVariables,
+            ...this._toolParams.variables,
         };
 
         // add other variables from the text area, with the format key=value
@@ -197,7 +197,7 @@ export default class UserToolExecutor extends LitElement {
             for (const variable of this._tool.variables) {
                 const dataFormElement = {
                     title: variable.id,
-                    field: `toolVariables.${variable.id}`,
+                    field: `variables.${variable.id}`,
                     required: variable.required || false,
                     display: {
                         defaultValue: variable.defaultValue,
