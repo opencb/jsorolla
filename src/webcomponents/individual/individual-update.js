@@ -52,15 +52,29 @@ export default class IndividualUpdate extends LitElement {
 
     #init() {
         this._individual = {};
-        this.individualId = "";
-        this.displayConfig = {};
-
+        this._disordersQueryParams = {};
+        this._phenotypesQueryParams = {};
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this._disordersQueryParams = {};
+            this._phenotypesQueryParams = {};
+            if (this.opencgaSession?.study?.attributes?.IVA_CONFIG?.settings?.INDIVIDUAL_BROWSER?.model?.disorders?.source) {
+                const source = this.opencgaSession.study.attributes.IVA_CONFIG.settings.INDIVIDUAL_BROWSER.model.disorders.source;
+                this._disordersQueryParams = {
+                    source: source === "HPO" ? "HP" : source,
+                };
+            }
+            if (this.opencgaSession?.study?.attributes?.IVA_CONFIG?.settings?.INDIVIDUAL_BROWSER?.model?.phenotypes?.source) {
+                const source = this.opencgaSession.study.attributes.IVA_CONFIG.settings.INDIVIDUAL_BROWSER.model.phenotypes.source;
+                this._phenotypesQueryParams = {
+                    source: source === "HPO" ? "HP" : source,
+                };
+            }
+        }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -87,7 +101,9 @@ export default class IndividualUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            display: this.displayConfig,
+            display: {
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
@@ -376,6 +392,7 @@ export default class IndividualUpdate extends LitElement {
                                     render: (currentData, dataFormFilterChange) => html`
                                         <cellbase-search-autocomplete
                                             .resource="${"PHENOTYPE"}"
+                                            .queryParams="${this._phenotypesQueryParams}"
                                             .cellbaseClient="${this.opencgaSession.cellbaseClient}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.data)}">
                                         </cellbase-search-autocomplete>
@@ -454,6 +471,7 @@ export default class IndividualUpdate extends LitElement {
                                     render: (currentData, dataFormFilterChange) => html`
                                         <cellbase-search-autocomplete
                                             .resource="${"DISORDER"}"
+                                            .queryParams="${this._disordersQueryParams}"
                                             .cellbaseClient="${this.opencgaSession.cellbaseClient}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.data)}">
                                         </cellbase-search-autocomplete>

@@ -101,7 +101,7 @@ context("Cohort Browser Grid", () => {
         });
 
         it("should allow to hide columns in the grid", () => {
-            const columns = ["Cohort ID", "Creation Date"];
+            const columns = ["Cohort", "Creation Date"];
 
             cy.get("@cohort-grid")
                 .find("thead th")

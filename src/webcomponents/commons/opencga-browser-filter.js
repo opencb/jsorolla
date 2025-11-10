@@ -114,7 +114,6 @@ export default class OpencgaBrowserFilter extends LitElement {
 
         switch (id) {
             case "id":
-            case "name":
             case "fileIds":
             case "samples":
             case "sample":
@@ -141,11 +140,13 @@ export default class OpencgaBrowserFilter extends LitElement {
                     </catalog-search-autocomplete>
                 `;
                 break;
+            case "name":
             case "phenotypes":
             case "disorders":
             case "ethnicity":
             case "proband":
             case "tool":
+            case "userId":
             case "categories":
             case "genes":
             case "format":
@@ -159,7 +160,7 @@ export default class OpencgaBrowserFilter extends LitElement {
                     <catalog-distinct-autocomplete
                         .value="${preparedQuery[subsection.id]}"
                         .queryField="${subsection.id}"
-                        .distinctFields="${this.filterToDistinctField[subsection.id]}"
+                        .distinctFields="${this.filterToDistinctField[subsection.id] || subsection.id}"
                         .resource="${this.resource}"
                         .opencgaSession="${opencgaSession}"
                         .config="${subsection}"

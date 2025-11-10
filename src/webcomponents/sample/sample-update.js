@@ -51,16 +51,21 @@ export default class SampleUpdate extends LitElement {
 
     #init() {
         this._sample = {};
-        this.sampleId = "";
-        this.displayConfig = {};
-        this.updatedFields = {};
-
+        this._phenotypesQueryParams = {};
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this._phenotypesQueryParams = {};
+            if (this.opencgaSession?.study?.attributes?.IVA_CONFIG?.settings?.SAMPLE_BROWSER?.model?.phenotypes?.source) {
+                const source = this.opencgaSession.study.attributes.IVA_CONFIG.settings.SAMPLE_BROWSER.model.phenotypes.source;
+                this._phenotypesQueryParams = {
+                    source: source === "HPO" ? "HP" : source,
+                };
+            }
+        }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -73,13 +78,6 @@ export default class SampleUpdate extends LitElement {
         this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
-
-    // Uncomment to post-process data-from manipulation
-    // onComponentFieldChange(e) {
-    //     debugger
-    //     this.updatedFields = e.detail?.updatedFields || {};
-    //     this.requestUpdate();
-    // }
 
     render() {
         return html `
@@ -96,7 +94,9 @@ export default class SampleUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            display: this.displayConfig,
+            display: {
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
@@ -413,6 +413,7 @@ export default class SampleUpdate extends LitElement {
                                     render: (currentData, dataFormFilterChange) => html`
                                         <cellbase-search-autocomplete
                                             .resource="${"PHENOTYPE"}"
+                                            .queryParams="${this._phenotypesQueryParams}"
                                             .cellbaseClient="${this.opencgaSession.cellbaseClient}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.data)}">
                                         </cellbase-search-autocomplete>

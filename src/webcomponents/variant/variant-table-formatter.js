@@ -565,7 +565,7 @@ export default class VariantTableFormatter {
             const altCount = popFreq?.altAlleleCount || 0;
             const homAltFreq = popFreq?.altHomGenotypeFreq?.toPrecision(4) || 0;
             const homAltCount = popFreq?.altHomGenotypeCount || 0;
-            const color = VariantGridFormatter._getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
+            const color = VariantGridFormatter.getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
             let altFreqText = "";
             let homAltFreqText = "";
 
@@ -616,7 +616,7 @@ export default class VariantTableFormatter {
                 let color = "black";
                 if (typeof populationFrequenciesMap.get(population) !== "undefined") {
                     const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
-                    color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
+                    color = VariantGridFormatter.getPopulationFrequencyColor(freq, populationFrequenciesColor);
                 }
                 htmlPopFreqTable += `<td style="width: 15px; background: ${color}; border-right: 1px solid white;">&nbsp;</td>`;
             }
@@ -631,7 +631,7 @@ export default class VariantTableFormatter {
                     const percentage = (Number(freq) * 100).toPrecision(4);
                     // Only color the significant ones
                     if (freq <= 0.005) {
-                        color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
+                        color = VariantGridFormatter.getPopulationFrequencyColor(freq, populationFrequenciesColor);
                     }
 
                     if (populations.length > 1) {
@@ -666,7 +666,7 @@ export default class VariantTableFormatter {
         return htmlPopFreqTable;
     }
 
-    static _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
+    static getPopulationFrequencyColor(freq, populationFrequenciesColor) {
         let color;
         if (freq === 0 || freq === "0") {
             color = populationFrequenciesColor.unobserved;
