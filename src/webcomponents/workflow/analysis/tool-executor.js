@@ -145,11 +145,12 @@ export default class UserToolExecutor extends LitElement {
         switch (this._tool.type.toUpperCase()) {
             case "CUSTOM_TOOL":
                 const toolParams = {
+                    id: this._tool.id,
                     commandLine: this._toolParams.commandLine,
                     params: formParams,
                 };
                 toolRunPromise = this.opencgaSession.opencgaClient.userTool()
-                    .runCustom(this._tool.id, toolParams, {
+                    .runCustomDocker(toolParams, {
                         study: this.opencgaSession.study.fqn,
                         ...jobParams,
                     });
