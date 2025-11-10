@@ -120,12 +120,18 @@ export default class UserToolExecutor extends LitElement {
     }
 
     onSubmit() {
-        // initialize form params object
-        const formParams = {
-            ...this._toolParams.variables,
-        };
+        // 1. initialize form params object
+        const formParams = {};
 
-        // add other variables from the text area, with the format key=value
+        // 2. add convert variable ids into parameters
+        Object.keys(this._toolParams.variables || {}).forEach(variableId => {
+            const variableConfig = (this._tool?.variables || []).find(v => v.id === variableId);
+            if (variableConfig && variableConfig?.name) {
+                formParams[variableConfig.name] = this._toolParams.variables[variableId];
+            }
+        });
+
+        // 3. add other variables from the text area, with the format key=value
         if (this._toolParams.otherVariables) {
             const lines = this._toolParams.otherVariables.split("\n");
             for (const line of lines) {
@@ -136,11 +142,11 @@ export default class UserToolExecutor extends LitElement {
             }
         }
 
-        // prepare the job params
+        // 4. prepare the job params
         const jobParams = AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL);
         jobParams.jobTags = this._tool.id;
 
-        // check the type of tool to choose the right run method
+        // 5. check the type of tool to choose the right run method
         let toolRunPromise = null;
         let toolParams = null;
         switch (this._tool.type.toUpperCase()) {
