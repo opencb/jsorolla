@@ -593,6 +593,23 @@ export default class ClinicalReportReview extends LitElement {
                         },
                     ],
                 },
+                {
+                    id: "conclusion",
+                    title: "Conclusion",
+                    icon: "fa-exclamation-triangle",
+                    display: {},
+                    elements: [
+                        {
+                            field: "report.conclusion",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 20,
+                                disabled: this.clinicalAnalysis?.locked ?? true,
+                            },
+                        },
+                    ],
+                },
             ],
         };
     }
