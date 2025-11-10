@@ -142,9 +142,10 @@ export default class UserToolExecutor extends LitElement {
 
         // check the type of tool to choose the right run method
         let toolRunPromise = null;
+        let toolParams = null;
         switch (this._tool.type.toUpperCase()) {
             case "CUSTOM_TOOL":
-                const toolParams = {
+                toolParams = {
                     id: this._tool.id,
                     commandLine: this._toolParams.commandLine,
                     params: formParams,
@@ -156,8 +157,12 @@ export default class UserToolExecutor extends LitElement {
                     });
                 break;
             case "WORKFLOW":
+                toolParams = {
+                    id: this._tool.id,
+                    params: formParams,
+                };
                 toolRunPromise = this.opencgaSession.opencgaClient.userTool()
-                    .runWorkflow(this._tool.id, formParams, {
+                    .runWorkflow(toolParams, {
                         study: this.opencgaSession.study.fqn,
                         ...jobParams,
                     });
