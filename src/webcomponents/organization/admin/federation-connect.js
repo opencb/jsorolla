@@ -15,13 +15,11 @@
  */
 
 import {html, LitElement} from "lit";
-import LitUtils from "../commons/utils/lit-utils.js";
-import NotificationUtils from "../commons/utils/notification-utils.js";
-import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
-import "../commons/forms/data-form.js";
-import "../commons/filters/catalog-distinct-autocomplete.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
+import "../../commons/forms/data-form.js";
 
-export default class FileFolderCreate extends LitElement {
+export default class FederationConnect extends LitElement {
 
     constructor() {
         super();
@@ -38,9 +36,6 @@ export default class FileFolderCreate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            path: {
-                type: String,
-            },
             displayConfig: {
                 type: Object,
             },
@@ -51,17 +46,18 @@ export default class FileFolderCreate extends LitElement {
         this.isLoading = false;
         this.displayConfigDefault = {
             style: "margin: 10px",
-            titleWidth: 3,
+            titleWidth: "4",
+            width: "8",
             defaultLayout: "horizontal",
-            buttonOkText: "Create Folder",
-            buttonClearText: "Discard Changes",
+            buttonOkText: "Create Federation",
+            buttonClearText: "Discard",
         };
         this.#initOriginalObjects();
     }
 
     #initOriginalObjects() {
-        this._folder = {
-            type: "DIRECTORY",
+        this._federation = {
+
         };
         this._config = this.getDefaultConfig();
     }
@@ -79,7 +75,7 @@ export default class FileFolderCreate extends LitElement {
     }
 
     onFieldChange(e) {
-        this._folder = {...e.detail.data}; // force to refresh the object-list
+        this._federation = {...e.detail.data}; // force to refresh the object-list
         this.requestUpdate();
     }
 
@@ -95,25 +91,21 @@ export default class FileFolderCreate extends LitElement {
     }
 
     onSubmit() {
-        const {name, ...otherFileData} = this._folder;
+        const {name, ...otherFileData} = this._federation;
         const data = {
             ...otherFileData,
-            tags: otherFileData.tags ? otherFileData.tags.split(",").map(t => t.trim()) : [],
-            path: `${this.path || ""}${name}`,
-            resource: this.path.startsWith("RESOURCES/")
         };
 
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.files()
             .create(data, {
                 study: this.opencgaSession.study.fqn,
-                parents: name?.includes("/")
             })
             .then(() => {
                 this.#initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Create Folder",
-                    message: `Folder ${name} created correctly`,
+                    title: "Create Federation",
+                    message: `Federation ${name} created correctly`,
                 });
                 LitUtils.dispatchCustomEvent(this, "folderCreate", null, data);
             })
@@ -134,7 +126,7 @@ export default class FileFolderCreate extends LitElement {
 
         return html`
             <data-form
-                .data="${this._folder}"
+                .data="${this._federation}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
@@ -145,72 +137,90 @@ export default class FileFolderCreate extends LitElement {
 
     getDefaultConfig() {
         return {
+            title: "Connect to Federation",
             display: {
                 ...this.displayConfigDefault,
                 ...this.displayConfig,
             },
             sections: [
                 {
+                    id: "general",
+                    title: "General Information",
                     elements: [
                         {
-                            title: "Path",
-                            field: "path",
+                            title: "Federation ID",
+                            field: "id",
                             type: "input-text",
-                            display: {
-                                defaultValue: `/${this.path}`,
-                                disabled: true,
-                                helpMessage: "Path where the folder will be created.",
-                            },
-                        },
-                        {
-                            title: "Folder Name",
-                            field: "name",
                             required: true,
+                            display: {
+                                defaultValue: "",
+                                help: {
+                                    text: "Unique identifier for the federationc connection.",
+                                }
+                            },
+                        },
+                        {
+                            title: "Organization ID",
+                            field: "organizationId",
                             type: "input-text",
+                            required: true,
                             display: {
-                                helpMessage: "Name of the folder to be created.",
-                            },
+                                help: {
+                                    text: "Name of the organization that will be associated with this connection.",
+                                },
+                            }
                         },
                         {
-                            title: "Tags",
-                            field: "tags",
-                            type: "custom",
+                            title: "Email",
+                            field: "email",
+                            type: "input-text",
+                            required: true,
                             display: {
-                                render: (tags, onFilterChange) => html`
-                                    <catalog-distinct-autocomplete
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .resource="${"FILE"}"
-                                        .value="${(tags || []).join(",")}"
-                                        .queryField="${"tags"}"
-                                        .distinctFields="${"tags"}"
-                                        .config="${{
-                                            freeTag: true,
-                                        }}"
-                                        @filterChange="${event => onFilterChange(event.detail.value)}">
-                                    </catalog-distinct-autocomplete>
-                                `,
-                            },
+                                help: {
+                                    text: "Email address for the communication with the federation.",
+                                },
+                            }
                         },
                         {
-                            title: "Description",
+                            title: "Federation Description",
                             field: "description",
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                helpMessage: "Description of the folder.",
+                                help: {
+                                    text: "Description of the federation.",
+                                },
+                            }
+                        },
+                    ],
+                },
+                {
+                    id: "credentials",
+                    title: "Credentials",
+                    elements: [
+                        {
+                            title: "Remote Federation URL",
+                            field: "url",
+                            type: "input-text",
+                            required: true,
+                            display: {
+                                defaultValue: "",
+                                help: {
+                                    text: "URL of the remote federation.",
+                                }
                             },
                         },
-                        // {
-                        //     title: "Resource",
-                        //     field: "resource",
-                        //     type: "checkbox",
-                        //     display: {
-                        //         disabled: () => {
-                        //             return !CatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
-                        //         },
-                        //         helpMessage: "If checked, the file will be created as a resource. This option is only available for study administrators.",
-                        //     },
-                        // },
+                        {
+                            title: "Secret Key",
+                            field: "secretKey",
+                            type: "input-password",
+                            required: true,
+                            display: {
+                                help: {
+                                    text: "Secret key for the federation connection. This is a sensitive information and should be kept secret.",
+                                },
+                            }
+                        },
                     ],
                 },
             ],
@@ -218,4 +228,4 @@ export default class FileFolderCreate extends LitElement {
     }
 }
 
-customElements.define("file-folder-create", FileFolderCreate);
+customElements.define("federation-connect", FederationConnect);

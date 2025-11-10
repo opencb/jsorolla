@@ -1,7 +1,9 @@
 const OPENCGA_SAMPLE_BROWSER_SETTINGS = {
-    /**
-     *  Full settings
-     */
+    // model: {
+    //     phenotypes: {
+    //         source: "HPO",
+    //     },
+    // },
     menu: {
         // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
         sections: [
@@ -25,7 +27,4 @@ const OPENCGA_SAMPLE_BROWSER_SETTINGS = {
         // It is supported either columns[] or hiddenColumns[].
         columns: ["id", "individualId", "fileIds", "caseId", "collection.method", "processing.preparationMethod", "cellLine", "creationDate", "actions"]
     },
-    // merge criterium: uses this array as filter for internal 1D array.
-    detail: ["sample-view", "sample-variant-stats-view", "samtools-flags-stats-view", "individual-view", "file-view", "json-view"]
-
 };

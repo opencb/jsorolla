@@ -16,6 +16,14 @@
 
 export default class BioinfoUtils {
 
+    static isHuman(species) {
+        return ["hsapiens", "homo_sapiens", "homosapiens", "human"].includes(species.toLowerCase());
+    }
+
+    static getEnsemblHost(assembly = "GRCh38") {
+        return (assembly.toLowerCase() === "grch37") ? "https://grch37.ensembl.org" : "https://www.ensembl.org";
+    }
+
     static sort(consequenceTypes, field) {
         consequenceTypes.sort((a, b) => {
             if (field(a) === "" && field(b) !== "") {
@@ -62,16 +70,21 @@ export default class BioinfoUtils {
         return "https://www.genenames.org/tools/search/#!/all?query=" + geneName;
     }
 
-    static getEnsemblLink(featureId, type = "gene", assembly = "GRCh38") {
-        const ensemblHost = assembly.toUpperCase() === "GRCH38" ? "www.ensembl.org" : "grch37.ensembl.org";
+    // Note: currently only human and mouse are supported
+    static getEnsemblLink(featureId, type = "gene", species = "hsapiens", assembly = "GRCh38") {
+        const ensemblHost = BioinfoUtils.getEnsemblHost(assembly);
+        const ensemblSpecies = BioinfoUtils.isHuman(species) ? "Homo_sapiens" : "Mus_musculus";
         switch (type.toUpperCase()) {
             case "GENE":
-                return `https://${ensemblHost}/Homo_sapiens/Gene/Summary?db=core;g=${featureId}`;
+                return `${ensemblHost}/${ensemblSpecies}/Gene/Summary?db=core;g=${featureId}`;
             case "TRANSCRIPT":
-                return `https://${ensemblHost}/Homo_sapiens/Transcript/Summary?db=core;t=${featureId}`;
+                return `${ensemblHost}/${ensemblSpecies}/Transcript/Summary?db=core;t=${featureId}`;
             case "VARIANT":
             case "VARIATION":
-                return `https://${ensemblHost}/Homo_sapiens/Variation/Explore?vdb=variation;v=${featureId}`;
+                return `${ensemblHost}/${ensemblSpecies}/Variation/Explore?vdb=variation;v=${featureId}`;
+            case "LOCATION":
+            case "BROWSER":
+                return `${ensemblHost}/${ensemblSpecies}/Location/View?r=${featureId}`;
         }
         return "";
     }
@@ -92,28 +105,23 @@ export default class BioinfoUtils {
         return "https://www.ncbi.nlm.nih.gov/clinvar/variation/" + variantId;
     }
 
-    static getUniprotLink(featureId, species = "Homo sapiens") {
-        // return "https://www.uniprot.org/uniprot/?sort=score&query=" + featureId + "+organism:" + species;
-        return "https://www.uniprot.org/uniprot/" + featureId;
+    static getUniprotLink(featureId) {
+        return `https://www.uniprot.org/uniprotkb?query=${featureId}`;
     }
 
-    static getVariantLink(id, location, source, assembly) {
+    static getVariantLink(id, location, source, species = "hsapiens", assembly = "grch38") {
         if (!source) {
             return null;
         }
 
-        // Check for cellbase source
+        // Check for CellBase source
         if (source.toUpperCase().startsWith("CELLBASE_V")) {
             const version = source.toUpperCase().replace("CELLBASE_", "").toLowerCase();
-            return `https://ws.zettagenomics.com/cellbase/webservices/rest/${version}/hsapiens/genomic/variant/${id}/annotation`;
+            return BioinfoUtils.getCellbaseVariantLink(id, "https://ws.zettagenomics.com/cellbase", version, "", "", species, assembly);
         }
 
         if (id?.startsWith("rs")) {
-            if (assembly?.toUpperCase() === "GRCH38") {
-                return `http://ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}`;
-            } else {
-                return `http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${id}`;
-            }
+            return BioinfoUtils.getEnsemblLink(id, "VARIATION", species, assembly);
         }
 
         if (id?.startsWith("HGNC:")) {
@@ -126,27 +134,20 @@ export default class BioinfoUtils {
 
         switch (source.toUpperCase()) {
             case "DECIPHER":
-                // To make things easier the conversion of OpenCB Variant ID to Decipher ID must happen here
+                // To make things easier, the conversion of OpenCB Variant ID to Decipher ID must happen here
                 const decipherId = id.replace(/:/g, "-");
                 return `https://www.deciphergenomics.org/sequence-variant/${decipherId}`;
             case "ENSEMBL_GENOME_BROWSER":
-                if (assembly?.toUpperCase() === "GRCH38") {
-                    return `http://ensembl.org/Homo_sapiens/Location/View?r=${region}`;
-                } else {
-                    return `http://grch37.ensembl.org/Homo_sapiens/Location/View?r=${region}`;
-                }
+                return BioinfoUtils.getEnsemblLink(region, "BROWSER", species, assembly);
             case "UCSC_GENOME_BROWSER":
-                return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr${region}`;
+                const hg = assembly?.toUpperCase() === "GRCH38" ? "hg38" : "hg19";
+                return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=${hg}&position=chr${region}`;
             case "VARSOME":
-                if (assembly?.toUpperCase() === "GRCH38") {
-                    return `https://varsome.com/variant/hg38/${BioinfoUtils.getVariantInVarsomeFormat(id)}`;
-                } else {
-                    return `https://varsome.com/variant/hg19/${BioinfoUtils.getVariantInVarsomeFormat(id)}`;
-                }
+                return `https://varsome.com/variant/${assembly?.toUpperCase() === "GRCH38" ? "hg38" : "hg19"}/${BioinfoUtils.getVariantInVarsomeFormat(id)}`;
         }
     }
 
-    static getGeneLink(geneId, source, assembly = "GRCh38") {
+    static getGeneLink(geneId, source, species = "hsapiens", assembly = "GRCh38") {
         if (!geneId) {
             return null;
         }
@@ -158,15 +159,9 @@ export default class BioinfoUtils {
 
         switch (s.toUpperCase()) {
             case "ENSEMBL":
-                if (assembly.toUpperCase() === "GRCH38") {
-                    return `https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`;
-                } else {
-                    return `https://grch37.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`;
-                }
+                return BioinfoUtils.getEnsemblLink(geneId, "GENE", species, assembly);
             case "HGNC":
                 return "https://www.genenames.org/tools/search/#!/all?query=" + geneId;
-            case "LRG":
-                return `https://www.lrg-sequence.org/search/?query=${geneId}`;
             case "DECIPHER":
                 return `https://www.deciphergenomics.org/gene/${geneId}`;
             case "COSMIC":
@@ -200,11 +195,7 @@ export default class BioinfoUtils {
 
         switch (s.toUpperCase()) {
             case "ENSEMBL":
-                if (assembly.toUpperCase() === "GRCH38") {
-                    return `https://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${transcriptId}`;
-                } else {
-                    return `https://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${transcriptId}`;
-                }
+                return BioinfoUtils.getEnsemblLink(transcriptId, "TRANSCRIPT", "hsapiens", assembly);
             case "REFSEQ":
                 return `https://www.ncbi.nlm.nih.gov/gene/?term=${transcriptId}`;
         }
@@ -222,7 +213,7 @@ export default class BioinfoUtils {
 
         switch (s.toUpperCase()) {
             case "ENSEMBL":
-                return `http://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;p=${proteinId}`;
+                return BioinfoUtils.getEnsemblLink(proteinId, "PROTEIN", "hsapiens", "");
             case "REFSEQ":
                 return `https://www.ncbi.nlm.nih.gov/gene/?term=${proteinId}`;
         }
@@ -302,6 +293,40 @@ export default class BioinfoUtils {
 
     static getPharmGKBLink(pharmGKBId) {
         return `https://www.pharmgkb.org/chemical/${pharmGKBId}`;
+    }
+
+    static getCellbaseLink(id, type = "VARIANT", host = "https://ws.zettagenomics.com/cellbase", version = "v5", dataRelease = "", apiKey = "", species = "hsapiens", assembly) {
+        let url = `${host}/webservices/rest/${version}/${species}`;
+        const searchParams = new URLSearchParams();
+
+        // 1. check the resource to generate the correct URL
+        switch (type?.toUpperCase()) {
+            case "VARIANT":
+                url = `${url}/genomic/variant/${id}/annotation`;
+                break;
+        }
+
+        // 2. check if dataRelease is provided
+        if (dataRelease) {
+            searchParams.append("dataRelease", dataRelease);
+        }
+
+        // 3. check if apiKey is provided
+        if (apiKey) {
+            searchParams.append("apiKey", apiKey);
+        }
+
+        // 4. add assembly if provided
+        if (assembly) {
+            searchParams.append("assembly", assembly);
+        }
+
+        return searchParams.size > 0 ? `${url}?${searchParams.toString()}` : url;
+    }
+
+    // alias to getCellbaseLink with type VARIANT
+    static getCellbaseVariantLink(id, host, version, dataRelease, apiKey, species, assembly) {
+        return BioinfoUtils.getCellbaseLink(id, "VARIANT", host, version, dataRelease, apiKey, species, assembly);
     }
 
 }

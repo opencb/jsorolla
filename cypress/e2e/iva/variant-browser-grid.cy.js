@@ -270,9 +270,8 @@ context("Variant Browser Grid", () => {
                 const externalLinks = [
                     ["Decipher", "https://www.deciphergenomics.org/sequence-variant/"],
                     ["Varsome", "https://varsome.com/variant/"],
-                    ["CellBase v5.2", "https://ws.zettagenomics.com/cellbase/webservices/rest/v5.2"],
-                    ["CellBase v5.8", "https://ws.zettagenomics.com/cellbase/webservices/rest/v5.8"],
-                    ["Ensembl Genome Browser", "http://ensembl.org/Homo_sapiens/Location/View"],
+                    ["CellBase", "https://ws.zettagenomics.com/cellbase/webservices/rest"],
+                    ["Ensembl Genome Browser", "https://www.ensembl.org/Homo_sapiens/Location/View"],
                     ["UCSC Genome Browser", "https://genome.ucsc.edu/cgi-bin/hgTracks"],
                 ];
 

@@ -198,8 +198,10 @@ class VariantInterpreterBrowserRd extends LitElement {
 
                             // Only add this file to the filter if we have at least one default value
                             if (filtersWithDefaultValues.length > 0) {
-                                // We need to find the file for that caller
-                                const fileId = this.files.find(file => file.software.name === vc.id)?.name;
+                                // We need to find the file for that caller, file MUST be indexed
+                                const fileId = this.files
+                                    .filter(file => file.internal?.variant?.index?.status?.id === "READY")
+                                    .find(file => file.software.name === vc.id)?.name;
                                 if (fileId) {
                                     fileDataFilters.push(fileId + ":" + filtersWithDefaultValues.join(";"));
                                 }
@@ -251,10 +253,16 @@ class VariantInterpreterBrowserRd extends LitElement {
 
             // Add 'file' filter if 'fileData' exists
             if (this.files?.length > 1) {
-                const fileNames = this.files.map(f => f.name).join(",");
-                for (const filter of _activeFilterFilters) {
-                    if (filter.query?.fileData && !filter.query?.file) {
-                        filter.query.file = fileNames;
+                const fileNames = this.files
+                    .filter(file => file.internal?.variant?.index?.status?.id === "READY")
+                    .map(f => f.name);
+                // Only filter by file if there are more than 1 file indexed
+                if (fileNames.length > 0) {
+                    fileNames.join(",");
+                    for (const filter of _activeFilterFilters) {
+                        if (filter.query?.fileData && !filter.query?.file) {
+                            filter.query.file = fileNames;
+                        }
                     }
                 }
             }
@@ -336,7 +344,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 clinicalAnalysis: this.clinicalAnalysis,
                                 visible: () => this.clinicalAnalysis.type.toUpperCase() === "FAMILY",
                                 tooltip: tooltips.sample,
-                                quick: this.clinicalAnalysis?.type?.toUpperCase() === "FAMILY"
+                                quick: false, // this.clinicalAnalysis?.type?.toUpperCase() === "FAMILY"
                             },
                             {
                                 id: "individual-hpo",
