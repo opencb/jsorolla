@@ -146,6 +146,9 @@ class VariantInterpreterMethods extends LitElement {
                             <tool-executor
                                 .toolParams="${{
                                     id: tool.id,
+                                    variables: {
+                                        clinicalAnalysisId: clinicalAnalysis.id,
+                                    },
                                 }}"
                                 .displayConfig="${{
                                     titleVisible: false,
