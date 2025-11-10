@@ -596,7 +596,7 @@ export default class ClinicalReportReview extends LitElement {
                 {
                     id: "conclusion",
                     title: "Conclusion",
-                    icon: "fa-exclamation-triangle",
+                    icon: "fa-check-double",
                     display: {},
                     elements: [
                         {
