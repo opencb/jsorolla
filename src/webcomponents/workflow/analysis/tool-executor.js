@@ -200,10 +200,9 @@ export default class UserToolExecutor extends LitElement {
                     field: `variables.${variable.id}`,
                     required: variable.required || false,
                     display: {
+                        disabled: typeof this._toolParams.variables?.[variable.id] !== "undefined",
                         defaultValue: variable.defaultValue,
-                        help: {
-                            text: `Variable name '${variable.name || variable.id}'. ${variable.description || ""}`,
-                        }
+                        helpMessage: variable.description,
                     }
                 };
 
