@@ -41,7 +41,7 @@ export default class RdTieringAnalysis extends LitElement {
                 type: Object,
             },
             displayConfig: {
-                type: Object
+                type: Object,
             },
         };
     }
@@ -99,9 +99,10 @@ export default class RdTieringAnalysis extends LitElement {
     onClear() {
         this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            ...this._toolParams,
+            ...this.toolParams,
         };
         this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     render() {
@@ -126,7 +127,7 @@ export default class RdTieringAnalysis extends LitElement {
                         field: "clinicalAnalysis",
                         type: "custom",
                         display: {
-                            render: (clinicalAnalysis, dataFormFilterChange) => html`
+                            render: (clinicalAnalysis, onFieldChange) => html`
                                 <catalog-search-autocomplete
                                     .value="${clinicalAnalysis}"
                                     .resource="${"CLINICAL_ANALYSIS"}"
@@ -135,13 +136,13 @@ export default class RdTieringAnalysis extends LitElement {
                                         multiple: false,
                                         disabled: !!this.toolParams?.clinicalAnalysis,
                                     }}"
-                                    @filterChange="${event => dataFormFilterChange(event.detail.value)}">
+                                    @filterChange="${event => onFieldChange(event.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
                 ],
-            }
+            },
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
@@ -151,7 +152,9 @@ export default class RdTieringAnalysis extends LitElement {
             params,
             this.check(),
             {
-                display: this.displayConfig || {},
+                display: {
+                    ...this.displayConfig,
+                },
             },
         );
     }
