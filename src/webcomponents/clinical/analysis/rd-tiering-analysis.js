@@ -40,8 +40,8 @@ export default class RdTieringAnalysis extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            config: {
-                type: Object
+            displayConfig: {
+                type: Object,
             },
         };
     }
@@ -50,16 +50,13 @@ export default class RdTieringAnalysis extends LitElement {
         this.ANALYSIS_TOOL = "rd-tiering";
         this.ANALYSIS_TITLE = "RD Tiering Interpretation";
         this.ANALYSIS_DESCRIPTION = "Executes an RD Tiering Interpreation analysis job";
-
         this.DEFAULT_TOOLPARAMS = {};
-        // Make a deep copy to avoid modifying default object.
-        this.toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
-        };
+
+        this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
 
         this.clinicalAnalysis = "";
         this.diseasePanelIds = "";
-        this.config = this.getDefaultConfig();
+        this._config = this.getDefaultConfig();
     }
 
     firstUpdated(changedProperties) {
@@ -72,12 +69,16 @@ export default class RdTieringAnalysis extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            this.toolParams = {
+            this._toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
-            this.config = this.getDefaultConfig();
         }
+
+        if(changedProperties.has("displayConfig") || changedProperties.has("toolParams")) {
+            this._config = this.getDefaultConfig();
+        }
+
         super.update(changedProperties);
     }
 
@@ -86,45 +87,41 @@ export default class RdTieringAnalysis extends LitElement {
     }
 
     onFieldChange() {
-        this.toolParams = {...this.toolParams};
+        this._toolParams = {...this._toolParams};
         this.requestUpdate();
     }
 
     onSubmit() {
         const toolParams = {
-            clinicalAnalysis: this.toolParams.clinicalAnalysis || "",
-            panels: (this.toolParams.panels || "").split(","),
-        };
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+            clinicalAnalysis: this._toolParams.clinicalAnalysis || "",
         };
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.clinical()
-                .runInterpreterTiering(toolParams, params),
+                .runInterpreterTiering(toolParams, {
+                    study: this.opencgaSession.study.fqn,
+                    ...AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL),
+                }),
             this,
         );
     }
 
     onClear() {
-        this.toolParams = {
+        this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
-            clinicalAnalysis: this.clinicalAnalysis,
-            panels: this.diseasePanelIds,
+            ...this.toolParams,
         };
-        this.config = this.getDefaultConfig();
+        this._config = this.getDefaultConfig();
     }
 
     render() {
         return html`
             <data-form
-                .data="${this.toolParams}"
+                .data="${this._toolParams}"
                 .config="${this.config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                @fieldChange="${event => this.onFieldChange(event)}"
+                @clear="${event => this.onClear(event)}"
+                @submit="${event => this.onSubmit(event)}">
             </data-form>
         `;
     }
@@ -199,7 +196,11 @@ export default class RdTieringAnalysis extends LitElement {
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check(),
-            this.config
+            {
+                display: {
+                    ...this.displayConfig,
+                },
+            },
         );
     }
 
