@@ -52,7 +52,7 @@ export default class UserToolExecutor extends LitElement {
         this.ANALYSIS_DESCRIPTION = "Executes a custom tool or workflow analysis job";
 
         this.DEFAULT_TOOLPARAMS = {
-            toolVariables: {},
+            variables: {},
         };
 
         this._tool = null;
@@ -120,12 +120,18 @@ export default class UserToolExecutor extends LitElement {
     }
 
     onSubmit() {
-        // initialize form params object
-        const formParams = {
-            ...this._toolParams.toolVariables,
-        };
+        // 1. initialize form params object
+        const formParams = {};
 
-        // add other variables from the text area, with the format key=value
+        // 2. add convert variable ids into parameters
+        Object.keys(this._toolParams.variables || {}).forEach(variableId => {
+            const variableConfig = (this._tool?.variables || []).find(v => v.id === variableId);
+            if (variableConfig && variableConfig?.name) {
+                formParams[variableConfig.name] = this._toolParams.variables[variableId];
+            }
+        });
+
+        // 3. add other variables from the text area, with the format key=value
         if (this._toolParams.otherVariables) {
             const lines = this._toolParams.otherVariables.split("\n");
             for (const line of lines) {
@@ -136,27 +142,37 @@ export default class UserToolExecutor extends LitElement {
             }
         }
 
-        // prepare the job params
+        // 4. prepare the job params
         const jobParams = AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL);
         jobParams.jobTags = this._tool.id;
 
-        // check the type of tool to choose the right run method
+        // 5. check the type of tool to choose the right run method
         let toolRunPromise = null;
+        let toolParams = null;
         switch (this._tool.type.toUpperCase()) {
             case "CUSTOM_TOOL":
-                const toolParams = {
-                    commandLine: this._toolParams.commandLine,
-                    params: formParams,
+                toolParams = {
+                    id: this._tool.id,
+                    params: {
+                        commandLine: this._toolParams.commandLine,
+                        params: formParams,
+                    },
                 };
                 toolRunPromise = this.opencgaSession.opencgaClient.userTool()
-                    .runCustom(this._tool.id, toolParams, {
+                    .runCustomDocker(toolParams, {
                         study: this.opencgaSession.study.fqn,
                         ...jobParams,
                     });
                 break;
             case "WORKFLOW":
+                toolParams = {
+                    id: this._tool.id,
+                    params: {
+                        params: formParams,
+                    },
+                };
                 toolRunPromise = this.opencgaSession.opencgaClient.userTool()
-                    .runWorkflow(this._tool.id, formParams, {
+                    .runWorkflow(toolParams, {
                         study: this.opencgaSession.study.fqn,
                         ...jobParams,
                     });
@@ -197,13 +213,12 @@ export default class UserToolExecutor extends LitElement {
             for (const variable of this._tool.variables) {
                 const dataFormElement = {
                     title: variable.id,
-                    field: `toolVariables.${variable.id}`,
+                    field: `variables.${variable.id}`,
                     required: variable.required || false,
                     display: {
+                        disabled: typeof this._toolParams.variables?.[variable.id] !== "undefined",
                         defaultValue: variable.defaultValue,
-                        help: {
-                            text: `Variable name '${variable.name || variable.id}'. ${variable.description || ""}`,
-                        }
+                        helpMessage: variable.description,
                     }
                 };
 

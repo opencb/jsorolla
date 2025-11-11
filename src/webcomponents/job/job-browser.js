@@ -148,6 +148,20 @@ export default class JobBrowser extends LitElement {
                         </aggregation-stats>
                     `,
                 },
+                {
+                    id: "monitor-plot",
+                    name: "Monitor Plot",
+                    icon: "fas fa-chart-bar",
+                    render: params => html`
+                        <job-timeline-view
+                            resource="${params.resource}"
+                            .query="${params.executedQuery}"
+                            .active="${params.active}"
+                            .opencgaSession="${params.opencgaSession}"
+                            .config="${params.config.aggregation}">
+                        </job-timeline-view>
+                    `,
+                },
             ],
             filter: {
                 sections: [
@@ -188,6 +202,14 @@ export default class JobBrowser extends LitElement {
                                 placeholder: "Status",
                                 // allowedValues: ["PENDING", "QUEUED", "RUNNING", "DONE", "ERROR", "UNKNOWN", "ABORTED", "DELETED"],
                                 // multiple: true,
+                                defaultValue: "",
+                                description: "",
+                                quick: true,
+                            },
+                            {
+                                id: "userId",
+                                title: "User",
+                                placeholder: "e.g. userId",
                                 defaultValue: "",
                                 description: "",
                                 quick: true,

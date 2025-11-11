@@ -19,9 +19,18 @@ import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter";
 import CustomActions from "../commons/custom-actions.js";
 import GridCommons from "../commons/grid-commons.js";
+import UtilsNew from "../../core/utils-new.js";
 
 
 export default class VariantGridFormatter {
+
+    static POPULATION_FREQUENCY_CLASSIFICATION = {
+        VERY_RARE: "veryRare",
+        RARE: "rare",
+        AVERAGE: "average",
+        COMMON: "common",
+        UNOBSERVED: "unobserved",
+    }
 
     // DEPRECATED: use new consequenceTypes.impact instead
     static assignColors(consequenceTypes, proteinSubstitutionScores) {
@@ -64,7 +73,7 @@ export default class VariantGridFormatter {
         return result;
     }
 
-    static variantIdFormatter(id, variant, index, assembly, config = {}) {
+    static variantIdFormatter(id, variant, index, species = "Homo sapiens", assembly, config = {}) {
         if (!variant) {
             return "";
         }
@@ -92,7 +101,7 @@ export default class VariantGridFormatter {
             </div>
             ${snpId ? `
                 <div class="mt-0">
-                    <a class="link text-secondary d-flex align-items-center gap-1" href="${BioinfoUtils.getEnsemblLink(snpId, "VARIANT", assembly)}" target="_blank">
+                    <a class="link text-secondary d-flex align-items-center gap-1" href="${BioinfoUtils.getEnsemblLink(snpId, "VARIANT", species, assembly)}" target="_blank">
                         <span>${snpId}</span>
                         <i class="fa fa-external-link-alt fs-8"></i>
                     </a>
@@ -146,7 +155,7 @@ export default class VariantGridFormatter {
 
                     const tooltipText = `
                         ${geneViewMenuLink}
-                        ${this.getGeneTooltip(geneName, this.opencgaSession?.project?.organism?.assembly)}
+                        ${this.getGeneTooltip(geneName, this.opencgaSession?.project?.organism?.scientificName, this.opencgaSession?.project?.organism?.assembly)}
                     `;
 
                     // If query.ct exists
@@ -184,22 +193,19 @@ export default class VariantGridFormatter {
         return "-";
     }
 
-    static getGeneTooltip(geneName, assembly) {
+    static getGeneTooltip(geneName, species, assembly) {
         return `
             <div class='dropdown-header ps-1 mt-2 mb-1'>
                 External Links
             </div>
             <div class='p-1'>
-                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", assembly)}'>Ensembl</a>
-            </div>
-            <div class='p-1'>
-                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", species, assembly)}'>Ensembl</a>
             </div>
             <div class='p-1'>
                 <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
             </div>
             <div class='p-1' data-cy='varsome-gene-link'>
-                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "varsome", assembly)}'>Varsome</a>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "varsome", species, assembly)}'>Varsome</a>
             </div>
             <div class='dropdown-header ps-1 mt-2 mb-1'>
                 Clinical Resources
@@ -209,7 +215,7 @@ export default class VariantGridFormatter {
                 <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
             </div>
             <div class='p-1'>
-                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", assembly)}'>COSMIC</a>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", species, assembly)}'>COSMIC</a>
             </div>
             <div class='p-1'>
                 <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
@@ -864,41 +870,41 @@ export default class VariantGridFormatter {
         `;
     }
 
-    // Creates the colored table with one row and as many columns as populations.
-    static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor, populationFrequenciesConfig = {displayMode: "FREQUENCY_BOX"}) {
-        const tooltipRows = (populations || [])
-            .map(population => {
-                const popFreq = populationFrequenciesMap.get(population) || null;
-                const altFreq = popFreq?.altAlleleFreq?.toPrecision(4) || 0;
-                const altCount = popFreq?.altAlleleCount || 0;
-                // TASK-5854: Check if altHomGenotypeFreq (population freqs) or genotypeFreq (cohort stats)
-                const homAltFreq = popFreq?.altHomGenotypeFreq?.toPrecision(4) ?? popFreq?.genotypeFreq?.["1/1"]?.toPrecision(4) ?? 0;
-                const homAltCount = popFreq?.altHomGenotypeCount ?? popFreq?.genotypeCount?.["1/1"] ?? 0;
-                const color = VariantGridFormatter._getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
-                let altFreqText = "";
-                let homAltFreqText = "";
+    static getPopulationFrequenciesTooltip(populations, populationFrequenciesMap, populationFrequenciesColor) {
+        const tooltipRows = (populations || []).map(population => {
+            const popFreq = populationFrequenciesMap.get(population) || null;
+            const altFreq = popFreq?.altAlleleFreq?.toPrecision(4) || 0;
+            const altCount = popFreq?.altAlleleCount || 0;
 
-                // ALT freq tell us if the VARIANT has been OBSERVED.
-                if (altFreq > 0) {
-                    altFreqText = `${altFreq || "-"} / ${altCount} (${altFreq > 0 ? (altFreq * 100).toPrecision(4) + "%" : "-"})`;
-                    homAltFreqText = `${homAltFreq > 0 ? homAltFreq : "-"} / ${homAltCount} ${homAltFreq > 0 ? `(${(homAltFreq * 100).toPrecision(4)} %)` : ""}`;
-                } else {
-                    altFreqText = "<span style='font-style: italic'>Not Observed</span>";
-                    homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
-                }
+            // TASK-5854: Check if altHomGenotypeFreq (population freqs) or genotypeFreq (cohort stats)
+            const homAltFreq = popFreq?.altHomGenotypeFreq?.toPrecision(4) ?? popFreq?.genotypeFreq?.["1/1"]?.toPrecision(4) ?? 0;
+            const homAltCount = popFreq?.altHomGenotypeCount ?? popFreq?.genotypeCount?.["1/1"] ?? 0;
+            const color = VariantGridFormatter.getPopulationFrequencyColor(altFreq, populationFrequenciesColor);
+            let altFreqText = "";
+            let homAltFreqText = "";
 
-                return `
-                    <tr style='border-top:1px solid #ededed;'>
-                        <td style='width:140px;padding:8px 8px 8px 0;'>
-                            <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                            <label style='padding-left: 5px;'>${population}</label>
-                        </td>
-                        <td style='font-weight:bold;padding:8px 8px 8px 0;'>${altFreqText}</td>
-                        <td style='font-weight:bold;padding:8px 0 8px 0;'>${homAltFreqText}</td>
+            // ALT freq tell us if the VARIANT has been OBSERVED.
+            if (altFreq > 0) {
+                altFreqText = `${altFreq || "-"} / ${altCount} (${altFreq > 0 ? (altFreq * 100).toPrecision(4) + "%" : "-"})`;
+                homAltFreqText = `${homAltFreq > 0 ? homAltFreq : "-"} / ${homAltCount} ${homAltFreq > 0 ? `(${(homAltFreq * 100).toPrecision(4)} %)` : ""}`;
+            } else {
+                altFreqText = "<span style='font-style: italic'>Not Observed</span>";
+                homAltFreqText = "<span style='font-style: italic'>Not Observed</span>";
+            }
+
+            return `
+                <tr style='border-top:1px solid #ededed;'>
+                    <td style='width:140px;padding:8px 8px 8px 0;'>
+                        <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
+                        <label style='padding-left: 5px;'>${population}</label>
                     </td>
-                `;
-            });
-        const tooltip = `
+                    <td style='font-weight:bold;padding:8px 8px 8px 0;'>${altFreqText}</td>
+                    <td style='font-weight:bold;padding:8px 0 8px 0;'>${homAltFreqText}</td>
+                </td>
+            `;
+        });
+        
+        return `
             <table class='population-freq-tooltip'>
                 <thead>
                     <tr>
@@ -910,85 +916,113 @@ export default class VariantGridFormatter {
                 <tbody>${tooltipRows.join("")}</tbody>
             </table>
         `;
+    }
 
-        // Create the table (with the tooltip info)
-        let htmlPopFreqTable;
-        if (populationFrequenciesConfig?.displayMode === "FREQUENCY_BOX") {
-            htmlPopFreqTable = `
-                <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}" tooltip-position-my="top right">
-                <div class="d-flex justify-content-center align-items-center">
-                    <div class="d-flex rounded overflow-hidden" style="gap:1px;">
-                        ${populations.map(population => {
-                            let color = "black";
-                            if (typeof populationFrequenciesMap.get(population) !== "undefined") {
-                                const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
-                                color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
-                            }
-                            return `<div class="px-2 py-3" style="background-color:${color}"></div>`;
-                        }).join("")}
-                    </div>
+    // Creates the colored table with one row and as many columns as populations.
+    static renderPopulationFrequencies(populations, populationFrequenciesMap, populationFrequenciesColor = {}, populationFrequenciesConfig = {}) {
+        // NOTE: FREQUENCY_NUMBER is now deprecated, so we will use FREQUENCY_BOX instead
+        const displayMode = populationFrequenciesConfig?.displayMode || "FREQUENCY_BOX";
+
+        if (displayMode === "FREQUENCY_COMPACT") {
+            const onlyCohortAll = populations.length === 1 && populations[0].toUpperCase() === "ALL";
+
+            // 1. initialize map with the available classifications
+            const classificationsMap = new Map();
+            Object.values(VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION).forEach(key => {
+                classificationsMap.set(key, {
+                    classification: key,
+                    color: populationFrequenciesColor[key] || "black",
+                    populations: [],
+                });
+            });
+
+            // 2. initialize the variable to save the classification of the population ALL
+            const allPopulationTooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(populations, populationFrequenciesMap, populationFrequenciesColor);
+            let allPopulationClassification = VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.UNOBSERVED;
+
+            // 3. fill the map with populations
+            (populations || []).forEach(population => {
+                let classification = VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.UNOBSERVED;
+                if (typeof populationFrequenciesMap.get(population) !== "undefined") {
+                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
+                    classification = VariantGridFormatter.getPopulationFrequencyClassification(freq);
+                }
+                if (population.toUpperCase() === "ALL") {
+                    allPopulationClassification = classification;
+                } else {
+                    // add population to the corresponding classification
+                    classificationsMap.get(classification).populations.push(population);
+                }
+            });
+
+            // 4. render the html of the compact view
+            return `
+                <div class="d-flex justify-content-center align-items-center user-select-none gap-1">
+                    <a tooltip-title="Population Frequencies" tooltip-text="${allPopulationTooltip}" tooltip-position-my="top right">
+                        <div class="px-2 py-1 rounded" style="background-color:${populationFrequenciesColor[allPopulationClassification]};">
+                            <span class="small text-white fw-bold">ALL</span>
+                        </div>
+                    </a>
+                    ${!onlyCohortAll ? `
+                        <div class="d-flex rounded overflow-hidden" style="gap:1px;">
+                            ${Array.from(classificationsMap.values()).map(entry => {
+                                if (entry.populations.length > 0) {
+                                    const tooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(entry.populations, populationFrequenciesMap, populationFrequenciesColor);
+                                    return `
+                                        <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}" tooltip-position-my="top right">
+                                            <div class="px-1 py-1 text-center" style="background-color:${entry.color};min-width:26px;">
+                                                <span class="small text-white fw-bold">${entry.populations.length}</span>
+                                            </div>
+                                        </a>
+                                    `;
+                                } else {
+                                    return `
+                                        <div class="px-1 py-3 cursor-not-allowed" style="background-color:${entry.color};min-width:26px;opacity:0.25;"></div>
+                                    `;
+                                }
+                            }).join("")}
+                        </div>
+                    ` : ""}
                 </div>
             `;
         } else {
-            htmlPopFreqTable = "<div>";
-            const populationFrequenciesHtml = [];
-            for (const population of populations) {
-                let color = "black";
-                if (typeof populationFrequenciesMap.get(population) !== "undefined") { // Freq exists
-                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
-                    const percentage = (Number(freq) * 100).toPrecision(4);
-                    // Only color the significant ones
-                    if (freq <= 0.005) {
-                        color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
-                    }
-
-                    if (populations.length > 1) {
-                        populationFrequenciesHtml.push("<div>");
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${population}</span>`);
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${freq}</span>`);
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">(${percentage} %)</span>`);
-                        populationFrequenciesHtml.push("</div>");
-                    } else {
-                        populationFrequenciesHtml.push("<div>");
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${freq}</span>`);
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">(${percentage} %)</span>`);
-                        populationFrequenciesHtml.push("</div>");
-                    }
-                } else { // Freq does not exist
-                    if (populations.length > 1) {
-                        populationFrequenciesHtml.push("<div>");
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">${population}</span>`);
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">NA</span>`);
-                        populationFrequenciesHtml.push("</div>");
-                    } else {
-                        populationFrequenciesHtml.push("<div>");
-                        populationFrequenciesHtml.push(`<span style="padding: 0 5px; color: ${color}">NA</span>`);
-                        populationFrequenciesHtml.push("</div>");
-                    }
-                }
-            }
-            htmlPopFreqTable += `${populationFrequenciesHtml.join("")}`;
-            htmlPopFreqTable += "</div>";
+            const tooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(populations, populationFrequenciesMap, populationFrequenciesColor);
+            return `
+                <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}" tooltip-position-my="top right">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <div class="d-flex rounded overflow-hidden" style="gap:1px;">
+                            ${populations.map(population => {
+                                let color = "black";
+                                if (typeof populationFrequenciesMap.get(population) !== "undefined") {
+                                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
+                                    color = VariantGridFormatter.getPopulationFrequencyColor(freq, populationFrequenciesColor);
+                                }
+                                return `<div class="px-2 py-3" style="background-color:${color}"></div>`;
+                            }).join("")}
+                        </div>
+                    </div>
+                </a>
+            `;
         }
-
-        return htmlPopFreqTable;
     }
 
-    static _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
-        let color;
+    static getPopulationFrequencyClassification(freq) {
         const freqFloat = Number.parseFloat(freq);
         if (freqFloat === 0 || freqFloat === "0") {
-            color = populationFrequenciesColor.unobserved;
+            return VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.UNOBSERVED;
         } else if (freqFloat < 0.001) {
-            color = populationFrequenciesColor.veryRare;
+            return VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.VERY_RARE;
         } else if (freqFloat < 0.005) {
-            color = populationFrequenciesColor.rare;
+            return VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.RARE;
         } else if (freqFloat < 0.05) {
-            color = populationFrequenciesColor.average;
+            return VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.AVERAGE;
         } else {
-            color = populationFrequenciesColor.common;
+            return VariantGridFormatter.POPULATION_FREQUENCY_CLASSIFICATION.COMMON;
         }
-        return color;
+    }
+
+    static getPopulationFrequencyColor(freq, populationFrequenciesColor = {}) {
+        return populationFrequenciesColor[VariantGridFormatter.getPopulationFrequencyClassification(freq)] || "black";
     }
 
     static clinicalTraitAssociationFormatter(value, row, index) {
@@ -1516,6 +1550,39 @@ export default class VariantGridFormatter {
         return `
             <span class='fw-bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations.
         `;
+    }
+
+    static getCellbaseActionsLinks(opencgaSession) {
+        let hasCurrentVersion = false;
+        const currentCellbaseHost = opencgaSession?.project?.cellbase?.url || opencgaSession?.cellbaseClient?._config?.host;
+        const currentCellbaseVersion = opencgaSession?.project?.cellbase?.version || opencgaSession?.cellbaseClient?._config?.version;
+        const currentCellbaseDataRelease = opencgaSession?.project?.cellbase?.dataRelease || opencgaSession?.cellbaseClient?._config?.dataRelease;
+
+        // 1. get the cellbase supported versions from the configuration
+        const cellbaseVersions = (CELLBASE?.supportedVersions || []).map(cellbaseConfig => {
+            const cb = UtilsNew.objectClone(cellbaseConfig);
+            cb.current = false;
+            if (!hasCurrentVersion && cb.host === currentCellbaseHost && cb.version === currentCellbaseVersion && cb.dataRelease === currentCellbaseDataRelease) {
+                hasCurrentVersion = true;
+                cb.current = true;
+                cb.apiKey = opencgaSession?.project?.cellbase?.apiKey || opencgaSession?.cellbaseClient?._config?.apiKey || "";
+            }
+            return cb;
+        });
+
+        // 2. check if current version is not in the list, then add it
+        if (!hasCurrentVersion && currentCellbaseHost && currentCellbaseVersion) {
+            cellbaseVersions.push({
+                host: currentCellbaseHost,
+                version: currentCellbaseVersion,
+                dataRelease: currentCellbaseDataRelease || "",
+                apiKey: opencgaSession?.project?.cellbase?.apiKey || opencgaSession?.cellbaseClient?._config?.apiKey || "",
+                current: true,
+            });
+        }
+
+        // 3. return the cellbase versions to display in the actions menu
+        return cellbaseVersions;
     }
 
 }

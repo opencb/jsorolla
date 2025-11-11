@@ -1,6 +1,7 @@
 import {html, LitElement, nothing} from "lit";
 import {keyed} from "lit/directives/keyed.js";
 import ModalUtils from "../modal/modal-utils.js";
+import "../empty-state.js";
 import "../tool-header.js";
 import "../view/vertical-menu.js";
 import "../../job/analysis/tool-analysis.js";
@@ -120,12 +121,18 @@ export default class MyAnalysisTools extends LitElement {
                 .title="${this._config.title}"
                 .rightContent="${this.renderRightContent()}">
             </tool-header>
-            ${keyed(this.opencgaSession?.study?.fqn + "." + this._customTools?.length, html`
+            ${this._customTools?.length === 0 ? html`
+                <empty-state
+                    .title="${"No custom tools found."}"
+                    .description="${html`Use the <b>My Tools Manager</b> tool to register or import custom tools, or <b>Execute Docker tools</b> directly.`}">
+                </empty-state>
+            ` : nothing}
+            ${this._customTools?.length > 0 ? keyed(this.opencgaSession?.study?.fqn + "." + this._customTools?.length, html`
                 <vertical-menu
                     .opencgaSession="${this.opencgaSession}"
                     .config="${this._config}">
                 </vertical-menu>
-            `)}
+            `) : nothing}
 
             ${this._showExecuteDockerToolModal ? this.renderExecuteDockerToolModal() : nothing}
         `;

@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "lit";
-import Types from "../commons/types.js";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
+import "../commons/forms/tags-input.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class CohortUpdate extends LitElement {
@@ -51,15 +51,11 @@ export default class CohortUpdate extends LitElement {
 
     #init() {
         this._cohort = {};
-        this.cohortId = "";
-        this.displayConfig = {};
-
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -75,19 +71,21 @@ export default class CohortUpdate extends LitElement {
     render() {
         return html`
             <opencga-update
-                    .resource="${"COHORT"}"
-                    .componentId="${this.cohortId}"
-                    .opencgaSession="${this.opencgaSession}"
-                    .active="${this.active}"
-                    .config="${this._config}"
-                    @componentIdObserver="${this.onComponentIdObserver}">
+                .resource="${"COHORT"}"
+                .componentId="${this.cohortId}"
+                .opencgaSession="${this.opencgaSession}"
+                .active="${this.active}"
+                .config="${this._config}"
+                @componentIdObserver="${this.onComponentIdObserver}">
             </opencga-update>
         `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            display: this.displayConfig,
+        return {
+            display: {
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
@@ -96,14 +94,20 @@ export default class CohortUpdate extends LitElement {
                             title: "Cohort ID",
                             field: "id",
                             type: "input-text",
-                            required: true,
                             display: {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
                                 helpMessage: this._cohort.creationDate? "Created on " + UtilsNew.dateFormatter(this._cohort.creationDate) : "No creation date",
-                                validation: {
-                                }
                             }
+                        },
+                        {
+                            title: "Cohort Name",
+                            field: "name",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a name...",
+                                helpMessage: "Descriptive name for the Cohort.",
+                            },
                         },
                         {
                             title: "Sample ID(s)",
@@ -144,6 +148,19 @@ export default class CohortUpdate extends LitElement {
                             }
                         },
                         {
+                            title: "Tags",
+                            field: "tags",
+                            type: "custom",
+                            display: {
+                                render: (tags, dataFormFilterChange) => html`
+                                    <tags-input
+                                        .value="${tags || []}"
+                                        @change="${event => dataFormFilterChange(event.detail.value)}">
+                                    </tags-input>
+                                `,
+                            },
+                        },
+                        {
                             title: "Status",
                             field: "status",
                             type: "object",
@@ -170,7 +187,7 @@ export default class CohortUpdate extends LitElement {
                     ]
                 },
             ]
-        });
+        };
     }
 
 }

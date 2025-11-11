@@ -472,10 +472,23 @@ export class OpenCGAClient {
                                                             study: study.fqn,
                                                             internalStatus: "READY,CALCULATING,INVALID",
                                                             exclude: "samples",
-                                                            limit: 100,
+                                                            limit: 250,
                                                         });
+
+                                                    // Sort cohorts alphabetically, but "ALL" first
                                                     study.cohorts = cohortsResponse.responses[0].results
-                                                        .filter(cohort => !cohort.attributes?.IVA?.ignore);
+                                                        .filter(cohort => !cohort.attributes?.IVA?.ignore)
+                                                        // FIXME line above should check cohort.internal instead
+                                                        // .filter(cohort => cohort.internal.index?.status === "READY");
+                                                        .sort((a, b) => {
+                                                            if (a.id === "ALL") {
+                                                                return -1;
+                                                            } else if (b.id === "ALL") {
+                                                                return 1;
+                                                            } else {
+                                                                return a.id.localeCompare(b.id);
+                                                            }
+                                                        });
 
                                                     // Keep track of the studies to fetch Disease Panels
                                                     studies.push(study.fqn);
