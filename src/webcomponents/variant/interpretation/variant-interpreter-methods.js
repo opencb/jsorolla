@@ -148,6 +148,9 @@ class VariantInterpreterMethods extends LitElement {
                             <tool-executor
                                 .toolParams="${{
                                     id: tool.id,
+                                    variables: {
+                                        clinicalAnalysisId: clinicalAnalysis.id,
+                                    },
                                 }}"
                                 .displayConfig="${{
                                     titleVisible: false,
@@ -191,17 +194,17 @@ class VariantInterpreterMethods extends LitElement {
                         id: "rd-tiering",
                         name: "RD Tiering",
                         render: (clinicalAnalysis, active, opencgaSession) => {
-                            const toolParams = {
-                                clinicalAnalysis: clinicalAnalysis.id,
-                                panels: clinicalAnalysis.panels?.map(panel => panel.id).join(","),
-                            };
                             return html`
                                 <div class="container">
                                     <tool-header title="RD Tiering - ${probandId}"></tool-header>
                                     <rd-tiering-analysis
-                                        .toolParams="${toolParams}"
+                                        .toolParams="${{
+                                            clinicalAnalysis: clinicalAnalysis.id,
+                                        }}"
                                         .opencgaSession="${opencgaSession}"
-                                        .title="${""}">
+                                        .displayConfig="${{
+                                            titleVisible: false,
+                                        }}">
                                     </rd-tiering-analysis>
                                 </div>
                             `;

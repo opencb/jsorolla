@@ -86,17 +86,17 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         // Variant inclusion list
         this.variantInclusionState = [];
 
-        this.currentQueryBeforeSaveEvent = null;
+        this._currentQueryBeforeSaveEvent = null;
         this.clinicalAnalysisManager = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("opencgaSession")) {
-            this.clinicalAnalysisObserver();
-        }
         if (changedProperties.has("query")) {
             this.queryObserver();
+        }
+        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("opencgaSession")) {
+            this.clinicalAnalysisObserver();
         }
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
@@ -114,11 +114,11 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
 
         // When refreshing AFTER saving variants we set the same query as before refreshing, check 'onSaveVariants'
-        if (this.currentQueryBeforeSaveEvent) {
-            this.preparedQuery = {...this.currentQueryBeforeSaveEvent};
+        if (this._currentQueryBeforeSaveEvent) {
+            this.preparedQuery = {...this._currentQueryBeforeSaveEvent};
             this.executedQuery = {...this.preparedQuery};
             this.searchActive = false;
-            this.currentQueryBeforeEvent = null;
+            this._currentQueryBeforeSaveEvent = null;
         }
     }
 
@@ -294,7 +294,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
     onVariantReview(event) {
         // We save current query so we can execute the same query after refreshing, check 'clinicaAnalysisObserver'
-        this.currentQueryBeforeSaveEvent = this.executedQuery;
+        this._currentQueryBeforeSaveEvent = UtilsNew.objectClone(this.executedQuery);
 
         // reviewed variants are saved in the primary interpretation
         const interpretationId = this.clinicalAnalysis.interpretation.id;

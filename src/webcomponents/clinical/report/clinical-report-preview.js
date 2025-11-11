@@ -36,11 +36,11 @@ export default class ClinicalReportPreview extends LitElement {
         this._invalidTemplates = [];
         this._activeTemplate = null;
         this._activeTemplateConfig = null; // Configuration of the active template
+        this._activeTemplateError = null;
 
         this._editingTemplate = false;
         this._editingTemplateUnsavedChanges = false;
         this._editingTemplateTimer = null;
-        this._editingTemplateError = null;
     }
 
     update(changedProperties) {
@@ -77,13 +77,11 @@ export default class ClinicalReportPreview extends LitElement {
                                 study: this.opencgaSession.study.fqn,
                             })
                             .then(fileContent => {
-                                // return this.loadTemplateFromFile(file, fileContent);
                                 return this.evaluateTemplate(fileContent);
                             })
                             .then(template => {
                                 return {
                                     id: file.id,
-                                    invalid: false,
                                     title: template?.name || template?.title || file.name.replace(".js", ""),
                                     description: template?.description || "",
                                     version: template?.version || "",
@@ -94,10 +92,8 @@ export default class ClinicalReportPreview extends LitElement {
                             .catch(error => {
                                 // console.error(`Error loading template from file ${file.name}:`, error);
                                 // this._invalidTemplates.push(file.name);
-                                // return null; // Return null for failed templates
                                 return {
                                     id: file.id,
-                                    invalid: true,
                                     title: file.name.replace(".js", ""),
                                     config: null,
                                     error: error?.message,
@@ -111,6 +107,7 @@ export default class ClinicalReportPreview extends LitElement {
                     if (this._templates.length > 0) {
                         this._activeTemplate = this._templates[0];
                         this._activeTemplateConfig = this._activeTemplate.config;
+                        this._activeTemplateError = this._activeTemplate.error;
                     }
                     this.requestUpdate();
                 })
@@ -135,18 +132,19 @@ export default class ClinicalReportPreview extends LitElement {
             return template.id === event.target.value;
         });
         this._activeTemplate = selectedTemplate || null;
-        this._activeTemplateConfig = this._activeTemplate ? this._activeTemplate.config : null;
+        this._activeTemplateConfig = this._activeTemplate?.config || null;
+        this._activeTemplateError = this._activeTemplate?.error || null;
         this.requestUpdate();
     }
 
     onToggleTemplateEdition(event) {
         this._editingTemplate = event.target.checked;
-        this._editingTemplateError = null; // reset previous error
         this._editingTemplateUnsavedChanges = false; // reset unsaved changes flag
 
         // when enabling edition mode, load the latest template content from the server
         if (this._activeTemplate) {
             this._activeTemplateConfig = this._activeTemplate.config;
+            this._activeTemplateError = this._activeTemplate.error;
         }
 
         // dispatch a templateEditionToggle event
@@ -165,14 +163,14 @@ export default class ClinicalReportPreview extends LitElement {
 
         this._editingTemplateTimer = setTimeout(() => {
             this._editingTemplateTimer = null;
-            this._editingTemplateError = null;
             this.evaluateTemplate(newContent)
                 .then(data => {
                     this._activeTemplateConfig = data?.config || data?.template || {};
+                    this._activeTemplateError = null;
                 })
                 .catch(error => {
                     // console.error("Error evaluating template:", error);
-                    this._editingTemplateError = error?.message || "Error evaluating template";
+                    this._activeTemplateError = error?.message;
                 })
                 .finally(() => {
                     this.requestUpdate();
@@ -188,7 +186,6 @@ export default class ClinicalReportPreview extends LitElement {
         this.evaluateTemplate(event.detail.value)
             .then(template => {
                 Object.assign(this._activeTemplate, {
-                    invalid: false,
                     title: template?.name || template?.title || this._activeTemplate.name,
                     description: template?.description || this._activeTemplate.description,
                     version: template?.version || this._activeTemplate.version,
@@ -196,18 +193,17 @@ export default class ClinicalReportPreview extends LitElement {
                     error: null,
                 });
                 this._activeTemplateConfig = this._activeTemplate.config;
-                this._editingTemplateError = null;
+                this._activeTemplateError = null;
             })
             .catch(error => {
                 // console.error("Error evaluating template:", error);
                 // note: we have to update the active template to mark it as invalid and save the error message
                 // generated when evaluating the template
                 Object.assign(this._activeTemplate, {
-                    invalud: true,
                     config: null,
                     error: error?.message,
                 });
-                this._editingTemplateError = error?.message || "Error evaluating template";
+                this._activeTemplateError = error?.message;
             })
             .finally(() => {
                 this.requestUpdate();
@@ -230,7 +226,7 @@ export default class ClinicalReportPreview extends LitElement {
                 <div class="alert alert-danger">
                     <i class="fas fa-exclamation-triangle me-2"></i>
                     <span>
-                        The following templates could not be loaded: 
+                        The following templates have some errors and could not be loaded: 
                         ${this._invalidTemplates.map(name => html` <code>${name}</code>`)}. 
                         Please, contact your administrator.
                     </span>
@@ -284,21 +280,19 @@ export default class ClinicalReportPreview extends LitElement {
             ${this._activeTemplate && this.active ? html`
                 <div class="row">
                     <div class="${this._editingTemplate ? "col-7" : "col-12"}">
-                        ${this._activeTemplate?.invalid || this._editingTemplateError ? html`
+                        ${this._activeTemplateError ? html`
                             <div class="alert alert-danger mb-4 d-flex gap-3 align-items-start">
                                 <i class="fas fa-times-circle fs-4 d-flex my-1"></i>
                                 <div class="w-full">
                                     <div class="fw-bold fs-5 mb-2">Error Evaluating Template</div>
                                     <div>The template is invalid and cannot be displayed. Please contact with the study administrator or with the author of the template.</div>
-                                    ${this._editingTemplateError ? html`
-                                        <div class="mt-3 bg-danger text-white font-monospace p-3 rounded-3">
-                                            <span>${this._editingTemplateError}</span>
-                                        </div>
-                                    ` : nothing}
+                                    <div class="mt-3 bg-danger text-white font-monospace p-3 rounded-3">
+                                        <span>${this._activeTemplateError}</span>
+                                    </div>
                                 </div>
                             </div>
                         ` : nothing}
-                        ${this._activeTemplateConfig && !this._activeTemplate?.invalid && !this._editingTemplateError ? html`
+                        ${this._activeTemplateConfig && !this._activeTemplateError ? html`
                             <data-form
                                 .data="${this.clinicalAnalysis}"
                                 .config="${{

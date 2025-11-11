@@ -460,6 +460,23 @@ export default class ClinicalReportReview extends LitElement {
                     ],
                 },
                 {
+                    id: "experimentalProcedure",
+                    title: "Experimental Procedure",
+                    icon: "fa-vial",
+                    display: {},
+                    elements: [
+                        {
+                            field: "report.experimentalProcedure",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 20,
+                                disabled: this.clinicalAnalysis?.locked ?? true,
+                            },
+                        },
+                    ],
+                },
+                {
                     id: "limitations",
                     title: "Limitations",
                     icon: "fa-exclamation-triangle",
@@ -589,6 +606,23 @@ export default class ClinicalReportReview extends LitElement {
                                         </div>
                                     `;
                                 },
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: "conclusion",
+                    title: "Conclusion",
+                    icon: "fa-check-double",
+                    display: {},
+                    elements: [
+                        {
+                            field: "report.conclusion",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 20,
+                                disabled: this.clinicalAnalysis?.locked ?? true,
                             },
                         },
                     ],

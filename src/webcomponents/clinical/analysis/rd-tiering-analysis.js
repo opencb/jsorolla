@@ -40,8 +40,8 @@ export default class RdTieringAnalysis extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            config: {
-                type: Object
+            displayConfig: {
+                type: Object,
             },
         };
     }
@@ -50,34 +50,24 @@ export default class RdTieringAnalysis extends LitElement {
         this.ANALYSIS_TOOL = "rd-tiering";
         this.ANALYSIS_TITLE = "RD Tiering Interpretation";
         this.ANALYSIS_DESCRIPTION = "Executes an RD Tiering Interpreation analysis job";
-
         this.DEFAULT_TOOLPARAMS = {};
-        // Make a deep copy to avoid modifying default object.
-        this.toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
-        };
 
-        this.clinicalAnalysis = "";
-        this.diseasePanelIds = "";
-        this.config = this.getDefaultConfig();
-    }
-
-    firstUpdated(changedProperties) {
-        if (changedProperties.has("toolParams")) {
-            // Save the initial clinicalAnalysis. Needed for onClear() method
-            this.clinicalAnalysis = this.toolParams.clinicalAnalysis || "";
-            this.diseasePanelIds = this.toolParams.panels || "";
-        }
+        this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            this.toolParams = {
+            this._toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
-            this.config = this.getDefaultConfig();
         }
+
+        if(changedProperties.has("displayConfig") || changedProperties.has("toolParams")) {
+            this._config = this.getDefaultConfig();
+        }
+
         super.update(changedProperties);
     }
 
@@ -86,45 +76,43 @@ export default class RdTieringAnalysis extends LitElement {
     }
 
     onFieldChange() {
-        this.toolParams = {...this.toolParams};
+        this._toolParams = {...this._toolParams};
         this.requestUpdate();
     }
 
     onSubmit() {
         const toolParams = {
-            clinicalAnalysis: this.toolParams.clinicalAnalysis || "",
-            panels: (this.toolParams.panels || "").split(","),
+            clinicalAnalysis: this._toolParams.clinicalAnalysis || "",
         };
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
-        };
+
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.clinical()
-                .runInterpreterTiering(toolParams, params),
+                .runInterpreterTiering(toolParams, {
+                    study: this.opencgaSession.study.fqn,
+                    ...AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL),
+                }),
             this,
         );
     }
 
     onClear() {
-        this.toolParams = {
+        this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
-            clinicalAnalysis: this.clinicalAnalysis,
-            panels: this.diseasePanelIds,
+            ...this.toolParams,
         };
-        this.config = this.getDefaultConfig();
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     render() {
         return html`
             <data-form
-                .data="${this.toolParams}"
-                .config="${this.config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                .data="${this._toolParams}"
+                .config="${this._config}"
+                @fieldChange="${event => this.onFieldChange(event)}"
+                @clear="${event => this.onClear(event)}"
+                @submit="${event => this.onSubmit(event)}">
             </data-form>
         `;
     }
@@ -139,58 +127,22 @@ export default class RdTieringAnalysis extends LitElement {
                         field: "clinicalAnalysis",
                         type: "custom",
                         display: {
-                            render: (clinicalAnalysis, dataFormFilterChange) => html`
+                            render: (clinicalAnalysis, onFieldChange) => html`
                                 <catalog-search-autocomplete
                                     .value="${clinicalAnalysis}"
                                     .resource="${"CLINICAL_ANALYSIS"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!clinicalAnalysis}}"
-                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    .config="${{
+                                        multiple: false,
+                                        disabled: !!this.toolParams?.clinicalAnalysis,
+                                    }}"
+                                    @filterChange="${event => onFieldChange(event.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
-                    {
-                        // QUESTION: not sure how panels need to be retrieved or how it works.
-                        //   - Once the clinical analysis id is selected, query its panels?
-                        //   - All the studies have panels?
-                        title: "Disease Panels",
-                        field: "panels",
-                        type: "custom",
-                        display: {
-                            render: (panels, dataFormFilterChange) => {
-                                // Get whether disease panels can be modified or are fixed
-                                const casePanelLock = !!this.clinicalAnalysis?.panelLocked;
-                                // Get the list of disease panels for the dropdown
-                                let diseasePanels = [];
-                                if (casePanelLock) {
-                                    for (const panelId of (panels || "").split(",")) {
-                                        const diseasePanel = this.opencgaSession.study?.panels?.find(p => p.id === panelId);
-                                        if (diseasePanel) {
-                                            diseasePanels.push(diseasePanel);
-                                        }
-                                    }
-                                } else {
-                                    diseasePanels = this.opencgaSession.study?.panels;
-                                }
-                                return html`
-                                    <select-field-filter
-                                        .data="${diseasePanels}"
-                                        .value=${panels || ""}
-                                        .config="${{
-                                            multiple: true,
-                                            liveSearch: diseasePanels?.length > 5,
-                                            disabled: casePanelLock,
-                                            separator: "\n"
-                                        }}"
-                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                    </select-field-filter>
-                                `;
-                            },
-                        }
-                    },
                 ],
-            }
+            },
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
@@ -199,7 +151,11 @@ export default class RdTieringAnalysis extends LitElement {
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check(),
-            this.config
+            {
+                display: {
+                    ...this.displayConfig,
+                },
+            },
         );
     }
 
