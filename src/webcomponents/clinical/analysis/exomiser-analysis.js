@@ -34,13 +34,13 @@ export default class ExomiserAnalysis extends LitElement {
     static get properties() {
         return {
             toolParams: {
-                type: Object
+                type: Object,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
-            config: {
-                type: Object
+            displayConfig: {
+                type: Object,
             },
         };
     }
@@ -49,58 +49,57 @@ export default class ExomiserAnalysis extends LitElement {
         this.ANALYSIS_TOOL = "interpreter-exomiser";
         this.ANALYSIS_TITLE = "Interpreter Exomiser";
         this.ANALYSIS_DESCRIPTION = "Executes an Exomiser Interpretation analysis";
-
         this.DEFAULT_TOOLPARAMS = {};
-        // Make a deep copy to avoid modifying default object.
-        this.toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS)
-        };
 
-        this.clinicalAnalysis = "";
-        this.config = this.getDefaultConfig();
-    }
-
-    firstUpdated(changedProperties) {
-        if (changedProperties.has("toolParams")) {
-            // This parameter will indicate if a clinical analysis ID was passed as an argument
-            this.clinicalAnalysis = this.toolParams.clinicalAnalysis || "";
-
-            // If a clinicalAnalysis ID is provided as a property we must fetch the object, so we can check
-            if (this.clinicalAnalysis) {
-                this.clinicalAnalysisObserver();
-            }
-        }
+        this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
+        this._clinicalAnalysis = null;
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            this.toolParams = {
+            this._toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
-            this.config = this.getDefaultConfig();
+
+            // if a clinicalAnalysis ID is provided as a property we must fetch the object, so we can check if disorders/phenotypes exist
+            if (this._toolParams?.clinicalAnalysis) {
+                this.clinicalAnalysisObserver();
+            }
         }
+
+        if (changedProperties.has("displayConfig") || changedProperties.has("toolParams")) {
+            this._config = this.getDefaultConfig();
+        }
+
         super.update(changedProperties);
     }
 
     clinicalAnalysisObserver() {
         if (this.toolParams?.clinicalAnalysis && this.opencgaSession) {
             this.opencgaSession.opencgaClient.clinical()
-                .info(this.toolParams.clinicalAnalysis, {study: this.opencgaSession.study.fqn, include: "id,proband"})
-                .then(resp => {
-                    this.clinicalAnalysisObj = resp.responses[0].results[0];
-                    this.config = this.getDefaultConfig();
+                .info(this.toolParams.clinicalAnalysis, {
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,proband",
+                })
+                .then(response => {
+                    this._clinicalAnalysis = response.responses[0].results[0];
+                    this._config = this.getDefaultConfig();
                     this.requestUpdate();
+                })
+                .catch(error => {
+                    console.error(error);
                 });
         }
     }
 
     check() {
         // Proband MUST have at least one phenotype or disorder
-        if (this.clinicalAnalysisObj) {
-            if (!(this.clinicalAnalysisObj?.proband?.phenotypes?.length > 0 || this.clinicalAnalysisObj?.proband?.disorders?.length > 0)) {
+        if (this._clinicalAnalysis) {
+            if (!(this._clinicalAnalysis?.proband?.phenotypes?.length > 0 || this._clinicalAnalysis?.proband?.disorders?.length > 0)) {
                 return {
-                    message: `No phenotypes or disorders found for proband '${this.clinicalAnalysisObj?.proband?.id}'. This is a mandatory parameter.`
+                    message: `No phenotypes or disorders found for proband '${this._clinicalAnalysis?.proband?.id}'. This is a mandatory parameter.`
                 };
             }
         }
@@ -108,54 +107,50 @@ export default class ExomiserAnalysis extends LitElement {
         return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        // if (param) {
-        //     this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
-        // }
-        this.toolParams = {...e.detail.data};
+    onFieldChange(event) {
+        this._toolParams = {...this._toolParams};
+
         // We need to fetch clinicalAnalysis object, so we can check if form is valid
-        if (param === "clinicalAnalysis") {
+        if (event.detail?.param === "clinicalAnalysis") {
             this.clinicalAnalysisObserver();
-        } else {
-            this.config = this.getDefaultConfig();
-            this.requestUpdate();
         }
+
+        this.requestUpdate();
     }
 
     onSubmit() {
         const toolParams = {
-            clinicalAnalysis: this.toolParams.clinicalAnalysis || "",
+            clinicalAnalysis: this._toolParams.clinicalAnalysis || "",
         };
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
-        };
+
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.clinical()
-                .runInterpreterExomiser(toolParams, params),
+                .runInterpreterExomiser(toolParams, {
+                    study: this.opencgaSession.study.fqn,
+                    ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
+                }),
             this,
         );
     }
 
     onClear() {
-        this.toolParams = {
+        this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            // If a clinical analysis ID was passed (probably because we are in the interpreter) then we need to keep it
-            clinicalAnalysis: this.clinicalAnalysis,
+            ...this.toolParams,
         };
-        this.config = this.getDefaultConfig();
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     render() {
         return html`
             <data-form
-                .data="${this.toolParams}"
-                .config="${this.config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                .data="${this._toolParams}"
+                .config="${this._config}"
+                @fieldChange="${event => this.onFieldChange(event)}"
+                @clear="${event => this.onClear(event)}"
+                @submit="${event => this.onSubmit(event)}">
             </data-form>
         `;
     }
@@ -170,14 +165,17 @@ export default class ExomiserAnalysis extends LitElement {
                         field: "clinicalAnalysis",
                         type: "custom",
                         display: {
-                            render: (clinicalAnalysisId, dataFormFilterChange, updateParams, clinicalAnalysis) => {
+                            render: (clinicalAnalysisId, onFieldChange) => {
                                 return html`
                                     <catalog-search-autocomplete
                                         .value="${clinicalAnalysisId}"
                                         .resource="${"CLINICAL_ANALYSIS"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config="${{multiple: false, disabled: !!clinicalAnalysis}}"
-                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                        .config="${{
+                                            multiple: false,
+                                            disabled: !!this.toolParams.clinicalAnalysis,
+                                        }}"
+                                        @filterChange="${event => onFieldChange(event.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `;
                             }
@@ -193,7 +191,11 @@ export default class ExomiserAnalysis extends LitElement {
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check(),
-            this.config
+            {
+                display: {
+                    ...this.displayConfig,
+                },
+            },
         );
     }
 

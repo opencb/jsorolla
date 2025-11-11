@@ -179,9 +179,14 @@ class VariantInterpreterMethods extends LitElement {
                                 <div class="container">
                                     <tool-header title="Exomiser - ${probandId}"></tool-header>
                                     <exomiser-analysis
-                                        .toolParams="${{clinicalAnalysis: clinicalAnalysis.id}}"
+                                        .toolParams="${{
+                                            clinicalAnalysis: clinicalAnalysis.id,
+                                        }}"
                                         .opencgaSession="${opencgaSession}"
-                                        .config="${{title: "", display: {buttonOkDisabled: this.clinicalAnalysis.locked}}}">
+                                        .displayConfig="${{
+                                            titleVisible: false,
+                                            buttonOkDisabled: this.clinicalAnalysis.locked,
+                                        }}">
                                     </exomiser-analysis>
                                 </div>
                             `;
@@ -204,6 +209,7 @@ class VariantInterpreterMethods extends LitElement {
                                         .opencgaSession="${opencgaSession}"
                                         .displayConfig="${{
                                             titleVisible: false,
+                                            buttonOkDisabled: this.clinicalAnalysis.locked,
                                         }}">
                                     </rd-tiering-analysis>
                                 </div>
