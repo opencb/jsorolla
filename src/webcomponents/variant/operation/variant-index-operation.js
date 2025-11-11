@@ -92,8 +92,10 @@ export default class VariantIndexOperation extends LitElement {
             file: this._toolParams.file || "",
             calculateStats: this._toolParams.calculateStats || false,
             annotate: this._toolParams.annotate || false,
-            resume: this._toolParams.resume || false,
             loadMultiFileData: this._toolParams.loadMultiFileData || false,
+            loadSplitData: this._toolParams.loadSplitData || false,
+            forceReload: this._toolParams.forceReload || false,
+            resume: this._toolParams.resume || false,
         };
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -186,22 +188,60 @@ export default class VariantIndexOperation extends LitElement {
                         },
                     },
                     {
-                        title: "Calculate Stats",
-                        field: "calculateStats",
+                        title: "Load MultiFile Data",
+                        field: "loadMultiFileData",
                         type: "checkbox",
                         display: {
                             help: {
-                                text: "Calculate variant stats for the index file"
+                                text: "Indicate the presence of multiple files for the same sample. Each file could be the result of a different vcf-caller or experiment over the same sample."
                             }
                         }
                     },
                     {
-                        title: "Annotate",
-                        field: "annotate",
+                        title: "Load Split Data",
+                        field: "loadSplitData",
+                        type: "select",
+                        allowedValues: ["CHROMOSOME", "REGION"],
+                        display: {
+                            help: {
+                                text: "Indicate that the variants from a group of samples is split in multiple files, either by CHROMOSOME or by REGION. In either case, variants from different files must not overlap."
+                            }
+                        }
+                    },
+                    {
+                        title: "Additional Operations",
+                        // field: "minimumRequirements",
+                        type: "object",
+                        elements: [
+                            {
+                                title: "Update Cohort Stats:",
+                                field: "calculateStats",
+                                type: "checkbox",
+                                display: {
+                                    help: {
+                                        text: "Update cohort ALL statistics after the variant file is indexed"
+                                    }
+                                }
+                            },
+                            {
+                                title: "Execute Variant Annotation:",
+                                field: "annotate",
+                                type: "checkbox",
+                                display: {
+                                    help: {
+                                        text: "Execute variant annotation for the new variants added in this file"
+                                    }
+                                }
+                            },
+                        ]
+                    },
+                    {
+                        title: "Force Reload",
+                        field: "forceReload",
                         type: "checkbox",
                         display: {
                             help: {
-                                text: "Execute an annotation for the new variants added in this file"
+                                text: "Force reloading the file even if it was already loaded"
                             }
                         }
                     },
@@ -212,16 +252,6 @@ export default class VariantIndexOperation extends LitElement {
                         display: {
                             help: {
                                 text: "Continue a variant file index that has failed"
-                            }
-                        }
-                    },
-                    {
-                        title: "Load MultiFile Data",
-                        field: "loadMultiFileData",
-                        type: "checkbox",
-                        display: {
-                            help: {
-                                text: "Load variants from multiple files"
                             }
                         }
                     },

@@ -336,6 +336,7 @@ const SUITE = {
                     name: "Sample Browser",
                     icon: "fa-vial",
                     visibility: "public",
+                    category: "Clinical Data Management",
                     description: "Explore and manage all samples in the current study.",
                 },
                 {
@@ -343,6 +344,7 @@ const SUITE = {
                     name: "Individual Browser",
                     icon: "fa-user",
                     visibility: "public",
+                    category: "Clinical Data Management",
                     description: "Explore and manage all individuals in the current study.",
                 },
                 {
@@ -350,6 +352,7 @@ const SUITE = {
                     name: "Family Browser",
                     icon: "fa-users",
                     visibility: "public",
+                    category: "Clinical Data Management",
                     description: "Explore and manage all families in the current study.",
                 },
                 {
@@ -357,6 +360,7 @@ const SUITE = {
                     name: "Note Browser",
                     icon: "fa-sticky-note",
                     visibility: "public",
+                    category: "Clinical Data Management",
                     description: "Explore and manage all notes in the current study.",
                 },
                 {
@@ -364,6 +368,7 @@ const SUITE = {
                     name: "Job Browser",
                     icon: "fa-rocket",
                     visibility: "public",
+                    category: "Metadata Management",
                     description: "Explore and manage all jobs in the current study.",
                 },
                 {
@@ -371,6 +376,7 @@ const SUITE = {
                     name: "File Manager",
                     icon: "fa-folder",
                     visibility: "public",
+                    category: "Metadata Management",
                     description: "Manage your data in the cloud.",
                 },
             ],

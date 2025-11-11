@@ -1,6 +1,5 @@
 import {html, LitElement, nothing} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 
 export default class ClinicalPreprocessingSelectPipeline extends LitElement {
@@ -34,11 +33,9 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
@@ -158,7 +155,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
             title: "NGS and Affymetrix Microarray Preprocessing Pipeline",
             display: {
                 buttonsVisible: false,
-                className: "d-flex align-items-stretch gap-3 flex-nowrap w-full",
+                className: "d-flex align-items-stretch gap-3 flex-nowrap w-full my-2",
                 layout: [
                     {
                         id: "select",
@@ -265,7 +262,7 @@ export default class ClinicalPreprocessingSelectPipeline extends LitElement {
                                 render: () => html`
                                     <button class="btn btn-lg btn-secondary w-full d-flex flex-column align-items-center justify-content-center gap-2 py-3" @click="${() => this.onAffyPipelineCreate()}">
                                         <i class="fas fa-microscope fs-2"></i>
-                                        <span>Create New <b>Affy</b> Pipeline</span>
+                                        <span>Create New <b>Affymetrix</b> Pipeline</span>
                                     </button>
                                 `,
                             },

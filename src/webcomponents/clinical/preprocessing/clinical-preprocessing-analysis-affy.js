@@ -157,7 +157,7 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
             ...this._toolParams,
             outputDir: this._toolParams.outputDir || "",
             indexDir: this._toolParams.indexDir || "",
-            samples: this._toolParams.samples || "",
+            samples: this._toolParams.samples || [],
             steps: {
                 qualityControl: {
                     active: !!this._toolParams.qualityControl?.active,

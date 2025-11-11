@@ -107,6 +107,8 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
     onSubmit() {
         const toolParams = {
             sample: this.toolParams.sample?.split(",") || [],
+            buildIndex: this.toolParams.buildIndex || false,
+            annotate: this.toolParams.annotate || false,
             familyIndex: this.toolParams.familyIndex || false,
             overwrite: this.toolParams.overwrite || false,
         };
@@ -185,14 +187,41 @@ export default class VariantSecondarySampleIndexOperation extends LitElement {
                         },
                     },
                     {
-                        title: "Family Index",
-                        field: "familyIndex",
-                        type: "checkbox",
-                        display: {
-                            help: {
-                                text: "Index family genotypes, this index allows to query by segregation mode"
-                            }
-                        }
+                        title: "Index Steps",
+                        // field: "minimumRequirements",
+                        type: "object",
+                        elements: [
+                            {
+                                title: "Build Index",
+                                field: "buildIndex",
+                                type: "checkbox",
+                                display: {
+                                    help: {
+                                        text: "Build genotype secondary index of the sample."
+                                    }
+                                }
+                            },
+                            {
+                                title: "Annotate",
+                                field: "annotate",
+                                type: "checkbox",
+                                display: {
+                                    help: {
+                                        text: "Build the annotation secondary index of the sample."
+                                    }
+                                }
+                            },
+                            {
+                                title: "Family Index",
+                                field: "familyIndex",
+                                type: "checkbox",
+                                display: {
+                                    help: {
+                                        text: "Index family genotypes, this index allows to query by segregation mode and de Novo variants"
+                                    }
+                                }
+                            },
+                        ]
                     },
                     {
                         title: "Overwrite Index",
