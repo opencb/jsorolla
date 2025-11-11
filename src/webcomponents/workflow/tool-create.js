@@ -239,50 +239,50 @@ export default class ToolCreate extends LitElement {
                     ],
                 },
                 {
-                    title: "Docker Configuration",
+                    title: "Container Configuration",
                     display: {
                         visible: this.type === "CUSTOM_TOOL" || this.type === "VARIANT_WALKER",
                     },
                     elements: [
                         {
-                            title: "Docker Name",
-                            field: "docker.name",
+                            title: "Container Name",
+                            field: "container.name",
                             type: "input-text",
                             required: true,
                             display: {
-                                placeholder: "Add docker image name...",
+                                placeholder: "Add container image name...",
                             },
                         },
                         {
-                            title: "Docker Tag",
-                            field: "docker.tag",
+                            title: "Container Tag",
+                            field: "container.tag",
                             type: "input-text",
                             display: {
-                                placeholder: "Add docker image tag...",
+                                placeholder: "Add container image tag...",
                             },
                         },
                         {
                             title: "Command Line",
-                            field: "docker.commandLine",
+                            field: "container.commandLine",
                             type: "input-text",
                             display: {
-                                placeholder: "Add docker command line...",
+                                placeholder: "Add contailer command line...",
                             },
                         },
                         {
                             title: "User ID",
-                            field: "docker.user",
+                            field: "container.user",
                             type: "input-text",
                             display: {
-                                placeholder: "Add docker user id...",
+                                placeholder: "Add container user id...",
                             },
                         },
                         {
                             title: "Password/Token",
-                            field: "docker.password",
+                            field: "container.password",
                             type: "input-password",
                             display: {
-                                placeholder: "Add docker password or token...",
+                                placeholder: "Add container password or token...",
                             },
                         },
                     ],
