@@ -153,8 +153,10 @@ export default class UserToolExecutor extends LitElement {
             case "CUSTOM_TOOL":
                 toolParams = {
                     id: this._tool.id,
-                    commandLine: this._toolParams.commandLine,
-                    params: formParams,
+                    params: {
+                        commandLine: this._toolParams.commandLine,
+                        params: formParams,
+                    },
                 };
                 toolRunPromise = this.opencgaSession.opencgaClient.userTool()
                     .runCustomDocker(toolParams, {
@@ -165,7 +167,9 @@ export default class UserToolExecutor extends LitElement {
             case "WORKFLOW":
                 toolParams = {
                     id: this._tool.id,
-                    params: formParams,
+                    params: {
+                        params: formParams,
+                    },
                 };
                 toolRunPromise = this.opencgaSession.opencgaClient.userTool()
                     .runWorkflow(toolParams, {
