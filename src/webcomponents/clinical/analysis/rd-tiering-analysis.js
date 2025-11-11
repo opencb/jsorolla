@@ -53,18 +53,7 @@ export default class RdTieringAnalysis extends LitElement {
         this.DEFAULT_TOOLPARAMS = {};
 
         this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
-
-        this.clinicalAnalysis = "";
-        this.diseasePanelIds = "";
         this._config = this.getDefaultConfig();
-    }
-
-    firstUpdated(changedProperties) {
-        if (changedProperties.has("toolParams")) {
-            // Save the initial clinicalAnalysis. Needed for onClear() method
-            this.clinicalAnalysis = this.toolParams.clinicalAnalysis || "";
-            this.diseasePanelIds = this.toolParams.panels || "";
-        }
     }
 
     update(changedProperties) {
@@ -95,6 +84,7 @@ export default class RdTieringAnalysis extends LitElement {
         const toolParams = {
             clinicalAnalysis: this._toolParams.clinicalAnalysis || "",
         };
+
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.clinical()
@@ -136,58 +126,22 @@ export default class RdTieringAnalysis extends LitElement {
                         field: "clinicalAnalysis",
                         type: "custom",
                         display: {
-                            render: (clinicalAnalysis, dataFormFilterChange) => html`
+                            render: (clinicalAnalysis, onFieldChange) => html`
                                 <catalog-search-autocomplete
                                     .value="${clinicalAnalysis}"
                                     .resource="${"CLINICAL_ANALYSIS"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!clinicalAnalysis}}"
-                                    @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    .config="${{
+                                        multiple: false,
+                                        disabled: !!this.toolParams?.clinicalAnalysis,
+                                    }}"
+                                    @filterChange="${event => onFieldChange(event.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
-                    {
-                        // QUESTION: not sure how panels need to be retrieved or how it works.
-                        //   - Once the clinical analysis id is selected, query its panels?
-                        //   - All the studies have panels?
-                        title: "Disease Panels",
-                        field: "panels",
-                        type: "custom",
-                        display: {
-                            render: (panels, dataFormFilterChange) => {
-                                // Get whether disease panels can be modified or are fixed
-                                const casePanelLock = !!this.clinicalAnalysis?.panelLocked;
-                                // Get the list of disease panels for the dropdown
-                                let diseasePanels = [];
-                                if (casePanelLock) {
-                                    for (const panelId of (panels || "").split(",")) {
-                                        const diseasePanel = this.opencgaSession.study?.panels?.find(p => p.id === panelId);
-                                        if (diseasePanel) {
-                                            diseasePanels.push(diseasePanel);
-                                        }
-                                    }
-                                } else {
-                                    diseasePanels = this.opencgaSession.study?.panels;
-                                }
-                                return html`
-                                    <select-field-filter
-                                        .data="${diseasePanels}"
-                                        .value=${panels || ""}
-                                        .config="${{
-                                            multiple: true,
-                                            liveSearch: diseasePanels?.length > 5,
-                                            disabled: casePanelLock,
-                                            separator: "\n"
-                                        }}"
-                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                    </select-field-filter>
-                                `;
-                            },
-                        }
-                    },
                 ],
-            }
+            },
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
