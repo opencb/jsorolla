@@ -494,6 +494,23 @@ export default class ClinicalReportReview extends LitElement {
                     ],
                 },
                 {
+                    id: "conclusion",
+                    title: "Conclusion",
+                    icon: "fa-check-double",
+                    display: {},
+                    elements: [
+                        {
+                            field: "report.conclusion",
+                            type: "input-text",
+                            defaultValue: "",
+                            display: {
+                                rows: 20,
+                                disabled: this.clinicalAnalysis?.locked ?? true,
+                            },
+                        },
+                    ],
+                },
+                {
                     id: "signatures",
                     title: "Signatures",
                     icon: "fa-signature",
@@ -606,23 +623,6 @@ export default class ClinicalReportReview extends LitElement {
                                         </div>
                                     `;
                                 },
-                            },
-                        },
-                    ],
-                },
-                {
-                    id: "conclusion",
-                    title: "Conclusion",
-                    icon: "fa-check-double",
-                    display: {},
-                    elements: [
-                        {
-                            field: "report.conclusion",
-                            type: "input-text",
-                            defaultValue: "",
-                            display: {
-                                rows: 20,
-                                disabled: this.clinicalAnalysis?.locked ?? true,
                             },
                         },
                     ],
