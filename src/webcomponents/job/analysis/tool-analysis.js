@@ -84,11 +84,12 @@ export default class ToolAnalysis extends LitElement {
     onSubmit() {
         // 1. prepare tool parameters
         const toolParams = {
-            commandLine: this._toolParams.commandLine,
-            docker: {
-                id: this._toolParams.docker?.id || "",
-                tag: this._toolParams.docker?.tag || "",
-                token: this._toolParams.docker?.token || "",
+            container: {
+                name: this._toolParams.container?.name || "",
+                tag: this._toolParams.container?.tag || "",
+                commandLine: this._toolParams.commandLine || "",
+                user: this._toolParams.container?.user || "",
+                password: this._toolParams.container?.password || "",
             },
         };
 
@@ -150,7 +151,7 @@ export default class ToolAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Container Image",
-                        field: "container.id",
+                        field: "container.name",
                         type: "input-text",
                         display: {
                             placeholder: "eg. ubuntu:latest",
@@ -170,14 +171,20 @@ export default class ToolAnalysis extends LitElement {
                         }
                     },
                     {
-                        title: "Container Token",
-                        field: "container.token",
+                        title: "User ID",
+                        field: "container.user",
                         type: "input-text",
                         display: {
-                            help: {
-                                text: "A read-only token to access the container image",
-                            }
-                        }
+                            placeholder: "Add container user id...",
+                        },
+                    },
+                    {
+                        title: "Password/Token",
+                        field: "container.password",
+                        type: "input-password",
+                        display: {
+                            placeholder: "Add container password or token...",
+                        },
                     },
                 ]
             }
