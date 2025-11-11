@@ -108,7 +108,7 @@ export default class RdTieringAnalysis extends LitElement {
         return html`
             <data-form
                 .data="${this._toolParams}"
-                .config="${this.config}"
+                .config="${this._config}"
                 @fieldChange="${event => this.onFieldChange(event)}"
                 @clear="${event => this.onClear(event)}"
                 @submit="${event => this.onSubmit(event)}">
