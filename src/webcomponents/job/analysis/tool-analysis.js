@@ -51,7 +51,6 @@ export default class ToolAnalysis extends LitElement {
         this.ANALYSIS_TOOL = "tool";
         this.ANALYSIS_TITLE = "Tool Analysis";
         this.ANALYSIS_DESCRIPTION = "Executes a Docker-based tool analysis job";
-
         this.DEFAULT_TOOLPARAMS = {};
 
         this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
@@ -66,7 +65,7 @@ export default class ToolAnalysis extends LitElement {
             };
         }
 
-        if (changedProperties.has("displayConfig")) {
+        if (changedProperties.has("displayConfig") || changedProperties.has("toolParams")) {
             this._config = this.getDefaultConfig();
         }
 
@@ -113,6 +112,7 @@ export default class ToolAnalysis extends LitElement {
             ...this.toolParams,
         };
         this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     render() {
@@ -139,43 +139,43 @@ export default class ToolAnalysis extends LitElement {
                         required: true,
                         display: {
                             help: {
-                                text: "Command line to be executed in the Docker container. To use file you must use the prefix 'opencga://' before the path or name, for example: 'input_file=opencga://file.vcf'",
+                                text: "Command line to be executed in the container. To use file you must use the prefix 'opencga://' before the path or name, for example: 'input_file=opencga://file.vcf'",
                             }
                         }
                     }
                 ]
             },
             {
-                title: "Docker Configuration",
+                title: "Container Configuration",
                 elements: [
                     {
-                        title: "Docker Image",
-                        field: "docker.id",
+                        title: "Container Image",
+                        field: "container.id",
                         type: "input-text",
                         display: {
                             placeholder: "eg. ubuntu:latest",
                             help: {
-                                text: "Docker image to be used in the analysis. If empty then opencga-ext-tool is used",
+                                text: "Container image to be used in the analysis. If empty then opencga-ext-tool is used",
                             }
                         }
                     },
                     {
-                        title: "Docker Tag",
-                        field: "docker.tag",
+                        title: "Container Tag",
+                        field: "container.tag",
                         type: "input-text",
                         display: {
                             help: {
-                                text: "Docker tag to be used in the analysis",
+                                text: "Container tag to be used in the analysis",
                             }
                         }
                     },
                     {
-                        title: "Docker Token",
-                        field: "docker.token",
+                        title: "Container Token",
+                        field: "container.token",
                         type: "input-text",
                         display: {
                             help: {
-                                text: "A read-only token to access the Docker image",
+                                text: "A read-only token to access the container image",
                             }
                         }
                     },
