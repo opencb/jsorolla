@@ -236,14 +236,14 @@ export default class ToolCreate extends LitElement {
                     ],
                 },
                 {
-                    title: "Docker Configuration",
+                    title: "Container Configuration",
                     display: {
                         visible: this.type === "CUSTOM_TOOL" || this.type === "VARIANT_WALKER",
                     },
                     elements: [
                         {
-                            title: "Docker Name",
-                            field: "docker.name",
+                            title: "Container Name",
+                            field: "container.name",
                             type: "input-text",
                             required: true,
                             display: {
@@ -252,8 +252,8 @@ export default class ToolCreate extends LitElement {
                             },
                         },
                         {
-                            title: "Docker Tag",
-                            field: "docker.tag",
+                            title: "Container Tag",
+                            field: "container.tag",
                             type: "input-text",
                             required: true,
                             display: {
@@ -263,7 +263,7 @@ export default class ToolCreate extends LitElement {
                         },
                         {
                             title: "Command Line",
-                            field: "docker.commandLine",
+                            field: "container.commandLine",
                             type: "input-text",
                             display: {
                                 placeholder: "",
@@ -272,7 +272,7 @@ export default class ToolCreate extends LitElement {
                         },
                         {
                             title: "User ID",
-                            field: "docker.user",
+                            field: "container.user",
                             type: "input-text",
                             display: {
                                 placeholder: "",
@@ -281,7 +281,7 @@ export default class ToolCreate extends LitElement {
                         },
                         {
                             title: "Password/Token",
-                            field: "docker.password",
+                            field: "container.password",
                             type: "input-password",
                             display: {
                                 placeholder: "",
