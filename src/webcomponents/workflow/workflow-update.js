@@ -126,8 +126,8 @@ export default class WorkflowUpdate extends LitElement {
                             },
                         },
                         {
-                            title: "Type",
-                            field: "type",
+                            title: "Scope",
+                            field: "scope",
                             type: "select",
                             allowedValues: ["SECONDARY_ANALYSIS", "RESEARCH_ANALYSIS", "CLINICAL_INTERPRETATION_ANALYSIS", "OTHER"],
                             display: {

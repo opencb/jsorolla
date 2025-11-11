@@ -486,18 +486,21 @@ export default class WorkflowGrid extends LitElement {
                             </div>
                         `;
                     } else {
-                        // Both CUSTOM TOOLS and VARIANT_WALKER use docker executor
-                        const docker = userTool?.docker;
+                        // Both CUSTOM TOOLS and VARIANT_WALKER use container executor
+                        const container = userTool?.container;
+                        // We need to find the container repository from the name
+                        const split = container?.name.split("/");
+                        const repositoryName = split?.length > 2 ? split[0] : "DOCKER";
                         return `
                             <div class="">
-                                ${docker?.name ? `
+                                ${container?.name ? `
                                     <div>
-                                        <a class="link d-inline-flex align-items-center gap-1" href="https://github.com/${docker.name}" target="_blank">
-                                            <span>${docker.name} v${docker.tag}</span>
+                                        <a class="link d-inline-flex align-items-center gap-1" href="https://github.com/${container.name}" target="_blank">
+                                            <span>${container.name} v${container.tag}</span>
                                             <i class="fa fa-external-link-alt fs-8"></i>
                                         </a>
                                     </div>
-                                    <div class="text-secondary my-1">DOCKER</div>
+                                    <div class="text-secondary my-1">${repositoryName?.toUpperCase() || "-"}</div>
                                 ` : "-"}
                             </div>
                     `;
