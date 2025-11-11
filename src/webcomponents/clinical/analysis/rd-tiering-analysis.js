@@ -102,6 +102,7 @@ export default class RdTieringAnalysis extends LitElement {
             ...this.toolParams,
         };
         this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     render() {
