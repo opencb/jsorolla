@@ -357,8 +357,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                         type: "list",
                                         display: {
                                             separationClassName: "mb-0",
-                                            titleWidth: 2,
-                                            listClassName: "mb-0",
+                                            listClassName: "mb-0 ps-0",
                                             contentLayout: "bullets",
                                             defaultLayout: "vertical",
                                             defaultValue: "-",
@@ -379,6 +378,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                                 return html`
                                                     <div class="fw-bold">${stats.numVariants} variants selected.</div>
                                                     <div class="text-muted small">
+                                                        <span>Genes: </span>
                                                         ${Object.keys(stats.geneCount || {}).map(gene => html`
                                                             <span><b>${gene}</b> (${stats.geneCount[gene]}) </span>
                                                         `)}
