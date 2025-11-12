@@ -330,14 +330,28 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                             render: (id, onChange, updatedParans, data, row) => html`
                                                 <div class="text-break fw-bold">
                                                     <span>${id}</span>
-                                                    ${row.primary ? html`
-                                                        <span class="badge text-bg-primary align-middle ms-2">PRIMARY</span>
-                                                    ` : nothing}
                                                 </div>
+                                                ${row?.primary ? html`
+                                                    <div class="">
+                                                        <span class="badge bg-primary">PRIMARY</span>
+                                                    </div>    
+                                                ` : nothing}
                                                 <div class="text-muted small">Version ${row.version}</div>
                                             `,
                                         },
                                     },
+                                    // {
+                                    //     title: "Primary",
+                                    //     field: "primary",
+                                    //     type: "custom",
+                                    //     display: {
+                                    //         render: primary => html`
+                                    //             <div class="w-full d-flex justify-content-center">
+                                    //                 <i class="fa ${primary ? "fa-check text-success" : "fa-times text-secondary"}"></i>
+                                    //             </div>
+                                    //         `,
+                                    //     },
+                                    // },
                                     {
                                         title: "Status",
                                         field: "status.id",
