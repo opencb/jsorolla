@@ -18,10 +18,8 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import WebUtils from "../commons/utils/web-utils.js";
-import "../commons/forms/data-form.js";
-import "../individual/individual-summary.js";
-import "./report/clinical-report-summary.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
+import "../commons/forms/data-form.js";
 
 export default class ClinicalAnalysisSummary extends LitElement {
 
@@ -273,28 +271,6 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                 format: date => UtilsNew.dateFormatter(date),
                             },
                         }
-                    ],
-                },
-                {
-                    id: "proband",
-                    title: "Proband",
-                    elements: [
-                        {
-                            type: "custom",
-                            display: {
-                                render: clinicalAnalysis => {
-                                    return html`
-                                        <individual-summary
-                                            .individualId="${clinicalAnalysis?.proband?.id}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .displayConfig="${{
-                                                titleVisible: false,
-                                            }}">
-                                        </individual-summary>
-                                    `;
-                                },
-                            },
-                        },
                     ],
                 },
                 {
