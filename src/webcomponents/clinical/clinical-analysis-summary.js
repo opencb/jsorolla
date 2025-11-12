@@ -313,11 +313,16 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                     {
                                         title: "Interpretation",
                                         field: "id",
+                                        type: "custom",
                                         display: {
                                             className: "text-break",
                                             style: {
                                                 "font-weight": "bold",
                                             },
+                                            render: (id, onChange, updatedParans, data, row) => html`
+                                                <div class="text-break fw-bold">${row.id}</div>
+                                                <div class="text-muted small">Version ${row.version}</div>
+                                            `,
                                         },
                                     },
                                     {
