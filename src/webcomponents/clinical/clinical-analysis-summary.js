@@ -332,6 +332,21 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                             `,
                                         },
                                     },
+                                    {
+                                        title: "Assigned to",
+                                        field: "analyst",
+                                        type: "custom",
+                                        display: {
+                                            render: analyst => html`
+                                                ${analyst?.id || analyst?.name ? html`
+                                                    <div class="d-inline-flex align-items-center gap-2">
+                                                        <i class="fas fa-user-md"></i>
+                                                        <strong>${analyst.name || analyst.id}</strong>
+                                                    </div>
+                                                ` : "-"}
+                                            `,
+                                        },
+                                    },
                                 ],
                             },
                         },
