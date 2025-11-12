@@ -127,6 +127,10 @@ export default class ClinicalAnalysisSummary extends LitElement {
                         ],
                     },
                     {
+                        id: "interpretations",
+                        className: "mb-4",
+                    },
+                    {
                         id: "family",
                         className: "mb-4",
                     },
@@ -270,8 +274,71 @@ export default class ClinicalAnalysisSummary extends LitElement {
                     ],
                 },
                 {
+                    id: "interpretations",
+                    display: {
+                        titleWidth: 4,
+                        className: "p-4 border border-1 border-gray-200 rounded-4 bg-white",
+                    },
+                    elements: [
+                        {
+                            type: "text",
+                            text: "Interpretations",
+                            display: {
+                                className: "mb-2 fs-5 fw-bold",
+                            },
+                        },
+                        {
+                            type: "table",
+                            display: {
+                                getData: clinicalAnalysis => {
+                                    debugger;
+                                    const allInterpretations = [
+                                        clinicalAnalysis?.interpretation || null,
+                                        ...(clinicalAnalysis?.secondaryInterpretations || []),
+                                    ];
+                                    return allInterpretations.filter(Boolean);
+                                },
+                                className: "table-borderless table-grid mb-0",
+                                separationClassName: "mb-0",
+                                headerCellClassName: "bg-white",
+                                bodyRowClassName: "bg-gray-100",
+                                bodyCellClassName: "align-middle",
+                                defaultValue: () => html`
+                                    <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
+                                        <i class="fas fa-info-circle fs-3"></i>
+                                        <div class="text-break">No interpretations for this Clinical Analysis.</div>
+                                    </div>
+                                `,
+                                columns: [
+                                    {
+                                        title: "Interpretation",
+                                        field: "id",
+                                        display: {
+                                            className: "text-break",
+                                            style: {
+                                                "font-weight": "bold",
+                                            },
+                                        },
+                                    },
+                                    {
+                                        title: "Status",
+                                        field: "status.id",
+                                        type: "custom",
+                                        display: {
+                                            render: statusId => html`
+                                                <span class="badge ${statusId ? "text-bg-primary" : "text-bg-secondary"}">
+                                                    <strong>${statusId || "NO_STATUS"}</strong>
+                                                </span>
+                                            `,
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    ],
+                },
+                {
                     id: "family",
-                    title: "Family",
                     display: {
                         visible: clinicalAnalysis => clinicalAnalysis?.id && clinicalAnalysis.type === "FAMILY",
                         titleWidth: 4,
