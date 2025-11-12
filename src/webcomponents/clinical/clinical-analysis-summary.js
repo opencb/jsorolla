@@ -331,12 +331,12 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                                 <div class="text-break fw-bold">
                                                     <span>${id}</span>
                                                 </div>
+                                                <div class="text-muted small">Version ${row.version}</div>
                                                 ${row?.primary ? html`
                                                     <div class="">
                                                         <span class="badge bg-primary">PRIMARY</span>
                                                     </div>    
                                                 ` : nothing}
-                                                <div class="text-muted small">Version ${row.version}</div>
                                             `,
                                         },
                                     },
@@ -374,10 +374,8 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                                     return "-";
                                                 }
                                                 return html`
-                                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                                        <strong>${method.name}</strong> 
-                                                        <span class="text-muted small">Version ${method.version || "-"}</span>
-                                                    </div>
+                                                    <div class="fw-bold">${method.name}</div> 
+                                                    <div class="text-muted small">Version ${method.version || "-"}</div>
                                                     <div class="d-flex flex-wrap gap-1">
                                                         ${(method.dependencies || []).map(item => html`
                                                             <span class="badge text-bg-primary">${item.name} (${item.version})</span>
