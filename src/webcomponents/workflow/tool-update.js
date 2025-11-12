@@ -43,9 +43,6 @@ export default class ToolUpdate extends LitElement {
             type: {
                 type: String,
             },
-            mode: {
-                type: String,
-            },
             opencgaSession: {
                 type: Object,
             },
@@ -58,7 +55,6 @@ export default class ToolUpdate extends LitElement {
     #init() {
         this._workflow = {};
         this.workflowId = "";
-        this.mode = "";
 
         this._config = this.getDefaultConfig();
     }
@@ -91,15 +87,11 @@ export default class ToolUpdate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            mode: this.mode,
             display: {
                 titleWidth: 3,
-                modalButtonClassName: "btn-primary btn-sm",
                 titleVisible: false,
                 titleAlign: "left",
-                defaultLayout: "horizontal",
                 buttonsVisible: true,
-                buttonsWidth: 8,
                 buttonsAlign: "end",
                 ...this.displayConfig,
             },
