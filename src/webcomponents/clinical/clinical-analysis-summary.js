@@ -347,6 +347,23 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                             `,
                                         },
                                     },
+                                    {
+                                        field: "panels",
+                                        title: "Panels",
+                                        type: "list",
+                                        display: {
+                                            separationClassName: "mb-0",
+                                            titleWidth: 2,
+                                            listClassName: "mb-0",
+                                            contentLayout: "vertical",
+                                            defaultLayout: "vertical",
+                                            defaultValue: "-",
+                                            format: panel => {
+                                                return panel.name || panel.id;
+                                            },
+                                        },
+                                    },
+
                                 ],
                             },
                         },
