@@ -207,7 +207,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                 listClassName: "d-flex align-items-center flex-wrap gap-1",
                                 listItemClassName: "badge bg-secondary text-white d-flex align-items-center gap-2",
                                 defaultValue: "-",
-                                template: "<i class='fas fa-user-md'></i><span>${id}</span>",
+                                template: "<i class='fas fa-user-md'></i><span>${name}</span>",
                             },
                         },
                     ],
