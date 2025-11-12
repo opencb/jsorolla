@@ -291,11 +291,20 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             type: "table",
                             display: {
                                 getData: clinicalAnalysis => {
-                                    const allInterpretations = [
-                                        clinicalAnalysis?.interpretation || null,
-                                        ...(clinicalAnalysis?.secondaryInterpretations || []),
-                                    ];
-                                    return allInterpretations.filter(Boolean);
+                                    const allInterpretations = [];
+                                    // 1. include the primary interpretation
+                                    if (clinicalAnalysis?.interpretation) {
+                                        allInterpretations.push({
+                                            ...clinicalAnalysis.interpretation,
+                                            primary: true, // add primary flag
+                                        });
+                                    }
+                                    // 2. include secondary interpretations
+                                    if (clinicalAnalysis?.secondaryInterpretations?.length > 0) {
+                                        allInterpretations.push(...clinicalAnalysis.secondaryInterpretations);
+                                    }
+                                    // 3. return all interpretations
+                                    return allInterpretations;
                                 },
                                 className: "table-borderless table-grid mb-0",
                                 separationClassName: "mb-0",
@@ -319,7 +328,12 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                                 "font-weight": "bold",
                                             },
                                             render: (id, onChange, updatedParans, data, row) => html`
-                                                <div class="text-break fw-bold">${row.id}</div>
+                                                <div class="text-break fw-bold">
+                                                    <span>${id}</span>
+                                                    ${row.primary ? html`
+                                                        <span class="badge text-bg-primary align-middle ms-2">PRIMARY</span>
+                                                    ` : nothing}
+                                                </div>
                                                 <div class="text-muted small">Version ${row.version}</div>
                                             `,
                                         },
@@ -404,7 +418,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                                 ${analyst?.id || analyst?.name ? html`
                                                     <div class="d-inline-flex align-items-center gap-2">
                                                         <i class="fas fa-user-md"></i>
-                                                        <strong>${analyst.name || analyst.id}</strong>
+                                                        <strong style="white-space:nowrap;">${analyst.name || analyst.id}</strong>
                                                     </div>
                                                 ` : "-"}
                                             `,
