@@ -337,6 +337,29 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                         },
                                     },
                                     {
+                                        title: "Method",
+                                        field: "method",
+                                        type: "custom",
+                                        display: {
+                                            render: method => {
+                                                if (!method || !method?.name) {
+                                                    return "-";
+                                                }
+                                                return html`
+                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                        <strong>${method.name}</strong> 
+                                                        <span class="text-muted small">Version ${method.version}</span>
+                                                    </div>
+                                                    <div class="d-flex flex-wrap gap-1">
+                                                        ${(method.dependencies || []).map(item => html`
+                                                            <span class="badge text-bg-primary">${item.name} (${item.version})</span>
+                                                        `)}
+                                                    </div>
+                                                `;
+                                            },
+                                        },
+                                    },
+                                    {
                                         field: "panels",
                                         title: "Panels",
                                         type: "list",
