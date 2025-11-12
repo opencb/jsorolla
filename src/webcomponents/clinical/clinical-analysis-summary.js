@@ -348,7 +348,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                                 return html`
                                                     <div class="d-flex align-items-center gap-2 mb-1">
                                                         <strong>${method.name}</strong> 
-                                                        <span class="text-muted small">Version ${method.version}</span>
+                                                        <span class="text-muted small">Version ${method.version || "-"}</span>
                                                     </div>
                                                     <div class="d-flex flex-wrap gap-1">
                                                         ${(method.dependencies || []).map(item => html`
