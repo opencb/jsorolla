@@ -20,7 +20,7 @@ import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
-export default class WorkflowUpdate extends LitElement {
+export default class ToolUpdate extends LitElement {
 
     constructor() {
         super();
@@ -298,4 +298,4 @@ export default class WorkflowUpdate extends LitElement {
 
 }
 
-customElements.define("workflow-update", WorkflowUpdate);
+customElements.define("tool-update", ToolUpdate);
