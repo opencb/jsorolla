@@ -21,7 +21,7 @@ import "../commons/tool-header.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
-export default class WorkflowUpdate extends LitElement {
+export default class ToolUpdate extends LitElement {
 
     constructor() {
         super();
@@ -41,12 +41,15 @@ export default class WorkflowUpdate extends LitElement {
             active: {
                 type: Boolean,
             },
+            type: {
+                type: String,
+            },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             displayConfig: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
@@ -89,7 +92,6 @@ export default class WorkflowUpdate extends LitElement {
                 titleWidth: 3,
                 titleVisible: false,
                 titleAlign: "left",
-                defaultLayout: "horizontal",
                 buttonsVisible: true,
                 buttonsAlign: "end",
                 ...this.displayConfig,
@@ -285,4 +287,4 @@ export default class WorkflowUpdate extends LitElement {
 
 }
 
-customElements.define("workflow-update", WorkflowUpdate);
+customElements.define("tool-update", ToolUpdate);
