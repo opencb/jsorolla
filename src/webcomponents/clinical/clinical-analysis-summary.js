@@ -368,7 +368,26 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                             },
                                         },
                                     },
-
+                                    {
+                                        field: "stats.primaryFindings",
+                                        title: "Primary Findings",
+                                        type: "custom",
+                                        display: {
+                                            render: stats => {
+                                                if (stats.numVariants === 0) {
+                                                    return "No variants selected.";
+                                                }
+                                                return html`
+                                                    <div class="fw-bold">${stats.numVariants} variants selected.</div>
+                                                    <div class="text-muted small">
+                                                        ${Object.keys(stats.geneCount || {}).map(gene => html`
+                                                            <span><b>${gene}</b> (${stats.geneCount[gene]}) </span>
+                                                        `)}
+                                                    </div>
+                                                `;
+                                            }
+                                        },
+                                    },
                                 ],
                             },
                         },
