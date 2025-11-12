@@ -24,7 +24,7 @@ import "../commons/grid-toolbar.js";
 import "./workflow-import.js";
 import "./workflow-nf-import.js";
 import "./workflow-view.js";
-import "./workflow-update.js";
+import "./tool-update.js";
 import "./tool-create.js";
 import "./analysis/tool-executor.js";
 
@@ -267,11 +267,11 @@ export default class WorkflowGrid extends LitElement {
             "update-workflow": () => ({
                 display: {
                     modalTitle: `Update Workflow ${this._selectedUserTool?.id}`,
-                    modalCyDataName: "modal-workflow-update",
+                    modalCyDataName: "modal-tool-update",
                     modalSize: "modal-xl",
                 },
                 render: () => html`
-                    <workflow-update
+                    <tool-update
                         .workflowId="${this._selectedUserTool?.id}"
                         .displayConfig="${{
                             type: "tabs",
@@ -283,7 +283,7 @@ export default class WorkflowGrid extends LitElement {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
-                    </workflow-update>
+                    </tool-update>
                 `,
             }),
         });
