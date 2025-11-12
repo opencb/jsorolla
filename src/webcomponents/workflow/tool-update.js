@@ -40,15 +40,18 @@ export default class ToolUpdate extends LitElement {
             active: {
                 type: Boolean,
             },
+            type: {
+                type: String,
+            },
             mode: {
-                type: String
+                type: String,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             displayConfig: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
@@ -56,23 +59,12 @@ export default class ToolUpdate extends LitElement {
         this._workflow = {};
         this.workflowId = "";
         this.mode = "";
-        this.displayConfig = {
-            titleWidth: 3,
-            modalButtonClassName: "btn-primary btn-sm",
-            titleVisible: false,
-            titleAlign: "left",
-            defaultLayout: "horizontal",
-            buttonsVisible: true,
-            buttonsWidth: 8,
-            buttonsAlign: "end",
-        };
 
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
@@ -100,7 +92,17 @@ export default class ToolUpdate extends LitElement {
     getDefaultConfig() {
         return Types.dataFormConfig({
             mode: this.mode,
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                titleWidth: 3,
+                modalButtonClassName: "btn-primary btn-sm",
+                titleVisible: false,
+                titleAlign: "left",
+                defaultLayout: "horizontal",
+                buttonsVisible: true,
+                buttonsWidth: 8,
+                buttonsAlign: "end",
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
