@@ -291,7 +291,6 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             type: "table",
                             display: {
                                 getData: clinicalAnalysis => {
-                                    debugger;
                                     const allInterpretations = [
                                         clinicalAnalysis?.interpretation || null,
                                         ...(clinicalAnalysis?.secondaryInterpretations || []),
@@ -360,7 +359,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                             separationClassName: "mb-0",
                                             titleWidth: 2,
                                             listClassName: "mb-0",
-                                            contentLayout: "vertical",
+                                            contentLayout: "bullets",
                                             defaultLayout: "vertical",
                                             defaultValue: "-",
                                             format: panel => {
@@ -435,6 +434,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             field: "family.members",
                             type: "table",
                             display: {
+                                defaultLayout: "vertical",
                                 className: "table-borderless table-grid mb-0",
                                 separationClassName: "mb-0",
                                 headerCellClassName: "bg-white",
@@ -465,16 +465,10 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                         type: "list",
                                         display: {
                                             separationClassName: "mb-0",
-                                            titleWidth: 2,
-                                            listClassName: "mb-0 ps-3",
+                                            listClassName: "mb-0 ps-0",
                                             contentLayout: "bullets",
                                             defaultLayout: "vertical",
-                                            defaultValue: individual => html`
-                                                <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
-                                                    <i class="fas fa-info-circle fs-3"></i>
-                                                    <div class="text-break">No disorders available for individual <b>${individual.name || individual.id}</b>.</div>
-                                                </div>
-                                            `,
+                                            defaultValue: "-",
                                             template: "${name} (${id})",
                                             link: {
                                                 "id": id => {
