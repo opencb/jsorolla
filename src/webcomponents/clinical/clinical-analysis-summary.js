@@ -127,10 +127,6 @@ export default class ClinicalAnalysisSummary extends LitElement {
                         ],
                     },
                     {
-                        id: "proband",
-                        className: "mb-4",
-                    },
-                    {
                         id: "family",
                         className: "mb-4",
                     },
