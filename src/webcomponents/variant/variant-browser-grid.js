@@ -774,7 +774,7 @@ export default class VariantBrowserGrid extends LitElement {
                 },
                 {
                     id: "omim",
-                    title: "OMIM",
+                    title: "OMIM<br>Orphanet",
                     field: "omim",
                     colspan: 1,
                     rowspan: 1,

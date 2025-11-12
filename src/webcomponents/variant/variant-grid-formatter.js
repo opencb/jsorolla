@@ -1150,21 +1150,21 @@ export default class VariantGridFormatter {
                     ${!onlyCohortAll ? `
                         <div class="d-flex rounded overflow-hidden" style="gap:1px;">
                             ${Array.from(classificationsMap.values()).map(entry => {
-                                if (entry.populations.length > 0) {
-                                    const tooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(entry.populations, populationFrequenciesMap, populationFrequenciesColor);
-                                    return `
+                if (entry.populations.length > 0) {
+                    const tooltip = VariantGridFormatter.getPopulationFrequenciesTooltip(entry.populations, populationFrequenciesMap, populationFrequenciesColor);
+                    return `
                                         <a tooltip-title="Population Frequencies" tooltip-text="${tooltip}" tooltip-position-my="top right">
                                             <div class="px-1 py-1 text-center" style="background-color:${entry.color};min-width:26px;">
                                                 <span class="small text-white fw-bold">${entry.populations.length}</span>
                                             </div>
                                         </a>
                                     `;
-                                } else {
-                                    return `
+                } else {
+                    return `
                                         <div class="px-1 py-3 cursor-not-allowed" style="background-color:${entry.color};min-width:26px;opacity:0.25;"></div>
                                     `;
-                                }
-                            }).join("")}
+                }
+            }).join("")}
                         </div>
                     ` : ""}
                 </div>
@@ -1176,13 +1176,13 @@ export default class VariantGridFormatter {
                     <div class="d-flex justify-content-center align-items-center">
                         <div class="d-flex rounded overflow-hidden" style="gap:1px;">
                             ${populations.map(population => {
-                                let color = "black";
-                                if (typeof populationFrequenciesMap.get(population) !== "undefined") {
-                                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
-                                    color = VariantGridFormatter.getPopulationFrequencyColor(freq, populationFrequenciesColor);
-                                }
-                                return `<div class="px-2 py-3" style="background-color:${color}"></div>`;
-                            }).join("")}
+                let color = "black";
+                if (typeof populationFrequenciesMap.get(population) !== "undefined") {
+                    const freq = populationFrequenciesMap.get(population).altAlleleFreq || 0;
+                    color = VariantGridFormatter.getPopulationFrequencyColor(freq, populationFrequenciesColor);
+                }
+                return `<div class="px-2 py-3" style="background-color:${color}"></div>`;
+            }).join("")}
                         </div>
                     </div>
                 </a>
@@ -1536,7 +1536,10 @@ export default class VariantGridFormatter {
 
                     return `
                         <a class="cosmic-tooltip" tooltip-title='Cosmic' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                            <span style="color: green">${cosmicMap.size} ${cosmicMap.size > 1 ? "entries" : "entry"} (${traits.length})</span>
+                            <div class="text-nowrap" style="color: green">${cosmicMap.size} ${cosmicMap.size > 1 ? "entries" : "entry"}</div>
+                            ${traits.length > 1 ? `
+                                <div class="text-nowrap" style="color: green">(${traits.length} traits)</div>
+                            ` : ""}
                         </a>
                     `;
                 case "HGMD":
@@ -1546,21 +1549,53 @@ export default class VariantGridFormatter {
                         if (!hgmdMap.has(trait.id)) {
                             hgmdMap.set(trait.id, new Set());
                         }
+                        if (trait?.heritableTraits?.length > 0) {
+                            for (const heritableTrait of trait.heritableTraits) {
+                                if (heritableTrait?.trait) {
+                                    hgmdMap.get(trait.id).add(heritableTrait.trait);
+                                }
+                            }
+                        }
                     });
 
-                    Array.from(hgmdMap.entries()).forEach(([traitId, histologies]) => {
-                        tooltipText += `
-                            <div style="margin: 10px 5px">
-                                <div>
-                                    ${traitId}</a>
-                                </div>
-                            </div>
+                    for (const trait of traits) {
+                        const row = `
+                             <tr style="border-top:1px solid #ededed;">
+                                <td class="p-2">
+                                    <span>${trait.id}</span>
+                                </td>
+                                <td class="p-2">
+                                     ${trait.heritableTraits?.length > 0 ?
+                            trait.heritableTraits.map(t => `<span>${t.trait}</span>`).join(", ")
+                            : ""}
+                                </td>
+                                <td class="p-2">
+                                    ${trait.additionalProperties?.find(p => p.name === "RANKSCORE")?.value || "-"}
+                                </td>
+                            </tr>
                         `;
-                    });
+                        tooltipRows.push(row);
+                    }
+
+                    tooltipText = `
+                        <table class="tooltip-2xl">
+                            <thead>
+                                <tr>
+                                    <th class="p-2">HGMD ID</th>
+                                    <th class="p-2">Heritable Traits</th>
+                                    <th class="p-2">Rank Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>${tooltipRows.join("")}</tbody>
+                        </table>
+                     `;
 
                     return `
-                        <a class="hgmd-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                            <span style="color: green">${hgmdMap.size} ${hgmdMap.size > 1 ? "entries" : "entry" }</span>
+                        <a class="hgmd-tooltip" tooltip-title='HGMD' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <div class="text-nowrap" style="color: green">${hgmdMap.size} ${hgmdMap.size > 1 ? "entries" : "entry" }</div>
+                            ${traits.length > 1 ? `
+                                <div class="text-nowrap" style="color: green">(${traits.length} traits)</div>
+                            ` : ""}
                         </a>`;
                 default:
                     console.error("Wrong clinical source : " + this.field);
@@ -1617,27 +1652,102 @@ export default class VariantGridFormatter {
         return "<span title='No clinical records found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
     }
 
-    static clinicalOmimFormatter(value, row) {
-        const entries = (row?.annotation?.geneTraitAssociation || [])
-            .filter(item => item?.id?.startsWith("OMIM:"))
-            .map(item => item.id.replace("OMIM:", ""));
+    static clinicalOmimFormatter(value, variant) {
+        const omim = new Map();
+        const orpha = new Map();
+        for (const geneTrait of variant?.annotation?.geneTraitAssociation) {
+            if (geneTrait?.id?.startsWith("OMIM:") && !omim.has(geneTrait.id)) {
+                omim.set(geneTrait.id, geneTrait);
+            }
+            if (geneTrait?.id?.startsWith("ORPHA:") && !orpha.has(geneTrait.id)) {
+                orpha.set(geneTrait.id, geneTrait);
+            }
+        }
 
-        if (entries.length > 0) {
-            const uniqueEntries = new Set(entries);
-            const entriesLinks = Array.from(uniqueEntries)
-                .map(entry => {
-                    return `
-                        <div style="margin: 10px 5px">
-                            <a href="${BioinfoUtils.getOmimOntologyLink(entry)}" target="_blank">${entry}</a>
-                        </div>
-                    `;
-                });
-            const tooltipText = entriesLinks.join("");
+        if (omim.size > 0 || orpha.size > 0) {
+            // 1. Prepare OMIM tooltip
+            const omimTooltipRows = [];
+            for (const [_, entry] of omim.entries()) {
+                const row = `
+                    <tr style="border-top:1px solid #ededed;">
+                        <td class="p-2">
+                            <a href="${BioinfoUtils.getOmimOntologyLink(entry.id?.replace("OMIM:", ""))}" target="_blank">${entry.id}</a>
+                        </td>
+                       <td class="p-2">
+                            <a href="${BioinfoUtils.getHpoLink(entry.hpo)}" target="_blank">${entry.hpo}</a>
+                        </td>
+                        <td class="p-2">
+                            <span>${entry.name}</span>
+                        </td>
+                    </tr>
+                `;
+                omimTooltipRows.push(row);
+            }
+
+            let omimTooltipText = `
+                <table class="tooltip-2xl">
+                    <thead>
+                        <tr>
+                            <th class="p-2">OMIM ID</th>
+                            <th class="p-2">HPO</th>
+                            <th class="p-2">Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>${omimTooltipRows.join("")}</tbody>
+                </table>
+            `;
+
+            // 2. Prepare Orphanet tooltip
+            const orphaTooltipRows = [];
+            for (const [_, entry] of orpha.entries()) {
+                const row = `
+                    <tr style="border-top:1px solid #ededed;">
+                        <td class="p-2">
+                            <a href="https://www.orpha.net/en/disease/detail/${entry.id}" target="_blank">${entry.id}</a>
+                        </td>
+                       <td class="p-2">
+                            <a href="${BioinfoUtils.getHpoLink(entry.hpo)}" target="_blank">${entry.hpo}</a>
+                        </td>
+                        <td class="p-2">
+                            <span>${entry.name}</span>
+                        </td>
+                    </tr>
+                `;
+                orphaTooltipRows.push(row);
+            }
+
+            let orphaTooltipText = `
+                <table class="tooltip-2xl">
+                    <thead>
+                        <tr>
+                            <th class="p-2">Orphanet ID</th>
+                            <th class="p-2">HPO</th>
+                            <th class="p-2">Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>${orphaTooltipRows.join("")}</tbody>
+                </table>
+            `;
 
             return `
-                <a class="omim-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                    <span style='color:green;'>${uniqueEntries.size}<br>${uniqueEntries.size === 1 ? "entry" : "entries"}</span>
-                </a>
+                ${omim.size > 0 ? `
+                    <a class="omim-tooltip" tooltip-title='OMIM' tooltip-text='${omimTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                        <span class="text-nowrap" style='color:green;'>${omim.size} OMIM</span>
+                    </a>
+                ` : `
+                    <span class="my-1" title='No clinical records found for this variant'>
+                        <i class='fa fa-times' style='color: gray'></i>
+                    </span>
+                `}
+                ${orpha.size > 0 ? `
+                    <a class="omim-tooltip" tooltip-title='Orphanet' tooltip-text='${orphaTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                        <span class="text-nowrap" style='color:green;'>${orpha.size} Orphanet</span>
+                    </a>
+                ` : `
+                    <span class="my-1" title='No clinical records found for this variant'>
+                        <i class='fa fa-times' style='color: gray'></i>
+                    </span>
+                `}
             `;
         } else {
             return `
@@ -1648,20 +1758,61 @@ export default class VariantGridFormatter {
         }
     }
 
-    static clinicalPharmGKBFormatter(value, row) {
-        if (row?.annotation?.pharmacogenomics?.length > 0) {
-            const entriesLinks = row.annotation.pharmacogenomics.map(entry => {
-                return `
-                    <div style="margin: 10px 5px">
-                        <a href="${BioinfoUtils.getPharmGKBLink(entry.id)}" target="_blank">${entry.name} (${entry.id})</a>
-                    </div>
+    static clinicalPharmGKBFormatter(value, variant) {
+        if (variant?.annotation?.pharmacogenomics?.length > 0) {
+            const pharmaTooltipRows = [];
+            for (const pharmaEntry of variant.annotation.pharmacogenomics) {
+                const row = `
+                    <tr style="border-top:1px solid #ededed;">
+                        <td class="p-2">
+                            <a href="${BioinfoUtils.getPharmGKBLink(pharmaEntry.id)}" target="_blank">${pharmaEntry.id}</a>
+                        </td>
+                        <td class="p-2">
+                            <span>${pharmaEntry.name}</span>
+                        </td>
+                        <td class="p-2">
+                            <span>${pharmaEntry.annotations[0]?.phenotypes?.join("<br>")}</span>
+                        </td>
+                        <td class="p-2">
+                            <span>${pharmaEntry.annotations[0]?.confidence}</span>
+                        </td>
+                        <td class="p-2">
+                            <span>${pharmaEntry.annotations[0]?.score}</span>
+                        </td>
+                        <td class="p-2">
+                            <div>${pharmaEntry.annotations[0]?.summary}</div>
+                            <a class="my-1" href="${pharmaEntry.annotations[0]?.url}" target="_blank">More info</a>
+                        </td>
+                        <td class="p-2">
+                            <span>
+                                ${pharmaEntry.annotations[0]?.pubmed?.map(pubmedId => `<a class="my-1" href="${BioinfoUtils.getPubmedLink(pubmedId)}" target="_blank">${pubmedId}</a>`).join("<br>") || "-"}
+                            </span>
+                        </td>
+                    </tr>
                 `;
-            });
-            const tooltipText = entriesLinks.join("");
+                pharmaTooltipRows.push(row);
+            }
+
+            let tooltipText = `
+                <table class="tooltip-2xl">
+                    <thead>
+                        <tr>
+                            <th class="p-2">ClinPGx</th>
+                            <th class="p-2">Name</th>
+                            <th class="p-2">Phenotypes</th>
+                            <th class="p-2">Confidence</th>
+                            <th class="p-2">Score</th>
+                            <th class="p-2">Summary</th>
+                            <th class="p-2">PubMed</th>
+                        </tr>
+                    </thead>
+                    <tbody>${pharmaTooltipRows.join("")}</tbody>
+                </table>
+            `;
 
             return `
-                <a class="hotspots-tooltip" tooltip-title='Info' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                    <span style='color:green;'>${row.annotation.pharmacogenomics.length}<br>${row.annotation.pharmacogenomics.length === 1 ? "entry" : "entries"}</span>
+                <a class="hotspots-tooltip" tooltip-title='ClinPGx' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                    <span class="text-nowrap" style="color:green">${variant.annotation.pharmacogenomics.length} ${variant.annotation.pharmacogenomics.length === 1 ? "entry" : "entries"}</span>
                 </a>
             `;
         } else {
