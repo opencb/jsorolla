@@ -127,12 +127,13 @@ export default class UserToolExecutor extends LitElement {
         // 1. initialize form params object
         const formParams = {};
 
-        // 2. add convert variable ids into parameters
+        // 2. include variables defined in the tool and filled in the form
         Object.keys(this._toolParams.variables || {}).forEach(variableId => {
-            const variableConfig = (this._tool?.variables || []).find(v => v.id === variableId);
-            if (variableConfig && variableConfig?.name) {
-                formParams[variableConfig.name] = this._toolParams.variables[variableId];
-            }
+            // const variableConfig = (this._tool?.variables || []).find(v => v.id === variableId);
+            // if (variableConfig && variableConfig?.name) {
+            //     formParams[variableConfig.name] = this._toolParams.variables[variableId];
+            // }
+            formParams[variableId] = this._toolParams.variables[variableId];
         });
 
         // 3. add other variables from the text area, with the format key=value
@@ -157,10 +158,8 @@ export default class UserToolExecutor extends LitElement {
             case "CUSTOM_TOOL":
                 toolParams = {
                     id: this._tool.id,
-                    params: {
-                        commandLine: this._toolParams.commandLine,
-                        params: formParams,
-                    },
+                    commandLine: this._toolParams.commandLine,
+                    params: formParams,
                 };
                 toolRunPromise = this.opencgaSession.opencgaClient.userTool()
                     .runCustomDocker(toolParams, {
@@ -171,9 +170,7 @@ export default class UserToolExecutor extends LitElement {
             case "WORKFLOW":
                 toolParams = {
                     id: this._tool.id,
-                    params: {
-                        params: formParams,
-                    },
+                    params: formParams,
                 };
                 toolRunPromise = this.opencgaSession.opencgaClient.userTool()
                     .runWorkflow(toolParams, {
