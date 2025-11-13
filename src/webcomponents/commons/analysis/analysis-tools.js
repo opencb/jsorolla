@@ -3,7 +3,7 @@ import "../tool-header.js";
 import "../view/vertical-menu.js";
 import "../../clinical/analysis/mutational-signature-analysis.js";
 import "../../clinical/analysis/rd-tiering-analysis.js";
-import "../../job/analysis/tool-analysis.js";
+import "../../workflow/analysis/tool-analysis.js";
 import "../../job/analysis/custom-tool-builder.js";
 import "../../variant/analysis/gwas-analysis.js";
 import "../../variant/analysis/sample-variant-stats-analysis.js";
