@@ -117,14 +117,19 @@ export default class VariantSummaryQuality extends LitElement {
             let pieData;
 
             if (adString && adString !== ".") {
-                const [ref, alt] = adString.split(",").map(Number);
-                const total = ref + alt;
+                const [ref, alt, other] = adString.split(",").map(Number);
+                const total = ref + alt + (other || 0);
                 const refPercent = total ? (ref / total) * 100 : 0;
                 const altPercent = total ? (alt / total) * 100 : 0;
+
                 pieData = [
-                    { name: "Ref Allele", y: refPercent },
-                    { name: "Alt Allele", y: altPercent }
+                    { name: "Ref. Allele", y: refPercent },
+                    { name: "Alt. Allele", y: altPercent },
                 ];
+                if (other) {
+                    const otherPercent = total ? (other / total) * 100 : 0;
+                    pieData.push({ name: "Second Alt. Allele", y: otherPercent });//
+                }
             } else {
                 pieData = [];
             }
@@ -411,7 +416,11 @@ export default class VariantSummaryQuality extends LitElement {
                                             <div class="d-flex align-items-center">
                                                 <div class="" id="${this._chartId}" style="flex: 0 0 auto"></div>
                                             </div>
-                                    ` : nothing;
+                                    ` : `
+                                        <div class="d-flex align-items-center pt-4 px-2">
+                                            <label>No AD data available</label>
+                                        </div>
+                                    `;
                                 }
                             }
                         }

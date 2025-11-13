@@ -486,7 +486,7 @@ export default class IndividualGrid extends LitElement {
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
-                visible: this.gridCommons.isColumnVisible("father")
+                visible: this.gridCommons.isColumnVisible("parents")
             },
             {
                 id: "disorders",

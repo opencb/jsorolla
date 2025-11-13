@@ -147,22 +147,104 @@ export default class VariantSummaryInterpretation extends LitElement {
                                 </div>
                             ` : html`
                                 <div class="">
-                                   <b>SECONDARY_FINDING</b>
+                                    <b>SECONDARY_FINDING</b>
                                 </div>
                             `}
                         </div>
                         <div class="d-flex flex-column me-2">
                             <div class="summary-category">#COMMENTS</div>
                             ${(() => {
-                                const count = this._variant?.comments?.length ?? [];
-                                return html`<div><b>${count}</b></div>`;
+                                const count = this._variant?.comments?.length || 0;
+                                if (count > 0) {
+                                    const tooltipRows = [];
+                                    for (const comment of this._variant?.comments) {
+                                        const row = `
+                                        <tr style="border-top:1px solid #ededed;">
+                                            <td class="p-2">
+                                                ${comment.author}
+                                            </td>
+                                            <td class="p-2">
+                                                 ${comment.message}
+                                            </td>
+                                            <td class="p-2">
+                                                ${comment.tags?.join(", ")}
+                                            </td>
+                                            <td class="p-2">
+                                                ${UtilsNew.dateFormatter(comment.date)}
+                                            </td>
+                                        </tr>
+                                    `;
+                                        tooltipRows.push(row);
+                                    }
+
+                                    let commentsTooltipText = `
+                                        <table class="tooltip-2xl">
+                                            <thead>
+                                                <tr>
+                                                    <th class="p-2">Author</th>
+                                                    <th class="p-2">Message</th>
+                                                    <th class="p-2">Tags</th>
+                                                    <th class="p-2">Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>${tooltipRows.join()}</tbody>
+                                        </table>
+                                    `;
+
+                                    return html`
+                                        <a class="comments-tooltip" tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                                            <span class="text-nowrap" style='color:green;'>${count}</span>
+                                        </a>
+                                    `;
+                                } else {
+                                    return html`<div><b>0</b></div>`;
+                                }
                             })()}
                         </div>
                         <div class="d-flex flex-column me-2">
                             <div class="summary-category">#REFERENCES</div>
                             ${(() => {
-                                const count = this._variant?.references?.length ?? [];
-                                return html`<div><b>${count}</b></div>`;
+                                const count = this._variant?.references?.length || 0;
+                                if (count > 0) {
+                                    const tooltipRows = [];
+                                    for (const reference of this._variant?.references) {
+                                        const row = `
+                                        <tr style="border-top:1px solid #ededed;">
+                                            <td class="p-2">
+                                                <a href="${reference.url}" target="_blank">${reference.id}</a>
+                                            </td>
+                                            <td class="p-2">
+                                                 ${reference.title}
+                                            </td>
+                                            <td class="p-2">
+                                                ${reference.date}
+                                            </td>
+                                        </tr>
+                                    `;
+                                        tooltipRows.push(row);
+                                    }
+
+                                    let referenceTooltipText = `
+                                        <table class="tooltip-2xl">
+                                            <thead>
+                                                <tr>
+                                                    <th class="p-2">Pubmed ID</th>
+                                                    <th class="p-2">Title</th>
+                                                    <th class="p-2">Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>${tooltipRows.join()}</tbody>
+                                        </table>
+                                    `;
+
+                                    return html`
+                                        <a class="reference-tooltip" tooltip-title='References' tooltip-text='${referenceTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                                            <span class="text-nowrap" style='color:green;'>${count}</span>
+                                        </a>
+                                    `;
+                                } else {
+                                    return html`<div><b>0</b></div>`;
+                                }
                             })()}
                         </div>
                         <div class="d-flex flex-column me-2">
@@ -289,18 +371,18 @@ export default class VariantSummaryInterpretation extends LitElement {
                                                             }
                                                             return html`
                                                                 ${acmgList.map(({ classification, strength }) => {
-                                                                const { color, id } = ACMG_CRITERIA_COLOR.find(c => c.id === classification) ?? { color: '#000', id: '-' };
-                                                                return html`
-                                                                    <div class="d-inline-flex flex-column align-items-center text-center me-1">
+                                                                    const { color, id } = ACMG_CRITERIA_COLOR.find(c => c.id === classification) ?? { color: '#000', id: '-' };
+                                                                    return html`
+                                                                        <div class="d-inline-flex flex-column align-items-center text-center me-1">
                                                                         <span
                                                                             class="rounded-4 px-2 py-1"
                                                                             style="border: 1px solid ${color}; color: ${color}; min-width: 2.5rem;">
                                                                                 ${id}
                                                                         </span>
-                                                                        ${strength ? html`<small class="text-muted mt-1 fs-9">${strength}</small>` : ''}
-                                                                    </div>
-                                                              `;
-                                                            })}
+                                                                            ${strength ? html`<small class="text-muted mt-1 fs-9">${strength}</small>` : ''}
+                                                                        </div>
+                                                                    `;
+                                                                })}
                                                             `;
                                                         },
                                                     },
@@ -439,19 +521,19 @@ export default class VariantSummaryInterpretation extends LitElement {
                                 style: "font-size: 12px;",
                                 render: variant => {
                                     return html `
-                                            <!-- Recommendation -->
-                                            <div class="d-flex flex-column mt-2">
-                                                ${variant?.recommendation ? html`
-                                                    <div class="clamp-text text-muted fs-6">
-                                                        ${variant.recommendation}
-                                                    </div>
-                                                ` : html`
-                                                    <div class="alert alert-light border-0 mb-0 d-flex align-items-center gap-1">
-                                                        <i class="fas fa-info-circle fs-4 me-2"></i>
-                                                        <div class="text-break">No recommendation available.</div>
-                                                    </div>
-                                                `}
-                                            </div>
+                                        <!-- Recommendation -->
+                                        <div class="d-flex flex-column mt-2">
+                                            ${variant?.recommendation ? html`
+                                                <div class="clamp-text text-muted fs-6">
+                                                    ${variant.recommendation}
+                                                </div>
+                                            ` : html`
+                                                <div class="alert alert-light border-0 mb-0 d-flex align-items-center gap-1">
+                                                    <i class="fas fa-info-circle fs-4 me-2"></i>
+                                                    <div class="text-break">No recommendation available.</div>
+                                                </div>
+                                            `}
+                                        </div>
                                     `;
                                 },
                             },

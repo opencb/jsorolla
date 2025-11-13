@@ -1100,6 +1100,10 @@ export default class VariantInterpreterGrid extends LitElement {
                 // this.gridCommons.changeActiveModal("view-variant");
                 this.onVariantView(event, variant);
                 break;
+            case "copy":
+                UtilsNew.copyToClipboard(variant.id);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {message: `Variant ID ${variant.id} copied to clipboard`});
+                break;
             case "review":
             case "edit":
                 this.onVariantReview(event, variant);

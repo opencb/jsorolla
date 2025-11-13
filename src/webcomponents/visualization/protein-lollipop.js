@@ -83,7 +83,7 @@ export default class ProteinLollipop extends LitElement {
     getProtein() {
         return this.opencgaSession.cellbaseClient
             .getProteinClient(null, "search", {
-                gene: this.geneId,
+                id: this.geneId,
             })
             .then(response => {
                 return response.responses[0].results[0] || null;

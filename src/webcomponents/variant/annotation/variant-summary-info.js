@@ -17,6 +17,7 @@
 import {html, LitElement, nothing} from "lit";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utils-new";
+import VariantFormatter from "../variant-formatter";
 
 export default class VariantSummaryInfo extends LitElement {
 
@@ -159,14 +160,14 @@ export default class VariantSummaryInfo extends LitElement {
                         {
                             id: "variant-id",
                             title: "ID",
-                            field: "id",
+                            // field: "id",
                             type: "custom",
                             display: {
                                 titleClassName: "summary-category",
-                                render: id => {
+                                render: variant => {
                                     return html`
-                                        <div class="fw-bold text-truncate" style="max-width:350px">
-                                            ${id}
+                                        <div class="fw-bold text-truncate" style="" title="${variant.id}">
+                                            ${VariantFormatter.variantIdFormatter(variant.id, variant,25, 10)}
                                         </div>
                                     `;
                                 },

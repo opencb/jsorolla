@@ -877,11 +877,15 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     onActionClick(event, variant) {
-        const action = event.target?.dataset?.action?.toLowerCase();
+        const action = event.currentTarget?.dataset?.action?.toLowerCase();
         switch (action) {
             case "view":
                 this.selectedVariantId = variant.id;
                 this.gridCommons.changeActiveModal("view-variant");
+                break;
+            case "copy":
+                UtilsNew.copyToClipboard(variant.id);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {message: `Variant ID ${variant.id} copied to clipboard`});
                 break;
             case "copy-link":
                 // 1. Generate the URL to this variant

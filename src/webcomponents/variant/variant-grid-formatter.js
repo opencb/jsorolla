@@ -93,10 +93,14 @@ export default class VariantGridFormatter {
                 return `<i title="${description}" class="fas fa-${icon}" style="color:${color};margin-left:4px;"></i>`;
             });
 
-        // 3. render the content of the variant ID section
         return `
             <div class="text-nowrap">
-                <a class="link fw-bold" data-action="view" data-variant="${variant.id}">${variantId}</a>
+                <a class="link" data-action="copy" data-variant="${variant.id}">
+                    <i class="far fa-copy pe-2"></i>
+                </a>
+                <a class="link fw-bold" data-action="view" data-variant="${variant.id}">
+                    ${variantId}
+                </a>
                 ${iconHighlights.join("")}
             </div>
             ${snpIds.length > 0 ? `
@@ -110,6 +114,7 @@ export default class VariantGridFormatter {
                 </div>
             ` : ""}
         `;
+        // 3. render the content of the variant ID section
     }
 
     static geneFormatter(variant, index, query, opencgaSession, gridCtSettings) {
@@ -1560,14 +1565,12 @@ export default class VariantGridFormatter {
 
                     for (const trait of traits) {
                         const row = `
-                             <tr style="border-top:1px solid #ededed;">
+                            <tr style="border-top:1px solid #ededed;">
                                 <td class="p-2">
                                     <span>${trait.id}</span>
                                 </td>
                                 <td class="p-2">
-                                     ${trait.heritableTraits?.length > 0 ?
-                            trait.heritableTraits.map(t => `<span>${t.trait}</span>`).join(", ")
-                            : ""}
+                                     ${trait.heritableTraits?.length > 0 ? trait.heritableTraits.map(t => `<span>${t.trait}</span>`).join(", "): ""}
                                 </td>
                                 <td class="p-2">
                                     ${trait.additionalProperties?.find(p => p.name === "RANKSCORE")?.value || "-"}
@@ -1730,24 +1733,28 @@ export default class VariantGridFormatter {
             `;
 
             return `
-                ${omim.size > 0 ? `
-                    <a class="omim-tooltip" tooltip-title='OMIM' tooltip-text='${omimTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                        <span class="text-nowrap" style='color:green;'>${omim.size} OMIM</span>
-                    </a>
-                ` : `
-                    <span class="my-1" title='No clinical records found for this variant'>
-                        <i class='fa fa-times' style='color: gray'></i>
-                    </span>
-                `}
-                ${orpha.size > 0 ? `
-                    <a class="omim-tooltip" tooltip-title='Orphanet' tooltip-text='${orphaTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                        <span class="text-nowrap" style='color:green;'>${orpha.size} Orphanet</span>
-                    </a>
-                ` : `
-                    <span class="my-1" title='No clinical records found for this variant'>
-                        <i class='fa fa-times' style='color: gray'></i>
-                    </span>
-                `}
+                <div>
+                    ${omim.size > 0 ? `
+                        <a class="omim-tooltip" tooltip-title='OMIM' tooltip-text='${omimTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <span class="text-nowrap" style='color:green;'>${omim.size} OMIM</span>
+                        </a>
+                    ` : `
+                        <span class="my-1" title='No clinical records found for this variant'>
+                            <i class='fa fa-times' style='color: gray'></i>
+                        </span>
+                    `}
+                </div>
+                <div>
+                    ${orpha.size > 0 ? `
+                        <a class="omim-tooltip" tooltip-title='Orphanet' tooltip-text='${orphaTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                            <span class="text-nowrap" style='color:green;'>${orpha.size} Orphanet</span>
+                        </a>
+                    ` : `
+                        <span class="my-1" title='No clinical records found for this variant'>
+                            <i class='fa fa-times' style='color: gray'></i>
+                        </span>
+                    `}
+                </div>
             `;
         } else {
             return `

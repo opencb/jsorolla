@@ -627,7 +627,7 @@ export default class VariantInterpreterGridFormatter {
             `;
 
             return `
-                <div>
+                <div class="text-nowrap">
                     <a tooltip-title="Exomiser Scores" tooltip-text="${tooltipText}">
                         <div><b>Rank</b>: ${evidence.attributes.exomiser["RANK"] || "-"}</div>
                         <div><b>P-Value</b>: ${evidence.attributes.exomiser["P-VALUE"] || "-"}</div>
