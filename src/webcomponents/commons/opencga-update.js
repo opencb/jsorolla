@@ -318,8 +318,14 @@ export default class OpencgaUpdate extends LitElement {
                         },
                     ];
                     break;
+                case "CUSTOM_TOOL":
+                    this.endpoint = this.opencgaSession.opencgaClient.userTool();
+                    this.methodUpdate = "updateCustom";
+                    this.resourceInfoParams = {};
+                    break;
                 case "WORKFLOW":
-                    this.endpoint = this.opencgaSession.opencgaClient.workflows();
+                    this.endpoint = this.opencgaSession.opencgaClient.userTool();
+                    this.methodUpdate = "updateWorkflow";
                     this.resourceInfoParams = {};
                     break;
                 case "NOTE":
