@@ -264,21 +264,26 @@ export default class WorkflowGrid extends LitElement {
                     </tool-executor>
                 `,
             }),
-            "update-workflow": () => ({
+            "update": () => ({
                 display: {
-                    modalTitle: `Update Workflow ${this._selectedUserTool?.id}`,
+                    modalTitle: `Update Tool ${this._selectedUserTool?.id}`,
                     modalCyDataName: "modal-tool-update",
                     modalSize: "modal-xl",
                 },
                 render: () => html`
                     <tool-update
-                        .workflowId="${this._selectedUserTool?.id}"
+                        .type="${this._selectedUserTool?.type}"
+                        .toolId="${this._selectedUserTool?.id}"
                         .displayConfig="${{
                             type: "tabs",
                             buttonClearText: "Cancel",
-                            buttonsLayout: "upper"
+                            buttonsLayout: "bottom",
                         }}"
                         .opencgaSession="${this.opencgaSession}"
+                        @customToolUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}"
                         @workflowUpdate="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
@@ -629,7 +634,7 @@ export default class WorkflowGrid extends LitElement {
                 break;
             case "update":
                 this._selectedUserTool = userTool;
-                this.gridCommons.changeActiveModal("update-workflow");
+                this.gridCommons.changeActiveModal("update");
                 break;
             case "delete":
                 this.onDelete(userTool);
