@@ -323,17 +323,15 @@ export default class OpencgaUpdate extends LitElement {
                         },
                     ];
                     break;
-                case "WORKFLOW":
-                    this.endpoint = this.opencgaSession.opencgaClient.workflows();
+                case "CUSTOM_TOOL":
+                    this.endpoint = this.opencgaSession.opencgaClient.userTool();
+                    this.methodUpdate = "updateCustom";
                     this.resourceInfoParams = {};
-                    this.updateCustomisation = [
-                        params => {
-                            if (params.tags) {
-                                // eslint-disable-next-line no-param-reassign
-                                params.tags = params.tags?.split(",") || [];
-                            }
-                        },
-                    ];
+                    break;
+                case "WORKFLOW":
+                    this.endpoint = this.opencgaSession.opencgaClient.userTool();
+                    this.methodUpdate = "updateWorkflow";
+                    this.resourceInfoParams = {};
                     break;
                 case "NOTE":
                     this.endpoint = this.component?.scope === "ORGANIZATION" ?
