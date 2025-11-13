@@ -150,6 +150,7 @@ class VariantInterpreterMethods extends LitElement {
                                     id: tool.id,
                                     variables: {
                                         clinicalAnalysisId: clinicalAnalysis.id,
+                                        study: this.opencgaSession.study.fqn,
                                     },
                                 }}"
                                 .displayConfig="${{
