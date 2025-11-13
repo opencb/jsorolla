@@ -328,7 +328,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                                 "font-weight": "bold",
                                             },
                                             render: (id, onChange, updatedParans, data, row) => html`
-                                                <div class="fw-bold text-nowrap">
+                                                <div class="fw-bold ${id?.length > 20 ? "text-break" : "text-nowrap"}">
                                                     <span>${id}</span>
                                                 </div>
                                                 <div class="text-muted small">Version ${row.version}</div>
