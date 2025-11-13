@@ -463,11 +463,7 @@ export default class WorkflowGrid extends LitElement {
                 title: "Tags",
                 field: "tags",
                 formatter: tags => {
-                    return `
-                        <span>
-                            ${tags?.join(", ") || "-"}
-                        </span>
-                    `;
+                    return (tags || []).map(tag => `<span class="badge bg-secondary me-1 mb-1">${tag}</span>`).join("");
                 },
                 visible: this.gridCommons.isColumnVisible("tags")
             },
