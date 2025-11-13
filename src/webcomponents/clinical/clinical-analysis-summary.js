@@ -291,11 +291,20 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             type: "table",
                             display: {
                                 getData: clinicalAnalysis => {
-                                    const allInterpretations = [
-                                        clinicalAnalysis?.interpretation || null,
-                                        ...(clinicalAnalysis?.secondaryInterpretations || []),
-                                    ];
-                                    return allInterpretations.filter(Boolean);
+                                    const allInterpretations = [];
+                                    // 1. include the primary interpretation
+                                    if (clinicalAnalysis?.interpretation) {
+                                        allInterpretations.push({
+                                            ...clinicalAnalysis.interpretation,
+                                            primary: true, // add primary flag
+                                        });
+                                    }
+                                    // 2. include secondary interpretations
+                                    if (clinicalAnalysis?.secondaryInterpretations?.length > 0) {
+                                        allInterpretations.push(...clinicalAnalysis.secondaryInterpretations);
+                                    }
+                                    // 3. return all interpretations
+                                    return allInterpretations;
                                 },
                                 className: "table-borderless table-grid mb-0",
                                 separationClassName: "mb-0",
@@ -319,11 +328,30 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                                 "font-weight": "bold",
                                             },
                                             render: (id, onChange, updatedParans, data, row) => html`
-                                                <div class="text-break fw-bold">${row.id}</div>
+                                                <div class="text-break fw-bold">
+                                                    <span>${id}</span>
+                                                </div>
                                                 <div class="text-muted small">Version ${row.version}</div>
+                                                ${row?.primary ? html`
+                                                    <div class="">
+                                                        <span class="badge bg-primary">PRIMARY</span>
+                                                    </div>    
+                                                ` : nothing}
                                             `,
                                         },
                                     },
+                                    // {
+                                    //     title: "Primary",
+                                    //     field: "primary",
+                                    //     type: "custom",
+                                    //     display: {
+                                    //         render: primary => html`
+                                    //             <div class="w-full d-flex justify-content-center">
+                                    //                 <i class="fa ${primary ? "fa-check text-success" : "fa-times text-secondary"}"></i>
+                                    //             </div>
+                                    //         `,
+                                    //     },
+                                    // },
                                     {
                                         title: "Status",
                                         field: "status.id",
@@ -337,18 +365,24 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                         },
                                     },
                                     {
-                                        title: "Assigned to",
-                                        field: "analyst",
+                                        title: "Method",
+                                        field: "method",
                                         type: "custom",
                                         display: {
-                                            render: analyst => html`
-                                                ${analyst?.id || analyst?.name ? html`
-                                                    <div class="d-inline-flex align-items-center gap-2">
-                                                        <i class="fas fa-user-md"></i>
-                                                        <strong>${analyst.name || analyst.id}</strong>
+                                            render: method => {
+                                                if (!method || !method?.name) {
+                                                    return "-";
+                                                }
+                                                return html`
+                                                    <div class="fw-bold">${method.name}</div> 
+                                                    <div class="text-muted small">Version ${method.version || "-"}</div>
+                                                    <div class="d-flex flex-wrap gap-1">
+                                                        ${(method.dependencies || []).map(item => html`
+                                                            <span class="badge text-bg-primary">${item.name} (${item.version})</span>
+                                                        `)}
                                                     </div>
-                                                ` : "-"}
-                                            `,
+                                                `;
+                                            },
                                         },
                                     },
                                     {
@@ -385,6 +419,21 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                                     </div>
                                                 `;
                                             }
+                                        },
+                                    },
+                                    {
+                                        title: "Assigned to",
+                                        field: "analyst",
+                                        type: "custom",
+                                        display: {
+                                            render: analyst => html`
+                                                ${analyst?.id || analyst?.name ? html`
+                                                    <div class="d-inline-flex align-items-center gap-2">
+                                                        <i class="fas fa-user-md"></i>
+                                                        <strong style="white-space:nowrap;">${analyst.name || analyst.id}</strong>
+                                                    </div>
+                                                ` : "-"}
+                                            `,
                                         },
                                     },
                                 ],
