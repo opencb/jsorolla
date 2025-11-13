@@ -99,6 +99,10 @@ export default class UserToolExecutor extends LitElement {
                 if (response.responses?.[0]?.results?.length > 0) {
                     this._tool = response.responses[0].results[0];
                 }
+                // update the commandLine parameter if defined in the tool
+                if (this._tool?.type === "CUSTOM_TOOL" && this._tool?.container?.commandLine) {
+                    this._toolParams.commandLine = this._tool.container.commandLine;
+                }
             })
             .catch(response => {
                 console.log(response);
@@ -191,6 +195,11 @@ export default class UserToolExecutor extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             ...this.toolParams,
         };
+        // include the commandLine again if tool is CUSTOM_TOOL
+        if (this._tool?.type === "CUSTOM_TOOL" && this._tool?.container?.commandLine) {
+            this._toolParams.commandLine = this._tool.container.commandLine;
+        }
+        // we have to refresh the form configuration
         this._config = this.getDefaultConfig();
     }
 
@@ -216,7 +225,7 @@ export default class UserToolExecutor extends LitElement {
                     field: `variables.${variable.id}`,
                     required: variable.required || false,
                     display: {
-                        disabled: typeof this._toolParams.variables?.[variable.id] !== "undefined",
+                        disabled: typeof this.toolParams?.variables?.[variable.id] !== "undefined",
                         defaultValue: variable.defaultValue,
                         helpMessage: variable.description,
                     }
