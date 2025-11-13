@@ -328,14 +328,14 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                                 "font-weight": "bold",
                                             },
                                             render: (id, onChange, updatedParans, data, row) => html`
-                                                <div class="text-break fw-bold">
+                                                <div class="fw-bold text-nowrap">
                                                     <span>${id}</span>
                                                 </div>
                                                 <div class="text-muted small">Version ${row.version}</div>
                                                 ${row?.primary ? html`
                                                     <div class="">
                                                         <span class="badge bg-primary">PRIMARY</span>
-                                                    </div>    
+                                                    </div>
                                                 ` : nothing}
                                             `,
                                         },
@@ -374,7 +374,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
                                                     return "-";
                                                 }
                                                 return html`
-                                                    <div class="fw-bold">${method.name}</div> 
+                                                    <div class="fw-bold">${method.name}</div>
                                                     <div class="text-muted small">Version ${method.version || "-"}</div>
                                                     <div class="d-flex flex-wrap gap-1">
                                                         ${(method.dependencies || []).map(item => html`
