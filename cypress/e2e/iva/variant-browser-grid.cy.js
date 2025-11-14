@@ -110,13 +110,12 @@ context("Variant Browser Grid", () => {
                     beforeEach(() => {
                         cy.get("@variant-browser-grid")
                             .find("tbody tr:first td a")
-                            .eq(2)
+                            .eq(3)
                             .trigger("mouseover");
                         cy.get("div.qtip-title")
                             .as("gene-tooltip-title");
                         cy.get("div.qtip-content")
                             .as("gene-tooltip-content");
- 
                     });
 
                     it("should be visible when hovering the gene ID", () => {
