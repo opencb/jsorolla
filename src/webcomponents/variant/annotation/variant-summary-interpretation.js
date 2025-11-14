@@ -105,14 +105,20 @@ export default class VariantSummaryInterpretation extends LitElement {
         }
 
         // Check if clinicaAnalysis.primaryFindings contains this variant
-        let isPrimaryFinding = false;
+        let isPrimaryOrSecondaryFinding = false;
         this.clinicalAnalysis.interpretation?.primaryFindings?.forEach(primaryFinding => {
             if (primaryFinding.id === this._variant.id) {
-                isPrimaryFinding = true;
+                isPrimaryOrSecondaryFinding = true;
             }
         });
 
-        if (!isPrimaryFinding) {
+        this.clinicalAnalysis.interpretation?.secondaryFindings?.forEach(secondaryFinding => {
+            if (secondaryFinding.id === this._variant.id) {
+                isPrimaryOrSecondaryFinding = true;
+            }
+        });
+
+        if (!isPrimaryOrSecondaryFinding) {
             return html`
                 <div class="rounded-4 p-4 bg-white">
                     <div class=" d-flex justify-content-between mb-2">
@@ -122,9 +128,9 @@ export default class VariantSummaryInterpretation extends LitElement {
                         </a>
                     </div>
                     <div>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            This variant is not a primary finding in the current clinical analysis.
+                        <div class="alert alert-light border-0 mb-0 d-flex align-items-center gap-1">
+                            <i class="fas fa-info-circle fs-4 me-2"></i>
+                            <div class="text-break">This variant is not a primary or secondary finding in the current clinical analysis.</div>
                         </div>
                     </div>
                 </div>

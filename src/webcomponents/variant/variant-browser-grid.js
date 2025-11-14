@@ -144,14 +144,14 @@ export default class VariantBrowserGrid extends LitElement {
         this.gridCommons.registerModals({
             "view-variant": () => ({
                 display: {
-                    modalTitle: `Variant: ${BioinfoUtils.getShortVariantId(this.selectedVariantId, 50, 10)}`,
+                    modalTitle: `Variant: ${BioinfoUtils.getShortVariantId(this.selectedVariant.id, 50, 10)}`,
                     modalDraggable: true,
                     modalCyDataName: "modal-variant-view",
                     modalSize: "modal-3xl",
                 },
                 render: () => html`
                     <variant-view
-                        .variantId="${this.selectedVariantId}"
+                        .variantId="${this.selectedVariant.id}"
                         .settings="${this._config}"
                         .opencgaSession="${this.opencgaSession}">
                     </variant-view>
@@ -880,7 +880,7 @@ export default class VariantBrowserGrid extends LitElement {
         const action = event.currentTarget?.dataset?.action?.toLowerCase();
         switch (action) {
             case "view":
-                this.selectedVariantId = variant.id;
+                this.selectedVariant = variant;
                 this.gridCommons.changeActiveModal("view-variant");
                 break;
             case "copy":
