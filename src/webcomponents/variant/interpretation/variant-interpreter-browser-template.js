@@ -398,7 +398,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             @queryComplete="${this.onQueryComplete}"
                             @variantReview="${e => this.onVariantReview(e)}"
                             @settingsUpdate="${this.onSettingsUpdate}">
-                        </variant-interpreter-grid>` : html`
+                        </variant-interpreter-grid>
+                    ` : html`
                         <variant-interpreter-rearrangement-grid
                             .toolId="${this.toolId}"
                             .opencgaSession="${this.opencgaSession}"
@@ -410,8 +411,8 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             @queryComplete="${this.onQueryComplete}"
                             @variantReview="${e => this.onVariantReview(e)}"
                             @settingsUpdate="${this.onSettingsUpdate}">
-                        </variant-interpreter-rearrangement-grid>`
-                    }
+                        </variant-interpreter-rearrangement-grid>
+                    `}
                 </div>
                 <!-- Genome browser view -->
                 ${!this.settings?.hideGenomeBrowser ? html`
