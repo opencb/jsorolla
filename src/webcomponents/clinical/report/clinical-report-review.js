@@ -264,6 +264,12 @@ export default class ClinicalReportReview extends LitElement {
             data.report.discussion.author = this.opencgaSession?.user?.id || "-";
         }
 
+        // check if user has updated the conclusion text
+        if (data.report.conclusion?.text && data.report.conclusion.text !== this.clinicalAnalysis.report?.conclusion?.text) {
+            data.report.conclusion.date = UtilsNew.getDatetime();
+            data.report.conclusion.author = this.opencgaSession?.user?.id || "-";
+        }
+
         this.opencgaSession.opencgaClient.clinical()
             .update(this.clinicalAnalysis.id, data, {
                 includeResult: true,
@@ -500,7 +506,7 @@ export default class ClinicalReportReview extends LitElement {
                     display: {},
                     elements: [
                         {
-                            field: "report.conclusion",
+                            field: "report.conclusion.text",
                             type: "input-text",
                             defaultValue: "",
                             display: {
