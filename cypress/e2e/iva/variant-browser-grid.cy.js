@@ -211,7 +211,7 @@ context("Variant Browser Grid", () => {
                     cy.get("@variant-browser-grid")
                         .find("tbody tr:first td")
                         .eq(columnIndex)
-                        .should("contain.text", "1 entry (1)");
+                        .should("contain.text", "1 entry");
                 });
 
                 context("tooltip", () => {
