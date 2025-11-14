@@ -255,14 +255,14 @@ export default class VariantSummary extends LitElement {
                                 className: "d-flex align-items-stretch",
                                 elements: [
                                     {
-                                        id:"variant-summary-clinical-significance",
-                                        style: "flex: 1",
-                                        className: "me-2",
-                                    },
-                                    {
                                         id:"variant-summary-clinical-significance-variant-traits",
                                         style: "flex: 1",
                                         className: "ms-2",
+                                    },
+                                    {
+                                        id:"variant-summary-clinical-significance",
+                                        style: "flex: 1",
+                                        className: "me-2",
                                     },
                                 ]
                             },
@@ -348,6 +348,7 @@ export default class VariantSummary extends LitElement {
                                 containerClassName: "",
                                 titleClassName: "",
                                 titleStyle: "",
+                                visible: this.clinical,
                                 render: variant => {
                                     return html`
                                         <variant-summary-clinical-significance

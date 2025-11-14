@@ -417,8 +417,9 @@ export default class VariantSummaryQuality extends LitElement {
                                                 <div class="" id="${this._chartId}" style="flex: 0 0 auto"></div>
                                             </div>
                                     ` : `
-                                        <div class="d-flex align-items-center pt-4 px-2">
-                                            <label>No AD data available</label>
+                                        <div class="alert alert-light border-0 mb-0 d-flex align-items-center gap-1">
+                                            <i class="fas fa-info-circle fs-4 me-2"></i>
+                                            <div class="text-break">No AD data available</div>
                                         </div>
                                     `;
                                 }

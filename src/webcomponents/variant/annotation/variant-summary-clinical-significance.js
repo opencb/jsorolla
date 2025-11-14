@@ -44,7 +44,7 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
         this._variant = {};
         this._chartCSId = "chart-clinical-significance";
         this._chartAcmgId = "chart-acmg";
-        this._isMane = true;
+        this._transcriptFilterBy = "ALL";
         this._dataCS = [];
         this._dataAcmg = [];
 
@@ -88,14 +88,14 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
         if (this.variant) {
             this.#initManeConsequenceTypes();
             this._variant = {
-                isMane: this._isMane,
+                _transcriptFilterBy: this._transcriptFilterBy,
                 ...this.variant
             };
         }
     }
 
     onManeChange(event) {
-        this._variant.isMane = event.detail.value;
+        this._variant._transcriptFilterBy = event.detail.value;
         this._variant = {...this._variant};
         this.requestUpdate();
     }
@@ -265,8 +265,8 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                             title: "TRANSCRIPTS",
                             type: "toggle-buttons",
                             allowedValues: ["MANE", "ALL"],
-                            defaultValue: "MANE",
-                            field: "isMane",
+                            defaultValue: "ALL",
+                            field: "_transcriptFilterBy",
                             display: {
                                 titleClassName: "summary-category",
                                 width: "9",
@@ -282,7 +282,7 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                                 titleClassName: "summary-category",
                                 render: evidences => {
                                     let selectedEvidences = evidences;
-                                    if (this._variant.isMane === "MANE") {
+                                    if (this._variant._transcriptFilterBy === "MANE") {
                                         selectedEvidences = evidences.filter(evidence =>
                                             this._maneTranscriptIds.includes(evidence.genomicFeature?.transcriptId)
                                         );
@@ -329,7 +329,7 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                                     // Reset CS data
                                     this._dataCS = [];
                                     // Filter evidences based on MANE status
-                                    const relevantEvidences = this._variant.isMane === "MANE"
+                                    const relevantEvidences = this._variant._transcriptFilterBy === "MANE"
                                         ? evidences.filter(evidence =>
                                             this._maneTranscriptIds.includes(evidence.genomicFeature?.transcriptId))
                                         : evidences;
@@ -369,7 +369,7 @@ export default class VariantSummaryClinicalSignificance extends LitElement {
                                     // Select relevant evidences based on MANE status
                                     const relevantEvidences = evidences.filter(evidence => {
                                         const transcriptId = evidence.genomicFeature?.transcriptId;
-                                        return this._variant.isMane === "MANE"
+                                        return this._variant._transcriptFilterBy === "MANE"
                                             ? this._maneTranscriptIds.includes(transcriptId)
                                             : transcriptId?.startsWith("ENST");
                                     });

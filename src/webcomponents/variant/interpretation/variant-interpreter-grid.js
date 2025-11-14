@@ -212,7 +212,7 @@ export default class VariantInterpreterGrid extends LitElement {
             }),
             "view-variant": () => ({
                 display: {
-                    modalTitle: `Variant ${this._selectedVariant.id}`,
+                    modalTitle: `Variant: ${BioinfoUtils.getShortVariantId(this._selectedVariant.id, 50, 10)}`,
                     modalCyDataName: `modal-variant-view`,
                     modalSize: "modal-3xl",
                 },
@@ -1096,8 +1096,6 @@ export default class VariantInterpreterGrid extends LitElement {
         const action = event.currentTarget?.dataset?.action?.toLowerCase();
         switch (action) {
             case "view":
-                // this._selectedVariant = variant;
-                // this.gridCommons.changeActiveModal("view-variant");
                 this.onVariantView(event, variant);
                 break;
             case "copy":
@@ -1206,16 +1204,16 @@ export default class VariantInterpreterGrid extends LitElement {
         }
     }
 
-    onVariantReview(event, row) {
+    onVariantReview(event, variant) {
         // check if the variant is already selected
-        if (this._primaryFindings.has(row.id)) {
-            this._selectedVariant = UtilsNew.objectClone(this._primaryFindings.get(row.id));
+        if (this._primaryFindings.has(variant.id)) {
+            this._selectedVariant = UtilsNew.objectClone(this._primaryFindings.get(variant.id));
             this._selectedVariantPrimary = true;
-        } else if (this._secondaryFindings.has(row.id)) {
-            this._selectedVariant = UtilsNew.objectClone(this._secondaryFindings.get(row.id));
+        } else if (this._secondaryFindings.has(variant.id)) {
+            this._selectedVariant = UtilsNew.objectClone(this._secondaryFindings.get(variant.id));
             this._selectedVariantPrimary = false;
         } else {
-            this._selectedVariant = UtilsNew.objectClone(row);
+            this._selectedVariant = UtilsNew.objectClone(variant);
             this._selectedVariantPrimary = true;
         }
         // when entering in the review modal, the variant will be displayed checked by default
@@ -1223,16 +1221,16 @@ export default class VariantInterpreterGrid extends LitElement {
         this.gridCommons.changeActiveModal("review-variant");
     }
 
-    onVariantView(event, row) {
+    onVariantView(event, variant) {
         // check if the variant is already selected
-        if (this._primaryFindings.has(row.id)) {
-            this._selectedVariant = UtilsNew.objectClone(this._primaryFindings.get(row.id));
+        if (this._primaryFindings.has(variant.id)) {
+            this._selectedVariant = UtilsNew.objectClone(this._primaryFindings.get(variant.id));
             this._selectedVariantPrimary = true;
-        } else if (this._secondaryFindings.has(row.id)) {
-            this._selectedVariant = UtilsNew.objectClone(this._secondaryFindings.get(row.id));
+        } else if (this._secondaryFindings.has(variant.id)) {
+            this._selectedVariant = UtilsNew.objectClone(this._secondaryFindings.get(variant.id));
             this._selectedVariantPrimary = false;
         } else {
-            this._selectedVariant = UtilsNew.objectClone(row);
+            this._selectedVariant = UtilsNew.objectClone(variant);
             this._selectedVariantPrimary = true;
         }
         this.gridCommons.changeActiveModal("view-variant");
