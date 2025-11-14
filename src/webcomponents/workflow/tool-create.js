@@ -370,6 +370,15 @@ export default class ToolCreate extends LitElement {
                                     },
                                 },
                                 {
+                                    title: "Type",
+                                    field: "variables[].type",
+                                    type: "select",
+                                    allowedValues: ["FLAG", "BOOLEAN", "INTEGER", "DOUBLE", "STRING", "FILE"],
+                                    display: {
+                                        placeholder: "Add a content...",
+                                    },
+                                },
+                                {
                                     title: "Default Value",
                                     field: "variables[].defaultValue",
                                     type: "input-text",
