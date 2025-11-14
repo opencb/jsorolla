@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
 import "../commons/forms/data-form.js";
@@ -71,6 +71,10 @@ export default class ToolUpdate extends LitElement {
     }
 
     render() {
+        if (!this.opencgaSession || !this.type || !this.toolId) {
+            return nothing;
+        }
+
         return html`
             <opencga-update
                 .resource="${this.type}"

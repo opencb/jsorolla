@@ -52,7 +52,7 @@ import "../../webcomponents/individual/individual-update.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/workflow/workflow-browser.js";
-import "../../webcomponents/workflow/analysis/tool-analysis.js";
+import "../../webcomponents/job/analysis/tool-analysis.js";
 import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";

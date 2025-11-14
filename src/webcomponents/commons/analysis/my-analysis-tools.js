@@ -5,7 +5,7 @@ import "../empty-state.js";
 import "../tool-header.js";
 import "../view/vertical-menu.js";
 import "../../job/analysis/custom-tool-builder.js";
-import "../../workflow/analysis/tool-analysis.js";
+import "../../job/analysis/tool-analysis.js";
 import "../../workflow/analysis/tool-executor.js";
 
 export default class MyAnalysisTools extends LitElement {
