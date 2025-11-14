@@ -59,6 +59,17 @@ export default class BioinfoUtils {
         return text;
     }
 
+    static getShortVariantId(variantId, limit = 20, offset = 5) {
+        let [chr, position, ref, alt] = variantId.split(":");
+        if (ref.length > limit) {
+            ref = ref.substring(0, offset) + "..." + ref.substring(ref.length - offset);
+        }
+        if (alt.length > limit) {
+            alt = alt.substring(0, offset) + "..." + alt.substring(alt.length - offset);
+        }
+        return `${chr}:${position}:${ref}:${alt}`;
+    }
+
     // Generate Variant ID in Varsome format
     // https://varsome.com/how-do-i-create-link-varsome/
     static getVariantInVarsomeFormat(variantId) {

@@ -134,6 +134,7 @@ export default class VariantView extends LitElement {
                         <variant-summary
                             .active="${active}"
                             .variant="${variant}"
+                            .clinical="${false}"
                             .consequenceTypes="${this.consequenceTypes || CONSEQUENCE_TYPES}"
                             .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
                             .settings="${this.settings}"

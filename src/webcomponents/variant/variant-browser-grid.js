@@ -144,7 +144,7 @@ export default class VariantBrowserGrid extends LitElement {
         this.gridCommons.registerModals({
             "view-variant": () => ({
                 display: {
-                    modalTitle: `Variant: ${this.selectedVariantId}`,
+                    modalTitle: `Variant: ${BioinfoUtils.getShortVariantId(this.selectedVariantId, 50, 10)}`,
                     modalDraggable: true,
                     modalCyDataName: "modal-variant-view",
                     modalSize: "modal-3xl",

@@ -79,7 +79,7 @@ export default class VariantSummary extends LitElement {
     #init() {
         this.COMPONENT_ID = "variant-summary";
         this._variant = null;
-        this._interpretationVisible = false;
+        // this._interpretationVisible = false;
         this._primaryFinding = false;
         this._config = this.getDefaultConfig();
     }
@@ -88,21 +88,16 @@ export default class VariantSummary extends LitElement {
         if (changedProperties.has("variant")) {
             this.variantObserver();
         }
-
         if (changedProperties.has("clinical") || changedProperties.has("selected")) {
             this.interpretationVisibleObserver();
         }
-
         if (changedProperties.has("primaryFinding")) {
             this._primaryFinding = this.primaryFinding;
             this._config = this.getDefaultConfig();
         }
-
-
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
@@ -111,7 +106,7 @@ export default class VariantSummary extends LitElement {
     }
 
     interpretationVisibleObserver() {
-        this._interpretationVisible = !!(this.clinical && this.selected);
+        // this._interpretationVisible = !!(this.clinical && this.selected);
         this._config = this.getDefaultConfig();
     }
 
@@ -148,10 +143,11 @@ export default class VariantSummary extends LitElement {
                             type: "custom",
                             title: "",
                             display: {
-                                containerClassName: "",
-                                titleClassName: "",
-                                titleStyle: "",
-                                visible: this._interpretationVisible,
+                                // containerClassName: "",
+                                // titleClassName: "",
+                                // titleStyle: "",
+                                // visible: this._interpretationVisible,
+                                visible: this.clinical,
                                 render: variant => {
                                     return html`
                                         <variant-summary-interpretation
@@ -177,6 +173,7 @@ export default class VariantSummary extends LitElement {
                             type: "custom",
                             title: "",
                             display: {
+                                visible: this.clinical,
                                 render: variant => {
                                     const samplesQuality = variant.studies.find(study => study.studyId === this.opencgaSession.study.fqn)
                                     return html`

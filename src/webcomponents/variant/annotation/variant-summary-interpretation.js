@@ -104,11 +104,38 @@ export default class VariantSummaryInterpretation extends LitElement {
             return nothing;
         }
 
+        // Check if clinicaAnalysis.primaryFindings contains this variant
+        let isPrimaryFinding = false;
+        this.clinicalAnalysis.interpretation?.primaryFindings?.forEach(primaryFinding => {
+            if (primaryFinding.id === this._variant.id) {
+                isPrimaryFinding = true;
+            }
+        });
+
+        if (!isPrimaryFinding) {
+            return html`
+                <div class="rounded-4 p-4 bg-white">
+                    <div class=" d-flex justify-content-between mb-2">
+                        <h5 class="mb-2 fs-5 fw-bold">Variant Interpretation</h5>
+                        <a tooltip-title="Variant Interpretation" tooltip-text="${VariantGridFormatter.interpretationSummaryTooltipContent(POPULATION_FREQUENCIES)}">
+                            <i class="fa fa-info-circle text-dark"></i>
+                        </a>
+                    </div>
+                    <div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            This variant is not a primary finding in the current clinical analysis.
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         return html`
             <div class="rounded-4 p-4 bg-white">
                 <div class=" d-flex justify-content-between mb-2">
                     <h5 class="mb-2 fs-5 fw-bold">Variant Interpretation</h5>
-                    <a tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.interpretationSummaryTooltipContent(POPULATION_FREQUENCIES)}">
+                    <a tooltip-title="Variant Interpretation" tooltip-text="${VariantGridFormatter.interpretationSummaryTooltipContent(POPULATION_FREQUENCIES)}">
                         <i class="fa fa-info-circle text-dark"></i>
                     </a>
                 </div>
