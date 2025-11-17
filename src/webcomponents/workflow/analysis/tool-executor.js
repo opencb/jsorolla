@@ -154,6 +154,7 @@ export default class UserToolExecutor extends LitElement {
         Object.keys(this._toolParams.variables || {}).forEach(variableId => {
             const variableConfig = (this._tool?.variables || []).find(v => v.id === variableId);
             formParams[variableId] = this._toolParams.variables[variableId];
+
             // check if the variable is of type FILE to add the file:// prefix if not present
             if (variableConfig?.type === "FILE" && formParams[variableId] && !formParams[variableId].startsWith("file://")) {
                 formParams[variableId] = `file://${formParams[variableId]}`;
