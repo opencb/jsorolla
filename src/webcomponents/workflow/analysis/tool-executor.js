@@ -264,6 +264,7 @@ export default class UserToolExecutor extends LitElement {
                             <catalog-search-autocomplete
                                 .value="${(file || "").replace("file://", "")}"
                                 .resource="${"FILE"}"
+                                .searchField="${"path"}"
                                 .opencgaSession="${this.opencgaSession}"
                                 .config="${{
                                     multiple: false,
