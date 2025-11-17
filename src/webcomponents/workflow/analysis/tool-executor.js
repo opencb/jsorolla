@@ -129,11 +129,12 @@ export default class UserToolExecutor extends LitElement {
 
         // 2. include variables defined in the tool and filled in the form
         Object.keys(this._toolParams.variables || {}).forEach(variableId => {
-            // const variableConfig = (this._tool?.variables || []).find(v => v.id === variableId);
-            // if (variableConfig && variableConfig?.name) {
-            //     formParams[variableConfig.name] = this._toolParams.variables[variableId];
-            // }
+            const variableConfig = (this._tool?.variables || []).find(v => v.id === variableId);
             formParams[variableId] = this._toolParams.variables[variableId];
+            // check if the variable is of type FILE to add the file:// prefix if not present
+            if (variableConfig?.type === "FILE" && formParams[variableId] && !formParams[variableId].startsWith("file://")) {
+                formParams[variableId] = `file://${formParams[variableId]}`;
+            }
         });
 
         // 3. add other variables from the text area, with the format key=value
