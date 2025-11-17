@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {html, LitElement, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
 import "../commons/forms/data-form.js";
 import "../commons/json-viewer.js";
+import "./tool-summary.js";
 import "./workflow-scripts-view.js";
 import "./workflow-jobs.js";
-import "./workflow-summary.js";
 
-export default class WorkflowView extends LitElement {
+export default class ToolView extends LitElement {
 
     constructor() {
         super();
+
         this.#init();
     }
 
@@ -35,13 +36,13 @@ export default class WorkflowView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
-            workflowId: {
+            toolId: {
                 type: String
             },
-            workflow: {
+            tool: {
+                type: Object
+            },
+            opencgaSession: {
                 type: Object
             },
             displayConfig: {
@@ -51,20 +52,18 @@ export default class WorkflowView extends LitElement {
     }
 
     #init() {
-        this.COMPONENT_ID = "workflow-view";
-        this._workflow = null;
+        this.COMPONENT_ID = "tool-view";
+        this._tool = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("workflowId")) {
-            this.workflowIdObserver();
+        if (changedProperties.has("toolId")) {
+            this.toolIdObserver();
         }
-
-        if (changedProperties.has("workflow")) {
-            this.workflowObserver();
+        if (changedProperties.has("tool")) {
+            this.toolObserver();
         }
-
         if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
         }
@@ -72,15 +71,15 @@ export default class WorkflowView extends LitElement {
         super.update(changedProperties);
     }
 
-    workflowIdObserver() {
-        this._workflow = null;
-        if (this.opencgaSession && this.workflowId) {
-            this.opencgaSession.opencgaClient.workflows()
-                .info(this.workflowId, {
+    toolIdObserver() {
+        this._tool = null;
+        if (this.opencgaSession && this.toolId) {
+            this.opencgaSession.opencgaClient.userTools()
+                .info(this.toolId, {
                     study: this.opencgaSession.study.fqn,
                 })
                 .then(response => {
-                    this._workflow = response.getResult(0);
+                    this._tool = response.getResult(0);
                     this.requestUpdate();
                 })
                 .catch(response => {
@@ -89,18 +88,18 @@ export default class WorkflowView extends LitElement {
         }
     }
 
-    workflowObserver() {
-        this._workflow = {...this.workflow};
+    toolObserver() {
+        this._tool = {...this.tool};
     }
 
     render() {
-        if (!this.opencgaSession || !this._workflow) {
+        if (!this.opencgaSession || !this._tool) {
             return nothing;
         }
 
         return html`
             <data-form
-                .data="${this._workflow}"
+                .data="${this._tool}"
                 .config="${this._config || {}}">
             </data-form>
         `;
@@ -117,14 +116,14 @@ export default class WorkflowView extends LitElement {
             },
             sections: [
                 {
-                    id: "workflow-summary",
+                    id: "tool-summary",
                     name: "Overview",
-                    render: (workflow, active) => html`
-                        <workflow-summary
-                            .workflow="${workflow}"
+                    render: (tool, active) => html`
+                        <tool-summary
+                            .tool="${tool}"
                             .active="${active}"
                             .opencgaSession="${this.opencgaSession}">
-                        </workflow-summary>
+                        </tool-summary>
                     `,
                 },
                 // {
@@ -151,9 +150,9 @@ export default class WorkflowView extends LitElement {
                 {
                     id: "json-view",
                     name: "JSON Data",
-                    render: (workflow, active) => html`
+                    render: (tool, active) => html`
                         <json-viewer
-                            .data="${workflow}"
+                            .data="${tool}"
                             .active="${active}">
                         </json-viewer>
                     `,
@@ -165,4 +164,4 @@ export default class WorkflowView extends LitElement {
 
 }
 
-customElements.define("workflow-view", WorkflowView);
+customElements.define("tool-view", ToolView);

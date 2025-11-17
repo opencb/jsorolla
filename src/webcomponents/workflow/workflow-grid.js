@@ -23,7 +23,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/grid-toolbar.js";
 import "./workflow-import.js";
 import "./workflow-nf-import.js";
-import "./workflow-view.js";
+import "./tool-view.js";
 import "./tool-update.js";
 import "./tool-create.js";
 import "./analysis/tool-executor.js";
@@ -183,15 +183,15 @@ export default class WorkflowGrid extends LitElement {
             "view-tool": () => ({
                 display: {
                     modalTitle: `Tool ${this._selectedUserTool?.id}`,
-                    modalCyDataName: `modal-workflow-view`,
+                    modalCyDataName: `modal-tool-view`,
                     modalSize: "modal-2xl",
                     // modalDraggable: true,
                 },
                 render: () => html`
-                    <workflow-view
-                        .workflowId="${this._selectedUserTool?.id}"
+                    <tool-view
+                        .toolId="${this._selectedUserTool?.id}"
                         .opencgaSession="${this.opencgaSession}">
-                    </workflow-view>
+                    </tool-view>
                 `,
             }),
             "create-workflow": {
@@ -274,6 +274,7 @@ export default class WorkflowGrid extends LitElement {
                     <tool-update
                         .type="${this._selectedUserTool?.type}"
                         .toolId="${this._selectedUserTool?.id}"
+                        .active="${true}"
                         .displayConfig="${{
                             type: "tabs",
                             buttonClearText: "Cancel",
@@ -516,7 +517,7 @@ export default class WorkflowGrid extends LitElement {
                 formatter: minimumRequirements => {
                     return `
                         <div class="my-1"><b>CPU</b>: ${minimumRequirements?.cpu || "-"} core(s)</div>
-                        <div class="my-1"><b>Memory</b>: ${minimumRequirements?.memory?.split(".")[0] || "-"} GB</div>
+                        <div class="my-1"><b>Memory</b>: ${minimumRequirements?.memory?.split(".")[0] || "-"} ${minimumRequirements?.memory?.endsWith("GB") ? "" : "GB"}</div>
                         <div class="my-1"><b>Processor</b>: ${minimumRequirements?.processorType || "CPU"}</div>
                     `;
                 },
