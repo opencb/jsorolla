@@ -18,7 +18,7 @@ import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/forms/data-form.js";
 
-export default class WorkflowSummary extends LitElement {
+export default class ToolSummary extends LitElement {
 
     constructor() {
         super();
@@ -32,11 +32,11 @@ export default class WorkflowSummary extends LitElement {
 
     static get properties() {
         return {
-            workflow: {
-                type: Object,
-            },
-            workflowId: {
+            toolId: {
                 type: String,
+            },
+            tool: {
+                type: Object,
             },
             opencgaSession: {
                 type: Object,
@@ -48,35 +48,32 @@ export default class WorkflowSummary extends LitElement {
     }
 
     #init() {
-        this._workflow = null;
+        this._tool = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("workflow")) {
-            this.workflowObserver();
+        if (changedProperties.has("toolId")) {
+            this.toolIdObserver();
         }
-
-        if (changedProperties.has("workflowId")) {
-            this.workflowIdObserver();
+        if (changedProperties.has("tool")) {
+            this.toolObserver();
         }
-
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
-
         super.update(changedProperties);
     }
 
-    workflowIdObserver() {
-        this._workflow = null;
-        if (this.workflowId && this.opencgaSession) {
-            this.opencgaSession.opencgaClient.workflows()
-                .info(this.workflowId, {
+    toolIdObserver() {
+        this._tool = null;
+        if (this.toolId && this.opencgaSession) {
+            this.opencgaSession.opencgaClient.userTools()
+                .info(this.toolId, {
                     study: this.opencgaSession.study.fqn,
                 })
                 .then(response => {
-                    this._workflow = response.responses[0].results[0];
+                    this._tool = response.responses[0].results[0];
                     this.requestUpdate();
                 })
                 .catch(reason => {
@@ -85,18 +82,18 @@ export default class WorkflowSummary extends LitElement {
         }
     }
 
-    workflowObserver() {
-        this._workflow = {...this.workflow};
+    toolObserver() {
+        this._tool = {...this.tool};
     }
 
     render() {
-        if (!this.opencgaSession || !this._workflow) {
+        if (!this.opencgaSession || !this._tool) {
             return nothing;
         }
 
         return html`
             <data-form
-                .data="${this._workflow}"
+                .data="${this._tool}"
                 .config="${this._config || {}}">
             </data-form>
         `;
@@ -114,7 +111,7 @@ export default class WorkflowSummary extends LitElement {
                     title: "General Information",
                     elements: [
                         {
-                            title: "Workflow ID",
+                            title: "Tool ID",
                             type: "complex",
                             display: {
                                 template: "${id} (UUID: ${uuid})",
@@ -140,6 +137,15 @@ export default class WorkflowSummary extends LitElement {
                             field: "type",
                         },
                         {
+                            id: "scope",
+                            title: "Scope",
+                            field: "scope",
+                            type: "custom",
+                            display: {
+                                render: scope => `<span class="badge bg-primary fs-7">${scope}</span>`,
+                            }
+                        },
+                        {
                             title: "Draft",
                             field: "draft",
                             type: "checkbox",
@@ -156,21 +162,23 @@ export default class WorkflowSummary extends LitElement {
                             },
                             elements: [
                                 {
-                                    title: "Min CPU cores",
+                                    title: "Min. CPU cores:",
                                     field: "minimumRequirements.cpu",
                                     display: {
+                                        defaultValue: "-",
                                         separationClassName: "mb-0",
                                     },
                                 },
                                 {
-                                    title: "Min memory",
+                                    title: "Min. memory:",
                                     field: "minimumRequirements.memory",
                                     display: {
+                                        defaultValue: "-",
                                         separationClassName: "mb-0",
                                     },
                                 },
                                 {
-                                    title: "Processor Type",
+                                    title: "Processor Type:",
                                     field: "minimumRequirements.processorType",
                                     display: {
                                         defaultValue: "CPU",
@@ -216,7 +224,7 @@ export default class WorkflowSummary extends LitElement {
                 {
                     title: "Input Variables",
                     text: `
-                        Optional variables that can be used in the workflow, these are NOT necessary for the workflow to run.
+                        Optional variables that can be used in the tool, these are NOT necessary for the tool to run.
                         The variables will be ONLY used to create automatic forms.
                     `,
                     elements: [
@@ -258,4 +266,4 @@ export default class WorkflowSummary extends LitElement {
 
 }
 
-customElements.define("workflow-summary", WorkflowSummary);
+customElements.define("tool-summary", ToolSummary);

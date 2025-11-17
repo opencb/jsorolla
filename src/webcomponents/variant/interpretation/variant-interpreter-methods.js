@@ -138,6 +138,9 @@ class VariantInterpreterMethods extends LitElement {
 
         // add custom tools
         (this._customTools || []).forEach(tool => {
+            // Find the clinicalAnalysisId variable, ignoring case and underscores.
+            // Valid examples are: clinical_analysis_id, CLINICALANALYSISID, clinicalAnalysisId, etc.
+            const variable = tool?.variables?.find(v => v.id?.toUpperCase().replaceAll("_", "") === "CLINICALANALYSISID");
             items.push({
                 id: tool.id,
                 name: tool.name || tool.id,
@@ -149,7 +152,7 @@ class VariantInterpreterMethods extends LitElement {
                                 .toolParams="${{
                                     id: tool.id,
                                     variables: {
-                                        clinicalAnalysisId: clinicalAnalysis.id,
+                                        [variable?.id || "clinicalAnalysisId"]: clinicalAnalysis.id,
                                         study: this.opencgaSession.study.fqn,
                                     },
                                 }}"

@@ -162,7 +162,15 @@ export class OpenCGAClient {
         return this.clients.get("individuals");
     }
 
+    // DEPRECATED use userTool()
     userTool() {
+        if (!this.clients.has("userTool")) {
+            this.clients.set("userTool", new UserTool(this._config));
+        }
+        return this.clients.get("userTool");
+    }
+
+    userTools() {
         if (!this.clients.has("userTool")) {
             this.clients.set("userTool", new UserTool(this._config));
         }
