@@ -88,7 +88,7 @@ export default class RdTieringAnalysis extends LitElement {
         AnalysisUtils.submit(
             this.ANALYSIS_TITLE,
             this.opencgaSession.opencgaClient.clinical()
-                .runInterpreterTiering(toolParams, {
+                .runInterpreterCustomTiering(toolParams, {
                     study: this.opencgaSession.study.fqn,
                     ...AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL),
                 }),
