@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
-
+import "../../commons/filters/catalog-search-autocomplete.js";
 
 export default class UserToolExecutor extends LitElement {
 
@@ -236,6 +236,20 @@ export default class UserToolExecutor extends LitElement {
                     case "DOUBLE":
                     case "STRING":
                         dataFormElement.type = "input-text";
+                        break;
+                    case "FILE":
+                        dataFormElement.type = "custom";
+                        dataFormElement.display.render = (file, onChange) => html`
+                            <catalog-search-autocomplete
+                                .value="${(file || "").replace("file://", "")}"
+                                .resource="${"FILE"}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${{
+                                    multiple: false,
+                                }}"
+                                @filterChange="${event => onChange(event.detail.value)}">
+                            </catalog-search-autocomplete>
+                        `;
                         break;
                 }
                 variables.push(dataFormElement);
