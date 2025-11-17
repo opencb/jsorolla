@@ -88,6 +88,32 @@ export default class UserToolExecutor extends LitElement {
         return false;
     }
 
+    addToolVariablesToParams() {
+        if (this._tool) {
+            // 1. update the commandLine parameter if defined in the tool
+            if (this._tool?.type === "CUSTOM_TOOL" && this._tool?.container?.commandLine) {
+                this._toolParams.commandLine = this._tool.container.commandLine;
+            }
+
+            // 2. initialize variables object if not present
+            if (!this._toolParams.variables) {
+                this._toolParams.variables = {};
+            }
+
+            // 3. include tool variables in the toolParams
+            (this._tool.variables || []).forEach(variable => {
+                if (variable?.defaultValue && typeof this._toolParams.variables[variable.id] === "undefined") {
+                    this._toolParams.variables[variable.id] = variable.defaultValue;
+
+                    // check if the variable is of type FILE to add the file:// prefix if not present
+                    if (variable.type === "FILE" && this._toolParams.variables[variable.id].startsWith("file://")) {
+                        this._toolParams.variables[variable.id] = this._toolParams.variables[variable.id].replace("file://", "");
+                    }
+                }
+            });
+        }
+    }
+
     fetchUserTool() {
         this._tool = null;
         this.opencgaSession.opencgaClient.userTool()
@@ -99,10 +125,7 @@ export default class UserToolExecutor extends LitElement {
                 if (response.responses?.[0]?.results?.length > 0) {
                     this._tool = response.responses[0].results[0];
                 }
-                // update the commandLine parameter if defined in the tool
-                if (this._tool?.type === "CUSTOM_TOOL" && this._tool?.container?.commandLine) {
-                    this._toolParams.commandLine = this._tool.container.commandLine;
-                }
+                this.addToolVariablesToParams();
             })
             .catch(response => {
                 console.log(response);
@@ -193,11 +216,7 @@ export default class UserToolExecutor extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             ...this.toolParams,
         };
-        // include the commandLine again if tool is CUSTOM_TOOL
-        if (this._tool?.type === "CUSTOM_TOOL" && this._tool?.container?.commandLine) {
-            this._toolParams.commandLine = this._tool.container.commandLine;
-        }
-        // we have to refresh the form configuration
+        this.addToolVariablesToParams();
         this._config = this.getDefaultConfig();
     }
 
