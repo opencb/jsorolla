@@ -68,7 +68,6 @@ export default class ToolCreate extends LitElement {
 
     onFieldChange() {
         this._customTool = { ...this._customTool };
-        debugger
         this.requestUpdate();
     }
 
@@ -233,8 +232,8 @@ export default class ToolCreate extends LitElement {
                                     type: "input-text",
                                     display: {
                                         defaultValue: "8",
-                                        placeholder: "E.g., 8",
-                                        helpMessage: "Minimum memory in GB required to run the tool (e.g., 4). Do not include the 'GB' suffix.",
+                                        placeholder: "E.g., 8GB",
+                                        helpMessage: "Minimum memory in GB required to run the tool (e.g., 4). You must include the 'GB' suffix.",
                                     },
                                 },
                             ]
