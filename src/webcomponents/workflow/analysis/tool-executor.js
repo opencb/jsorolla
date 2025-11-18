@@ -50,7 +50,6 @@ export default class UserToolExecutor extends LitElement {
         this.ANALYSIS_TOOL = "user-tool";
         this.ANALYSIS_TITLE = "User Tool Parameters";
         this.ANALYSIS_DESCRIPTION = "Executes a custom tool or workflow analysis job";
-
         this.DEFAULT_TOOLPARAMS = {
             variables: {},
         };
