@@ -50,7 +50,6 @@ export default class UserToolExecutor extends LitElement {
         this.ANALYSIS_TOOL = "user-tool";
         this.ANALYSIS_TITLE = "User Tool Parameters";
         this.ANALYSIS_DESCRIPTION = "Executes a custom tool or workflow analysis job";
-
         this.DEFAULT_TOOLPARAMS = {
             variables: {},
         };
@@ -302,48 +301,11 @@ export default class UserToolExecutor extends LitElement {
                             `,
                         },
                     },
-                    // {
-                    //     title: "Command Line",
-                    //     field: "commandLine",
-                    //     type: "input-text",
-                    //     display: {
-                    //         visible: this._tool?.type === "CUSTOM_TOOL",
-                    //         helpMessage: "Define the command line to be executed inside the docker container.",
-                    //     },
-                    // },
-                ]
+                ],
             },
             {
                 title: "Parameters",
-                elements: [
-                    ...variables,
-                    // {
-                    //     title: "Parameters",
-                    //     field: "otherVariables",
-                    //     type: "input-text",
-                    //     display: {
-                    //         rows: 5,
-                    //         placeholder: "k1=v1\nk2=v2\nk3=v3",
-                    //         help: {
-                    //             text: "Format valid is 'key=value', one per line. To use file you must use the prefix 'file://' before the path or name, for example: 'input_file=file://file.vcf'",
-                    //         },
-                    //         visible: () => variables.length === 0
-                    //     }
-                    // },
-                    // {
-                    //     title: "Other Parameters",
-                    //     field: "otherVariables",
-                    //     type: "input-text",
-                    //     display: {
-                    //         rows: 5,
-                    //         placeholder: "k1=v1\nk2=v2\nk3=v3",
-                    //         help: {
-                    //             text: "Format valid is 'key=value', one per line. To use file you must use the prefix 'file://' before the path or name, for example: 'input_file=file://file.vcf'. These parameters will override the ones defined above.",
-                    //         },
-                    //         visible: () => variables.length > 0
-                    //     }
-                    // },
-                ]
+                elements: variables,
             },
             {
                 title: "Advanced Parameters",
@@ -364,14 +326,11 @@ export default class UserToolExecutor extends LitElement {
                         display: {
                             rows: 5,
                             placeholder: "k1=v1\nk2=v2\nk3=v3",
-                            help: {
-                                text: "Format valid is 'key=value', one per line. To use file you must use the prefix 'file://' before the path or name, for example: 'input_file=file://file.vcf'. These parameters will override the ones defined above.",
-                            },
-                            // visible: () => variables.length > 0
-                        }
+                            helpMessage: "Format valid is 'key=value', one per line. To use file you must use the prefix 'file://' before the path or name, for example: 'input_file=file://file.vcf'",
+                        },
                     },
-                ]
-            }
+                ],
+            },
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(

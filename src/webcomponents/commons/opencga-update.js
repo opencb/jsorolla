@@ -328,6 +328,11 @@ export default class OpencgaUpdate extends LitElement {
                     this.methodUpdate = "updateWorkflow";
                     this.resourceInfoParams = {};
                     break;
+                case "VARIANT_WALKER":
+                    this.endpoint = this.opencgaSession.opencgaClient.userTool();
+                    this.methodUpdate = "updateWalker";
+                    this.resourceInfoParams = {};
+                    break;
                 case "NOTE":
                     this.endpoint = this.component?.scope === "ORGANIZATION" ?
                         this.opencgaSession.opencgaClient.organization() :
