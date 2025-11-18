@@ -383,6 +383,36 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                             field: "report.logo",
                             type: "input-text",
                         },
+                        {
+                            title: "Library",
+                            description: "Key-value pairs of predefined stock phrases or sections that can be included in clinical reports.",
+                            field: "report.library",
+                            type: "object-list",
+                            display: {
+                                itemId: "name",
+                                itemAddText: "Add Library Item",
+                                itemsNotFoundText: "No library entries defined.",
+                                view: libraryItem => html`
+                                    <div class="">
+                                        <b>${libraryItem.name || ""}</b>${libraryItem.value ? html`: ${libraryItem.value}` : nothing}
+                                    </div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Name",
+                                    description: "A short unique name for the library entry.",
+                                    field: "report.library[].name",
+                                    type: "input-text",
+                                },
+                                {
+                                    title: "Full Text",
+                                    description: "The full text content associated with the library entry.",
+                                    field: "report.library[].value",
+                                    type: "input-text",
+                                },
+                            ],
+                        },
                     ],
                 },
             ],
