@@ -18,6 +18,7 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../../core/utils-new.js";
 import NotificationUtils from "../../../commons/utils/notification-utils.js";
 import LitUtils from "../../../commons/utils/lit-utils.js";
+import WebUtils from "../../../commons/utils/web-utils.js";
 import "../../../commons/forms/data-form.js";
 
 export default class ClinicalAnalysisCaseConfiguration extends LitElement {
@@ -50,8 +51,13 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            // perform a deep clone to avoid modifying the original object
+            // 1. perform a deep clone to avoid modifying the original object
             this._studyConfiguration = UtilsNew.objectClone(this.opencgaSession.study?.internal?.configuration?.clinical || {});
+
+            // 2. fix the report.library field to convert it into an array of key-value objects
+            if (this._studyConfiguration.report?.library) {
+                this._studyConfiguration.report.library = WebUtils.formatParametersList(this._studyConfiguration.report.library);
+            }
         }
 
         if (changedProperties.has("displayConfig")) {
@@ -62,13 +68,26 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
     }
 
     onFieldChange() {
-        this._studyConfiguration = {...this._studyConfiguration};
+        this._studyConfiguration = {
+            ...this._studyConfiguration,
+        };
         this.requestUpdate();
     }
 
     onSubmit() {
+        // 1. prepare the data to be submitted to opencga. note that we need to convert back the report.library field
+        // into an object using the key-value pairs from the array
+        const data = {
+            ...this._studyConfiguration,
+            report: {
+                ...this._studyConfiguration.report,
+                library: WebUtils.convertParametersListToObject(this._studyConfiguration.report?.library || []),
+            },
+        };
+
+        // 2. update the clinical configuration
         this.opencgaSession.opencgaClient.clinical()
-            .updateClinicalConfiguration(this._studyConfiguration, {
+            .updateClinicalConfiguration(data, {
                 study: this.opencgaSession.study.fqn,
             })
             .then(() => {
@@ -363,9 +382,6 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                             description: "URL of the logo to be displayed in clinical reports.",
                             field: "report.logo",
                             type: "input-text",
-                            display: {
-                                placeholder: "E.g. Consent for research",
-                            },
                         },
                     ],
                 },
