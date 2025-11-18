@@ -239,13 +239,13 @@ export default class UserToolExecutor extends LitElement {
         if (this._tool?.variables?.length > 0) {
             for (const variable of this._tool.variables) {
                 const dataFormElement = {
-                    title: variable.id,
+                    title: variable.name || variable.id,
                     field: `variables.${variable.id}`,
                     required: variable.required || false,
                     display: {
                         disabled: typeof this.toolParams?.variables?.[variable.id] !== "undefined",
                         defaultValue: variable.defaultValue,
-                        helpMessage: variable.description,
+                        helpMessage: variable.description || "",
                     }
                 };
 
@@ -302,35 +302,63 @@ export default class UserToolExecutor extends LitElement {
                             `,
                         },
                     },
-                    {
-                        title: "Command Line",
-                        field: "commandLine",
-                        type: "input-text",
-                        display: {
-                            visible: this._tool?.type === "CUSTOM_TOOL",
-                        },
-                    },
+                    // {
+                    //     title: "Command Line",
+                    //     field: "commandLine",
+                    //     type: "input-text",
+                    //     display: {
+                    //         visible: this._tool?.type === "CUSTOM_TOOL",
+                    //         helpMessage: "Define the command line to be executed inside the docker container.",
+                    //     },
+                    // },
                 ]
             },
             {
                 title: "Parameters",
                 elements: [
                     ...variables,
+                    // {
+                    //     title: "Parameters",
+                    //     field: "otherVariables",
+                    //     type: "input-text",
+                    //     display: {
+                    //         rows: 5,
+                    //         placeholder: "k1=v1\nk2=v2\nk3=v3",
+                    //         help: {
+                    //             text: "Format valid is 'key=value', one per line. To use file you must use the prefix 'file://' before the path or name, for example: 'input_file=file://file.vcf'",
+                    //         },
+                    //         visible: () => variables.length === 0
+                    //     }
+                    // },
+                    // {
+                    //     title: "Other Parameters",
+                    //     field: "otherVariables",
+                    //     type: "input-text",
+                    //     display: {
+                    //         rows: 5,
+                    //         placeholder: "k1=v1\nk2=v2\nk3=v3",
+                    //         help: {
+                    //             text: "Format valid is 'key=value', one per line. To use file you must use the prefix 'file://' before the path or name, for example: 'input_file=file://file.vcf'. These parameters will override the ones defined above.",
+                    //         },
+                    //         visible: () => variables.length > 0
+                    //     }
+                    // },
+                ]
+            },
+            {
+                title: "Advanced Parameters",
+                elements: [
                     {
-                        title: "Parameters",
-                        field: "otherVariables",
+                        title: "Command Line",
+                        field: "commandLine",
                         type: "input-text",
                         display: {
-                            rows: 5,
-                            placeholder: "k1=v1\nk2=v2\nk3=v3",
-                            help: {
-                                text: "Format valid is 'key=value', one per line. To use file you must use the prefix 'file://' before the path or name, for example: 'input_file=file://file.vcf'",
-                            },
-                            visible: () => variables.length === 0
-                        }
+                            visible: this._tool?.type === "CUSTOM_TOOL",
+                            helpMessage: "Define the command line to be executed inside the docker container.",
+                        },
                     },
                     {
-                        title: "Other Parameters",
+                        title: variables.length > 0 ? "Other Parameters" : "Parameters",
                         field: "otherVariables",
                         type: "input-text",
                         display: {
@@ -339,7 +367,7 @@ export default class UserToolExecutor extends LitElement {
                             help: {
                                 text: "Format valid is 'key=value', one per line. To use file you must use the prefix 'file://' before the path or name, for example: 'input_file=file://file.vcf'. These parameters will override the ones defined above.",
                             },
-                            visible: () => variables.length > 0
+                            // visible: () => variables.length > 0
                         }
                     },
                 ]
