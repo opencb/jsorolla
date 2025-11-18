@@ -134,7 +134,7 @@ export default class ClinicalInterpretationCreate extends LitElement {
                         version: this.opencgaSession?.about?.Version || "-",
                     },
                     {
-                        name: "Cellbase",
+                        name: "CellBase",
                         version: this.opencgaSession.project?.cellbase?.version || "-",
                     },
                 ],
