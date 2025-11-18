@@ -23,9 +23,10 @@ export default class VariantUtils {
 
     static VARIANT_STATUS_VALUES = [
         "NOT_REVIEWED",
-        "REVIEW_REQUESTED",
+        "UNDER_CONSIDERATION",
         "REVIEWED",
         "DISCARDED",
+        "CANDIDATE",
         "REPORTED",
         "ARTIFACT",
     ];
