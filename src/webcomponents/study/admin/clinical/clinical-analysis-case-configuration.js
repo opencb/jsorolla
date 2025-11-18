@@ -343,6 +343,52 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                                 },
                             ],
                         },
+                        {
+                            title: "Report",
+                            description: "Configure the consents that can be assigned to clinical cases.",
+                            field: "report",
+                            type: "object",
+                            display: {
+                                // collapsedUpdate: false,
+                                // itemAddText: "Add Consent",
+                                // maxNumItems: 25,
+                                // view: consent => html`
+                                //     <div class="">
+                                //         <span class="fw-bold">${consent.name || consent.id || ""}</span>
+                                //     </div>
+                                // `,
+                            },
+                            elements: [
+                                {
+                                    title: "Title",
+                                    field: "report.title",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "E.g. CONSENT_1",
+                                        helpMessage: "Unique identifier for the consent.",
+                                    },
+                                },
+                                {
+                                    title: "Logo",
+                                    field: "report.logo",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "E.g. Consent for research",
+                                        helpMessage: "Name of the consent. This will be displayed in the clinical case.",
+                                    },
+                                },
+                                // {
+                                //     title: "Library",
+                                //     field: "report.library",
+                                //     type: "input-parameters",
+                                //     display: {
+                                //         // rows: 2,
+                                //         placeholder: "Add a description for this consent...",
+                                //         helpMessage: "Provide a brief description of the consent. This will help users understand the purpose of this consent in the clinical workflow.",
+                                //     },
+                                // },
+                            ],
+                        },
                     ],
                 },
             ],
