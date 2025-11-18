@@ -351,20 +351,20 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                     elements: [
                         {
                             title: "Title",
+                            description: "Default title for clinical reports generated from clinical cases.",
                             field: "report.title",
                             type: "input-text",
                             display: {
-                                placeholder: "E.g. CONSENT_1",
-                                helpMessage: "Unique identifier for the consent.",
+                                placeholder: "E.g. Clinical Report",
                             },
                         },
                         {
                             title: "Logo",
+                            description: "URL of the logo to be displayed in clinical reports.",
                             field: "report.logo",
                             type: "input-text",
                             display: {
                                 placeholder: "E.g. Consent for research",
-                                helpMessage: "Name of the consent. This will be displayed in the clinical case.",
                             },
                         },
                     ],
