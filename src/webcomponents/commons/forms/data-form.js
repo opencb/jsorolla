@@ -1788,7 +1788,7 @@ export default class DataForm extends LitElement {
                                 }
                                 return html`
                                     <div class="list-group-item bg-white p-3">
-                                        <div class="d-flex flex-row justify-content-between align-items-stretch">
+                                        <div class="d-flex flex-row justify-content-between align-items-stretch gap-2">
                                             <div class="d-flex flex-column justify-content-center">
                                                 ${element.display.view(item)}
                                             </div>
