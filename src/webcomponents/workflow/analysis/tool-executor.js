@@ -305,7 +305,26 @@ export default class UserToolExecutor extends LitElement {
             },
             {
                 title: "Parameters",
-                elements: variables,
+                elements: [
+                    {
+                        title: " ",
+                        type: "custom",
+                        display: {
+                            visible: variables.length === 0,
+                            render: () => html`
+                                <div class="text-center d-flex flex-column align-items-center p-4 bg-white rounded-4 border border-gray-200">
+                                    <div class="d-flex fs-2 text-secondary mb-2">
+                                        <i class="fas fa-info-circle"></i>
+                                    </div>
+                                    <div class="text-muted">
+                                        <span>There are no parameters to be configured for this tool.</span>
+                                    </div>
+                                </div>
+                            `,
+                        },
+                    },
+                    ...variables,
+                ],
             },
             {
                 title: "Advanced Parameters",
