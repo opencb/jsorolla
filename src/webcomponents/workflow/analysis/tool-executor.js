@@ -239,13 +239,13 @@ export default class UserToolExecutor extends LitElement {
         if (this._tool?.variables?.length > 0) {
             for (const variable of this._tool.variables) {
                 const dataFormElement = {
-                    title: variable.id,
+                    title: variable.name || variable.id,
                     field: `variables.${variable.id}`,
                     required: variable.required || false,
                     display: {
                         disabled: typeof this.toolParams?.variables?.[variable.id] !== "undefined",
                         defaultValue: variable.defaultValue,
-                        helpMessage: variable.description,
+                        helpMessage: variable.description || "",
                     }
                 };
 
