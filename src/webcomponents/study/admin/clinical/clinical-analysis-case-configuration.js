@@ -401,15 +401,22 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
                             elements: [
                                 {
                                     title: "Name",
-                                    description: "A short unique name for the library entry.",
                                     field: "report.library[].name",
                                     type: "input-text",
+                                    display: {
+                                        helpMessage: "A short unique name for the library entry.",
+                                        placeholder: "E.g. FAMILY_HISTORY",
+                                    },
                                 },
                                 {
                                     title: "Full Text",
-                                    description: "The full text content associated with the library entry.",
                                     field: "report.library[].value",
                                     type: "input-text",
+                                    display: {
+                                        helpMessage: "The full text content associated with the library entry.",
+                                        placeholder: "E.g. The patient has a family history of cardiovascular diseases...",
+                                        rows: 4,
+                                    },
                                 },
                             ],
                         },
