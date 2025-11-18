@@ -56,7 +56,7 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
 
             // 2. fix the report.library field to convert it into an array of key-value objects
             if (this._studyConfiguration.report?.library) {
-                this._studyConfiguration.report.library = WebUtils.formatParametersList(this._studyConfiguration.report.library);
+                this._studyConfiguration.report.library = WebUtils.parseParametersObject(this._studyConfiguration.report.library);
             }
         }
 
@@ -81,7 +81,7 @@ export default class ClinicalAnalysisCaseConfiguration extends LitElement {
             ...this._studyConfiguration,
             report: {
                 ...this._studyConfiguration.report,
-                library: WebUtils.convertParametersListToObject(this._studyConfiguration.report?.library || []),
+                library: WebUtils.formatParametersList(this._studyConfiguration.report?.library || []),
             },
         };
 
