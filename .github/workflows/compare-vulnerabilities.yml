@@ -42,7 +42,7 @@ jobs:
           git fetch origin ${{ inputs.base_ref }}:refs/remotes/origin/${{ inputs.base_ref }} --tags --prune || echo "Base ref might be a SHA already present"
 
       - name: Vulnerability Diff (JavaScript)
-        uses: sec-open/vuln-diff-action@v1
+        uses: sec-open/vuln-diff-action@v3.0.0-alpha.1
         with:
           base_ref: ${{ inputs.base_ref }}
           head_ref: ${{ inputs.head_ref }}
