@@ -31,7 +31,7 @@ export default class MyAnalysisTools extends LitElement {
         this.MENU_SECTIONS = [
             {type: "CUSTOM_TOOL", name: "Custom Tools"},
             {type: "WORKFLOW", name: "Workflows"},
-            // {type: "VARIANT_WALKER", name: "Variant Walker"},
+            {type: "VARIANT_WALKER", name: "Variant Walker"},
         ];
 
         this._customTools = [];
