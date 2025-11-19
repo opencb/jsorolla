@@ -31,8 +31,25 @@ export default class ClinicalReport extends LitElement {
     }
 
     #init() {
+        this._clinicalAnalysis = null;
         this._editingTemplate = false;
         this._config = this.getDefaultConfig();
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("opencgaSession")) {
+            // after any change in the clinicalAnalysis or opencgaSession, reset the internal clinicalAnalysis object
+            // and include the clinical configuration in the attributes section
+            this._clinicalAnalysis = {
+                ...this.clinicalAnalysis,
+                attributes: {
+                    ...this.clinicalAnalysis?.attributes,
+                    OPENCGA_CLINICAL_CONFIGURATION: this.opencgaSession?.study?.internal?.configuration?.clinical || {},
+                },
+            };
+        }
+
+        super.update(changedProperties);
     }
 
     onTemplateEditionToggle(event) {
@@ -49,7 +66,7 @@ export default class ClinicalReport extends LitElement {
         return html`
             <detail-tabs
                 .opencgaSession="${this.opencgaSession}"
-                .data="${this.clinicalAnalysis}"
+                .data="${this._clinicalAnalysis}"
                 .config="${this._config}">
             </detail-tabs>
         `;
