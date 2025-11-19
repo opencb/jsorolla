@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
@@ -34,6 +34,9 @@ export default class UserToolExecutor extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             toolParams: {
                 type: Object,
             },
@@ -60,6 +63,10 @@ export default class UserToolExecutor extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("toolId") || changedProperties.has("opencgaSession")) {
+            this.fetchUserTool();
+        }
+
         if (changedProperties.has("toolParams")) {
             this.toolParamsObserver();
         }
@@ -76,11 +83,7 @@ export default class UserToolExecutor extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             ...this.toolParams,
         };
-
-        // check if we need to fetch tool information
-        if (this.toolParams?.id) {
-            this.fetchUserTool();
-        }
+        this.addToolVariablesToParams();
     }
 
     check() {
@@ -115,24 +118,26 @@ export default class UserToolExecutor extends LitElement {
 
     fetchUserTool() {
         this._tool = null;
-        this.opencgaSession.opencgaClient.userTool()
-            .search({
-                id: this._toolParams.id,
-                study: this.opencgaSession.study.fqn,
-            })
-            .then(response => {
-                if (response.responses?.[0]?.results?.length > 0) {
-                    this._tool = response.responses[0].results[0];
-                }
-                this.addToolVariablesToParams();
-            })
-            .catch(response => {
-                console.log(response);
-            })
-            .finally(() => {
-                this._config = this.getDefaultConfig();
-                this.requestUpdate();
-            });
+        if (this.toolId && this.opencgaSession) {
+            this.opencgaSession.opencgaClient.userTool()
+                .search({
+                    id: this._toolId,
+                    study: this.opencgaSession.study.fqn,
+                })
+                .then(response => {
+                    if (response.responses?.[0]?.results?.length > 0) {
+                        this._tool = response.responses[0].results[0];
+                    }
+                    this.addToolVariablesToParams();
+                })
+                .catch(response => {
+                    console.log(response);
+                })
+                .finally(() => {
+                    this._config = this.getDefaultConfig();
+                    this.requestUpdate();
+                });
+        }
     }
 
     onFieldChange(event) {
@@ -218,9 +223,14 @@ export default class UserToolExecutor extends LitElement {
         };
         this.addToolVariablesToParams();
         this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     render() {
+        if (!this.opencgaSession || !this.toolId) {
+            return nothing;
+        }
+
         return html`
             <data-form
                 .data="${this._toolParams}"
@@ -278,31 +288,6 @@ export default class UserToolExecutor extends LitElement {
         }
 
         const params = [
-            {
-                title: "Configuration",
-                elements: [
-                    {
-                        title: "Tool ID",
-                        field: "id",
-                        type: "custom",
-                        required: true,
-                        display: {
-                            render: (toolId, dataFormFilterChange) => html`
-                                <catalog-search-autocomplete
-                                    .value="${toolId}"
-                                    .resource="${"WORKFLOW"}"
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{
-                                        multiple: false,
-                                        disabled: !!this.toolParams?.id,
-                                    }}"
-                                    @filterChange="${event => dataFormFilterChange(event.detail.value)}">
-                                </catalog-search-autocomplete>
-                            `,
-                        },
-                    },
-                ],
-            },
             {
                 title: "Parameters",
                 elements: [
