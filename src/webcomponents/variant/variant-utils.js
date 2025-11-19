@@ -25,10 +25,10 @@ export default class VariantUtils {
         "NOT_REVIEWED",
         "UNDER_CONSIDERATION",
         "REVIEWED",
-        "DISCARDED",
-        "CANDIDATE",
         "REPORTED",
+        "CANDIDATE",
         "ARTIFACT",
+        "DISCARDED",
     ];
 
     static VARIANT_CONFIDENCE_VALUES = ["LOW", "MEDIUM", "HIGH"];
@@ -645,17 +645,19 @@ export default class VariantUtils {
     static getStatusColor(status = "") {
         switch (status.toUpperCase()) {
             case "NOT_REVIEWED":
-                return "text-secondary bg-secondary-subtle";
-            case "REVIEW_REQUESTED":
-                return "text-primary bg-primary-subtle";
+                return "text-secondary bg-secondary";
+            case "UNDER_CONSIDERATION":
+                return "text-primary bg-info";
             case "REVIEWED":
                 return "text-white bg-primary";
-            case "DISCARDED":
-                return "text-white bg-danger";
             case "REPORTED":
                 return "text-white bg-success";
+            case "CANDIDATE":
+                return "text-white bg-warning";
             case "ARTIFACT":
-                return "text-white bg-dark";
+                return "text-white bg-danger-subtle";
+            case "DISCARDED":
+                return "text-white bg-danger";
             default:
                 return "";
         }

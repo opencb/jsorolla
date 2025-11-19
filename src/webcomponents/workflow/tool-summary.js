@@ -222,10 +222,10 @@ export default class ToolSummary extends LitElement {
                     ],
                 },
                 {
-                    title: "Input Variables",
+                    title: "Variables",
                     text: `
                         Optional variables that can be used in the tool, these are NOT necessary for the tool to run.
-                        The variables will be ONLY used to create automatic forms.
+                        The variables will be ONLY used to create automatic forms and provide default values.
                     `,
                     elements: [
                         {

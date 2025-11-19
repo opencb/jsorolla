@@ -263,7 +263,7 @@ export default class ToolUpdate extends LitElement {
                 {
                     title: "Input Variables",
                     text: "Optional variables that can be used in the workflow, these are NOT necessary for the workflow to run. " +
-                        "The variables will be ONLY used to create automatic forms.",
+                        "The variables will be ONLY used to create automatic forms and provide default values.",
                     elements: [
                         {
                             title: "Variables",
