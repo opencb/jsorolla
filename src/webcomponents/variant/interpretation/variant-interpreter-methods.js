@@ -144,8 +144,8 @@ class VariantInterpreterMethods extends LitElement {
                         <div class="container">
                             <tool-header title="Execute ${tool.name || tool.id}"></tool-header>
                             <tool-executor
+                                .toolId="${tool.id}"
                                 .toolParams="${{
-                                    id: tool.id,
                                     variables: {
                                         clinicalAnalysisId: clinicalAnalysis.id,
                                         study: this.opencgaSession.study.fqn,
