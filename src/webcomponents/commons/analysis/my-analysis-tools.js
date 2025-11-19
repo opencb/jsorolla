@@ -162,9 +162,7 @@ export default class MyAnalysisTools extends LitElement {
                         render: opencgaSession => html`
                             <h2 class="fw-bold mb-3">Execute ${tool.name || tool.id}</h2>
                             <tool-executor
-                                .toolParams="${{
-                                    id: tool.id,
-                                }}"
+                                .toolId="${tool.id}"
                                 .displayConfig="${{
                                     titleVisible: false,
                                 }}"
