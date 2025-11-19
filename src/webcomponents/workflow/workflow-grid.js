@@ -254,9 +254,7 @@ export default class WorkflowGrid extends LitElement {
                 },
                 render: () => html`
                     <tool-executor
-                        .toolParams="${{
-                            id: this._selectedUserTool?.id,
-                        }}"
+                        .toolId="${this._selectedUserTool?.id}"
                         .displayConfig="${{
                             titleVisible: false,
                         }}"
