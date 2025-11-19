@@ -93,7 +93,7 @@ export default class VariantIndexOperation extends LitElement {
             calculateStats: this._toolParams.calculateStats || false,
             annotate: this._toolParams.annotate || false,
             loadMultiFileData: this._toolParams.loadMultiFileData || false,
-            loadSplitData: this._toolParams.loadSplitData || false,
+            loadSplitData: this._toolParams.loadSplitData,
             forceReload: this._toolParams.forceReload || false,
             resume: this._toolParams.resume || false,
         };
