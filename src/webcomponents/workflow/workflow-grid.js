@@ -248,7 +248,7 @@ export default class WorkflowGrid extends LitElement {
             },
             "execute-tool": () => ({
                 display: {
-                    modalTitle: "Execute Tool",
+                    modalTitle: `Execute Tool ${this._selectedUserTool?.name || this._selectedUserTool?.id}`,
                     modalCyDataName: "modal-workflow-execute",
                     modalSize: "modal-xl",
                 },
