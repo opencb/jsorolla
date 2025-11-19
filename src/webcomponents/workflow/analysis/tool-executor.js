@@ -121,7 +121,7 @@ export default class UserToolExecutor extends LitElement {
         if (this.toolId && this.opencgaSession) {
             this.opencgaSession.opencgaClient.userTool()
                 .search({
-                    id: this._toolId,
+                    id: this.toolId,
                     study: this.opencgaSession.study.fqn,
                 })
                 .then(response => {
