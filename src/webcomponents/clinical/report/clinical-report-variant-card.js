@@ -119,6 +119,11 @@ export default class ClinicalReportVariantCard extends LitElement {
                                             </button>
                                         </div>
                                     </div>
+                                    <div class="">
+                                        <div class="badge ${VariantUtils.getStatusColor(data.status)} user-select-none">
+                                            <b>${data.status}</b>
+                                        </div>
+                                    </div>
                                 `,
                             },
                         },
