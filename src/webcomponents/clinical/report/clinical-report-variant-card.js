@@ -98,6 +98,7 @@ export default class ClinicalReportVariantCard extends LitElement {
                     id: "variant",
                     display: {
                         separationClassName: "mb-0",
+                        titleWidth: 4,
                     },
                     elements: [
                         {
@@ -116,6 +117,11 @@ export default class ClinicalReportVariantCard extends LitElement {
                                                 <i class="fa fa-edit pe-1"></i>
                                                 <span>Update Review</span>
                                             </button>
+                                        </div>
+                                    </div>
+                                    <div class="">
+                                        <div class="badge ${VariantUtils.getStatusColor(data.status)} user-select-none">
+                                            <b>${data.status}</b>
                                         </div>
                                     </div>
                                 `,

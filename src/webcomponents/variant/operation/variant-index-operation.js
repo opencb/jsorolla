@@ -179,7 +179,7 @@ export default class VariantIndexOperation extends LitElement {
                                     }}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{
-                                        disabled: !!this._toolParams.file,
+                                        disabled: !!this.toolParams.file,
                                         multiple: false,
                                     }}"
                                     @filterChange="${event => dataFormFieldChange(event.detail.value)}">
