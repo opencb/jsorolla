@@ -1349,6 +1349,7 @@ export default class VariantGridFormatter {
             const traits = row.annotation.traitAssociation.filter(trait => trait.source.name.toUpperCase() === this.field.toUpperCase());
             if (traits.length === 0) {
                 return "<span title='No clinical records found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
+                // return "<span title='No clinical records found for this variant'>-</span>";
             }
 
             let tooltipText = "";

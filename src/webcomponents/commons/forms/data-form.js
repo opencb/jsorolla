@@ -880,8 +880,21 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    _createTextElement(element) {
-        const value = typeof element.text === "function" ? element.text(this.data, element.field) : element.text;
+    _createTextElement(element, data = this.data) {
+        // Check if 'text' is a function or a string, otherwise get value from 'field' as usual.
+        let value;
+        if (element.text) {
+            if (typeof element.text === "function") {
+                value = element.text(data, element.field);
+            } else {
+                value = element.text;
+            }
+        } else {
+            if (element.field) {
+                value = this.getValue(element.field, data);
+            }
+        }
+
         const textClass = element.display?.className ?? element.display?.textClassName ?? "";
         const textStyle = element.display?.style ?? element.display?.textStyle ?? nothing;
         const notificationClass = element.type === "notification" ? DataForm.NOTIFICATION_TYPES[element?.display?.notificationType] || "alert alert-info" : "";
@@ -1171,6 +1184,11 @@ export default class DataForm extends LitElement {
                 message: "No template provided",
                 className: "text-danger"
             });
+        }
+
+        // Check if field is provided to get data from
+        if (element.field) {
+            data = this.getValue(element.field, data);
         }
 
         const content = html`
