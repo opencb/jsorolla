@@ -81,7 +81,7 @@ export default class UserToolExecutor extends LitElement {
     toolParamsObserver() {
         this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            ...this.toolParams,
+            ...UtilsNew.objectClone(this.toolParams),
         };
         this.addToolVariablesToParams();
     }
@@ -219,7 +219,7 @@ export default class UserToolExecutor extends LitElement {
     onClear() {
         this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            ...this.toolParams,
+            ...UtilsNew.objectClone(this.toolParams),
         };
         this.addToolVariablesToParams();
         this._config = this.getDefaultConfig();
