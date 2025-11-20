@@ -1,6 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/empty-state.js";
 import "../../file/file-editor.js";
@@ -118,10 +119,34 @@ export default class ClinicalReportPreview extends LitElement {
     }
 
     evaluateTemplate(templateString) {
+        const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
         try {
-            const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
-            const fn = new AsyncFunction(templateString);
-            return Promise.resolve(fn());
+            // 1. prepare the code by replacing imports with dynamic imports
+            const code = templateString.trim()
+                .replace(/^import\s+(\w+)?\s+from\s+"([\w@:\-\.-/]+)?";/gm, `const $1 = (await __import("$2"))?.default;`)
+                .replace(/^import\s+(\{[\w, ]+\})?\s+from\s+"([\w@:\-\.\/]+)?";/gm, `const $1 = await __import("$2");`);
+            
+            // 2. initialize the dynamic import function
+            const fn = new AsyncFunction("__import", code);
+            // 3. internal method to handle dynamic imports
+            const __import = async (modulePath) => {
+                switch (modulePath) {
+                    case "lit":
+                        return {
+                            "html": html,
+                            "nothing": nothing,
+                        };
+                    case "jsorolla/utils":
+                    case "jsorolla/utils-new":
+                        return {
+                            "default": UtilsNew,
+                        };
+                    default:
+                        throw new Error(`Unsupported module import: ${modulePath}`);
+                }
+            };
+            // 4. execute the function with a dynamic import handler
+            return Promise.resolve(fn(__import));
         } catch (error) {
             return Promise.reject(error);
         }
