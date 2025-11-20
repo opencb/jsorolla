@@ -133,7 +133,9 @@ export default class ClinicalReportReview extends LitElement {
                 id: this.clinicalAnalysis.interpretation.id,
                 name: this.clinicalAnalysis.interpretation.name,
                 primary: true,
-                variants: (this.clinicalAnalysis.interpretation.primaryFindings || []).filter(variant => variant.status === "REPORTED"),
+                variants: (this.clinicalAnalysis.interpretation.primaryFindings || []).filter(variant => {
+                    return variant.status === "REPORTED" || variant.status === "CANDIDATE";
+                }),
             });
         }
 
@@ -144,7 +146,9 @@ export default class ClinicalReportReview extends LitElement {
                     id: interpretation.id,
                     name: interpretation.name,
                     primary: false,
-                    variants: (interpretation.primaryFindings || []).filter(variant => variant.status === "REPORTED"),
+                    variants: (interpretation.primaryFindings || []).filter(variant => {
+                        return variant.status === "REPORTED" || variant.status === "CANDIDATE";
+                    }),
                 });
             });
         }
