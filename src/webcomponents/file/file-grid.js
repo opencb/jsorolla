@@ -324,7 +324,7 @@ export default class OpencgaFileGrid extends LitElement {
             "variant-index": {
                 display: {
                     modalTitle: "Run Variant Index",
-                    modalSize: "modal-lg",
+                    modalSize: "modal-xl",
                     modalCyDataName: "modal-variant-index",
                     modalDraggable: true,
                 },
