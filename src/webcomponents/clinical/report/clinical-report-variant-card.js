@@ -98,6 +98,7 @@ export default class ClinicalReportVariantCard extends LitElement {
                     id: "variant",
                     display: {
                         separationClassName: "mb-0",
+                        titleWidth: 4,
                     },
                     elements: [
                         {
