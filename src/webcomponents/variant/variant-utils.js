@@ -645,7 +645,7 @@ export default class VariantUtils {
     static getStatusColor(status = "") {
         switch (status.toUpperCase()) {
             case "NOT_REVIEWED":
-                return "text-secondary bg-secondary";
+                return "text-white bg-secondary";
             case "UNDER_CONSIDERATION":
                 return "text-primary bg-info";
             case "REVIEWED":
