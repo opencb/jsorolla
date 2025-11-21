@@ -173,7 +173,6 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                             },
                             type: "custom",
                             display: {
-                                visible: data => data?.pipeline?.type === "genomics",
                                 render: indexDir => {
                                     return indexDir ? html`<code class="text-break">${indexDir}</code>` : "Not specified.";
                                 },
