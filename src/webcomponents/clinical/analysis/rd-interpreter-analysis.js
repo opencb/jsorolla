@@ -124,12 +124,12 @@ export default class RdInterpreterAnalysis extends LitElement {
                 elements: [
                     {
                         title: "Clinical Analysis ID",
-                        field: "clinicalAnalysis",
+                        field: "clinicalAnalysisId",
                         type: "custom",
                         display: {
-                            render: (clinicalAnalysis, onFieldChange) => html`
+                            render: (clinicalAnalysisId, onFieldChange) => html`
                                 <catalog-search-autocomplete
-                                    .value="${clinicalAnalysis}"
+                                    .value="${clinicalAnalysisId}"
                                     .resource="${"CLINICAL_ANALYSIS"}"
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{

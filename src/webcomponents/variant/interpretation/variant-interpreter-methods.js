@@ -146,7 +146,7 @@ class VariantInterpreterMethods extends LitElement {
                                     <tool-header title="RD Interpreter - ${probandId}"></tool-header>
                                     <rd-interpreter-analysis
                                         .toolParams="${{
-                                            clinicalAnalysis: clinicalAnalysis.id,
+                                            clinicalAnalysisId: clinicalAnalysis.id,
                                         }}"
                                         .opencgaSession="${opencgaSession}"
                                         .displayConfig="${{
