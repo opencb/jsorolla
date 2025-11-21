@@ -363,31 +363,6 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                         },
                     ],
                 },
-                // {
-                //     title: "Variant Index Parameters",
-                //     display: {},
-                //     elements: [
-                //         {
-                //             title: "Parameters",
-                //             field: "variantIndex",
-                //             type: "table",
-                //             display: {
-                //                 getData: data => this.getParameters(data.variantIndex),
-                //                 className: "table-borderless table-grid mb-0",
-                //                 columns: [
-                //                     {
-                //                         title: "Parameter",
-                //                         field: "key",
-                //                     },
-                //                     {
-                //                         title: "Value",
-                //                         field: "value",
-                //                     },
-                //                 ],
-                //             },
-                //         },
-                //     ],
-                // },
             ],
         };
     }
