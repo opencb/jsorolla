@@ -82,7 +82,7 @@ export default class RdInterpreterAnalysis extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            clinicalAnalysis: this._toolParams.clinicalAnalysis || "",
+            clinicalAnalysisId: this._toolParams.clinicalAnalysisId || "",
         };
 
         AnalysisUtils.submit(
