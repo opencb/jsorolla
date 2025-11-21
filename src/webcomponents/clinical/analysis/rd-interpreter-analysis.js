@@ -134,7 +134,7 @@ export default class RdInterpreterAnalysis extends LitElement {
                                     .opencgaSession="${this.opencgaSession}"
                                     .config="${{
                                         multiple: false,
-                                        disabled: !!this.toolParams?.clinicalAnalysis,
+                                        disabled: !!this.toolParams?.clinicalAnalysisId,
                                     }}"
                                     @filterChange="${event => onFieldChange(event.detail.value)}">
                                 </catalog-search-autocomplete>
