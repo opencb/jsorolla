@@ -311,6 +311,11 @@ export default class DataForm extends LitElement {
         return _value;
     }
 
+    _getElementTitle(element, section) {
+        // we support title as a function or a string
+        return (typeof element.title === "function") ? element.title(this.data, element, section) : element.title ?? element.name;
+    }
+
     _getSectionWidth(section) {
         return section?.display?.width ?? this.config?.display?.width ?? 12;
     }
@@ -759,7 +764,7 @@ export default class DataForm extends LitElement {
         const elementContainerStyle = element.display?.containerStyle ?? nothing;
 
         // Initialize title values
-        let title = element.title ?? element.name; // element.name is deprecated --> use element.title
+        let title = this._getElementTitle(element, section);
         const titleClassName = element.display?.titleClassName ?? element.display?.labelClasses ?? "fw-bold";
         const titleStyle = element.display?.titleStyle ?? element.display?.labelStyle ?? "";
         const titleVisible = element.display?.titleVisible ?? element.showLabel ?? true;
