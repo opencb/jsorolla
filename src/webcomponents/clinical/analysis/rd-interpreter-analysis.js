@@ -20,7 +20,7 @@ import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 
-export default class RdTieringAnalysis extends LitElement {
+export default class RdInterpreterAnalysis extends LitElement {
 
     constructor() {
         super();
@@ -47,9 +47,9 @@ export default class RdTieringAnalysis extends LitElement {
     }
 
     #init() {
-        this.ANALYSIS_TOOL = "rd-tiering";
-        this.ANALYSIS_TITLE = "RD Tiering Interpretation";
-        this.ANALYSIS_DESCRIPTION = "Executes an RD Tiering Interpreation analysis job";
+        this.ANALYSIS_TOOL = "rd-interpreter";
+        this.ANALYSIS_TITLE = "RD Interpreter";
+        this.ANALYSIS_DESCRIPTION = "Executes an RD Interpreter analysis job";
         this.DEFAULT_TOOLPARAMS = {};
 
         this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
@@ -161,4 +161,4 @@ export default class RdTieringAnalysis extends LitElement {
 
 }
 
-customElements.define("rd-tiering-analysis", RdTieringAnalysis);
+customElements.define("rd-interpreter-analysis", RdInterpreterAnalysis);
