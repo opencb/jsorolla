@@ -334,6 +334,35 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                         },
                     ],
                 },
+                {
+                    title: "Genotype Params",
+                    display: {
+                        visible: data => data?.pipeline?.type === "affy",
+                    },
+                    elements: [
+                        {
+                            title: "Parameters",
+                            type: "table",
+                            display: {
+                                getData: data => {
+                                    return this.getParameters(data.preprocessing?.steps?.genotype?.tool?.parameters || {});
+                                },
+                                className: "table-borderless table-grid mb-0",
+                                defaultValue: "No parameters specified.",
+                                columns: [
+                                    {
+                                        title: "Parameter",
+                                        field: "key",
+                                    },
+                                    {
+                                        title: "Value",
+                                        field: "value",
+                                    },
+                                ],
+                            },
+                        },
+                    ],
+                },
                 // {
                 //     title: "Variant Index Parameters",
                 //     display: {},
