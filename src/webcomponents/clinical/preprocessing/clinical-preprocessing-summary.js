@@ -168,9 +168,12 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                         },
                         {
                             field: "preprocessing.indexDir",
-                            title: "Index Directory",
+                            title: data => {
+                                return data?.pipeline?.type === "affy" ? "Axiom Index Directory" : "Index Directory";
+                            },
                             type: "custom",
                             display: {
+                                visible: data => data?.pipeline?.type === "genomics",
                                 render: indexDir => {
                                     return indexDir ? html`<code class="text-break">${indexDir}</code>` : "Not specified.";
                                 },
@@ -195,6 +198,9 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                         {
                             title: "Tool",
                             field: "preprocessing.steps.qualityControl.tool.id",
+                            display: {
+                                visible: data => data?.pipeline?.type === "genomics",
+                            },
                         },
                         {
                             title: "Parameters",
@@ -221,7 +227,9 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                 },
                 {
                     title: "Alignment Params",
-                    display: {},
+                    display: {
+                        visible: data => data?.pipeline?.type === "genomics",
+                    },
                     elements: [
                         {
                             title: "Tool",
@@ -262,7 +270,9 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                 },
                 {
                     title: "Variant Calling Params",
-                    display: {},
+                    display: {
+                        visible: data => data?.pipeline?.type === "genomics",
+                    },
                     elements: [
                         {
                             title: "Tools",
