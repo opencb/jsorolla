@@ -380,9 +380,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     .executedQuery="${this.executedQuery}"
                     .searchActive="${this.searchActive ?? false}"
                     .config="${this._config.filter}"
-                    @queryChange="${this.onVariantFilterChange}"
-                    @querySearch="${this.onVariantFilterSearch}"
-                    @queryClear="${this.onVariantFilterClear}">
+                    @queryChange="${event => this.onVariantFilterChange(event)}"
+                    @querySearch="${event => this.onVariantFilterSearch(event)}"
+                    @queryClear="${event => this.onVariantFilterClear(event)}">
                 </variant-browser-filter>
 
                 <div id="table-view" class="${this.activeView === "table" ? "d-block" : "d-none"}">
@@ -395,9 +395,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             .review="${true}"
                             .config="${this._config.filter.result.grid}"
                             .active="${this.active}"
-                            @queryComplete="${this.onQueryComplete}"
-                            @variantReview="${e => this.onVariantReview(e)}"
-                            @settingsUpdate="${this.onSettingsUpdate}">
+                            @queryComplete="${event => this.onQueryComplete(event)}"
+                            @variantReview="${event => this.onVariantReview(event)}"
+                            @settingsUpdate="${event => this.onSettingsUpdate(event)}">
                         </variant-interpreter-grid>
                     ` : html`
                         <variant-interpreter-rearrangement-grid
@@ -408,9 +408,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             .review="${true}"
                             .config="${this._config.filter.result.grid}"
                             .active="${this.active}"
-                            @queryComplete="${this.onQueryComplete}"
-                            @variantReview="${e => this.onVariantReview(e)}"
-                            @settingsUpdate="${this.onSettingsUpdate}">
+                            @queryComplete="${event => this.onQueryComplete(event)}"
+                            @variantReview="${event => this.onVariantReview(event)}"
+                            @settingsUpdate="${event => this.onSettingsUpdate(event)}">
                         </variant-interpreter-rearrangement-grid>
                     `}
                 </div>
