@@ -232,16 +232,16 @@ class VariantInterpreterBrowserCancer extends LitElement {
             });
 
             // Add 'file' filter if 'fileData' exists
-            if (this.files?.length > 1) {
+            if (this.files) {
                 const fileNames = this.files
                     .filter(file => file.internal?.variant?.index?.status?.id === "READY")
                     .map(f => f.name);
                 // Only filter by file if there are more than 1 file indexed
                 if (fileNames.length > 0) {
-                    fileNames.join(",");
+                    const joinedFileNames = fileNames.join(",");
                     for (const filter of _activeFilterFilters) {
                         if (filter.query?.fileData && !filter.query?.file) {
-                            filter.query.file = fileNames;
+                            filter.query.file = joinedFileNames;
                         }
                     }
                 }
