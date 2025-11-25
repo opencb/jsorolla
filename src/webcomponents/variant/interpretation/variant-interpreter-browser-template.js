@@ -19,6 +19,7 @@ import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import WebUtils from "../../commons/utils/web-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 import Region from "../../../core/bioinfo/region.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
@@ -293,13 +294,19 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     onVariantReview(event) {
-        // We save current query so we can execute the same query after refreshing, check 'clinicaAnalysisObserver'
+        // 1. save the current query so we can execute the same query after refreshing, check 'clinicaAnalysisObserver'
         this._currentQueryBeforeSaveEvent = UtilsNew.objectClone(this.executedQuery);
 
-        // reviewed variants are saved in the primary interpretation
+        // 2. display a loading notification
+        const loadingId = NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_LOADING, {
+            message: "Updating variant review...",
+        });
+
+        // 3. update the variant review, note that reviewed variants are saved in the primary interpretation
         const interpretationId = this.clinicalAnalysis.interpretation.id;
         this.clinicalAnalysisManager.updateVariants(interpretationId, event.detail.variant, event.detail.primaryFinding, event.detail.action)
             .then(() => {
+                NotificationUtils.clear(this, loadingId);
                 LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
                     clinicalAnalysis: this.clinicalAnalysis,
                 });
