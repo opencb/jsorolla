@@ -246,6 +246,29 @@ export default class NotificationManager {
         elementModal.show();
     }
 
+    // display a loading notification
+    showLoading(options = {}) {
+        const loadingElement = UtilsNew.renderHTML(`
+            <div class="alert alert-primary animated fadeInDown d-flex gap-3 user-select-none" style="animation-duration:0.5s!important;">
+                <div class="">
+                    <div class="spinner-border spinner-border-sm">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div class="flex-grow-1">
+                    ${options.message ? `
+                        <div style="word-break:break-all;max-height:${this.config.display.messageMaxHeight};overflow-y:auto;">
+                            ${options.message}
+                        </div>
+                    ` : ""}
+                </div>
+            </div>
+        `).querySelector("div.alert");
+
+        // display the loading element
+        this.parent.appendChild(loadingElement);
+    }
+
     // Get default config for the notification manager
     getDefaultConfig() {
         return {
