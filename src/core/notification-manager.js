@@ -30,6 +30,21 @@ export default class NotificationManager {
         document.body.appendChild(this.confirmationDiv);
     }
 
+    // clear all notifications
+    clearAll() {
+        Array.from(this.parent.querySelectorAll(`div[data-notification-id]`)).forEach(element => {
+            this.parent.removeChild(element);
+        });
+    }
+
+    // remove a notification by a given id
+    clear(notificationId) {
+        const element = this.parent.querySelector(`div[data-notification-id="${notificationId}"]`);
+        if (element && this.parent.contains(element)) {
+            this.parent.removeChild(element);
+        }
+    }
+
     // Display a notification alert
     showNotification(options) {
         const type = (options.type || "info").toLowerCase();
@@ -38,7 +53,7 @@ export default class NotificationManager {
 
         // Generate notification element
         const element = UtilsNew.renderHTML(`
-            <div class="alert ${alertClass} animated fadeInDown" style="display:flex;animation-duration:0.5s!important;">
+            <div data-notification-id="${options.id}" class="alert ${alertClass} animated fadeInDown d-flex" style="animation-duration:0.5s!important;">
                 ${options.display?.showIcon ? `
                     <div style="margin-right:16px">
                         <span class="${options.icon || this.config.icons[type]}"></span>
@@ -191,7 +206,7 @@ export default class NotificationManager {
     // Show a confirmation dialog
     showConfirmation(options) {
         const element = UtilsNew.renderHTML(`
-            <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div data-notification-id="${options.id}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -249,13 +264,13 @@ export default class NotificationManager {
     // display a loading notification
     showLoading(options = {}) {
         const loadingElement = UtilsNew.renderHTML(`
-            <div class="alert alert-primary animated fadeInDown d-flex gap-3 user-select-none" style="animation-duration:0.5s!important;">
+            <div data-notification-id="${options.id}" class="alert alert-primary animated fadeInDown d-flex gap-3" style="animation-duration:0.5s!important;">
                 <div class="">
                     <div class="spinner-border spinner-border-sm">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
-                <div class="flex-grow-1">
+                <div class="flex-grow-1 user-select-none">
                     ${options.message ? `
                         <div style="word-break:break-all;max-height:${this.config.display.messageMaxHeight};overflow-y:auto;">
                             ${options.message}
