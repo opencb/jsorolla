@@ -198,7 +198,12 @@ export default class ClinicalReportReview extends LitElement {
         // 1. get the action to perform based on the selected variant state
         const action = this._selectedVariantChecked ? "UPDATE" : "REMOVE";
 
-        // 2. call the updateVariants method to update the variant in the interpretation
+        // 2. display a loading notification
+        const loadingId = NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_LOADING, {
+            message: "Saving review of the variant. Please wait...",
+        });
+
+        // 3. call the updateVariants method to update the variant in the interpretation
         this._clinicalAnalysisManager.updateVariants(this._selectedVariantInterpretationId, this._selectedVariant, this._selectedVariantPrimary, action)
             .then(() => {
                 LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
@@ -208,6 +213,9 @@ export default class ClinicalReportReview extends LitElement {
             .catch(response => {
                 console.error(response);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            })
+            .finally(() => {
+                NotificationUtils.clear(this, loadingId);
             });
 
         // 3. clear selected variant to review
@@ -274,6 +282,11 @@ export default class ClinicalReportReview extends LitElement {
             data.report.conclusion.author = this.opencgaSession?.user?.id || "-";
         }
 
+        // display a loading notification
+        const loadingId = NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_LOADING, {
+            message: "Saving Clinical Review. Please wait...",
+        });
+
         this.opencgaSession.opencgaClient.clinical()
             .update(this.clinicalAnalysis.id, data, {
                 includeResult: true,
@@ -285,12 +298,15 @@ export default class ClinicalReportReview extends LitElement {
                     clinicalAnalysis: response.responses[0].results[0],
                 });
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: "Clinical report updated successfully.",
+                    message: "Clinical Review updated successfully.",
                 });
             })
             .catch(response => {
                 console.error(response);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            })
+            .finally(() => {
+                NotificationUtils.clear(this, loadingId);
             });
     }
 
