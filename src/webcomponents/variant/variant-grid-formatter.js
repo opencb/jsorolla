@@ -1801,7 +1801,7 @@ export default class VariantGridFormatter {
                 pharmaTooltipRows.push(row);
             }
 
-            let tooltipText = `
+            let tooltipText = UtilsNew.escapeHtml(`
                 <table class="tooltip-2xl">
                     <thead>
                         <tr>
@@ -1816,7 +1816,7 @@ export default class VariantGridFormatter {
                     </thead>
                     <tbody>${pharmaTooltipRows.join("")}</tbody>
                 </table>
-            `;
+            `);
 
             return `
                 <a class="hotspots-tooltip" tooltip-title='ClinPGx' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
