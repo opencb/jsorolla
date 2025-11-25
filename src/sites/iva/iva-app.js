@@ -166,7 +166,8 @@ class IvaApp extends LitElement {
         // Notify a response
         this.addEventListener(NotificationUtils.NOTIFY_RESPONSE, e => this.notificationManager.response(e.detail));
 
-        // Show confirmation
+        // other notification types
+        this.addEventListener(NotificationUtils.NOTIFY_LOADING, event => this.notificationManager.showLoading(event.detail));
         this.addEventListener(NotificationUtils.NOTIFY_CONFIRMATION, e => this.notificationManager.showConfirmation(e.detail));
 
         // keeps track of the executedQueries transitioning from browser tool to facet tool
