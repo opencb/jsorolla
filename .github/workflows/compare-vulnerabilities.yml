@@ -42,23 +42,9 @@ jobs:
           git fetch origin ${{ inputs.base_ref }}:refs/remotes/origin/${{ inputs.base_ref }} --tags --prune || echo "Base ref might be a SHA already present"
 
       - name: Vulnerability Diff (JavaScript)
-        uses: sec-open/vuln-diff-action@v2.0.0-alpha.2
+        uses: sec-open/vuln-diff-action@v2.0.0-alpha.3
         with:
           base_ref: ${{ inputs.base_ref }}
           head_ref: ${{ inputs.head_ref }}
           path: .
-          min_severity: "LOW"
-          write_summary: "true"
-          upload_artifact: "true"
-          report_pdf: "false"              # Enable if you want the PDF report
-          include_dev_dependencies: ${{ inputs.include_dev_dependencies }}
-          # github_token: ${{ secrets.GITHUB_TOKEN }} # Uncomment if enabling PR comment or other GitHub API features
-          # slack_webhook_url: ${{ secrets.SLACK_SECURITY_WEBHOOK_URL }} # Optional Slack notifications for NEW vulns
-
-
-# Notes:
-# - For monorepos with multiple package.json files, the action will aggregate direct dependencies from each.
-# - Set include_dev_dependencies to 'true' if you want devDependencies included in the diff.
-# - If your project also has Java (pom.xml), both Maven and JS dependency diffs will be generated.
-# - You can pin the action version (e.g., sec-open/vuln-diff-action@v1) or use a specific commit SHA for reproducibility.
 
