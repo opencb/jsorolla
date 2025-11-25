@@ -15,7 +15,7 @@ export default class NotificationManager {
         this.parent.classList.add("notification-manager");
         Object.assign(this.parent.style, {
             "left": "50%",
-            "maxWidth": this.config.display?.width || "600px",
+            "maxWidth": this.config.display?.width || "500px",
             "position": "fixed",
             "top": "8px",
             "transform": "translateX(-50%)",
@@ -294,7 +294,7 @@ export default class NotificationManager {
                 warning: "fas fa-exclamation-triangle",
             },
             display: {
-                width: "600px",
+                width: "500px",
                 messageMaxHeight: "200px",
                 alertClassName: {
                     error: "alert-danger",
