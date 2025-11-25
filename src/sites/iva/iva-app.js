@@ -170,6 +170,11 @@ class IvaApp extends LitElement {
         this.addEventListener(NotificationUtils.NOTIFY_LOADING, event => this.notificationManager.showLoading(event.detail));
         this.addEventListener(NotificationUtils.NOTIFY_CONFIRMATION, e => this.notificationManager.showConfirmation(e.detail));
 
+        // listener to clear a notification
+        this.addEventListener(NotificationUtils.NOTIFY_CLEAR, event => {
+            event?.detail?.id ? this.notificationManager.clear(event.detail.id) : this.notificationManager.clearAll();
+        });
+
         // keeps track of the executedQueries transitioning from browser tool to facet tool
         this.queries = {};
 
