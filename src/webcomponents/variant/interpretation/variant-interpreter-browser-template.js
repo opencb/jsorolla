@@ -299,20 +299,22 @@ class VariantInterpreterBrowserTemplate extends LitElement {
 
         // 2. display a loading notification
         const loadingId = NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_LOADING, {
-            message: "Updating variant review...",
+            message: "Saving review of the variant. Please wait...",
         });
 
         // 3. update the variant review, note that reviewed variants are saved in the primary interpretation
         const interpretationId = this.clinicalAnalysis.interpretation.id;
         this.clinicalAnalysisManager.updateVariants(interpretationId, event.detail.variant, event.detail.primaryFinding, event.detail.action)
             .then(() => {
-                NotificationUtils.clear(this, loadingId);
                 LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
                     clinicalAnalysis: this.clinicalAnalysis,
                 });
             })
             .catch(response => {
                 console.error(response);
+            })
+            .finally(() => {
+                NotificationUtils.clear(this, loadingId);
             });
     }
 
