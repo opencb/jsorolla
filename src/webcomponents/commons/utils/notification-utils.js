@@ -22,7 +22,12 @@ export default class NotificationUtils {
     }
 
     // Dispatch a notification event
-    static dispatch(self, type, value = {}) {
+    static dispatch(self, type, value = {}, options = {}) {
+        // 0. check if we have to clear existing notifications
+        if (options.clearAll) {
+            NotificationUtils.clear(self);
+        }
+
         // 1. generate an unique identifier for the notification
         const notificationId = NotificationUtils._generateId();
 
