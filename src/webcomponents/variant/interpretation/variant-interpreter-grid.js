@@ -799,6 +799,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 {
                     id: "hotspots",
                     title: "Cancer <br> Hotspots",
+                    columnTitle: "Cancer Hotspots",
                     field: "hotspots",
                     colspan: 1,
                     rowspan: 1,
