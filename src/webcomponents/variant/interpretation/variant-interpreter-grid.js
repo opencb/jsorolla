@@ -834,7 +834,8 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "prediction",
-                    title: `${this.clinicalAnalysis.type !== "CANCER" ? "ACMG <br> Prediction" : "Prediction"}`,
+                    title: "Automatic<br>Prediction",
+                    columnTitle: "Automatic Prediction",
                     field: "prediction",
                     rowspan: 1,
                     colspan: 1,
