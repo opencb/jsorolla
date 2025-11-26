@@ -380,111 +380,74 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
 
     getDefaultColumns() {
         return [
-            [
-                {
-                    id: "gene",
-                    title: "Gene",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => this.geneFormatter(row),
+            {
+                id: "gene",
+                title: "Gene",
+                formatter: (value, row) => this.geneFormatter(row),
+            },
+            {
+                id: "transcript",
+                title: "Transcript",
+                formatter: (value, row) => this.transcriptFormatter(row),
+            },
+            {
+                id: "consequence-type",
+                title: "Consequence Type",
+                formatter: (value, row) => this.consequenceTypeFormatter(row),
+            },
+            {
+                id: "transcript-flags",
+                title: "Transcript Flags",
+                formatter: (value, row) => this.transcriptFlagsFormatter(row),
+            },
+            {
+                id: "disease-panel",
+                title: "Disease Panel",
+                formatter: (value, row) => this.panelFormatter(row),
+            },
+            {
+                id: "roleInCancer",
+                title: "Role in Cancer",
+                formatter: (value, row) => {
+                    if (row.rolesInCancer) {
+                        return row.rolesInCancer
+                            .map(v => v.match(/^TUMOR_SUP{1,2}RESSOR_GENE$/) ? "TSG" : v)
+                            .join(", ");
+                    }
+                    return "-";
                 },
-                {
-                    id: "transcript",
-                    title: "Transcript",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => this.transcriptFormatter(row),
+                visible: this.clinicalAnalysis?.type?.toUpperCase() == "CANCER",
+            },
+            {
+                id: "prediction",
+                title: "Automatic<br>Prediction",
+                align: "center",
+                formatter: (value, row) => this.predictionFormatter(row.classification),
+            },
+            {
+                id: "classification",
+                title: "User<br>Classification",
+                align: "center",
+                formatter: (value, row) => this.predictionFormatter(row.review),
+            },
+            {
+                id: "review",
+                title: "Review",
+                align: "center",
+                formatter: (value, row) => {
+                    const selected = !!row?.review?.select;
+                    const buttonColor = this._updatedEvidences.has(row.index) ? "btn-warning" : (selected ? "btn-primary" : "btn-light");
+                    return `
+                        <button class="mx-auto btn ${buttonColor} d-flex align-items-center gap-1 ${!this._config.review || this._selectedEvidence ? "disabled" : ""}">
+                            <i class="fa fa-edit"></i>
+                            <span>${selected ? "Update" : "Review"}</span>
+                        </button>
+                    `;
                 },
-                {
-                    id: "consequence-type",
-                    title: "Consequence Type",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => this.consequenceTypeFormatter(row),
+                events: {
+                    "click button": (event, value, row, index) => this.onEvidenceSelect(event, row, index),
                 },
-                {
-                    id: "transcript-flags",
-                    title: "Transcript Flags",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => this.transcriptFlagsFormatter(row),
-                },
-                {
-                    id: "disease-panel",
-                    title: "Disease Panel",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => this.panelFormatter(row),
-                },
-                {
-                    id: "roleInCancer",
-                    title: "Role in Cancer",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        if (row.rolesInCancer) {
-                            return row.rolesInCancer
-                                .map(v => v.match(/^TUMOR_SUP{1,2}RESSOR_GENE$/) ? "TSG" : v)
-                                .join(", ");
-                        }
-                        return "-";
-                    },
-                    visible: this.clinicalAnalysis?.type?.toUpperCase() == "CANCER",
-                },
-                {
-                    id: "prediction",
-                    title: "Automatic<br>Prediction",
-                    rowspan: 2,
-                    colspan: 1,
-                    align: "center",
-                    formatter: (value, row) => this.predictionFormatter(row.classification),
-                },
-                {
-                    id: "classification",
-                    title: "User Classification",
-                    align: "center",
-                    rowspan: 1,
-                    colspan: 2,
-                },
-                {
-                    id: "review",
-                    title: "Review",
-                    align: "center",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row) => {
-                        const selected = !!row?.review?.select;
-                        const buttonColor = this._updatedEvidences.has(row.index) ? "btn-warning" : (selected ? "btn-primary" : "btn-light");
-                        return `
-                            <button class="mx-auto btn ${buttonColor} d-flex align-items-center gap-1 ${!this._config.review || this._selectedEvidence ? "disabled" : ""}">
-                                <i class="fa fa-edit"></i>
-                                <span>${selected ? "Update" : "Review"}</span>
-                            </button>
-                        `;
-                    },
-                    events: {
-                        "click button": (event, value, row, index) => this.onEvidenceSelect(event, row, index),
-                    },
-                },
-            ],
-            [
-                {
-                    id: "acmg",
-                    title: "ACMG",
-                    rowspan: 1,
-                    colspan: 1,
-                    align: "center",
-                    formatter: (value, row) => this.predictionFormatter(row.review),
-                },
-                {
-                    id: "tier",
-                    title: "Tier",
-                    rowspan: 1,
-                    colspan: 1,
-                    align: "center",
-                    formatter: (value, row) => this.tierFormatter(row),
-                },
-            ],
+            },
         ];
     }
 
