@@ -271,38 +271,6 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
         return "-";
     }
 
-    predictionFormatter(classification) {
-        if (classification?.clinicalSignificance || classification?.acmg?.length > 0) {
-            return `
-                ${classification?.clinicalSignificance ? `
-                    <div class="my-1" style="color: ${CLINICAL_SIGNIFICANCE_SETTINGS[classification.clinicalSignificance].color}">
-                        ${CLINICAL_SIGNIFICANCE_SETTINGS[classification.clinicalSignificance].id}
-                    </div>
-                ` : ""}
-                ${classification?.acmg?.length > 0 ? `
-                    <div class="text-secondary">
-                        ${classification.acmg.map(acmg => acmg.classification || acmg).join(", ")}
-                    </div>
-                ` : ""}
-            `;
-        }
-        return "-";
-    }
-
-    tierFormatter(evidence) {
-        if (evidence.review?.tier) {
-            let color = "black";
-            const tierClassification = evidence.review.tier?.toUpperCase();
-            color = (tierClassification === "TIER1" || tierClassification === "TIER 1") ? "red" : color;
-            color = (tierClassification === "TIER2" || tierClassification === "TIER 2") ? "darkorange" : color;
-            color = (tierClassification === "TIER3" || tierClassification === "TIER 3") ? "blue" : color;
-            return `
-                <span style="color:${color}">${evidence.review.tier}</span>
-            `;
-        }
-        return "-";
-    }
-
     onEvidenceSelect(event, evidence, index) {
         this._selectedEvidence = UtilsNew.objectClone(evidence);
         this._selectedEvidenceIndex = index;
@@ -423,7 +391,6 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
                 id: "prediction",
                 title: "Automatic<br>Prediction",
                 align: "center",
-                // formatter: (value, row) => this.predictionFormatter(row.classification),
                 formatter: (value, row) => {
                     return VariantInterpreterGridFormatter.predictionFormatter(null, {
                         evidences: [row],
