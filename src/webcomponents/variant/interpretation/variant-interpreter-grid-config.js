@@ -84,7 +84,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                         if (!this.gridColumns[1][i].excludeFromSettings) {
                             option.fields.push({
                                 id: this.gridColumns[1][i].id,
-                                name: this.gridColumns[1][i].title,
+                                name: this.gridColumns[1][i].columnTitle || this.gridColumns[1][i].title,
                             });
                         }
                         if (typeof this.gridColumns[1][i].visible === "undefined" || this.gridColumns[1][i].visible) {
