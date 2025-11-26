@@ -674,4 +674,23 @@ export default class VariantUtils {
         return Array.from(genes);
     }
 
+    static getTierColor(tier) {
+        switch (tier?.toUpperCase()) {
+            case "TIER1":
+            case "TIER 1":
+            case "TIER_1":
+                return "red";
+            case "TIER2":
+            case "TIER 2":
+            case "TIER_2":
+                return "darkorange";
+            case "TIER3":
+            case "TIER 3":
+            case "TIER_3":
+                return "blue";
+            default:
+                return "black";
+        }
+    }
+
 }
