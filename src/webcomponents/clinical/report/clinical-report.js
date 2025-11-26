@@ -99,10 +99,10 @@ export default class ClinicalReport extends LitElement {
                 },
                 {
                     id: "review",
-                    name: "Review Tool",
+                    name: "Case Review",
                     render: (clinicalAnalysis, active, opencgaSession) => html`
                         <div class="container">
-                            <tool-header .title="${"Review Tool"}"></tool-header>
+                            <tool-header .title="${"Case Review"}"></tool-header>
                             <clinical-report-review
                                 .active="${active}"
                                 .clinicalAnalysis="${clinicalAnalysis}"

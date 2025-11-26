@@ -384,7 +384,7 @@ export default class ClinicalReportReview extends LitElement {
             </div>
 
             <div class="">
-                <h2 class="fw-bold mb-4">Case Review</h2>
+                <h2 class="fw-bold mb-4">Report Review</h2>
                 <data-form
                     .data="${{
                         report: this._report,
