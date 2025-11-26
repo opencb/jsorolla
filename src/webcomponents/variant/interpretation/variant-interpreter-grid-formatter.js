@@ -106,6 +106,46 @@ export default class VariantInterpreterGridFormatter {
         `;
     }
 
+    static userClassificationFormatter(value, variant, evidences = null) {
+        // note that we only consider the evidences that have been selected for review
+        const visibleEvidences = (Array.isArray(evidences) ? evidences : variant?.evidences || []).filter(evidence => {
+            return evidence?.review?.select && (evidence?.review?.clinicalSignificance || evidence?.review?.acmg?.length > 0 || evidence?.review?.tier);
+        });
+
+        if (visibleEvidences.length > 0) {
+            const showTranscript = visibleEvidences.length > 1;
+            const content = visibleEvidences.map(evidence => {
+                return `
+                    <div>
+                        ${showTranscript && evidence?.genomicFeature?.transcriptId ? `
+                            <div class="">
+                                <strong>${evidence.genomicFeature.transcriptId}</strong>
+                            </div>    
+                        ` : ""}
+                        ${evidence?.review?.clinicalSignificance ? `
+                            <div class="my-1" style="color: ${CLINICAL_SIGNIFICANCE_SETTINGS[evidence.review.clinicalSignificance].color}">
+                                ${CLINICAL_SIGNIFICANCE_SETTINGS[evidence.review.clinicalSignificance].id}
+                            </div>
+                        ` : ""}
+                        ${evidence?.review?.acmg?.length > 0 ? `
+                            <div class="text-secondary">
+                                ${evidence.review.acmg.map(acmg => acmg.classification || acmg).join(", ")}
+                            </div>
+                        ` : ""}
+                        ${evidence?.review?.tier ? `
+                            <div class="">
+                                <span style="color:${VariantUtils.getTierColor(evidence.review.tier)}">${evidence.review.tier}</span>
+                            </div>
+                        ` : ""}
+                    </div>
+                `;
+            });
+            return content.join(`<hr class="">`);
+        }
+
+        return "-";
+    }
+
     /*
      *  SAMPLE GENOTYPE RENDERER
      */
