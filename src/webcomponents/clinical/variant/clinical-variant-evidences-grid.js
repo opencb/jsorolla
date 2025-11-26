@@ -365,7 +365,7 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
                                 .displayConfig="${{
                                     defaultLayout: "vertical",
                                     buttonClearText: "Cancel",
-                                    buttonOkText: "Save Evidence",
+                                    buttonOkText: "Add Evidence",
                                 }}"
                                 @evidenceReviewChange="${e => this.onEvidenceReviewChange(e)}"
                                 @evidenceReviewSubmit="${e => this.onEvidenceReviewSave(e)}"
