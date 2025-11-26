@@ -674,7 +674,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "interpretation",
                     align: "center",
                     rowspan: 1,
-                    colspan: 3,
+                    colspan: 4,
                 },
                 {
                     id: "actions",
@@ -847,6 +847,19 @@ export default class VariantInterpreterGrid extends LitElement {
                         (this.clinicalAnalysis.type?.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type?.toUpperCase() === "FAMILY") &&
                         this.gridCommons.isColumnVisible("prediction", "interpretation")
                     ),
+                },
+                {
+                    id: "userClassification",
+                    title: `User<br>Classification`,
+                    columnTitle: "User Classification",
+                    field: "userClassification",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        return VariantInterpreterGridFormatter.userClassificationFormatter(value, row);
+                    },
+                    align: "center",
+                    visible: this.gridCommons.isColumnVisible("userClassification", "interpretation"),
                 },
                 {
                     id: "review",
