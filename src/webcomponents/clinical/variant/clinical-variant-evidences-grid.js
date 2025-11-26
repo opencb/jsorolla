@@ -5,6 +5,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
+import VariantInterpreterGridFormatter from "../../variant/interpretation/variant-interpreter-grid-formatter.js";
 import "./clinical-variant-evidence-review.js";
 
 export default class ClinicalVariantEvidencesGrid extends LitElement {
@@ -422,13 +423,20 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
                 id: "prediction",
                 title: "Automatic<br>Prediction",
                 align: "center",
-                formatter: (value, row) => this.predictionFormatter(row.classification),
+                // formatter: (value, row) => this.predictionFormatter(row.classification),
+                formatter: (value, row) => {
+                    return VariantInterpreterGridFormatter.predictionFormatter(null, {
+                        evidences: [row],
+                    });
+                },
             },
             {
                 id: "classification",
                 title: "User<br>Classification",
                 align: "center",
-                formatter: (value, row) => this.predictionFormatter(row.review),
+                formatter: (value, row) => {
+                    return VariantInterpreterGridFormatter.userClassificationFormatter(null, null, [row]);
+                },
             },
             {
                 id: "review",
