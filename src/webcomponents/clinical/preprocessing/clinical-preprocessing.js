@@ -452,24 +452,24 @@ export default class ClinicalPreprocessing extends LitElement {
                         ` : nothing}
                     `,
                 },
-                {
-                    id: "index",
-                    title: "Variant Index Parameters",
-                    icon: "fas fa-database",
-                    render: () => html`
-                        <variant-index-operation
-                            .toolParams="${{
-                                study: this.opencgaSession.study.fqn,
-                                ...this._stepsParams?.variantIndex,
-                            }}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .displayConfig="${{
-                                buttonsVisible: false,
-                            }}"
-                            @paramsChange="${event => {this.onVariantIndexParamsChange(event)}}">
-                        </variant-index-operation>
-                    `,
-                },
+                // {
+                //     id: "index",
+                //     title: "Variant Index Parameters",
+                //     icon: "fas fa-database",
+                //     render: () => html`
+                //         <variant-index-operation
+                //             .toolParams="${{
+                //                 study: this.opencgaSession.study.fqn,
+                //                 ...this._stepsParams?.variantIndex,
+                //             }}"
+                //             .opencgaSession="${this.opencgaSession}"
+                //             .displayConfig="${{
+                //                 buttonsVisible: false,
+                //             }}"
+                //             @paramsChange="${event => {this.onVariantIndexParamsChange(event)}}">
+                //         </variant-index-operation>
+                //     `,
+                // },
                 {
                     id: "run",
                     title: "Run",
