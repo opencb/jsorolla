@@ -155,10 +155,6 @@ export default class DiseasePanelGrid extends LitElement {
                 },
                 render: () => html`
                     <disease-panel-gel-import
-                        .displayConfig="${{
-                            type: "tabs",
-                            buttonsLayout: "upper",
-                        }}"
                         .opencgaSession="${this.opencgaSession}"
                         .active="${true}"
                         @panelImport="${() => {
