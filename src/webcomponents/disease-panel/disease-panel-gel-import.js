@@ -58,26 +58,25 @@ export default class DiseasePanelGelImport extends LitElement {
         this.fetchRepositories();
     }
 
-    onAdd(e, row) {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-        };
-        let error;
+    onAdd(event, row) {
         this.#setLoading(true);
-        this.opencgaSession.opencgaClient.userTool()
-            .importWorkflow({name: row.full_name}, params)
+        this.opencgaSession.opencgaClient.panels()
+            .importPanels({id: row.id}, {
+                study: this.opencgaSession.study.fqn,
+            })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Workflow Import",
-                    message: `New workflow ${row.full_name} imported correctly`
+                    message: `We have launched a new job to import the panel '${row.name}'. You will be notified when the process is finished.`,
+                });
+                LitUtils.dispatchCustomEvent(this, "panelImport", null, {
+                    id: row.id,
+                    name: row.name,
                 });
             })
             .catch(reason => {
-                error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "workflowImport", {id: row.full_name}, {}, error);
                 this.#setLoading(false);
             });
     }
