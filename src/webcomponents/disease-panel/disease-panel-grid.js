@@ -161,7 +161,7 @@ export default class DiseasePanelGrid extends LitElement {
                         }}"
                         .opencgaSession="${this.opencgaSession}"
                         .active="${true}"
-                        @diseasePanelCreate="${() => {
+                        @panelImport="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
