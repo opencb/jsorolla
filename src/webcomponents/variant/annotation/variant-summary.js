@@ -257,12 +257,12 @@ export default class VariantSummary extends LitElement {
                                     {
                                         id:"variant-summary-clinical-significance-variant-traits",
                                         style: "flex: 1",
-                                        className: "ms-2",
+                                        className: "me-2",
                                     },
                                     {
                                         id:"variant-summary-clinical-significance",
                                         style: "flex: 1",
-                                        className: "me-2",
+                                        className: "ms-2",
                                     },
                                 ]
                             },
@@ -272,11 +272,11 @@ export default class VariantSummary extends LitElement {
                                     /*
                                     {
                                         id:"variant-summary-cs-cosmic-variant-traits",
-                                        style: "flex: 1 0 auto",
+                                        style: "flex: 1",
                                     },
                                     {
                                         id:"variant-summary-clinical-significance-variant-traits",
-                                        style: "flex: 1 0 auto",
+                                        style: "flex: 1",
                                     },
                                      */
                                 ]
