@@ -58,26 +58,25 @@ export default class DiseasePanelGelImport extends LitElement {
         this.fetchRepositories();
     }
 
-    onAdd(e, row) {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-        };
-        let error;
+    onAdd(event, row) {
         this.#setLoading(true);
-        this.opencgaSession.opencgaClient.userTool()
-            .importWorkflow({name: row.full_name}, params)
+        this.opencgaSession.opencgaClient.panels()
+            .importPanels({id: row.id, source: "PANEL_APP"}, {
+                study: this.opencgaSession.study.fqn,
+            })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Workflow Import",
-                    message: `New workflow ${row.full_name} imported correctly`
+                    message: `Panel '${row.name}' imported successfully`,
+                });
+                LitUtils.dispatchCustomEvent(this, "panelImport", null, {
+                    id: row.id,
+                    name: row.name,
                 });
             })
             .catch(reason => {
-                error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "workflowImport", {id: row.full_name}, {}, error);
                 this.#setLoading(false);
             });
     }
@@ -99,32 +98,20 @@ export default class DiseasePanelGelImport extends LitElement {
                 console.error(error);
             }
         }
-        // debugger
-
-        // try {
-        //     const response = await fetch("https://raw.githubusercontent.com/nf-core/website/refs/heads/main/public/pipelines.json");
-        //     if (response.ok) {
-        //         const data = await response.json();
-        //         this.repositories = data?.remote_workflows || [];
-        //         console.log(this.repositories)
-        //     }
-        // } catch (error) {
-        //     console.error(error);
-        // }
     }
 
     render() {
         if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
 
         return html`
-            <div>
-                <data-list
-                    .data="${this.repositories || []}"
-                    .config="${this._config}">
-                </data-list>
-            </div>
+            <data-list
+                .data="${this.repositories || []}"
+                .config="${this._config}">
+            </data-list>
         `;
     }
 

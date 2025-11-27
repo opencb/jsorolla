@@ -155,13 +155,9 @@ export default class DiseasePanelGrid extends LitElement {
                 },
                 render: () => html`
                     <disease-panel-gel-import
-                        .displayConfig="${{
-                            type: "tabs",
-                            buttonsLayout: "upper",
-                        }}"
                         .opencgaSession="${this.opencgaSession}"
                         .active="${true}"
-                        @diseasePanelCreate="${() => {
+                        @panelImport="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
