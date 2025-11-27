@@ -162,8 +162,10 @@ export default class DiseasePanelGrid extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .active="${true}"
                         @panelImport="${() => {
-                            this.gridCommons.clearActiveModal();
-                            this.table.bootstrapTable("refresh");
+                            // note: as panel import launches a job, we do not refresh the table immediately, so instead of closing the modal
+                            // we could keep it open and show a message that the import is in progress
+                            // this.gridCommons.clearActiveModal();
+                            // this.table.bootstrapTable("refresh");
                         }}">
                     </disease-panel-gel-import>
                 `,
