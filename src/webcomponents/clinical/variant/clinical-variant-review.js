@@ -404,14 +404,17 @@ export default class ClinicalVariantReview extends LitElement {
                     //     </cellbase-variant-annotation-summary>
                     // `,
                     render: variant => html`
-                        <variant-summary
-                            .variant="${variant}"
-                            .clinical="${false}"
-                            .consequenceTypes="${CONSEQUENCE_TYPES}"
-                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .assembly="${this.opencgaSession?.project?.organism?.assembly}">
-                        </variant-summary>
+                            <variant-summary
+                                .variant="${variant}"
+                                .clinical="${false}"
+                                .primaryFinding="${this.primaryFinding}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .consequenceTypes="${CONSEQUENCE_TYPES}"
+                                .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                                .settings="${this.settings}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .assembly="${this.opencgaSession?.project?.organism?.assembly}">
+                            </variant-summary>
                     `,
                 },
                 {
