@@ -47,7 +47,7 @@ export default class VariantSummaryDeleteriousness extends LitElement {
     #init() {
         this._variant = {};
         this._dateSummary = {};
-        this._chartDelId = "chart-deleterious";
+        this._chartDelId = `chart-deleterious-${UtilsNew.randomString(8)}`;
     }
 
     update(changedProperties) {
@@ -62,7 +62,6 @@ export default class VariantSummaryDeleteriousness extends LitElement {
     }
 
     updated(changedProperties) {
-        UtilsNew.initTooltip(this);
         this.querySelector("#summary-deleteriousness data-form").updateComplete.then(() => {
                 UtilsNew.initTooltip(this, (event, api, tooltipEl) => {
                     this.#renderDelHeatmap();
