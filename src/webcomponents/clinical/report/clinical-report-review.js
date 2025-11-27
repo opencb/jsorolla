@@ -165,7 +165,6 @@ export default class ClinicalReportReview extends LitElement {
 
     onVariantReviewInfo(event) {
         this._selectedVariant = event.detail.variant;
-        this._selectedVariantInterpretationId = event.detail.interpretationId;
         this.requestUpdate();
 
         // when update is complete, show the offcanvas
@@ -179,6 +178,7 @@ export default class ClinicalReportReview extends LitElement {
         this._selectedVariant = UtilsNew.objectClone(event.detail.variant);
         this._selectedVariantPrimary = true; // by default we only display primary findings in the review tool
         this._selectedVariantChecked = true; // by default the variant is checked as it is a primary finding
+        this._selectedVariantInterpretationId = event.detail.interpretationId;
         this._gridCommons.changeActiveModal("review-variant");
     }
 
