@@ -1,5 +1,5 @@
 import {render, nothing} from "lit";
-import {directive, Directive, PartType} from "lit/directive.js";
+import {directive, PartType} from "lit/directive.js";
 import { AsyncDirective } from "lit/async-directive.js";
 
 class PortalDirective extends AsyncDirective {
@@ -35,11 +35,9 @@ class PortalDirective extends AsyncDirective {
     }
 
     disconnected() {
-        console.log("PortalDirective disconnected");
         if (this._container && this._target) {
             this._target.removeChild(this._container);
             this._container = null;
-            // render(null, this._target);
         }
     }
 
