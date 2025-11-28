@@ -366,6 +366,13 @@ export default class ClinicalPreprocessing extends LitElement {
                 .rightContent="${this.renderToolbarRightContent()}"
                 .centerContent="${this.renderToolbarCenterContent()}">
             </tool-header>
+            <div class="alert alert-warning">
+                <span class="">
+                    The NGS and Affymetrix Microarray Preprocessing Pipelines in the Clinical Preprocessing tool <b>are experimental and provided for research and exploratory use only</b>. 
+                    These pipelines are still under development and have not been clinically validated. 
+                    They are not intended for diagnostic, clinical, or patient management decisions, and their results should not be used to guide medical care or patient management decisions.
+                </span>
+            </div>
             <div class="container py-4">
                 ${this._activeStepIndex === 0 || !!this._stepsParams?.pipeline ? html`
                     ${this._config.steps[this._activeStepIndex]?.render()}
