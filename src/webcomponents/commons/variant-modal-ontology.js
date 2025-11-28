@@ -16,6 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import {classMap} from "lit/directives/class-map.js";
+import {portal} from "../../core/directives/portal.js";
 import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
 import NotificationUtils from "./utils/notification-utils.js";
@@ -218,7 +219,7 @@ export default class VariantModalOntology extends LitElement {
     }
 
     render() {
-        return html`
+        return portal(document.body, html`
             <div class="modal fade" id="${this._config.ontologyFilter}_ontologyModal" tabindex="-1" role="dialog"
                 aria-labelledby="ontologyLabel">
                 <div class="modal-dialog modal-xl" role="document">
@@ -280,7 +281,7 @@ export default class VariantModalOntology extends LitElement {
                     </div>
                 </div>
             </div>
-        `;
+        `);
     }
 
     getDefaultConfig() {
