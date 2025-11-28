@@ -1,7 +1,8 @@
 import {render, nothing} from "lit";
 import {directive, Directive, PartType} from "lit/directive.js";
+import { AsyncDirective } from "lit/async-directive.js";
 
-class PortalDirective extends Directive {
+class PortalDirective extends AsyncDirective {
     constructor(partInfo) {
         super(partInfo);
         if (partInfo.type !== PartType.CHILD) {
