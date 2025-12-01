@@ -361,6 +361,7 @@ export default class ClinicalPreprocessing extends LitElement {
         }
 
         return html`
+            <!--
             <div class="alert alert-warning d-flex align-items-start gap-2">
                 <div class="">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -372,6 +373,7 @@ export default class ClinicalPreprocessing extends LitElement {
                     They are not intended for diagnostic, clinical, or patient management decisions, and their results should not be used to guide medical care or patient management decisions.
                 </div>
             </div>
+            -->
             <tool-header
                 .title="${this._config.title}"
                 .rightContent="${this.renderToolbarRightContent()}"
