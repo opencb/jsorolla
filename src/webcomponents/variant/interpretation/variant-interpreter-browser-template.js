@@ -342,7 +342,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                         </button>
                     `)}
                 </div>
-                <!-- Variant interpreter browser toolbar -->
                 <div class="w-px bg-gray-200 mx-1"></div>
                 <variant-interpreter-browser-toolbar
                     class="d-flex"
@@ -350,7 +349,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     .variantInclusionState="${this.variantInclusionState || []}"
                     @filterVariants="${e => this.onFilterVariants(e)}">
                 </variant-interpreter-browser-toolbar>
-                <!-- Separator and buttons -->
                 <div class="w-px bg-gray-200 mx-1"></div>
                 <grid-notifications
                     class="d-flex align-items-stretch"
@@ -381,7 +379,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             ` : nothing}
 
             <div class="">
-                <!-- Filters toolbar -->
                 <variant-browser-filter
                     .resource="${"VARIANT"}"
                     .opencgaSession="${this.opencgaSession}"
@@ -423,7 +420,7 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                         </variant-interpreter-rearrangement-grid>
                     `}
                 </div>
-                <!-- Genome browser view -->
+
                 ${!this.settings?.hideGenomeBrowser ? html`
                     <div id="genome-browser-view" class="${this.activeView === "genome-browser" ? "d-block" : "d-none"}">
                         ${!this._config.filter.result.grid.isRearrangement ? html`
