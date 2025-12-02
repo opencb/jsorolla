@@ -44,16 +44,8 @@ export default class SampleCreate extends LitElement {
     }
 
     #init() {
-        this.sample = {};
-        // this.collection = {from: []};
-        // this.annotationSet = {};
-        this.isLoading = false;
-        this.displayConfigDefault = {
-            style: "margin: 10px",
-            titleWidth: 3,
-            defaultLayout: "horizontal",
-            buttonOkText: "Create"
-        };
+        this._sample = {};
+        this._phenotypesQueryParams = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -63,15 +55,23 @@ export default class SampleCreate extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this._phenotypesQueryParams = {};
+            if (this.opencgaSession?.study?.attributes?.IVA_CONFIG?.settings?.SAMPLE_BROWSER?.model?.phenotypes?.source) {
+                const source = this.opencgaSession.study.attributes.IVA_CONFIG.settings.SAMPLE_BROWSER.model.phenotypes.source;
+                this._phenotypesQueryParams = {
+                    source: source === "HPO" ? "HP" : source,
+                };
+            }
+        }
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
     onFieldChange(e) {
-        this.sample = {...e.detail.data}; // force to refresh the object-list
+        this._sample = {...e.detail.data}; // force to refresh the object-list
         this.requestUpdate();
     }
 
@@ -80,7 +80,7 @@ export default class SampleCreate extends LitElement {
             title: "Clear sample",
             message: "Are you sure to clear?",
             ok: () => {
-                this.sample = {};
+                this._sample = {};
                 this._config = this.getDefaultConfig();
                 this.requestUpdate();
             },
@@ -88,28 +88,27 @@ export default class SampleCreate extends LitElement {
     }
 
     onSubmit() {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            includeResult: true
-        };
         let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.samples()
-            .create(this.sample, params)
+            .create(this._sample, {
+                study: this.opencgaSession.study.fqn,
+                includeResult: true
+            })
             .then(() => {
-                this.sample = {};
-                this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "New Sample",
                     message: "Sample created correctly"
                 });
+                LitUtils.dispatchCustomEvent(this, "sampleCreate", this._sample, {}, error);
+                this._sample = {};
+                this._config = this.getDefaultConfig();
             })
             .catch(reason => {
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "sampleCreate", this.sample, {}, error);
                 this.#setLoading(false);
             });
     }
@@ -123,7 +122,7 @@ export default class SampleCreate extends LitElement {
 
         return html`
             <data-form
-                .data="${this.sample}"
+                .data="${this._sample}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
@@ -134,7 +133,13 @@ export default class SampleCreate extends LitElement {
 
     getDefaultConfig() {
         return Types.dataFormConfig({
-            display: this.displayConfig || this.displayConfigDefault,
+            display: {
+                style: "margin: 10px",
+                titleWidth: 3,
+                defaultLayout: "horizontal",
+                buttonOkText: "Create",
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
@@ -444,6 +449,7 @@ export default class SampleCreate extends LitElement {
                                     render: (currentData, dataFormFilterChange) => html`
                                         <cellbase-search-autocomplete
                                             .resource="${"PHENOTYPE"}"
+                                            .queryParams="${this._phenotypesQueryParams}"
                                             .cellbaseClient="${this.opencgaSession.cellbaseClient}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.data)}">
                                         </cellbase-search-autocomplete>

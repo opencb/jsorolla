@@ -89,8 +89,8 @@ export default class OpencgaExport extends LitElement {
 
         this.outputFileFormats = {
             "tab": "VCF",
-            "vep": "ENSEMBL_VEP",
             "json": "JSON",
+            "json_sparse": "JSON_SPARSE",
         };
 
         this.excludedVariantQueryFields = [
@@ -151,7 +151,7 @@ export default class OpencgaExport extends LitElement {
             this.currentGridColumns = JSON.stringify(this.config.gridColumns.flatMap(c => Array.isArray(c) ? c.map(x => x.id) : c.id));
         }
 
-        let subIndx = 0; // offset in second row
+        let subIndx = 0; // offset in the second row
         let firstRow;
         let secondRow = [];
         // check if 1D or 2D array
@@ -305,7 +305,7 @@ export default class OpencgaExport extends LitElement {
                 case "wget":
                     return `wget -O ${this.resourceMap[resource]}.txt "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}"`;
                 case "cli":
-                // cli 2.1.1 doesn't support `sid` param (while Rest http requests don't support `token` in opencga 2.2.0-rc2)
+                    // cli 2.1.1 doesn't support `sid` param (while Rest http requests don't support `token` in opencga 2.2.0-rc2)
                     let client = this.resourceMap[resource];
                     let method = this.method;
                     if (resource === "CLINICAL_VARIANT") {
@@ -521,12 +521,13 @@ const client = new OpenCGAClient({
             </ul>
 
             <div class="tab-content">
+                <!-- DOWNLOAD tab -->
                 <div id="${this._prefix}download" class="tab-pane ${classMap({active: this.tabs[0] === "download"})}">
                     <!-- TODO: is it really necessary use form? -->
                     <form>
                         <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <b>Note:</b>
+                            <i class="fas fa-exclamation-triangle pe-1"></i>
+                            <b>Note: </b>
                             ${UtilsNew.renderHTML(this._config.exportNote.replace("%limit%", this._config.exportLimit))}
                         </div>
 
@@ -542,14 +543,14 @@ const client = new OpenCGAClient({
                             </button>
                         </div>
 
-                            ${this.format === "tab" && this.exportFields?.length ? html`
-                                <div>
-                                    <span data-bs-toggle="collapse" class="export-fields-button collapsed" data-bs-target="#${this._prefix}exportFields">
+                        ${this.format === "tab" && this.exportFields?.length > 0 ? html`
+                            <div>
+                                <span data-bs-toggle="collapse" class="export-fields-button collapsed" data-bs-target="#${this._prefix}exportFields">
                                         Customise export fields
-                                    </span>
-                                    <div id="${this._prefix}exportFields" class="collapse">
-                                        <ul>
-                                            ${this.exportFields.filter(li => !li.excludeFromExport).map((li, i) => html`
+                                </span>
+                                <div id="${this._prefix}exportFields" class="collapse">
+                                    <ul>
+                                        ${this.exportFields.filter(li => !li.excludeFromExport).map((li, i) => html`
                                             <li>
                                                 <label>
                                                     <input type="checkbox" .checked=${li.export} @change="${e => this.changeExportField(e, i)}"> ${li.id}
@@ -566,11 +567,11 @@ const client = new OpenCGAClient({
                                                     </ul>
                                                 ` : ""}
                                             </li>
-                                            `)}
-                                        </ul>
-                                    </div>
-                                </div>` : nothing}
-                        </form>
+                                        `)}
+                                    </ul>
+                                </div>
+                            </div>` : nothing}
+                    </form>
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
@@ -581,15 +582,15 @@ const client = new OpenCGAClient({
                     </div>
                 </div>
 
+                <!-- EXPORT tab -->
                 <div id="${this._prefix}export" class="tab-pane ${classMap({active: this.tabs[0] === "export"})}">
                     <form>
                         <div class="row g-1 mb-3">
                             <div class="col-md-12">
-                                <div class="alert alert-warning">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                        <b>Note:</b>This option will launch an
-                                        <b>async job</b> in the server to export all records, note that no limit is applied.
-                                        This might take few minutes depending on the data size and cluster load.
+                                <div class="alert alert-info">
+                                    <i class="fas fa-exclamation-triangle pe-1"></i>
+                                    <b>Note: </b>This option will launch a <b>job</b> in the server to export all records, note that no limit is applied.
+                                    This might take few minutes depending on the data size and cluster load.
                                 </div>
                             </div>
 
@@ -597,30 +598,28 @@ const client = new OpenCGAClient({
                                 <h4>Select Output Format</h4>
                                 <button class="btn btn-light px-5 py-4 ${classMap({active: this.format === "tab"})}" type="button" data-format="tab" @click="${this.changeFormat}">
                                     <i class="fas fa-table fa-2x"></i>
-                                    <div>
+                                    <div style="width: 100px">
                                         ${(resource === "VARIANT" || resource === "CLINICAL_VARIANT") ? "VCF" : "CSV"}
                                     </div>
                                 </button>
-                                ${(resource === "VARIANT" || resource === "CLINICAL_VARIANT") ? html`
-                                    <button class="btn btn-light px-5 py-4 ${classMap({active: this.format === "vep"})}" type="button" data-format="vep" @click="${this.changeFormat}">
-                                        <i class="fas fa-file-code fa-2x"></i>
-                                        <div>Ensembl VEP</div>
-                                    </button>
-                                ` : null}
                                 <button class="btn btn-light px-5 py-4 ${classMap({active: this.format === "json"})}" type="button" data-format="json" @click="${this.changeFormat}">
                                     <i class="fas fa-file-code fa-2x"></i>
-                                    <div>JSON</div>
+                                    <div style="width: 100px">JSON</div>
+                                </button>
+                                <button class="btn btn-light px-5 py-4 ${classMap({active: this.format === "json_sparse"})}" type="button" data-format="json_sparse" @click="${this.changeFormat}">
+                                    <i class="fas fa-file-code fa-2x"></i>
+                                    <div style="width: 100px">JSON SPARSE</div>
                                 </button>
                             </div>
 
-                            <div class="col-md-12">
+                            <div class="col-md-12 my-2">
                                 <h4>Job Info</h4>
                                 <label class="col-md-2 form-label">
                                     Job ID
                                 </label>
                                 <div class="col-md-10">
                                     <input type="text" class="form-control" placeholder="Enter Job ID, leave empty for default."
-                                            value="${resource?.toLowerCase()}_export_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}" @input="${this.changeJobId}">
+                                           value="${resource?.toLowerCase()}_export_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}" @input="${this.changeJobId}">
                                 </div>
                             </div>
                         </div>
@@ -658,9 +657,9 @@ const client = new OpenCGAClient({
                         <div id="${this._prefix}url" class="tab-pane active" role="tabpanel">
                             <div class="code-wrapper rounded p-2">
                                 <div class="d-flex justify-content-end" data-clipboard-target="div.language-url" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                    <div class="code language-url" contentEditable="true">
-                                        ${this.generateCode("url")}
-                                    </div>
+                                <div class="code language-url" contentEditable="true">
+                                    ${this.generateCode("url")}
+                                </div>
                             </div>
                         </div>
                         <div id="${this._prefix}curl" class="tab-pane" role="tabpanel">

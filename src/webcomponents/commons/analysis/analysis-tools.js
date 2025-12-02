@@ -271,7 +271,7 @@ export default class AnalysisTools extends LitElement {
                             name: "Variant Export",
                             description: `
                                 Filter and export variants, with their annotation and sample genotypes,
-                                from the Variant Storage to a file in multiple supported formats (vcf, json, tped, ensembl vep tab...)
+                                from the Variant Storage to a file in multiple supported formats (vcf, json, json_sparse, tped, ...)
                                 for being shared or processed by an external tool.
                             `,
                             render: opencgaSession => html`

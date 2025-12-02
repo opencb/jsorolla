@@ -15,12 +15,11 @@
  */
 
 import {LitElement, html} from "lit";
-import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
-import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import "../commons/tool-header.js";
-import "../commons/filters/catalog-search-autocomplete.js";
 import LitUtils from "../commons/utils/lit-utils";
+import "../commons/tool-header.js";
+import "../commons/forms/tags-input.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 
 export default class CohortCreate extends LitElement {
@@ -40,9 +39,6 @@ export default class CohortCreate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            mode: {
-                type: String
-            },
             displayConfig: {
                 type: Object
             },
@@ -50,35 +46,25 @@ export default class CohortCreate extends LitElement {
     }
 
     #init() {
-        this.cohort = {};
-        this.annotationSet = {};
-        this.isLoading = false;
-        this.displayConfigDefault = {
-            buttonsVisible: true,
-            buttonOkText: "Create",
-            style: "margin: 10px",
-            titleWidth: 3,
-            defaultLayout: "horizontal",
-            defaultValue: "",
-        };
+        this._cohort = {};
+        this._loading = false;
         this._config = this.getDefaultConfig();
     }
 
     #setLoading(value) {
-        this.isLoading = value;
+        this._loading = value;
         this.requestUpdate();
     }
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfigDefault, ...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
-    onFieldChange(e, field) {
-        this.cohort = {...this.cohort};
+    onFieldChange() {
+        this._cohort = {...this._cohort};
         this.requestUpdate();
     }
 
@@ -87,7 +73,7 @@ export default class CohortCreate extends LitElement {
             title: "Clear cohort",
             message: "Are you sure to clear?",
             ok: () => {
-                this.cohort = {};
+                this._cohort = {};
                 this._config = this.getDefaultConfig();
                 this.requestUpdate();
             },
@@ -95,40 +81,37 @@ export default class CohortCreate extends LitElement {
     }
 
     onSubmit() {
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            includeResult: true
-        };
-        let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.cohorts()
-            .create(this.cohort, params)
+            .create(this._cohort, {
+                study: this.opencgaSession.study.fqn,
+                includeResult: true,
+            })
             .then(() => {
-                this.cohort = {};
-                this._config = this.getDefaultConfig();
+                LitUtils.dispatchCustomEvent(this, "cohortCreate", this._cohort, {});
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "New Cohort",
-                    message: "cohort created correctly"
+                    message: "Cohort created correctly.",
                 });
+                this._cohort = {};
             })
             .catch(reason => {
-                error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
             })
             .finally(() => {
-                LitUtils.dispatchCustomEvent(this, "cohortCreate", this.cohort, {}, error);
                 this.#setLoading(false);
             });
     }
 
     render() {
-        if (this.isLoading) {
-            return html`<loading-spinner></loading-spinner>`;
+        if (this._loading) {
+            return html`
+                <loading-spinner></loading-spinner>
+            `;
         }
 
         return html`
             <data-form
-                .data="${this.cohort}"
+                .data="${this._cohort}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
@@ -138,8 +121,16 @@ export default class CohortCreate extends LitElement {
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            display: this.displayConfig || this.displayConfigDefault,
+        return {
+            display: {
+                buttonsVisible: true,
+                buttonOkText: "Create",
+                style: "margin: 10px",
+                titleWidth: 3,
+                defaultLayout: "horizontal",
+                defaultValue: "",
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
@@ -151,10 +142,17 @@ export default class CohortCreate extends LitElement {
                             required: true,
                             display: {
                                 placeholder: "Add a short ID...",
-                                helpMessage: "short Sample id",
+                                helpMessage: "Unique identifier for the Cohort",},
+                        },
+                        {
+                            title: "Cohort Name",
+                            field: "name",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a name...",
+                                helpMessage: "Descriptive name for the Cohort.",
                             },
                         },
-                        // TODO we need first to support ID copy into the autocomplete elements.
                         {
                             title: "Sample IDs",
                             field: "samples",
@@ -162,16 +160,18 @@ export default class CohortCreate extends LitElement {
                             display: {
                                 render: (samples, dataFormFilterChange) => {
                                     const sampleFormatter = value => {
-                                        return value?.split(",").map(sample => {
-                                            return {id: sample};
+                                        return value?.split(",").map(sampleId => {
+                                            return {
+                                                id: sampleId,
+                                            };
                                         });
                                     };
 
                                     const handleSampleFilterChange = e => {
-                                        dataFormFilterChange(e.detail.value ? sampleFormatter(e.detail.value) :[]);
+                                        dataFormFilterChange(e.detail.value ? sampleFormatter(e.detail.value) : []);
                                     };
 
-                                    return html `
+                                    return html`
                                         <catalog-search-autocomplete
                                             .value="${samples?.map(sample => sample.id).join(",")}"
                                             .resource="${"SAMPLE"}"
@@ -189,6 +189,19 @@ export default class CohortCreate extends LitElement {
                             display: {
                                 rows: 3,
                                 placeholder: "Add a cohort description...",
+                            },
+                        },
+                        {
+                            title: "Tags",
+                            field: "tags",
+                            type: "custom",
+                            display: {
+                                render: (tags, dataFormFilterChange) => html`
+                                    <tags-input
+                                        .value="${tags || []}"
+                                        @change="${event => dataFormFilterChange(event.detail.value)}">
+                                    </tags-input>
+                                `,
                             },
                         },
                         {
@@ -217,26 +230,8 @@ export default class CohortCreate extends LitElement {
                         },
                     ],
                 },
-                // {
-                //     title: "Annotations Sets",
-                //     elements: [
-                //         {
-                //             field: "annotationSets",
-                //             type: "custom",
-                //             display: {
-                //                 layout: "vertical",
-                //                 defaultLayout: "vertical",
-                //                 width: 12,
-                //                 style: "padding-left: 0px",
-                //                 render: cohort => html`
-
-                //                 `
-                //             }
-                //         }
-                //     ]
-                // }
             ],
-        });
+        };
     }
 
 }

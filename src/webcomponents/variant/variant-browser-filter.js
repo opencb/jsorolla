@@ -141,16 +141,18 @@ export default class VariantBrowserFilter extends LitElement {
                 `;
                 break;
             case "cohort":
-                // FIXME subsection.cohorts must be renamed to subsection.studies
-                if (subsection.onlyCohortAll === true || subsection.studies?.[0].cohorts?.length > 0) {
+                if (subsection.studies?.[0].cohorts?.length > 0) {
                     content = html`
                         <cohort-stats-filter
                             .opencgaSession="${opencgaSession}"
-                            .cohorts="${subsection.studies}"
-                            .onlyCohortAll=${subsection.onlyCohortAll}
-                            .cohortStatsAlt="${preparedQuery.cohortStatsAlt}"
+                            .studies="${subsection.studies}"
+                            .value="${preparedQuery.cohortStatsAlt}"
+                            .config="${{
+                                favourites: subsection?.favourites || [],
+                            }}"
                             @filterChange="${e => onFilterChange("cohortStatsAlt", e.detail.value)}">
-                        </cohort-stats-filter>`;
+                        </cohort-stats-filter>
+                    `;
                 } else {
                     content = "No cohort stats available.";
                 }

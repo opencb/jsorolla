@@ -539,7 +539,7 @@ export default class FiltersToolbar extends LitElement {
                         </div>
                         <div id="${this.prefix}AdvancedFilters${index}" class="accordion-collapse collapse ${expanded ? "show" : ""}" data-bs-parent="#${this._prefix}AdvancedFilters">
                             <div class="accordion-body d-flex flex-column gap-3">
-                                ${section.filters.map(subsection => this.renderAdvancedFilterSubsection(subsection))}
+                                ${filters.map(subsection => this.renderAdvancedFilterSubsection(subsection))}
                             </div>
                         </div>
                     </div>

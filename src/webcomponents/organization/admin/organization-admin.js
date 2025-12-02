@@ -23,6 +23,8 @@ import "./project-admin-browser.js";
 import "./organization-admin-detail.js";
 import "../../commons/pages/restricted-access-page.js";
 import "../../commons/view/vertical-menu.js";
+import "./federation-create.js";
+import "./federation-connect.js";
 
 export default class OrganizationAdmin extends LitElement {
 
@@ -144,6 +146,36 @@ export default class OrganizationAdmin extends LitElement {
                                     <project-admin-browser
                                         .opencgaSession="${opencgaSession}">
                                     </project-admin-browser>
+                                `;
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: "federation",
+                    name: "Federation",
+                    submenu: [
+                        {
+                            id: "create",
+                            name: "Create Federation",
+                            render: opencgaSession => {
+                                return html`
+                                    <federation-create
+                                        .organization="${opencgaSession?.organization}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </federation-create>
+                                `;
+                            },
+                        },
+                        {
+                            id: "connect",
+                            name: "Connect Federation",
+                            render: opencgaSession => {
+                                return html`
+                                    <federation-connect
+                                        .organization="${opencgaSession?.organization}"
+                                        .opencgaSession="${opencgaSession}">
+                                    </federation-connect>
                                 `;
                             },
                         },
