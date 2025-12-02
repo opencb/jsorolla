@@ -120,7 +120,7 @@ export default class ProteinLollipop extends LitElement {
 
         return prev[lenB];
     }
-    
+
     getProtein() {
         return this.opencgaSession.cellbaseClient
             .getProteinClient(null, "search", {
@@ -196,7 +196,7 @@ export default class ProteinLollipop extends LitElement {
                                 feature: this.geneId,
                                 // source: "clinvar",
                                 consequenceType: ProteinLollipopViz.CONSEQUENCE_TYPES.join(","),
-                                exclude: "annotation.populationFrequencies,annotation.conservation,annotation.constraints,annotation.functionalScore",
+                                exclude: "annotation.populationFrequencies,annotation.conservation,annotation.constraints,annotation.functionalScore,annotation.traitAssociation",
                                 limit: 5000,
                                 ...track.query,
                             });
