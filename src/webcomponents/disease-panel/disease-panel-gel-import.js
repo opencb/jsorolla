@@ -24,6 +24,7 @@ import "../commons/data-list.js";
 
 export default class DiseasePanelGelImport extends LitElement {
 
+
     constructor() {
         super();
 
@@ -46,6 +47,11 @@ export default class DiseasePanelGelImport extends LitElement {
     }
 
     #init() {
+        this.PANEL_APP_SOURCE = "PANEL_APP";
+        this.PANEL_APP_PAGE_SIZE = 5;
+
+        this.installedPanels = {};
+
         this._config = this.getDefaultConfig();
     }
 
@@ -61,9 +67,13 @@ export default class DiseasePanelGelImport extends LitElement {
     onAdd(event, row) {
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.panels()
-            .importPanels({id: row.id, source: "PANEL_APP"}, {
-                study: this.opencgaSession.study.fqn,
-            })
+            .importPanels(
+                {
+                    id: row.id,
+                    source: this.PANEL_APP_SOURCE}, {
+                    study: this.opencgaSession.study.fqn,
+                }
+            )
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: `Panel '${row.name}' imported successfully`,
@@ -84,8 +94,14 @@ export default class DiseasePanelGelImport extends LitElement {
     async fetchRepositories() {
         this.repositories = [];
 
+        // Store panels from the study in a map for quick access
+        const panelsMap = {};
+        this.opencgaSession.study?.panels
+            ?.filter(p => p.source?.project === "PanelApp")
+            .forEach(p => panelsMap[p.source.name] = p);
+
         // Create different promises for each API call to PanelApp https://panelapp.genomicsengland.co.uk/api/v1/panels/?format=json&page=1
-        for (let page = 1; page <= 5; page++) {
+        for (let page = 1; page <= this.PANEL_APP_PAGE_SIZE; page++) {
             // create a promise for each page
             const url = `https://panelapp.genomicsengland.co.uk/api/v1/panels/?format=json&page=${page}`;
             try {
@@ -93,9 +109,17 @@ export default class DiseasePanelGelImport extends LitElement {
                 if (response.ok) {
                     const data = await response.json();
                     this.repositories = this.repositories.concat(data.results);
+                    // Check which panels are already installed in the study
+                    for (const panelApp of data.results) {
+                        if (panelsMap[panelApp.name]) {
+                            this.installedPanels[panelApp.name] = panelsMap[panelApp.name];
+                        } else {
+                            this.installedPanels[panelApp.name] = null;
+                        }
+                    }
                 }
             } catch (error) {
-                console.error(error);
+                console.error("Failed to fetch page ${page}:", error);
             }
         }
     }
@@ -162,10 +186,14 @@ export default class DiseasePanelGelImport extends LitElement {
                                             <i class="fas fa-external-link-alt ps-2"></i>
                                         </a>
                                     </div>
-                                    <div class="d-block text-secondary">${panel.types?.map(t => t.name).join(", ") || ""}</div>
+                                    <div class="d-block text-secondary">
+                                        ${panel.types?.map(t => t.name).join(", ") || ""}
+                                    </div>
                                 </div>
                             `;
                         },
+                        width: "30",
+                        widthUnit: "%",
                     },
                     {
                         title: "Disease",
@@ -178,12 +206,14 @@ export default class DiseasePanelGelImport extends LitElement {
                                     <div class="d-block text-secondary">${panel.disease_group || ""}</div>
                                 </div>
                             `;
-                        }
+                        },
+                        width: "20",
+                        widthUnit: "%",
                     },
                     {
                         title: "Relevant Disorders",
                         field: "relevant_disorders",
-                        formatter: (relevant_disorders, panel) => {
+                        formatter: relevant_disorders => {
                             return `
                                 <div class="d-flex flex-column gap-1">
                                     <div>
@@ -191,41 +221,83 @@ export default class DiseasePanelGelImport extends LitElement {
                                     </div>
                                 </div>
                             `;
-                        }
+                        },
+                        width: "20",
+                        widthUnit: "%",
                     },
                     {
-                        title: "Version",
+                        title: "Last Version",
                         field: "version",
                         formatter: (value, panel) => {
                             return `
                                 <div class="d-flex flex-column gap-1">
                                     <div>
-                                        ${value}
+                                        ${value} <span class="text-secondary px-1">(${UtilsNew.dateFormatter(panel.version_created)})</span>
                                     </div>
-                                    <div class="d-block text-secondary" style="text-wrap:nowrap">Published at ${UtilsNew.dateFormatter(panel.version_created)}</div>
+
+                                    <div class="d-block text-secondary text-nowrap">
+                                        Number of genes: ${panel.stats?.number_of_genes || 0}<br>
+                                        Number of regions: ${panel.stats?.number_of_regions || 0}
+                                    </div>
                                 </div>
                             `;
                         }
                     },
+                    // {
+                    //     title: "Stats",
+                    //     field: "stats",
+                    //     formatter: stats => {
+                    //         return `
+                    //             <div style="text-wrap:nowrap">
+                    //                 Number of genes: ${stats?.number_of_genes || 0}<br>
+                    //                 Number of regions: ${stats?.number_of_regions || 0}
+                    //             </div>
+                    //         `;
+                    //     }
+                    // },
                     {
-                        title: "Stats",
-                        field: "stats",
-                        formatter: stats => {
-                            return `
-                                <div style="text-wrap:nowrap">
-                                    Number of genes: ${stats?.number_of_genes || 0}<br>
-                                    Number of regions: ${stats?.number_of_regions || 0}
-                                </div>
-                            `;
+                        title: "Installed Version",
+                        formatter: (_, panelApp) => {
+                            if (this.installedPanels[panelApp.name]) {
+                                return `
+                                    <div class="d-flex flex-column gap-1">
+                                        <div class="">
+                                            ${this.installedPanels[panelApp.name].source?.version}
+                                        </div>
+                                        <div class="d-block text-secondary text-nowrap">
+                                            Number of genes: ${this.installedPanels[panelApp.name].stats?.numberOfGenes || 0}<br>
+                                            Number of regions: ${this.installedPanels[panelApp.name].stats?.numberOfRegions || 0}
+                                        </div>
+                                    </div>
+                                `;
+                            } else {
+                                return `
+                                    <div style="color: red; margin: auto;">
+                                        <i class="fas fa-times-circle"></i>
+                                    </div>
+                                `;
+                            }
                         }
                     },
                     {
-                        title: "Add",
+                        title: "Action",
                         field: "add",
-                        formatter: () => {
-                            return `
-                                <button type="button" class="btn btn-primary">Add</button>
-                            `;
+                        formatter: (_, panel) => {
+                            if (this.installedPanels[panel.name]) {
+                                if (this.installedPanels[panel.name].source?.version === panel.version) {
+                                    return `
+                                        <button type="button" class="btn btn-success" disabled>Installed</button>
+                                    `;
+                                } else {
+                                    return `
+                                        <button type="button" class="btn btn-warning">Update</button>
+                                    `;
+                                }
+                            } else {
+                                return `
+                                    <button type="button" class="btn btn-primary">Add</button>
+                                `;
+                            }
                         },
                         events: {
                             "click button": (e, value, row) => this.onAdd(e, row)
