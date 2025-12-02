@@ -439,7 +439,8 @@ export default class FiltersToolbar extends LitElement {
 
     onCopyLink() {
         // 1. Generate the url to the tool with the current query
-        const link = WebUtils.getIVALink(this.opencgaSession, this.toolId, this.preparedQuery);
+        const [app, tool] = WebUtils.getApplicationAndToolFromHash();
+        const link = WebUtils.getIVALink(this.opencgaSession, app, tool, this.preparedQuery);
 
         // 2. Copy this link to the user clipboard
         UtilsNew.copyToClipboard(link);

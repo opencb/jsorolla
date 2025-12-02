@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import WebUtils from "../../../commons/utils/web-utils.js";
 import OpencgaCatalogUtils from "../../../../core/clients/opencga/opencga-catalog-utils";
 import "../../../variant/operation/variant-index-operation.js";
 import "../../../variant/operation/variant-stats-index-operation.js";
@@ -40,12 +41,22 @@ export default class OperationsAdmin extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            tool: {
+                type: String,
+            },
         };
     }
 
     #init() {
         this.study = {};
         this._config = this.getDefaultConfig();
+    }
+
+    onChangeActiveItem(event) {
+        const [app, tool] = WebUtils.getApplicationAndToolFromHash();
+        WebUtils.redirectTo(this.opencgaSession, app, tool, {
+            tool: event.detail.value,
+        });
     }
 
     render() {
@@ -64,7 +75,9 @@ export default class OperationsAdmin extends LitElement {
             <tool-header title="${this._config.name}"></tool-header>
             <vertical-menu
                 .opencgaSession="${this.opencgaSession}"
-                .config="${this._config || {}}">
+                .activeItem="${this.tool}"
+                .config="${this._config || {}}"
+                @changeActiveItem="${event => this.onChangeActiveItem(event)}">
             </vertical-menu>
         `;
     }

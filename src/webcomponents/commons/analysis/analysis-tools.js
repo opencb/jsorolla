@@ -1,4 +1,5 @@
-import {LitElement, html, nothing, render} from "lit";
+import {LitElement, html} from "lit";
+import WebUtils from "../utils/web-utils.js";
 import "../tool-header.js";
 import "../view/vertical-menu.js";
 import "../../clinical/analysis/mutational-signature-analysis.js";
@@ -41,6 +42,9 @@ export default class AnalysisTools extends LitElement {
             opencgaSession: {
                 type: Object,
             },
+            tool: {
+                type: String,
+            },
         };
     }
 
@@ -48,12 +52,21 @@ export default class AnalysisTools extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    onChangeActiveItem(event) {
+        const [app, tool] = WebUtils.getApplicationAndToolFromHash();
+        WebUtils.redirectTo(this.opencgaSession, app, tool, {
+            tool: event.detail.value,
+        });
+    }
+
     render() {
         return html`
             <tool-header .title="${this._config.title}"></tool-header>
             <vertical-menu
                 .opencgaSession="${this.opencgaSession}"
-                .config="${this._config || {}}">
+                .activeItem="${this.tool}"
+                .config="${this._config || {}}"
+                @changeActiveItem="${event => this.onChangeActiveItem(event)}">
             </vertical-menu>
         `;
     }
