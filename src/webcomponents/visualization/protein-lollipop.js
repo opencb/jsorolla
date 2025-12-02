@@ -79,7 +79,48 @@ export default class ProteinLollipop extends LitElement {
         this.drawProteinLollipop();
     }
 
-    // This is a terrible hack to find the correct protein ID and the transcript ID
+    // Levenshtein distance between two strings
+    levenshtein(a, b) {
+        const lenA = a.length;
+        const lenB = b.length;
+
+        // If one of them is empty, distance is the length of the other
+        if (lenA === 0) return lenB;
+        if (lenB === 0) return lenA;
+
+        // Use two rolling rows to save memory
+        let prev = new Array(lenB + 1);
+        let curr = new Array(lenB + 1);
+
+        // Initialize first row: transforming "" -> prefix of b
+        for (let j = 0; j <= lenB; j++) {
+            prev[j] = j;
+        }
+
+        for (let i = 1; i <= lenA; i++) {
+            curr[0] = i; // transforming prefix of a to ""
+
+            const charA = a[i - 1];
+            for (let j = 1; j <= lenB; j++) {
+                const charB = b[j - 1];
+
+                const cost = charA === charB ? 0 : 1;
+
+                // Minimum of: delete, insert, substitute
+                curr[j] = Math.min(
+                    prev[j] + 1,      // deletion
+                    curr[j - 1] + 1,  // insertion
+                    prev[j - 1] + cost // substitution
+                );
+            }
+
+            // Swap rows
+            [prev, curr] = [curr, prev];
+        }
+
+        return prev[lenB];
+    }
+    
     getProtein() {
         return this.opencgaSession.cellbaseClient
             .getProteinClient(null, "search", {
@@ -95,10 +136,24 @@ export default class ProteinLollipop extends LitElement {
         return this.opencgaSession.cellbaseClient
             .getGeneClient(this.geneId, "transcript", {})
             .then(response => {
-                // We need to find the transcript using the proteinSequence
-                return (response.responses[0]?.results || []).find(item => {
-                    return item.proteinSequence === protein?.sequence?.value;
-                });
+                // This is a terrible hack to find the correct protein ID and the transcript ID
+                const distances = {};
+
+                // 1. We need to find the transcript using the proteinSequence
+                for(const transcript of response.responses[0]?.results || []) {
+                    const distance = this.levenshtein(transcript.proteinSequence || "", protein?.sequence?.value || "");
+                    distances[distance] = transcript.id;
+                }
+
+                // 2. Sort distances and return the closest one within threshold
+                const sortedDistances = Object.keys(distances)
+                    .map(k => parseInt(k))
+                    .sort((a, b) => a - b);
+                if (sortedDistances.length > 0 && sortedDistances[0] <= 5) {
+                    return response.responses[0]?.results.find(t => t.id === distances[sortedDistances[0]]);
+                } else {
+                    return null;
+                }
             })
             .catch(() => null);
     }
