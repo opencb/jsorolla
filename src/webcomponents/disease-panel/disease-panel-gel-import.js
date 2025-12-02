@@ -67,7 +67,9 @@ export default class DiseasePanelGelImport extends LitElement {
     onAction(event, panel) {
         const action = event.target.dataset.action;
         const params = {
-            id: panel.id,
+            panelIds: [
+                panel.id,
+            ],
             source: this.PANEL_APP_SOURCE,
         };
         this.#setLoading(true);
