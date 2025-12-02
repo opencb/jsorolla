@@ -72,22 +72,30 @@ export default class VariantFileFormatFilter extends LitElement {
 
     opencgaSessionObserver() {
         // Parse custom fields and add them to the fields array
-        for (const dataFilter of this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers[0]?.dataFilters) {
+        (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers?.[0]?.dataFilters || []).forEach(dataFilter => {
             if (dataFilter.source === "SAMPLE") {
                 const indexPosition = this.fields.findIndex(f => f.id === dataFilter.id);
                 if (indexPosition >= 0) {
-                    this.fields[indexPosition] = {id: dataFilter.id, name: dataFilter.name};
+                    this.fields[indexPosition] = {
+                        id: dataFilter.id,
+                        name: dataFilter.name,
+                    };
                 } else {
-                    this.fields.push({id: dataFilter.id, name: dataFilter.name});
+                    this.fields.push({
+                        id: dataFilter.id,
+                        name: dataFilter.name,
+                    });
                 }
             }
-        }
+        });
 
         // Search for the indexed fields
-        for (const field of this.fields) {
-            this.indexedFields[field.id] = this.opencgaSession.study.internal.configuration.variantEngine.sampleIndex.fileIndexConfiguration.customFields
-                .find(f => f.key === field.id && f.source === "SAMPLE");
-        }
+        const customFields = this.opencgaSession?.study?.internal?.configuration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields || [];
+        (this.fields || []).forEach(field => {
+            this.indexedFields[field.id] = customFields .find(f => {
+                return f.key === field.id && f.source === "SAMPLE";
+            });
+        });
         this._config = this.getDefaultConfig();
     }
 

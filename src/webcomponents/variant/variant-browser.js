@@ -305,7 +305,7 @@ export default class VariantBrowser extends LitElement {
                     hiddenFields: [],
                     lockedFields: [],
                 },
-                sections: [ // sections and subsections, structure and order is respected
+                sections: [
                     {
                         title: "Study and Cohorts",
                         collapsed: false,
@@ -324,9 +324,9 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
-                                onlyCohortAll: false,
                                 tooltip: tooltips.cohort,
-                                studies: this.opencgaSession?.project?.studies
+                                studies: this.opencgaSession?.project?.studies,
+                                quick: true,
                             }
                         ]
                     },

@@ -249,7 +249,7 @@ export default class CohortGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        include: "id,creationDate,status,type,numSamples,annotationSets",
+                        include: "id,name,description,numSamples,creationDate,modificationDate,status,internal,annotationSets,tags",
                         ...this.query
                     };
 
@@ -288,12 +288,11 @@ export default class CohortGrid extends LitElement {
         this._columns = [
             {
                 id: "id",
-                title: "Cohort ID",
+                title: "Cohort",
                 field: "id",
-                formatter: (cohortId, cohort) => {
+                formatter: cohortId => {
                     return `
-                        <a class="link fw-bold my-1" data-action="view">${cohortId}</div>
-                        ${cohort.name ? `<div class="text-secondary my-1">${cohort.name}</div>` : ""}
+                        <a class="d-block link fw-bold my-1" data-action="view">${cohortId}</a>
                     `;
                 },
                 events: {
@@ -302,10 +301,42 @@ export default class CohortGrid extends LitElement {
                 visible: this.gridCommons.isColumnVisible("id")
             },
             {
+                id: "name",
+                title: "Name",
+                field: "name",
+                formatter: (name, cohort) => {
+                    return `
+                        <div class="m-1">
+                            <div class="fw-bold my-1">${name || cohort.id}</div>
+                            ${cohort?.description ? `
+                                <div class="text-secondary my-1">${cohort.description}</div>
+                            ` : ""}
+                        </div>
+                    `;
+                },
+                visible: this.gridCommons.isColumnVisible("name")
+            },
+            {
+                id: "tags",
+                title: "Tags",
+                field: "tags",
+                formatter: tags => {
+                    return (tags || []).map(tag => `<span class="badge bg-secondary me-1 mb-1">${tag}</span>`).join("") || "-";
+                },
+                visible: this.gridCommons.isColumnVisible("tags"),
+            },
+            {
                 id: "numSamples",
                 title: "Number of Samples",
                 field: "numSamples",
                 visible: this.gridCommons.isColumnVisible("numSamples")
+            },
+            {
+                id: "status",
+                title: "Status",
+                field: "internal.status.id",
+                formatter: status => status || "-",
+                visible: this.gridCommons.isColumnVisible("status"),
             },
             {
                 id: "creationDate",

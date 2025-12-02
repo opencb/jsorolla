@@ -92,7 +92,6 @@ class TestApp extends LitElement {
         // Create the 'config' , this objects contains all the different configuration
         const _config = SUITE;
         _config.opencga = opencga;
-        _config.cellbase = typeof CELLBASE_CONFIG !== "undefined" ? CELLBASE_CONFIG : null;
         _config.pages = typeof CUSTOM_PAGES !== "undefined" ? CUSTOM_PAGES : [];
         _config.consequenceTypes = CONSEQUENCE_TYPES;
         _config.populationFrequencies = POPULATION_FREQUENCIES;

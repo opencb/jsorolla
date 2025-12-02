@@ -26,7 +26,7 @@ const hosts = [
     },
     {
         id: "reference",
-        url: "https://test.app.zettagenomics.com/task-7706/opencga"
+        url: "https://test.app.zettagenomics.com/task-7733/opencga"
     },
 ];
 
@@ -42,51 +42,21 @@ const opencga = {
         active: false,
         cookie: "JSESSIONID"
     },
+};
 
-    // This forces the following projects to be used instead of the user's project
-    // projects: [
-    //     {
-    //         id: "platinum",
-    //         name: "Platinum",
-    //         alias: "platinum",
-    //         organism: {
-    //             scientificName: "Homo sapiens",
-    //             assembly: "GRCh37"
-    //         },
-    //         studies : [
-    //             {
-    //                 id: "illumina_platinum",
-    //                 name: "Illumina Platinum",
-    //                 alias: "illumina_platinum"
-    //             }
-    //         ]
-    //     }
-    // ],
-
-    // This allows IVA to query a OpenCGA instance being an 'anonymous' user, this means that no login is required.
-    // If 'projects' is empty then all public projects and studies of 'user' will be used.
-    // anonymous: {
-    //     // user: "hgvauser",
-    //     projects: [
-    //         {
-    //             id: "platinum",
-    //             name: "Platinum",
-    //             alias: "platinum",
-    //             organism: {
-    //                 scientificName: "Homo sapiens",
-    //                 assembly: "GRCh37"
-    //             },
-    //             studies : [
-    //                 {
-    //                     id: "illumina_platinum",
-    //                     name: "Illumina Platinum",
-    //                     alias: "illumina_platinum"
-    //                 }
-    //             ]
-    //         }
-    //     ]
-    // },
-    // summary: true,
+const CELLBASE = {
+    supportedVersions: [
+        {
+            host: "https://ws.zettagenomics.com/cellbase",
+            version: "v5.2",
+            dataRelease: 3,
+        },
+        {
+            host: "https://ws.zettagenomics.com/cellbase",
+            version: "v5.8",
+            dataRelease: 7,
+        },
+    ],
 };
 
 const SUITE = {

@@ -494,7 +494,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             field: "populationFrequenciesConfig.displayMode",
                             type: "select",
                             multiple: false,
-                            allowedValues: ["FREQUENCY_BOX", "FREQUENCY_NUMBER"],
+                            allowedValues: ["FREQUENCY_BOX", "FREQUENCY_COMPACT"],
                             display: {
                                 containerStyle: "margin: 5px 5px 5px 0px"
                             },
