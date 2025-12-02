@@ -50,8 +50,8 @@ export default class DiseasePanelGelImport extends LitElement {
         this.PANEL_APP_SOURCE = "PANEL_APP";
         this.PANEL_APP_PAGE_SIZE = 5;
 
-        this.installedPanels = {};
-
+        this._repositories = [];
+        this._installedPanels = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -62,6 +62,21 @@ export default class DiseasePanelGelImport extends LitElement {
 
     firstUpdated() {
         this.fetchRepositories();
+    }
+
+    updateInstalledPanels() {
+        this._installedPanels = {};
+
+        // 1. store panels from the study in a map for quick access
+        const panelsMap = {};
+        this.opencgaSession.study?.panels
+            ?.filter(p => p.source?.project === "PanelApp")
+            .forEach(p => panelsMap[p.source.name] = p);
+
+        // 2. check which panels are already installed in the study
+        this._repositories.forEach(panelApp => {
+            this._installedPanels[panelApp.name] = panelsMap[panelApp.name] || null;
+        });
     }
 
     onAction(event, panel) {
@@ -96,7 +111,8 @@ export default class DiseasePanelGelImport extends LitElement {
                     name: panel.name,
                 });
                 // force to refresh the grid
-                this._config = {...this._config};
+                this.updateInstalledPanels();
+                this._config = this.getDefaultConfig();
             })
             .catch(reason => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
@@ -107,15 +123,10 @@ export default class DiseasePanelGelImport extends LitElement {
     }
 
     async fetchRepositories() {
-        this.repositories = [];
+        this._repositories = [];
+        this.#setLoading(true);
 
-        // Store panels from the study in a map for quick access
-        const panelsMap = {};
-        this.opencgaSession.study?.panels
-            ?.filter(p => p.source?.project === "PanelApp")
-            .forEach(p => panelsMap[p.source.name] = p);
-
-        // Create different promises for each API call to PanelApp https://panelapp.genomicsengland.co.uk/api/v1/panels/?format=json&page=1
+        // 1. create different promises for each API call to PanelApp https://panelapp.genomicsengland.co.uk/api/v1/panels/?format=json&page=1
         for (let page = 1; page <= this.PANEL_APP_PAGE_SIZE; page++) {
             // create a promise for each page
             const url = `https://panelapp.genomicsengland.co.uk/api/v1/panels/?format=json&page=${page}`;
@@ -123,20 +134,16 @@ export default class DiseasePanelGelImport extends LitElement {
                 const response = await fetch(url);
                 if (response.ok) {
                     const data = await response.json();
-                    this.repositories = this.repositories.concat(data.results);
-                    // Check which panels are already installed in the study
-                    for (const panelApp of data.results) {
-                        if (panelsMap[panelApp.name]) {
-                            this.installedPanels[panelApp.name] = panelsMap[panelApp.name];
-                        } else {
-                            this.installedPanels[panelApp.name] = null;
-                        }
-                    }
+                    this._repositories = this._repositories.concat(data.results);
                 }
             } catch (error) {
                 console.error("Failed to fetch page ${page}:", error);
             }
         }
+
+        // 2. Update installed panels
+        this.updateInstalledPanels();
+        this.#setLoading(false);
     }
 
     render() {
@@ -148,7 +155,7 @@ export default class DiseasePanelGelImport extends LitElement {
 
         return html`
             <data-list
-                .data="${this.repositories || []}"
+                .data="${this._repositories || []}"
                 .config="${this._config}">
             </data-list>
         `;
@@ -273,15 +280,15 @@ export default class DiseasePanelGelImport extends LitElement {
                     {
                         title: "Installed Version",
                         formatter: (_, panelApp) => {
-                            if (this.installedPanels[panelApp.name]) {
+                            if (this._installedPanels[panelApp.name]) {
                                 return `
                                     <div class="d-flex flex-column gap-1">
                                         <div class="">
-                                            ${this.installedPanels[panelApp.name].source?.version}
+                                            ${this._installedPanels[panelApp.name].source?.version}
                                         </div>
                                         <div class="d-block text-secondary text-nowrap">
-                                            Number of genes: ${this.installedPanels[panelApp.name].stats?.numberOfGenes || 0}<br>
-                                            Number of regions: ${this.installedPanels[panelApp.name].stats?.numberOfRegions || 0}
+                                            Number of genes: ${this._installedPanels[panelApp.name].stats?.numberOfGenes || 0}<br>
+                                            Number of regions: ${this._installedPanels[panelApp.name].stats?.numberOfRegions || 0}
                                         </div>
                                     </div>
                                 `;
@@ -298,8 +305,8 @@ export default class DiseasePanelGelImport extends LitElement {
                         title: "Action",
                         field: "add",
                         formatter: (_, panel) => {
-                            if (this.installedPanels[panel.name]) {
-                                if (this.installedPanels[panel.name].source?.version === panel.version) {
+                            if (this._installedPanels[panel.name]) {
+                                if (this._installedPanels[panel.name].source?.version === panel.version) {
                                     return `
                                         <button type="button" class="btn btn-secondary" disabled>Installed</button>
                                     `;
