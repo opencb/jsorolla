@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import LitUtils from "../utils/lit-utils.js";
 
 export default class VerticalMenu extends LitElement {
 
@@ -16,6 +17,9 @@ export default class VerticalMenu extends LitElement {
         return {
             opencgaSession: {
                 type: Object,
+            },
+            activeItem: {
+                type: String,
             },
             config: {
                 type: Object,
@@ -35,8 +39,15 @@ export default class VerticalMenu extends LitElement {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
-            // initialize the active item
-            if (!this._activeItem) {
+        }
+
+        if (changedProperties.has("config") || changedProperties.has("activeItem")) {
+            // check if we have to change the active item
+            if (this.activeItem && this.activeItem !== this._activeItem) {
+                this._activeItem = this.activeItem;
+            }
+            // initialize the active item if not set
+            if (!this._activeItem && !this.activeItem) {
                 this._activeItem = this._config.menu[0].submenu[0].id;
             }
         }
@@ -46,6 +57,7 @@ export default class VerticalMenu extends LitElement {
 
     onChangeActiveItem(newActiveItem) {
         this._activeItem = newActiveItem;
+        LitUtils.dispatchCustomEvent(this, "changeActiveItem", this._activeItem);
         this.requestUpdate();
     }
 
