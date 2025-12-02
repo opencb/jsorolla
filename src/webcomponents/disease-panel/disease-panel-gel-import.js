@@ -66,11 +66,13 @@ export default class DiseasePanelGelImport extends LitElement {
 
     onAction(event, panel) {
         const action = event.target.dataset.action;
+        const params = {
+            id: panel.id,
+            source: this.PANEL_APP_SOURCE,
+        };
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.panels()
-            .importPanels({
-                id: panel.id,
-                source: this.PANEL_APP_SOURCE}, {
+            .importPanels(params, {
                 study: this.opencgaSession.study.fqn,
                 includeResult: true
             })
@@ -91,6 +93,8 @@ export default class DiseasePanelGelImport extends LitElement {
                     id: panel.id,
                     name: panel.name,
                 });
+                // force to refresh the grid
+                this._config = {...this._config};
             })
             .catch(reason => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
