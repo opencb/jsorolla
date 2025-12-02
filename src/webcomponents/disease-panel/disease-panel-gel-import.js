@@ -64,23 +64,34 @@ export default class DiseasePanelGelImport extends LitElement {
         this.fetchRepositories();
     }
 
-    onAdd(event, row) {
+    onAction(event, panel) {
+        const action = event.target.dataset.action;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.panels()
             .importPanels(
                 {
-                    id: row.id,
+                    id: panel.id,
                     source: this.PANEL_APP_SOURCE}, {
                     study: this.opencgaSession.study.fqn,
+                    includeResult: true
                 }
             )
-            .then(() => {
+            .then(response => {
+                const panel = response.responses[0].results[0];
+                if (action === "add") {
+                    this.opencgaSession.study?.panels.push(panel);
+                } else if (action === "update") {
+                    const index = this.opencgaSession.study?.panels.findIndex(p => p.id === panel.id);
+                    if (index !== -1) {
+                        this.opencgaSession.study?.panels.splice(index, 1, panel);
+                    }
+                }
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: `Panel '${row.name}' imported successfully`,
+                    message: `Panel '${panel.name}' ${action === "add" ? "imported" : "updated"} successfully`,
                 });
                 LitUtils.dispatchCustomEvent(this, "panelImport", null, {
-                    id: row.id,
-                    name: row.name,
+                    id: panel.id,
+                    name: panel.name,
                 });
             })
             .catch(reason => {
@@ -286,21 +297,21 @@ export default class DiseasePanelGelImport extends LitElement {
                             if (this.installedPanels[panel.name]) {
                                 if (this.installedPanels[panel.name].source?.version === panel.version) {
                                     return `
-                                        <button type="button" class="btn btn-success" disabled>Installed</button>
+                                        <button type="button" class="btn btn-secondary" disabled>Installed</button>
                                     `;
                                 } else {
                                     return `
-                                        <button type="button" class="btn btn-warning">Update</button>
+                                        <button type="button" class="btn btn-warning"  data-action="update">Update</button>
                                     `;
                                 }
                             } else {
                                 return `
-                                    <button type="button" class="btn btn-primary">Add</button>
+                                    <button type="button" class="btn btn-primary" data-action="add">Add</button>
                                 `;
                             }
                         },
                         events: {
-                            "click button": (e, value, row) => this.onAdd(e, row)
+                            "click button": (e, value, row) => this.onAction(e, row)
                         }
                     },
                 ],
