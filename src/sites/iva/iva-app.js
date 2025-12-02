@@ -1268,6 +1268,7 @@ class IvaApp extends LitElement {
                 content = html`
                     <organization-admin
                         .opencgaSession="${this.opencgaSession}"
+                        .tool="${this.queries[this.tool]?.tool}"
                         @studyUpdateRequest="${this.onStudyUpdateRequest}"
                         @sessionUpdateRequest="${this.onSessionUpdateRequest}">
                     </organization-admin>
@@ -1291,6 +1292,7 @@ class IvaApp extends LitElement {
                 content = html`
                     <study-admin
                         .opencgaSession="${this.opencgaSession}"
+                        .tool="${this.queries[this.tool]?.tool}"
                         @studyUpdateRequest="${this.onStudyUpdateRequest}">
                     </study-admin>
                 `;
@@ -1299,6 +1301,7 @@ class IvaApp extends LitElement {
                 content = html`
                     <study-admin-iva
                         .opencgaSession="${this.opencgaSession}"
+                        .tool="${this.queries[this.tool]?.tool}"
                         .settings="${this.settings}"
                         @studyUpdateRequest="${this.onStudyUpdateRequest}">
                     </study-admin-iva>
@@ -1308,6 +1311,7 @@ class IvaApp extends LitElement {
                 content = html`
                     <operations-admin
                         .opencgaSession="${this.opencgaSession}"
+                        .tool="${this.queries[this.tool]?.tool}"
                         @studyUpdateRequest="${this.onStudyUpdateRequest}">
                     </operations-admin>
                 `;
@@ -1344,7 +1348,8 @@ class IvaApp extends LitElement {
             case "analysis-tools":
                 content = html`
                     <analysis-tools
-                        .opencgaSession="${this.opencgaSession}">
+                        .opencgaSession="${this.opencgaSession}"
+                        .tool="${this.queries[this.tool]?.tool}">
                     </analysis-tools>
                 `;
                 break;
