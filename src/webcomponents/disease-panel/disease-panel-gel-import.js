@@ -68,14 +68,12 @@ export default class DiseasePanelGelImport extends LitElement {
         const action = event.target.dataset.action;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.panels()
-            .importPanels(
-                {
-                    id: panel.id,
-                    source: this.PANEL_APP_SOURCE}, {
-                    study: this.opencgaSession.study.fqn,
-                    includeResult: true
-                }
-            )
+            .importPanels({
+                id: panel.id,
+                source: this.PANEL_APP_SOURCE}, {
+                study: this.opencgaSession.study.fqn,
+                includeResult: true
+            })
             .then(response => {
                 const panel = response.responses[0].results[0];
                 if (action === "add") {
@@ -87,7 +85,7 @@ export default class DiseasePanelGelImport extends LitElement {
                     }
                 }
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: `Panel '${panel.name}' ${action === "add" ? "imported" : "updated"} successfully`,
+                    message: `Panel '${panel.name}' ${action === "add" ? "imported" : "updated"} successfully.`,
                 });
                 LitUtils.dispatchCustomEvent(this, "panelImport", null, {
                     id: panel.id,
