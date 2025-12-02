@@ -910,7 +910,8 @@ export default class VariantBrowserGrid extends LitElement {
                 break;
             case "copy-link":
                 // 1. Generate the URL to this variant
-                const link = WebUtils.getIVALink(this.opencgaSession, this.toolId, {id: variant.id});
+                const [app, tool] = WebUtils.getApplicationAndToolFromHash();
+                const link = WebUtils.getIVALink(this.opencgaSession, app, tool, {id: variant.id});
                 // 2. Copy this link to the clipboard
                 UtilsNew.copyToClipboard(link);
                 // 3. Notify user that link has been copied to the clipboard
