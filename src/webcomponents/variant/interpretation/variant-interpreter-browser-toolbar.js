@@ -143,7 +143,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
         return html`
             <div class="mb-1 d-flex gap-2">
-                <div class="${statusColor} flex-shrink-0" style="width:4px;"></div>
+                <div class="${statusColor} flex-shrink-0" style="width:4px;" title="${variant?.status || ""}"></div>
                 <div class="flex-grow-1">
                     <div class="my-1"><b>${variant.id}</b> <i class="ps-3">${variant.annotation.displayConsequenceType || ""}</i></div>
                     <div class="my-1 small text-secondary">${geneNames.join(", ")}</div>
