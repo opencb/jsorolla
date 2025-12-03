@@ -23,7 +23,7 @@ export default class JobDetailLog extends LitElement {
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -47,7 +47,7 @@ export default class JobDetailLog extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
 
@@ -56,20 +56,28 @@ export default class JobDetailLog extends LitElement {
         this.content = null;
     }
 
-    async updated(changedProperties) {
+    disconnectedCallback() {
+        clearInterval(this.interval);
+        super.disconnectedCallback();
+    }
+
+    update(changedProperties) {
         if (changedProperties.has("job")) {
             this.jobId = this.job.id;
-            if (this.active) {
-                this.fetchContent(this.job, {command: this.command, type: this.type});
-            }
         }
 
         if (changedProperties.has("active")) {
             this.content = null;
-            this.requestUpdate();
-            await this.updateComplete;
+        }
+
+        super.update(changedProperties);
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("active") || changedProperties.has("job")) {
             if (this.active) {
                 this.fetchContent(this.job, {command: this.command, type: this.type});
+                this.setReloadInterval();
             } else {
                 this.clearReload();
             }
@@ -93,15 +101,13 @@ export default class JobDetailLog extends LitElement {
     // setInterval makes sense only in case of Tail log
     setReloadInterval() {
         if (this.active && this.command === "tail" && this.job.internal.status.id === "RUNNING") {
-            this.requestUpdate();
             this.interval = setInterval(() => {
-                if ($(".jobs-details-log", this).is(":visible")) {
+                if (this.active) {
                     // tail call is actually head (after the first tail call)
                     this.fetchContent(this.job, {command: "head", offset: this.contentOffset}, true);
                 } else {
                     this.clearReload();
                 }
-                this.requestUpdate();
             }, 10000);
         }
     }
