@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import VariantUtils from "../variant-utils.js";
 
 class VariantInterpreterBrowserToolbar extends LitElement {
 
@@ -121,13 +122,17 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         `;
     }
 
-    renderVariant(variant, isPrimary = true) {
-        const geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
+    renderVariant(variant) {
+        const geneNames = Array.from(new Set(variant?.annotation?.consequenceTypes?.filter(ct => ct.geneName).map(ct => ct.geneName)));
+        const statusColor = VariantUtils.getStatusColor(variant?.status);
 
         return html`
-            <div class="mb-1 border-start border-4 ${isPrimary ? "border-primary" : "border-secondary"}">
-                <div class="my-1 mx-2"><b>${variant.id}</b> <i class="ps-3">${variant.annotation.displayConsequenceType || ""}</i></div>
-                <div class="my-1 mx-2 small text-secondary">${geneNames.join(", ")}</div>
+            <div class="mb-1 d-flex gap-2">
+                <div class="${statusColor} flex-shrink-0" style="width:4px;"></div>
+                <div class="flex-grow-1">
+                    <div class="my-1"><b>${variant.id}</b> <i class="ps-3">${variant.annotation.displayConsequenceType || ""}</i></div>
+                    <div class="my-1 small text-secondary">${geneNames.join(", ")}</div>
+                </div>
             </div>
         `;
     }
@@ -136,12 +141,10 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         const findings = [
             {
                 title: "Primary Findings",
-                isPrimary: true,
                 variants: this.clinicalAnalysis?.interpretation?.primaryFindings || [],
             },
             {
                 title: "Secondary Findings",
-                isPrimary: false,
                 variants: this.clinicalAnalysis?.interpretation?.secondaryFindings || [],
             },
         ];
@@ -190,7 +193,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                     </div>
                                     ${finding.variants?.length > 0 ? html`
                                         <div class="overflow-y-auto m-1" style="max-height:350px;">
-                                            ${finding.variants.map(variant => this.renderVariant(variant, finding.isPrimary))}
+                                            ${finding.variants.map(variant => this.renderVariant(variant))}
                                         </div>
                                     ` : html`
                                         <div class="d-flex flex-column align-items-center py-4 px-4 bg-gray-100 rounded">
