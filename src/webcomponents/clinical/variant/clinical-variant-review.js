@@ -239,7 +239,7 @@ export default class ClinicalVariantReview extends LitElement {
         return html`
             <div class="alert alert-light bg-white flex-grow-1 d-flex justify-content-center flex-column">
                 <div class="d-flex gap-3">
-                    <span class="fw-bold">${this._variant.id}</span>
+                    <span class="fw-bold fs-5 lh-1">${this._variant.id}</span>
                     ${genes.length > 0 ? html`
                         <span class="text-secondary">
                             ${genes.slice(0, 5).join(", ")}
