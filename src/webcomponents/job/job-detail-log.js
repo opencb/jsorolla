@@ -56,6 +56,11 @@ export default class JobDetailLog extends LitElement {
         this.content = null;
     }
 
+    disconnectedCallback() {
+        clearInterval(this.interval);
+        super.disconnectedCallback();
+    }
+
     update(changedProperties) {
         if (changedProperties.has("job")) {
             this.jobId = this.job.id;
