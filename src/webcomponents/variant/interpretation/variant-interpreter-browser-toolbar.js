@@ -62,27 +62,37 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         super.update(changedProperties);
     }
 
-    onFilterInclusionVariants() {
-        const variants = [];
-        this.variantInclusionState.map(inclusion => variants.push(...inclusion.variants));
+    getSelectedVariants() {
+        return [
+            ...(this.clinicalAnalysis.interpretation.primaryFindings || []),
+            ...(this.clinicalAnalysis.interpretation.secondaryFindings || []),
+        ];
+    }
+
+    filterVariants(variants, elementId) {
         LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
             variants: variants
         });
         // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
         // when user clicks the 'Filter' button in the View menu (primary findings).
-        this.querySelector(`div#${this._prefix}InclusionVariants div.dropdown-menu`)?.classList?.toggle?.("show");
+        this.querySelector(`div#${this._prefix}${elementId} div.dropdown-menu`)?.classList?.toggle?.("show");
     }
 
-    onFilterPrimaryAndSecondaryFindingVariants() {
-        LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
-            variants: [
-                ...(this.clinicalAnalysis.interpretation.primaryFindings || []),
-                ...(this.clinicalAnalysis.interpretation.secondaryFindings || []),
-            ],
+    onFilterInclusionVariants() {
+        const variants = [];
+        this.variantInclusionState.map(inclusion => variants.push(...inclusion.variants));
+        this.filterVariants(variants, "InclusionVariants");
+    }
+
+    onFilterAllVariants() {
+        this.filterVariants(this.getSelectedVariants(), "SelectedVariants");
+    }
+
+    onFilterReportedVariants() {
+        const variants = this.getSelectedVariants().filter(variant => {
+            return variant.status === "REPORTED" || variant.status === "CANDIDATE";
         });
-        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
-        // when user clicks the 'Filter' button in the View menu (primary findings).
-        this.querySelector(`div#${this._prefix}View div.dropdown-menu`)?.classList?.toggle?.("show");
+        this.filterVariants(variants, "SelectedVariants");
     }
 
     renderInclusionVariant(inclusion) {
@@ -179,7 +189,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         `}
                     </div>
                 </div>
-                <div class="dropdown d-flex" id="${this._prefix}View">
+                <div class="dropdown d-flex" id="${this._prefix}SelectedVariants">
                     <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <i class="fas fa-eye pe-1"></i>
                         <strong>Selected Variants</strong>
@@ -208,10 +218,13 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         </div>
                         ${(findings[0].variants?.length || findings[1].variants?.length) ? html`
                             <hr class="dropdown-divider">
-                            <div class="d-flex justify-content-end">
-                                <button class="btn btn-primary" @click="${this.onFilterPrimaryAndSecondaryFindingVariants}">
+                            <div class="d-flex justify-content-end gap-2">
+                                <button class="btn btn-light" @click="${() => this.onFilterReportedVariants()}">
+                                    <span>Filter Reported Variants</span>
+                                </button>
+                                <button class="btn btn-primary" @click="${() => this.onFilterAllVariants()}">
                                     <i class="fas fa-filter me-1"></i>
-                                    <span>Filter Variants</span>
+                                    <span>Filter All Variants</span>
                                 </button>
                             </div>
                         ` : nothing}
