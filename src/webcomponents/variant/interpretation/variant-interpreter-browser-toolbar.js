@@ -223,10 +223,10 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                 </div>
                             `)}
                         </div>
-                        ${(findings[0].variants?.length || findings[1].variants?.length) ? html`
+                        ${(selectedVariantsCount > 0) ? html`
                             <hr class="dropdown-divider">
                             <div class="d-flex justify-content-end gap-2">
-                                <button class="btn btn-success" @click="${() => this.onFilterReportedVariants()}">
+                                <button class="btn btn-success ${reportedVariantsCount === 0 ? "disabled" : ""}" @click="${() => this.onFilterReportedVariants()}">
                                     <span>Filter <b>Reported Variants</b> (${reportedVariantsCount})</span>
                                 </button>
                                 <button class="btn btn-primary" @click="${() => this.onFilterAllVariants()}">
