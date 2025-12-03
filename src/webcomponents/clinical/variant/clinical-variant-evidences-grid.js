@@ -106,13 +106,25 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
     }
 
     filterEvidences() {
-        this._visibleEvidencesIndex = [];
+        // 1. get the visible evidences indexes according to the transcript filters
+        let visibleEvidencesIndex = [];
         if (this._applyTranscriptFilters) {
-            this._visibleEvidencesIndex = VariantGridFormatter._consequenceTypeDetailFormatterFilter(this._evidences, this._config).indexes;
+            visibleEvidencesIndex = VariantGridFormatter._consequenceTypeDetailFormatterFilter(this._evidences, this._config).indexes;
         } else {
             // if we are not applying the filters, we just return all the evidences
-            this._visibleEvidencesIndex = this._evidences.map((evidence, index) => index);
+            visibleEvidencesIndex = this._evidences.map((evidence, index) => index);
         }
+
+        // 2. include also selected evidences
+        const selectedEvidencesIndex = [];
+        this._evidences.forEach((evidence, index) => {
+            if (evidence?.review?.select) {
+                selectedEvidencesIndex.push(index);
+            }
+        });
+
+        // 3. merge and remove duplicates. note that selected evidences will be displayed always first in the table
+        this._visibleEvidencesIndex = Array.from(new Set([...selectedEvidencesIndex, ...visibleEvidencesIndex]));
     }
 
     renderLocalEvidences() {
