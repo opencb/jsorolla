@@ -111,6 +111,7 @@ export default class JobGrid extends LitElement {
 
         this.gridCommons.registerModals({
             "view-job": () => ({
+                clearAfterClosing: true, // force to clear the active modal when closed
                 display: {
                     modalTitle: `Job ${this._selectedJobId}`,
                     modalSize: "modal-3xl",
@@ -409,7 +410,6 @@ export default class JobGrid extends LitElement {
         if (UtilsNew.isNotEmpty(params)) {
             html = "<div>";
             for (const key of Object.keys(params)) {
-                debugger
                 html += `<div style="margin: 2px 0; white-space: nowrap">`;
                 // 1. Normal parameter
                 if (typeof params[key] !== "object") {
