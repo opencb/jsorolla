@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import {LitElement, html} from "lit";
+import WebUtils from "../../commons/utils/web-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "./group-admin-browser.js";
 import "./user-admin-browser.js";
@@ -40,13 +41,23 @@ export default class OrganizationAdmin extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
+            },
+            tool: {
+                type: String,
             },
         };
     }
 
     #init() {
         this._config = this.getDefaultConfig();
+    }
+
+    onChangeActiveItem(event) {
+        const [app, tool] = WebUtils.getApplicationAndToolFromHash();
+        WebUtils.redirectTo(this.opencgaSession, app, tool, {
+            tool: event.detail.value,
+        });
     }
 
     render() {
@@ -62,7 +73,9 @@ export default class OrganizationAdmin extends LitElement {
             <tool-header title="Organization Admin: ${this.opencgaSession?.organization?.id}"></tool-header>
             <vertical-menu
                 .opencgaSession="${this.opencgaSession}"
-                .config="${this._config || {}}">
+                .activeItem="${this.tool}"
+                .config="${this._config || {}}"
+                @changeActiveItem="${event => this.onChangeActiveItem(event)}">
             </vertical-menu>
         `;
     }
@@ -141,6 +154,7 @@ export default class OrganizationAdmin extends LitElement {
                 {
                     id: "federation",
                     name: "Federation",
+                    visible: false,
                     submenu: [
                         {
                             id: "create",

@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import LitUtils from "../utils/lit-utils.js";
 
 export default class VerticalMenu extends LitElement {
 
@@ -16,6 +17,9 @@ export default class VerticalMenu extends LitElement {
         return {
             opencgaSession: {
                 type: Object,
+            },
+            activeItem: {
+                type: String,
             },
             config: {
                 type: Object,
@@ -35,8 +39,15 @@ export default class VerticalMenu extends LitElement {
                 ...this.getDefaultConfig(),
                 ...this.config,
             };
-            // initialize the active item
-            if (!this._activeItem) {
+        }
+
+        if (changedProperties.has("config") || changedProperties.has("activeItem")) {
+            // check if we have to change the active item
+            if (this.activeItem && this.activeItem !== this._activeItem) {
+                this._activeItem = this.activeItem;
+            }
+            // initialize the active item if not set
+            if (!this._activeItem && !this.activeItem) {
                 this._activeItem = this._config.menu[0].submenu[0].id;
             }
         }
@@ -46,17 +57,26 @@ export default class VerticalMenu extends LitElement {
 
     onChangeActiveItem(newActiveItem) {
         this._activeItem = newActiveItem;
+        LitUtils.dispatchCustomEvent(this, "changeActiveItem", this._activeItem);
         this.requestUpdate();
     }
 
     renderMenu() {
-        // prevent displaying empty menu items
-        const nonEmptyMenuItems = (this._config?.menu || []).filter(item => {
-            return item.submenu && item.submenu.length > 0;
-        });
+        // filter only visible and non-empty menu items
+        const visibleMenuItems = (this._config?.menu || [])
+            .filter(item => typeof item.visible !== "boolean" || !!item.visible)
+            .filter(item => item.submenu && item.submenu.length > 0)
+            .filter(item => {
+                return item.submenu.some(subitem => {
+                    return typeof subitem.visible !== "boolean" || !!subitem.visible;
+                });
+            });
 
-        return nonEmptyMenuItems.map(item => {
+        return visibleMenuItems.map(item => {
             const id = (item.name || item.id).replace(/ /g, "-").toLowerCase();
+            const visibleSubmenuItems = (item.submenu || []).filter(subitem => {
+                return typeof subitem.visible !== "boolean" || !!subitem.visible;
+            });
             return html`
                 <div class="">
                     <div class="btn btn-toggle d-inline-flex align-items-center gap-1 border-0 fs-5" aria-expanded="true" data-bs-toggle="collapse" data-bs-target="#${this._prefix}Menu${id}">
@@ -64,7 +84,7 @@ export default class VerticalMenu extends LitElement {
                     </div>
                     <div class="collapse show" id="${this._prefix}Menu${id}" data-bs-role="collapse">
                         <div class="d-flex flex-column gap-1 ps-4 pt-1">
-                            ${(item.submenu || []).map(subitem => html`
+                            ${visibleSubmenuItems.map(subitem => html`
                                 <div
                                     class="btn w-full text-start ${subitem.id === this._activeItem ? "btn-primary" : "hover:bg-gray-200"}"
                                     @click="${() => this.onChangeActiveItem(subitem.id)}">

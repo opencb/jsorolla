@@ -158,7 +158,6 @@ export default class DiseasePanelGrid extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .active="${true}"
                         @panelImport="${() => {
-                            this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
                     </disease-panel-gel-import>
