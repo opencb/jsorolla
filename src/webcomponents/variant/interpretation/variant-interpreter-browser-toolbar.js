@@ -189,7 +189,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             ${findings.map(finding => html`
                                 <div class="">
                                     <div class="my-1 mx-0">
-                                        <span class="fw-bold">${finding.title}</span>
+                                        <span class="fw-bold">${finding.title} (${finding.variants.length})</span>
                                     </div>
                                     ${finding.variants?.length > 0 ? html`
                                         <div class="overflow-y-auto m-1" style="max-height:350px;">
