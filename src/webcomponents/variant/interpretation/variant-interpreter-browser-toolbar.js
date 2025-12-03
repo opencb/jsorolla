@@ -75,7 +75,9 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         });
         // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
         // when user clicks the 'Filter' button in the View menu (primary findings).
-        this.querySelector(`div#${this._prefix}${elementId} div.dropdown-menu`)?.classList?.toggle?.("show");
+        if (elementId) {
+            this.querySelector(`div#${this._prefix}${elementId} div.dropdown-menu`)?.classList?.toggle?.("show");
+        }
     }
 
     onFilterInclusionVariants() {
