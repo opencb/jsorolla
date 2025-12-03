@@ -69,6 +69,12 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         ];
     }
 
+    getReportedVariants() {
+        return this.getSelectedVariants().filter(variant => {
+            return variant.status === "REPORTED" || variant.status === "CANDIDATE";
+        });
+    }
+
     filterVariants(variants, elementId) {
         LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
             variants: variants
@@ -91,10 +97,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
     }
 
     onFilterReportedVariants() {
-        const variants = this.getSelectedVariants().filter(variant => {
-            return variant.status === "REPORTED" || variant.status === "CANDIDATE";
-        });
-        this.filterVariants(variants, "SelectedVariants");
+        this.filterVariants(this.getReportedVariants(), "SelectedVariants");
     }
 
     renderInclusionVariant(inclusion) {
@@ -150,6 +153,8 @@ class VariantInterpreterBrowserToolbar extends LitElement {
     }
 
     render() {
+        const selectedVariantsCount = this.getSelectedVariants().length;
+        const reportedVariantsCount = this.getReportedVariants().length;
         const findings = [
             {
                 title: "Primary Findings",
@@ -221,12 +226,11 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         ${(findings[0].variants?.length || findings[1].variants?.length) ? html`
                             <hr class="dropdown-divider">
                             <div class="d-flex justify-content-end gap-2">
-                                <button class="btn btn-light" @click="${() => this.onFilterReportedVariants()}">
-                                    <span>Filter Reported Variants</span>
+                                <button class="btn btn-success" @click="${() => this.onFilterReportedVariants()}">
+                                    <span>Filter <b>Reported Variants</b> (${reportedVariantsCount})</span>
                                 </button>
                                 <button class="btn btn-primary" @click="${() => this.onFilterAllVariants()}">
-                                    <i class="fas fa-filter me-1"></i>
-                                    <span>Filter All Variants</span>
+                                    <span>Filter <b>All Variants</b> (${selectedVariantsCount})</span>
                                 </button>
                             </div>
                         ` : nothing}
