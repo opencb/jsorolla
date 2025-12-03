@@ -179,7 +179,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                 <div class="dropdown d-flex" id="${this._prefix}View">
                     <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <i class="fas fa-eye pe-1"></i>
-                        <strong>View</strong>
+                        <strong>Selected Variants</strong>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end shadow" style="width:400px">
                         <div class="d-flex flex-column gap-1">
