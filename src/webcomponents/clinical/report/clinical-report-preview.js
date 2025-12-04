@@ -163,7 +163,7 @@ export default class ClinicalReportPreview extends LitElement {
     }
 
     onToggleTemplateEdition(event) {
-        this._editingTemplate = event.target.checked;
+        this._editingTemplate = !this._editingTemplate;
         this._editingTemplateUnsavedChanges = false; // reset unsaved changes flag
 
         // when enabling edition mode, load the latest template content from the server
@@ -260,7 +260,7 @@ export default class ClinicalReportPreview extends LitElement {
                 </div>
             ` : nothing}
             ${this._templates.length > 0 ? html`
-                <div class="p-4 rounded-4 mb-5 bg-white border border-gray-200 d-flex align-items-end gap-2">
+                <div class="p-3 rounded-4 mb-5 bg-white border border-gray-200 d-flex align-items-end gap-2">
                     <div class="form-group flex-grow-1">
                         <label for="templateSelect" class="fw-bold mb-1">Select a Template to generate the preview</label>
                         <select class="form-select" @change="${event => this.onTemplateChange(event)}">
@@ -275,30 +275,16 @@ export default class ClinicalReportPreview extends LitElement {
                         <button class="btn btn-light" data-bs-toggle="dropdown">
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
-                        <div class="dropdown-menu dropdown-menu-end p-3" style="width:320px;">
-                            <a class="dropdown-item ${templateEditionEnabled ? "cursor-pointer" : "disabled"}" @click="${event => this.onToggleTemplateEdition(event)}">
-                                <i class="fas fa-edit pe-2"></i>
+                        <div class="dropdown-menu dropdown-menu-end" style="width:240px;">
+                            <a class="dropdown-item d-flex align-items-center gap-2 ${templateEditionEnabled ? "cursor-pointer" : "disabled"}" @click="${event => this.onToggleTemplateEdition(event)}">
+                                <i class="fas fa-edit"></i>
                                 <span>Edit Template</span>
+                                ${this._editingTemplate ? html`
+                                    <i class="fas fa-check ms-auto"></i>
+                                ` : nothing}
                             </a>
                         </div>
                     </div>
-                    ${false && isStudyAdmin && hasWritePermission && hasDownloadPermission ? html`
-                        <div class="form-group flex-shrink-0" style="width:320px;">
-                            <div class="fw-bold mb-1">Template Options</div>
-                            <div class="form-check form-switch">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    id="templateEdition"
-                                    ?checked="${this._editingTemplate}"
-                                    ?disabled="${!isStudyAdmin || !hasWritePermission || !hasDownloadPermission}"
-                                <label class="form-check-label" for="templateEdition">Edition Mode</label>
-                            </div>
-                            <div class="mt-1 small text-muted">
-                                <span>Enable or disable the live template editing.</span>
-                            </div>
-                        </div>
-                    ` : nothing}
                 </div>
             ` : nothing}
             ${this._templates && this._templates.length === 0 ? html`
