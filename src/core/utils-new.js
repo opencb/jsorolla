@@ -395,6 +395,17 @@ export default class UtilsNew {
         return table;
     }
 
+    // download a blob file
+    static downloadBlob(blob, filename) {
+        const file = window.URL.createObjectURL(blob);
+        const anchorElement = document.createElement("a");
+        anchorElement.href = file;
+        anchorElement.download = filename;
+        document.body.appendChild(anchorElement);
+        anchorElement.click();
+        setTimeout(() => document.body.removeChild(anchorElement), 0);
+    }
+
     // Download data in the browser.
     // data can be a string, and arrays of string or an array of arrays
     static downloadData(data, filename, mimeType = "application/json") {
@@ -408,17 +419,8 @@ export default class UtilsNew {
             }
         }
 
-        // Build file and anchor link
-        const blob = new Blob([dataString], {type: mimeType});
-        const file = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = file;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function () {
-            document.body.removeChild(a);
-        }, 0);
+        // generate the blob and download the file
+        UtilsNew.downloadBlob(new Blob([dataString], {type: mimeType}), filename);
     }
 
     // Download the specified content as a JSON file
