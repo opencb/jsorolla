@@ -245,6 +245,8 @@ export default class ClinicalReportPreview extends LitElement {
         const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
         const hasWritePermission = OpencgaCatalogUtils.hasPermissionInCurrentStudy(this.opencgaSession, "FILES_WRITE");
         const hasDownloadPermission = OpencgaCatalogUtils.hasPermissionInCurrentStudy(this.opencgaSession, "FILES_DOWNLOAD");
+
+        const templateEditionEnabled = isStudyAdmin && hasWritePermission && hasDownloadPermission;
         
         return html`
             ${this._invalidTemplates?.length > 0 ? html`
@@ -258,7 +260,7 @@ export default class ClinicalReportPreview extends LitElement {
                 </div>
             ` : nothing}
             ${this._templates.length > 0 ? html`
-                <div class="p-4 rounded-4 mb-5 bg-white border border-gray-200 d-flex align-items-start gap-4">
+                <div class="p-4 rounded-4 mb-5 bg-white border border-gray-200 d-flex align-items-end gap-2">
                     <div class="form-group flex-grow-1">
                         <label for="templateSelect" class="fw-bold mb-1">Select a Template to generate the preview</label>
                         <select class="form-select" @change="${event => this.onTemplateChange(event)}">
@@ -268,11 +270,19 @@ export default class ClinicalReportPreview extends LitElement {
                                 </option>
                             `)}
                         </select>
-                        <div class="mt-1 small text-muted">
-                            <span>The templates are located in the folder <span class="fw-bold font-monospace small">RESOURCES/clinical/report/templates</span> of this study.</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end p-3" style="width:320px;">
+                            <a class="dropdown-item ${templateEditionEnabled ? "cursor-pointer" : "disabled"}" @click="${event => this.onToggleTemplateEdition(event)}">
+                                <i class="fas fa-edit pe-2"></i>
+                                <span>Edit Template</span>
+                            </a>
                         </div>
                     </div>
-                    ${isStudyAdmin && hasWritePermission && hasDownloadPermission ? html`
+                    ${false && isStudyAdmin && hasWritePermission && hasDownloadPermission ? html`
                         <div class="form-group flex-shrink-0" style="width:320px;">
                             <div class="fw-bold mb-1">Template Options</div>
                             <div class="form-check form-switch">
@@ -282,7 +292,6 @@ export default class ClinicalReportPreview extends LitElement {
                                     id="templateEdition"
                                     ?checked="${this._editingTemplate}"
                                     ?disabled="${!isStudyAdmin || !hasWritePermission || !hasDownloadPermission}"
-                                    @change="${event => this.onToggleTemplateEdition(event)}">
                                 <label class="form-check-label" for="templateEdition">Edition Mode</label>
                             </div>
                             <div class="mt-1 small text-muted">
