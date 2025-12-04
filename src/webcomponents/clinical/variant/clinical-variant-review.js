@@ -235,11 +235,12 @@ export default class ClinicalVariantReview extends LitElement {
     renderVariantInfo() {
         const displayConsequenceType = this.variant?.annotation?.displayConsequenceType;
         const genes = VariantUtils.getGenes(this.variant);
+        const selectedEvidencesCount = (this._variant?.evidences?.filter(evidence => evidence?.review?.select) || []).length;
 
         return html`
             <div class="alert alert-light bg-white flex-grow-1 d-flex justify-content-center flex-column">
                 <div class="d-flex gap-3">
-                    <span class="fw-bold">${this._variant.id}</span>
+                    <span class="fw-bold fs-5 lh-1">${this._variant.id}</span>
                     ${genes.length > 0 ? html`
                         <span class="text-secondary">
                             ${genes.slice(0, 5).join(", ")}
@@ -247,11 +248,12 @@ export default class ClinicalVariantReview extends LitElement {
                         </span>
                     ` : nothing}
                 </div>
-                ${displayConsequenceType ? html`
-                    <div class="mt-1 d-flex align-items-center flex-wrap column-gap-2" style="max-width:900px;">
+                <div class="mt-1 d-flex align-items-center flex-wrap gap-3">
+                    ${displayConsequenceType ? html`
                         <span style="color:${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[displayConsequenceType]] || "black"}">${displayConsequenceType}</span>
-                    </div>
-                ` : nothing}
+                    ` : nothing}
+                    <span class="fw-bold">${selectedEvidencesCount} Evidence${selectedEvidencesCount > 1 ? "s" : ""} Reviewed</span>
+                </div>
             </div>
         `;
     }
