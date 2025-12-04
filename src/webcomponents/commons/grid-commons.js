@@ -337,8 +337,21 @@ export default class GridCommons {
         }
     }
 
+    // get the configuration for the provided modal
+    getModalConfig(name) {
+        let modalConfig = this.modals[name || this.activeModal];
+        // sometimes the modalConfig is a function that returns a modalConfig
+        // for example when the configuration dependes on the selected row in the grid
+        if (modalConfig && typeof modalConfig === "function") {
+            modalConfig = modalConfig(this.context);
+        }
+        return modalConfig;
+    }
+
     // change the current active modal
     changeActiveModal(name) {
+        const prevModal = this.activeModal;
+
         // 1. check if there is a modal rendered
         if (this.activeModal) {
             ModalUtils.close(`GridModal${this.activeModal}`);
@@ -352,6 +365,19 @@ export default class GridCommons {
         this.context.updateComplete.then(() => {
             if (this.activeModal) {
                 ModalUtils.show(`GridModal${this.activeModal}`);
+
+                // 4. if the active modal has changed, we can perform some action
+                if (prevModal !== this.activeModal) {
+                    const modalConfig = this.getModalConfig();
+
+                    // if the clearAfterClosing flag is set, we need to reset the active modal once it is closed
+                    if (modalConfig.clearAfterClosing === true) {
+                        this.registerModalEventListener(this.activeModal, "hidden.bs.modal", () => {
+                            // console.log(`${this.activeModal} modal closed, clearing active modal`);
+                            this.clearActiveModal();
+                        });
+                    }
+                }
             }
         });
     }
@@ -366,15 +392,20 @@ export default class GridCommons {
         this.modals = modals;
     }
 
+    // method to register an event listener on the specified modal
+    registerModalEventListener(modalName, eventName, callback) {
+        if (this.activeModal === modalName) {
+            const modalElement = this.context.querySelector(`#GridModal${modalName}`);
+            if (modalElement) {
+                modalElement.addEventListener(eventName, event => callback(event));
+            }
+        }
+    }
+
     // render the active modal
     renderModals() {
         if (this.activeModal) {
-            let modalConfig = this.modals[this.activeModal];
-            // sometimes the modalConfig is a function that returns a modalConfig
-            // for example when the configuration dependes on the selected row in the grid
-            if (modalConfig && typeof modalConfig === "function") {
-                modalConfig = modalConfig(this.context);
-            }
+            const modalConfig = this.getModalConfig();
             // check if the modalConfig is a valid object
             if (modalConfig && typeof modalConfig.render === "function") {
                 return ModalUtils.create(this.context, `GridModal${this.activeModal}`, modalConfig);

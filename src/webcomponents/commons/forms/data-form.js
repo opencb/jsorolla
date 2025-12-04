@@ -1878,6 +1878,26 @@ export default class DataForm extends LitElement {
             }
         }
 
+        // adding batch items
+        if (this._getBooleanValue(element.display.showAddBatchListButton, true)) {
+            const batchHtml = html`
+                <div class="border rounded-2 bg-white p-3 mt-2" style="display:none;" id="${this._prefix}-${element?.field}">
+                    <text-field-filter
+                        value="${this.batchItems[element?.field] || ""}"
+                        placeholder="${element.elements.map(el => el.field.split(".").at(-1)).join(",")}"
+                        .rows="${3}"
+                        @filterChange="${e => this.#addBatchTextChange(element, e.detail.value)}">
+                    </text-field-filter>
+                    <div class="d-flex flex-row-reverse mt-3">
+                        <button class="btn btn-light" ?disabled="${!this.batchItems[element.field]}" @click="${e => this.#addBatchToObjectList(e, element)}">
+                            <span>Apply Batch</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            contents.push(batchHtml);
+        }
+
         // Add the form to create the next item
         if (this._getBooleanValue(element.display.showAddItemListButton, true) || this._getBooleanValue(element.display.showAddBatchListButton, true)) {
             const createHtml = html`
@@ -1893,11 +1913,9 @@ export default class DataForm extends LitElement {
                             </button>
                         `: nothing}
                         ${this._getBooleanValue(element.display.showAddBatchListButton, false) ? html`
-                            <button type="button" class="btn btn-sm btn-primary"
-                                    ?disabled="${isDisabled}"
-                                    @click="${e => this.#toggleAddBatchToObjectList(e, element)}">
+                            <button class="btn btn-light" ?disabled="${isDisabled}" @click="${e => this.#toggleAddBatchToObjectList(e, element)}">
                                 <i aria-hidden="true" class="fas fa-file-import pe-1"></i>
-                                Add Batch
+                                <span>Add Batch</span>
                             </button>
                         `: nothing}
                         ${this._getBooleanValue(element.display.showResetListButton, false) ? html`
@@ -1907,22 +1925,6 @@ export default class DataForm extends LitElement {
                             </button>
                         `: nothing}
                     </div>
-                    ${this._getBooleanValue(element.display.showAddBatchListButton, true) ? html`
-                        <div class="ms-2 ps-3 d-none" id="${this._prefix}-${element?.field}">
-                            <text-field-filter
-                                value="${this.batchItems[element?.field] || ""}"
-                                placeholder="${element.elements.map(el => el.field.split(".").at(-1)).join(",")}"
-                                .rows="${3}"
-                                @filterChange="${e => this.#addBatchTextChange(element, e.detail.value)}"></text-field-filter>
-                            <div class="d-flex flex-row-reverse m-1">
-                                <button type="button" class="btn btn-sm btn-primary"
-                                        ?disabled="${!this.batchItems[element.field]}"
-                                        @click="${e => this.#addBatchToObjectList(e, element)}">
-                                    OK
-                                </button>
-                            </div>
-                        </div>
-                    `: nothing}
                 </div>
             `;
             contents.push(createHtml);

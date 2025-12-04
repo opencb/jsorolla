@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import VariantUtils from "../variant-utils.js";
 
 class VariantInterpreterBrowserToolbar extends LitElement {
 
@@ -61,27 +62,42 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         super.update(changedProperties);
     }
 
-    onFilterInclusionVariants() {
-        const variants = [];
-        this.variantInclusionState.map(inclusion => variants.push(...inclusion.variants));
+    getSelectedVariants() {
+        return [
+            ...(this.clinicalAnalysis.interpretation.primaryFindings || []),
+            ...(this.clinicalAnalysis.interpretation.secondaryFindings || []),
+        ];
+    }
+
+    getReportedVariants() {
+        return this.getSelectedVariants().filter(variant => {
+            return variant.status === "REPORTED" || variant.status === "CANDIDATE";
+        });
+    }
+
+    filterVariants(variants, elementId) {
         LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
             variants: variants
         });
         // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
         // when user clicks the 'Filter' button in the View menu (primary findings).
-        this.querySelector(`div#${this._prefix}InclusionVariants div.dropdown-menu`)?.classList?.toggle?.("show");
+        if (elementId) {
+            this.querySelector(`div#${this._prefix}${elementId} div.dropdown-menu`)?.classList?.toggle?.("show");
+        }
     }
 
-    onFilterPrimaryAndSecondaryFindingVariants() {
-        LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
-            variants: [
-                ...(this.clinicalAnalysis.interpretation.primaryFindings || []),
-                ...(this.clinicalAnalysis.interpretation.secondaryFindings || []),
-            ],
-        });
-        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
-        // when user clicks the 'Filter' button in the View menu (primary findings).
-        this.querySelector(`div#${this._prefix}View div.dropdown-menu`)?.classList?.toggle?.("show");
+    onFilterInclusionVariants() {
+        const variants = [];
+        this.variantInclusionState.map(inclusion => variants.push(...inclusion.variants));
+        this.filterVariants(variants, "InclusionVariants");
+    }
+
+    onFilterAllVariants() {
+        this.filterVariants(this.getSelectedVariants(), "SelectedVariants");
+    }
+
+    onFilterReportedVariants() {
+        this.filterVariants(this.getReportedVariants(), "SelectedVariants");
     }
 
     renderInclusionVariant(inclusion) {
@@ -121,27 +137,31 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         `;
     }
 
-    renderVariant(variant, isPrimary = true) {
-        const geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
+    renderVariant(variant) {
+        const geneNames = Array.from(new Set(variant?.annotation?.consequenceTypes?.filter(ct => ct.geneName).map(ct => ct.geneName)));
+        const statusColor = VariantUtils.getStatusColor(variant?.status);
 
         return html`
-            <div class="mb-1 border-start border-4 ${isPrimary ? "border-primary" : "border-secondary"}">
-                <div class="my-1 mx-2"><b>${variant.id}</b> <i class="ps-3">${variant.annotation.displayConsequenceType || ""}</i></div>
-                <div class="my-1 mx-2 small text-secondary">${geneNames.join(", ")}</div>
+            <div class="mb-1 d-flex gap-2">
+                <div class="${statusColor} flex-shrink-0" style="width:4px;" title="${variant?.status || ""}"></div>
+                <div class="flex-grow-1">
+                    <div class="my-1"><b>${variant.id}</b> <i class="ps-3">${variant.annotation.displayConsequenceType || ""}</i></div>
+                    <div class="my-1 small text-secondary">${geneNames.join(", ")}</div>
+                </div>
             </div>
         `;
     }
 
     render() {
+        const selectedVariantsCount = this.getSelectedVariants().length;
+        const reportedVariantsCount = this.getReportedVariants().length;
         const findings = [
             {
                 title: "Primary Findings",
-                isPrimary: true,
                 variants: this.clinicalAnalysis?.interpretation?.primaryFindings || [],
             },
             {
                 title: "Secondary Findings",
-                isPrimary: false,
                 variants: this.clinicalAnalysis?.interpretation?.secondaryFindings || [],
             },
         ];
@@ -176,21 +196,21 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         `}
                     </div>
                 </div>
-                <div class="dropdown d-flex" id="${this._prefix}View">
+                <div class="dropdown d-flex" id="${this._prefix}SelectedVariants">
                     <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <i class="fas fa-eye pe-1"></i>
-                        <strong>View</strong>
+                        <strong>Selected Variants</strong>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end shadow" style="width:400px">
                         <div class="d-flex flex-column gap-1">
                             ${findings.map(finding => html`
                                 <div class="">
                                     <div class="my-1 mx-0">
-                                        <span class="fw-bold">${finding.title}</span>
+                                        <span class="fw-bold">${finding.title} (${finding.variants.length})</span>
                                     </div>
                                     ${finding.variants?.length > 0 ? html`
                                         <div class="overflow-y-auto m-1" style="max-height:350px;">
-                                            ${finding.variants.map(variant => this.renderVariant(variant, finding.isPrimary))}
+                                            ${finding.variants.map(variant => this.renderVariant(variant))}
                                         </div>
                                     ` : html`
                                         <div class="d-flex flex-column align-items-center py-4 px-4 bg-gray-100 rounded">
@@ -203,12 +223,14 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                                 </div>
                             `)}
                         </div>
-                        ${(findings[0].variants?.length || findings[1].variants?.length) ? html`
+                        ${(selectedVariantsCount > 0) ? html`
                             <hr class="dropdown-divider">
-                            <div class="d-flex justify-content-end">
-                                <button class="btn btn-primary" @click="${this.onFilterPrimaryAndSecondaryFindingVariants}">
-                                    <i class="fas fa-filter me-1"></i>
-                                    <span>Filter Variants</span>
+                            <div class="d-flex justify-content-end gap-2">
+                                <button class="btn btn-success ${reportedVariantsCount === 0 ? "disabled" : ""}" @click="${() => this.onFilterReportedVariants()}">
+                                    <span>Filter <b>Reported Variants</b> (${reportedVariantsCount})</span>
+                                </button>
+                                <button class="btn btn-primary" @click="${() => this.onFilterAllVariants()}">
+                                    <span>Filter <b>All Variants</b> (${selectedVariantsCount})</span>
                                 </button>
                             </div>
                         ` : nothing}

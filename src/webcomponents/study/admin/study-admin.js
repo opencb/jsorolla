@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import WebUtils from "../../commons/utils/web-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "./clinical/clinical-analysis-case-configuration.js";
 import "./clinical/clinical-analysis-interpretation-configuration.js";
@@ -45,11 +46,21 @@ export default class StudyAdmin extends LitElement {
             opencgaSession: {
                 type: Object,
             },
+            tool: {
+                type: String,
+            },
         };
     }
 
     #init() {
         this._config = this.getDefaultConfig();
+    }
+
+    onChangeActiveItem(event) {
+        const [app, tool] = WebUtils.getApplicationAndToolFromHash();
+        WebUtils.redirectTo(this.opencgaSession, app, tool, {
+            tool: event.detail.value,
+        });
     }
 
     render() {
@@ -68,7 +79,9 @@ export default class StudyAdmin extends LitElement {
             <tool-header title="${this._config.name}"></tool-header>
             <vertical-menu
                 .opencgaSession="${this.opencgaSession}"
-                .config="${this._config || {}}">
+                .activeItem="${this.tool}"
+                .config="${this._config || {}}"
+                @changeActiveItem="${event => this.onChangeActiveItem(event)}">
             </vertical-menu>
         `;
     }

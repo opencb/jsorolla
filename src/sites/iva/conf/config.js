@@ -226,14 +226,6 @@ const SUITE = {
                     description: "Execute analysis tools using data of the current study.",
                 },
                 {
-                    id: "workflow-manager",
-                    name: "My Tools Manager",
-                    icon: "fa-stream",
-                    category: "Data Analysis",
-                    visibility: "public",
-                    description: "Build, import and execute NextFlow workflows.",
-                },
-                {
                     id: "jupyter-lab",
                     name: "Jupyter Notebooks",
                     icon: "fa-book",
@@ -362,6 +354,14 @@ const SUITE = {
                     visibility: "public",
                     category: "Clinical Data Management",
                     description: "Explore and manage all notes in the current study.",
+                },
+                {
+                    id: "workflow-manager",
+                    name: "My Tools Manager",
+                    icon: "fa-stream",
+                    category: "Metadata Management",
+                    visibility: "public",
+                    description: "Build, import and execute NextFlow workflows.",
                 },
                 {
                     id: "job-browser",

@@ -15,9 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import LitUtils from "../../commons/utils/lit-utils";
-import NotificationUtils from "../../commons/utils/notification-utils";
-import UtilsNew from "../../../core/utils-new";
+import WebUtils from "../../commons/utils/web-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils";
 import "../../commons/view/vertical-menu.js";
 import "../../commons/pages/restricted-access-page.js";
@@ -40,6 +38,9 @@ export default class StudyAdminIva extends LitElement {
         return {
             opencgaSession: {
                 type: Object,
+            },
+            tool: {
+                type: String,
             },
             settings: {
                 type: Object,
@@ -78,6 +79,13 @@ export default class StudyAdminIva extends LitElement {
         return (title === "Clinical Analysis Browser") ? "Clinical Analysis Portal" : title;
     }
 
+    onChangeActiveItem(event) {
+        const [app, tool] = WebUtils.getApplicationAndToolFromHash();
+        WebUtils.redirectTo(this.opencgaSession, app, tool, {
+            tool: event.detail.value,
+        });
+    }
+
     render() {
         const isOrganizationAdmin = OpencgaCatalogUtils.isOrganizationAdmin(this.opencgaSession?.organization, this.opencgaSession?.user?.id);
         const isAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
@@ -94,7 +102,9 @@ export default class StudyAdminIva extends LitElement {
             <tool-header title="${this._config.name}"></tool-header>
             <vertical-menu
                 .opencgaSession="${this.opencgaSession}"
-                .config="${this._config || {}}">
+                .activeItem="${this.tool}"
+                .config="${this._config || {}}"
+                @changeActiveItem="${event => this.onChangeActiveItem(event)}">
             </vertical-menu>
         `;
     }
