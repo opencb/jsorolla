@@ -29,7 +29,6 @@ import "./toggle-switch.js";
 import "./toggle-buttons.js";
 import "./tags-input.js";
 import "../data-table.js";
-import PdfBuilder from "./pdf-builder.js";
 
 export default class DataForm extends LitElement {
 
@@ -2410,11 +2409,6 @@ export default class DataForm extends LitElement {
         }
     }
 
-    onDownloadPdf() {
-        const pdfDocument = new PdfBuilder(this.data, this.config);
-        pdfDocument.exportToPdf();
-    }
-
     renderTitle() {
         const titleClassName = this.config.display?.titleClassName ?? this.config.display?.title?.class ?? "";
         const titleStyle = this.config.display?.titleStyle ?? this.config.display?.title?.style ?? "";
@@ -2437,32 +2431,8 @@ export default class DataForm extends LitElement {
         return nothing;
     }
 
-    renderContentAsForm(dismiss) {
-        const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
-        const buttonsLayout = this._getButtonsLayout();
-        const notificationHtml = this.getFormNotificationHtml();
-
+    renderPreviewModal() {
         return html`
-            ${notificationHtml}
-
-            <!-- Header -->
-            ${this.renderTitle()}
-
-            <button class="btn btn-primary" style="margin-bottom:14px; display: ${this.config.display?.pdf === true ? "block": "none"}"
-                    @click="${this.onDownloadPdf}">
-                <i class="fas fa-file-pdf"></i>
-                Export PDF (Beta)
-            </button>
-
-            <!-- Render buttons -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : null}
-
-            <!-- Render data form -->
-            ${this.data ? this.renderData() : null}
-
-            <!-- Render buttons -->
-            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : null}
-
             <!-- PREVIEW modal -->
             <div class="modal fade" id="${this._prefix}PreviewDataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}PreviewDataModalLabel"
                  aria-hidden="true">
@@ -2485,6 +2455,28 @@ export default class DataForm extends LitElement {
                     </div>
                 </div>
             </div>
+        `;
+    }
+
+    renderContentAsForm(dismiss) {
+        const buttonsVisible = this._getBooleanValue(this.config.display?.buttonsVisible ?? this.config.buttons?.show, true);
+        const buttonsLayout = this._getButtonsLayout();
+        const notificationHtml = this.getFormNotificationHtml();
+
+        return html`
+            ${notificationHtml}
+
+            <!-- Header -->
+            ${this.renderTitle()}
+
+            <!-- Render buttons -->
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "TOP" ? this.renderButtons(dismiss) : nothing}
+
+            <!-- Render data form -->
+            ${this.data ? this.renderData() : null}
+
+            <!-- Render buttons -->
+            ${buttonsVisible && buttonsLayout?.toUpperCase() === "BOTTOM" ? this.renderButtons(dismiss) : nothing}
         `;
     }
 
