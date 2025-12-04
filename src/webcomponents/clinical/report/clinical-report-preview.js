@@ -1,6 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import WordUtils from "../../commons/utils/word-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/empty-state.js";
@@ -235,6 +236,21 @@ export default class ClinicalReportPreview extends LitElement {
             });
     }
 
+    onTemplateExport(event) {
+        const parentElement = this.querySelector("data-form");
+        const wordOptions = {
+            title: this._activeTemplate?.title || "Clinical Report",
+        };
+        WordUtils.getDocument(parentElement, wordOptions)
+            .then(contentBlob => {
+                const filename = wordOptions.title.toLowerCase().replaceAll(" ", "_")
+                UtilsNew.downloadBlob(contentBlob, `${filename}.docx`);
+            })
+            .catch(error => {
+                console.error("Error exporting to Word:", error);
+            });
+    }
+
     render() {
         if (!this.opencgaSession || !this.clinicalAnalysis || !this._templates) {
             return nothing;
@@ -276,6 +292,11 @@ export default class ClinicalReportPreview extends LitElement {
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end" style="width:240px;">
+                            <a class="dropdown-item d-flex align-items-center gap-2 cursor-pointer" data-action="export-word" @click="${event => this.onTemplateExport(event)}">
+                                <i class="fas fa-download"></i>
+                                <span>Export to Word</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
                             <a class="dropdown-item d-flex align-items-center gap-2 ${templateEditionEnabled ? "cursor-pointer" : "disabled"}" @click="${event => this.onToggleTemplateEdition(event)}">
                                 <i class="fas fa-edit"></i>
                                 <span>Edit Template</span>
