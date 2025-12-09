@@ -18,7 +18,7 @@ import {html, LitElement, nothing} from "lit";
 import {keyed} from "lit/directives/keyed.js";
 import "../../commons/empty-state.js";
 import "../../commons/view/detail-tabs.js";
-import "../../clinical/analysis/rd-tiering-analysis.js";
+import "../../clinical/analysis/rd-interpreter-analysis.js";
 import "../../clinical/analysis/exomiser-analysis.js";
 import "../../workflow/analysis/tool-executor.js";
 
@@ -198,24 +198,24 @@ class VariantInterpreterMethods extends LitElement {
                     });
                 }
 
-                if (method.id === "rd-tiering" || method.id === "rdtiering") {
+                if (method.id === "rd-interpreter" || method.id === "rd" || method.id === "rd-tiering" || method.id === "rdtiering") {
                     items.push({
-                        id: "rd-tiering",
-                        name: "RD Tiering",
+                        id: "rd-interpreter",
+                        name: "RD Interpreter",
                         render: (clinicalAnalysis, active, opencgaSession) => {
                             return html`
                                 <div class="container">
                                     <tool-header title="RD Tiering - ${probandId}"></tool-header>
                                     <rd-tiering-analysis
                                         .toolParams="${{
-                                            clinicalAnalysis: clinicalAnalysis.id,
+                                            clinicalAnalysisId: clinicalAnalysis.id,
                                         }}"
                                         .opencgaSession="${opencgaSession}"
                                         .displayConfig="${{
                                             titleVisible: false,
                                             buttonOkDisabled: this.clinicalAnalysis.locked,
                                         }}">
-                                    </rd-tiering-analysis>
+                                    </rd-interpreter-analysis>
                                 </div>
                             `;
                         },
