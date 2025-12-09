@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 
@@ -148,6 +149,8 @@ export default class UserToolExecutor extends LitElement {
         if (event.detail?.param === "id" && event.detail?.value) {
             this.fetchUserTool();
         }
+
+        LitUtils.dispatchCustomEvent(this, "toolParamsChange", null, this._toolParams);
     }
 
     onSubmit() {
