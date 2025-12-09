@@ -30,6 +30,7 @@ import "./toggle-buttons.js";
 import "./tags-input.js";
 import "../data-table.js";
 import PdfBuilder from "./pdf-builder.js";
+import WordBuilder from "./word-builder.js";
 
 export default class DataForm extends LitElement {
 
@@ -2415,6 +2416,11 @@ export default class DataForm extends LitElement {
         pdfDocument.exportToPdf();
     }
 
+    async onDownloadWord() {
+        const wordDocument = new WordBuilder(this.data, this.config);
+        await wordDocument.exportToWord();
+    }
+
     renderTitle() {
         const titleClassName = this.config.display?.titleClassName ?? this.config.display?.title?.class ?? "";
         const titleStyle = this.config.display?.titleStyle ?? this.config.display?.title?.style ?? "";
@@ -2452,6 +2458,12 @@ export default class DataForm extends LitElement {
                     @click="${this.onDownloadPdf}">
                 <i class="fas fa-file-pdf"></i>
                 Export PDF (Beta)
+            </button>
+
+            <button class="btn btn-primary" style="margin-bottom:14px; display: ${this.config.display?.word === true ? "block": "none"}"
+                    @click="${this.onDownloadWord}">
+                <i class="fas fa-file-word"></i>
+                Export Word
             </button>
 
             <!-- Render buttons -->
