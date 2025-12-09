@@ -5,8 +5,6 @@ import "../../workflow/analysis/tool-executor.js";
 
 export default class ClinicalTertiaryTools extends LitElement {
 
-
-
     constructor() {
         super();
         this.#init();
@@ -34,6 +32,7 @@ export default class ClinicalTertiaryTools extends LitElement {
         this.DEFAULT_TOOLPARAMS = {
             toolId: "",
         };
+
         this._tools = [];
         this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
         this._config = this.getDefaultConfig();
