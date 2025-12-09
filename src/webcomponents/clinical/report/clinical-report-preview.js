@@ -2,6 +2,7 @@ import {LitElement, html, nothing} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
+import WordBuilder from "../../commons/forms/word-builder.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/empty-state.js";
 import "../../file/file-editor.js";
@@ -235,19 +236,9 @@ export default class ClinicalReportPreview extends LitElement {
             });
     }
 
-    onTemplateExport(event) {
-        const parentElement = this.querySelector("data-form");
-        const wordOptions = {
-            title: this._activeTemplate?.title || "Clinical Report",
-        };
-        WordUtils.getDocument(parentElement, wordOptions)
-            .then(contentBlob => {
-                const filename = wordOptions.title.toLowerCase().replaceAll(" ", "_")
-                UtilsNew.downloadBlob(contentBlob, `${filename}.docx`);
-            })
-            .catch(error => {
-                console.error("Error exporting to Word:", error);
-            });
+    async onTemplateExport(event) {
+        const wordDocument = new WordBuilder(this.clinicalAnalysis, this._activeTemplateConfig);
+        await wordDocument.exportToWord();
     }
 
     render() {

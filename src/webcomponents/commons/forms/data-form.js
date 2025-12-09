@@ -29,8 +29,6 @@ import "./toggle-switch.js";
 import "./toggle-buttons.js";
 import "./tags-input.js";
 import "../data-table.js";
-import PdfBuilder from "./pdf-builder.js";
-import WordBuilder from "./word-builder.js";
 
 export default class DataForm extends LitElement {
 
@@ -2409,16 +2407,6 @@ export default class DataForm extends LitElement {
         } else {
             return nothing;
         }
-    }
-
-    onDownloadPdf() {
-        const pdfDocument = new PdfBuilder(this.data, this.config);
-        pdfDocument.exportToPdf();
-    }
-
-    async onDownloadWord() {
-        const wordDocument = new WordBuilder(this.data, this.config);
-        await wordDocument.exportToWord();
     }
 
     renderTitle() {
