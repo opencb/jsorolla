@@ -72,6 +72,7 @@ import "../../webcomponents/commons/analysis/jupyter-notebook.js";
 
 import "../../webcomponents/clinical/preprocessing/clinical-file-upload.js";
 import "../../webcomponents/clinical/preprocessing/clinical-preprocessing.js";
+import "../../webcomponents/clinical/tertiary/clinical-tertiary.js";
 
 import "../../webcomponents/commons/layout/layout-footer.js";
 import "../../webcomponents/commons/layout/layout-primary-bar.js";
@@ -1409,6 +1410,14 @@ class IvaApp extends LitElement {
                     <clinical-preprocessing
                         .opencgaSession="${this.opencgaSession}">
                     </clinical-preprocessing>
+                `;
+                break;
+            case "clinical-tertiary":
+            case "tertiary":
+                content = html`
+                    <clinical-tertiary
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-tertiary>
                 `;
                 break;
             default:

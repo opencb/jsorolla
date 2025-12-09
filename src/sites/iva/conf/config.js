@@ -279,6 +279,14 @@ const SUITE = {
                     description: "Preprocess clinical data and generate the required files to run a clinical analysis.",
                 },
                 {
+                    id: "clinical-tertiary",
+                    name: "Clinical Tertiary",
+                    icon: "fa-cogs",
+                    visibility: "public",
+                    category: "Data Preprocessing",
+                    description: "Tertiary analysis tool for samples, cases, and tools configuration.",
+                },
+                {
                     id: "clinical-analysis-portal",
                     name: "Case Interpreter Portal",
                     icon: "fa-file-medical",
