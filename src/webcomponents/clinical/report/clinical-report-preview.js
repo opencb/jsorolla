@@ -1,7 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import WordUtils from "../../commons/utils/word-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/empty-state.js";
