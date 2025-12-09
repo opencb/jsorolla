@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import "../../commons/view/detail-tabs.js";
-import "../../clinical/analysis/rd-tiering-analysis.js";
+import "../../clinical/analysis/rd-interpreter-analysis.js";
 import "../../clinical/analysis/exomiser-analysis.js";
 
 class VariantInterpreterMethods extends LitElement {
@@ -136,23 +136,23 @@ class VariantInterpreterMethods extends LitElement {
                     });
                 }
 
-                if (method.id === "rd-tiering" || method.id === "rdtiering") {
+                if (method.id === "rd-interpreter" || method.id === "rd" || method.id === "rd-tiering" || method.id === "rdtiering") {
                     items.push({
-                        id: "rd-tiering",
-                        name: "RD Tiering",
+                        id: "rd-interpreter",
+                        name: "RD Interpreter",
                         render: (clinicalAnalysis, active, opencgaSession) => {
-                            const toolParams = {
-                                clinicalAnalysis: clinicalAnalysis.id,
-                                panels: clinicalAnalysis.panels?.map(panel => panel.id).join(","),
-                            };
                             return html`
                                 <div class="col-md-6 offset-md-3">
-                                    <tool-header title="RD Tiering - ${probandId}"></tool-header>
-                                    <rd-tiering-analysis
-                                        .toolParams="${toolParams}"
+                                    <tool-header title="RD Interpreter - ${probandId}"></tool-header>
+                                    <rd-interpreter-analysis
+                                        .toolParams="${{
+                                            clinicalAnalysisId: clinicalAnalysis.id,
+                                        }}"
                                         .opencgaSession="${opencgaSession}"
-                                        .title="${""}">
-                                    </rd-tiering-analysis>
+                                        .displayConfig="${{
+                                            titleVisible: false,
+                                        }}">
+                                    </rd-interpreter-analysis>
                                 </div>
                             `;
                         },

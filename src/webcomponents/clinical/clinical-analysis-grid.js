@@ -294,7 +294,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 field: "interpreter",
                 formatter: (_, row) => {
                     return `
-                        <a class="btn btn-lg cursor-pointer" href="${WebUtils.getInterpreterLink(this.opencgaSession, row.id)}">
+                        <a class="btn btn-lg cursor-pointer" href="${WebUtils.getInterpreterLink(this.opencgaSession, {id: row.id})}">
                             <i class="fas fa-sign-in-alt me-1"></i>
                         </a>
                     `;
@@ -401,7 +401,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                 field: "interpreter",
                 formatter: (_, row) => {
                     return `
-                        <a class="btn btn-primary cursor-pointer" href="${WebUtils.getInterpreterLink(this.opencgaSession, row.id)}">
+                        <a class="btn btn-primary cursor-pointer" href="${WebUtils.getInterpreterLink(this.opencgaSession, {id: row.id})}">
                             <i class="fas fa-sign-in-alt me-1"></i>
                             <span>Enter</span>
                         </a>
@@ -496,7 +496,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
             }
         }
 
-        const url = WebUtils.getInterpreterLink(this.opencgaSession, row.id);
+        const url = WebUtils.getInterpreterLink(this.opencgaSession, {id: row.id});
         return `
             <a class="text-decoration-none" data-action="interpreter" title="Go to Case Interpreter" href="${url}">
                 ${html}
@@ -559,7 +559,7 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     <a data-action="view" class="dropdown-item cursor-pointer">
                         <i class="fas fa-eye me-1"></i> View
                     </a>
-                    <a data-action="interpreter" class="dropdown-item" href="${WebUtils.getInterpreterLink(session, row.id)}">
+                    <a data-action="interpreter" class="dropdown-item" href="${WebUtils.getInterpreterLink(session, {id: row.id})}">
                         <i class="fas fa-user-md me-1"></i> Case Interpreter
                     </a>
                     <a data-action="download" class="dropdown-item cursor-pointer">
