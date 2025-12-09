@@ -45,6 +45,21 @@ export default class WordBuilder {
     async exportToWord() {
         await this.#build();
         const doc = new Document({
+            styles: {
+                default: {
+                    document: {
+                        run: {
+                            font: "Arial",
+                        },
+                        paragraph: {
+                            font: "Arial",
+                        },
+                    },
+                },
+            },
+            defaultStyle: {
+                font: "Arial",
+            },
             sections: [{
                 properties: {},
                 children: this.children
@@ -63,6 +78,21 @@ export default class WordBuilder {
     async getWordBlob() {
         await this.#build();
         const doc = new Document({
+            styles: {
+                default: {
+                    document: {
+                        run: {
+                            font: "Arial",
+                        },
+                        paragraph: {
+                            font: "Arial",
+                        },
+                    },
+                },
+            },
+            defaultStyle: {
+                font: "Arial",
+            },
             sections: [{
                 properties: {},
                 children: this.children
@@ -127,6 +157,141 @@ export default class WordBuilder {
     #getDefaultValue(element, section) {
         // Preference order: element, section and then global config
         return element?.display?.defaultValue ?? section?.display?.defaultValue ?? this.dataFormConfig?.display?.defaultValue ?? "";
+    }
+
+    #parseStyleToTextRunOptions(style, value, data = this.data) {
+        const options = {};
+        const paragraphOptions = {}; // For paragraph-level properties like background
+        
+        if (!style) {
+            return {textRun: options, paragraph: paragraphOptions};
+        }
+
+        // Handle string style (CSS string like "font-weight: bold; color: red; background-color: yellow")
+        if (typeof style === "string") {
+            const stylePairs = style.split(";").map(s => s.trim()).filter(s => s);
+            for (const pair of stylePairs) {
+                const [key, val] = pair.split(":").map(s => s.trim());
+                if (key && val) {
+                    this.#applyStyleProperty(options, paragraphOptions, key, val);
+                }
+            }
+        } 
+        // Handle object style (like { "font-weight": "bold", "color": "red", "background-color": "yellow" })
+        else if (typeof style === "object") {
+            for (const [key, val] of Object.entries(style)) {
+                if (typeof val === "string") {
+                    this.#applyStyleProperty(options, paragraphOptions, key, val);
+                } else if (typeof val === "function" && value !== undefined) {
+                    const computedVal = val(value, data);
+                    if (computedVal) {
+                        this.#applyStyleProperty(options, paragraphOptions, key, computedVal);
+                    }
+                }
+            }
+        }
+
+        return {textRun: options, paragraph: paragraphOptions};
+    }
+
+    #applyStyleProperty(textRunOptions, paragraphOptions, key, value) {
+        // Convert CSS properties to docx TextRun and Paragraph options
+        switch (key.toLowerCase()) {
+            case "font-weight":
+            case "fontweight":
+                if (value === "bold" || value === "700" || parseInt(value) >= 700) {
+                    textRunOptions.bold = true;
+                }
+                break;
+            case "font-style":
+            case "fontstyle":
+                if (value === "italic") {
+                    textRunOptions.italics = true;
+                }
+                break;
+            case "color":
+                // Convert CSS color to hex if needed
+                textRunOptions.color = this.#cssColorToHex(value);
+                break;
+            case "background-color":
+            case "backgroundcolor":
+            case "background":
+                // Background color goes on the paragraph level using shading
+                // docx expects hex color without # (e.g., "FF0000" not "#FF0000")
+                const bgColor = this.#cssColorToHex(value);
+                if (bgColor) {
+                    const hexColor = bgColor.startsWith("#") ? bgColor.substring(1) : bgColor;
+                    paragraphOptions.shading = {
+                        fill: hexColor.toUpperCase()
+                    };
+                }
+                break;
+            case "font-size":
+            case "fontsize":
+                // Convert px/pt to half-points (docx uses half-points)
+                const sizeStr = String(value).toLowerCase().replace(/\s/g, "");
+                let size = parseFloat(sizeStr);
+                if (!isNaN(size)) {
+                    // If value ends with 'px', convert px to pt (1px ≈ 0.75pt), then to half-points
+                    if (sizeStr.endsWith("px")) {
+                        size = Math.round(size * 0.75 * 2); // px to pt to half-points
+                    } 
+                    // If value ends with 'pt' or no unit, assume it's already in points
+                    else if (sizeStr.endsWith("pt") || /^\d+$/.test(sizeStr)) {
+                        size = Math.round(size * 2); // pt to half-points
+                    }
+                    // If value ends with 'em', approximate (1em ≈ 12pt)
+                    else if (sizeStr.endsWith("em")) {
+                        size = Math.round(size * 12 * 2); // em to pt to half-points
+                    }
+                    textRunOptions.size = size;
+                }
+                break;
+            case "text-decoration":
+            case "textdecoration":
+                if (value.includes("underline")) {
+                    textRunOptions.underline = {};
+                }
+                break;
+        }
+    }
+
+    #cssColorToHex(color) {
+        if (!color) return undefined;
+        
+        // If already hex, return as is
+        if (color.startsWith("#")) {
+            return color;
+        }
+        
+        // Handle named colors (basic set)
+        const namedColors = {
+            "black": "#000000",
+            "white": "#FFFFFF",
+            "red": "#FF0000",
+            "green": "#008000",
+            "blue": "#0000FF",
+            "yellow": "#FFFF00",
+            "cyan": "#00FFFF",
+            "magenta": "#FF00FF",
+            "gray": "#808080",
+            "grey": "#808080",
+        };
+        
+        if (namedColors[color.toLowerCase()]) {
+            return namedColors[color.toLowerCase()];
+        }
+        
+        // Handle rgb/rgba
+        const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        if (rgbMatch) {
+            const r = parseInt(rgbMatch[1]).toString(16).padStart(2, "0");
+            const g = parseInt(rgbMatch[2]).toString(16).padStart(2, "0");
+            const b = parseInt(rgbMatch[3]).toString(16).padStart(2, "0");
+            return `#${r}${g}${b}`.toUpperCase();
+        }
+        
+        return color; // Return as-is if we can't parse it
     }
 
     #htmlToPlainText(html) {
@@ -370,6 +535,7 @@ export default class WordBuilder {
             ?.map(elem => elem.substring(2, elem.length - 1)) || [];
 
         let processedTemplate = template;
+        const textRuns = [];
 
         for (const match of matches) {
             let value = this.#getValue(match, data, defaultValue);
@@ -379,13 +545,35 @@ export default class WordBuilder {
                 value = element.display.format[match](value, data);
             }
 
-            // Replace the template variable with the value (same as data-form)
-            processedTemplate = processedTemplate.replace("${" + match + "}", String(value || ""));
+            // Get style for this variable if available
+            const styleOptions = element?.display?.style?.[match] 
+                ? this.#parseStyleToTextRunOptions(element.display.style[match], value, data)
+                : {textRun: {}, paragraph: {}};
+
+            // Find the position in template and add text before variable
+            const varStart = processedTemplate.indexOf("${" + match + "}");
+            if (varStart > 0) {
+                const beforeText = processedTemplate.substring(0, varStart);
+                if (beforeText) {
+                    textRuns.push(new TextRun({text: beforeText}));
+                }
+            }
+            
+            // Add the variable value with its style
+            textRuns.push(new TextRun({
+                text: String(value || ""),
+                ...styleOptions.textRun
+            }));
+            
+            processedTemplate = processedTemplate.substring(varStart + ("${" + match + "}").length);
+        }
+        
+        // Add any remaining text
+        if (processedTemplate) {
+            textRuns.push(new TextRun({text: processedTemplate}));
         }
 
-        // For Word, we'll create a simple text run with the processed template
-        // If we need per-variable styling later, we can enhance this
-        return [new TextRun({text: processedTemplate})];
+        return textRuns.length > 0 ? textRuns : [new TextRun({text: processedTemplate || ""})];
     }
 
     async renderAsync() {
@@ -423,18 +611,39 @@ export default class WordBuilder {
                                  titleLevel === 5 ? HeadingLevel.HEADING_5 :
                                  HeadingLevel.HEADING_6;
             
+            const titleStyles = section.display?.titleStyle
+                ? this.#parseStyleToTextRunOptions(section.display.titleStyle, section.title, this.data)
+                : {textRun: {}, paragraph: {}};
+            
             children.push(new Paragraph({
-                text: section.title,
+                children: [
+                    new TextRun({
+                        text: section.title,
+                        ...titleStyles.textRun
+                    })
+                ],
                 heading: headingLevel,
-                spacing: {before: 0, after: 200}
+                spacing: {before: 0, after: 200},
+                ...titleStyles.paragraph
             }));
         }
 
         // Add section description if it exists
         if (section.description || section.text) {
+            const descriptionText = section.description || section.text;
+            const descriptionStyles = section.display?.descriptionStyle || section.display?.style
+                ? this.#parseStyleToTextRunOptions(section.display.descriptionStyle || section.display.style, descriptionText, this.data)
+                : {textRun: {}, paragraph: {}};
+            
             children.push(new Paragraph({
-                text: section.description || section.text,
-                spacing: {after: 200}
+                children: [
+                    new TextRun({
+                        text: descriptionText,
+                        ...descriptionStyles.textRun
+                    })
+                ],
+                spacing: {after: 200},
+                ...descriptionStyles.paragraph
             }));
         }
 
@@ -498,7 +707,7 @@ export default class WordBuilder {
         // if not 'type' is defined we assumed is 'basic' and therefore field exist
         if (!element.type || element.type === "basic") {
             const value = this.#getValue(element.field, this.data, this.#getDefaultValue(element, section), element.display);
-            return this._createElementWithTitle(title, titleVisible, String(value || ""));
+            return this._createElementWithTitle(title, titleVisible, String(value || ""), element);
         } else {
             // Other 'type' are rendered by specific functions
             switch (element.type) {
@@ -526,33 +735,53 @@ export default class WordBuilder {
                 case "checkbox":
                     // For form inputs, just show the value
                     const value = this.#getValue(element.field, this.data, this.#getDefaultValue(element, section), element.display);
-                    return this._createElementWithTitle(title, titleVisible, String(value || ""));
+                    return this._createElementWithTitle(title, titleVisible, String(value || ""), element);
                 default:
                     // For unknown types, try to get the value
                     const defaultValue = this.#getValue(element.field, this.data, this.#getDefaultValue(element, section), element.display);
-                    return this._createElementWithTitle(title, titleVisible, String(defaultValue || ""));
+                    return this._createElementWithTitle(title, titleVisible, String(defaultValue || ""), element);
             }
         }
     }
 
-    _createElementWithTitle(title, titleVisible, content) {
+    _createElementWithTitle(title, titleVisible, content, element = null) {
         const children = [];
+        const contentStyles = element?.display?.style || element?.display?.textStyle
+            ? this.#parseStyleToTextRunOptions(element.display.style || element.display.textStyle, content, this.data)
+            : {textRun: {}, paragraph: {}};
+        const titleStyles = element?.display?.titleStyle || element?.display?.labelStyle
+            ? this.#parseStyleToTextRunOptions(element.display.titleStyle || element.display.labelStyle, title, this.data)
+            : {textRun: {}, paragraph: {}};
         
         if (title && titleVisible) {
+            // Merge paragraph styles - prefer content background if both exist
+            const mergedParagraphStyles = {
+                ...titleStyles.paragraph,
+                ...contentStyles.paragraph
+            };
             children.push(new Paragraph({
                 children: [
                     new TextRun({
                         text: `${title}: `,
-                        bold: true
+                        bold: true,
+                        ...titleStyles.textRun
                     }),
                     new TextRun({
-                        text: content
+                        text: content,
+                        ...contentStyles.textRun
                     })
-                ]
+                ],
+                ...mergedParagraphStyles
             }));
         } else if (content) {
             children.push(new Paragraph({
-                text: content
+                children: [
+                    new TextRun({
+                        text: content,
+                        ...contentStyles.textRun
+                    })
+                ],
+                ...contentStyles.paragraph
             }));
         }
 
@@ -566,7 +795,7 @@ export default class WordBuilder {
             value = this.#getValue(element.field, this.data, value, element.display);
         }
 
-        return this._createElementWithTitle(title, titleVisible, String(value || ""));
+        return this._createElementWithTitle(title, titleVisible, String(value || ""), element);
     }
 
     async _createCustomElementAsync(element, section, title, titleVisible) {
@@ -631,7 +860,7 @@ export default class WordBuilder {
 
     _createComplexElement(element, data = this.data, section, title, titleVisible) {
         if (!element.display?.template) {
-            return this._createElementWithTitle(title, titleVisible, "No template provided");
+            return this._createElementWithTitle(title, titleVisible, "No template provided", element);
         }
 
         // Check if field is provided to get data from
@@ -640,6 +869,12 @@ export default class WordBuilder {
         }
 
         const textRuns = this.applyTemplate(element.display.template, data, this.#getDefaultValue(element, section), element);
+        const elementStyles = element?.display?.style
+            ? this.#parseStyleToTextRunOptions(element.display.style, "", this.data)
+            : {textRun: {}, paragraph: {}};
+        const titleStyles = element?.display?.titleStyle
+            ? this.#parseStyleToTextRunOptions(element.display.titleStyle, title, this.data)
+            : {textRun: {}, paragraph: {}};
         
         const children = [];
         if (title && titleVisible) {
@@ -647,14 +882,18 @@ export default class WordBuilder {
                 children: [
                     new TextRun({
                         text: `${title}: `,
-                        bold: true
+                        bold: true,
+                        ...titleStyles.textRun
                     }),
                     ...textRuns
-                ]
+                ],
+                ...titleStyles.paragraph,
+                ...elementStyles.paragraph
             }));
         } else {
             children.push(new Paragraph({
-                children: textRuns
+                children: textRuns,
+                ...elementStyles.paragraph
             }));
         }
 
@@ -716,30 +955,52 @@ export default class WordBuilder {
         
         // Add title if visible
         if (title && titleVisible) {
+            const titleStyles = element?.display?.titleStyle
+                ? this.#parseStyleToTextRunOptions(element.display.titleStyle, title, this.data)
+                : {textRun: {}, paragraph: {}};
             children.push(new Paragraph({
                 children: [
                     new TextRun({
                         text: `${title}:`,
-                        bold: true
+                        bold: true,
+                        ...titleStyles.textRun
                     })
-                ]
+                ],
+                ...titleStyles.paragraph
             }));
         }
 
+        // Get style for list items
+        const itemStyles = element?.display?.itemStyle || element?.display?.listItemStyle || element?.display?.style
+            ? this.#parseStyleToTextRunOptions(element.display.itemStyle || element.display.listItemStyle || element.display.style, "", this.data)
+            : {textRun: {}, paragraph: {}};
+
         // Create list based on layout
         if (contentLayout === "bullets") {
-            const listItems = values.map(value => 
-                new Paragraph({
-                    text: value,
+            const listItems = values.map(value => {
+                const valueStyles = element?.display?.itemStyle || element?.display?.listItemStyle || element?.display?.style
+                    ? this.#parseStyleToTextRunOptions(element.display.itemStyle || element.display.listItemStyle || element.display.style, value, this.data)
+                    : {textRun: {}, paragraph: {}};
+                return new Paragraph({
+                    children: [
+                        new TextRun({
+                            text: String(value),
+                            ...valueStyles.textRun
+                        })
+                    ],
                     bullet: {
                         level: 0
-                    }
-                })
-            );
+                    },
+                    ...valueStyles.paragraph
+                });
+            });
             children.push(...listItems);
         } else if (contentLayout === "numbers") {
             // For numbered lists, add numbers manually
             values.forEach((value, index) => {
+                const valueStyles = element?.display?.itemStyle || element?.display?.listItemStyle || element?.display?.style
+                    ? this.#parseStyleToTextRunOptions(element.display.itemStyle || element.display.listItemStyle || element.display.style, value, this.data)
+                    : {textRun: {}, paragraph: {}};
                 children.push(new Paragraph({
                     children: [
                         new TextRun({
@@ -747,16 +1008,27 @@ export default class WordBuilder {
                             bold: true
                         }),
                         new TextRun({
-                            text: String(value)
+                            text: String(value),
+                            ...valueStyles.textRun
                         })
-                    ]
+                    ],
+                    ...valueStyles.paragraph
                 }));
             });
         } else {
             // For horizontal or vertical, just create paragraphs
             values.forEach(value => {
+                const valueStyles = element?.display?.itemStyle || element?.display?.listItemStyle || element?.display?.style
+                    ? this.#parseStyleToTextRunOptions(element.display.itemStyle || element.display.listItemStyle || element.display.style, value, this.data)
+                    : {textRun: {}, paragraph: {}};
                 children.push(new Paragraph({
-                    text: String(value)
+                    children: [
+                        new TextRun({
+                            text: String(value),
+                            ...valueStyles.textRun
+                        })
+                    ],
+                    ...valueStyles.paragraph
                 }));
             });
         }
@@ -812,13 +1084,18 @@ export default class WordBuilder {
 
         // Add title if visible
         if (title && titleVisible) {
+            const titleStyles = element?.display?.titleStyle
+                ? this.#parseStyleToTextRunOptions(element.display.titleStyle, title, this.data)
+                : {textRun: {}, paragraph: {}};
             children.push(new Paragraph({
                 children: [
                     new TextRun({
                         text: `${title}:`,
-                        bold: true
+                        bold: true,
+                        ...titleStyles.textRun
                     })
-                ]
+                ],
+                ...titleStyles.paragraph
             }));
             children.push(new Paragraph({
                 text: "",
@@ -832,21 +1109,28 @@ export default class WordBuilder {
 
         // Add header row
         if (headerVisible) {
-            const headerCells = columns.map(column =>
-                new TableCell({
+            const headerCells = columns.map(column => {
+                const headerStyles = column.display?.headerStyle || column.display?.headerCellStyle
+                    ? this.#parseStyleToTextRunOptions(column.display.headerStyle || column.display.headerCellStyle, column.title || column.name || "", this.data)
+                    : {textRun: {}, paragraph: {}};
+                // Use header style background if provided, otherwise default gray
+                const headerBg = headerStyles.paragraph.shading?.fill || "F3F3F3";
+                return new TableCell({
                     children: [new Paragraph({
                         children: [
                             new TextRun({
                                 text: column.title || column.name || "",
-                                bold: true
+                                bold: true,
+                                ...headerStyles.textRun
                             })
-                        ]
+                        ],
+                        ...headerStyles.paragraph
                     })],
                     shading: {
-                        fill: "F3F3F3"
+                        fill: headerBg
                     }
-                })
-            );
+                });
+            });
             rows.push(new TableRow({
                 children: headerCells
             }));
@@ -882,10 +1166,22 @@ export default class WordBuilder {
                         children: cellChildren.length > 0 ? cellChildren : [new Paragraph({text: ""})]
                     }));
                 } else {
+                    const cellStyles = column.display?.bodyCellStyle || column.display?.cellStyle || column.display?.style
+                        ? this.#parseStyleToTextRunOptions(column.display.bodyCellStyle || column.display.cellStyle || column.display.style, cellValue, this.data)
+                        : {textRun: {}, paragraph: {}};
+                    const cellBg = cellStyles.paragraph.shading?.fill;
+                    const cellShading = cellBg ? {shading: {fill: cellBg}} : {};
                     cells.push(new TableCell({
                         children: [new Paragraph({
-                            text: String(cellValue || "")
-                        })]
+                            children: [
+                                new TextRun({
+                                    text: String(cellValue || ""),
+                                    ...cellStyles.textRun
+                                })
+                            ],
+                            ...cellStyles.paragraph
+                        })],
+                        ...cellShading
                     }));
                 }
             }
@@ -913,19 +1209,24 @@ export default class WordBuilder {
 
     _createObjectElement(element, section, title, titleVisible) {
         if (!element.elements) {
-            return this._createElementWithTitle(title, titleVisible, "");
+            return this._createElementWithTitle(title, titleVisible, "", element);
         }
 
         const children = [];
         
         if (title && titleVisible) {
+            const titleStyles = element?.display?.titleStyle
+                ? this.#parseStyleToTextRunOptions(element.display.titleStyle, title, this.data)
+                : {textRun: {}, paragraph: {}};
             children.push(new Paragraph({
                 children: [
                     new TextRun({
                         text: `${title}:`,
-                        bold: true
+                        bold: true,
+                        ...titleStyles.textRun
                     })
-                ]
+                ],
+                ...titleStyles.paragraph
             }));
         }
 
@@ -959,13 +1260,18 @@ export default class WordBuilder {
         const children = [];
         
         if (title && titleVisible) {
+            const titleStyles = element?.display?.titleStyle
+                ? this.#parseStyleToTextRunOptions(element.display.titleStyle, title, this.data)
+                : {textRun: {}, paragraph: {}};
             children.push(new Paragraph({
                 children: [
                     new TextRun({
                         text: `${title}:`,
-                        bold: true
+                        bold: true,
+                        ...titleStyles.textRun
                     })
-                ]
+                ],
+                ...titleStyles.paragraph
             }));
             children.push(new Paragraph({
                 text: "",
@@ -998,21 +1304,38 @@ export default class WordBuilder {
                     const value = this.#getValue(field, this.data, this.#getDefaultValue(childElement, section), childElement.display);
                     const childTitle = childElement.title || childElement.name || "";
                     
+                    const childTitleStyles = childElement.display?.titleStyle
+                        ? this.#parseStyleToTextRunOptions(childElement.display.titleStyle, childTitle, this.data)
+                        : {textRun: {}, paragraph: {}};
+                    const childValueStyles = childElement.display?.style || childElement.display?.textStyle
+                        ? this.#parseStyleToTextRunOptions(childElement.display.style || childElement.display.textStyle, value, this.data)
+                        : {textRun: {}, paragraph: {}};
+                    
                     if (childTitle) {
                         children.push(new Paragraph({
                             children: [
                                 new TextRun({
                                     text: `${childTitle}: `,
-                                    bold: true
+                                    bold: true,
+                                    ...childTitleStyles.textRun
                                 }),
                                 new TextRun({
-                                    text: String(value || "")
+                                    text: String(value || ""),
+                                    ...childValueStyles.textRun
                                 })
-                            ]
+                            ],
+                            ...childTitleStyles.paragraph,
+                            ...childValueStyles.paragraph
                         }));
                     } else if (value) {
                         children.push(new Paragraph({
-                            text: String(value)
+                            children: [
+                                new TextRun({
+                                    text: String(value),
+                                    ...childValueStyles.textRun
+                                })
+                            ],
+                            ...childValueStyles.paragraph
                         }));
                     }
                 });
