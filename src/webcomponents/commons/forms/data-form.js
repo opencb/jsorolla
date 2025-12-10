@@ -476,52 +476,47 @@ export default class DataForm extends LitElement {
             // Render all sections but display only active section
             return html`
                 <div class="${layoutClassName} ${className}" style="${style}">
-                    ${this._getVisibleSections()
-                    .map((section, index) => html`
-                            <div class="d-${this.activeSection === index ? "block" : "none"}">
-                                ${this._createSection(section, index)}
-                            </div>
-                        `)}
+                    ${this._getVisibleSections().map((section, index) => html`
+                        <div class="d-${this.activeSection === index ? "block" : "none"}">
+                            ${this._createSection(section, index)}
+                        </div>
+                    `)}
                 </div>
             `;
         } else {
             // Check if a custom layout has been provided. We render each section in the right layout region
             if (this.config?.display?.layout && Array.isArray(this.config.display.layout)) {
-                // Render with a specific layout
                 return html`
                     <div class="${className}" style="${style}">
-                        ${this.config?.display.layout
-                        .map(section => {
+                        ${this.config?.display.layout.map(section => {
                             const sectionClassName = section.className ?? section.classes ?? "";
                             const sectionStyle = section.style ?? "";
 
                             if (section.id) {
                                 return html`
-                                        <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
-                                            ${this._createSection(this.config.sections.find(s => s.id === section.id), 0)}
-                                        </div>
-                                    `;
+                                    <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
+                                        ${this._createSection(this.config.sections.find(s => s.id === section.id), 0)}
+                                    </div>
+                                `;
                             } else {
                                 // this section contains nested subsections: 'sections'
                                 return html`
-                                        <div class="${sectionClassName}" style="${sectionStyle}">
-                                            ${(section.sections || [])
-                                        .map(subsection => {
+                                    <div class="${sectionClassName}" style="${sectionStyle}">
+                                        ${(section.sections || []).map(subsection => {
                                             const subsectionClassName = subsection.className ?? subsection.classes ?? "";
                                             const subsectionStyle = this._parseStyleField(subsection.style);
                                             if (subsection.id) {
                                                 return html`
-                                                            <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
-                                                                ${this._createSection(this.config.sections.find(s => s.id === subsection.id), 0)}
-                                                            </div>
-                                                        `;
+                                                    <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
+                                                        ${this._createSection(this.config.sections.find(s => s.id === subsection.id), 0)}
+                                                    </div>
+                                                `;
                                             } else {
                                                 return nothing;
                                             }
-                                        })
-                                    }
-                                        </div>
-                                    `;
+                                        })}
+                                    </div>
+                                `;
                             }
                         })}
                     </div>
@@ -573,38 +568,35 @@ export default class DataForm extends LitElement {
             // 2. render with a specific layout
             content = html`
                 <div class="${sectionClassName}" style="${sectionStyle}">
-                    ${section.display.layout
-                    .map(element => {
+                    ${section.display.layout.map(element => {
                         const elementClassName = element.className ?? element.classes ?? "";
                         const elementStyle = element.style ?? "";
 
                         if (element.id) {
                             return html`
-                                    <div class="${elementClassName}" style="${elementStyle}">
-                                        ${this._createElement(section.elements.find(s => s.id === element.id))}
-                                    </div>
-                                `;
+                                <div class="${elementClassName}" style="${elementStyle}">
+                                    ${this._createElement(section.elements.find(s => s.id === element.id))}
+                                </div>
+                            `;
                         } else {
                             // this section contains nested subsections: 'sections'
                             return html`
-                                    <div class="${elementClassName}" style="${elementStyle}">
-                                        ${(element.elements || [])
-                                    .map(subelement => {
+                                <div class="${elementClassName}" style="${elementStyle}">
+                                    ${(element.elements || []).map(subelement => {
                                         const subsectionClassName = subelement.className ?? subelement.classes ?? "";
                                         const subsectionStyle = this._parseStyleField(subelement.style);
                                         if (subelement.id) {
                                             return html`
-                                                        <div class="${subsectionClassName}" style="${subsectionStyle}">
-                                                            ${this._createElement(section.elements.find(s => s.id === subelement.id))}
-                                                        </div>
-                                                    `;
+                                                <div class="${subsectionClassName}" style="${subsectionStyle}">
+                                                    ${this._createElement(section.elements.find(s => s.id === subelement.id))}
+                                                </div>
+                                            `;
                                         } else {
                                             return nothing;
                                         }
-                                    })
-                                }
-                                    </div>
-                                `;
+                                    })}
+                                </div>
+                            `;
                         }
                     })}
                 </div>
