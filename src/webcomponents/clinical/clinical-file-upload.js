@@ -564,6 +564,7 @@ export default class ClinicalFileUpload extends LitElement {
                     id: "singleUploadSample",
                     display: {
                         visible: data => data?.type === "Single Upload",
+                        titleClassName: "fs-4",
                     },
                     elements: [
                         {
@@ -619,6 +620,7 @@ export default class ClinicalFileUpload extends LitElement {
                     id: "singleUploadIndividual",
                     display: {
                         visible: data => data?.type === "Single Upload",
+                        titleClassName: "fs-4",
                     },
                     elements: [
                         {
