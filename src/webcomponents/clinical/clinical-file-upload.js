@@ -40,7 +40,7 @@ export default class ClinicalFileUpload extends LitElement {
         };
 
         this._data = {
-            select: "Create New Sample",
+            type: "Single Upload",
             files: [],
         };
         this._uploading = false;
@@ -61,7 +61,7 @@ export default class ClinicalFileUpload extends LitElement {
     }
 
     async createSample() {
-        if (this._data.select === "Create New Sample" && this._data.sampleId && this._data.individualId) {
+        if (this._data.type === "Single Upload" && this._data.singleUploadType === "Create New Sample" && this._data.sampleId && this._data.individualId) {
             await this.opencgaSession.opencgaClient.individuals()
                 .create({id: this._data.individualId, sex: {id: this._data.sex || ""}}, {study: this.opencgaSession.study.fqn});
 
@@ -169,6 +169,60 @@ export default class ClinicalFileUpload extends LitElement {
 
     onFieldChange(event) {
         this._data = {...event.detail.data};
+
+        // if the sample is selected, fille the sample information
+        if (event.detail.param === "sample") {
+            if (event.detail.value) {
+                this.opencgaSession.opencgaClient.samples()
+                    .info(event.detail.value, {
+                        study: this.opencgaSession.study.fqn,
+                        includeIndividual: true,
+                        include: "id,somatic",
+                    })
+                    .then(response => {
+                        const result = response?.responses?.[0]?.results?.[0];
+                        if (result) {
+                            this._data.sampleId = result.id;
+                            this._data.sampleSomatic = !!result.somatic;
+                            if (result?.attributes?.OPENCGA_INDIVIDUAL) {
+                                this._data.individual = result.attributes.OPENCGA_INDIVIDUAL.id;
+                                this._data.individualId = result.attributes.OPENCGA_INDIVIDUAL.id;
+                                this._data.individualSex = result.attributes.OPENCGA_INDIVIDUAL.sex?.id || "";
+                            }
+                        }
+                        this._data = {...this._data};
+                        this.requestUpdate();
+                    });
+            } else {
+                delete this._data.sampleId;
+                delete this._data.sampleSomatic;
+                // delete this._data.individualId;
+                // delete this._data.individualSex;
+            }
+        }
+
+        // if the individual is selected, fetch the individual data
+        if (event.detail.param === "individual") {
+            if (event.detail.value) {
+                this.opencgaSession.opencgaClient.individuals()
+                    .info(event.detail.value, {
+                        study: this.opencgaSession.study.fqn,
+                    })
+                    .then(response => {
+                    const result = response?.responses?.[0]?.results?.[0];
+                    if (result) {
+                        this._data.individualId = result.id;
+                        this._data.individualSex = result.sex?.id || "";
+                    }
+                    this._data = {...this._data};
+                    this.requestUpdate();
+                });
+            } else {
+                delete this._data.individualId;
+                delete this._data.individualSex;
+            }
+        }
+
         this.requestUpdate();
     }
 
@@ -178,7 +232,8 @@ export default class ClinicalFileUpload extends LitElement {
             message: "Are you sure to clear?",
             ok: () => {
                 this._data = {
-                    select: "Create New Sample",
+                    type: "Single Upload",
+                    singleUploadType: "Create New Sample",
                     relativeFilePath: "/" + (this.path || ""),
                     files: [],
                 };
@@ -199,11 +254,14 @@ export default class ClinicalFileUpload extends LitElement {
         this.requestUpdate();
 
         try {
-            if (this._data.select === "Batch Upload") {
+            if (this._data.type === "Batch Upload") {
                 await this.handleBatchUpload();
             } else {
                 // Upload the files
-                await this.createSample();
+                if (this._data.singleUploadType === "Create New Sample") {
+                    await this.createSample();
+                }
+                
                 // 1. Check if we need to create a new sample
                 await this.uploadFiles();
                 // 2. Set the sampleId for the uploaded files
@@ -388,7 +446,8 @@ export default class ClinicalFileUpload extends LitElement {
 
     reset() {
         this._data = {
-            select: "Create New Sample",
+            type: "Single Upload",
+            singleUploadType: "Create New Sample",
             relativeFilePath: "/" + (this.path || ""),
             files: [],
         };
@@ -410,9 +469,9 @@ export default class ClinicalFileUpload extends LitElement {
                 <data-form
                     .data="${this._data}"
                     .config="${this._config}"
-                    @fieldChange="${e => this.onFieldChange(e)}"
-                    @clear="${e => this.onClear(e)}"
-                    @submit="${e => this.onSubmit(e)}">
+                    @fieldChange="${event => this.onFieldChange(event)}"
+                    @clear="${event => this.onClear(event)}"
+                    @submit="${event => this.onSubmit(event)}">
                 </data-form>
             </div>
         `;
@@ -424,116 +483,190 @@ export default class ClinicalFileUpload extends LitElement {
             display: {
                 titleVisible: false,
                 buttonOkText: "Upload Files",
-                buttonOkDisabled: () => this._uploading || (this._data?.files?.length === 0) || this._data?.files?.every(f => f.status === this.FILE_STATUS.DONE),
                 buttonClearText: "Discard",
+                buttonOkDisabled: () => {
+                    return this._uploading || (this._data?.files?.length === 0) || this._data?.files?.every(f => f.status === this.FILE_STATUS.DONE);
+                },
                 buttonClearDisabled: () => this._uploading || (this._data?.files?.length === 0),
+                layout: [
+                    {
+                        id: "type",
+                    },
+                    {
+                        id: "singleUpload",
+                    },
+                    {
+                        className: "d-flex gap-5 align-items-stretch",
+                        sections: [
+                            {
+                                id: "singleUploadSample",
+                                className: "w-full",
+                            },
+                            {
+                                id: "singleUploadSeparator",
+                                className: "bg-gray-200",
+                                style: "width:1px;"
+                            },
+                            {
+                                id: "singleUploadIndividual",
+                                className: "w-full",
+                            },
+                        ],
+                    },
+                    {
+                        id: "batchUpload",
+                    },
+                    {
+                        id: "uploadFiles",
+                    },
+                ],
                 ...this.displayConfig,
             },
             sections: [
                 {
-                    title: "Select Sample",
-                    description: "",
+                    title: "Configure Upload",
+                    id: "type",
                     elements: [
-                        // {
-                        //     title: "Create or Select Sample",
-                        //     field: "select",
-                        //     type: "toggle-switch",
-                        //     display: {
-                        //         onText: "Create Sample",
-                        //         offText: "Search",
-                        //         helpMessage: "Create a new one sample or Select an existing one.",
-                        //     },
-                        // },
                         {
                             title: "Upload Mode",
-                            field: "select",
+                            field: "type",
                             type: "toggle-buttons",
-                            allowedValues: ["Create New Sample", "Associate to Existing Sample", "Batch Upload"],
-                            defaultValue: "Create New Sample",
+                            allowedValues: ["Single Upload", "Batch Upload"],
+                            defaultValue: "Single Upload",
                             display: {
-                                helpMessage: "Select whether to create a new sample, associate files to an existing sample, or perform a batch upload.",
+                                helpMessage: "Select whether to perform a single upload or a batch upload.",
                             },
-                        }
-
-                    ]
+                        },
+                    ],
                 },
                 {
-                    title: "Create New Patient and Sample",
-                    description: "",
+                    title: "Single Upload Configuration",
+                    id: "singleUpload",
                     display: {
-                        visible: data => data?.select === "Create New Sample",
+                        visible: data => data?.type === "Single Upload",
+                    },
+                    elements: [],
+                },
+                {
+                    id: "singleUploadSeparator",
+                    elements: [],
+                },
+                {
+                    title: "Sample Configuration",
+                    id: "singleUploadSample",
+                    display: {
+                        visible: data => data?.type === "Single Upload",
                     },
                     elements: [
                         {
-                            title: "Patient",
-                            field: "individualId",
-                            type: "input-text",
-                            required: true,
+                            type: "text",
+                            text: "Select a sample from the following list to associate the uploaded files to it.",
+                        },
+                        {
+                            title: "Select Sample",
+                            type: "custom",
+                            field: "sample",
                             display: {
-                                helpMessage: "Map the individual names in the uploaded files to existing individuals in the study. " +
-                                    "If the individual does not exist, it will be created automatically.",
+                                render: (sample, onFieldChange, updateParams, data) => html`
+                                    <catalog-search-autocomplete
+                                        .value="${sample}"
+                                        .resource="${"SAMPLE"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            multiple: false,
+                                            disabled: !data?.sample && data?.sampleId,
+                                        }}"
+                                        @filterChange="${event => onFieldChange(event.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `,
                             },
                         },
                         {
-                            title: "Patient Sex",
-                            field: "sex",
-                            type: "input-text",
-                            display: {
-                                helpMessage: "Sex of the patient.",
-                            },
+                            type: "text",
+                            text: "Or create a new sample by providing the following information:",
                         },
                         {
-                            title: "Sample",
+                            title: "Sample ID",
                             field: "sampleId",
                             type: "input-text",
                             required: true,
                             display: {
+                                disabled: data => !!data?.sample,
                                 helpMessage: "Identifier for the sample to be created and associated to the uploaded files. "
                             },
                         },
                         {
-                            title: "Somatic Sample",
-                            field: "somatic",
+                            title: "Somatic",
+                            field: "sampleSomatic",
                             type: "checkbox",
                             display: {
+                                disabled: data => !!data?.sample,
                                 helpMessage: "Check if the sample is somatic.",
                             },
                         },
-                    ]
+                    ],
                 },
                 {
-                    title: "Search Sample",
-                    description: "Select the sample to which the files will be associated.",
+                    title: "Individual Configuration",
+                    id: "singleUploadIndividual",
                     display: {
-                        visible: data => data?.select === "Associate to Existing Sample",
+                        visible: data => data?.type === "Single Upload",
                     },
                     elements: [
                         {
-                            title: "Select a Sample",
-                            field: "sampleId",
+                            type: "text",
+                            text: "Select a individual from the following list to associate the uploaded files to it.",
+                        },
+                        {
+                            title: "Select Individual",
                             type: "custom",
+                            field: "individual",
                             display: {
-                                render: (sampleId, onFieldChange) => html`
-                                    <div>
-                                        <catalog-search-autocomplete
-                                            .value="${sampleId}"
-                                            .resource="${"SAMPLE"}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .config="${{multiple: false}}"
-                                            @filterChange="${e => onFieldChange(e.detail.value)}">
-                                        </catalog-search-autocomplete>
-                                    </div>
+                                render: (individual, onFieldChange, updateParams, data) => html`
+                                    <catalog-search-autocomplete
+                                        .value="${individual}"
+                                        .resource="${"INDIVIDUAL"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            multiple: false,
+                                            disabled: !data?.individual && data?.individualId,
+                                        }}"
+                                        @filterChange="${event => onFieldChange(event.detail.value)}">
+                                    </catalog-search-autocomplete>
                                 `,
-                                helpMessage: "Path where the files will be uploaded.",
                             },
                         },
-                    ]
+                        {
+                            type: "text",
+                            text: "Or create a new individual by providing the following information:",
+                        },
+                        {
+                            title: "Individual ID",
+                            field: "individualId",
+                            type: "input-text",
+                            required: true,
+                            display: {
+                                disabled: data => !!data?.individual,
+                                helpMessage: "Identifier for the individual to be created and associated to the uploaded files. "
+                            },
+                        },
+                        {
+                            title: "Individual Sex",
+                            field: "individualSex",
+                            type: "input-text",
+                            display: {
+                                disabled: data => !!data?.individual,
+                                helpMessage: "Sex of the patient.",
+                            },
+                        },
+                    ],
                 },
                 {
                     title: "Batch Upload Configuration",
                     description: "Configure the batch upload settings.",
+                    id: "batchUpload",
                     display: {
-                        visible: data => data?.select === "Batch Upload",
+                        visible: data => data?.type === "Batch Upload",
                     },
                     elements: [
                         {
@@ -563,11 +696,12 @@ export default class ClinicalFileUpload extends LitElement {
                                 helpMessage: "Upload a CSV or TSV file with columns: File (required), Sample, Individual, Family, Somatic.",
                             },
                         },
-                    ]
+                    ],
                 },
                 {
                     title: "Upload Files",
                     description: html`<span>Upload one or more files to the selected study. <b>Note:</b> if the path already exists, the files will be overwritten.</span>`,
+                    id: "uploadFiles",
                     elements: [
                         {
                             title: "Upload Destination Path",
@@ -662,7 +796,6 @@ export default class ClinicalFileUpload extends LitElement {
                         },
                     ],
                 },
-
             ],
         };
     }
