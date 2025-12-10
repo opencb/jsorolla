@@ -434,7 +434,7 @@ export default class ClinicalFileUpload extends LitElement {
                             required: true,
                             display: {
                                 render: () => html`
-                                    <input class="d-none" type="file" multiple @change="${event => this.onFilesChange(event)}">
+                                    <input class="d-none" type="file" multiple="true" @change="${event => this.onFilesChange(event)}">
                                     <div @click="${event => this.onSelectFilesClick(event)}" @drop="${event => this.onDropFiles(event)}" @dragover="${event => event.preventDefault()}">
                                         <div class="d-flex align-items-center justify-content-center rounded-3 border border-gray-200 p-4 cursor-pointer">
                                             <div class="d-flex flex-column gap-2 align-items-center">
