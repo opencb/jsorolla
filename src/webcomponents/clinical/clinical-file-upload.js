@@ -447,11 +447,10 @@ export default class ClinicalFileUpload extends LitElement {
     reset() {
         this._data = {
             type: "Single Upload",
-            singleUploadType: "Create New Sample",
             relativeFilePath: "/" + (this.path || ""),
             files: [],
         };
-        const fileInput = this.querySelector("input[type='file']");
+        const fileInput = this.querySelector(`input[type="file"]`);
         if (fileInput) {
             fileInput.value = null;
         }
