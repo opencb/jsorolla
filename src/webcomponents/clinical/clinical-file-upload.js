@@ -78,6 +78,22 @@ export default class ClinicalFileUpload extends LitElement {
                 sex: {
                     id: this._data.individualSex || "UNKNOWN"
                 },
+            };
+            await this.opencgaSession.opencgaClient.individuals()
+                .create(individualParams, {
+                    study: this.opencgaSession.study.fqn,
+                });
+        }
+
+        // 3. we have to check if the individual already includes the sample
+        const individualResponse = await this.opencgaSession.opencgaClient.individuals()
+            .info(this._data.individualId, {
+                study: this.opencgaSession.study.fqn,
+                include: "samples.id",
+            });
+        const individual = individualResponse?.responses?.[0]?.results?.[0];
+        if (!(individual?.samples || []).find(sample => sample.id === this._data.sampleId)) {
+            const individualUpdateParams = {
                 samples: [
                     {
                         id: this._data.sampleId,
@@ -85,34 +101,13 @@ export default class ClinicalFileUpload extends LitElement {
                 ],
             };
             await this.opencgaSession.opencgaClient.individuals()
-                .create(individualParams, {
+                .update(individual.id, individualUpdateParams, {
                     study: this.opencgaSession.study.fqn,
+                    samplesAction: "ADD",
                 });
-        } else {
-            // we have to check if the individual already includes the sample
-            const individualResponse = await this.opencgaSession.opencgaClient.individuals()
-                .info(this._data.individualId, {
-                    study: this.opencgaSession.study.fqn,
-                    include: "samples.id",
-                });
-            const individual = individualResponse?.responses?.[0]?.results?.[0];
-            if (!(individual?.samples || []).find(sample => sample.id === this._data.sampleId)) {
-                const individualUpdateParams = {
-                    samples: [
-                        {
-                            id: this._data.sampleId,
-                        }
-                    ],
-                };
-                await this.opencgaSession.opencgaClient.individuals()
-                    .update(individual.id, individualUpdateParams, {
-                        study: this.opencgaSession.study.fqn,
-                        samplesAction: "ADD",
-                    });
-            }
         }
 
-        // 3. Upload the files
+        // 4. upload the files
         const files = this._data.files || [];
         for (const file of files) {
             // check the status of the file: if it is done, skip it
@@ -320,13 +315,6 @@ export default class ClinicalFileUpload extends LitElement {
         return mapping;
     }
 
-    reset() {
-        this._data = UtilsNew.objectClone(this.DEFAULT_DATA);
-        this._uploading = false;
-        this._config = this.getDefaultConfig();
-        this.requestUpdate();
-    }
-
     addFiles(files) {
         if (files.length > 0 && !this._uploading) {
             // TODO: check for maximum file size or duplicated files?
@@ -431,12 +419,7 @@ export default class ClinicalFileUpload extends LitElement {
             title: "Clear File Upload",
             message: "Are you sure to clear?",
             ok: () => {
-                this._data = {
-                    type: "Single Upload",
-                    singleUploadType: "Create New Sample",
-                    relativeFilePath: "/" + (this.path || ""),
-                    files: [],
-                };
+                this._data = UtilsNew.objectClone(this.DEFAULT_DATA);
                 this.requestUpdate();
             },
         });
@@ -464,6 +447,7 @@ export default class ClinicalFileUpload extends LitElement {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: `Uploaded ${this._data.files.length} files correctly.`,
             });
+
             // dispatch an event to notify that a file has been uploaded
             LitUtils.dispatchCustomEvent(this, "fileUploadAll", null, {
                 relativeFilePath: this._data.relativeFilePath,
@@ -472,10 +456,15 @@ export default class ClinicalFileUpload extends LitElement {
                 }),
             });
 
+            // reset the form
+            this._data = UtilsNew.objectClone(this.DEFAULT_DATA);
+
         } catch (error) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         } finally {
-            this.reset();
+            this._uploading = false;
+            this._config = this.getDefaultConfig();
+            this.requestUpdate();
         }
     }
 
