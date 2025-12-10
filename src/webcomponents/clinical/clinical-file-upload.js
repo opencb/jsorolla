@@ -32,6 +32,11 @@ export default class ClinicalFileUpload extends LitElement {
 
     #init() {
         // list of available statuses for the file
+        this.DEFAULT_DATA = {
+            type: "Single Upload",
+            relativeFilePath: "/" + (this.path || ""),
+            files: [],
+        };
         this.FILE_STATUS = {
             PENDING: "PENDING",
             UPLOADING: "UPLOADING",
@@ -39,20 +44,14 @@ export default class ClinicalFileUpload extends LitElement {
             ERROR: "ERROR",
         };
 
-        this._data = {
-            type: "Single Upload",
-            files: [],
-        };
+        this._data = UtilsNew.objectClone(this.DEFAULT_DATA);
         this._uploading = false;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("path")) {
-            this._data = {
-                ...this._data,
-                relativeFilePath: "/" + (this.path || ""),
-            };
+            this._data = UtilsNew.objectClone(this.DEFAULT_DATA);
         }
         if (changedProperties.has("displayConfig") || changedProperties.has("path")) {
             this._config = this.getDefaultConfig();
@@ -60,21 +59,27 @@ export default class ClinicalFileUpload extends LitElement {
         super.update(changedProperties);
     }
 
-    async createSample() {
-        if (this._data.type === "Single Upload" && this._data.singleUploadType === "Create New Sample" && this._data.sampleId && this._data.individualId) {
+    async handleSingleUpload() {
+        // 1. Create Individual if needed
+        if (this._data.individualId && !this._data.individual) {
             await this.opencgaSession.opencgaClient.individuals()
-                .create({id: this._data.individualId, sex: {id: this._data.sex || ""}}, {study: this.opencgaSession.study.fqn});
-
-            await this.opencgaSession.opencgaClient.samples()
-                .create({id: this._data.sampleId, individualId: this._data.individualId}, {study: this.opencgaSession.study.fqn});
-
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: `Individual and Sample created successfully.`,
-            });
+                .create({
+                    id: this._data.individualId,
+                    sex: {id: this._data.individualSex || "UNKNOWN"}
+                }, {study: this.opencgaSession.study.fqn});
         }
-    }
 
-    async uploadFiles() {
+        // 2. Create Sample if needed
+        if (this._data.sampleId && !this._data.sample) {
+            await this.opencgaSession.opencgaClient.samples()
+                .create({
+                    id: this._data.sampleId,
+                    individualId: this._data.individualId,
+                    somatic: !!this._data.sampleSomatic
+                }, {study: this.opencgaSession.study.fqn});
+        }
+
+        // 3. Upload the files
         const files = this._data.files || [];
         for (const file of files) {
             // check the status of the file: if it is done, skip it
@@ -83,10 +88,10 @@ export default class ClinicalFileUpload extends LitElement {
                 this._data = {...this._data};
                 this.requestUpdate();
                 await this.updateComplete;
-                debugger
+
                 try {
-                    // 1. perform the request to OpenCGA for uploading the file
-                    await this.opencgaSession.opencgaClient.files()
+                    // 3.1. perform the request to OpenCGA for uploading the file
+                    const fileResult = await this.opencgaSession.opencgaClient.files()
                         .upload({
                             study: this.opencgaSession.study.fqn,
                             file: file.fileObject,
@@ -94,10 +99,16 @@ export default class ClinicalFileUpload extends LitElement {
                             relativeFilePath: this._data.relativeFilePath.startsWith("/") ? this._data.relativeFilePath.substring(1) : this._data.relativeFilePath,
                             resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
                         });
-                    // 2. if everything is ok, set the status to DONE
+                    // 3.2. if everything is ok, set the status to DONE
                     file.status = this.FILE_STATUS.DONE;
+                    
+                    // 3.3. Link file to the sample
+                    const uploadedFileId = fileResult.responses[0].results[0].id;
+                    await this.opencgaSession.opencgaClient.files().update(uploadedFileId, {
+                        sampleIds: [this._data.sampleId],
+                    }, {study: this.opencgaSession.study.fqn});
 
-                    // 3. dispatch an event to notify that a file has been uploaded
+                    // 3.4. dispatch an event to notify that a file has been uploaded
                     LitUtils.dispatchCustomEvent(this, "fileUpload", null, {
                         relativeFilePath: this._data.relativeFilePath,
                         fileName: file.fileObject.name,
@@ -108,182 +119,6 @@ export default class ClinicalFileUpload extends LitElement {
                     return Promise.reject(error);
                 }
             }
-        }
-    }
-
-    async updateFiles() {
-        const files = this._data.files || [];
-        for (const file of files) {
-            try {
-                let fileId = this._data.relativeFilePath.replaceAll("/", ":") + file.fileObject.name;
-                let dataBody = {
-                    sampleIds: [this._data.sampleId],
-                };
-                await this.opencgaSession.opencgaClient.files()
-                    .update(fileId, dataBody, {study: this.opencgaSession.study.fqn});
-            } catch (error) {
-                return Promise.reject(error);
-            }
-        }
-    }
-
-    addFiles(files) {
-        if (files.length > 0 && !this._uploading) {
-            // TODO: check for maximum file size or duplicated files?
-            Array.from(files).forEach(file => {
-                this._data.files.push({
-                    fileObject: file,
-                    status: this.FILE_STATUS.PENDING,
-                });
-            });
-            this._data = {...this._data};
-            this.requestUpdate();
-        }
-    }
-
-    onSelectFilesClick(event) {
-        event.preventDefault();
-        if (!this._uploading) {
-            this.querySelector(`input[type="file"]`).click();
-        }
-    }
-
-    onDropFiles(event) {
-        event.preventDefault();
-        this.addFiles(event.dataTransfer?.files || []);
-    }
-
-    onFilesChange(event) {
-        event.preventDefault();
-        this.addFiles(event.target.files || []);
-
-        // note: reset the value of the input file to allow uploading the same file again
-        event.target.value = null;
-    }
-
-    onFileRemove(event, file) {
-        this._data.files = this._data.files.filter(f => f !== file);
-        this._data = {...this._data};
-        this.requestUpdate();
-    }
-
-    onFieldChange(event) {
-        this._data = {...event.detail.data};
-
-        // if the sample is selected, fille the sample information
-        if (event.detail.param === "sample") {
-            if (event.detail.value) {
-                this.opencgaSession.opencgaClient.samples()
-                    .info(event.detail.value, {
-                        study: this.opencgaSession.study.fqn,
-                        includeIndividual: true,
-                        include: "id,somatic",
-                    })
-                    .then(response => {
-                        const result = response?.responses?.[0]?.results?.[0];
-                        if (result) {
-                            this._data.sampleId = result.id;
-                            this._data.sampleSomatic = !!result.somatic;
-                            if (result?.attributes?.OPENCGA_INDIVIDUAL) {
-                                this._data.individual = result.attributes.OPENCGA_INDIVIDUAL.id;
-                                this._data.individualId = result.attributes.OPENCGA_INDIVIDUAL.id;
-                                this._data.individualSex = result.attributes.OPENCGA_INDIVIDUAL.sex?.id || "";
-                            }
-                        }
-                        this._data = {...this._data};
-                        this.requestUpdate();
-                    });
-            } else {
-                delete this._data.sampleId;
-                delete this._data.sampleSomatic;
-                // delete this._data.individualId;
-                // delete this._data.individualSex;
-            }
-        }
-
-        // if the individual is selected, fetch the individual data
-        if (event.detail.param === "individual") {
-            if (event.detail.value) {
-                this.opencgaSession.opencgaClient.individuals()
-                    .info(event.detail.value, {
-                        study: this.opencgaSession.study.fqn,
-                    })
-                    .then(response => {
-                    const result = response?.responses?.[0]?.results?.[0];
-                    if (result) {
-                        this._data.individualId = result.id;
-                        this._data.individualSex = result.sex?.id || "";
-                    }
-                    this._data = {...this._data};
-                    this.requestUpdate();
-                });
-            } else {
-                delete this._data.individualId;
-                delete this._data.individualSex;
-            }
-        }
-
-        this.requestUpdate();
-    }
-
-    onClear() {
-        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Clear File Upload",
-            message: "Are you sure to clear?",
-            ok: () => {
-                this._data = {
-                    type: "Single Upload",
-                    singleUploadType: "Create New Sample",
-                    relativeFilePath: "/" + (this.path || ""),
-                    files: [],
-                };
-                this.requestUpdate();
-            },
-        });
-    }
-
-    async onSubmit() {
-        // avoid multiple submissions
-        if (this._uploading || !this._data.files || this._data.files.length === 0) {
-            return;
-        }
-
-        // start uploading the selected files
-        this._uploading = true;
-        this._config = this.getDefaultConfig();
-        this.requestUpdate();
-
-        try {
-            if (this._data.type === "Batch Upload") {
-                await this.handleBatchUpload();
-            } else {
-                // Upload the files
-                if (this._data.singleUploadType === "Create New Sample") {
-                    await this.createSample();
-                }
-                
-                // 1. Check if we need to create a new sample
-                await this.uploadFiles();
-                // 2. Set the sampleId for the uploaded files
-                await this.updateFiles();
-            }
-
-            // If all files are uploaded correctly, show a success message
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: `Uploaded ${this._data.files.length} files correctly.`,
-            });
-            // dispatch an event to notify that all files have been uploaded
-            LitUtils.dispatchCustomEvent(this, "fileUploadAll", null, {
-                relativeFilePath: this._data.relativeFilePath,
-                files: this._data.files.map(file => {
-                    return file.fileObject.name;
-                }),
-            });
-
-        } catch (error) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
-        } finally {
-            this.reset();
         }
     }
 
@@ -445,18 +280,162 @@ export default class ClinicalFileUpload extends LitElement {
     }
 
     reset() {
-        this._data = {
-            type: "Single Upload",
-            relativeFilePath: "/" + (this.path || ""),
-            files: [],
-        };
-        const fileInput = this.querySelector(`input[type="file"]`);
-        if (fileInput) {
-            fileInput.value = null;
-        }
+        this._data = UtilsNew.objectClone(this.DEFAULT_DATA);
         this._uploading = false;
         this._config = this.getDefaultConfig();
         this.requestUpdate();
+    }
+
+    addFiles(files) {
+        if (files.length > 0 && !this._uploading) {
+            // TODO: check for maximum file size or duplicated files?
+            Array.from(files).forEach(file => {
+                this._data.files.push({
+                    fileObject: file,
+                    status: this.FILE_STATUS.PENDING,
+                });
+            });
+            this._data = {...this._data};
+            this.requestUpdate();
+        }
+    }
+
+    onSelectFilesClick(event) {
+        event.preventDefault();
+        if (!this._uploading) {
+            this.querySelector(`input[type="file"]`).click();
+        }
+    }
+
+    onDropFiles(event) {
+        event.preventDefault();
+        this.addFiles(event.dataTransfer?.files || []);
+    }
+
+    onFilesChange(event) {
+        event.preventDefault();
+        this.addFiles(event.target.files || []);
+
+        // note: reset the value of the input file to allow uploading the same file again
+        event.target.value = null;
+    }
+
+    onFileRemove(event, file) {
+        this._data.files = this._data.files.filter(f => f !== file);
+        this._data = {...this._data};
+        this.requestUpdate();
+    }
+
+    onFieldChange(event) {
+        this._data = {...event.detail.data};
+
+        // if the sample is selected, fille the sample information
+        if (event.detail.param === "sample") {
+            if (event.detail.value) {
+                this.opencgaSession.opencgaClient.samples()
+                    .info(event.detail.value, {
+                        study: this.opencgaSession.study.fqn,
+                        includeIndividual: true,
+                        include: "id,somatic",
+                    })
+                    .then(response => {
+                        const result = response?.responses?.[0]?.results?.[0];
+                        if (result) {
+                            this._data.sampleId = result.id;
+                            this._data.sampleSomatic = !!result.somatic;
+                            if (result?.attributes?.OPENCGA_INDIVIDUAL) {
+                                this._data.individual = result.attributes.OPENCGA_INDIVIDUAL.id;
+                                this._data.individualId = result.attributes.OPENCGA_INDIVIDUAL.id;
+                                this._data.individualSex = result.attributes.OPENCGA_INDIVIDUAL.sex?.id || "";
+                            }
+                        }
+                        this._data = {...this._data};
+                        this.requestUpdate();
+                    });
+            } else {
+                delete this._data.sampleId;
+                delete this._data.sampleSomatic;
+                // delete this._data.individualId;
+                // delete this._data.individualSex;
+            }
+        }
+
+        // if the individual is selected, fetch the individual data
+        if (event.detail.param === "individual") {
+            if (event.detail.value) {
+                this.opencgaSession.opencgaClient.individuals()
+                    .info(event.detail.value, {
+                        study: this.opencgaSession.study.fqn,
+                    })
+                    .then(response => {
+                    const result = response?.responses?.[0]?.results?.[0];
+                    if (result) {
+                        this._data.individualId = result.id;
+                        this._data.individualSex = result.sex?.id || "";
+                    }
+                    this._data = {...this._data};
+                    this.requestUpdate();
+                });
+            } else {
+                delete this._data.individualId;
+                delete this._data.individualSex;
+            }
+        }
+
+        this.requestUpdate();
+    }
+
+    onClear() {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            title: "Clear File Upload",
+            message: "Are you sure to clear?",
+            ok: () => {
+                this._data = {
+                    type: "Single Upload",
+                    singleUploadType: "Create New Sample",
+                    relativeFilePath: "/" + (this.path || ""),
+                    files: [],
+                };
+                this.requestUpdate();
+            },
+        });
+    }
+
+    async onSubmit() {
+        // avoid multiple submissions
+        if (this._uploading || !this._data.files || this._data.files.length === 0) {
+            return;
+        }
+
+        // start uploading the selected files
+        this._uploading = true;
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
+
+        try {
+            if (this._data.type === "Batch Upload") {
+                await this.handleBatchUpload();
+            } else {
+                await this.handleSingleUpload();
+            }
+
+            // If all files are uploaded correctly, show a success message
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: `Uploaded ${this._data.files.length} files correctly.`,
+            });
+            // dispatch an event to notify that a file has been uploaded
+            LitUtils.dispatchCustomEvent(this, "fileUploadAll", null, {
+                relativeFilePath: this._data.relativeFilePath,
+                files: this._data.files.map(file => {
+                    return file.fileObject.name;
+                }),
+            });
+
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+        } finally {
+            this.reset();
+        }
     }
 
     render() {
