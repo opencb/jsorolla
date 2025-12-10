@@ -70,7 +70,7 @@ import "../../webcomponents/commons/analysis/analysis-tools.js";
 import "../../webcomponents/commons/analysis/my-analysis-tools.js";
 import "../../webcomponents/commons/analysis/jupyter-notebook.js";
 
-import "../../webcomponents/clinical/preprocessing/clinical-file-upload.js";
+import "../../webcomponents/clinical/clinical-file-upload.js";
 import "../../webcomponents/clinical/preprocessing/clinical-preprocessing.js";
 import "../../webcomponents/clinical/tertiary/clinical-tertiary.js";
 
