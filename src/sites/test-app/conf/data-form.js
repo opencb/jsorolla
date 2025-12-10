@@ -1,4 +1,4 @@
-import {html} from "lit";
+import { html } from "lit";
 
 const defaultHighchartConfig = {
     chart: {
@@ -465,7 +465,7 @@ export const DATA_FORM_EXAMPLE = {
                 {
                     name: "plotExample from Object",
                     // field: "inputPlot",
-                    data: {"INSERTION": 1, "SNV": 165398, "DELETION": 1, "INDEL": 7218},
+                    data: { "INSERTION": 1, "SNV": 165398, "DELETION": 1, "INDEL": 7218 },
                     type: "plot",
                     display: {
                         chart: "column",
@@ -485,6 +485,21 @@ export const DATA_FORM_EXAMPLE = {
                 },
             ]
         },
+
+        {
+            title: "File Content",
+            elements: [
+                {
+                    title: "File Content (Text/Excel)",
+                    field: "fileContent",
+                    type: "file-content",
+                    display: {
+                        rows: 15,
+                        placeholder: "Upload a file..."
+                    }
+                }
+            ]
+        }
     ],
 };
 

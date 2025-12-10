@@ -40,7 +40,7 @@ export default class ClinicalFileUpload extends LitElement {
         };
 
         this._data = {
-            select: true,
+            select: "Create New Sample",
             files: [],
         };
         this._uploading = false;
@@ -272,23 +272,34 @@ export default class ClinicalFileUpload extends LitElement {
                     title: "Select Sample",
                     description: "",
                     elements: [
+                        // {
+                        //     title: "Create or Select Sample",
+                        //     field: "select",
+                        //     type: "toggle-switch",
+                        //     display: {
+                        //         onText: "Create Sample",
+                        //         offText: "Search",
+                        //         helpMessage: "Create a new one sample or Select an existing one.",
+                        //     },
+                        // },
                         {
-                            title: "Create or Select Sample",
+                            title: "Upload Mode",
                             field: "select",
-                            type: "toggle-switch",
+                            type: "toggle-buttons",
+                            allowedValues: ["Create New Sample", "Associate to Existing Sample", "Batch Upload"],
+                            defaultValue: "Create New Sample",
                             display: {
-                                onText: "Create Sample",
-                                offText: "Search",
-                                helpMessage: "Create a new one sample or Select an existing one.",
+                                helpMessage: "Select whether to create a new sample, associate files to an existing sample, or perform a batch upload.",
                             },
                         }
+
                     ]
                 },
                 {
                     title: "Create New Patient and Sample",
                     description: "",
                     display: {
-                        visible: data => data?.select !== false,
+                        visible: data => data?.select === "Create New Sample",
                     },
                     elements: [
                         {
@@ -332,7 +343,7 @@ export default class ClinicalFileUpload extends LitElement {
                     title: "Search Sample",
                     description: "Select the sample to which the files will be associated.",
                     display: {
-                        visible: data => data?.select === false,
+                        visible: data => data?.select === "Associate to Existing Sample",
                     },
                     elements: [
                         {
@@ -357,11 +368,47 @@ export default class ClinicalFileUpload extends LitElement {
                     ]
                 },
                 {
+                    title: "Batch Upload Configuration",
+                    description: "Configure the batch upload settings.",
+                    display: {
+                        visible: data => data?.select === "Batch Upload",
+                    },
+                    elements: [
+                        {
+                            title: "Confirm Sample Creation",
+                            field: "confirmSampleCreation",
+                            type: "checkbox",
+                            display: {
+                                // defaultValue: true,
+                                helpMessage: "Check this box to confirm the creation of samples during batch upload.",
+                            },
+                        },
+                        {
+                            title: "Tag Name",
+                            field: "tagName",
+                            type: "input-text",
+                            required: true,
+                            display: {
+                                helpMessage: "Enter a tag name for all the files in the batch upload.",
+                            },
+                        },
+                        {
+                            title: "Mapping Files and Samples",
+                            field: "mappingFileContent",
+                            type: "file-content",
+                            required: true,
+                            display: {
+                                helpMessage: "Enter a tag name for the batch upload.",
+                            },
+                        },
+                    ]
+                },
+                {
                     title: "Upload Files",
                     description: html`<span>Upload one or more files to the selected study. <b>Note:</b> if the path already exists, the files will be overwritten.</span>`,
                     elements: [
                         {
-                            title: "Path",
+                            title: "Upload Destination Path",
                             field: "relativeFilePath",
                             type: "custom",
                             display: {
