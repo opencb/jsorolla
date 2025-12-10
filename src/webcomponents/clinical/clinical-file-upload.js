@@ -31,7 +31,6 @@ export default class ClinicalFileUpload extends LitElement {
     }
 
     #init() {
-        // list of available statuses for the file
         this.DEFAULT_DATA = {
             type: "Single Upload",
             relativeFilePath: "/" + (this.path || ""),
@@ -60,23 +59,57 @@ export default class ClinicalFileUpload extends LitElement {
     }
 
     async handleSingleUpload() {
-        // 1. Create Individual if needed
-        if (this._data.individualId && !this._data.individual) {
-            await this.opencgaSession.opencgaClient.individuals()
-                .create({
-                    id: this._data.individualId,
-                    sex: {id: this._data.individualSex || "UNKNOWN"}
-                }, {study: this.opencgaSession.study.fqn});
+        // 1. Create Sample if needed
+        if (this._data.sampleId && !this._data.sample) {
+            const sampleParams = {
+                id: this._data.sampleId,
+                somatic: !!this._data.sampleSomatic,
+            };
+            await this.opencgaSession.opencgaClient.samples()
+                .create(sampleParams, {
+                    study: this.opencgaSession.study.fqn,
+                });
         }
 
-        // 2. Create Sample if needed
-        if (this._data.sampleId && !this._data.sample) {
-            await this.opencgaSession.opencgaClient.samples()
-                .create({
-                    id: this._data.sampleId,
-                    individualId: this._data.individualId,
-                    somatic: !!this._data.sampleSomatic
-                }, {study: this.opencgaSession.study.fqn});
+        // 2. Create Individual if needed
+        if (this._data.individualId && !this._data.individual) {
+            const individualParams = {
+                id: this._data.individualId,
+                sex: {
+                    id: this._data.individualSex || "UNKNOWN"
+                },
+                samples: [
+                    {
+                        id: this._data.sampleId,
+                    }
+                ],
+            };
+            await this.opencgaSession.opencgaClient.individuals()
+                .create(individualParams, {
+                    study: this.opencgaSession.study.fqn,
+                });
+        } else {
+            // we have to check if the individual already includes the sample
+            const individualResponse = await this.opencgaSession.opencgaClient.individuals()
+                .info(this._data.individualId, {
+                    study: this.opencgaSession.study.fqn,
+                    include: "samples.id",
+                });
+            const individual = individualResponse?.responses?.[0]?.results?.[0];
+            if (!(individual?.samples || []).find(sample => sample.id === this._data.sampleId)) {
+                const individualUpdateParams = {
+                    samples: [
+                        {
+                            id: this._data.sampleId,
+                        }
+                    ],
+                };
+                await this.opencgaSession.opencgaClient.individuals()
+                    .update(individual.id, individualUpdateParams, {
+                        study: this.opencgaSession.study.fqn,
+                        samplesAction: "ADD",
+                    });
+            }
         }
 
         // 3. Upload the files
@@ -99,14 +132,22 @@ export default class ClinicalFileUpload extends LitElement {
                             relativeFilePath: this._data.relativeFilePath.startsWith("/") ? this._data.relativeFilePath.substring(1) : this._data.relativeFilePath,
                             resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
                         });
+                    
                     // 3.2. if everything is ok, set the status to DONE
                     file.status = this.FILE_STATUS.DONE;
                     
                     // 3.3. Link file to the sample
                     const uploadedFileId = fileResult.responses[0].results[0].id;
-                    await this.opencgaSession.opencgaClient.files().update(uploadedFileId, {
-                        sampleIds: [this._data.sampleId],
-                    }, {study: this.opencgaSession.study.fqn});
+                    const sampleUpdateParams = {
+                        sampleIds: [
+                            this._data.sampleId,
+                        ],
+                    };
+                    await this.opencgaSession.opencgaClient.files()
+                        .update(uploadedFileId, sampleUpdateParams, {
+                            study: this.opencgaSession.study.fqn,
+                            sampleIdsAction: "ADD",
+                        });
 
                     // 3.4. dispatch an event to notify that a file has been uploaded
                     LitUtils.dispatchCustomEvent(this, "fileUpload", null, {
