@@ -33,9 +33,8 @@ export default class ClinicalTertiarySelect extends LitElement {
 
     #init() {
         this.DEFAULT_TOOLPARAMS = {
-            selectionType: "Single", // Single, Batch
-            // Single mode params
-            selectedEntity: "Sample",
+            mode: "Single", // Single, Batch
+            selectionType: "Sample",
             sample: null,
             samples: [],
             caseId: "",
@@ -43,7 +42,6 @@ export default class ClinicalTertiarySelect extends LitElement {
             flags: "",
             type: "SINGLE",
             disorders: [],
-            // Batch mode params
             mappingFile: "",
         };
         this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
@@ -74,6 +72,16 @@ export default class ClinicalTertiarySelect extends LitElement {
         this._toolParams = {
             ...this._toolParams,
         };
+
+        // 1. check if we have changed the mode
+        if (event.detail.param === "mode") {
+            this._toolParams.samples = []; // force to reset selected samples
+            if (event.detail.value === "Single") {
+                this._toolParams.selectionType = "Sample";
+            } else {
+                this._toolParams.selectionType = "Cohort";
+            }
+        }
         
         // LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
         this.requestUpdate();
@@ -84,42 +92,62 @@ export default class ClinicalTertiarySelect extends LitElement {
         this.requestUpdate();
     }
 
-    onSelectSample(sampleId) {
-        this.opencgaSession.opencgaClient.samples()
-            .info(sampleId, {
-                study: this.opencgaSession.study.fqn,
-                includeIndividual: true,
-                include: "id,internal.status.id,somatic",
-            })
-            .then(response => {
-                this._toolParams = {
-                    ...this._toolParams,
-                    samples: response?.responses?.[0]?.results || [],
-                };
-                this.requestUpdate();
-            });
+    onSelectSamples(resource, value) {
+        let resourcePromise = null;
+        switch (resource) {
+            case "Sample":
+                resourcePromise = this.opencgaSession.opencgaClient.samples()
+                    .info(value, {
+                        study: this.opencgaSession.study.fqn,
+                        includeIndividual: true,
+                        include: "id,internal.status.id,somatic",
+                    })
+                    .then(response => {
+                        return response?.responses?.[0]?.results || [];
+                    });
+                break;
+            case "Cohort":
+                resourcePromise = this.opencgaSession.opencgaClient.cohorts()
+                    .info(value, {
+                        study: this.opencgaSession.study.fqn,
+                        include: "samples.id,samples.individualId,samples.somatic",
+                    })
+                    .then(response => {
+                        return response?.responses?.[0]?.results?.[0]?.samples || [];
+                    });
+                break;
+        }
+
+        resourcePromise.then(samples => {
+            this._toolParams = {
+                ...this._toolParams,
+                samples: samples || [],
+            };
+            this.requestUpdate();
+        });
     }
 
-    renderSamplesSelection(samples, onFieldChange) {
+    renderSelection(selectionType, allowedSelectionTypes) {
         return html`
             <div class="input-group flex-nowrap">
                 <catalog-search-autocomplete
                     class="flex-grow-1"
-                    .value="${samples}"
-                    .resource="${"SAMPLE"}"
+                    .resource="${selectionType.toUpperCase()}"
                     .opencgaSession="${this.opencgaSession}"
                     .config="${{
                         multiple: false,
                     }}"
-                    @filterChange="${event => this.onSelectSample(event.detail.value)}">
+                    @filterChange="${event => this.onSelectSamples(selectionType, event.detail.value)}">
                 </catalog-search-autocomplete>
                 <button class="btn btn-outline-secondary dropdown-toggle mb-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span>Samples</span>
+                    <span>${selectionType}</span>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <div class="dropdown-item cursor-pointer">Sample</div>
-                    <div class="dropdown-item cursor-pointer">Individual</div>
-                    <div class="dropdown-item cursor-pointer">Family</div>
+                    ${allowedSelectionTypes.map(type => html`
+                        <div class="dropdown-item ${selectionType === type ? "active" : "cursor-pointer"}">
+                            ${type}
+                        </div>
+                    `)}
                 </div>
             </div>
         `;
@@ -153,7 +181,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                     elements: [
                         {
                             title: "Mode",
-                            field: "selectionType",
+                            field: "mode",
                             type: "toggle-buttons",
                             allowedValues: ["Single", "Batch"],
                             defaultValue: "Single",
@@ -163,16 +191,16 @@ export default class ClinicalTertiarySelect extends LitElement {
                 {
                     title: "Single Analysis Configuration",
                     display: {
-                        visible: data => data?.selectionType === "Single",
+                        visible: data => data?.mode === "Single",
                     },
                     elements: [
                          {
                             title: "Select Sample",
-                            field: "sampleSelectionType",
+                            field: "selectionType",
                             type: "custom",
                             display: {
-                                render: (sample, onFieldChange) => {
-                                    return this.renderSamplesSelection(sample, onFieldChange);
+                                render: (selectionType) => {
+                                    return this.renderSelection(selectionType, ["Sample", "Individual", "Family"]);
                                 },
                             },
                         },
@@ -300,16 +328,16 @@ export default class ClinicalTertiarySelect extends LitElement {
                 {
                     title: "Batch Analysis Configuration",
                     display: {
-                        visible: data => data?.selectionType === "Batch",
+                        visible: data => data?.mode === "Batch",
                     },
                     elements: [
                          {
                             title: "Select Samples",
-                            field: "batchSamples",
+                            field: "selectionType",
                             type: "custom",
                             display: {
-                                render: (samples, onFieldChange) => {
-                                    return this.renderSamplesSelection(samples, onFieldChange);
+                                render: (selectionType) => {
+                                    return this.renderSelection(selectionType, ["Cohort"]);
                                 },
                             },
                         },
@@ -324,19 +352,45 @@ export default class ClinicalTertiarySelect extends LitElement {
                         {
                             title: "Clinical Analysis",
                             type: "table",
+                            field: "samples",
                             display: {
                                 columns: [
                                     {
-                                        title: "Samples",
+                                        title: "Sample",
                                         field: "id",
                                     },
                                     {
-                                        title: "Type",
-                                        field: "type",
+                                        title: "Individual",
+                                        field: "individualId",
                                     },
                                     {
-                                        title: "Status",
-                                        field: "status",
+                                        title: "Somatic",
+                                        field: "somatic",
+                                    },
+                                    {
+                                        title: "Clinical Analysis",
+                                        type: "custom",
+                                        display: {
+                                            render: () => {
+                                                return html`
+                                                    <button class="btn btn-light btn-sm d-flex align-items-center gap-1">
+                                                        <i class="fas fa-cog"></i>
+                                                        <span>Configure</span>
+                                                    </button>
+                                                `;
+                                            },
+                                        },
+                                    },
+                                    {
+                                        title: "Select",
+                                        type: "custom",
+                                        display: {
+                                            render: (sample, onFieldChange) => {
+                                                return html`
+                                                    <input type="checkbox" class="form-check-input">
+                                                `;
+                                            },
+                                        },
                                     },
                                 ],
                             },
