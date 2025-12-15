@@ -127,10 +127,10 @@ export default class ClinicalFileUpload extends LitElement {
                             relativeFilePath: this._data.relativeFilePath.startsWith("/") ? this._data.relativeFilePath.substring(1) : this._data.relativeFilePath,
                             resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
                         });
-                    
+
                     // 3.2. if everything is ok, set the status to DONE
                     file.status = this.FILE_STATUS.DONE;
-                    
+
                     // 3.3. Link file to the sample
                     const uploadedFileId = fileResult.responses[0].results[0].id;
                     const sampleUpdateParams = {
@@ -193,7 +193,7 @@ export default class ClinicalFileUpload extends LitElement {
                 if (!sampleId) {
                     sampleId = file.fileObject.name.replace(/\.[^/.]+$/, "");
                 }
-                
+
                 // if individual is missing, use sampleId instead
                 if (!individualId) {
                     individualId = sampleId;
@@ -235,7 +235,7 @@ export default class ClinicalFileUpload extends LitElement {
                             sampleExists = true;
                         }
                     } catch (e) {
-                         console.error("Error searching for sample:", e);
+                        console.error("Error searching for sample:", e);
                     }
 
                     if (!sampleExists) {
@@ -312,6 +312,7 @@ export default class ClinicalFileUpload extends LitElement {
                 mapping.push(entry);
             }
         }
+        debugger
         return mapping;
     }
 
@@ -357,21 +358,22 @@ export default class ClinicalFileUpload extends LitElement {
 
     onFieldChange(event) {
         this._data = {...event.detail.data};
-
-        // if the sample is selected, fille the sample information
+debugger
+        // if the sample is selected, fill the sample information
         if (event.detail.param === "sample") {
             if (event.detail.value) {
                 this.opencgaSession.opencgaClient.samples()
                     .info(event.detail.value, {
                         study: this.opencgaSession.study.fqn,
+                        include: "id,somatic,cohortIds",
                         includeIndividual: true,
-                        include: "id,somatic",
                     })
                     .then(response => {
                         const result = response?.responses?.[0]?.results?.[0];
                         if (result) {
                             this._data.sampleId = result.id;
                             this._data.sampleSomatic = !!result.somatic;
+                            this._data.sampleCohort = result.cohortIds?.length > 0 ? result.cohortIds[0] : null;
                             if (result?.attributes?.OPENCGA_INDIVIDUAL) {
                                 this._data.individual = result.attributes.OPENCGA_INDIVIDUAL.id;
                                 this._data.individualId = result.attributes.OPENCGA_INDIVIDUAL.id;
@@ -384,6 +386,7 @@ export default class ClinicalFileUpload extends LitElement {
             } else {
                 delete this._data.sampleId;
                 delete this._data.sampleSomatic;
+                delete this._data.sampleCohort;
                 // delete this._data.individualId;
                 // delete this._data.individualSex;
             }
@@ -397,15 +400,26 @@ export default class ClinicalFileUpload extends LitElement {
                         study: this.opencgaSession.study.fqn,
                     })
                     .then(response => {
-                    const result = response?.responses?.[0]?.results?.[0];
-                    if (result) {
-                        this._data.individualId = result.id;
-                        this._data.individualSex = result.sex?.id || "";
-                    }
-                    this._data = {...this._data};
-                    this.requestUpdate();
-                });
+                        const result = response?.responses?.[0]?.results?.[0];
+                        if (result) {
+                            this._data.individualId = result.id;
+                            this._data.individualSex = result.sex?.id || "";
+                        }
+                        this._data = {...this._data};
+                        this.requestUpdate();
+                    });
             } else {
+                delete this._data.individualId;
+                delete this._data.individualSex;
+            }
+        }
+
+        // If sample or sampleId are empty, clear sample and individual fields as well
+        if (event.detail.param === "sample" || event.detail.param === "sampleId") {
+            if (!this._data.sample && !this._data.sampleId) {
+                delete this._data.sampleSomatic;
+                delete this._data.sampleCohort;
+                delete this._data.individual;
                 delete this._data.individualId;
                 delete this._data.individualSex;
             }
@@ -458,7 +472,6 @@ export default class ClinicalFileUpload extends LitElement {
 
             // reset the form
             this._data = UtilsNew.objectClone(this.DEFAULT_DATA);
-
         } catch (error) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         } finally {
@@ -508,7 +521,7 @@ export default class ClinicalFileUpload extends LitElement {
                         sections: [
                             {
                                 id: "singleUploadSample",
-                                className: "w-full",
+                                className: "w-full px-3",
                             },
                             {
                                 id: "singleUploadSeparator",
@@ -517,7 +530,7 @@ export default class ClinicalFileUpload extends LitElement {
                             },
                             {
                                 id: "singleUploadIndividual",
-                                className: "w-full",
+                                className: "w-full px-3",
                             },
                         ],
                     },
@@ -532,8 +545,8 @@ export default class ClinicalFileUpload extends LitElement {
             },
             sections: [
                 {
-                    title: "Configure Upload",
                     id: "type",
+                    title: "Configure Upload",
                     elements: [
                         {
                             title: "Upload Mode",
@@ -548,20 +561,17 @@ export default class ClinicalFileUpload extends LitElement {
                     ],
                 },
                 {
-                    title: "Single Upload Configuration",
                     id: "singleUpload",
+                    title: "Single Upload Configuration",
+                    description: "Configure the single upload settings.",
                     display: {
                         visible: data => data?.type === "Single Upload",
                     },
                     elements: [],
                 },
                 {
-                    id: "singleUploadSeparator",
-                    elements: [],
-                },
-                {
-                    title: "Sample Configuration",
                     id: "singleUploadSample",
+                    title: "Sample Configuration",
                     display: {
                         visible: data => data?.type === "Single Upload",
                         titleClassName: "fs-4",
@@ -576,6 +586,7 @@ export default class ClinicalFileUpload extends LitElement {
                             type: "custom",
                             field: "sample",
                             display: {
+                                containerClassName: "px-3",
                                 render: (sample, onFieldChange, updateParams, data) => html`
                                     <catalog-search-autocomplete
                                         .value="${sample}"
@@ -600,6 +611,7 @@ export default class ClinicalFileUpload extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
+                                containerClassName: "px-3",
                                 disabled: data => !!data?.sample,
                                 helpMessage: "Identifier for the sample to be created and associated to the uploaded files. "
                             },
@@ -609,15 +621,40 @@ export default class ClinicalFileUpload extends LitElement {
                             field: "sampleSomatic",
                             type: "checkbox",
                             display: {
+                                containerClassName: "px-3",
                                 disabled: data => !!data?.sample,
                                 helpMessage: "Check if the sample is somatic.",
+                            },
+                        },
+                        {
+                            title: "Select Cohort",
+                            type: "custom",
+                            field: "sampleCohort",
+                            display: {
+                                containerClassName: "px-3",
+                                render: (sample, onFieldChange, updateParams, data) => html`
+                                    <catalog-search-autocomplete
+                                        .value="${sample}"
+                                        .resource="${"COHORT"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            multiple: false,
+                                        }}"
+                                        @filterChange="${event => onFieldChange(event.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `,
+                                helpMessage: "Optionally, select a cohort to which the sample will be added. No need to select cohort ALL, as it is automatically updated.",
                             },
                         },
                     ],
                 },
                 {
-                    title: "Individual Configuration",
+                    id: "singleUploadSeparator",
+                    elements: [],
+                },
+                {
                     id: "singleUploadIndividual",
+                    title: "Individual Configuration",
                     display: {
                         visible: data => data?.type === "Single Upload",
                         titleClassName: "fs-4",
@@ -632,6 +669,7 @@ export default class ClinicalFileUpload extends LitElement {
                             type: "custom",
                             field: "individual",
                             display: {
+                                containerClassName: "px-3",
                                 render: (individual, onFieldChange, updateParams, data) => html`
                                     <catalog-search-autocomplete
                                         .value="${individual}"
@@ -656,6 +694,7 @@ export default class ClinicalFileUpload extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
+                                containerClassName: "px-3",
                                 disabled: data => !!data?.individual,
                                 helpMessage: "Identifier for the individual to be created and associated to the uploaded files. "
                             },
@@ -665,6 +704,7 @@ export default class ClinicalFileUpload extends LitElement {
                             field: "individualSex",
                             type: "input-text",
                             display: {
+                                containerClassName: "px-3",
                                 disabled: data => !!data?.individual,
                                 helpMessage: "Sex of the patient.",
                             },
@@ -685,7 +725,7 @@ export default class ClinicalFileUpload extends LitElement {
                             type: "checkbox",
                             display: {
                                 // defaultValue: true,
-                                helpMessage: "Check this box to confirm the creation of samples during batch upload.",
+                                helpMessage: "Check this box to confirm the creation of samples and individuals during batch upload.",
                             },
                         },
                         {
