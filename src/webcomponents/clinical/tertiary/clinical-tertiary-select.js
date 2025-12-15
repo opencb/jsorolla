@@ -35,7 +35,9 @@ export default class ClinicalTertiarySelect extends LitElement {
         this.DEFAULT_TOOLPARAMS = {
             selectionType: "Single", // Single, Batch
             // Single mode params
+            selectedEntity: "Sample",
             sample: null,
+            samples: [],
             caseId: "",
             panels: [],
             flags: "",
@@ -69,22 +71,58 @@ export default class ClinicalTertiarySelect extends LitElement {
     }
 
     onFieldChange(event) {
-        const {field, value} = event.detail;
         this._toolParams = {
             ...this._toolParams,
-            [field]: value,
         };
         
-        // If switching between modes, we might want to reset some fields or just keep them?
-        // keeping them for now.
-
-        LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
+        // LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
         this.requestUpdate();
     }
 
     onClear() {
         this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
         this.requestUpdate();
+    }
+
+    onSelectSample(sampleId) {
+        this.opencgaSession.opencgaClient.samples()
+            .info(sampleId, {
+                study: this.opencgaSession.study.fqn,
+                includeIndividual: true,
+                include: "id,internal.status.id,somatic",
+            })
+            .then(response => {
+                this._toolParams = {
+                    ...this._toolParams,
+                    samples: response?.responses?.[0]?.results || [],
+                };
+                this.requestUpdate();
+            });
+    }
+
+    renderSamplesSelection(samples, onFieldChange) {
+        return html`
+            <div class="input-group flex-nowrap">
+                <catalog-search-autocomplete
+                    class="flex-grow-1"
+                    .value="${samples}"
+                    .resource="${"SAMPLE"}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .config="${{
+                        multiple: false,
+                    }}"
+                    @filterChange="${event => this.onSelectSample(event.detail.value)}">
+                </catalog-search-autocomplete>
+                <button class="btn btn-outline-secondary dropdown-toggle mb-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span>Samples</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <div class="dropdown-item cursor-pointer">Sample</div>
+                    <div class="dropdown-item cursor-pointer">Individual</div>
+                    <div class="dropdown-item cursor-pointer">Family</div>
+                </div>
+            </div>
+        `;
     }
 
     render() {
@@ -130,22 +168,38 @@ export default class ClinicalTertiarySelect extends LitElement {
                     elements: [
                          {
                             title: "Select Sample",
-                            field: "sample",
+                            field: "sampleSelectionType",
                             type: "custom",
                             display: {
                                 render: (sample, onFieldChange) => {
-                                    return html`
-                                        <catalog-search-autocomplete
-                                            .value="${sample}"
-                                            .resource="${"SAMPLE"}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .config="${{
-                                                multiple: false,
-                                            }}"
-                                            @filterChange="${e => onFieldChange(e.detail.value)}">
-                                        </catalog-search-autocomplete>
-                                    `;
+                                    return this.renderSamplesSelection(sample, onFieldChange);
                                 },
+                            },
+                        },
+                        {
+                            title: " ",
+                            field: "samples",
+                            type: "table",
+                            display: {
+                                visible: data => data?.samples?.length > 0,
+                                columns: [
+                                    {
+                                        title: "Sample",
+                                        field: "id",
+                                    },
+                                    {
+                                        title: "Individual",
+                                        field: "attributes.OPENCGA_INDIVIDUAL.id",
+                                    },
+                                    {
+                                        title: "Somatic",
+                                        field: "somatic",
+                                    },
+                                    {
+                                        title: "Status",
+                                        field: "internal.status.id",
+                                    },
+                                ],
                             },
                         },
                         {
@@ -244,24 +298,14 @@ export default class ClinicalTertiarySelect extends LitElement {
                             type: "custom",
                             display: {
                                 render: (samples, onFieldChange) => {
-                                    return html`
-                                        <catalog-search-autocomplete
-                                            .value="${samples}"
-                                            .resource="${"SAMPLE"}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .config="${{
-                                                multiple: true,
-                                            }}"
-                                            @filterChange="${e => onFieldChange(e.detail.value)}">
-                                        </catalog-search-autocomplete>
-                                    `;
+                                    return this.renderSamplesSelection(samples, onFieldChange);
                                 },
                             },
                         },
                         {
                             title: "Or Upload Mapping File",
                             field: "mappingFile",
-                            type: "file", // Or file-content if we want to parse it immediately
+                            type: "file-content",
                             display: {
                                 helpMessage: "Upload a file mapping samples to clinical analysis parameters.",
                             },
