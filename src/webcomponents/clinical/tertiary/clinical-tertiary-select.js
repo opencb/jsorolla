@@ -99,8 +99,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                 resourcePromise = this.opencgaSession.opencgaClient.samples()
                     .info(value, {
                         study: this.opencgaSession.study.fqn,
-                        includeIndividual: true,
-                        include: "id,internal.status.id,somatic",
+                        include: "id,internal.status.id,somatic,individualId",
                     })
                     .then(response => {
                         return response?.responses?.[0]?.results || [];
@@ -217,7 +216,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                                     },
                                     {
                                         title: "Individual",
-                                        field: "attributes.OPENCGA_INDIVIDUAL.id",
+                                        field: "individualId",
                                     },
                                     {
                                         title: "Somatic",
