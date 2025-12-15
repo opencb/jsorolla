@@ -1,8 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/tool-header.js";
-import "./clinical-tertiary-samples.js";
-import "./clinical-tertiary-cases.js";
+import "./clinical-tertiary-select.js";
 import "./clinical-tertiary-tools.js";
 import "./clinical-tertiary-review.js";
 
@@ -27,8 +26,7 @@ export default class ClinicalTertiary extends LitElement {
 
     #init() {
         this.DEFAULT_STEPS_PARAMS = {
-            samples: [],
-            cases: [],
+            select: {},
             tools: [],
         };
         this._activeStepIndex = 0;
@@ -57,12 +55,8 @@ export default class ClinicalTertiary extends LitElement {
         }
     }
 
-    onSamplesParamsChange(event) {
-        this._stepsParams.samples = event.detail;
-    }
-
-    onCasesParamsChange(event) {
-        this._stepsParams.cases = event.detail;
+    onSelectParamsChange(event) {
+        this._stepsParams.select = event.detail;
     }
 
     onToolsParamsChange(event) {
@@ -168,33 +162,18 @@ export default class ClinicalTertiary extends LitElement {
             title: "Clinical Tertiary",
             steps: [
                 {
-                    id: "samples",
-                    title: "Samples",
-                    icon: "fas fa-vial",
+                    id: "select",
+                    title: "Select",
+                    icon: "fas fa-clipboard-list",
                     render: () => html`
-                        <clinical-tertiary-samples
-                            .toolParams="${this._stepsParams?.samples}"
+                        <clinical-tertiary-select
+                            .toolParams="${this._stepsParams?.select}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: false,
                             }}"
-                            @paramsChange="${event => this.onSamplesParamsChange(event)}">
-                        </clinical-tertiary-samples>
-                    `,
-                },
-                {
-                    id: "cases",
-                    title: "Cases",
-                    icon: "fas fa-folder-open",
-                    render: () => html`
-                        <clinical-tertiary-cases
-                            .toolParams="${this._stepsParams?.cases}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .displayConfig="${{
-                                buttonsVisible: false,
-                            }}"
-                            @paramsChange="${event => this.onCasesParamsChange(event)}">
-                        </clinical-tertiary-cases>
+                            @paramsChange="${event => this.onSelectParamsChange(event)}">
+                        </clinical-tertiary-select>
                     `,
                 },
                 {
