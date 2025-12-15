@@ -724,6 +724,7 @@ debugger
                                         @filterChange="${event => onFieldChange(event.detail.value)}">
                                     </catalog-search-autocomplete>
                                 `,
+                                helpMessage: "Family to which the individual belongs.",
                             },
                         },
                     ],
