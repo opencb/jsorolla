@@ -44,7 +44,8 @@ export default class ClinicalTertiary extends LitElement {
     }
 
     navigationButtonsVisible() {
-        return this._activeStepIndex > 0;
+        // return this._activeStepIndex > 0;
+        return true;
     }
 
     onChangeActiveStep(event, newStepIndex) {
