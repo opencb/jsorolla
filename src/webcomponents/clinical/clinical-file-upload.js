@@ -706,6 +706,26 @@ debugger
                                 helpMessage: "Sex of the patient.",
                             },
                         },
+                        {
+                            title: "Family",
+                            field: "individualFamily",
+                            type: "custom",
+                            display: {
+                                containerClassName: "px-3",
+                                render: (family, onFieldChange, updateParams, data) => html`
+                                    <catalog-search-autocomplete
+                                        .value="${family}"
+                                        .resource="${"FAMILY"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            multiple: false,
+                                            disabled: !!data?.individual,
+                                        }}"
+                                        @filterChange="${event => onFieldChange(event.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `,
+                            },
+                        },
                     ],
                 },
                 {
