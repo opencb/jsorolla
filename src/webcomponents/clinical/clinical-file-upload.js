@@ -313,7 +313,6 @@ export default class ClinicalFileUpload extends LitElement {
                 mapping.push(entry);
             }
         }
-        debugger
         return mapping;
     }
 
@@ -334,7 +333,7 @@ export default class ClinicalFileUpload extends LitElement {
     onSelectFilesClick(event) {
         event.preventDefault();
         if (!this._uploading) {
-            this.querySelector(`input[type="file"]`).click();
+            this.querySelector(`input#files-input[type="file"]`).click();
         }
     }
 
@@ -359,7 +358,7 @@ export default class ClinicalFileUpload extends LitElement {
 
     onFieldChange(event) {
         this._data = {...event.detail.data};
-debugger
+
         // if the sample is selected, fill the sample information
         if (event.detail.param === "sample") {
             if (event.detail.value) {
@@ -829,7 +828,7 @@ debugger
                             required: true,
                             display: {
                                 render: () => html`
-                                    <input class="d-none" type="file" multiple="true" @change="${event => this.onFilesChange(event)}">
+                                    <input id="files-input" class="d-none" type="file" multiple="true" @change="${event => this.onFilesChange(event)}">
                                     <div @click="${event => this.onSelectFilesClick(event)}" @drop="${event => this.onDropFiles(event)}" @dragover="${event => event.preventDefault()}">
                                         <div class="d-flex align-items-center justify-content-center rounded-3 border border-gray-200 p-4 cursor-pointer">
                                             <div class="d-flex flex-column gap-2 align-items-center">
