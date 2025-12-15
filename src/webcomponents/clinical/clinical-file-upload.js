@@ -747,15 +747,6 @@ debugger
                             },
                         },
                         {
-                            title: "Tag Name",
-                            field: "tagName",
-                            type: "input-text",
-                            required: true,
-                            display: {
-                                helpMessage: "Enter a tag name for all the files in the batch upload.",
-                            },
-                        },
-                        {
                             title: "Mapping Files and Samples",
                             field: "mappingFileContent",
                             type: "file-content",
@@ -789,6 +780,14 @@ debugger
                                     </div>
                                 `,
                                 helpMessage: "Path where the files will be uploaded.",
+                            },
+                        },
+                        {
+                            title: "Tag Name",
+                            field: "tagName",
+                            type: "input-text",
+                            display: {
+                                helpMessage: "Enter a tag name for all the files in the batch upload.",
                             },
                         },
                         {
