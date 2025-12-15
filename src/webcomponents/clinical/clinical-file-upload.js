@@ -32,7 +32,7 @@ export default class ClinicalFileUpload extends LitElement {
 
     #init() {
         this.DEFAULT_DATA = {
-            type: "Single Upload",
+            type: "Single",
             relativeFilePath: "/" + (this.path || ""),
             files: [],
         };
@@ -451,7 +451,7 @@ debugger
         this.requestUpdate();
 
         try {
-            if (this._data.type === "Batch Upload") {
+            if (this._data.type === "Batch") {
                 await this.handleBatchUpload();
             } else {
                 await this.handleSingleUpload();
@@ -552,11 +552,8 @@ debugger
                             title: "Upload Mode",
                             field: "type",
                             type: "toggle-buttons",
-                            allowedValues: ["Single Upload", "Batch Upload"],
-                            defaultValue: "Single Upload",
-                            display: {
-                                helpMessage: "Select whether to perform a single upload or a batch upload.",
-                            },
+                            allowedValues: ["Single", "Batch"],
+                            defaultValue: "Single",
                         },
                     ],
                 },
@@ -565,7 +562,7 @@ debugger
                     title: "Single Upload Configuration",
                     description: "Configure the single upload settings.",
                     display: {
-                        visible: data => data?.type === "Single Upload",
+                        visible: data => data?.type === "Single",
                     },
                     elements: [],
                 },
@@ -573,7 +570,7 @@ debugger
                     id: "singleUploadSample",
                     title: "Sample Configuration",
                     display: {
-                        visible: data => data?.type === "Single Upload",
+                        visible: data => data?.type === "Single",
                         titleClassName: "fs-4",
                     },
                     elements: [
@@ -656,7 +653,7 @@ debugger
                     id: "singleUploadIndividual",
                     title: "Individual Configuration",
                     display: {
-                        visible: data => data?.type === "Single Upload",
+                        visible: data => data?.type === "Single",
                         titleClassName: "fs-4",
                     },
                     elements: [
@@ -716,7 +713,7 @@ debugger
                     description: "Configure the batch upload settings.",
                     id: "batchUpload",
                     display: {
-                        visible: data => data?.type === "Batch Upload",
+                        visible: data => data?.type === "Batch",
                     },
                     elements: [
                         {
