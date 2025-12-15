@@ -199,6 +199,17 @@ export default class ClinicalTertiarySelect extends LitElement {
                                         title: "Status",
                                         field: "internal.status.id",
                                     },
+                                    {
+                                        title: "Select",
+                                        type: "custom",
+                                        display: {
+                                            render: (sample, onFieldChange) => {
+                                                return html`
+                                                    <input type="checkbox" class="form-check-input">
+                                                `;
+                                            },
+                                        },
+                                    },
                                 ],
                             },
                         },
@@ -275,11 +286,11 @@ export default class ClinicalTertiarySelect extends LitElement {
                                 {
                                     title: "Disorders",
                                     field: "clinicalAnalysis.disorders",
-                                    type: "custom",
+                                    type: "select",
+                                    allowedValues: data => {
+                                        return data?.samples?.[0]?.attributes?.OPENCGA_INDIVIDUAL?.disorders || [];
+                                    },
                                     display: {
-                                        render: (disorders, onFieldChange) => {
-                                            return html``;
-                                        },
                                     },
                                 },
                             ],
@@ -311,19 +322,25 @@ export default class ClinicalTertiarySelect extends LitElement {
                             },
                         },
                         {
-                            title: "Summary",
-                            type: "custom",
+                            title: "Clinical Analysis",
+                            type: "table",
                             display: {
-                                render: (data) => {
-                                    // TODO: Implement table summary parsing mappingFile or multiple samples
-                                    return html`
-                                        <div class="alert alert-info">
-                                            Table summary of batch selection will appear here.
-                                        </div>
-                                    `;
-                                }
-                            }
-                        }
+                                columns: [
+                                    {
+                                        title: "Samples",
+                                        field: "id",
+                                    },
+                                    {
+                                        title: "Type",
+                                        field: "type",
+                                    },
+                                    {
+                                        title: "Status",
+                                        field: "status",
+                                    },
+                                ],
+                            },
+                        },
                     ],
                 },
             ],
