@@ -278,6 +278,9 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
             {
                 title: "Quality Control Options",
                 description: "These parameters apply to the quality control step of the Affy preprocessing pipeline.",
+                display: {
+                    visible: false,
+                },
                 elements: [
                     // {
                     //     title: "Active",
@@ -381,6 +384,9 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
             {
                 title: "Genotype Options",
                 description: "These parameters apply to the quality control step of the Affy preprocessing pipeline.",
+                display: {
+                    visible: false,
+                },
                 elements: [
                     // {
                     //     title: "Axiom Index Directory",
