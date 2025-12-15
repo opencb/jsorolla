@@ -34,6 +34,7 @@ export default class ClinicalFileUpload extends LitElement {
         this.DEFAULT_DATA = {
             type: "Single",
             relativeFilePath: "/" + (this.path || ""),
+            confirmSampleCreation: true,
             files: [],
         };
         this.FILE_STATUS = {
