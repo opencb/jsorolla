@@ -920,13 +920,12 @@ export default class DataForm extends LitElement {
         const content = html`
             <div class="mb-2">
                 <input type="file"
-                       class="form-control"
-                       ?disabled="${disabled}"
-                       @change="${e => this.onFileChange(e, element)}">
+                    class="form-control"
+                    ?disabled="${disabled}"
+                    @change="${e => this.onFileChange(e, element)}">
             </div>
-            <div class="form-control"
-                 style="height: auto; max-height: ${maxHeight}px; overflow-y: auto; white-space: pre-wrap; font-family: monospace; background-color: ${disabled ? "#e9ecef" : "#fff"};">
-                ${value}
+            <div class="form-control" style="min-height:40px; max-height: ${maxHeight}px; overflow-y: auto; background-color: ${disabled ? "#e9ecef" : "#fff"};">
+                <div style="white-space:pre-wrap;font-family:monospace;">${value}</div>
             </div>
         `;
 
