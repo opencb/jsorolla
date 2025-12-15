@@ -748,6 +748,37 @@ debugger
                             },
                         },
                         {
+                            title: "Cohort",
+                            field: "cohort",
+                            type: "object",
+                            elements: [
+                                {
+                                    title: "Cohort ID",
+                                    field: "cohort.id",
+                                    type: "input-text",
+                                    display: {
+                                        helpMessage: "Identifier for the cohort to be created and associated to the uploaded files.",
+                                    },
+                                },
+                                {
+                                    title: "Cohort Name",
+                                    field: "cohort.name",
+                                    type: "input-text",
+                                    display: {
+                                        helpMessage: "Name for the cohort to be created and associated to the uploaded files.",
+                                    },
+                                },
+                                {
+                                    title: "Cohort Description",
+                                    field: "cohort.description",
+                                    type: "input-text",
+                                    display: {
+                                        helpMessage: "Description for the cohort to be created and associated to the uploaded files.",
+                                    },
+                                },
+                            ],
+                        },
+                        {
                             title: "Mapping Files and Samples",
                             field: "mappingFileContent",
                             type: "file-content",
