@@ -81,7 +81,7 @@ export default class UserToolExecutor extends LitElement {
     toolParamsObserver() {
         this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            ...UtilsNew.objectClone(this.toolParams),
+            ...UtilsNew.objectClone(this.toolParams || {}),
         };
         this.addToolVariablesToParams();
     }
@@ -207,6 +207,17 @@ export default class UserToolExecutor extends LitElement {
                         ...jobParams,
                     });
                 break;
+            case "VARIANT_WALKER":
+                toolParams = {
+                    id: this._tool.id,
+                    params: formParams,
+                };
+                toolRunPromise = this.opencgaSession.opencgaClient.userTool()
+                    .runWalker(toolParams, {
+                        study: this.opencgaSession.study.fqn,
+                        ...jobParams,
+                    });
+                break;
             default:
                 console.error("Tool type not supported: ", this._tool.type);
                 return;
@@ -219,7 +230,7 @@ export default class UserToolExecutor extends LitElement {
     onClear() {
         this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            ...UtilsNew.objectClone(this.toolParams),
+            ...UtilsNew.objectClone(this.toolParams || {}),
         };
         this.addToolVariablesToParams();
         this._config = this.getDefaultConfig();
