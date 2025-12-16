@@ -285,6 +285,10 @@ export default class WorkflowGrid extends LitElement {
                         @workflowUpdate="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
+                        }}"
+                        @variantWalkerUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
                         }}">
                     </tool-update>
                 `,
