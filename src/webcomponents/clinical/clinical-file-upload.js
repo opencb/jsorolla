@@ -3,6 +3,7 @@ import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
+import DataFormElements from "../commons/forms/data-form-elements.js";
 import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 
@@ -775,15 +776,14 @@ export default class ClinicalFileUpload extends LitElement {
                                 },
                             ],
                         },
-                        {
+                        DataFormElements.fileContentElement({
                             title: "Mapping Files and Samples",
                             field: "mappingFileContent",
-                            type: "file-content",
                             required: false,
                             display: {
                                 helpMessage: "Upload a CSV or TSV file with columns: File (required), Sample, Individual, Family, Somatic.",
                             },
-                        },
+                        }),
                     ],
                 },
                 {
