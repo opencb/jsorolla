@@ -1,6 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import DataFormElements from "../../commons/forms/data-form-elements.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 import "../../commons/filters/disease-panel-filter.js";
@@ -386,14 +387,13 @@ export default class ClinicalTertiarySelect extends LitElement {
                                 helpMessage: "Select samples by Cohort.",
                             },
                         },
-                        {
+                        DataFormElements.fileContentElement({
                             title: "Or Upload Mapping File",
                             field: "mappingFile",
-                            type: "file-content",
                             display: {
                                 helpMessage: "Upload a file mapping samples to clinical analysis parameters.",
                             },
-                        },
+                        }),
                         {
                             title: "Clinical Analysis",
                             type: "table",
