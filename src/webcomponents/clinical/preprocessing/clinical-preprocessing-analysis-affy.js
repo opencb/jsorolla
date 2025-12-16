@@ -109,7 +109,7 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
         // 1. reset the internal toolParams object to the default values and merge with the new incoming toolParams
         this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            ...this._toolParams,
+            ...this.toolParams,
         };
 
         // 2. merge steps configuration
@@ -232,7 +232,7 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                         },
                     },
                     {
-                        title: "Axiom Index Directory",
+                        title: "Axiom KU8 Index Directory",
                         description: "Directory where the Axiom resources are stored.",
                         field: "indexDir",
                         type: "custom",

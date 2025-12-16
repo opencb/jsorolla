@@ -99,6 +99,7 @@ export default class ClinicalPreprocessing extends LitElement {
             type: event.detail.content.type || "genomics",
             description: event.detail.content?.description || "",
         };
+        this._stepsParams.preprocessing.indexDir = event.detail.content?.input?.indexDir || "Axiom_KU8";
         // update pipeline steps
         this._stepsParams.preprocessing.steps = event.detail.content?.steps || {};
         this._activeStepIndex = 1; // move to next step
@@ -334,7 +335,7 @@ export default class ClinicalPreprocessing extends LitElement {
                         </div>
                     </div>
                 ` : nothing}
-            </div>  
+            </div>
         `;
     }
 
@@ -368,8 +369,8 @@ export default class ClinicalPreprocessing extends LitElement {
                 </div>
                 <div class="">
                     <span class="fw-bold">Disclaimer: </span>
-                    The NGS and Affymetrix Microarray Preprocessing Pipelines in the Clinical Preprocessing tool <b>are experimental and provided for research and exploratory use only</b>. 
-                    These pipelines are still under development and have not been clinically validated. 
+                    The NGS and Affymetrix Microarray Preprocessing Pipelines in the Clinical Preprocessing tool <b>are experimental and provided for research and exploratory use only</b>.
+                    These pipelines are still under development and have not been clinically validated.
                     They are not intended for diagnostic, clinical, or patient management decisions, and their results should not be used to guide medical care or patient management decisions.
                 </div>
             </div>
