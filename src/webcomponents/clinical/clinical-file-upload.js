@@ -175,6 +175,7 @@ export default class ClinicalFileUpload extends LitElement {
             }
 
             file.status = this.FILE_STATUS.UPLOADING;
+            this._data = {...this._data};
             this.requestUpdate();
             await this.updateComplete;
 
