@@ -207,6 +207,17 @@ export default class UserToolExecutor extends LitElement {
                         ...jobParams,
                     });
                 break;
+            case "VARIANT_WALKER":
+                toolParams = {
+                    id: this._tool.id,
+                    params: formParams,
+                };
+                toolRunPromise = this.opencgaSession.opencgaClient.userTool()
+                    .runWalker(toolParams, {
+                        study: this.opencgaSession.study.fqn,
+                        ...jobParams,
+                    });
+                break;
             default:
                 console.error("Tool type not supported: ", this._tool.type);
                 return;
