@@ -19,7 +19,6 @@
 import { html, LitElement, nothing } from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
-import * as XLSX from "xlsx";
 import "../simple-chart.js";
 import "../json-viewer.js";
 import "../json-editor.js";
@@ -911,53 +910,27 @@ export default class DataForm extends LitElement {
         return this._createElementTemplate(element, value, content);
     }
 
+    // DEPRECATED
     _createFileContentElement(element, section) {
-        let value = this.getValue(element.field) || this._getDefaultValue(element, section);
-        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
-        const rows = element.display?.rows ?? 10;
-        const maxHeight = rows * 20; // Approx 20px per line
+        return nothing;
+        // let value = this.getValue(element.field) || this._getDefaultValue(element, section);
+        // const disabled = this._getBooleanValue(element.display?.disabled, false, element);
+        // const rows = element.display?.rows ?? 10;
+        // const maxHeight = rows * 20; // Approx 20px per line
 
-        const content = html`
-            <div class="mb-2">
-                <input type="file"
-                    class="form-control"
-                    ?disabled="${disabled}"
-                    @change="${e => this.onFileChange(e, element)}">
-            </div>
-            <div class="form-control" style="min-height:40px; max-height: ${maxHeight}px; overflow-y: auto; background-color: ${disabled ? "#e9ecef" : "#fff"};">
-                <div style="white-space:pre-wrap;font-family:monospace;">${value}</div>
-            </div>
-        `;
+        // const content = html`
+        //     <div class="mb-2">
+        //         <input type="file"
+        //             class="form-control"
+        //             ?disabled="${disabled}"
+        //             @change="${e => this.onFileChange(e, element)}">
+        //     </div>
+        //     <div class="form-control" style="min-height:40px; max-height: ${maxHeight}px; overflow-y: auto; background-color: ${disabled ? "#e9ecef" : "#fff"};">
+        //         <div style="white-space:pre-wrap;font-family:monospace;">${value}</div>
+        //     </div>
+        // `;
 
-        return this._createElementTemplate(element, value, content);
-    }
-
-    async onFileChange(e, element) {
-        const file = e.target.files[0];
-        if (!file) {
-            return;
-        }
-
-        let content = "";
-        try {
-            if (file.name.endsWith(".xlsx") || file.name.endsWith(".xls")) {
-                const data = await file.arrayBuffer();
-                const workbook = XLSX.read(data, { type: "array" });
-                if (workbook.SheetNames.length > 0) {
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-                    content = XLSX.utils.sheet_to_csv(sheet);
-                }
-            } else {
-                content = await file.text();
-            }
-        } catch (error) {
-            console.error("Error reading file:", error);
-            content = "Error reading file: " + error.message;
-        }
-
-        this.onFilterChange(element, content);
-        this.requestUpdate();
+        // return this._createElementTemplate(element, value, content);
     }
 
     // Josemi 20220202 NOTE: this function was prev called _createInputTextElement
@@ -1662,6 +1635,7 @@ export default class DataForm extends LitElement {
 
         // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
         const data = element.field ? this.getValue(element.field) : this.data;
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
 
         // When an object-list, get the item being validated.
         let item;
@@ -1674,7 +1648,7 @@ export default class DataForm extends LitElement {
 
         // Call to render function, it must be defined!
         // We also allow to call to 'onFilterChange' function.
-        const content = element.display.render(data, value => this.onFilterChange(element, value), this.updateParams, this.data, item);
+        const content = element.display.render(data, value => this.onFilterChange(element, value), this.updateParams, this.data, item, disabled, element);
         // unsafeHTML or utilsNew.renderHTML
         // html`` won't render html string inside literal string, so i't necessary to use renderHTML.
         // const content = typeof contentHTML === "string" ? UtilsNew.renderHTML(contentHTML) : contentHTML;
