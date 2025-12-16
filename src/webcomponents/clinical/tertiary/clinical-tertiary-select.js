@@ -82,7 +82,40 @@ export default class ClinicalTertiarySelect extends LitElement {
                 this._toolParams.selectionType = "Cohort";
             }
         }
-        
+
+        // 2. check if we have uploaded a mapping file and get sample IDs from it
+        if (event.detail.param === "mappingFile") {
+            this._toolParams.samples = []; // force to reset selected samples
+            // get the sample IDs from the mapping file
+            const mappingFileContent = event.detail.value;
+            const header = mappingFileContent.split("\n")[0];
+            const sampleIndex = header.split("\t").indexOf("sample");
+            if (sampleIndex === -1) {
+                console.error("Mapping file must contain a 'sampleId' column in the header.");
+                return;
+            }
+
+            const sampleIds = mappingFileContent
+                .split("\n")
+                .slice(1) // skip header
+                .map(line => line.split("\t")[sampleIndex])
+                .filter(id => id); // remove empty lines
+
+            // Fetch sample details from OpenCGA
+            this.opencgaSession.opencgaClient.samples()
+                .info(sampleIds, {
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,internal.status.id,somatic,individualId",
+                    includeIndividual: true,
+                })
+                .then(response => {
+                    const samples = response?.responses?.[0]?.results || [];
+                    this._toolParams.samples = samples;
+                    this.requestUpdate();
+                });
+            return; // exit early since we handle async update
+        }
+
         // LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
         this.requestUpdate();
     }
@@ -94,6 +127,17 @@ export default class ClinicalTertiarySelect extends LitElement {
 
     onSelectSamples(resource, value) {
         let resourcePromise = null;
+
+        // If not value, reset samples
+        if (!value) {
+            this._toolParams = {
+                ...this._toolParams,
+                samples: [],
+            };
+            this.requestUpdate();
+            return;
+        }
+
         switch (resource) {
             case "Sample":
                 resourcePromise = this.opencgaSession.opencgaClient.samples()
@@ -201,6 +245,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                                 render: (selectionType) => {
                                     return this.renderSelection(selectionType, ["Sample", "Individual", "Family"]);
                                 },
+                                helpMessage: "Select samples by Sample, Individual, or Family.",
                             },
                         },
                         {
@@ -338,6 +383,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                                 render: (selectionType) => {
                                     return this.renderSelection(selectionType, ["Cohort"]);
                                 },
+                                helpMessage: "Select samples by Cohort.",
                             },
                         },
                         {

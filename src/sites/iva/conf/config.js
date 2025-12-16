@@ -280,11 +280,11 @@ const SUITE = {
                 },
                 {
                     id: "clinical-tertiary",
-                    name: "Clinical Tertiary",
+                    name: "Clinical Interpretation",
                     icon: "fa-cogs",
                     visibility: "public",
                     category: "Data Preprocessing",
-                    description: "Tertiary analysis tool for samples, cases, and tools configuration.",
+                    description: "Clinical Interpretation analysis tool to prioritize and filter variants in a clinical case.",
                 },
                 {
                     id: "clinical-analysis-portal",
