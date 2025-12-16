@@ -24,7 +24,7 @@ import "../../variant/analysis/variant-export-analysis.js";
 import "../../variant/analysis/opencga-variant-stats-exporter-analysis.js";
 import "../../variant/analysis/bcftools-analysis.js";
 import "../../variant/interpretation/variant-interpreter.js";
-import "../../workflow/analysis/workflow-analysis.js";
+import "../../workflow/analysis/tool-executor.js";
 
 export default class AnalysisTools extends LitElement {
 
@@ -103,12 +103,12 @@ export default class AnalysisTools extends LitElement {
                             `,
                         },
                         {
-                            id: "workflow-analysis",
-                            name: "Workflow Executor",
+                            id: "tool-executor",
+                            name: "User Tool Executor",
                             render: opencgaSession => html`
-                                <workflow-analysis
+                                <tool-executor
                                     .opencgaSession="${opencgaSession}">
-                                </workflow-analysis>
+                                </tool-executor>
                             `,
                         },
                     ],

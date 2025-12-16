@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
@@ -40,7 +41,7 @@ export default class ToolAnalysis extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            config: {
+            displayConfig: {
                 type: Object
             },
         };
@@ -50,89 +51,79 @@ export default class ToolAnalysis extends LitElement {
         this.ANALYSIS_TOOL = "tool";
         this.ANALYSIS_TITLE = "Tool Analysis";
         this.ANALYSIS_DESCRIPTION = "Executes a Docker-based tool analysis job";
-
         this.DEFAULT_TOOLPARAMS = {};
-        // Make a deep copy to avoid modifying default object.
-        this.toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-        };
 
-        this.config = this.getDefaultConfig();
+        this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            this.toolParams = {
+            this._toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
-            this.config = this.getDefaultConfig();
         }
+
+        if (changedProperties.has("displayConfig") || changedProperties.has("toolParams")) {
+            this._config = this.getDefaultConfig();
+        }
+
         super.update(changedProperties);
     }
 
     check() {
-        // FIXME decide if this must be displayed
-        // if (!this.toolParams.caseCohort) {
-        //     return {
-        //         message: "You must select a cohort or sample",
-        //         notificationType: "warning"
-        //     };
-        // }
         return null;
     }
 
     onFieldChange(e) {
-        this.toolParams = {...this.toolParams};
-        // Note: these parameters have been removed from the form
-        // Check if changed param was controlCohort --> reset controlCohortSamples field
-        // if (param === "controlCohort") {
-        //     this.toolParams.controlCohortSamples = "";
-        // }
-        // Check if changed param was caseCohort --> reset caseCohortSamples field
-        // if (param === "caseCohort") {
-        //     this.toolParams.caseCohortSamples = "";
-        // }
-        // this.config = this.getDefaultConfig();
+        this._toolParams = {...this._toolParams};
         this.requestUpdate();
     }
 
     onSubmit() {
+        // 1. prepare tool parameters
         const toolParams = {
-            commandLine: this.toolParams.commandLine,
-            docker: {
-                id: this.toolParams.docker?.id || "",
-                tag: this.toolParams.docker?.tag || "",
-                token: this.toolParams.docker?.token || "",
-            }
+            container: {
+                name: this._toolParams.container?.name || "",
+                tag: this._toolParams.container?.tag || "",
+                commandLine: this._toolParams.commandLine || "",
+                user: this._toolParams.container?.user || "",
+                password: this._toolParams.container?.password || "",
+            },
         };
-        const params = {
-            study: this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.ANALYSIS_TOOL),
-        };
-        AnalysisUtils.submit(
-            this.ANALYSIS_TITLE,
-            this.opencgaSession.opencgaClient.jobs()
-                .runTool(toolParams, params),
-            this,
-        );
+
+        // 2. initialize the promise to execute the tool job
+        const jobPromise = this.opencgaSession.opencgaClient.jobs()
+            .runTool(toolParams, {
+                study: this.opencgaSession.study.fqn,
+                ...AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL),
+            });
+
+        // 3. submit the analysis job and emit the tool analysis events
+        AnalysisUtils.submit(this.ANALYSIS_TITLE, jobPromise, this)
+            .then(() => {
+                LitUtils.dispatchCustomEvent(this, "toolAnalysisSubmit", null, toolParams);
+            });
     }
 
     onClear() {
-        this.toolParams = {
+        this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            ...this.toolParams,
         };
-        this.config = this.getDefaultConfig();
+        this._config = this.getDefaultConfig();
+        this.requestUpdate();
     }
 
     render() {
         return html`
             <data-form
-                .data="${this.toolParams}"
-                .config="${this.config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                .data="${this._toolParams}"
+                .config="${this._config}"
+                @fieldChange="${event => this.onFieldChange(event)}"
+                @clear="${event => this.onClear(event)}"
+                @submit="${event => this.onSubmit(event)}">
             </data-form>
         `;
     }
@@ -149,45 +140,51 @@ export default class ToolAnalysis extends LitElement {
                         required: true,
                         display: {
                             help: {
-                                text: "Command line to be executed in the Docker container. To use file you must use the prefix 'opencga://' before the path or name, for example: 'input_file=opencga://file.vcf'",
+                                text: "Command line to be executed in the container. To use file you must use the prefix 'opencga://' before the path or name, for example: 'input_file=opencga://file.vcf'",
                             }
                         }
                     }
                 ]
             },
             {
-                title: "Docker Configuration",
+                title: "Container Configuration",
                 elements: [
                     {
-                        title: "Docker Image",
-                        field: "docker.id",
+                        title: "Container Image",
+                        field: "container.name",
                         type: "input-text",
                         display: {
                             placeholder: "eg. ubuntu:latest",
                             help: {
-                                text: "Docker image to be used in the analysis. If empty then opencga-ext-tool is used",
+                                text: "Container image to be used in the analysis. If empty then opencga-ext-tool is used",
                             }
                         }
                     },
                     {
-                        title: "Docker Tag",
-                        field: "docker.tag",
+                        title: "Container Tag",
+                        field: "container.tag",
                         type: "input-text",
                         display: {
                             help: {
-                                text: "Docker tag to be used in the analysis",
+                                text: "Container tag to be used in the analysis",
                             }
                         }
                     },
                     {
-                        title: "Docker Token",
-                        field: "docker.token",
+                        title: "User ID",
+                        field: "container.user",
                         type: "input-text",
                         display: {
-                            help: {
-                                text: "A read-only token to access the Docker image",
-                            }
-                        }
+                            placeholder: "Add container user id...",
+                        },
+                    },
+                    {
+                        title: "Password/Token",
+                        field: "container.password",
+                        type: "input-password",
+                        display: {
+                            placeholder: "Add container password or token...",
+                        },
                     },
                 ]
             }
@@ -199,7 +196,11 @@ export default class ToolAnalysis extends LitElement {
             this.ANALYSIS_DESCRIPTION,
             params,
             this.check(),
-            this.config
+            {
+                display: {
+                    ...this.displayConfig,
+                },
+            },
         );
     }
 

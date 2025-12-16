@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
-import Types from "../commons/types.js";
+import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
-export default class WorkflowUpdate extends LitElement {
+export default class ToolUpdate extends LitElement {
 
     constructor() {
         super();
@@ -34,87 +33,80 @@ export default class WorkflowUpdate extends LitElement {
 
     static get properties() {
         return {
-            workflowId: {
+            toolId: {
                 type: String
             },
             active: {
                 type: Boolean,
             },
-            mode: {
-                type: String
+            type: {
+                type: String,
             },
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             displayConfig: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
     #init() {
-        this._workflow = {};
-        this.workflowId = "";
-        this.mode = "";
-        this.displayConfig = {
-            titleWidth: 3,
-            modalButtonClassName: "btn-primary btn-sm",
-            titleVisible: false,
-            titleAlign: "left",
-            defaultLayout: "horizontal",
-            buttonsVisible: true,
-            buttonsWidth: 8,
-            buttonsAlign: "end",
-        };
-
+        this._tool = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("displayConfig")) {
-            this.displayConfig = {...this.displayConfig};
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
-    onWorkflowIdObserver(e) {
-        this._workflow = UtilsNew.objectClone(e.detail.value);
+    onToolIdObserver(event) {
+        this._tool = UtilsNew.objectClone(event.detail.value);
         this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
 
     render() {
+        if (!this.opencgaSession || !this.type || !this.toolId) {
+            return nothing;
+        }
+
         return html`
             <opencga-update
-                .resource="${"WORKFLOW"}"
-                .componentId="${this.workflowId}"
+                .resource="${this.type}"
+                .componentId="${this.toolId}"
                 .opencgaSession="${this.opencgaSession}"
-                .active="${this.active || true}"
+                .active="${this.active ?? true}"
                 .config="${this._config}"
-                @componentIdObserver="${e => this.onWorkflowIdObserver(e)}">
+                @componentIdObserver="${event => this.onToolIdObserver(event)}">
             </opencga-update>
         `;
     }
 
     getDefaultConfig() {
-        return Types.dataFormConfig({
-            mode: this.mode,
-            display: this.displayConfig || this.displayConfigDefault,
+        return {
+            display: {
+                titleWidth: 3,
+                titleVisible: false,
+                titleAlign: "left",
+                buttonsVisible: true,
+                buttonsAlign: "end",
+                ...this.displayConfig,
+            },
             sections: [
                 {
                     title: "General Information",
                     elements: [
                         {
-                            title: "Workflow ID",
+                            title: "ID",
                             field: "id",
                             type: "input-text",
                             required: true,
                             display: {
                                 placeholder: "Add an ID...",
-                                help: {
-                                    text: "Add an ID",
-                                },
                             },
                         },
                         {
@@ -122,12 +114,12 @@ export default class WorkflowUpdate extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Add the workflow name...",
+                                placeholder: "Add the tool name...",
                             },
                         },
                         {
-                            title: "Type",
-                            field: "type",
+                            title: "Scope",
+                            field: "scope",
                             type: "select",
                             allowedValues: ["SECONDARY_ANALYSIS", "RESEARCH_ANALYSIS", "CLINICAL_INTERPRETATION_ANALYSIS", "OTHER"],
                             display: {
@@ -137,12 +129,9 @@ export default class WorkflowUpdate extends LitElement {
                         {
                             title: "Tags",
                             field: "tags",
-                            type: "input-text",
+                            type: "input-tags",
                             display: {
                                 placeholder: "Add tags...",
-                                help: {
-                                    text: "Comma-separated tags",
-                                },
                             },
                         },
                         {
@@ -176,8 +165,100 @@ export default class WorkflowUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Add the workflow description...",
+                                placeholder: "Add the tool description...",
                             },
+                        },
+                    ],
+                },
+                {
+                    title: "Container Configuration",
+                    display: {
+                        visible: this.type === "CUSTOM_TOOL" || this.type === "VARIANT_WALKER",
+                    },
+                    elements: [
+                        {
+                            title: "Container Name",
+                            field: "container.name",
+                            type: "input-text",
+                            required: true,
+                            display: {
+                                placeholder: "Add container image name...",
+                            },
+                        },
+                        {
+                            title: "Container Tag",
+                            field: "container.tag",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add container image tag...",
+                            },
+                        },
+                        {
+                            title: "Command Line",
+                            field: "container.commandLine",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add contailer command line...",
+                            },
+                        },
+                        {
+                            title: "User ID",
+                            field: "container.user",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add container user id...",
+                            },
+                        },
+                        {
+                            title: "Password/Token",
+                            field: "container.password",
+                            type: "input-password",
+                            display: {
+                                placeholder: "Add container password or token...",
+                            },
+                        },
+                    ],
+                },
+                {
+                    title: "Scripts",
+                    display: {
+                        visible: this.type === "WORKFLOW",
+                    },
+                    elements: [
+                        {
+                            title: "Scripts",
+                            field: "scripts",
+                            type: "object-list",
+                            display: {
+                                view: workflow => html`
+                                    <div>${workflow.fileName}</div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "File Name",
+                                    field: "scripts[].fileName",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "Add workflow file name...",
+                                    }
+                                },
+                                {
+                                    title: "is main script?",
+                                    field: "scripts[].main",
+                                    type: "checkbox",
+                                    display: {}
+                                },
+                                {
+                                    title: "Content",
+                                    field: "scripts[].content",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 25,
+                                        placeholder: "Add a content...",
+                                    },
+                                },
+                            ],
                         },
                     ],
                 },
@@ -249,53 +330,10 @@ export default class WorkflowUpdate extends LitElement {
                         },
                     ],
                 },
-                {
-                    title: "Scripts",
-                    elements: [
-                        {
-                            title: "Scripts",
-                            field: "scripts",
-                            type: "object-list",
-                            display: {
-                                style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
-                                // CAUTION 20231024 Vero: "collapsedUpdate" not considered in data-form.js. Perhaps "collapsed" (L1324 in data-form.js) ?
-                                // collapsedUpdate: true,
-                                view: workflow => html`
-                                    <div>${workflow.fileName}</div>
-                                `,
-                            },
-                            elements: [
-                                {
-                                    title: "File Name",
-                                    field: "scripts[].fileName",
-                                    type: "input-text",
-                                    display: {
-                                        placeholder: "Add workflow file name...",
-                                    }
-                                },
-                                {
-                                    title: "is main script?",
-                                    field: "scripts[].main",
-                                    type: "checkbox",
-                                    display: {}
-                                },
-                                {
-                                    title: "Content",
-                                    field: "scripts[].content",
-                                    type: "input-text",
-                                    display: {
-                                        rows: 50,
-                                        placeholder: "Add a content...",
-                                    },
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ]
-        });
+            ],
+        };
     }
 
 }
 
-customElements.define("workflow-update", WorkflowUpdate);
+customElements.define("tool-update", ToolUpdate);

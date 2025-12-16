@@ -52,9 +52,9 @@ import "../../webcomponents/individual/individual-update.js";
 import "../../webcomponents/cohort/cohort-browser.js";
 import "../../webcomponents/job/job-browser.js";
 import "../../webcomponents/workflow/workflow-browser.js";
+import "../../webcomponents/job/analysis/tool-analysis.js";
 import "../../webcomponents/clinical/clinical-analysis-create.js";
 import "../../webcomponents/job/job-monitor.js";
-import "../../webcomponents/job/analysis/tool-analysis.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/organization/admin/organization-admin.js";
 import "../../webcomponents/project/projects-admin.js";
@@ -67,6 +67,7 @@ import "../../webcomponents/api/rest-api.js";
 import "../../webcomponents/api/swagger-ui.js";
 import "../../webcomponents/note/note-browser.js";
 import "../../webcomponents/commons/analysis/analysis-tools.js";
+import "../../webcomponents/commons/analysis/my-analysis-tools.js";
 import "../../webcomponents/commons/analysis/jupyter-notebook.js";
 
 import "../../webcomponents/commons/layout/layout-footer.js";
@@ -1350,6 +1351,13 @@ class IvaApp extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .tool="${this.queries[this.tool]?.tool}">
                     </analysis-tools>
+                `;
+                break;
+            case "my-analysis-tools":
+                content = html`
+                    <my-analysis-tools
+                        .opencgaSession="${this.opencgaSession}">
+                    </my-analysis-tools>
                 `;
                 break;
             case "tool-analysis":

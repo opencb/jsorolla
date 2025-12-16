@@ -27,6 +27,7 @@ import "../../download-button.js";
 import "../forms/text-field-filter.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
+import "./tags-input.js";
 import "../data-table.js";
 import PdfBuilder from "./pdf-builder.js";
 
@@ -693,6 +694,10 @@ export default class DataForm extends LitElement {
                 case "input-date":
                     content = this._createInputDateElement(element, section);
                     break;
+                case "input-tags":
+                case "tags":
+                    content = this._createInputTagsElement(element, section);
+                    break;
                 case "checkbox":
                     content = this._createCheckboxElement(element);
                     break;
@@ -930,6 +935,27 @@ export default class DataForm extends LitElement {
         return this._createElementTemplate(element, value, content);
     }
 
+    _createInputTagsElement(element, section) {
+        const value = this.getValue(element.field) || this._getDefaultValue(element, section) || [];
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
+
+        const content = html`
+            <tags-input
+                .value="${value}"
+                .disabled="${disabled}"
+                .config="${{
+                    placeholder: element.display?.placeholder || "",
+                }}"
+                @change="${event => {
+                    event.stopPropagation();
+                    this.onFilterChange(element, event.detail.value);
+                }}">
+            </tags-input>
+        `;
+
+        return this._createElementTemplate(element, value, content);
+    }
+
     _createCheckboxElement(element) {
         let value = this.getValue(element.field);
         const disabled = this._getBooleanValue(element.display?.disabled, false, element);
@@ -951,7 +977,7 @@ export default class DataForm extends LitElement {
                         .checked="${value}"
                         ?disabled="${disabled}"
                         @click="${e => this.onFilterChange(element, e.currentTarget.checked)}">
-                        ${element.text}
+                    ${element.text}
                 </label>
             </div>
         `;
@@ -1569,7 +1595,7 @@ export default class DataForm extends LitElement {
         }
     }
 
-     _createDownloadElement(element) {
+    _createDownloadElement(element) {
         const content = html`
             <download-button
                 .json="${this.data}"
@@ -1634,28 +1660,52 @@ export default class DataForm extends LitElement {
             // 4. Read Help message and Render assuming vertical layout for nested forms
             const helpMessage = this._getHelpMessage(element);
             const helpMode = this._getHelpMode(element);
-            contents.push(
-                html`
-                    <div class="row mb-3">
-                        ${childElement.title ? html`
-                            <div>
-                                <label class="fw-bold form-label pt-0">
-                                    ${childElement.title}
-                                </label>
-                            </div>
-                        ` : nothing
-                        }
-                        <div>
-                            <div>${elemContent}</div>
-                            ${helpMessage && helpMode === "block" ? html`
-                                <div class="col-md-1 p-0 mt-1" title="${helpMessage}">
-                                    <span><i class="${this._getHelpIcon(element)}"></i></span>
+            const defaultLayout = this._getDefaultLayout(element);
+            if (defaultLayout === "vertical") {
+                contents.push(
+                    html`
+                        <div class="row mb-1 ms-3">
+                            ${childElement.title ? html`
+                                <div>
+                                    <label class="fw-bold form-label pt-0">
+                                        ${childElement.title}
+                                    </label>
                                 </div>
                             ` : nothing
                             }
+                            <div>
+                                <div>${elemContent}</div>
+                                ${helpMessage && helpMode === "block" ? html`
+                                    <div class="col-md-1 p-0 mt-1" title="${helpMessage}">
+                                        <span><i class="${this._getHelpIcon(element)}"></i></span>
+                                    </div>
+                                ` : nothing
+                                }
+                            </div>
                         </div>
-                    </div>
-                `);
+                    `);
+            } else {
+                contents.push(
+                    html`
+                        <div class="row mb-1">
+                            ${childElement.title ? html`
+                                <div>
+                                    <label class="fw-bold form-label pt-0">
+                                        ${childElement.title}:
+                                    </label>
+                                    <span>${elemContent}</span>
+                                </div>
+                                ${helpMessage && helpMode === "block" ? html`
+                                    <div class="col-md-1 p-0 mt-1" title="${helpMessage}">
+                                        <span><i class="${this._getHelpIcon(element)}"></i></span>
+                                    </div>
+                                ` : nothing
+                                }
+                            ` : nothing
+                            }
+                        </div>
+                    `);
+            }
         }
         const content = html`${contents}`;
         return this._createElementTemplate(element, null, content);

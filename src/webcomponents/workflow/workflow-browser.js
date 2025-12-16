@@ -47,7 +47,7 @@ export default class WorkflowBrowser extends LitElement {
     }
 
     #init() {
-        this.COMPONENT_ID = "workflow-browser";
+        this.COMPONENT_ID = "tool-browser";
         this._config = this.getDefaultConfig();
     }
 
@@ -111,7 +111,7 @@ export default class WorkflowBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Workflow Manager",
+            title: "User Tools Manager",
             views: [
                 {
                     id: "table",
@@ -120,7 +120,7 @@ export default class WorkflowBrowser extends LitElement {
                     active: true,
                     render: params => html`
                         <workflow-grid
-                            .toolId="${this.COMPONENT_ID}"
+                            .toolId="${this.COMPONENT_ID || ""}"
                             .opencgaSession="${params.opencgaSession}"
                             .query="${params.executedQuery}"
                             .config="${params.config.filter.result.grid}"
@@ -139,7 +139,7 @@ export default class WorkflowBrowser extends LitElement {
                         filters: [
                             {
                                 id: "id",
-                                title: "Workflow ID",
+                                title: "Tool ID",
                                 type: "string",
                                 placeholder: "eg. wf1, wf2, ...",
                                 description: "",
@@ -157,7 +157,15 @@ export default class WorkflowBrowser extends LitElement {
                                 id: "type",
                                 title: "Type",
                                 type: "string",
-                                placeholder: "eg. RESEARCH_ANALYSIS,...",
+                                // placeholder: "eg. CUSTOM_TOOL, ...",
+                                description: "",
+                                quick: true
+                            },
+                            {
+                                id: "scope",
+                                title: "Scope",
+                                type: "string",
+                                // placeholder: "eg. RESEARCH_ANALYSIS,...",
                                 description: "",
                                 quick: true
                             },

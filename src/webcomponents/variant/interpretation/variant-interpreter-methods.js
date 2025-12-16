@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
+import {keyed} from "lit/directives/keyed.js";
 import "../../commons/view/detail-tabs.js";
 import "../../clinical/analysis/rd-interpreter-analysis.js";
 import "../../clinical/analysis/exomiser-analysis.js";
+import "../../workflow/analysis/tool-executor.js";
 
 class VariantInterpreterMethods extends LitElement {
 
     constructor() {
         super();
 
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -48,11 +50,16 @@ class VariantInterpreterMethods extends LitElement {
         };
     }
 
-    _init() {
+    #init() {
+        this._customTools = [];
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
@@ -62,6 +69,22 @@ class VariantInterpreterMethods extends LitElement {
         }
 
         super.update(changedProperties);
+    }
+
+    opencgaSessionObserver() {
+        this._customTools = [];
+        if (this.opencgaSession) {
+            this.opencgaSession.opencgaClient.userTool()
+                .search({
+                    study: this.opencgaSession.study.fqn,
+                    scope: "CLINICAL_INTERPRETATION_ANALYSIS",
+                })
+                .then(response => {
+                    this._customTools = response.responses[0].results;
+                    this._config = this.getDefaultConfig();
+                    this.requestUpdate();
+                });
+        }
     }
 
     clinicalAnalysisIdObserver() {
@@ -99,18 +122,47 @@ class VariantInterpreterMethods extends LitElement {
             `;
         }
 
-        return html`
+        return keyed(this.opencgaSession.study.fqn + ":" + this._config.items.length, html`
             <detail-tabs
                 .data="${this.clinicalAnalysis}"
                 .config="${this._config}"
                 .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
-        `;
+        `);
     }
 
     getDefaultConfig() {
         const items = [];
 
+        // add custom tools
+        (this._customTools || []).forEach(tool => {
+            items.push({
+                id: tool.id,
+                name: tool.name || tool.id,
+                render: (clinicalAnalysis, active, opencgaSession) => {
+                    return html`
+                        <div class="container">
+                            <tool-header title="Execute ${tool.name || tool.id}"></tool-header>
+                            <tool-executor
+                                .toolId="${tool.id}"
+                                .toolParams="${{
+                                    variables: {
+                                        clinicalAnalysisId: clinicalAnalysis.id,
+                                        study: this.opencgaSession.study.fqn,
+                                    },
+                                }}"
+                                .displayConfig="${{
+                                    titleVisible: false,
+                                }}"
+                                .opencgaSession="${opencgaSession}">
+                            </tool-executor>
+                        </div>
+                    `;
+                },
+            });
+        });
+
+        // add built-in methods
         if (this.clinicalAnalysis && this.settings) {
             const probandId = this.clinicalAnalysis.proband?.id || "";
             const type = this.clinicalAnalysis.type?.toUpperCase() || "";

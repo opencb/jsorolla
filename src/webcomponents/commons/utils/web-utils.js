@@ -55,7 +55,8 @@ export default class WebUtils {
             "STUDY": "STUDIES",
             "USER": "USERS",
             "NOTE": "NOTE",
-            "WORKFLOW": "WORKFLOWS",
+            "WORKFLOW": "USER_TOOLS", // DEPRECATED, use USER_TOOL instead
+            "USER_TOOL": "USER_TOOLS",
         };
         return (resource && mapResourcePermissionId[resource] && mode) ? `${mode.toUpperCase()}_${mapResourcePermissionId[resource]}` : "";
     }

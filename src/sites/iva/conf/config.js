@@ -26,7 +26,7 @@ const hosts = [
     },
     {
         id: "reference",
-        url: "https://test.app.zettagenomics.com/task-7733/opencga"
+        url: "https://test.app.zettagenomics.com/task-7610/opencga"
     },
 ];
 
@@ -209,6 +209,13 @@ const SUITE = {
                     description: "Explore our high-performance and scalable aggregated variant database in real-time.",
                 },
                 {
+                    id: "my-analysis-tools",
+                    name: "My Tools",
+                    icon: "fa-cog",
+                    visibility: "public",
+                    description: "Manage your personal analysis tools.",
+                },
+                {
                     id: "analysis-tools",
                     name: "Analysis Tools",
                     icon: "fa-tools",
@@ -217,32 +224,18 @@ const SUITE = {
                 },
                 {
                     id: "workflow-manager",
-                    name: "Workflow Manager",
+                    name: "My Tools Manager",
                     icon: "fa-stream",
                     visibility: "public",
                     description: "Build, import and execute NextFlow workflows.",
                 },
                 {
-                    id: "tool-analysis",
-                    name: "Custom Tool",
-                    icon: "fa-rocket",
-                    visibility: "public",
-                    description: "Execute your own custom tools easily in the cloud.",
-                },
-                {
                     id: "jupyter-lab",
-                    name: "Jupyter Lab Notebooks",
+                    name: "Jupyter Notebooks",
                     icon: "fa-book",
                     visibility: "public",
                     description: "Create, share, and execute Jupyter Notebooks with Python.",
                 },
-                // {
-                //     id: "my-analysis",
-                //     name: "My Analysis",
-                //     icon: "fa-cog",
-                //     visibility: "public",
-                //     description: "Explore and manage all your exceuted analysis.",
-                // },
                 {
                     id: "cohort-browser",
                     name: "Cohort Manager",
