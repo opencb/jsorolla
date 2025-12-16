@@ -315,4 +315,53 @@ export default class OpencgaCatalogUtils {
         return downloadUrl.join("/");
     }
 
+    static parseMappingFile(content) {
+        if (!content) {
+            throw new Error("Mapping content is empty");
+        }
+        const lines = content.trim().split(/\r?\n/);
+        if (lines.length < 2) {
+            throw new Error("Mapping file must have a header and at least one row");
+        }
+
+        // detect separator: tab or comma
+        const headerLine = lines[0];
+        const separator = headerLine.includes("\t") ? "\t" : ",";
+        const headers = headerLine
+            .trim()
+            .replace("#", "")
+            .split(separator).map(h => h.trim().toLowerCase());
+
+        // validate File column
+        if (!headers.includes("file")) {
+            throw new Error("Mapping file must contain a 'File' column");
+        }
+
+        const mapping = [];
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (line) {
+                const values = line.split(separator).map(v => v.trim());
+                const entry = {};
+                headers.forEach((header, index) => {
+                    entry[header] = (index < values.length) ? values[index] : "";
+                });
+                // check if the 'file' field is present
+                if (entry.file) {
+                    // check if the 'sample' column is present, and in that case initialize if empty
+                    if (headers.includes("sample") && !entry.sample) {
+                        entry.sample = entry.replace(/\.[^/.]+$/, "");
+                    }
+                    // check if the 'individual' column is present, and in that case initialize if empty
+                    if (headers.includes("individual") && !entry.individual) {
+                        entry.individual = entry.sample || entry.file.replace(/\.[^/.]+$/, "");
+                    }
+                    // add entry to mapping
+                    mapping.push(entry);
+                }
+            }
+        }
+        return mapping;
+    }
+
 }

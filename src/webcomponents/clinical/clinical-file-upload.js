@@ -1,4 +1,5 @@
 import {LitElement, html, nothing} from "lit";
+import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import UtilsNew from "../../core/utils-new.js";
@@ -161,7 +162,7 @@ export default class ClinicalFileUpload extends LitElement {
 
     async handleBatchUpload() {
         // 1. Parse the mapping file
-        const mapping = this.parseMappingFile(this._data.mappingFileContent);
+        const mapping = CatalogUtils.parseMappingFile(this._data.mappingFileContent);
 
         const study = this.opencgaSession.study.fqn;
         const processedSamples = new Set();
@@ -188,21 +189,11 @@ export default class ClinicalFileUpload extends LitElement {
 
             try {
                 // Determine IDs
-                let sampleId = mappingEntry.sample;
-                let individualId = mappingEntry.individual;
-                const individualSex = mappingEntry.gender;
-                const familyId = mappingEntry.family;
-                const somatic = mappingEntry.somatic;
-
-                // if sample is missing, use filename without extension
-                if (!sampleId) {
-                    sampleId = file.fileObject.name.replace(/\.[^/.]+$/, "");
-                }
-
-                // if individual is missing, use sampleId instead
-                if (!individualId) {
-                    individualId = sampleId;
-                }
+                const sampleId = mappingEntry.sample;
+                const individualId = mappingEntry.individual;
+                const individualSex = mappingEntry.sex || "";
+                const familyId = mappingEntry.family || "";
+                const somatic = !!mappingEntry.somatic ?? false;
 
                 // Create Individual if needed
                 if (individualId && !processedIndividuals.has(individualId)) {
@@ -321,48 +312,6 @@ export default class ClinicalFileUpload extends LitElement {
             }
         }
 
-    }
-
-    parseMappingFile(content) {
-        if (!content) {
-            throw new Error("Mapping content is empty");
-        }
-        const lines = content.trim().split(/\r?\n/);
-        if (lines.length < 2) {
-            throw new Error("Mapping file must have a header and at least one row");
-        }
-
-        const headerLine = lines[0];
-        // Detect separator: tab or comma
-        const separator = headerLine.includes("\t") ? "\t" : ",";
-        const headers = headerLine
-            .replace("#", "")
-            .split(separator).map(h => h.trim().toLowerCase());
-
-        // Validate File column
-        if (!headers.includes("file")) {
-            console.error("Mapping file must contain a 'File' column");
-            throw new Error("Mapping file must contain a 'File' column");
-        }
-
-        const mapping = [];
-        for (let i = 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
-            const values = line.split(separator).map(v => v.trim());
-            const entry = {};
-            headers.forEach((header, index) => {
-                if (index < values.length) {
-                    entry[header] = values[index];
-                } else {
-                    entry[header] = "";
-                }
-            });
-            if (entry.file) {
-                mapping.push(entry);
-            }
-        }
-        return mapping;
     }
 
     addFiles(files) {
