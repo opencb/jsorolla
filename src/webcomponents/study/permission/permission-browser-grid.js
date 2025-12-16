@@ -48,8 +48,8 @@ export default class PermissionBrowserGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "PermissionBrowserGrid";
         this.permissionString = [
-            // WORKFLOWS
-            "VIEW_WORKFLOWS", "WRITE_WORKFLOWS", "DELETE_WORKFLOWS",
+            // USER_TOOLS
+            "VIEW_USER_TOOLS", "WRITE_USER_TOOLS", "DELETE_USER_TOOLS",
             // FILES
             "VIEW_FILES", "VIEW_FILE_HEADER", "VIEW_FILE_CONTENT", "WRITE_FILES", "DELETE_FILES", "DOWNLOAD_FILES", "UPLOAD_FILES",
             "VIEW_FILE_ANNOTATIONS", "WRITE_FILE_ANNOTATIONS", "DELETE_FILE_ANNOTATIONS",

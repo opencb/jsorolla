@@ -65,7 +65,7 @@ export default class WorkflowGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "workflow-grid";
-        this.RESOURCE = "WORKFLOW";
+        this.RESOURCE = "USER_TOOL";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
@@ -284,6 +284,10 @@ export default class WorkflowGrid extends LitElement {
                             this.table.bootstrapTable("refresh");
                         }}"
                         @workflowUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}"
+                        @variantWalkerUpdate="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
