@@ -736,9 +736,6 @@ export default class DataForm extends LitElement {
                 case "parameters-list":
                     content = this._createInputParametersElement(element);
                     break;
-                case "file-content":
-                    content = this._createFileContentElement(element, section);
-                    break;
                 default:
                     throw new Error("Element type not supported:" + element.type);
             }
@@ -908,29 +905,6 @@ export default class DataForm extends LitElement {
         `;
 
         return this._createElementTemplate(element, value, content);
-    }
-
-    // DEPRECATED
-    _createFileContentElement(element, section) {
-        return nothing;
-        // let value = this.getValue(element.field) || this._getDefaultValue(element, section);
-        // const disabled = this._getBooleanValue(element.display?.disabled, false, element);
-        // const rows = element.display?.rows ?? 10;
-        // const maxHeight = rows * 20; // Approx 20px per line
-
-        // const content = html`
-        //     <div class="mb-2">
-        //         <input type="file"
-        //             class="form-control"
-        //             ?disabled="${disabled}"
-        //             @change="${e => this.onFileChange(e, element)}">
-        //     </div>
-        //     <div class="form-control" style="min-height:40px; max-height: ${maxHeight}px; overflow-y: auto; background-color: ${disabled ? "#e9ecef" : "#fff"};">
-        //         <div style="white-space:pre-wrap;font-family:monospace;">${value}</div>
-        //     </div>
-        // `;
-
-        // return this._createElementTemplate(element, value, content);
     }
 
     // Josemi 20220202 NOTE: this function was prev called _createInputTextElement
