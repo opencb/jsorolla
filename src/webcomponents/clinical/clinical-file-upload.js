@@ -167,8 +167,9 @@ export default class ClinicalFileUpload extends LitElement {
         const processedSamples = new Set();
         const processedIndividuals = new Set();
 
-        const files = this._data.files || [];
-        for (const file of files) {
+        const selectedFiles = this._data.files || [];
+        // 2. Iterate over the selected files and process them. Create samples and individuals as needed.
+        for (const file of selectedFiles) {
             if (file.status === this.FILE_STATUS.DONE) {
                 continue;
             }
@@ -180,6 +181,7 @@ export default class ClinicalFileUpload extends LitElement {
             const mappingEntry = mapping.find(entry => entry.file === file.fileObject.name);
             if (!mappingEntry) {
                 file.status = this.FILE_STATUS.ERROR;
+                console.error(`File ${file.fileObject.name} not found in the mapping file.`);
                 throw new Error(`File ${file.fileObject.name} not found in the mapping file.`);
             }
 
@@ -187,6 +189,7 @@ export default class ClinicalFileUpload extends LitElement {
                 // Determine IDs
                 let sampleId = mappingEntry.sample;
                 let individualId = mappingEntry.individual;
+                const individualSex = mappingEntry.gender;
                 const familyId = mappingEntry.family;
                 const somatic = mappingEntry.somatic;
 
@@ -204,7 +207,8 @@ export default class ClinicalFileUpload extends LitElement {
                 if (individualId && !processedIndividuals.has(individualId)) {
                     let individualExists = false;
                     try {
-                        const indResponse = await this.opencgaSession.opencgaClient.individuals().search({id: individualId, study, include: "id"});
+                        const indResponse = await this.opencgaSession.opencgaClient.individuals()
+                            .search({id: individualId, study, include: "id"});
                         if (indResponse.responses[0].results.length > 0) {
                             individualExists = true;
                         }
@@ -216,7 +220,7 @@ export default class ClinicalFileUpload extends LitElement {
                         try {
                             await this.opencgaSession.opencgaClient.individuals().create({
                                 id: individualId,
-                                sex: {id: "UNKNOWN"}, // Default sex
+                                sex: {id: individualSex || "UNKNOWN"},
                                 family: familyId ? {id: familyId} : undefined,
                             }, {study});
                         } catch (e) {
@@ -255,30 +259,67 @@ export default class ClinicalFileUpload extends LitElement {
                 }
 
                 // Upload File
-                const fileResult = await this.opencgaSession.opencgaClient.files().upload({
-                    study,
-                    file: file.fileObject,
-                    fileName: file.fileObject.name,
-                    relativeFilePath: this._data.relativeFilePath.startsWith("/") ?
-                        this._data.relativeFilePath.substring(1) :
-                        this._data.relativeFilePath,
-                    resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
-                });
-
-                const uploadedFileId = fileResult.responses[0].results[0].id;
-
-                await this.opencgaSession.opencgaClient.files().update(uploadedFileId, {
-                    sampleIds: [sampleId],
-                }, {study});
+                const fileResult = await this.opencgaSession.opencgaClient.files()
+                    .upload({
+                        study,
+                        file: file.fileObject,
+                        fileName: file.fileObject.name,
+                        relativeFilePath: this._data.relativeFilePath.startsWith("/") ?
+                            this._data.relativeFilePath.substring(1) :
+                            this._data.relativeFilePath,
+                        resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
+                    });
 
                 file.status = this.FILE_STATUS.DONE;
 
+                // Link file to the sample
+                const uploadedFileId = fileResult.responses[0].results[0].id;
+                const sampleUpdateParams = {
+                    sampleIds: [
+                        sampleId,
+                    ],
+                };
+                await this.opencgaSession.opencgaClient.files()
+                    .update(uploadedFileId, sampleUpdateParams, {
+                        study: study,
+                        sampleIdsAction: "ADD",
+                    });
+
+                // Dispatch an event to notify that a file has been uploaded
+                LitUtils.dispatchCustomEvent(this, "fileUpload", null, {
+                    relativeFilePath: this._data.relativeFilePath,
+                    fileName: file.fileObject.name,
+                });
             } catch (error) {
                 console.error(`Error processing file ${file.fileObject.name}`, error);
                 file.status = this.FILE_STATUS.ERROR;
                 throw error;
             }
         }
+
+        // 3. Create Cohort if needed
+        if (this._data.cohort?.id) {
+            const samplesInCohort = [];
+            for (const sampleId of processedSamples) {
+                samplesInCohort.push({id: sampleId});
+            }
+
+            const cohortParams = {
+                id: this._data.cohort.id,
+                name: this._data.cohort.name,
+                description: this._data.cohort.description,
+                samples: samplesInCohort,
+            };
+            try {
+                await this.opencgaSession.opencgaClient.cohorts()
+                    .create(cohortParams, {
+                        study: this.opencgaSession.study.fqn,
+                    });
+            } catch (e) {
+                console.warn(`Cohort ${cohortParams.id} creation failed:`, e);
+            }
+        }
+
     }
 
     parseMappingFile(content) {
@@ -293,10 +334,13 @@ export default class ClinicalFileUpload extends LitElement {
         const headerLine = lines[0];
         // Detect separator: tab or comma
         const separator = headerLine.includes("\t") ? "\t" : ",";
-        const headers = headerLine.split(separator).map(h => h.trim().toLowerCase());
+        const headers = headerLine
+            .replace("#", "")
+            .split(separator).map(h => h.trim().toLowerCase());
 
         // Validate File column
         if (!headers.includes("file")) {
+            console.error("Mapping file must contain a 'File' column");
             throw new Error("Mapping file must contain a 'File' column");
         }
 
@@ -307,7 +351,11 @@ export default class ClinicalFileUpload extends LitElement {
             const values = line.split(separator).map(v => v.trim());
             const entry = {};
             headers.forEach((header, index) => {
-                entry[header] = values[index];
+                if (index < values.length) {
+                    entry[header] = values[index];
+                } else {
+                    entry[header] = "";
+                }
             });
             if (entry.file) {
                 mapping.push(entry);
@@ -449,7 +497,7 @@ export default class ClinicalFileUpload extends LitElement {
         this._uploading = true;
         this._config = this.getDefaultConfig();
         this.requestUpdate();
-
+        debugger
         try {
             if (this._data.type === "Batch") {
                 await this.handleBatchUpload();
@@ -781,7 +829,7 @@ export default class ClinicalFileUpload extends LitElement {
                             title: "Mapping Files and Samples",
                             field: "mappingFileContent",
                             type: "file-content",
-                            required: true,
+                            required: false,
                             display: {
                                 helpMessage: "Upload a CSV or TSV file with columns: File (required), Sample, Individual, Family, Somatic.",
                             },
