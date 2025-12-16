@@ -48,7 +48,7 @@ export default class VerticalMenu extends LitElement {
             }
             // initialize the active item if not set
             if (!this._activeItem && !this.activeItem) {
-                this._activeItem = this._config.menu[0].submenu[0].id;
+                this._activeItem = (this._config?.menu || []).find(item => item?.submenu?.length > 0)?.submenu?.[0]?.id || "";
             }
         }
 

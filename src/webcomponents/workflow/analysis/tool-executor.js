@@ -221,7 +221,6 @@ export default class UserToolExecutor extends LitElement {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
             ...UtilsNew.objectClone(this.toolParams || {}),
         };
-        debugger;
         this.addToolVariablesToParams();
         this._config = this.getDefaultConfig();
         this.requestUpdate();
