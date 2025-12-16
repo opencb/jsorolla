@@ -65,7 +65,7 @@ export default class WorkflowGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "workflow-grid";
-        this.RESOURCE = "USER_TOOLS";
+        this.RESOURCE = "USER_TOOL";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
