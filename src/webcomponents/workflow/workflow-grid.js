@@ -718,12 +718,11 @@ export default class WorkflowGrid extends LitElement {
                 onClick: () => this.gridCommons.changeActiveModal("create-tool"),
             },
             {
-                // icon: "fas fa-file-import",
-                // title: "Import Workflow",
                 render: () => {
+                    const hasWritePermission = this.gridCommons.hasPermission("WRITE");
                     return html`
                         <div class="dropdown">
-                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <button class="btn btn-light dropdown-toggle ${!hasWritePermission ? "disabled" : ""}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-file-import me-1"></i>
                                 Import Workflow
                             </button>
