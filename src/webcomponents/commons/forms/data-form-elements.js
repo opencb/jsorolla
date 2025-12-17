@@ -13,6 +13,11 @@ export default class DataFormElements {
                     const rows = element.display?.rows ?? 10;
                     const maxHeight = rows * 20; // Approx 20px per line
 
+                    const onFileClear = (event) => {
+                        event.currentTarget.previousElementSibling.value = null; // Clear the file input
+                        onFieldChange("");
+                    };
+
                     const onFileChange = async (event) => {
                         const file = event.target.files[0];
                         if (file) {
@@ -38,11 +43,14 @@ export default class DataFormElements {
                     };
  
                     return html`
-                        <div class="mb-2">
+                        <div class="mb-2 d-flex align-items-center gap-2">
                             <input type="file"
                                 class="form-control"
                                 ?disabled="${disabled}"
                                 @change="${event => onFileChange(event)}">
+                            <button class="btn btn-light ${disabled || !value ? "disabled" : ""}" @click="${event => onFileClear(event)}">
+                                <i class="fa fa-trash-alt"></i>
+                            </button>
                         </div>
                         <div class="form-control" style="min-height:40px; max-height: ${maxHeight}px; overflow-y: auto; background-color: ${disabled ? "#e9ecef" : "#fff"};">
                             <div style="white-space:pre-wrap;font-family:monospace;">${value}</div>
