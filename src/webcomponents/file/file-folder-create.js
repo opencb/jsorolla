@@ -156,7 +156,7 @@ export default class FileFolderCreate extends LitElement {
                 {
                     elements: [
                         {
-                            title: "Path",
+                            title: "Parent Path",
                             field: "path",
                             type: "custom",
                             display: {
@@ -175,7 +175,7 @@ export default class FileFolderCreate extends LitElement {
                             },
                         },
                         {
-                            title: "Folder Name",
+                            title: "Path",
                             field: "name",
                             required: true,
                             type: "input-text",

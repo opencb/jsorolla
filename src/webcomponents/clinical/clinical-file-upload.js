@@ -2,9 +2,11 @@ import {LitElement, html, nothing} from "lit";
 import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import ModalUtils from "../commons/modal/modal-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import DataFormElements from "../commons/forms/data-form-elements.js";
 import "../commons/forms/data-form.js";
+import "../file/file-folder-create.js";
 import "../loading-spinner.js";
 
 export default class ClinicalFileUpload extends LitElement {
@@ -48,6 +50,7 @@ export default class ClinicalFileUpload extends LitElement {
 
         this._data = UtilsNew.objectClone(this.DEFAULT_DATA);
         this._uploading = false;
+        this._showCreateFolderModal = false;
         this._config = this.getDefaultConfig();
     }
 
@@ -483,6 +486,40 @@ export default class ClinicalFileUpload extends LitElement {
         }
     }
 
+    onCreateFolderShow() {
+        this._showCreateFolderModal = true;
+        this.requestUpdate();
+        this.updateComplete.then(() => {
+            ModalUtils.show("create-folder-modal");
+        });
+    }
+
+    renderCreateFolderModal() {
+        return ModalUtils.create(this, "create-folder-modal", {
+            display: {
+                modalTitle: "Create Folder",
+                modalSize: "modal-lg",
+            },
+            render: () => html`
+                <file-folder-create
+                    .opencgaSession="${this.opencgaSession}"
+                    .displayConfig="${{
+                        buttonsLayout: "bottom",
+                    }}"
+                    @folderCreate="${event => {
+                        this._showCreateFolderModal = false;
+                        this._data = {
+                            ...this._data,
+                            relativeFilePath: event.detail.path,
+                        };
+                        this.requestUpdate();
+                        ModalUtils.close("create-folder-modal");
+                    }}">
+                </file-folder-create>
+            `,
+        });
+    }
+
     render() {
         return html`
             <tool-header
@@ -497,6 +534,7 @@ export default class ClinicalFileUpload extends LitElement {
                     @submit="${event => this.onSubmit(event)}">
                 </data-form>
             </div>
+            ${this._showCreateFolderModal ? this.renderCreateFolderModal() : nothing}
         `;
     }
 
@@ -548,15 +586,22 @@ export default class ClinicalFileUpload extends LitElement {
             sections: [
                 {
                     id: "type",
-                    title: "Configure Upload",
+                    // title: "Configure Upload",
                     elements: [
-                        {
-                            title: "Upload Mode",
+                        // {
+                        //     title: "Upload Mode",
+                        //     field: "type",
+                        //     type: "toggle-buttons",
+                        //     allowedValues: ["Single", "Batch"],
+                        //     defaultValue: "Single",
+                        // },
+                        DataFormElements.tabsElement({
                             field: "type",
-                            type: "toggle-buttons",
-                            allowedValues: ["Single", "Batch"],
-                            defaultValue: "Single",
-                        },
+                            tabs: [
+                                { id: "Single", text: "Single Upload" },
+                                { id: "Batch", text: "Batch Upload" },
+                            ],
+                        }),
                     ],
                 },
                 {
@@ -837,15 +882,23 @@ export default class ClinicalFileUpload extends LitElement {
                             type: "custom",
                             display: {
                                 disabled: () => this._uploading,
-                                render: (path = "/", onFieldChange) => html`
-                                    <div>
+                                render: (path = "/", onFieldChange, updatedFields, data, item, disabled) => html`
+                                    <div class="d-flex align-items-center gap-2">
                                         <catalog-search-autocomplete
                                             .value="${path}"
                                             .resource="${"DIRECTORY"}"
                                             .opencgaSession="${this.opencgaSession}"
-                                            .config="${{multiple: false}}"
-                                            @filterChange="${e => onFieldChange(e.detail.value)}">
+                                            .config="${{
+                                                disabled: disabled,
+                                                multiple: false,
+                                            }}"
+                                            class="flex-grow-1"
+                                            @filterChange="${event => onFieldChange(event.detail.value)}">
                                         </catalog-search-autocomplete>
+                                        <button class="btn btn-primary d-flex align-items-center gap-2 mb-1 ${disabled ? "disabled" : ""}" @click="${() => this.onCreateFolderShow()}">
+                                            <i class="fa fa-plus"></i>
+                                            <span>Create Folder</span>
+                                        </button>
                                     </div>
                                 `,
                                 helpMessage: "Path where the files will be uploaded.",
