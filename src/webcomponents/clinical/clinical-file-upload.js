@@ -872,7 +872,7 @@ export default class ClinicalFileUpload extends LitElement {
                             display: {
                                 disabled: () => this._uploading,
                                 render: (path = "/", onFieldChange, updatedFields, data, item, disabled) => html`
-                                    <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex align-items-stretch gap-2">
                                         <catalog-search-autocomplete
                                             .value="${path}"
                                             .resource="${"DIRECTORY"}"
@@ -884,9 +884,8 @@ export default class ClinicalFileUpload extends LitElement {
                                             class="flex-grow-1"
                                             @filterChange="${event => onFieldChange(event.detail.value)}">
                                         </catalog-search-autocomplete>
-                                        <button class="btn btn-primary d-flex align-items-center gap-2 mb-1 ${disabled ? "disabled" : ""}" title="Create Folder"
-                                                @click="${() => this.onCreateFolderShow()}">
-                                            <i class="fa fa-folder-plus"></i>
+                                        <button class="btn btn-light mb-1 d-flex ${disabled ? "disabled" : ""}" title="Create Folder" @click="${() => this.onCreateFolderShow()}">
+                                            <i class="fa fa-folder-plus fs-5"></i>
                                         </button>
                                     </div>
                                 `,
