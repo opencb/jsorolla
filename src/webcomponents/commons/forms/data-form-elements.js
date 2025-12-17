@@ -1,4 +1,4 @@
-import {html, nothing} from "lit";
+import {html} from "lit";
 import * as XLSX from "xlsx";
 
 export default class DataFormElements {
@@ -33,21 +33,21 @@ export default class DataFormElements {
                 ...customConfig?.display,
                 render: (value, onFieldChange, updateParams, data, item, disabled, element) => {
                     const rows = element.display?.rows ?? 10;
-                    const maxHeight = rows * 20; // Approx 20px per line
+                    const maxHeight = rows * 25; // Approx 20px per line
 
-                    const onFileClear = (event) => {
+                    const onFileClear = event => {
                         event.currentTarget.previousElementSibling.value = null; // Clear the file input
                         onFieldChange("");
                     };
 
-                    const onFileChange = async (event) => {
+                    const onFileChange = async event => {
                         const file = event.target.files[0];
                         if (file) {
                             let content = "";
                             try {
                                 if (file.name.endsWith(".xlsx") || file.name.endsWith(".xls")) {
                                     const data = await file.arrayBuffer();
-                                    const workbook = XLSX.read(data, { type: "array" });
+                                    const workbook = XLSX.read(data, {type: "array"});
                                     if (workbook.SheetNames.length > 0) {
                                         const sheetName = workbook.SheetNames[0];
                                         const sheet = workbook.Sheets[sheetName];
@@ -63,7 +63,7 @@ export default class DataFormElements {
                             onFieldChange(content);
                         }
                     };
- 
+
                     return html`
                         <div class="mb-2 d-flex align-items-center gap-2">
                             <input type="file"
@@ -82,4 +82,5 @@ export default class DataFormElements {
             },
         };
     }
+
 };

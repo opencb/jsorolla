@@ -214,11 +214,12 @@ export default class ClinicalFileUpload extends LitElement {
 
                     if (!individualExists) {
                         try {
-                            await this.opencgaSession.opencgaClient.individuals().create({
-                                id: individualId,
-                                sex: {id: individualSex || "UNKNOWN"},
-                                family: familyId ? {id: familyId} : undefined,
-                            }, {study});
+                            await this.opencgaSession.opencgaClient.individuals()
+                                .create({
+                                    id: individualId,
+                                    sex: {id: individualSex || "UNKNOWN"},
+                                    family: familyId ? {id: familyId} : undefined,
+                                }, {study});
                         } catch (e) {
                             console.warn(`Individual ${individualId} creation failed:`, e);
                             throw new Error(`Failed to create individual ${individualId}. It might already exist or there was an error.`);
@@ -231,7 +232,8 @@ export default class ClinicalFileUpload extends LitElement {
                 if (sampleId && !processedSamples.has(sampleId)) {
                     let sampleExists = false;
                     try {
-                        const sampleResponse = await this.opencgaSession.opencgaClient.samples().search({id: sampleId, study, include: "id"});
+                        const sampleResponse = await this.opencgaSession.opencgaClient.samples()
+                            .search({id: sampleId, study, include: "id"});
                         if (sampleResponse.responses[0].results.length > 0) {
                             sampleExists = true;
                         }
@@ -241,11 +243,12 @@ export default class ClinicalFileUpload extends LitElement {
 
                     if (!sampleExists) {
                         try {
-                            await this.opencgaSession.opencgaClient.samples().create({
-                                id: sampleId,
-                                individualId: individualId,
-                                somatic: somatic === "true" || somatic === true || somatic === "yes",
-                            }, {study});
+                            await this.opencgaSession.opencgaClient.samples()
+                                .create({
+                                    id: sampleId,
+                                    individualId: individualId,
+                                    somatic: somatic === "true" || somatic === true || somatic === "yes",
+                                }, {study});
                         } catch (e) {
                             console.warn(`Sample ${sampleId} creation failed:`, e);
                             throw new Error(`Failed to create sample ${sampleId}. It might already exist or there was an error.`);
@@ -595,7 +598,8 @@ export default class ClinicalFileUpload extends LitElement {
                 },
                 {
                     id: "singleUpload",
-                    title: "Single Upload Configuration",
+                    title: "Single Sample Upload Configuration",
+                    // description: "Configure the single upload settings.",
                     display: {
                         visible: data => data?.type === "Single",
                     },
@@ -765,10 +769,12 @@ export default class ClinicalFileUpload extends LitElement {
                     ],
                 },
                 {
-                    title: "Batch Upload Configuration",
                     id: "batchUpload",
+                    title: "Multi Sample Batch Upload Configuration",
+                    // description: "Configure the batch upload settings.",
                     display: {
                         visible: data => data?.type === "Batch",
+                        className: "px-2 py-2",
                     },
                     elements: [
                         {
@@ -780,37 +786,6 @@ export default class ClinicalFileUpload extends LitElement {
                                 helpMessage: "Check this box to confirm the creation of samples and individuals during batch upload.",
                             },
                         },
-                        {
-                            title: "Cohort",
-                            field: "cohort",
-                            type: "object",
-                            elements: [
-                                {
-                                    title: "Cohort ID",
-                                    field: "cohort.id",
-                                    type: "input-text",
-                                    display: {
-                                        helpMessage: "Identifier for the cohort to be created and associated to the uploaded files.",
-                                    },
-                                },
-                                {
-                                    title: "Cohort Name",
-                                    field: "cohort.name",
-                                    type: "input-text",
-                                    display: {
-                                        helpMessage: "Name for the cohort to be created and associated to the uploaded files.",
-                                    },
-                                },
-                                {
-                                    title: "Cohort Description",
-                                    field: "cohort.description",
-                                    type: "input-text",
-                                    display: {
-                                        helpMessage: "Description for the cohort to be created and associated to the uploaded files.",
-                                    },
-                                },
-                            ],
-                        },
                         DataFormElements.fileContentElement({
                             title: "Mapping Files and Samples",
                             field: "mappingFileContent",
@@ -819,12 +794,79 @@ export default class ClinicalFileUpload extends LitElement {
                                 helpMessage: "Upload a CSV or TSV file with columns: File (required), Sample, Individual, Family, Somatic.",
                             },
                         }),
+                        {
+                            title: "Cohort",
+                            field: "cohort",
+                            type: "object",
+                            elements: [
+                                {
+                                    type: "text",
+                                    text: "Select an existing cohort from the following list to associate all created samples to it.",
+                                },
+                                {
+                                    title: "Select Cohort",
+                                    type: "custom",
+                                    field: "cohort.id",
+                                    display: {
+                                        defaultLayout: "horizontal",
+                                        containerClassName: "px-3",
+                                        render: (cohort, onFieldChange, updateParams, data) => html`
+                                            <catalog-search-autocomplete
+                                                .value="${cohort}"
+                                                .resource="${"COHORT"}"
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .config="${{
+                                                    multiple: false,
+                                                    // disabled: !data?.individual && data?.individualId,
+                                                }}"
+                                                @filterChange="${event => onFieldChange(event.detail.value)}">
+                                            </catalog-search-autocomplete>
+                                        `,
+                                    },
+                                },
+                                {
+                                    type: "text",
+                                    text: "Or create a new cohort by providing the following information:",
+                                },
+                                {
+                                    title: "Cohort ID",
+                                    field: "cohort.id",
+                                    type: "input-text",
+                                    display: {
+                                        defaultLayout: "horizontal",
+                                        containerClassName: "px-3",
+                                        helpMessage: "Identifier for the cohort to be created and associated to the uploaded files.",
+                                    },
+                                },
+                                {
+                                    title: "Cohort Name",
+                                    field: "cohort.name",
+                                    type: "input-text",
+                                    display: {
+                                        containerClassName: "px-3",
+                                        helpMessage: "Name for the cohort to be created and associated to the uploaded files.",
+                                    },
+                                },
+                                {
+                                    title: "Cohort Description",
+                                    field: "cohort.description",
+                                    type: "input-text",
+                                    display: {
+                                        containerClassName: "px-3",
+                                        helpMessage: "Description for the cohort to be created and associated to the uploaded files.",
+                                    },
+                                },
+                            ],
+                        },
                     ],
                 },
                 {
+                    id: "uploadFiles",
                     title: "Upload Files",
                     description: html`<span>Upload one or more files to the selected study. <b>Note:</b> if the path already exists, the files will be overwritten.</span>`,
-                    id: "uploadFiles",
+                    display: {
+                        className: "px-2 py-2",
+                    },
                     elements: [
                         {
                             title: "Upload Destination Path",
@@ -845,9 +887,9 @@ export default class ClinicalFileUpload extends LitElement {
                                             class="flex-grow-1"
                                             @filterChange="${event => onFieldChange(event.detail.value)}">
                                         </catalog-search-autocomplete>
-                                        <button class="btn btn-primary d-flex align-items-center gap-2 mb-1 ${disabled ? "disabled" : ""}" @click="${() => this.onCreateFolderShow()}">
-                                            <i class="fa fa-plus"></i>
-                                            <span>Create Folder</span>
+                                        <button class="btn btn-primary d-flex align-items-center gap-2 mb-1 ${disabled ? "disabled" : ""}" title="Create Folder"
+                                                @click="${() => this.onCreateFolderShow()}">
+                                            <i class="fa fa-folder-plus"></i>
                                         </button>
                                     </div>
                                 `,
