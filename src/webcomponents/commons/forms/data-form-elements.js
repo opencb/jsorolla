@@ -1,4 +1,4 @@
-import {html, nothing} from "lit";
+import {html} from "lit";
 import * as XLSX from "xlsx";
 
 export default class DataFormElements {
@@ -11,16 +11,16 @@ export default class DataFormElements {
                 ...customConfig?.display,
                 render: (value, onFieldChange, updateParams, data, item, disabled, element) => {
                     const rows = element.display?.rows ?? 10;
-                    const maxHeight = rows * 20; // Approx 20px per line
+                    const maxHeight = rows * 25; // Approx 20px per line
 
-                    const onFileChange = async (event) => {
+                    const onFileChange = async event => {
                         const file = event.target.files[0];
                         if (file) {
                             let content = "";
                             try {
                                 if (file.name.endsWith(".xlsx") || file.name.endsWith(".xls")) {
                                     const data = await file.arrayBuffer();
-                                    const workbook = XLSX.read(data, { type: "array" });
+                                    const workbook = XLSX.read(data, {type: "array"});
                                     if (workbook.SheetNames.length > 0) {
                                         const sheetName = workbook.SheetNames[0];
                                         const sheet = workbook.Sheets[sheetName];
@@ -36,7 +36,7 @@ export default class DataFormElements {
                             onFieldChange(content);
                         }
                     };
- 
+
                     return html`
                         <div class="mb-2">
                             <input type="file"
@@ -44,7 +44,7 @@ export default class DataFormElements {
                                 ?disabled="${disabled}"
                                 @change="${event => onFileChange(event)}">
                         </div>
-                        <div class="form-control" style="min-height:40px; max-height: ${maxHeight}px; overflow-y: auto; background-color: ${disabled ? "#e9ecef" : "#fff"};">
+                        <div class="form-control fs-7" style="min-height:60px; max-height: ${maxHeight}px; overflow-y: auto; background-color: ${disabled ? "#e9ecef" : "#fff"};">
                             <div style="white-space:pre-wrap;font-family:monospace;">${value}</div>
                         </div>
                     `;
@@ -52,4 +52,5 @@ export default class DataFormElements {
             },
         };
     }
+
 };
