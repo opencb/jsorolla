@@ -6,6 +6,7 @@ import ModalUtils from "../commons/modal/modal-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import DataFormElements from "../commons/forms/data-form-elements.js";
 import "../commons/forms/data-form.js";
+import "../cohort/cohort-create.js";
 import "../file/file-folder-create.js";
 import "../loading-spinner.js";
 
@@ -50,6 +51,7 @@ export default class ClinicalFileUpload extends LitElement {
 
         this._data = UtilsNew.objectClone(this.DEFAULT_DATA);
         this._uploading = false;
+        this._showCreateCohortModal = false;
         this._showCreateFolderModal = false;
         this._config = this.getDefaultConfig();
     }
@@ -486,11 +488,45 @@ export default class ClinicalFileUpload extends LitElement {
         }
     }
 
+    onCreateCohortShow() {
+        this._showCreateCohortModal = true;
+        this.requestUpdate();
+        this.updateComplete.then(() => {
+            ModalUtils.show("create-cohort-modal");
+        });
+    }
+
     onCreateFolderShow() {
         this._showCreateFolderModal = true;
         this.requestUpdate();
         this.updateComplete.then(() => {
             ModalUtils.show("create-folder-modal");
+        });
+    }
+
+    renderCreateCohortModal() {
+        return ModalUtils.create(this, "create-cohort-modal", {
+            display: {
+                modalTitle: "Create Cohort",
+                modalSize: "modal-lg",
+            },
+            render: () => html`
+                <cohort-create
+                    .opencgaSession="${this.opencgaSession}"
+                    .displayConfig="${{
+                        buttonsLayout: "bottom",
+                    }}"
+                    @cohortCreate="${event => {
+                        this._showCreateCohortModal = false;
+                        this._data = {
+                            ...this._data,
+                            cohort: event.detail.id,
+                        };
+                        this.requestUpdate();
+                        ModalUtils.close("create-cohort-modal");
+                    }}">
+                </cohort-create>
+            `,
         });
     }
 
@@ -534,6 +570,7 @@ export default class ClinicalFileUpload extends LitElement {
                     @submit="${event => this.onSubmit(event)}">
                 </data-form>
             </div>
+            ${this._showCreateCohortModal ? this.renderCreateCohortModal() : nothing}
             ${this._showCreateFolderModal ? this.renderCreateFolderModal() : nothing}
         `;
     }
@@ -786,7 +823,7 @@ export default class ClinicalFileUpload extends LitElement {
                         DataFormElements.fileContentElement({
                             title: "Mapping Files and Samples",
                             field: "mappingFileContent",
-                            required: false,
+                            required: true,
                             display: {
                                 helpMessage: "Upload a CSV or TSV file with columns: File (required), Sample, Individual, Family, Somatic.",
                             },
@@ -794,66 +831,27 @@ export default class ClinicalFileUpload extends LitElement {
                         {
                             title: "Cohort",
                             field: "cohort",
-                            type: "object",
-                            elements: [
-                                {
-                                    type: "text",
-                                    text: "Select an existing cohort from the following list to associate all created samples to it.",
-                                },
-                                {
-                                    title: "Select Cohort",
-                                    type: "custom",
-                                    field: "cohort.id",
-                                    display: {
-                                        defaultLayout: "horizontal",
-                                        containerClassName: "px-3",
-                                        render: (cohort, onFieldChange, updateParams, data) => html`
-                                            <catalog-search-autocomplete
-                                                .value="${cohort}"
-                                                .resource="${"COHORT"}"
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .config="${{
-                                                    multiple: false,
-                                                    // disabled: !data?.individual && data?.individualId,
-                                                }}"
-                                                @filterChange="${event => onFieldChange(event.detail.value)}">
-                                            </catalog-search-autocomplete>
-                                        `,
-                                    },
-                                },
-                                {
-                                    type: "text",
-                                    text: "Or create a new cohort by providing the following information:",
-                                },
-                                {
-                                    title: "Cohort ID",
-                                    field: "cohort.id",
-                                    type: "input-text",
-                                    display: {
-                                        defaultLayout: "horizontal",
-                                        containerClassName: "px-3",
-                                        helpMessage: "Identifier for the cohort to be created and associated to the uploaded files.",
-                                    },
-                                },
-                                {
-                                    title: "Cohort Name",
-                                    field: "cohort.name",
-                                    type: "input-text",
-                                    display: {
-                                        containerClassName: "px-3",
-                                        helpMessage: "Name for the cohort to be created and associated to the uploaded files.",
-                                    },
-                                },
-                                {
-                                    title: "Cohort Description",
-                                    field: "cohort.description",
-                                    type: "input-text",
-                                    display: {
-                                        containerClassName: "px-3",
-                                        helpMessage: "Description for the cohort to be created and associated to the uploaded files.",
-                                    },
-                                },
-                            ],
+                            type: "custom",
+                            display: {
+                                render: (cohort, onFieldChange, updateParams, data, item, disabled) => html`
+                                    <div class="d-flex align-items-stretch gap-2">
+                                        <catalog-search-autocomplete
+                                            .value="${cohort}"
+                                            .resource="${"COHORT"}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .config="${{
+                                                multiple: false,
+                                            }}"
+                                            class="flex-grow-1"
+                                            @filterChange="${event => onFieldChange(event.detail.value)}">
+                                        </catalog-search-autocomplete>
+                                        <button class="btn btn-light mb-1 d-flex ${disabled ? "disabled" : ""}" title="Create Cohort" @click="${() => this.onCreateCohortShow()}">
+                                            <i class="fa fa-plus fs-5"></i>
+                                        </button>
+                                    </div>
+                                `,
+                                helpMessage: "Select or create a cohort to which all the samples created during the batch upload will be added.",
+                            },
                         },
                     ],
                 },
