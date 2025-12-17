@@ -350,7 +350,7 @@ export default class OpencgaCatalogUtils {
                 if (entry.file) {
                     // check if the 'sample' column is present, and in that case initialize if empty
                     if (headers.includes("sample") && !entry.sample) {
-                        entry.sample = entry.replace(/\.[^/.]+$/, "");
+                        entry.sample = entry.file.replace(/\.[^/.]+$/, "");
                     }
                     // check if the 'individual' column is present, and in that case initialize if empty
                     if (headers.includes("individual") && !entry.individual) {

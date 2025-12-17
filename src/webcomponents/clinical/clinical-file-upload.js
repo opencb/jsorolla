@@ -895,9 +895,9 @@ export default class ClinicalFileUpload extends LitElement {
                                             class="flex-grow-1"
                                             @filterChange="${event => onFieldChange(event.detail.value)}">
                                         </catalog-search-autocomplete>
-                                        <button class="btn btn-primary d-flex align-items-center gap-2 mb-1 ${disabled ? "disabled" : ""}" @click="${() => this.onCreateFolderShow()}">
-                                            <i class="fa fa-plus"></i>
-                                            <span>Create Folder</span>
+                                        <button class="btn btn-primary d-flex align-items-center gap-2 mb-1 ${disabled ? "disabled" : ""}" title="Create Folder"
+                                                @click="${() => this.onCreateFolderShow()}">
+                                            <i class="fa fa-folder-plus"></i>
                                         </button>
                                     </div>
                                 `,
