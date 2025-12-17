@@ -583,15 +583,7 @@ export default class ClinicalFileUpload extends LitElement {
             sections: [
                 {
                     id: "type",
-                    // title: "Configure Upload",
                     elements: [
-                        // {
-                        //     title: "Upload Mode",
-                        //     field: "type",
-                        //     type: "toggle-buttons",
-                        //     allowedValues: ["Single", "Batch"],
-                        //     defaultValue: "Single",
-                        // },
                         DataFormElements.tabsElement({
                             field: "type",
                             tabs: [
