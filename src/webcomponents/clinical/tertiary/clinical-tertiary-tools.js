@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import "../../commons/empty-state.js";
 import "../../commons/forms/data-form.js";
 import "../../workflow/analysis/tool-executor.js";
 
@@ -108,6 +109,15 @@ export default class ClinicalTertiaryTools extends LitElement {
     render() {
         if (!this.opencgaSession) {
             return nothing;
+        }
+
+        if (this._tools.length === 0) {
+            return html`
+                <empty-state
+                    icon="fas fa-tools"
+                    description="No clinical analysis tools available in the current study. Please contact your study administrator to register new tools.">
+                </empty-state>
+            `;
         }
 
         return html`
