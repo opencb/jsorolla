@@ -492,22 +492,29 @@ export default class DataForm extends LitElement {
                             const sectionStyle = section.style ?? "";
 
                             if (section.id) {
-                                return html`
-                                    <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
-                                        ${this._createSection(this.config.sections.find(s => s.id === section.id), 0)}
-                                    </div>
-                                `;
-                            } else {
-                                // this section contains nested subsections: 'sections'
+                                const sectionConfig = this.config.sections.find(s => s.id === section.id);
+                                const sectionVisible = this._getBooleanValue(sectionConfig?.display?.visible, true);
+                                if (sectionVisible) {
+                                    return html`
+                                        <div class="${layoutClassName} ${sectionClassName}" style="${sectionStyle}">
+                                            ${this._createSection(sectionConfig, 0)}
+                                        </div>
+                                    `;
+                                } else {
+                                    return nothing;
+                                }
+                            } else if (section.sections) {
                                 return html`
                                     <div class="${sectionClassName}" style="${sectionStyle}">
                                         ${(section.sections || []).map(subsection => {
                                             const subsectionClassName = subsection.className ?? subsection.classes ?? "";
                                             const subsectionStyle = this._parseStyleField(subsection.style);
-                                            if (subsection.id) {
+                                            const subsectionConfig = this.config.sections.find(s => s.id === subsection.id);
+                                            const subsectionVisible = this._getBooleanValue(subsectionConfig?.display?.visible, true);
+                                            if (subsectionConfig && subsectionVisible) {
                                                 return html`
                                                     <div class="${layoutClassName} ${subsectionClassName}" style="${subsectionStyle}">
-                                                        ${this._createSection(this.config.sections.find(s => s.id === subsection.id), 0)}
+                                                        ${this._createSection(subsectionConfig, 0)}
                                                     </div>
                                                 `;
                                             } else {
