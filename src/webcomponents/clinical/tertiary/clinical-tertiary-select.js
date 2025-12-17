@@ -221,15 +221,15 @@ export default class ClinicalTertiarySelect extends LitElement {
             },
             sections: [
                 {
-                    title: "Select Analysis Mode",
+                    // title: "Select Analysis Mode",
                     elements: [
-                        {
-                            title: "Mode",
+                        DataFormElements.tabsElement({
                             field: "mode",
-                            type: "toggle-buttons",
-                            allowedValues: ["Single", "Batch"],
-                            defaultValue: "Single",
-                        },
+                            tabs: [
+                                {id: "Single", text: "Single"},
+                                {id: "Batch", text: "Batch"},
+                            ],
+                        }),
                     ],
                 },
                 {
