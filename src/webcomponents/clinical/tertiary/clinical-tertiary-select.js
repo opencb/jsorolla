@@ -398,6 +398,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                             },
                         }),
                         {
+                            title: "Samples Configuration",
                             type: "custom",
                             display: {
                                 visible: data => data?.samples?.length > 0,
@@ -414,7 +415,6 @@ export default class ClinicalTertiarySelect extends LitElement {
                             },
                         },
                         {
-                            title: "Samples Configuration",
                             type: "table",
                             field: "samples",
                             display: {
