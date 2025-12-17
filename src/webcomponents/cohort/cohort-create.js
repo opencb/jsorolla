@@ -87,7 +87,7 @@ export default class CohortCreate extends LitElement {
                 includeResult: true,
             })
             .then(() => {
-                LitUtils.dispatchCustomEvent(this, "cohortCreate", this._cohort, {});
+                LitUtils.dispatchCustomEvent(this, "cohortCreate", null, this._cohort);
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: "Cohort created correctly.",
                 });
