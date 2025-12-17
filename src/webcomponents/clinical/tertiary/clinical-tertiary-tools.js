@@ -73,6 +73,11 @@ export default class ClinicalTertiaryTools extends LitElement {
                 })
                 .then(response => {
                     this._tools = response.responses[0].results || [];
+                    // set the first tool as selected by default
+                    this._toolParams = {
+                        ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                        toolId: this._tools.length > 0 ? this._tools[0].id : "",
+                    };
                     this._config = this.getDefaultConfig();
                     this.requestUpdate();
                 })
@@ -151,12 +156,20 @@ export default class ClinicalTertiaryTools extends LitElement {
             sections: [
                 {
                     id: "tools-menu",
+                    display: {
+                        separationClassName: "mb-2",
+                    },
                     elements: (this._tools || []).map(tool => ({
                         type: "custom",
                         display: {
                             render: (data) => html`
-                                <div class="bg-white border rounded-3 p-4 ${data.toolId === tool.id ? "border-primary" : "cursor-pointer"}" @click="${event => this.onToolChange(event, tool.id)}">
-                                    <div class="">${tool.name || tool.id}</div>
+                                <div
+                                    class="border rounded-3 p-3 ${data.toolId === tool.id ? "border-primary bg-primary-subtle" : "cursor-pointer bg-white"}"
+                                    @click="${event => this.onToolChange(event, tool.id)}">
+                                    <div class="fw-bold">${tool.name || tool.id}</div>
+                                    ${tool.description ? html`
+                                        <div class="text-muted fs-7">${tool.description}</div>
+                                    ` : nothing}
                                 </div>
                             `,
                         },
