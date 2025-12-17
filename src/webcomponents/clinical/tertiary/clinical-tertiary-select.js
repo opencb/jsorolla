@@ -278,7 +278,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                                         display: {
                                             render: (sample, onFieldChange) => {
                                                 return html`
-                                                    <input type="checkbox" class="form-check-input">
+                                                    <input type="checkbox" class="form-check-input" ?checked="${true}">
                                                 `;
                                             },
                                         },
@@ -432,7 +432,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                                         display: {
                                             render: (sample, onFieldChange) => {
                                                 return html`
-                                                    <input type="checkbox" class="form-check-input">
+                                                    <input type="checkbox" class="form-check-input" ?checked="${true}">
                                                 `;
                                             },
                                         },
