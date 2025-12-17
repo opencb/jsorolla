@@ -395,6 +395,22 @@ export default class ClinicalTertiarySelect extends LitElement {
                             },
                         }),
                         {
+                            type: "custom",
+                            display: {
+                                visible: data => data?.samples?.length > 0,
+                                render: (samples) => {
+                                    return html`
+                                        <div class="d-flex align-items-center justify-content-end">
+                                            <button class="btn btn-light d-flex align-items-center gap-2">
+                                                <i class="fas fa-cog"></i>
+                                                <span>Configure All</span>
+                                            </button>
+                                        </div>
+                                    `;
+                                },
+                            },
+                        },
+                        {
                             title: "Clinical Analysis",
                             type: "table",
                             field: "samples",
@@ -419,8 +435,8 @@ export default class ClinicalTertiarySelect extends LitElement {
                                             render: () => {
                                                 return html`
                                                     <button class="btn btn-light btn-sm d-flex align-items-center gap-1">
-                                                        <i class="fas fa-cog"></i>
-                                                        <span>Configure</span>
+                                                        <i class="fas fa-edit"></i>
+                                                        <span>Edit</span>
                                                     </button>
                                                 `;
                                             },
@@ -430,9 +446,12 @@ export default class ClinicalTertiarySelect extends LitElement {
                                         title: "Select",
                                         type: "custom",
                                         display: {
+                                            headerCellClassName: "text-center",
                                             render: (sample, onFieldChange) => {
                                                 return html`
-                                                    <input type="checkbox" class="form-check-input" ?checked="${true}">
+                                                    <div class="w-full d-flex justify-content-center">
+                                                        <input type="checkbox" class="form-check-input" ?checked="${true}">
+                                                    </div>
                                                 `;
                                             },
                                         },
