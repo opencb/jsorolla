@@ -3,6 +3,28 @@ import * as XLSX from "xlsx";
 
 export default class DataFormElements {
 
+    static tabsElement(customConfig = {}) {
+        return {
+            title: customConfig?.title,
+            field: customConfig?.field,
+            type: "custom",
+            display: {
+                ...customConfig?.display,
+                render: (value, onFieldChange, updateParams, data, item, disabled) => html`
+                    <div class="nav nav-pills p-2 border bg-gray-100 rounded-4 nav-fill">
+                        ${(customConfig?.tabs || []).map(tab => html`
+                            <a
+                                class="nav-link rounded-3 d-flex justify-content-center align-items-center gap-2 ${value === tab.id ? "active" : "cursor-pointer"}"
+                                @click="${() => onFieldChange(tab.id)}">
+                                <span class="fw-bold lh-1 text-center text-break">${tab.text || tab.id}</span>
+                            </a>
+                        `)}
+                    </div>
+                `,
+            },
+        };
+    }
+
     static fileContentElement(customConfig = {}) {
         return {
             ...customConfig,

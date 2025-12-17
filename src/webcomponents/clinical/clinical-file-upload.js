@@ -583,21 +583,27 @@ export default class ClinicalFileUpload extends LitElement {
             sections: [
                 {
                     id: "type",
-                    title: "Configure Upload",
+                    // title: "Configure Upload",
                     elements: [
-                        {
-                            title: "Upload Mode",
+                        // {
+                        //     title: "Upload Mode",
+                        //     field: "type",
+                        //     type: "toggle-buttons",
+                        //     allowedValues: ["Single", "Batch"],
+                        //     defaultValue: "Single",
+                        // },
+                        DataFormElements.tabsElement({
                             field: "type",
-                            type: "toggle-buttons",
-                            allowedValues: ["Single", "Batch"],
-                            defaultValue: "Single",
-                        },
+                            tabs: [
+                                { id: "Single", text: "Single Upload" },
+                                { id: "Batch", text: "Batch Upload" },
+                            ],
+                        }),
                     ],
                 },
                 {
                     id: "singleUpload",
                     title: "Single Upload Configuration",
-                    description: "Configure the single upload settings.",
                     display: {
                         visible: data => data?.type === "Single",
                     },
@@ -768,7 +774,6 @@ export default class ClinicalFileUpload extends LitElement {
                 },
                 {
                     title: "Batch Upload Configuration",
-                    description: "Configure the batch upload settings.",
                     id: "batchUpload",
                     display: {
                         visible: data => data?.type === "Batch",
