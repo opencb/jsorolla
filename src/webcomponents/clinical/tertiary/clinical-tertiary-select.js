@@ -92,7 +92,7 @@ export default class ClinicalTertiarySelect extends LitElement {
             const header = mappingFileContent.split("\n")[0];
             const sampleIndex = header.split("\t").indexOf("sample");
             if (sampleIndex === -1) {
-                console.error("Mapping file must contain a 'sampleId' column in the header.");
+                console.error("Mapping file must contain a 'sample' column in the header.");
                 return;
             }
 
@@ -414,10 +414,11 @@ export default class ClinicalTertiarySelect extends LitElement {
                             },
                         },
                         {
-                            title: "Clinical Analysis",
+                            title: "Samples Configuration",
                             type: "table",
                             field: "samples",
                             display: {
+                                visible: data => data?.samples?.length > 0,
                                 columns: [
                                     {
                                         title: "Sample",
