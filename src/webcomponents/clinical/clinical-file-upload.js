@@ -577,7 +577,7 @@ export default class ClinicalFileUpload extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Upload Files",
+            title: "Clinical File Upload",
             display: {
                 titleVisible: false,
                 buttonOkText: "Upload Files",
@@ -722,6 +722,9 @@ export default class ClinicalFileUpload extends LitElement {
                 },
                 {
                     id: "singleUploadSeparator",
+                    display: {
+                        visible: data => data?.type === "Single",
+                    },
                     elements: [],
                 },
                 {
