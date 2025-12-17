@@ -86,6 +86,13 @@ export default class ClinicalTertiaryTools extends LitElement {
         this.requestUpdate();
     }
 
+    onToolChange(event, selectedTool) {
+        this._toolParams = {
+            toolId: selectedTool,
+        };
+        this.requestUpdate();
+    }
+
     onToolExecutorChange(event) {
         this._toolParams = {
             ...this._toolParams,
@@ -115,48 +122,94 @@ export default class ClinicalTertiaryTools extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Select Tools",
+            title: "Configure Tool to Execute",
             display: {
                 titleClassName: "mb-4",
+                className: "row",
+                layout: [
+                    {
+                        id: "tools-menu",
+                        className: "col-md-3",
+                    },
+                    {
+                        id: "tools-form",
+                        className: "col-md-9",
+                    },
+                ],
                 ...this.displayConfig,
             },
             sections: [
                 {
-                    elements: [
-                        {
-                            name: "Select Clinical Analysis Tool",
-                            field: "toolId",
-                            type: "select",
-                            allowedValues: this._tools.map(t => t.id),
-                            display: {
-                                placeholder: "Select a tool...",
-                            },
+                    id: "tools-menu",
+                    elements: (this._tools || []).map(tool => ({
+                        type: "custom",
+                        display: {
+                            render: (data) => html`
+                                <div class="bg-white border rounded-3 p-4 ${data.toolId === tool.id ? "border-primary" : "cursor-pointer"}" @click="${event => this.onToolChange(event, tool.id)}">
+                                    <div class="">${tool.name || tool.id}</div>
+                                </div>
+                            `,
                         },
-                        {
-                            name: "Tool Configuration",
-                            type: "custom",
-                            display: {
-                                visible: data => !!data.toolId,
-                                render: (fieldValue, dataFormChange, updateParams, data) => html`
-                                    <tool-executor
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .toolId="${data.toolId}"
-                                        .toolParams="${{
-                                            variables: {
-                                                clinicalAnalysisId: "",
-                                            },
-                                        }}"
-                                        .displayConfig="${{
-                                            titleVisible: false,
-                                            buttonsVisible: false,
-                                        }}"
-                                        @toolParamsChange="${event => this.onToolExecutorChange(event)}">
-                                    </tool-executor>
-                                `,
-                            },
-                        },
-                    ],
+                    })),
                 },
+                {
+                    id: "tools-form",
+                    display: {
+                        visible: data => !!data.toolId,
+                    },
+                    render: (data) => html`
+                        <tool-executor
+                            .opencgaSession="${this.opencgaSession}"
+                            .toolId="${data.toolId}"
+                            .toolParams="${{
+                                variables: {
+                                    clinicalAnalysisId: "",
+                                },
+                            }}"
+                            .displayConfig="${{
+                                titleVisible: false,
+                                buttonsVisible: false,
+                            }}"
+                            @toolParamsChange="${event => this.onToolExecutorChange(event)}">
+                        </tool-executor>
+                    `,
+                },
+                // {
+                //     elements: [
+                //         {
+                //             name: "Select Clinical Analysis Tool",
+                //             field: "toolId",
+                //             type: "select",
+                //             allowedValues: this._tools.map(t => t.id),
+                //             display: {
+                //                 placeholder: "Select a tool...",
+                //             },
+                //         },
+                //         {
+                //             name: "Tool Configuration",
+                //             type: "custom",
+                //             display: {
+                //                 visible: data => !!data.toolId,
+                //                 render: (fieldValue, dataFormChange, updateParams, data) => html`
+                //                     <tool-executor
+                //                         .opencgaSession="${this.opencgaSession}"
+                //                         .toolId="${data.toolId}"
+                //                         .toolParams="${{
+                //                             variables: {
+                //                                 clinicalAnalysisId: "",
+                //                             },
+                //                         }}"
+                //                         .displayConfig="${{
+                //                             titleVisible: false,
+                //                             buttonsVisible: false,
+                //                         }}"
+                //                         @toolParamsChange="${event => this.onToolExecutorChange(event)}">
+                //                     </tool-executor>
+                //                 `,
+                //             },
+                //         },
+                //     ],
+                // },
             ],
         };
     }
