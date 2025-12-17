@@ -52,8 +52,8 @@ export default class DataFormElements {
                                 <i class="fa fa-trash-alt"></i>
                             </button>
                         </div>
-                        <div class="form-control" style="min-height:40px; max-height: ${maxHeight}px; overflow-y: auto; background-color: ${disabled ? "#e9ecef" : "#fff"};">
-                            <div style="white-space:pre-wrap;font-family:monospace;">${value}</div>
+                        <div class="form-control overflow-auto ${disabled ? "bg-gray-200" : "bg-gray-100"}" style="min-height:40px; max-height: ${maxHeight}px;">
+                            <div class="font-monospace fs-7" style="white-space:pre-wrap;">${value}</div>
                         </div>
                     `;
                 },
