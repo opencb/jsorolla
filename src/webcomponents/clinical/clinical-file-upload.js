@@ -599,7 +599,6 @@ export default class ClinicalFileUpload extends LitElement {
                 {
                     id: "singleUpload",
                     title: "Single Sample Upload Configuration",
-                    // description: "Configure the single upload settings.",
                     display: {
                         visible: data => data?.type === "Single",
                     },
@@ -771,7 +770,6 @@ export default class ClinicalFileUpload extends LitElement {
                 {
                     id: "batchUpload",
                     title: "Multi Sample Batch Upload Configuration",
-                    // description: "Configure the batch upload settings.",
                     display: {
                         visible: data => data?.type === "Batch",
                         className: "px-2 py-2",
@@ -782,7 +780,6 @@ export default class ClinicalFileUpload extends LitElement {
                             field: "confirmSampleCreation",
                             type: "checkbox",
                             display: {
-                                // defaultValue: true,
                                 helpMessage: "Check this box to confirm the creation of samples and individuals during batch upload.",
                             },
                         },
