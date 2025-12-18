@@ -88,7 +88,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                 },
                 ...evidences.map(evidence => ({
                     display: {
-                        className: "border border-1 gorder-gray-200 rounded-3 p-3",
+                        className: "border border-1 border-gray-200 rounded-3 p-3",
                         defaultLayout: "horizontal",
                     },
                     elements: [
