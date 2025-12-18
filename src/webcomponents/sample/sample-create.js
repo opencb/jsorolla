@@ -440,6 +440,9 @@ export default class SampleCreate extends LitElement {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
                                 // CAUTION 20231024 Vero: "collapsedUpdate" not considered in data-form.js. Perhaps "collapsed" (L1324 in data-form.js) ?
                                 collapsedUpdate: true,
+                                showAddItemListButton: true,
+                                showAddBatchListButton: true,
+                                showResetListButton: true,
                                 view: phenotype => html`
                                     <div>${phenotype.id} - ${phenotype?.name}</div>
                                 `,

@@ -65,7 +65,7 @@ export default class WorkflowGrid extends LitElement {
 
     #init() {
         this.COMPONENT_ID = "workflow-grid";
-        this.RESOURCE = "WORKFLOW";
+        this.RESOURCE = "USER_TOOL";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
         this.active = true;
@@ -284,6 +284,10 @@ export default class WorkflowGrid extends LitElement {
                             this.table.bootstrapTable("refresh");
                         }}"
                         @workflowUpdate="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}"
+                        @variantWalkerUpdate="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
@@ -540,8 +544,9 @@ export default class WorkflowGrid extends LitElement {
                 title: "Execute",
                 field: "execute",
                 formatter: _ => {
+                    const hasExecutePermission = this.gridCommons.hasPermission("EXECUTE", "JOB");
                     return `
-                        <a class="btn btn-primary cursor-pointer d-inline-flex align-items-center gap-1" data-action="execute">
+                        <a class="btn btn-primary cursor-pointer d-inline-flex align-items-center gap-1 ${!hasExecutePermission ? "disabled" : ""}" data-action="execute">
                             <i class="fas fa-play me-1"></i>
                             <span>Execute</span>
                         </a>
@@ -716,9 +721,10 @@ export default class WorkflowGrid extends LitElement {
             },
             {
                 render: () => {
+                    const hasWritePermission = this.gridCommons.hasPermission("WRITE");
                     return html`
                         <div class="dropdown">
-                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <button class="btn btn-light dropdown-toggle ${!hasWritePermission ? "disabled" : ""}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-file-import me-1"></i>
                                 Import Workflow
                             </button>

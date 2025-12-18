@@ -137,7 +137,7 @@ export default class DiseasePanelGelImport extends LitElement {
                     this._repositories = this._repositories.concat(data.results);
                 }
             } catch (error) {
-                console.error("Failed to fetch page ${page}:", error);
+                console.error(`Failed to fetch page ${page}:`, error);
             }
         }
 
