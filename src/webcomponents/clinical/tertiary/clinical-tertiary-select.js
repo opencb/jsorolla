@@ -77,6 +77,7 @@ export default class ClinicalTertiarySelect extends LitElement {
         // 1. check if we have changed the mode
         if (event.detail.param === "mode") {
             this._toolParams.samples = []; // force to reset selected samples
+            this._toolParams.mappingFile = ""; // reset mapping file content
             if (event.detail.value === "Single") {
                 this._toolParams.selectionType = "Sample";
             } else {
@@ -89,32 +90,41 @@ export default class ClinicalTertiarySelect extends LitElement {
             this._toolParams.samples = []; // force to reset selected samples
             // get the sample IDs from the mapping file
             const mappingFileContent = event.detail.value;
-            const header = mappingFileContent.split("\n")[0];
-            const sampleIndex = header.split("\t").indexOf("sample");
-            if (sampleIndex === -1) {
-                console.error("Mapping file must contain a 'sample' column in the header.");
-                return;
+            if (mappingFileContent) {
+                const header = mappingFileContent.split("\n")[0];
+                const separator = header.includes("\t") ? "\t" : ",";
+                const headerItems = header
+                    .trim()
+                    .replace("#", "")
+                    .toLowerCase()
+                    .split(separator);
+                const sampleIndex = headerItems.findIndex(h => h === "sample" || h === "sampleid");
+
+                if (sampleIndex === -1) {
+                    console.error("Mapping file must contain a 'sample' column in the header.");
+                    return;
+                }
+
+                const sampleIds = mappingFileContent
+                    .split("\n")
+                    .slice(1) // skip header
+                    .map(line => line.split("\t")[sampleIndex])
+                    .filter(id => id); // remove empty lines
+
+                // Fetch sample details from OpenCGA
+                this.opencgaSession.opencgaClient.samples()
+                    .info(sampleIds, {
+                        study: this.opencgaSession.study.fqn,
+                        include: "id,internal.status.id,somatic,individualId",
+                        includeIndividual: true,
+                    })
+                    .then(response => {
+                        const samples = response?.responses?.[0]?.results || [];
+                        this._toolParams.samples = samples;
+                        this.requestUpdate();
+                    });
+                return; // exit early since we handle async update
             }
-
-            const sampleIds = mappingFileContent
-                .split("\n")
-                .slice(1) // skip header
-                .map(line => line.split("\t")[sampleIndex])
-                .filter(id => id); // remove empty lines
-
-            // Fetch sample details from OpenCGA
-            this.opencgaSession.opencgaClient.samples()
-                .info(sampleIds, {
-                    study: this.opencgaSession.study.fqn,
-                    include: "id,internal.status.id,somatic,individualId",
-                    includeIndividual: true,
-                })
-                .then(response => {
-                    const samples = response?.responses?.[0]?.results || [];
-                    this._toolParams.samples = samples;
-                    this.requestUpdate();
-                });
-            return; // exit early since we handle async update
         }
 
         // LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
