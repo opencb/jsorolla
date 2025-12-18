@@ -129,13 +129,23 @@ export default class ClinicalReportReview extends LitElement {
 
         // 2. include the primary interpretation if exists
         if (this.clinicalAnalysis?.interpretation) {
+            // Filter reported and candidate variants from primary findings, sort by tier.
+            const reportedVariants = (this.clinicalAnalysis.interpretation.primaryFindings || [])
+                .filter(variant => {
+                    return variant.status === "REPORTED" || variant.status === "CANDIDATE";
+                })
+                .sort((variantA, variantB) => {
+                    const tierA = variantA.evidences.find(ev => ev.review?.select === true)?.review?.tier || "None";
+                    const tierB = variantB.evidences.find(ev => ev.review?.select === true)?.review?.tier || "None";
+                    return tierA.localeCompare(tierB);
+                })
+            ;
+
             interpretations.push({
                 id: this.clinicalAnalysis.interpretation.id,
                 name: this.clinicalAnalysis.interpretation.name,
                 primary: true,
-                variants: (this.clinicalAnalysis.interpretation.primaryFindings || []).filter(variant => {
-                    return variant.status === "REPORTED" || variant.status === "CANDIDATE";
-                }),
+                variants: reportedVariants
             });
         }
 

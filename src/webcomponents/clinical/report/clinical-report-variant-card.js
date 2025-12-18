@@ -105,26 +105,35 @@ export default class ClinicalReportVariantCard extends LitElement {
                             type: "custom",
                             display: {
                                 separationClassName: "mb-2",
-                                render: data => html`
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center">
-                                            <a class="link fw-bold" @click="${event => this.onVariantInfo(event)}">
-                                                <span class="fs-5">${data.id}</span>
-                                            </a>
+                                render: data => {
+                                    const tier = data.evidences.find(ev => ev.review.select === true)?.review?.tier || "None";
+                                    return html`
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <a class="link fw-bold" @click="${event => this.onVariantInfo(event)}">
+                                                    <span class="fs-5">${data.id}</span>
+                                                </a>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <button class="btn btn-sm btn-light" @click="${event => this.onVariantReviewUpdate(event)}">
+                                                    <i class="fa fa-edit pe-1"></i>
+                                                    <span>Update Review</span>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <button class="btn btn-sm btn-light" @click="${event => this.onVariantReviewUpdate(event)}">
-                                                <i class="fa fa-edit pe-1"></i>
-                                                <span>Update Review</span>
-                                            </button>
+                                        <div class="">
+                                            ${tier !== "None" ? html`
+                                                <div class="badge ${tier === "TIER_1" ? "text-white bg-danger" : "text-white bg-warning"} user-select-none">
+                                                    <b>${tier}</b>
+                                                </div>
+                                            ` : nothing
+                                            }
+                                            <div class="badge ${VariantUtils.getStatusColor(data.status)} user-select-none">
+                                                <b>${data.status}</b>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="">
-                                        <div class="badge ${VariantUtils.getStatusColor(data.status)} user-select-none">
-                                            <b>${data.status}</b>
-                                        </div>
-                                    </div>
-                                `,
+                                    `
+                                },
                             },
                         },
                         {
