@@ -79,7 +79,7 @@ export default class ClinicalReportVariantInfo extends LitElement {
                     elements: [
                         {
                             type: "text",
-                            text: "No evidences sected for this variant.",
+                            text: "No evidences selected for this variant.",
                             display: {
                                 visible: evidences.length === 0,
                             },
