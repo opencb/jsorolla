@@ -108,7 +108,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                 const sampleIds = mappingFileContent
                     .split("\n")
                     .slice(1) // skip header
-                    .map(line => line.split("\t")[sampleIndex])
+                    .map(line => line.split(separator)[sampleIndex])
                     .filter(id => id); // remove empty lines
 
                 // Fetch sample details from OpenCGA
