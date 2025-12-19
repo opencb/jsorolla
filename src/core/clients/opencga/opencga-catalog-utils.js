@@ -315,6 +315,14 @@ export default class OpencgaCatalogUtils {
         return downloadUrl.join("/");
     }
 
+    /**
+     * Parse a mapping file content and return an array of objects representing the mapping.
+     * The mapping file must contain at least a 'File' column. Optionally, it can contain 'Sample' and 'Individual' columns.
+     * If 'Sample' or 'Individual' columns are missing or empty, they will be initialized based on the 'File' column.
+     * @param {string} content - The content of the mapping file.
+     * @returns {Array<Object>} - An array of mapping objects.
+     * @throws {Error} - If the content is empty or the 'File' column is missing.
+     */
     static parseMappingFile(content) {
         if (!content) {
             throw new Error("Mapping content is empty");
@@ -330,7 +338,8 @@ export default class OpencgaCatalogUtils {
         const headers = headerLine
             .trim()
             .replace("#", "")
-            .split(separator).map(h => h.trim().toLowerCase());
+            .split(separator)
+            .map(h => h.trim().toLowerCase());
 
         // validate File column
         if (!headers.includes("file")) {
@@ -341,27 +350,62 @@ export default class OpencgaCatalogUtils {
         for (let i = 1; i < lines.length; i++) {
             const line = lines[i].trim();
             if (line) {
-                const values = line.split(separator).map(v => v.trim());
+                const values = line.split(separator)
+                    .map(v => v.trim());
+
                 const entry = {};
                 headers.forEach((header, index) => {
                     entry[header] = (index < values.length) ? values[index] : "";
                 });
                 // check if the 'file' field is present
-                if (entry.file) {
-                    // check if the 'sample' column is present, and in that case initialize if empty
-                    if (headers.includes("sample") && !entry.sample) {
-                        entry.sample = entry.file.replace(/\.[^/.]+$/, "");
-                    }
-                    // check if the 'individual' column is present, and in that case initialize if empty
-                    if (headers.includes("individual") && !entry.individual) {
-                        entry.individual = entry.sample || entry.file.replace(/\.[^/.]+$/, "");
-                    }
-                    // add entry to mapping
-                    mapping.push(entry);
-                }
+                // if (entry.file) {
+                //     // check if the 'sample' column is present, and in that case initialize if empty
+                //     if (headers.includes("sample") && !entry.sample) {
+                //         entry.sample = entry.file.replace(/\.[^/.]+$/, "");
+                //     }
+                //     // check if the 'individual' column is present, and in that case initialize if empty
+                //     if (headers.includes("individual") && !entry.individual) {
+                //         entry.individual = entry.sample || entry.file.replace(/\.[^/.]+$/, "");
+                //     }
+                //     // add entry to mapping
+                //     mapping.push(entry);
+                // }
+                mapping.push(entry);
             }
         }
-        return mapping;
+        return OpencgaCatalogUtils.processMappingFileContent(mapping);
+    }
+
+    processMappingFileContent(content) {
+        try {
+            const processedMapping = [];
+
+            content.forEach((entry, index) => {
+                const processedEntry = {...entry};
+
+                // Validate and process 'file' field
+                if (!processedEntry.file) {
+                    throw new Error(`Missing 'File' value at line ${index + 2}`);
+                }
+
+                // Initialize 'sample' field if missing or empty
+                if (!processedEntry.sample) {
+                    processedEntry.sample = processedEntry.file.replace(/\.[^/.]+$/, "");
+                }
+
+                // Initialize 'individual' field if missing or empty
+                if (!processedEntry.individual) {
+                    processedEntry.individual = processedEntry.sample || processedEntry.file.replace(/\.[^/.]+$/, "");
+                }
+
+                processedMapping.push(processedEntry);
+            });
+
+            return processedMapping;
+        } catch (error) {
+            console.error("Error processing mapping file content:", error);
+            return [];
+        }
     }
 
 }
