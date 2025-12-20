@@ -5,7 +5,7 @@ import "../view/vertical-menu.js";
 import "../../clinical/analysis/mutational-signature-analysis.js";
 import "../../job/analysis/tool-analysis.js";
 import "../../job/analysis/custom-tool-builder.js";
-import "../../alignment/analysis/sarek-analysis.js";
+// import "../../alignment/analysis/sarek-analysis.js";
 import "../../variant/analysis/gwas-analysis.js";
 import "../../variant/analysis/sample-variant-stats-analysis.js";
 import "../../variant/analysis/cohort-variant-stats-analysis.js";
@@ -114,22 +114,22 @@ export default class AnalysisTools extends LitElement {
                         },
                     ],
                 },
-                {
-                    id: "secondary-analysis",
-                    name: "Secondary Analysis",
-                    submenu: [
-                        {
-                            id: "sarek-analysis",
-                            name: "Sarek",
-                            description: "Sarek is a Nextflow-based pipeline to analyze whole-genome or whole-exome sequencing data for germline and somatic variants",
-                            render: opencgaSession => html`
-                                <sarek-analysis
-                                    .opencgaSession="${opencgaSession}">
-                                </sarek-analysis>
-                            `,
-                        },
-                    ],
-                },
+                // {
+                //     id: "secondary-analysis",
+                //     name: "Secondary Analysis",
+                //     submenu: [
+                //         {
+                //             id: "sarek-analysis",
+                //             name: "Sarek",
+                //             description: "Sarek is a Nextflow-based pipeline to analyze whole-genome or whole-exome sequencing data for germline and somatic variants",
+                //             render: opencgaSession => html`
+                //                 <sarek-analysis
+                //                     .opencgaSession="${opencgaSession}">
+                //                 </sarek-analysis>
+                //             `,
+                //         },
+                //     ],
+                // },
                 {
                     id: "summary-stats",
                     name: "Summary Stats",

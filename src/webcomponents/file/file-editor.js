@@ -162,7 +162,7 @@ export default class FileEditor extends LitElement {
     onDiscardClick() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
             title: "Discard Changes",
-            message: "This will discard all changes and restore the origial content of the file. Do you want to continue?",
+            message: "This will discard all changes and restore the original content of the file. Do you want to continue?",
             ok: () => {
                 this._currentContent = this._originalContent;
                 this._version = this._version + 1; // force to refresh the editor
