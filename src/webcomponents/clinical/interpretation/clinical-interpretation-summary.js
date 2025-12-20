@@ -208,13 +208,13 @@ export default class ClinicalInterpretationSummary extends LitElement {
                             field: "method",
                             type: "custom",
                             display: {
-                                visible: interpretation => !!interpretation.method?.name && !!interpretation.method?.version,
+                                visible: interpretation => !!interpretation.method?.name,
                                 render: method => html`
                                     <div>
                                         <strong>Name</strong>: ${method.name}
                                     </div>
                                     <div>
-                                        <strong>Version</strong>: ${method.version}
+                                        <strong>Version</strong>: ${method.version || "-"}
                                     </div>
                                     <div>
                                         <strong>Dependencies</strong>:
