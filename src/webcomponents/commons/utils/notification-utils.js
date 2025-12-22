@@ -30,13 +30,13 @@ export default class NotificationUtils {
 
         // 1. generate an unique identifier for the notification
         const notificationId = NotificationUtils._generateId();
+        if (value && typeof value === "object") {
+            value.id = notificationId;
+        }
 
         // 2. dispatch the notification event
         self.dispatchEvent(new CustomEvent(type, {
-            detail: {
-                id: notificationId,
-                ...value,
-            },
+            detail: value,
             bubbles: true,
             composed: true,
         }));
