@@ -127,12 +127,13 @@ export default class ClinicalFileUpload extends LitElement {
 
                 try {
                     // 3.1. perform the request to OpenCGA for uploading the file
+                    const filePath = this._data.relativeFilePath.startsWith("/") ? this._data.relativeFilePath.substring(1) : this._data.relativeFilePath;
                     const fileResult = await this.opencgaSession.opencgaClient.files()
                         .upload({
                             study: this.opencgaSession.study.fqn,
                             file: file.fileObject,
                             fileName: file.fileObject.name, // get the name from the uploaded file
-                            relativeFilePath: this._data.relativeFilePath.startsWith("/") ? this._data.relativeFilePath.substring(1) : this._data.relativeFilePath,
+                            relativeFilePath: filePath.endsWith("/") ? filePath : filePath + "/",
                             resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
                         });
 
