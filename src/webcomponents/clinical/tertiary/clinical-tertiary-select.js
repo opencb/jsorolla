@@ -456,7 +456,11 @@ export default class ClinicalTertiarySelect extends LitElement {
                                 visible: data => data?.samples?.length > 0,
                                 render: (samples) => {
                                     return html`
-                                        <div class="d-flex align-items-center justify-content-end">
+                                        <div class="d-flex align-items-center justify-content-end gap-2">
+                                            <button class="btn btn-light d-flex align-items-center gap-2">
+                                                <i class="fas fa-plus"></i>
+                                                <span>Create Clinical Analyses</span>
+                                            </button>
                                             <button class="btn btn-light d-flex align-items-center gap-2">
                                                 <i class="fas fa-cog"></i>
                                                 <span>Configure All</span>
