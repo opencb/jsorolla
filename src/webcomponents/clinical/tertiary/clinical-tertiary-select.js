@@ -139,7 +139,7 @@ export default class ClinicalTertiarySelect extends LitElement {
 
     async onSelectSamples(resource, value) {
         let resourcePromise = null;
-debugger
+
         // If not value, reset samples
         if (!value) {
             this._toolParams = {
@@ -185,8 +185,6 @@ debugger
             .map(sample => sample.individualId)
             .filter((value, index, self) => self.indexOf(value) === index); // unique values
 
-
-        let clinicalCases;
         if (individualIds.length > 0) {
             const clinicalResponse = await this.opencgaSession.opencgaClient.clinical()
                 .search({
@@ -194,20 +192,32 @@ debugger
                     study: this.opencgaSession.study.fqn,
                     include: "id,type,panels,disorders",
                 });
-            clinicalCases = clinicalResponse?.responses?.[0]?.results || [];
-            if (clinicalCases.length > 0) {
-                // For simplicity, we take the first clinical case found
-                this._toolParams.clinicalAnalysis = clinicalCases[0];
-            }
+            const clinicalCases = clinicalResponse?.responses?.[0]?.results || [];
+            // if (clinicalCases.length > 0) {
+            //     // For simplicity, we take the first clinical case found
+            //     this._toolParams.clinicalAnalysis = clinicalCases[0];
+            // }
 
-            // Add clinical analysis info to each sample
+            // 2. fetch families for the individuals
+            const familiesResponse = await this.opencgaSession.opencgaClient.families()
+                .search({
+                    members: individualIds.join(","),
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,members.id",
+                });
+            const families = familiesResponse?.responses?.[0]?.results || [];
+            debugger
+
+            // 3. add clinical analysis and family info to each sample
             samples.forEach(sample => {
                 const caseForSample = clinicalCases.find(ca => ca.proband?.id === sample.individualId);
+                const familyForSample = families.find(family =>
+                    family.members?.some(member => member.id === sample.individualId)
+                );
+                sample.familyId = familyForSample?.id || null;
                 sample.clinicalAnalysis = caseForSample || null;
             });
-
         }
-        debugger
         // resourcePromise.then(samples => {
         //     this._toolParams = {
         //         ...this._toolParams,
