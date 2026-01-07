@@ -492,11 +492,12 @@ export default class ClinicalTertiarySelect extends LitElement {
                                         type: "custom",
                                         display: {
                                             bodyCellClassName: "align-middle",
-                                            render: (individualId) => {
-                                                // const sexHtml = CatalogGridFormatter.sexFormatter(individual.sex, individual);
+                                            render: (individualId, updateField, updateParams, data, row) => {
+                                                const individual = row?.attributes?.OPENCGA_INDIVIDUAL;
+                                                const sexHtml = CatalogGridFormatter.sexFormatter(individual.sex, individual);
                                                 return html`
                                                     <div class="fw-bold my-1">${individualId}</div>
-                                                    <div class="text-secondary my-1">${"-"}</div>
+                                                    <div class="text-secondary my-1">${sexHtml}</div>
                                                 `;
                                             }
                                         },
