@@ -490,7 +490,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                                             bodyCellClassName: "align-middle",
                                             render: (sampleId, updateField, updateParams, data, row) => {
                                                 return html`
-                                                    <a class="d-block link fw-bold my-1">${sampleId}</a>
+                                                    <div class="fw-bold my-1">${sampleId}</div>
                                                     <div class="text-secondary small my-1">${row?.somatic ? "Somatic" : "Germline"}</div>
                                                 `;
                                             },
@@ -505,7 +505,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                                             render: (individualId) => {
                                                 // const sexHtml = CatalogGridFormatter.sexFormatter(individual.sex, individual);
                                                 return html`
-                                                    <a class="d-block link fw-bold my-1" data-action="view">${individualId}</a>
+                                                    <div class="fw-bold my-1">${individualId}</div>
                                                     <div class="text-secondary my-1">${"-"}</div>
                                                 `;
                                             }
@@ -515,7 +515,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                                         title: "Family",
                                         field: "familyId",
                                         display: {
-                                            bodyCellClassName: "align-middle",
+                                            bodyCellClassName: "align-middle fw-bold",
                                         },
                                     },
                                     {
