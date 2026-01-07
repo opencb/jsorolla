@@ -509,8 +509,14 @@ export default class ClinicalTertiarySelect extends LitElement {
                                     {
                                         title: "Family",
                                         field: "familyId",
+                                        type: "custom",
                                         display: {
-                                            bodyCellClassName: "align-middle fw-bold",
+                                            bodyCellClassName: "align-middle",
+                                            render: (familyId) => {
+                                                return html`
+                                                    <span class="fw-bold">${familyId || "-"}</span>
+                                                `;
+                                            }
                                         },
                                     },
                                     {
