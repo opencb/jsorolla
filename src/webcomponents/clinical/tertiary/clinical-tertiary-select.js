@@ -224,26 +224,26 @@ export default class ClinicalTertiarySelect extends LitElement {
         this.requestUpdate();
     }
 
-    createClinicaAnalysis() {
+    onCreateClinicaAnalysis() {
         // Dispatch event to create clinical analysis for the selected samples
         LitUtils.dispatchCustomEvent(this, "createClinicalAnalysis", null, this._toolParams.samples);
 
-        // Create the clinical analyses logic here.
         const results = this._toolParams.samples.map(sample => {
-            console.log(`Creating clinical analysis for sample: ${sample.id}`);
-            // Implement the actual creation logic here.
+            // console.log(`Creating clinical analysis for sample: ${sample.id}`);
+            const createParams = {
+                id: `${sample.id}-CA`,
+                type: "SINGLE",
+                proband: {
+                    id: sample.individualId
+                },
+            };
             return this.opencgaSession.opencgaClient.clinical()
-                .create({
-                    id: `${sample.id}-CA`,
-                    type: "SINGLE",
-                    proband: {
-                        id: sample.individualId
-                    },
-                    // panels: this._toolParams.panels.map(panel => panel.id),
-                    // flags: this._toolParams.flags.map(flag => flag.id),
-                    // disorders: this._toolParams.disorders,
-                }, {
+                .create(createParams, {
                     study: this.opencgaSession.study.fqn,
+                })
+                .then(() => {
+                    // update the sample with the created clinical analysis ID
+                    sample.clinicalAnalysisId = createParams.id;
                 });
             }
         );
@@ -259,11 +259,16 @@ export default class ClinicalTertiarySelect extends LitElement {
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                     title: "Error Creating Clinical Analyses",
-                    message: "An error occurred while creating clinical analyses. Please check the console for details.",
+                    message: "An error occurred while creating clinical analyses.",
                 });
                 console.error("Error during clinical analyses creation:", error);
+            })
+            .finally(() => {
+                this._toolParams = {
+                    ...this._toolParams,
+                };
+                this.requestUpdate();
             });
-
     }
 
     renderSelection(selectionType, allowedSelectionTypes) {
@@ -500,7 +505,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                                 render: (samples) => {
                                     return html`
                                         <div class="d-flex align-items-center justify-content-end gap-2">
-                                            <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.createClinicaAnalysis()}">
+                                            <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onCreateClinicaAnalysis()}">
                                                 <i class="fas fa-plus"></i>
                                                 <span>Create Clinical Analyses</span>
                                             </button>
