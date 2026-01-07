@@ -64,11 +64,16 @@ export default class ClinicalTertiarySelect extends LitElement {
     }
 
     toolParamsObserver() {
-        if (this.toolParams) {
-            this._toolParams = {...this.DEFAULT_TOOLPARAMS, ...this.toolParams};
-        } else {
-            this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
-        }
+        this._toolParams = {
+            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+            ...this.toolParams,
+        };
+    }
+
+    dispatchChange() {
+        LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
+            ...this._toolParams,
+        });
     }
 
     onFieldChange(event) {
@@ -130,8 +135,8 @@ export default class ClinicalTertiarySelect extends LitElement {
             }
         }
 
-        // LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
         this.requestUpdate();
+        this.dispatchChange();
     }
 
     onClear() {
@@ -223,6 +228,7 @@ export default class ClinicalTertiarySelect extends LitElement {
         };
 
         this.requestUpdate();
+        this.dispatchChange();
     }
 
     async onCreateClinicaAnalysis() {
@@ -273,6 +279,7 @@ export default class ClinicalTertiarySelect extends LitElement {
             ...this._toolParams,
         };
         this.requestUpdate();
+        this.dispatchChange();
     }
 
     renderSelection(selectionType, allowedSelectionTypes) {
