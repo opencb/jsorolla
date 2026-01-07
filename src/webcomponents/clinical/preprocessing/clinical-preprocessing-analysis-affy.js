@@ -57,31 +57,31 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
         this.DEFAULT_TOOLPARAMS = {
             indexDir: "",
             outputDir: "",
-            samples: "",
-            qualityControl: {
-                active: true,
-                options: {},
-                tool: {
-                    id: "apt-geno-qc-axiom",
-                    parameters: [
-                        {
-                            name: "threads",
-                            value: "4",
-                        }
-                    ],
-                },
-            },
-            genotype: {
-                active: true,
-                options: {
-                    clean: true,
-                    qc: true,
-                },
-                tool: {
-                    id: "apt-genotype-axiom",
-                    parameters: [],
-                },
-            },
+            dataDir: "",
+            // qualityControl: {
+            //     active: true,
+            //     options: {},
+            //     tool: {
+            //         id: "apt-geno-qc-axiom",
+            //         parameters: [
+            //             {
+            //                 name: "threads",
+            //                 value: "4",
+            //             }
+            //         ],
+            //     },
+            // },
+            // genotype: {
+            //     active: true,
+            //     options: {
+            //         clean: true,
+            //         qc: true,
+            //     },
+            //     tool: {
+            //         id: "apt-genotype-axiom",
+            //         parameters: [],
+            //     },
+            // },
         };
 
         // Make a deep copy to avoid modifying default object.
@@ -113,39 +113,39 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
         };
 
         // 2. merge steps configuration
-        if (this.toolParams?.steps) {
-            // 2.1. merge quality control step configuration
-            if (this.toolParams.steps?.qualityControl) {
-                this._toolParams.qualityControl = {
-                    active: this.toolParams.steps.qualityControl.active ?? this._toolParams.qualityControl.active,
-                    options: {
-                        ...this._toolParams.qualityControl.options,
-                        ...this.toolParams.steps.qualityControl.options,
-                    },
-                    tool: {
-                        ...this._toolParams.qualityControl.tool,
-                        ...this.toolParams.steps.qualityControl?.tool,
-                        parameters: WebUtils.parseParametersObject(this.toolParams.steps.qualityControl?.tool?.parameters),
-                    },
-                };
-            }
+        // if (this.toolParams?.steps) {
+        //     // 2.1. merge quality control step configuration
+        //     if (this.toolParams.steps?.qualityControl) {
+        //         this._toolParams.qualityControl = {
+        //             active: this.toolParams.steps.qualityControl.active ?? this._toolParams.qualityControl.active,
+        //             options: {
+        //                 ...this._toolParams.qualityControl.options,
+        //                 ...this.toolParams.steps.qualityControl.options,
+        //             },
+        //             tool: {
+        //                 ...this._toolParams.qualityControl.tool,
+        //                 ...this.toolParams.steps.qualityControl?.tool,
+        //                 parameters: WebUtils.parseParametersObject(this.toolParams.steps.qualityControl?.tool?.parameters),
+        //             },
+        //         };
+        //     }
 
-            // 2.2. merge genotype step configuration
-            if (this.toolParams.steps?.genotype) {
-                this._toolParams.genotype = {
-                    active: this.toolParams.steps.genotype.active ?? this._toolParams.genotype.active,
-                    options: {
-                        ...this._toolParams.genotype.options,
-                        ...this.toolParams.steps.genotype.options,
-                    },
-                    tool: {
-                        ...this._toolParams.genotype.tool,
-                        ...this.toolParams.steps.genotype?.tool,
-                        parameters: WebUtils.parseParametersObject(this.toolParams.steps.genotype?.tool?.parameters),
-                    },
-                };
-            }
-        }
+        //     // 2.2. merge genotype step configuration
+        //     if (this.toolParams.steps?.genotype) {
+        //         this._toolParams.genotype = {
+        //             active: this.toolParams.steps.genotype.active ?? this._toolParams.genotype.active,
+        //             options: {
+        //                 ...this._toolParams.genotype.options,
+        //                 ...this.toolParams.steps.genotype.options,
+        //             },
+        //             tool: {
+        //                 ...this._toolParams.genotype.tool,
+        //                 ...this.toolParams.steps.genotype?.tool,
+        //                 parameters: WebUtils.parseParametersObject(this.toolParams.steps.genotype?.tool?.parameters),
+        //             },
+        //         };
+        //     }
+        // }
     }
 
     check() {
@@ -157,25 +157,25 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
             ...this._toolParams,
             outputDir: this._toolParams.outputDir || "",
             indexDir: this._toolParams.indexDir || "",
-            samples: this._toolParams.samples || [],
-            steps: {
-                qualityControl: {
-                    active: !!this._toolParams.qualityControl?.active,
-                    options: UtilsNew.objectClone(this._toolParams.qualityControl.options || {}),
-                    tool: {
-                        id: this._toolParams.qualityControl.tool.id || "apt-geno-qc-axiom",
-                        parameters: WebUtils.formatParametersList(this._toolParams.qualityControl.tool.parameters || []),
-                    },
-                },
-                genotype: {
-                    active: !!this._toolParams.genotype.active,
-                    options: UtilsNew.objectClone(this._toolParams.genotype.options || {}),
-                    tool: {
-                        id: this._toolParams.genotype.tool.id,
-                        parameters: WebUtils.formatParametersList(this._toolParams.genotype.tool.parameters || []),
-                    },
-                },
-            },
+            dataDir: this._toolParams.dataDir || "",
+            // steps: {
+            //     qualityControl: {
+            //         active: !!this._toolParams.qualityControl?.active,
+            //         options: UtilsNew.objectClone(this._toolParams.qualityControl.options || {}),
+            //         tool: {
+            //             id: this._toolParams.qualityControl.tool.id || "apt-geno-qc-axiom",
+            //             parameters: WebUtils.formatParametersList(this._toolParams.qualityControl.tool.parameters || []),
+            //         },
+            //     },
+            //     genotype: {
+            //         active: !!this._toolParams.genotype.active,
+            //         options: UtilsNew.objectClone(this._toolParams.genotype.options || {}),
+            //         tool: {
+            //             id: this._toolParams.genotype.tool.id,
+            //             parameters: WebUtils.formatParametersList(this._toolParams.genotype.tool.parameters || []),
+            //         },
+            //     },
+            // },
         });
     }
 
@@ -213,13 +213,13 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                     {
                         title: "Input Directory",
                         description: "Directory where the sample *.CEL files are located.",
-                        field: "samples",
+                        field: "dataDir",
                         type: "custom",
                         display: {
-                            render: (outputDir, dataFormFilterChange) => {
+                            render: (dataDir, dataFormFilterChange) => {
                                 return html `
                                     <catalog-search-autocomplete
-                                        .value="${outputDir}"
+                                        .value="${dataDir}"
                                         .resource="${"DIRECTORY"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{
