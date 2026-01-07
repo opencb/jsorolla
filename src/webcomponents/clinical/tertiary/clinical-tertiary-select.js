@@ -186,6 +186,7 @@ export default class ClinicalTertiarySelect extends LitElement {
             .filter((value, index, self) => self.indexOf(value) === index); // unique values
 
         if (individualIds.length > 0) {
+            // 1. fetch clinical analysis for the individuals
             const clinicalResponse = await this.opencgaSession.opencgaClient.clinical()
                 .search({
                     proband: individualIds.join(","),
@@ -193,10 +194,6 @@ export default class ClinicalTertiarySelect extends LitElement {
                     include: "id,type,panels,disorders",
                 });
             const clinicalCases = clinicalResponse?.responses?.[0]?.results || [];
-            // if (clinicalCases.length > 0) {
-            //     // For simplicity, we take the first clinical case found
-            //     this._toolParams.clinicalAnalysis = clinicalCases[0];
-            // }
 
             // 2. fetch families for the individuals
             const familiesResponse = await this.opencgaSession.opencgaClient.families()
@@ -206,7 +203,6 @@ export default class ClinicalTertiarySelect extends LitElement {
                     include: "id,members.id",
                 });
             const families = familiesResponse?.responses?.[0]?.results || [];
-            debugger
 
             // 3. add clinical analysis and family info to each sample
             samples.forEach(sample => {
@@ -218,13 +214,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                 sample.clinicalAnalysisId = caseForSample?.id || null;
             });
         }
-        // resourcePromise.then(samples => {
-        //     this._toolParams = {
-        //         ...this._toolParams,
-        //         samples: samples || [],
-        //     };
-        //     this.requestUpdate();
-        // });
+
         this._toolParams = {
             ...this._toolParams,
             samples: samples || [],
