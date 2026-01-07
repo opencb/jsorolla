@@ -27,7 +27,7 @@ export default class ClinicalTertiary extends LitElement {
     #init() {
         this.DEFAULT_STEPS_PARAMS = {
             select: {},
-            tools: [],
+            tool: {},
         };
         this._activeStepIndex = 0;
         this._stepsParams = UtilsNew.objectClone(this.DEFAULT_STEPS_PARAMS);
@@ -61,7 +61,7 @@ export default class ClinicalTertiary extends LitElement {
     }
 
     onToolsParamsChange(event) {
-        this._stepsParams.tools = event.detail;
+        this._stepsParams.tool = event.detail;
     }
 
     async onExecute() {
@@ -182,7 +182,7 @@ export default class ClinicalTertiary extends LitElement {
                     icon: "fas fa-tools",
                     render: () => html`
                         <clinical-tertiary-tools
-                            .toolParams="${this._stepsParams?.tools}"
+                            .toolParams="${this._stepsParams?.tool}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: false,

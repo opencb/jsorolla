@@ -56,12 +56,16 @@ export default class ClinicalTertiaryTools extends LitElement {
     }
 
     toolParamsObserver() {
-        if (this.toolParams) {
-            this._toolParams = {
-                ...this.DEFAULT_TOOLPARAMS,
-                ...this.toolParams,
-            };
-        }
+        this._toolParams = {
+            ...this.DEFAULT_TOOLPARAMS,
+            ...this.toolParams,
+        };
+    }
+
+    dispatchChange() {
+        LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
+            ...this._toolParams,
+        });
     }
 
     fetchTools() {
@@ -90,6 +94,7 @@ export default class ClinicalTertiaryTools extends LitElement {
     onFieldChange(event) {
         this._toolParams = {...this._toolParams};
         this.requestUpdate();
+        this.dispatchChange();
     }
 
     onToolChange(event, selectedTool) {
@@ -97,6 +102,7 @@ export default class ClinicalTertiaryTools extends LitElement {
             toolId: selectedTool,
         };
         this.requestUpdate();
+        this.dispatchChange();
     }
 
     onToolExecutorChange(event) {
@@ -104,11 +110,7 @@ export default class ClinicalTertiaryTools extends LitElement {
             ...this._toolParams,
             ...event.detail,
         };
-    }
-
-    onClear() {
-        this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
-        this.requestUpdate();
+        this.dispatchChange();
     }
 
     render() {
@@ -129,8 +131,7 @@ export default class ClinicalTertiaryTools extends LitElement {
             <data-form
                 .data="${this._toolParams}"
                 .config="${this._config}"
-                @fieldChange="${event => this.onFieldChange(event)}"
-                @clear="${event => this.onClear(event)}">
+                @fieldChange="${event => this.onFieldChange(event)}">
             </data-form>
         `;
     }
@@ -197,42 +198,6 @@ export default class ClinicalTertiaryTools extends LitElement {
                         </tool-executor>
                     `,
                 },
-                // {
-                //     elements: [
-                //         {
-                //             name: "Select Clinical Analysis Tool",
-                //             field: "toolId",
-                //             type: "select",
-                //             allowedValues: this._tools.map(t => t.id),
-                //             display: {
-                //                 placeholder: "Select a tool...",
-                //             },
-                //         },
-                //         {
-                //             name: "Tool Configuration",
-                //             type: "custom",
-                //             display: {
-                //                 visible: data => !!data.toolId,
-                //                 render: (fieldValue, dataFormChange, updateParams, data) => html`
-                //                     <tool-executor
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         .toolId="${data.toolId}"
-                //                         .toolParams="${{
-                //                             variables: {
-                //                                 clinicalAnalysisId: "",
-                //                             },
-                //                         }}"
-                //                         .displayConfig="${{
-                //                             titleVisible: false,
-                //                             buttonsVisible: false,
-                //                         }}"
-                //                         @toolParamsChange="${event => this.onToolExecutorChange(event)}">
-                //                     </tool-executor>
-                //                 `,
-                //             },
-                //         },
-                //     ],
-                // },
             ],
         };
     }
