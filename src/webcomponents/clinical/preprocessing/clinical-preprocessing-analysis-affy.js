@@ -57,7 +57,7 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
         this.DEFAULT_TOOLPARAMS = {
             indexDir: "",
             outputDir: "",
-            samples: "",
+            dataDir: "",
             qualityControl: {
                 active: true,
                 options: {},
@@ -157,7 +157,8 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
             ...this._toolParams,
             outputDir: this._toolParams.outputDir || "",
             indexDir: this._toolParams.indexDir || "",
-            samples: this._toolParams.samples || [],
+            dataDir: this._toolParams.dataDir || "",
+            // samples: this._toolParams.samples || [],
             steps: {
                 qualityControl: {
                     active: !!this._toolParams.qualityControl?.active,
@@ -213,13 +214,13 @@ export default class ClinicalPreprocessingAnalysisAffy extends LitElement {
                     {
                         title: "Input Directory",
                         description: "Directory where the sample *.CEL files are located.",
-                        field: "samples",
+                        field: "dataDir",
                         type: "custom",
                         display: {
-                            render: (outputDir, dataFormFilterChange) => {
+                            render: (dataDir, dataFormFilterChange) => {
                                 return html `
                                     <catalog-search-autocomplete
-                                        .value="${outputDir}"
+                                        .value="${dataDir}"
                                         .resource="${"DIRECTORY"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{
