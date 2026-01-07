@@ -4,6 +4,7 @@ import "../../commons/tool-header.js";
 import "./clinical-tertiary-select.js";
 import "./clinical-tertiary-tools.js";
 import "./clinical-tertiary-review.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 
 export default class ClinicalTertiary extends LitElement {
 
@@ -48,6 +49,44 @@ export default class ClinicalTertiary extends LitElement {
         return true;
     }
 
+    async executeJobs() {
+        // 1. no samples to execute
+        if (this._stepsParams.select?.samples?.length === 0) {
+            return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                message: "No samples selected to execute the Clinical Tertiary analysis.",
+            });
+        }
+
+        // 2. no tool selected
+        if (!this._stepsParams.tool?.toolId) {
+            return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                message: "No tool selected to execute the Clinical Tertiary analysis.",
+            });
+        }
+
+        // 3. execute a job for each sample selected
+        await Promise.all(this._stepsParams.select.samples
+            .filter(sample => sample?.clinicalAnalysisId)
+            .map(sample => {
+                const toolParams = {
+                    id: this._stepsParams.tool.toolId,
+                    commandLine: this._stepsParams.tool.commandLine,
+                    params: {
+                        clinicalAnalysisId: sample.clinicalAnalysisId,
+                    },
+                };
+                return this.opencgaSession.opencgaClient.userTool()
+                    .runCustomDocker(toolParams, {
+                        study: this.opencgaSession.study.fqn,
+                    });
+            }));
+
+        // 4. all jobs executed successfully
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+            message: "Clinical Tertiary analysis jobs successfully submitted.",
+        });
+    }
+
     onChangeActiveStep(event, newStepIndex) {
         event.preventDefault();
         if (!this._running) {
@@ -64,23 +103,21 @@ export default class ClinicalTertiary extends LitElement {
         this._stepsParams.tool = event.detail;
     }
 
-    async onExecute() {
+    onExecute() {
         // avoid clicking twice the run button
         if (this._running) {
             return;
         }
 
-        // 0. set running state to true to disable buttons and navigate between steps
+        // set running state to true to disable buttons and navigate between steps
         this._running = true;
         this.requestUpdate();
 
-        // TODO: Implement actual execution logic here
-        // For now, just simulate a delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // run completed
-        this._running = false;
-        this.requestUpdate();
+        // dispatch a job for each sample/clinical analysis selected
+        this.executeJobs().finally(() => {
+            this._running = false;
+            this.requestUpdate();
+        });
     }
 
     renderToolbarCenterContent() {
