@@ -224,51 +224,54 @@ export default class ClinicalTertiarySelect extends LitElement {
         this.requestUpdate();
     }
 
-    onCreateClinicaAnalysis() {
+    async onCreateClinicaAnalysis() {
         // Dispatch event to create clinical analysis for the selected samples
         LitUtils.dispatchCustomEvent(this, "createClinicalAnalysis", null, this._toolParams.samples);
 
-        const results = this._toolParams.samples.map(sample => {
-            // console.log(`Creating clinical analysis for sample: ${sample.id}`);
-            const createParams = {
-                id: `${sample.id}-CA`,
-                type: "SINGLE",
-                proband: {
-                    id: sample.individualId
-                },
-            };
-            return this.opencgaSession.opencgaClient.clinical()
-                .create(createParams, {
-                    study: this.opencgaSession.study.fqn,
-                })
-                .then(() => {
+        // 1. display a notification that clinical analysis creation has started
+        const loadingId = NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_LOADING, {
+            message: "Creating Clinical Analysis. Please wait...",
+        });
+
+        // 2. create clinical analysis for each sample without clinicalAnalysisId
+        for (let i = 0; i < this._toolParams.samples.length; i++) {
+            const sample = this._toolParams.samples[i];
+            if (!sample.clinicalAnalysisId) {
+                try {
+                    const createParams = {
+                        id: `${sample.id}-CA`,
+                        type: "SINGLE",
+                        proband: {
+                            id: sample.individualId,
+                        },
+                    };
+                    await this.opencgaSession.opencgaClient.clinical()
+                        .create(createParams, {
+                            study: this.opencgaSession.study.fqn,
+                        });
                     // update the sample with the created clinical analysis ID
                     sample.clinicalAnalysisId = createParams.id;
-                });
+                } catch (error) {
+                    console.error(`Error creating clinical analysis for sample ${sample.id}:`, error);
+                    NotificationUtils.clear(this, loadingId);
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+                    return this.requestUpdate();;
+                }
             }
-        );
+        }
 
-        Promise.all(results)
-            .then(() => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Clinical Analyses Created",
-                    message: "All clinical analyses have been created successfully.",
-                });
-                console.log("All clinical analyses creation attempts completed.");
-            })
-            .catch(error => {
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                    title: "Error Creating Clinical Analyses",
-                    message: "An error occurred while creating clinical analyses.",
-                });
-                console.error("Error during clinical analyses creation:", error);
-            })
-            .finally(() => {
-                this._toolParams = {
-                    ...this._toolParams,
-                };
-                this.requestUpdate();
-            });
+        // 3. remove loading notification and display success notification
+        NotificationUtils.clear(this, loadingId);
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+            title: "Clinical Analyses Created",
+            message: "All clinical analyses have been created successfully.",
+        });
+
+        // 4. update the tool params to trigger re-render
+        this._toolParams = {
+            ...this._toolParams,
+        };
+        this.requestUpdate();
     }
 
     renderSelection(selectionType, allowedSelectionTypes) {
@@ -502,10 +505,11 @@ export default class ClinicalTertiarySelect extends LitElement {
                             type: "custom",
                             display: {
                                 visible: data => data?.samples?.length > 0,
-                                render: (samples) => {
+                                render: data => {
+                                    const hasClinicalAnalysisToCreate = data.samples.some(sample => !sample.clinicalAnalysisId);
                                     return html`
                                         <div class="d-flex align-items-center justify-content-end gap-2">
-                                            <button class="btn btn-light d-flex align-items-center gap-2" @click="${() => this.onCreateClinicaAnalysis()}">
+                                            <button class="btn btn-light d-flex align-items-center gap-2 ${!hasClinicalAnalysisToCreate ? "disabled" : ""}" @click="${() => this.onCreateClinicaAnalysis()}">
                                                 <i class="fas fa-plus"></i>
                                                 <span>Create Clinical Analyses</span>
                                             </button>
