@@ -223,7 +223,6 @@ export default class ClinicalPreprocessing extends LitElement {
                 data.pipelineParams.variantIndexParams = {
                     annotate: true,
                 };
-                debugger
 
                 // 2.2. create the submit promise
                 submitPromise = this.opencgaSession.opencgaClient.clinical()
