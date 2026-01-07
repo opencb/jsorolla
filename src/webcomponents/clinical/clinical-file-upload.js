@@ -832,7 +832,7 @@ export default class ClinicalFileUpload extends LitElement {
                             },
                         }),
                         {
-                            title: "Cohort",
+                            title: "Select or Create Cohort",
                             field: "cohort",
                             type: "custom",
                             display: {

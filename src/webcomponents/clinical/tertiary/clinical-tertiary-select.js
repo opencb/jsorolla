@@ -6,6 +6,7 @@ import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 import "../../commons/filters/disease-panel-filter.js";
 import "../filters/clinical-flag-filter.js";
+import CatalogGridFormatter from "../../commons/catalog-grid-formatter";
 
 export default class ClinicalTertiarySelect extends LitElement {
 
@@ -136,9 +137,9 @@ export default class ClinicalTertiarySelect extends LitElement {
         this.requestUpdate();
     }
 
-    onSelectSamples(resource, value) {
+    async onSelectSamples(resource, value) {
         let resourcePromise = null;
-
+debugger
         // If not value, reset samples
         if (!value) {
             this._toolParams = {
@@ -151,34 +152,75 @@ export default class ClinicalTertiarySelect extends LitElement {
 
         switch (resource) {
             case "Sample":
-                resourcePromise = this.opencgaSession.opencgaClient.samples()
-                    .info(value, {
+                resourcePromise = await this.opencgaSession.opencgaClient.samples()
+                    .search(value, {
+                        id: value,
                         study: this.opencgaSession.study.fqn,
-                        include: "id,internal.status.id,somatic,individualId",
-                    })
-                    .then(response => {
-                        return response?.responses?.[0]?.results || [];
+                        include: "id,individualId,somatic,internal.status.id",
+                        includeIndividual: true,
                     });
+                    // .then(response => {
+                    //     return response?.responses?.[0]?.results || [];
+                    // });
                 break;
             case "Cohort":
-                resourcePromise = this.opencgaSession.opencgaClient.cohorts()
-                    .info(value, {
+                resourcePromise = await this.opencgaSession.opencgaClient.samples()
+                    .search({
+                        cohortIds: value,
                         study: this.opencgaSession.study.fqn,
-                        include: "samples.id,samples.individualId,samples.somatic",
-                    })
-                    .then(response => {
-                        return response?.responses?.[0]?.results?.[0]?.samples || [];
+                        include: "id,individualId,somatic,internal.status.id",
+                        includeIndividual: true,
                     });
+                    // .then(response => {
+                    //     return response?.responses?.[0]?.results?.[0]?.samples || [];
+                    // });
                 break;
         }
 
-        resourcePromise.then(samples => {
-            this._toolParams = {
-                ...this._toolParams,
-                samples: samples || [],
-            };
-            this.requestUpdate();
-        });
+
+        const samples = resourcePromise.getResults() || [];
+
+        // Now we need to read samples.individualId and fetch clinical analysis case if any
+        const individualIds = samples
+            .map(sample => sample.individualId)
+            .filter((value, index, self) => self.indexOf(value) === index); // unique values
+
+
+        let clinicalCases;
+        if (individualIds.length > 0) {
+            const clinicalResponse = await this.opencgaSession.opencgaClient.clinical()
+                .search({
+                    proband: individualIds.join(","),
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,type,panels,disorders",
+                });
+            clinicalCases = clinicalResponse?.responses?.[0]?.results || [];
+            if (clinicalCases.length > 0) {
+                // For simplicity, we take the first clinical case found
+                this._toolParams.clinicalAnalysis = clinicalCases[0];
+            }
+
+            // Add clinical analysis info to each sample
+            samples.forEach(sample => {
+                const caseForSample = clinicalCases.find(ca => ca.proband?.id === sample.individualId);
+                sample.clinicalAnalysis = caseForSample || null;
+            });
+
+        }
+        debugger
+        // resourcePromise.then(samples => {
+        //     this._toolParams = {
+        //         ...this._toolParams,
+        //         samples: samples || [],
+        //     };
+        //     this.requestUpdate();
+        // });
+        this._toolParams = {
+            ...this._toolParams,
+            samples: samples || [],
+        };
+
+        this.requestUpdate();
     }
 
     renderSelection(selectionType, allowedSelectionTypes) {
@@ -437,6 +479,20 @@ export default class ClinicalTertiarySelect extends LitElement {
                                     {
                                         title: "Individual",
                                         field: "individualId",
+                                        type: "custom",
+                                        display: {
+                                            render: (value, individual) => {
+                                                const sexHtml = CatalogGridFormatter.sexFormatter(individual.sex, individual);
+                                                return html`
+                                                    <a class="d-block link fw-bold my-1" data-action="view">${value}</a>
+                                                    <div class="text-secondary my-1">${sexHtml}</div>
+                                                `;
+                                            }
+                                        },
+                                    },
+                                    {
+                                        title: "Family",
+                                        field: "familyId",
                                     },
                                     {
                                         title: "Somatic",

@@ -117,8 +117,7 @@ export default class ClinicalTertiary extends LitElement {
 
     renderToolbarRightContent() {
         return html`
-            <div class="d-flex align-items-center justify-content-end gap-4" style="width:320px;max-width:320px;">
-            </div>  
+            <div class="d-flex align-items-center justify-content-end gap-4" style="width:320px;max-width:320px;"></div>
         `;
     }
 
