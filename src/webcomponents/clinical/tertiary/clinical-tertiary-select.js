@@ -500,8 +500,8 @@ export default class ClinicalTertiarySelect extends LitElement {
                                                 const individual = row?.attributes?.OPENCGA_INDIVIDUAL;
                                                 const sexHtml = CatalogGridFormatter.sexFormatter(individual.sex, individual);
                                                 return html`
-                                                    <div class="fw-bold my-1">${individualId}</div>
-                                                    <div class="text-secondary my-1">${sexHtml}</div>
+                                                    <div class="fw-bold my-1">${individualId || "-"}</div>
+                                                    ${individualId && sexHtml ? html`<div class="text-secondary my-1">${sexHtml}</div>` : nothing}
                                                 `;
                                             }
                                         },
