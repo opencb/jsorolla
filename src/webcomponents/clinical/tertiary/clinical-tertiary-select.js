@@ -192,7 +192,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                 .search({
                     proband: individualIds.join(","),
                     study: this.opencgaSession.study.fqn,
-                    include: "id,type,panels,disorders",
+                    include: "id,type,proband.id",
                 });
             const clinicalCases = clinicalResponse?.responses?.[0]?.results || [];
 
