@@ -485,17 +485,26 @@ export default class ClinicalTertiarySelect extends LitElement {
                                     {
                                         title: "Sample",
                                         field: "id",
+                                        type: "custom",
+                                        display: {
+                                            render: (sampleId, updateField, updateParams, data, row) => {
+                                                return html`
+                                                    <a class="d-block link fw-bold my-1">${sampleId}</a>
+                                                    <div class="text-secondary small my-1">${row?.somatic ? "Somatic" : "Germline"}</div>
+                                                `;
+                                            },
+                                        },
                                     },
                                     {
                                         title: "Individual",
                                         field: "individualId",
                                         type: "custom",
                                         display: {
-                                            render: (value, individual) => {
-                                                const sexHtml = CatalogGridFormatter.sexFormatter(individual.sex, individual);
+                                            render: (individualId) => {
+                                                // const sexHtml = CatalogGridFormatter.sexFormatter(individual.sex, individual);
                                                 return html`
-                                                    <a class="d-block link fw-bold my-1" data-action="view">${value}</a>
-                                                    <div class="text-secondary my-1">${sexHtml}</div>
+                                                    <a class="d-block link fw-bold my-1" data-action="view">${individualId}</a>
+                                                    <div class="text-secondary my-1">${"-"}</div>
                                                 `;
                                             }
                                         },
@@ -503,10 +512,6 @@ export default class ClinicalTertiarySelect extends LitElement {
                                     {
                                         title: "Family",
                                         field: "familyId",
-                                    },
-                                    {
-                                        title: "Somatic",
-                                        field: "somatic",
                                     },
                                     {
                                         title: "Clinical Analysis",
