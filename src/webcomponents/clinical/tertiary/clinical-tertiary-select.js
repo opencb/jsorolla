@@ -113,18 +113,19 @@ export default class ClinicalTertiarySelect extends LitElement {
                     .map(line => line.split(separator)[sampleIndex])
                     .filter(id => id); // remove empty lines
 
-                // Fetch sample details from OpenCGA
-                this.opencgaSession.opencgaClient.samples()
-                    .info(sampleIds, {
-                        study: this.opencgaSession.study.fqn,
-                        include: "id,internal.status.id,somatic,individualId",
-                        includeIndividual: true,
-                    })
-                    .then(response => {
-                        const samples = response?.responses?.[0]?.results || [];
-                        this._toolParams.samples = samples;
-                        this.requestUpdate();
-                    });
+                // fetch sample details from OpenCGA
+                this.onSelectSamples("Sample", sampleIds);
+                // this.opencgaSession.opencgaClient.samples()
+                //     .info(sampleIds, {
+                //         study: this.opencgaSession.study.fqn,
+                //         include: "id,internal.status.id,somatic,individualId",
+                //         includeIndividual: true,
+                //     })
+                //     .then(response => {
+                //         const samples = response?.responses?.[0]?.results || [];
+                //         this._toolParams.samples = samples;
+                //         this.requestUpdate();
+                //     });
                 return; // exit early since we handle async update
             }
         }
@@ -154,7 +155,7 @@ export default class ClinicalTertiarySelect extends LitElement {
         switch (resource) {
             case "Sample":
                 resourcePromise = await this.opencgaSession.opencgaClient.samples()
-                    .search(value, {
+                    .search({
                         id: value,
                         study: this.opencgaSession.study.fqn,
                         include: "id,individualId,somatic,internal.status.id",
