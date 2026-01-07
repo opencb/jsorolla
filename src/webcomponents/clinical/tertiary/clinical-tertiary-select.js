@@ -514,6 +514,9 @@ export default class ClinicalTertiarySelect extends LitElement {
                                     {
                                         title: "Family",
                                         field: "familyId",
+                                        display: {
+                                            bodyCellClassName: "align-middle",
+                                        },
                                     },
                                     {
                                         title: "Clinical Analysis",
