@@ -186,13 +186,16 @@ export default class ClinicalPreprocessing extends LitElement {
         this._running = true;
         this.requestUpdate();
 
-        // 1. prepare data object for ngsPipeline job
+        // 1. prepare data object for pipeline job
         const data = {
             outdir: this._stepsParams.preprocessing.outputDir,
             pipelineParams: {
                 indexDir: this._stepsParams.preprocessing.indexDir,
                 pipeline: {
-                    steps: this._stepsParams.preprocessing.steps,
+                    type: this._stepsParams.pipeline?.type,
+                    name: this._stepsParams.pipeline?.name || "Untitled Pipeline",
+                    version: this._stepsParams.pipeline?.version ?? 0,
+                    description: this._stepsParams.pipeline?.description || "",
                 },
             },
         };
@@ -203,6 +206,7 @@ export default class ClinicalPreprocessing extends LitElement {
             case "genomics":
                 // 2.1. add genomics pipeline specific params
                 data.pipelineParams.samples = this._stepsParams.preprocessing.samples;
+                data.pipelineParams.steps = this._stepsParams.preprocessing.steps;
 
                 // 2.2. create the submit promise
                 submitPromise = this.opencgaSession.opencgaClient.clinical()
@@ -213,7 +217,8 @@ export default class ClinicalPreprocessing extends LitElement {
                 break;
             case "affy":
                 // 2.1. add affy pipeline specific params
-                data.pipelineParams.samples = [this._stepsParams.preprocessing.samples];
+                // data.pipelineParams.samples = [this._stepsParams.preprocessing.samples];
+                data.pipelineParams.dataDir = this._stepsParams.preprocessing.dataDir;
 
                 // 2.2. create the submit promise
                 submitPromise = this.opencgaSession.opencgaClient.clinical()
