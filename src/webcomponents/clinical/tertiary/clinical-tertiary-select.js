@@ -215,7 +215,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                     family.members?.some(member => member.id === sample.individualId)
                 );
                 sample.familyId = familyForSample?.id || null;
-                sample.clinicalAnalysis = caseForSample || null;
+                sample.clinicalAnalysisId = caseForSample?.id || null;
             });
         }
         // resourcePromise.then(samples => {
@@ -487,6 +487,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                                         field: "id",
                                         type: "custom",
                                         display: {
+                                            bodyCellClassName: "align-middle",
                                             render: (sampleId, updateField, updateParams, data, row) => {
                                                 return html`
                                                     <a class="d-block link fw-bold my-1">${sampleId}</a>
@@ -500,6 +501,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                                         field: "individualId",
                                         type: "custom",
                                         display: {
+                                            bodyCellClassName: "align-middle",
                                             render: (individualId) => {
                                                 // const sexHtml = CatalogGridFormatter.sexFormatter(individual.sex, individual);
                                                 return html`
@@ -515,14 +517,16 @@ export default class ClinicalTertiarySelect extends LitElement {
                                     },
                                     {
                                         title: "Clinical Analysis",
+                                        field: "clinicalAnalysisId",
                                         type: "custom",
                                         display: {
-                                            render: () => {
+                                            headerCellClassName: "text-center",
+                                            bodyCellClassName: "align-middle",
+                                            render: (clinicalAnalysisId) => {
                                                 return html`
-                                                    <button class="btn btn-light btn-sm d-flex align-items-center gap-1">
-                                                        <i class="fas fa-edit"></i>
-                                                        <span>Edit</span>
-                                                    </button>
+                                                    <div class="w-full d-flex justify-content-center">
+                                                        <i class="fas fs-5 ${!!clinicalAnalysisId ? "fa-check text-success" : "fa-times"}"></i>
+                                                    </div>
                                                 `;
                                             },
                                         },
@@ -532,6 +536,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                                         type: "custom",
                                         display: {
                                             headerCellClassName: "text-center",
+                                            bodyCellClassName: "align-middle",
                                             render: (sample, onFieldChange) => {
                                                 return html`
                                                     <div class="w-full d-flex justify-content-center">
