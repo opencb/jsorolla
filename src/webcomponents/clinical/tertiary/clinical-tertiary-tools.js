@@ -85,6 +85,7 @@ export default class ClinicalTertiaryTools extends LitElement {
                     };
                     this._config = this.getDefaultConfig();
                     this.requestUpdate();
+                    this.dispatchChange();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching tools: ", response);
