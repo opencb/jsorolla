@@ -816,14 +816,6 @@ export default class ClinicalFileUpload extends LitElement {
                         className: "px-2 py-2",
                     },
                     elements: [
-                        {
-                            title: "Confirm Sample Creation",
-                            field: "confirmSampleCreation",
-                            type: "checkbox",
-                            display: {
-                                helpMessage: "Check this box to confirm the creation of samples and individuals during batch upload.",
-                            },
-                        },
                         DataFormElements.fileContentElement({
                             title: "Mapping Files and Samples",
                             field: "mappingFileContent",
