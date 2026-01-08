@@ -376,7 +376,7 @@ export default class OpencgaCatalogUtils {
         return OpencgaCatalogUtils.processMappingFileContent(mapping);
     }
 
-    processMappingFileContent(content) {
+    static processMappingFileContent(content) {
         try {
             const processedMapping = [];
 

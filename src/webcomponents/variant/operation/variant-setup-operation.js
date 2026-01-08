@@ -50,7 +50,12 @@ export default class VariantSetupOperation extends LitElement {
         this.TITLE = "Variant Setup";
         this.DESCRIPTION = "Setup Variant Index Operation in the study";
 
-        this.DEFAULT_TOOLPARAMS = {};
+        this.DEFAULT_TOOLPARAMS = {
+            expectedSamples: 1000,
+            expectedFiles: 1000,
+            fileType: "GENOME_VCF",
+        };
+
         // Make a deep copy to avoid modifying default object.
         this.toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
@@ -107,9 +112,9 @@ export default class VariantSetupOperation extends LitElement {
 
     onSubmit() {
         const toolParams = {
-            expectedSamples: this.toolParams.expectedSamples || 0,
-            expectedFiles: this.toolParams.expectedFiles || 0,
-            fileType: this.toolParams.fileType || "GENOME_VCF",
+            expectedSamples: this.toolParams.expectedSamples || this.DEFAULT_TOOLPARAMS.expectedSamples,
+            expectedFiles: this.toolParams.expectedFiles || this.DEFAULT_TOOLPARAMS.expectedFiles,
+            fileType: this.toolParams.fileType || this.DEFAULT_TOOLPARAMS.fileType,
         };
         const params = {
             study: this.toolParams.study || this.opencgaSession.study.fqn,
@@ -174,7 +179,7 @@ export default class VariantSetupOperation extends LitElement {
                         field: "expectedSamples",
                         type: "input-num",
                         display: {
-                            defaultValue: 1000,
+                            // defaultValue: 1000,
                             helpMessage: "Expected number of samples in the study"
                         }
                     },
@@ -183,7 +188,7 @@ export default class VariantSetupOperation extends LitElement {
                         field: "expectedFiles",
                         type: "input-num",
                         display: {
-                            defaultValue: 1000,
+                            // defaultValue: 1000,
                             helpMessage: "Expected number of files in the study"
                         }
                     },
@@ -192,7 +197,7 @@ export default class VariantSetupOperation extends LitElement {
                         field: "fileType",
                         type: "select",
                         allowedValues: ["GENOME_VCF", "GENOME_gVCF", "EXOME"],
-                        defaultValue: "GENOME_VCF",
+                        // defaultValue: "GENOME_VCF",
                         display: {
                             helpMessage: "Most common type of VCF file"
                         }
