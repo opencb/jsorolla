@@ -534,7 +534,12 @@ export default class ClinicalFileUpload extends LitElement {
         this._uploading = true;
         this._config = this.getDefaultConfig();
         this.requestUpdate();
-        debugger
+
+        // display a loading indicator
+        const loadingId = NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_LOADING, {
+            message: "We are creating the samples, individuals, and clinical analysis and uploading the files. Please wait a moment...",
+        });
+
         try {
             if (this._data.type === "Batch") {
                 await this.handleBatchUpload();
@@ -544,7 +549,7 @@ export default class ClinicalFileUpload extends LitElement {
 
             // If all files are uploaded correctly, show a success message
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: `Uploaded ${this._data.files.length} files correctly.`,
+                message: `All Samples, Individuals, and Clinical Analysis have been created and uploaded ${this._data.files.length} files correctly.`,
             });
 
             // dispatch an event to notify that a file has been uploaded
@@ -560,6 +565,7 @@ export default class ClinicalFileUpload extends LitElement {
         } catch (error) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
         } finally {
+            NotificationUtils.clear(this, loadingId);
             this._uploading = false;
             this._config = this.getDefaultConfig();
             this.requestUpdate();
