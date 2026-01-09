@@ -70,7 +70,7 @@ import "../../webcomponents/commons/analysis/analysis-tools.js";
 import "../../webcomponents/commons/analysis/my-analysis-tools.js";
 import "../../webcomponents/commons/analysis/jupyter-notebook.js";
 
-import "../../webcomponents/clinical/clinical-file-upload.js";
+import "../../webcomponents/clinical/clinical-registry.js";
 import "../../webcomponents/clinical/preprocessing/clinical-preprocessing.js";
 import "../../webcomponents/clinical/tertiary/clinical-tertiary.js";
 
@@ -1398,10 +1398,11 @@ class IvaApp extends LitElement {
                 `;
                 break;
             case "clinical-file-upload":
+            case "clinical-registry":
                 content = html`
-                    <clinical-file-upload
+                    <clinical-registry
                         .opencgaSession="${this.opencgaSession}">
-                    </clinical-file-upload>
+                    </clinical-registry>
                 `;
                 break;
             case "clinical-preprocessing":
