@@ -10,7 +10,7 @@ import "../cohort/cohort-create.js";
 import "../file/file-folder-create.js";
 import "../loading-spinner.js";
 
-export default class ClinicalFileUpload extends LitElement {
+export default class ClinicalRegistry extends LitElement {
 
     constructor() {
         super();
@@ -1056,4 +1056,4 @@ export default class ClinicalFileUpload extends LitElement {
 
 }
 
-customElements.define("clinical-file-upload", ClinicalFileUpload);
+customElements.define("clinical-registry", ClinicalRegistry);
