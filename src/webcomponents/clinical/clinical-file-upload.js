@@ -841,7 +841,7 @@ export default class ClinicalFileUpload extends LitElement {
                                             class="flex-grow-1"
                                             @filterChange="${event => onFieldChange(event.detail.value)}">
                                         </catalog-search-autocomplete>
-                                        <button class="btn btn-light mb-1 d-flex ${disabled ? "disabled" : ""}" title="Create Cohort" @click="${() => this.onCreateCohortShow()}">
+                                        <button class="btn btn-light mb-1 d-flex align-items-center ${disabled ? "disabled" : ""}" title="Create Cohort" @click="${() => this.onCreateCohortShow()}">
                                             <i class="fa fa-plus fs-5"></i>
                                         </button>
                                     </div>
@@ -878,7 +878,7 @@ export default class ClinicalFileUpload extends LitElement {
                                             class="flex-grow-1"
                                             @filterChange="${event => onFieldChange(event.detail.value)}">
                                         </catalog-search-autocomplete>
-                                        <button class="btn btn-light mb-1 d-flex ${disabled ? "disabled" : ""}" title="Create Folder" @click="${() => this.onCreateFolderShow()}">
+                                        <button class="btn btn-light mb-1 d-flex align-items-center ${disabled ? "disabled" : ""}" title="Create Folder" @click="${() => this.onCreateFolderShow()}">
                                             <i class="fa fa-folder-plus fs-5"></i>
                                         </button>
                                     </div>
