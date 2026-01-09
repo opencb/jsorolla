@@ -258,33 +258,48 @@ export default class ClinicalFileUpload extends LitElement {
             this.requestUpdate();
             await this.updateComplete;
 
-            const mappingEntry = mapping.find(entry => entry.file === file.fileObject.name);
-            if (!mappingEntry) {
+            // check if this file is not in the mapping file --> display an error
+            // const mappingEntry = mapping.find(entry => entry.file === file.fileObject.name);
+            if (!mapping.some(entry => entry.file === file.fileObject.name)) {
                 file.status = this.FILE_STATUS.ERROR;
                 console.error(`File ${file.fileObject.name} not found in the mapping file.`);
                 throw new Error(`File ${file.fileObject.name} not found in the mapping file.`);
             }
-                const relativeFilePath = this._data.relativeFilePath.startsWith("/") ? this._data.relativeFilePath.substring(1) : this._data.relativeFilePath;
 
             try {
-                const fileResponse = await this.opencgaSession.opencgaClient.files()
-                    .upload({
+                let uploadedFileId;
+                const entries = mapping.filter(entry => entry.file === file.fileObject.name);
+                const relativeFilePath = this._data.relativeFilePath.startsWith("/") ? this._data.relativeFilePath.substring(1) : this._data.relativeFilePath;
+
+                // check if the file is already uploaded?
+                const fileSearchResponse = await this.opencgaSession.opencgaClient.files()
+                    .search({
                         study: this.opencgaSession.study.fqn,
-                        file: file.fileObject,
-                        fileName: file.fileObject.name,
-                        resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
-                        relativeFilePath: relativeFilePath.endsWith("/") ? relativeFilePath : relativeFilePath + "/",
+                        name: file.fileObject.name,
+                        directory: relativeFilePath,
+                        include: "id",
                     });
+                if (fileSearchResponse.responses[0].results.length === 0) {
+                    const fileUploadResponse = await this.opencgaSession.opencgaClient.files()
+                        .upload({
+                            study: this.opencgaSession.study.fqn,
+                            file: file.fileObject,
+                            fileName: file.fileObject.name,
+                            resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
+                            relativeFilePath: relativeFilePath.endsWith("/") ? relativeFilePath : relativeFilePath + "/",
+                        });
+                    uploadedFileId = fileUploadResponse.responses[0].results[0].id;
+                } else {
+                    // file already exists, get the id
+                    uploadedFileId = fileSearchResponse.responses[0].results[0].id;
+                }
 
                 // change the status to DONE
                 file.status = this.FILE_STATUS.DONE;
 
                 // Link file to the sample
-                const uploadedFileId = fileResponse.responses[0].results[0].id;
                 const sampleUpdateParams = {
-                    sampleIds: [
-                        mappingEntry.sample,
-                    ],
+                    sampleIds: entries.map(entry => entry.sample),
                 };
                 await this.opencgaSession.opencgaClient.files()
                     .update(uploadedFileId, sampleUpdateParams, {
@@ -310,8 +325,8 @@ export default class ClinicalFileUpload extends LitElement {
                 id: this._data.cohort.id,
                 name: this._data.cohort.name,
                 description: this._data.cohort.description,
-                samples: mapping.map(entry => ({ 
-                    id: entry.sample,
+                samples: Array.from(processedSamples).map(sampleId => ({
+                    id: sampleId,
                 })),
             };
             try {
