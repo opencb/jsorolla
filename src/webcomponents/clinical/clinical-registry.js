@@ -397,8 +397,46 @@ export default class ClinicalRegistry extends LitElement {
             }
         }
 
-        // 6. create the clinical analysis TODO
+        return;
+        // 6. create the clinical analysis
+        for (let i = 0; i < mapping.length; i++) {
+            const entry = mapping[i];
+            const clinicalAnalysisId = entry.case;
 
+            // 6.1. check if we have the clinical analysis id and this clinical analysis has not been processed yet
+            if (clinicalAnalysisId && !processedClinicalAnalysis.has(clinicalAnalysisId)) {
+                // 6.2. check if the clinical analysis already exists
+                try {
+                    const clinicalAnalysisSearchResponse = await this.opencgaSession.opencgaClient.clinical()
+                        .search({
+                            id: clinicalAnalysisId,
+                            include: "id",
+                        });
+                    if (clinicalAnalysisSearchResponse.responses[0].results.length === 0) {
+                        const createCaseParrams = {
+                            id: clinicalAnalysisId,
+                        };
+
+                        // 6.3. check if we have to create a family case or is just a single case
+                        const family = mapping.some(m => m.case === clinicalAnalysisId && !!m.family)?.family;
+                        if (family) {
+                            const familyMembers = mapping.filter(m => m.family === family && m.individual);
+                            const proband = familyMembers.find(member => {
+                                const isProband = (member.proband || "").toLowerCase();
+                                return isProband === "yes" || isProband === "true" || member.father || member.mother;
+                            });
+                        } else {
+
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Clinical Analysis ${clinicalAnalysisId} creation failed:`, error);
+                    throw new Error(`Failed to create clinical analysis ${clinicalAnalysisId}. It might already exist or there was an error.`);
+                }
+                // add this clinical analysis to the processed set
+                processedClinicalAnalysis.add(clinicalAnalysisId);
+            }
+        }
     }
 
     addFiles(files) {
