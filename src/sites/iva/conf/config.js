@@ -263,8 +263,8 @@ const SUITE = {
             },
             menu: [
                 {
-                    id: "clinical-file-upload",
-                    name: "Clinical File Upload",
+                    id: "clinical-registry",
+                    name: "Clinical Registry",
                     icon: "fa-file-medical",
                     visibility: "public",
                     category: "Data Preprocessing",
