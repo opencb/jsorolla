@@ -170,10 +170,9 @@ export default class ClinicalFileUpload extends LitElement {
     async handleBatchUpload() {
         // 1. Parse the mapping file
         const mapping = CatalogUtils.parseMappingFile(this._data.mappingFileContent);
-
-        const study = this.opencgaSession.study.fqn;
         const processedSamples = new Set();
         const processedIndividuals = new Set();
+        const processedFamilies = new Set();
         const processedClinicalAnalysis = new Set();
 
         // 2. prepare the samples/individuals/clinical analyses to be created
@@ -242,11 +241,71 @@ export default class ClinicalFileUpload extends LitElement {
                 // add this sample to the processed set
                 processedSamples.add(sampleId);
             }
-
-            // 2.3. create the family if needed (TODO)
         }
 
-        // 3. Upload files and link them to samples
+        // 3. create families
+        for (let i = 0; i < mapping.length; i++) {
+            const entry = mapping[i];
+
+            // 3.1. create the family if needed
+            if (entry.family && !processedFamilies.has(entry.family)) {
+                try {
+                    const familySearchResponse = await this.opencgaSession.opencgaClient.families()
+                        .search({
+                            id: entry.family,
+                            study: this.opencgaSession.study.fqn,
+                            include: "id",
+                        });
+                    // only create the family if it does not exist
+                    if (familySearchResponse.responses[0].results.length === 0) {
+                        const members = mapping.filter(e => e.family === entry.family && e.individual);
+                        const familyParams = {
+                            id: entry.family,
+                            members: members.map(member => ({
+                                id: member.individual,
+                            })),
+                        };
+                        await this.opencgaSession.opencgaClient.families()
+                            .create(familyParams, {
+                                study: this.opencgaSession.study.fqn,
+                            });
+                    }
+                } catch (error) {
+                    console.error(`Family ${entry.family} creation failed:`, error);
+                    throw new Error(`Failed to create family ${entry.family}. It might already exist or there was an error.`);
+                }
+
+                // add this family to the processed set
+                processedFamilies.add(entry.family);
+            }
+
+            // 3.2. set the relations between family members
+            if (entry.family && (entry.mother || entry.father)) {
+                // TODO: we would need to check if the mother and the father exist
+                const individualUpdateParams = {};
+                if (entry.mother) {
+                    individualUpdateParams.mother = {
+                        id: entry.mother,
+                    };
+                }
+                if (entry.father) {
+                    individualUpdateParams.father = {
+                        id: entry.father,
+                    };
+                }
+                try {
+                    await this.opencgaSession.opencgaClient.individuals()
+                        .update(entry.individual, individualUpdateParams, {
+                            study: this.opencgaSession.study.fqn,
+                        });
+                } catch (error) {
+                    console.error(`Setting family relations for individual ${entry.individual} failed:`, error);
+                    throw new Error(`Failed to set family relations for individual ${entry.individual}. There was an error.`);
+                }
+            }
+        }
+
+        // 4. Upload files and link them to samples
         const selectedFiles = this._data.files || [];
         for (const file of selectedFiles) {
             if (file.status === this.FILE_STATUS.DONE) {
@@ -319,7 +378,7 @@ export default class ClinicalFileUpload extends LitElement {
             }
         }
 
-        // 4. Create Cohort if needed
+        // 5. Create Cohort if needed
         if (this._data.cohort?.id) {
             const cohortParams = {
                 id: this._data.cohort.id,
@@ -340,7 +399,7 @@ export default class ClinicalFileUpload extends LitElement {
             }
         }
 
-        // 5. create the clinical analysis TODO
+        // 6. create the clinical analysis TODO
 
     }
 
