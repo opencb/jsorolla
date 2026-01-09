@@ -174,9 +174,80 @@ export default class ClinicalFileUpload extends LitElement {
         const study = this.opencgaSession.study.fqn;
         const processedSamples = new Set();
         const processedIndividuals = new Set();
+        const processedClinicalAnalysis = new Set();
 
+        // 2. prepare the samples/individuals/clinical analyses to be created
+        for (let i = 0; i < mapping.length; i++) {
+            const entry = mapping[i];
+            const individualId = entry.individual;
+            const sampleId = entry.sample;
+
+            // 2.1. create the individual if needed
+            if (individualId && !processedIndividuals.has(individualId)) {
+                try {
+                    const individualResponse = await this.opencgaSession.opencgaClient.individuals()
+                        .search({
+                            id: individualId,
+                            study: this.opencgaSession.study.fqn,
+                            include: "id",
+                        });
+                    // only create the individual if it does not exist
+                    if (individualResponse.responses[0].results.length === 0) {
+                        const individualParams = {
+                            id: individualId,
+                            sex: {
+                                id: entry.sex || entry.gender || "UNKNOWN",
+                            },
+                        };
+                        // TODO: add family if present in the mapping file
+                        await this.opencgaSession.opencgaClient.individuals()
+                            .create(individualParams, {
+                                study: this.opencgaSession.study.fqn,
+                            });
+                    }
+                } catch (error) {
+                    console.error(`Individual ${individualId} creation failed:`, error);
+                    throw new Error(`Failed to create individual ${individualId}. It might already exist or there was an error.`);
+                }
+                // add this individual to the processed set
+                processedIndividuals.add(individualId);
+            }
+
+            // 2.2. create the sample if needed
+            if (sampleId && !processedSamples.has(sampleId)) {
+                try {
+                    const sampleResponse = await this.opencgaSession.opencgaClient.samples()
+                        .search({
+                            id: sampleId,
+                            study: this.opencgaSession.study.fqn,
+                            include: "id",
+                        });
+                    // only create the sample if it does not exist
+                    if (sampleResponse.responses[0].results.length === 0) {
+                        const somatic = entry.somatic ?? false;
+                        const sampleParams = {
+                            id: sampleId,
+                            individualId: individualId,
+                            somatic: somatic === "true" || somatic === true || somatic === "yes",
+                        };
+                        await this.opencgaSession.opencgaClient.samples()
+                            .create(sampleParams, {
+                                study: this.opencgaSession.study.fqn,
+                            });
+                    }
+                } catch (error) {
+                    console.error(`Sample ${sampleId} creation failed:`, error);
+                    throw new Error(`Failed to create sample ${sampleId}. It might already exist or there was an error.`);
+                }
+                // add this sample to the processed set
+                processedSamples.add(sampleId);
+            }
+
+            // 2.3. create the family if needed (TODO)
+        }
+
+        // 3. Upload files and link them to samples
         const selectedFiles = this._data.files || [];
-        // 2. Iterate over the selected files and process them. Create samples and individuals as needed.
         for (const file of selectedFiles) {
             if (file.status === this.FILE_STATUS.DONE) {
                 continue;
@@ -193,103 +264,37 @@ export default class ClinicalFileUpload extends LitElement {
                 console.error(`File ${file.fileObject.name} not found in the mapping file.`);
                 throw new Error(`File ${file.fileObject.name} not found in the mapping file.`);
             }
+                const relativeFilePath = this._data.relativeFilePath.startsWith("/") ? this._data.relativeFilePath.substring(1) : this._data.relativeFilePath;
 
             try {
-                // Determine IDs
-                const sampleId = mappingEntry.sample;
-                const individualId = mappingEntry.individual;
-                const individualSex = mappingEntry.sex || "";
-                const familyId = mappingEntry.family || "";
-                const somatic = !!mappingEntry.somatic ?? false;
-
-                // Create Individual if needed
-                if (individualId && !processedIndividuals.has(individualId)) {
-                    let individualExists = false;
-                    try {
-                        const indResponse = await this.opencgaSession.opencgaClient.individuals()
-                            .search({id: individualId, study, include: "id"});
-                        if (indResponse.responses[0].results.length > 0) {
-                            individualExists = true;
-                        }
-                    } catch (e) {
-                        console.error("Error searching for individual:", e);
-                    }
-
-                    if (!individualExists) {
-                        try {
-                            await this.opencgaSession.opencgaClient.individuals()
-                                .create({
-                                    id: individualId,
-                                    sex: {id: individualSex || "UNKNOWN"},
-                                    family: familyId ? {id: familyId} : undefined,
-                                }, {study});
-                        } catch (e) {
-                            console.warn(`Individual ${individualId} creation failed:`, e);
-                            throw new Error(`Failed to create individual ${individualId}. It might already exist or there was an error.`);
-                        }
-                    }
-                    processedIndividuals.add(individualId);
-                }
-
-                // Create Sample if needed
-                if (sampleId && !processedSamples.has(sampleId)) {
-                    let sampleExists = false;
-                    try {
-                        const sampleResponse = await this.opencgaSession.opencgaClient.samples()
-                            .search({id: sampleId, study, include: "id"});
-                        if (sampleResponse.responses[0].results.length > 0) {
-                            sampleExists = true;
-                        }
-                    } catch (e) {
-                        console.error("Error searching for sample:", e);
-                    }
-
-                    if (!sampleExists) {
-                        try {
-                            await this.opencgaSession.opencgaClient.samples()
-                                .create({
-                                    id: sampleId,
-                                    individualId: individualId,
-                                    somatic: somatic === "true" || somatic === true || somatic === "yes",
-                                }, {study});
-                        } catch (e) {
-                            console.warn(`Sample ${sampleId} creation failed:`, e);
-                            throw new Error(`Failed to create sample ${sampleId}. It might already exist or there was an error.`);
-                        }
-                    }
-                    processedSamples.add(sampleId);
-                }
-
-                // Upload File
-                const fileResult = await this.opencgaSession.opencgaClient.files()
+                const fileResponse = await this.opencgaSession.opencgaClient.files()
                     .upload({
-                        study,
+                        study: this.opencgaSession.study.fqn,
                         file: file.fileObject,
                         fileName: file.fileObject.name,
-                        relativeFilePath: this._data.relativeFilePath.startsWith("/") ?
-                            this._data.relativeFilePath.substring(1) :
-                            this._data.relativeFilePath,
                         resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
+                        relativeFilePath: relativeFilePath.endsWith("/") ? relativeFilePath : relativeFilePath + "/",
                     });
 
+                // change the status to DONE
                 file.status = this.FILE_STATUS.DONE;
 
                 // Link file to the sample
-                const uploadedFileId = fileResult.responses[0].results[0].id;
+                const uploadedFileId = fileResponse.responses[0].results[0].id;
                 const sampleUpdateParams = {
                     sampleIds: [
-                        sampleId,
+                        mappingEntry.sample,
                     ],
                 };
                 await this.opencgaSession.opencgaClient.files()
                     .update(uploadedFileId, sampleUpdateParams, {
-                        study: study,
+                        study: this.opencgaSession.study.fqn,
                         sampleIdsAction: "ADD",
                     });
 
                 // Dispatch an event to notify that a file has been uploaded
                 LitUtils.dispatchCustomEvent(this, "fileUpload", null, {
-                    relativeFilePath: this._data.relativeFilePath,
+                    relativeFilePath: relativeFilePath,
                     fileName: file.fileObject.name,
                 });
             } catch (error) {
@@ -299,28 +304,28 @@ export default class ClinicalFileUpload extends LitElement {
             }
         }
 
-        // 3. Create Cohort if needed
+        // 4. Create Cohort if needed
         if (this._data.cohort?.id) {
-            const samplesInCohort = [];
-            for (const sampleId of processedSamples) {
-                samplesInCohort.push({id: sampleId});
-            }
-
             const cohortParams = {
                 id: this._data.cohort.id,
                 name: this._data.cohort.name,
                 description: this._data.cohort.description,
-                samples: samplesInCohort,
+                samples: mapping.map(entry => ({ 
+                    id: entry.sample,
+                })),
             };
             try {
                 await this.opencgaSession.opencgaClient.cohorts()
                     .create(cohortParams, {
                         study: this.opencgaSession.study.fqn,
                     });
-            } catch (e) {
-                console.warn(`Cohort ${cohortParams.id} creation failed:`, e);
+            } catch (error) {
+                console.error(`Cohort ${cohortParams.id} creation failed:`, error);
+                throw new Error(`Failed to create cohort ${cohortParams.id}. It might already exist or there was an error.`);
             }
         }
+
+        // 5. create the clinical analysis TODO
 
     }
 
