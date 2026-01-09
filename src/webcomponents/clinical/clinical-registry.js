@@ -661,10 +661,10 @@ export default class ClinicalRegistry extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Clinical File Upload",
+            title: "Clinical Registry",
             display: {
                 titleVisible: false,
-                buttonOkText: "Upload Files",
+                buttonOkText: "Register",
                 buttonClearText: "Discard",
                 buttonOkDisabled: () => {
                     return this._uploading || (this._data?.files?.length === 0) || this._data?.files?.every(f => f.status === this.FILE_STATUS.DONE);
