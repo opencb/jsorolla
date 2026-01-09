@@ -261,13 +261,11 @@ export default class ClinicalFileUpload extends LitElement {
                         const members = mapping.filter(e => e.family === entry.family && e.individual);
                         const familyParams = {
                             id: entry.family,
-                            members: members.map(member => ({
-                                id: member.individual,
-                            })),
                         };
                         await this.opencgaSession.opencgaClient.families()
                             .create(familyParams, {
                                 study: this.opencgaSession.study.fqn,
+                                members: members.map(member => member.individual).join(","),
                             });
                     }
                 } catch (error) {
