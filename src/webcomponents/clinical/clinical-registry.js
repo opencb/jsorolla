@@ -441,6 +441,7 @@ export default class ClinicalRegistry extends LitElement {
                     const clinicalAnalysisSearchResponse = await this.opencgaSession.opencgaClient.clinical()
                         .search({
                             id: clinicalAnalysisId,
+                            study: this.opencgaSession.study.fqn,
                             include: "id",
                         });
                     if (clinicalAnalysisSearchResponse.responses[0].results.length === 0) {
