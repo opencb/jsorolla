@@ -91,7 +91,7 @@ export default class ClinicalRegistry extends LitElement {
                     },
                 };
                 return this.opencgaSession.opencgaClient.clinical()
-                    .updateInterpretation(data.id, interpretationId, interpretationData, {
+                    .updateInterpretation(clinicalAnalysisParams.id, interpretationId, interpretationData, {
                         study: this.opencgaSession.study.fqn,
                         methodsAction: "SET",
                     });
