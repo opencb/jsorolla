@@ -66,6 +66,38 @@ export default class ClinicalRegistry extends LitElement {
         super.update(changedProperties);
     }
 
+    createClinicalAnalysis(clinicalAnalysisParams) {
+        return this.opencgaSession.opencgaClient.clinical()
+            .create(clinicalAnalysisParams, {
+                study: this.opencgaSession.study.fqn,
+                includeResult: true,
+            })
+            .then(response => {
+                const interpretationId = response?.responses?.[0]?.results?.[0]?.interpretation?.id;
+                const interpretationData = {
+                    method: {
+                        name: "iva-default",
+                        version: this.opencgaSession?.about?.Version || "-",
+                        dependencies: [
+                            {
+                                name: "OpenCGA",
+                                version: this.opencgaSession?.about?.Version || "-",
+                            },
+                            {
+                                name: "Cellbase",
+                                version: this.opencgaSession.project?.cellbase?.version || "-",
+                            },
+                        ],
+                    },
+                };
+                return this.opencgaSession.opencgaClient.clinical()
+                    .updateInterpretation(data.id, interpretationId, interpretationData, {
+                        study: this.opencgaSession.study.fqn,
+                        methodsAction: "SET",
+                    });
+            });
+    }
+
     async handleSingleUpload() {
         // 1. Create Sample if needed
         if (this._data.sampleId && !this._data.sample) {
@@ -397,7 +429,6 @@ export default class ClinicalRegistry extends LitElement {
             }
         }
 
-        return;
         // 6. create the clinical analysis
         for (let i = 0; i < mapping.length; i++) {
             const entry = mapping[i];
@@ -413,8 +444,12 @@ export default class ClinicalRegistry extends LitElement {
                             include: "id",
                         });
                     if (clinicalAnalysisSearchResponse.responses[0].results.length === 0) {
-                        const createCaseParrams = {
+                        const createCaseParams = {
                             id: clinicalAnalysisId,
+                            proband: {
+                                id: entry.individual,
+                                samples: [],
+                            },
                         };
 
                         // 6.3. check if we have to create a family case or is just a single case
@@ -422,12 +457,40 @@ export default class ClinicalRegistry extends LitElement {
                         if (family) {
                             const familyMembers = mapping.filter(m => m.family === family && m.individual);
                             const proband = familyMembers.find(member => {
-                                const isProband = (member.proband || "").toLowerCase();
-                                return isProband === "yes" || isProband === "true" || member.father || member.mother;
+                                return ["yes", "true"].includes((member.proband || "").toLowerCase()) || member.father || member.mother;
+                            });
+                            createCaseParams.type = "FAMILY";
+                            createCaseParams.family = {
+                                id: family,
+                                members: familyMembers.map(member => {
+                                    const familyMember = {
+                                        id: member.individual,
+                                        samples: [],
+                                    };
+                                    // assign the samples to the family member
+                                    if (member.individual === proband?.individual) {
+                                        familyMember.samples.push({
+                                            id: member.sample,
+                                        });
+                                    }
+                                    // return the family member object
+                                    return familyMember;
+                                }),
+                            };
+                            // assign the proband id and samples
+                            createCaseParams.proband.id = proband?.individual;
+                            createCaseParams.proband.samples.push({
+                                id: proband?.sample,
                             });
                         } else {
-
+                            createCaseParams.type = "SINGLE";
+                            createCaseParams.proband.samples.push({
+                                id: entry.sample,
+                            });
                         }
+
+                        // 6.4. create the clinical analysis
+                        await this.createClinicalAnalysis(createCaseParams);
                     }
                 } catch (error) {
                     console.error(`Clinical Analysis ${clinicalAnalysisId} creation failed:`, error);
