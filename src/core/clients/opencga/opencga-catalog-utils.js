@@ -398,6 +398,26 @@ export default class OpencgaCatalogUtils {
                     processedEntry.individual = processedEntry.sample || processedEntry.file.replace(/\.[^/.]+$/, "");
                 }
 
+                // initialize the case field
+                if (!processedEntry.case) {
+                    // 1. check if this individual belongs to a family
+                    if (processedEntry.family) {
+                        const familyMembers = content.filter(member => member.family === processedEntry.family);
+                        const proband = familyMembers.find(member => {
+                            return ["true", "yes"].includes((member.proband || "").toLowerCase()) || member.father || member.mother;
+                        });
+                        if (proband) {
+                            proband.case = proband.case || proband.individual;
+                            familyMembers.forEach(member => {
+                                member.case = proband.case;
+                            });
+                        }
+                    } else {
+                        // 2. if not, assign individual as case
+                        processedEntry.case = processedEntry.individual;
+                    }
+                }
+
                 processedMapping.push(processedEntry);
             });
 
