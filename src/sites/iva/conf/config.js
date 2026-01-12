@@ -262,22 +262,22 @@ const SUITE = {
                 // `,
             },
             menu: [
-                {
-                    id: "clinical-file-upload",
-                    name: "Clinical File Upload",
-                    icon: "fa-file-medical",
-                    visibility: "public",
-                    category: "Data Preprocessing",
-                    description: "Upload clinical data files (VCF, PED, BAM, etc.) to the current study.",
-                },
-                {
-                    id: "clinical-preprocessing",
-                    name: "Clinical Preprocessing",
-                    icon: "fa-file-medical",
-                    visibility: "public",
-                    category: "Data Preprocessing",
-                    description: "Preprocess clinical data and generate the required files to run a clinical analysis.",
-                },
+                // {
+                //     id: "clinical-file-upload",
+                //     name: "Clinical File Upload",
+                //     icon: "fa-file-medical",
+                //     visibility: "public",
+                //     category: "Data Preprocessing",
+                //     description: "Upload clinical data files (VCF, PED, BAM, etc.) to the current study.",
+                // },
+                // {
+                //     id: "clinical-preprocessing",
+                //     name: "Clinical Preprocessing",
+                //     icon: "fa-file-medical",
+                //     visibility: "public",
+                //     category: "Data Preprocessing",
+                //     description: "Preprocess clinical data and generate the required files to run a clinical analysis.",
+                // },
                 {
                     id: "clinical-analysis-portal",
                     name: "Case Interpreter Portal",
