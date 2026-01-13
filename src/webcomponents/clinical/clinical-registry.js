@@ -6,6 +6,7 @@ import ModalUtils from "../commons/modal/modal-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import DataFormElements from "../commons/forms/data-form-elements.js";
 import "../commons/forms/data-form.js";
+import "../commons/filters/disease-panel-filter.js";
 import "../cohort/cohort-create.js";
 import "../file/file-folder-create.js";
 import "../loading-spinner.js";
@@ -1082,6 +1083,25 @@ export default class ClinicalRegistry extends LitElement {
                             required: true,
                             display: {
                                 helpMessage: "Identifier for the clinical analysis to be created.",
+                            },
+                        },
+                        {
+                            title: "Disease Panels",
+                            field: "panels",
+                            type: "custom",
+                            display: {
+                                render: (panels, fieldChange) => {
+                                    return html`
+                                        <disease-panel-filter
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .diseasePanels="${this.opencgaSession.study?.panels}"
+                                            .panel="${panels}"
+                                            .showExtendedFilters="${false}"
+                                            .showSelectedPanels="${false}"
+                                            @filterChange="${event => fieldChange(event.detail.value)}">
+                                        </disease-panel-filter>
+                                    `;
+                                },
                             },
                         },
                     ],
