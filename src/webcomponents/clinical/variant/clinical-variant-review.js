@@ -252,7 +252,7 @@ export default class ClinicalVariantReview extends LitElement {
                     ${displayConsequenceType ? html`
                         <span style="color:${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[displayConsequenceType]] || "black"}">${displayConsequenceType}</span>
                     ` : nothing}
-                    <span class="fw-bold">${selectedEvidencesCount} Evidence${selectedEvidencesCount > 1 ? "s" : ""} Reviewed</span>
+                    <span class="fw-bold">${selectedEvidencesCount} Evidence${selectedEvidencesCount == 1 ? "" : "s"} Reviewed</span>
                 </div>
             </div>
         `;
