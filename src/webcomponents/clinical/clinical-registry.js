@@ -865,7 +865,7 @@ export default class ClinicalRegistry extends LitElement {
                                 title: "Configure Clinical Analysis",
                                 id: "clinicalAnalysis",
                                 active: data?.activeSingleTab === "clinicalAnalysis",
-                                completed: false,
+                                completed: data?.clinicalAnalysis,
                             },
                         ];
                         return tabs.map(tab => {
