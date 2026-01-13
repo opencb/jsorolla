@@ -456,7 +456,7 @@ export default class ClinicalRegistry extends LitElement {
                         // 6.3. check if we have to create a family case or is just a single case
                         const family = mapping.find(m => m.case === clinicalAnalysisId && !!m.family)?.family;
                         if (family) {
-                            const familyMembers = mapping.filter(m => m.family === family && m.individual);
+                            const familyMembers = mapping.filter(m => m.family === family);
                             const proband = familyMembers.find(member => {
                                 return ["yes", "true"].includes((member.proband || "").toLowerCase()) || member.father || member.mother;
                             });
