@@ -803,6 +803,10 @@ export default class ClinicalRegistry extends LitElement {
                                 id: "singleIndividual",
                                 className: "w-full",
                             },
+                            {
+                                id: "singleClinicalAnalysis",
+                                className: "w-full",
+                            },
                         ],
                     },
                     {
@@ -1059,6 +1063,25 @@ export default class ClinicalRegistry extends LitElement {
                                     </catalog-search-autocomplete>
                                 `,
                                 helpMessage: "Family to which the individual belongs.",
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: "singleClinicalAnalysis",
+                    title: "Clinical Analysis Configuration",
+                    display: {
+                        visible: data => data?.type === "Single" && data?.activeSingleTab === "clinicalAnalysis",
+                        titleClassName: "fs-4",
+                    },
+                    elements: [
+                        {
+                            title: "Clinical Analysis ID",
+                            field: "clinicalAnalysis",
+                            type: "input-text",
+                            required: true,
+                            display: {
+                                helpMessage: "Identifier for the clinical analysis to be created.",
                             },
                         },
                     ],
