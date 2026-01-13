@@ -38,6 +38,7 @@ export default class ClinicalRegistry extends LitElement {
     #init() {
         this.DEFAULT_DATA = {
             type: "Single",
+            activeSingleTab: "sample",
             relativeFilePath: "/" + (this.path || ""),
             confirmSampleCreation: true,
             files: [],
@@ -690,6 +691,14 @@ export default class ClinicalRegistry extends LitElement {
         });
     }
 
+    onActiveSingleTabChange(tabId) {
+        this._data = {
+            ...this._data,
+            activeSingleTab: tabId,
+        };
+        this.requestUpdate();
+    }
+
     renderCreateCohortModal() {
         return ModalUtils.create(this, "create-cohort-modal", {
             display: {
@@ -780,20 +789,19 @@ export default class ClinicalRegistry extends LitElement {
                         id: "singleUpload",
                     },
                     {
-                        className: "d-flex gap-5 align-items-stretch",
+                        id: "singleUploadTabs",
+                        // className: "d-flex",
+                    },
+                    {
+                        className: "border border-top-0 rounded-bottom-4 p-3 mb-4",
                         sections: [
                             {
                                 id: "singleUploadSample",
-                                className: "w-full px-3",
-                            },
-                            {
-                                id: "singleUploadSeparator",
-                                className: "bg-gray-200",
-                                style: "width:1px;"
+                                className: "w-full",
                             },
                             {
                                 id: "singleUploadIndividual",
-                                className: "w-full px-3",
+                                className: "w-full",
                             },
                         ],
                     },
@@ -828,10 +836,79 @@ export default class ClinicalRegistry extends LitElement {
                     elements: [],
                 },
                 {
+                    id: "singleUploadTabs",
+                    display: {
+                        visible: data => data?.type === "Single",
+                        separationClassName: "mb-0",
+                        className: "d-flex w-full"
+                    },
+                    render: data => {
+                        const tabs = [
+                            {
+                                title: "Configure Sample",
+                                id: "sample",
+                                active: data?.activeSingleTab === "sample",
+                                completed: true,
+                            },
+                            {
+                                title: "Configure Individual",
+                                id: "individual",
+                                active: data?.activeSingleTab === "individual",
+                                completed: false,
+                            },
+                            {
+                                title: "Configure Clinical Analysis",
+                                id: "clinicalAnalysis",
+                                active: data?.activeSingleTab === "clinicalAnalysis",
+                                completed: false,
+                            },
+                        ];
+                        return tabs.map(tab => {
+                            const className = tab.active ? "border border-bottom-0" : "border-bottom cursor-pointer";
+                            return html`
+                                <div class="d-flex flex-column align-items-center w-full p-3 rounded-top-4 ${className}" @click="${() => this.onActiveSingleTabChange(tab.id)}">
+                                    <div class="d-flex justify-content-center" style="height:20px;">
+                                        <i class="fa ${tab.completed ? "fa-check text-success" : "fa-close text-secondary"} fs-4"></i>
+                                    </div>
+                                    <div class="w-full text-center fs-5 ${tab.active ? "fw-bold" : ""}">
+                                        ${tab.title}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    },
+                    // elements: [
+                    //     {
+                    //         id: "singleUploadSampleTab",
+                    //         type: "custom",
+                    //         display: {
+                    //             separationClassName: "mb-0",
+                    //             render: data => {
+                    //                 return html`
+                    //                     <div class="text-center">Sample</div>
+                    //                 `;
+                    //             },
+                    //         },
+                    //     },
+                    //     {
+                    //         id: "singleUploadIndividualTab",
+                    //         type: "custom",
+                    //         display: {
+                    //             separationClassName: "mb-0",
+                    //             render: data => {
+                    //                 return html`
+                    //                     <div class="text-center">Individual</div>
+                    //                 `;
+                    //             },
+                    //         },
+                    //     },
+                    // ],
+                },
+                {
                     id: "singleUploadSample",
                     title: "Sample Configuration",
                     display: {
-                        visible: data => data?.type === "Single",
+                        visible: data => data?.type === "Single" && data?.activeSingleTab === "sample",
                         titleClassName: "fs-4",
                     },
                     elements: [
@@ -907,17 +984,10 @@ export default class ClinicalRegistry extends LitElement {
                     ],
                 },
                 {
-                    id: "singleUploadSeparator",
-                    display: {
-                        visible: data => data?.type === "Single",
-                    },
-                    elements: [],
-                },
-                {
                     id: "singleUploadIndividual",
                     title: "Individual Configuration",
                     display: {
-                        visible: data => data?.type === "Single",
+                        visible: data => data?.type === "Single" && data?.activeSingleTab === "individual",
                         titleClassName: "fs-4",
                     },
                     elements: [
