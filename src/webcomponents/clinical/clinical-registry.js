@@ -848,13 +848,13 @@ export default class ClinicalRegistry extends LitElement {
                                 title: "Configure Sample",
                                 id: "sample",
                                 active: data?.activeSingleTab === "sample",
-                                completed: true,
+                                completed: data?.sample || data?.sampleId,
                             },
                             {
                                 title: "Configure Individual",
                                 id: "individual",
                                 active: data?.activeSingleTab === "individual",
-                                completed: false,
+                                completed: data?.individual || data?.individualId,
                             },
                             {
                                 title: "Configure Clinical Analysis",
