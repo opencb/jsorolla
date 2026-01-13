@@ -217,7 +217,8 @@ export default class DiseasePanelFilter extends LitElement {
                         .config="${{
                             liveSearch: true,
                             multiple: this.multiple,
-                            separator: "\n"
+                            separator: "\n",
+                            disabled: this.disabled,
                         }}"
                         @filterChange="${e => this.filterChange(e, "panel")}">
                     </select-field-filter>
