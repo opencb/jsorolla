@@ -786,30 +786,30 @@ export default class ClinicalRegistry extends LitElement {
                         id: "type",
                     },
                     {
-                        id: "singleUpload",
+                        id: "single",
                     },
                     {
-                        id: "singleUploadTabs",
+                        id: "singleTabs",
                         // className: "d-flex",
                     },
                     {
-                        className: "border border-top-0 rounded-bottom-4 p-3 mb-4",
+                        className: "border border-top-0 rounded-bottom-4 p-4 mb-4",
                         sections: [
                             {
-                                id: "singleUploadSample",
+                                id: "singleSample",
                                 className: "w-full",
                             },
                             {
-                                id: "singleUploadIndividual",
+                                id: "singleIndividual",
                                 className: "w-full",
                             },
                         ],
                     },
                     {
-                        id: "batchUpload",
+                        id: "batch",
                     },
                     {
-                        id: "uploadFiles",
+                        id: "files",
                     },
                 ],
                 ...this.displayConfig,
@@ -821,22 +821,22 @@ export default class ClinicalRegistry extends LitElement {
                         DataFormElements.tabsElement({
                             field: "type",
                             tabs: [
-                                { id: "Single", text: "Single Upload" },
-                                { id: "Batch", text: "Batch Upload" },
+                                { id: "Single", text: "Single Registry" },
+                                { id: "Batch", text: "Batch Registry" },
                             ],
                         }),
                     ],
                 },
                 {
-                    id: "singleUpload",
-                    title: "Single Sample Upload Configuration",
+                    id: "single",
+                    title: "Single Configuration",
                     display: {
                         visible: data => data?.type === "Single",
                     },
                     elements: [],
                 },
                 {
-                    id: "singleUploadTabs",
+                    id: "singleTabs",
                     display: {
                         visible: data => data?.type === "Single",
                         separationClassName: "mb-0",
@@ -870,7 +870,7 @@ export default class ClinicalRegistry extends LitElement {
                                     <div class="d-flex justify-content-center" style="height:20px;">
                                         <i class="fa ${tab.completed ? "fa-check text-success" : "fa-close text-secondary"} fs-4"></i>
                                     </div>
-                                    <div class="w-full text-center fs-5 ${tab.active ? "fw-bold" : ""}">
+                                    <div class="w-full text-center fs-6 ${tab.active ? "fw-bold" : ""}">
                                         ${tab.title}
                                     </div>
                                 </div>
@@ -905,7 +905,7 @@ export default class ClinicalRegistry extends LitElement {
                     // ],
                 },
                 {
-                    id: "singleUploadSample",
+                    id: "singleSample",
                     title: "Sample Configuration",
                     display: {
                         visible: data => data?.type === "Single" && data?.activeSingleTab === "sample",
@@ -984,7 +984,7 @@ export default class ClinicalRegistry extends LitElement {
                     ],
                 },
                 {
-                    id: "singleUploadIndividual",
+                    id: "singleIndividual",
                     title: "Individual Configuration",
                     display: {
                         visible: data => data?.type === "Single" && data?.activeSingleTab === "individual",
@@ -1064,7 +1064,7 @@ export default class ClinicalRegistry extends LitElement {
                     ],
                 },
                 {
-                    id: "batchUpload",
+                    id: "batch",
                     title: "Multi Sample Batch Upload Configuration",
                     display: {
                         visible: data => data?.type === "Batch",
@@ -1107,8 +1107,8 @@ export default class ClinicalRegistry extends LitElement {
                     ],
                 },
                 {
-                    id: "uploadFiles",
-                    title: "Upload Files",
+                    id: "files",
+                    title: "Select Files",
                     description: html`<span>Upload one or more files to the selected study. <b>Note:</b> if the path already exists, the files will be overwritten.</span>`,
                     display: {
                         className: "px-2 py-2",
