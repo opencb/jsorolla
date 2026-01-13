@@ -867,8 +867,8 @@ export default class ClinicalRegistry extends LitElement {
                             const className = tab.active ? "border border-bottom-0" : "border-bottom cursor-pointer";
                             return html`
                                 <div class="d-flex flex-column align-items-center w-full p-3 rounded-top-4 ${className}" @click="${() => this.onActiveSingleTabChange(tab.id)}">
-                                    <div class="d-flex justify-content-center" style="height:20px;">
-                                        <i class="fa ${tab.completed ? "fa-check text-success" : "fa-close text-secondary"} fs-4"></i>
+                                    <div class="d-flex justify-content-center mb-1" style="height:20px;">
+                                        <i class="fa ${tab.completed ? "fa-check text-success" : "fa-times text-secondary"} fs-4"></i>
                                     </div>
                                     <div class="w-full text-center fs-6 ${tab.active ? "fw-bold" : ""}">
                                         ${tab.title}
