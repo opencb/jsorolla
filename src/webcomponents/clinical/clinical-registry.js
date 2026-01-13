@@ -1090,7 +1090,7 @@ export default class ClinicalRegistry extends LitElement {
                             field: "panels",
                             type: "custom",
                             display: {
-                                render: (panels, fieldChange) => {
+                                render: (panels, onFieldChange, updateParams, data) => {
                                     return html`
                                         <disease-panel-filter
                                             .opencgaSession="${this.opencgaSession}"
@@ -1098,7 +1098,8 @@ export default class ClinicalRegistry extends LitElement {
                                             .panel="${panels}"
                                             .showExtendedFilters="${false}"
                                             .showSelectedPanels="${false}"
-                                            @filterChange="${event => fieldChange(event.detail.value)}">
+                                            .disabled="${!data?.clinicalAnalysis}"
+                                            @filterChange="${event => onFieldChange(event.detail.value)}">
                                         </disease-panel-filter>
                                     `;
                                 },
