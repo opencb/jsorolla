@@ -156,6 +156,7 @@ export default class UserToolExecutor extends LitElement {
         LitUtils.dispatchCustomEvent(this, "toolParamsChange", null, {
             params: this._toolParams,
             executionParams: this.prepareExecutionParams(),
+            jobParams: AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL),
         });
     }
 
