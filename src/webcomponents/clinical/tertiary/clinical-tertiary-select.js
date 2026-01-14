@@ -1,12 +1,13 @@
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../../commons/forms/data-form.js";
-import "../../commons/filters/catalog-search-autocomplete.js";
-import "../../commons/filters/disease-panel-filter.js";
-import "../filters/clinical-flag-filter.js";
+import WebUtils from "../../commons/utils/web-utils";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons";
-import WebUtils from "../../commons/utils/web-utils";
+import "../../commons/forms/data-form.js";
+import "../../commons/filters/catalog-search-autocomplete.js";
+import "../../commons/filters/catalog-distinct-autocomplete.js";
+import "../../commons/filters/disease-panel-filter.js";
+import "../filters/clinical-flag-filter.js";
 
 export default class ClinicalTertiarySelect extends LitElement {
 
@@ -395,6 +396,21 @@ export default class ClinicalTertiarySelect extends LitElement {
             pageList: [5, 10, 25],
             filters: [
                 {
+                    id: "type",
+                    title: "Type",
+                    render: (value, onChange) => html`
+                        <catalog-distinct-autocomplete
+                            .value="${value}"
+                            .queryField="${"type"}"
+                            .distinctFields="${"type"}"
+                            .resource="${"CLINICAL_ANALYSIS"}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${{}}"
+                            @filterChange="${event => onChange(event.detail.value)}">
+                        </catalog-distinct-autocomplete>
+                    `,
+                },
+                {
                     id: "id",
                     title: "Clinical Analysis ID",
                     render: (value, onChange) => html`
@@ -402,6 +418,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                             .value="${value}"
                             .resource="${"CLINICAL_ANALYSIS"}"
                             .opencgaSession="${this.opencgaSession}"
+                            .config="${{}}"
                             @filterChange="${event => onChange(event.detail.value)}">
                         </catalog-search-autocomplete>
                     `,
