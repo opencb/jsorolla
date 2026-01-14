@@ -81,10 +81,13 @@ export default class ClinicalTertiaryTools extends LitElement {
                 .then(response => {
                     this._tools = response.responses[0].results || [];
                     // set the first tool as selected by default
-                    this._toolParams = {
-                        ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-                        tool: this._tools.length > 0 ? this._tools[0] : null,
-                    };
+                    if (this._tools.length > 0 && !this._toolParams.tool) {
+                        this._toolParams.tool = this._tools[0];
+                    }
+                    // this._toolParams = {
+                    //     ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
+                    //     tool: this._tools.length > 0 ? this._tools[0] : null,
+                    // };
                     this._config = this.getDefaultConfig();
                     this.requestUpdate();
                     this.dispatchChange();
