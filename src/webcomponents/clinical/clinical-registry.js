@@ -455,6 +455,14 @@ export default class ClinicalRegistry extends LitElement {
                             },
                         };
 
+                        // include panels to the clinical analysis
+                        if (entry.panel) {
+                            createCaseParams.panels = (entry.panel || "")
+                                .split(",")
+                                .filter(panel => !!panel)
+                                .map(panelId => ({ id: panelId }));
+                        }
+
                         // 6.3. check if we have to create a family case or is just a single case
                         const family = mapping.find(m => m.case === clinicalAnalysisId && !!m.family)?.family;
                         if (family) {
