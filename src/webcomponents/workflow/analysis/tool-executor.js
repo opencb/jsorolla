@@ -41,12 +41,15 @@ export default class UserToolExecutor extends LitElement {
             toolParams: {
                 type: Object,
             },
+            disabled: {
+                type: Array,
+            },
             opencgaSession: {
                 type: Object,
             },
             displayConfig: {
                 type: Object
-            },
+            }
         };
     }
 
@@ -151,6 +154,10 @@ export default class UserToolExecutor extends LitElement {
         }
 
         LitUtils.dispatchCustomEvent(this, "toolParamsChange", null, this._toolParams);
+    }
+
+    prepareExecution() {
+        
     }
 
     onSubmit() {
@@ -266,12 +273,18 @@ export default class UserToolExecutor extends LitElement {
                     field: `variables.${variable.id}`,
                     required: variable.required || false,
                     display: {
-                        disabled: typeof this.toolParams?.variables?.[variable.id] !== "undefined",
+                        // disabled: typeof this.toolParams?.variables?.[variable.id] !== "undefined",
                         defaultValue: variable.defaultValue,
                         helpMessage: variable.description || "",
                     }
                 };
 
+                // Check if the variable is in the 'disabled' array property
+                if (Array.isArray(this.disabled) && this.disabled.includes(variable.id)) {
+                    dataFormElement.display.disabled = true;
+                }
+
+                // type
                 switch (variable.type) {
                     case "BOOLEAN":
                         dataFormElement.type = "checkbox";

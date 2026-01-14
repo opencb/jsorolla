@@ -99,6 +99,11 @@ export default class ClinicalTertiary extends LitElement {
         this._stepsParams.select = event.detail;
     }
 
+    onClinicalAnalysesChange(event) {
+        this._stepsParams.cases = event.detail.rows;
+        debugger
+    }
+
     onToolsParamsChange(event) {
         this._stepsParams.tool = event.detail;
     }
@@ -209,7 +214,8 @@ export default class ClinicalTertiary extends LitElement {
                             .displayConfig="${{
                                 buttonsVisible: false,
                             }}"
-                            @paramsChange="${event => this.onSelectParamsChange(event)}">
+                            @paramsChange="${event => this.onSelectParamsChange(event)}"
+                            @checkrow="${event => this.onClinicalAnalysesChange(event)}">
                         </clinical-tertiary-select>
                     `,
                 },

@@ -275,17 +275,17 @@ export default class ClinicalAnalysisGrid extends LitElement {
         }
     }
 
-    removeRowTable(clinicalAnalysisId) {
-        const data = this.table.bootstrapTable("getData");
-        this.table.bootstrapTable("remove", {
-            field: "id",
-            values: [clinicalAnalysisId]
-        });
-        if (data?.length === 0) {
-            this.table.bootstrapTable("prevPage");
-            this.table.bootstrapTable("refresh");
-        }
-    }
+    // removeRowTable(clinicalAnalysisId) {
+    //     const data = this.table.bootstrapTable("getData");
+    //     this.table.bootstrapTable("remove", {
+    //         field: "id",
+    //         values: [clinicalAnalysisId]
+    //     });
+    //     if (data?.length === 0) {
+    //         this.table.bootstrapTable("prevPage");
+    //         this.table.bootstrapTable("refresh");
+    //     }
+    // }
 
     _getDefaultColumns() {
         this._columns = [
