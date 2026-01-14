@@ -882,32 +882,6 @@ export default class ClinicalRegistry extends LitElement {
                             `;
                         });
                     },
-                    // elements: [
-                    //     {
-                    //         id: "singleUploadSampleTab",
-                    //         type: "custom",
-                    //         display: {
-                    //             separationClassName: "mb-0",
-                    //             render: data => {
-                    //                 return html`
-                    //                     <div class="text-center">Sample</div>
-                    //                 `;
-                    //             },
-                    //         },
-                    //     },
-                    //     {
-                    //         id: "singleUploadIndividualTab",
-                    //         type: "custom",
-                    //         display: {
-                    //             separationClassName: "mb-0",
-                    //             render: data => {
-                    //                 return html`
-                    //                     <div class="text-center">Individual</div>
-                    //                 `;
-                    //             },
-                    //         },
-                    //     },
-                    // ],
                 },
                 {
                     id: "singleSample",
