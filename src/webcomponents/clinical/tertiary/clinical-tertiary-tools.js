@@ -32,7 +32,7 @@ export default class ClinicalTertiaryTools extends LitElement {
 
     #init() {
         this.DEFAULT_TOOLPARAMS = {
-            toolId: "",
+            tool: null,
             commandLine: "",
             params: {},
         };
@@ -83,7 +83,7 @@ export default class ClinicalTertiaryTools extends LitElement {
                     // set the first tool as selected by default
                     this._toolParams = {
                         ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-                        toolId: this._tools.length > 0 ? this._tools[0].id : "",
+                        tool: this._tools.length > 0 ? this._tools[0] : null,
                     };
                     this._config = this.getDefaultConfig();
                     this.requestUpdate();
@@ -103,7 +103,7 @@ export default class ClinicalTertiaryTools extends LitElement {
 
     onToolChange(event, selectedTool) {
         this._toolParams = {
-            toolId: selectedTool,
+            tool: selectedTool,
         };
         this.requestUpdate();
         this.dispatchChange();
@@ -170,8 +170,8 @@ export default class ClinicalTertiaryTools extends LitElement {
                         display: {
                             render: (data) => html`
                                 <div
-                                    class="border rounded-3 p-3 ${data.toolId === tool.id ? "border-primary bg-primary-subtle" : "cursor-pointer bg-white"}"
-                                    @click="${event => this.onToolChange(event, tool.id)}">
+                                    class="border rounded-3 p-3 ${data.tool?.id === tool.id ? "border-primary bg-primary-subtle" : "cursor-pointer bg-white"}"
+                                    @click="${event => this.onToolChange(event, tool)}">
                                     <div class="fw-bold">${tool.name || tool.id}</div>
                                     ${tool.description ? html`
                                         <div class="text-muted fs-7">${tool.description}</div>
@@ -184,12 +184,12 @@ export default class ClinicalTertiaryTools extends LitElement {
                 {
                     id: "tools-form",
                     display: {
-                        visible: data => !!data.toolId,
+                        visible: data => !!data.tool,
                     },
                     render: (data) => html`
                         <tool-executor
                             .opencgaSession="${this.opencgaSession}"
-                            .toolId="${data.toolId}"
+                            .toolId="${data.tool?.id}"
                             .toolParams="${{
                                 variables: {
                                     clinicalAnalysisId: "",
