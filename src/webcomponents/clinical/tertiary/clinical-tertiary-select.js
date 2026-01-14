@@ -38,6 +38,7 @@ export default class ClinicalTertiarySelect extends LitElement {
 
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "ClinicalTertiarySelectGrid";
+        this._filters = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -98,6 +99,7 @@ export default class ClinicalTertiarySelect extends LitElement {
                             count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                             exclude: "files,interpretation.primaryFindings,secondaryInterpretations,audit",
                             sort: "creationDate",
+                            ...this._filters,
                         })
                         .then(response => {
                             params.success(response);
@@ -345,45 +347,44 @@ export default class ClinicalTertiarySelect extends LitElement {
         return items.join("") || "-"
     }
 
-    renderToolbarLeftContent() {
-        return html`
-            <span id="${this.gridId + "PaginationInfo"}"></span>
-        `;
+    onFilterChange(filterId, value) {
+        if (value) {
+            this._filters[filterId] = value;
+        } else {
+            delete this._filters[filterId];
+        }
+        // this.table.bootstrapTable("refresh");
+        this.renderRemoteTable();
     }
 
-    getRightToolbar() {
-        // const hasWritePermission = this.gridCommons.hasPermission("WRITE");
-        // return [
-        //     {
-        //         icon: "fa-plus",
-        //         title: "Create Clinical Analysis",
-        //         disabled: !hasWritePermission,
-        //         onClick: () => this.gridCommons.changeActiveModal("create-clinical-analysis"),
-        //     },
-        // ];
-        return [];
+    renderFilters() {
+        return this._config.filters.map(filter => {
+            return html`
+                <div class="dropdown d-flex align-items-stretch">
+                    <button class="btn btn-light d-flex align-items-center gap-2 dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                        <span>${filter.title}</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end shadow p-2" style="width:280px;">
+                        ${filter.render(this._filters[filter.id], value => this.onFilterChange(filter.id, value))}
+                    </div>
+                </div>
+            `;
+        });
     }
 
     render() {
         return html`
             <h2 class="mb-4">Select Clinical Analyses</h2>
 
-            ${this._config.showToolbar ? html`
-                <grid-toolbar
-                    .opencgaSession="${this.opencgaSession}"
-                    .leftContent="${this.renderToolbarLeftContent()}"
-                    .rightToolbar="${this.getRightToolbar()}"
-                    .settings="${this.toolbarSetting}"
-                    .config="${this.toolbarConfig}"
-                    @download="${this.onDownload}"
-                    @export="${this.onDownload}">
-                </grid-toolbar>
+            ${this._config.filters.length > 0 ? html`
+                <div class="mb-4 d-flex flex-row-reverse gap-2">
+                    ${this.renderFilters()}
+                </div>
             ` : nothing}
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this.gridId}"></table>
             </div>
-
         `;
     }
 
@@ -392,6 +393,20 @@ export default class ClinicalTertiarySelect extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [5, 10, 25],
+            filters: [
+                {
+                    id: "id",
+                    title: "Clinical Analysis ID",
+                    render: (value, onChange) => html`
+                        <catalog-search-autocomplete
+                            .value="${value}"
+                            .resource="${"CLINICAL_ANALYSIS"}"
+                            .opencgaSession="${this.opencgaSession}"
+                            @filterChange="${event => onChange(event.detail.value)}">
+                        </catalog-search-autocomplete>
+                    `,
+                },
+            ],
         };
     }
 }
