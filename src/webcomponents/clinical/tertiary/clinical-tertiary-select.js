@@ -132,36 +132,10 @@ export default class ClinicalTertiarySelect extends LitElement {
                     return result.response;
                 },
 
-                onCheck: row => {
-                    debugger
-                    this.gridCommons.onCheck(row.id, row)
-                },
+                onCheck: row => this.gridCommons.onCheck(row.id, row),
                 onUncheck: row => this.gridCommons.onUncheck(row.id, row),
                 onCheckAll: rows => this.gridCommons.onCheckAll(rows),
                 onUncheckAll: rows => this.gridCommons.onUncheckAll(rows),
-
-                // onCheck: (row) => {
-                //     this.gridCommons.onCheck(row);
-                //     // this._toolParams.selectedClinicalAnalyses = rows.map(r => r.id);
-                //     // this.notifySelectClinicalAnalyses();
-                // },
-                // onUncheck: (row) => {
-                //     this.gridCommons.onUncheck(row);
-                //     // this._toolParams.selectedClinicalAnalyses = this._toolParams.selectedClinicalAnalyses.filter(id => id !== row.id);
-                //     // this.notifySelectClinicalAnalyses();
-                // },
-                // onCheckAll: rows => {
-                //     const newIds = rows
-                //         .map(row => row.id)
-                //         .filter(id => !this._toolParams.selectedClinicalAnalyses.includes(id));
-                //     this._toolParams.selectedClinicalAnalyses.push(...newIds);
-                //     this.notifySelectClinicalAnalyses();
-                // },
-                // onUncheckAll: rows => {
-                //     const ids = rows.map(row => row.id);
-                //     this._toolParams.selectedClinicalAnalyses = this._toolParams.selectedClinicalAnalyses.filter(id => !ids.includes(id));
-                //     this.notifySelectClinicalAnalyses();
-                // },
 
                 onPageChange: (number, size) => this.gridCommons.onPageChange(number, size),
                 onLoadSuccess: data => this.gridCommons.onLoadSuccess(data),
