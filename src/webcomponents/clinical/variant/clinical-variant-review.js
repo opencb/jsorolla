@@ -408,7 +408,7 @@ export default class ClinicalVariantReview extends LitElement {
                     render: variant => html`
                             <variant-summary
                                 .variant="${variant}"
-                                .clinical="${false}"
+                                .clinical="${true}"
                                 .primaryFinding="${this.primaryFinding}"
                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                 .consequenceTypes="${CONSEQUENCE_TYPES}"
