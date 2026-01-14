@@ -1061,8 +1061,19 @@ export default class ClinicalRegistry extends LitElement {
                             },
                         },
                         {
+                            title: "Analysis Type",
+                            field: "clinicalAnalysisType",
+                            type: "select",
+                            required: true,
+                            allowedValues: ["SINGLE", "FAMILY", "CANCER"],
+                            display: {
+                                disabled: data => !data?.clinicalAnalysis,
+                                helpMessage: "Type of analysis for the clinical analysis.",
+                            },
+                        },
+                        {
                             title: "Disease Panels",
-                            field: "panels",
+                            field: "clinicalAnalysisPanels",
                             type: "custom",
                             display: {
                                 render: (panels, onFieldChange, updateParams, data) => {
