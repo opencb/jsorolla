@@ -35,27 +35,34 @@ export default class ClinicalTertiarySelect extends LitElement {
     }
 
     #init() {
+        this.selectedClinicalAnalyses = [];
+
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + "ClinicalTertiarySelectGrid";
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        // if (changedProperties.has("toolParams")) {
-        //     this.toolParamsObserver();
-        // }
-        // if (changedProperties.has("displayConfig")) {
-        //     this._config = this.getDefaultConfig();
-        // }
         if (changedProperties.has("opencgaSession")) {
-            this.propertyObserver();
+            this.opencgaSessionObserver();
+        }
+        if (changedProperties.has("selectedClinicalAnalyses")) {
+            this.selectedClinicalAnalysesObserver();
         }
         super.update(changedProperties);
     }
 
-    propertyObserver() {
+    opencgaSessionObserver() {
         this._config = this.getDefaultConfig();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    }
+
+    selectedClinicalAnalysesObserver() {
+        debugger;
+        this.gridCommons.checkedRows.clear();
+        this.selectedClinicalAnalyses.forEach(clinicalAnalysis => {
+            this.gridCommons.checkedRows.set(clinicalAnalysis.id, clinicalAnalysis);
+        });
     }
 
     updated(changedProperties) {
@@ -70,10 +77,6 @@ export default class ClinicalTertiarySelect extends LitElement {
 
     renderRemoteTable() {
         if (this.opencgaSession?.opencgaClient && this.opencgaSession?.study?.fqn) {
-            // if (this.lastFilters && JSON.stringify(this.lastFilters) === JSON.stringify(this.query)) {
-            //     // Abort destroying and creating again the grid. The filters have not changed
-            //     return;
-            // }
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
