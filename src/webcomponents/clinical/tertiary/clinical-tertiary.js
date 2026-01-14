@@ -62,9 +62,37 @@ export default class ClinicalTertiary extends LitElement {
         }
 
         // 3. execute a job for each clinical analysis selected
-        await Promise.all(this._selectedClinicalAnalyses.map(clinicalAnalysis => {
-            // TODO
-        }));
+        const allPromises = this._selectedClinicalAnalyses.map(clinicalAnalysisId => {
+            const toolParams = {
+                id: this._selectedTool.tool.id,
+                params: {
+                    ...this._selectedTool.executionParams,
+                    clinicalAnalysisId: clinicalAnalysisId,
+                },
+            };
+            switch (this._selectedTool.tool.type.toUpperCase()) {
+                case "CUSTOM_TOOL":
+                    toolParams.commandLine = this._selectedTool?.params?.commandLine;
+                    return this.opencgaSession.opencgaClient.userTool()
+                        .runCustomDocker(toolParams, {
+                            study: this.opencgaSession.study.fqn,
+                        });
+                case "WORKFLOW":
+                    return this.opencgaSession.opencgaClient.userTool()
+                        .runWorkflow(toolParams, {
+                            study: this.opencgaSession.study.fqn,
+                        });
+                case "VARIANT_WALKER":
+                    return this.opencgaSession.opencgaClient.userTool()
+                        .runWalker(toolParams, {
+                            study: this.opencgaSession.study.fqn,
+                        });
+                default:
+                    console.error("Tool type not supported: ", this._selectedTool.tool.type);
+                    return;
+            }
+        });
+        await Promise.all(allPromises);
 
         // 4. all jobs executed successfully
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
