@@ -61,7 +61,15 @@ export default class ClinicalTertiary extends LitElement {
             });
         }
 
-        // 3. execute a job for each clinical analysis selected
+        // 3. fetch the information of the selected tool
+        const toolResponse = await this.opencgaSession.opencgaClient.userTool()
+            .info(this._selectedTool.id, {
+                study: this.opencgaSession.study.fqn,
+                include: "id,type",
+            });
+        const tool = toolResponse.responses[0].results[0];
+
+        // 4. execute a job for each clinical analysis selected
         const allPromises = this._selectedClinicalAnalyses.map(clinicalAnalysis => {
             const toolParams = {
                 id: this._selectedTool.id,
@@ -70,7 +78,7 @@ export default class ClinicalTertiary extends LitElement {
                     clinicalAnalysisId: clinicalAnalysis.id,
                 },
             };
-            switch (this._selectedTool.tool.type.toUpperCase()) {
+            switch (tool.type.toUpperCase()) {
                 case "CUSTOM_TOOL":
                     toolParams.commandLine = this._selectedTool?.params?.commandLine;
                     return this.opencgaSession.opencgaClient.userTool()
