@@ -936,7 +936,7 @@ export default class ClinicalRegistry extends LitElement {
                             type: "checkbox",
                             display: {
                                 containerClassName: "px-3",
-                                disabled: data => !!data?.sample,
+                                disabled: data => !!data?.sample || !data?.sampleId,
                                 helpMessage: "Check if the sample is somatic.",
                             },
                         },
@@ -953,6 +953,7 @@ export default class ClinicalRegistry extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{
                                             multiple: false,
+                                            disabled: !!data?.sample || !data?.sampleId,
                                         }}"
                                         @filterChange="${event => onFieldChange(event.detail.value)}">
                                     </catalog-search-autocomplete>
@@ -1015,7 +1016,7 @@ export default class ClinicalRegistry extends LitElement {
                             type: "input-text",
                             display: {
                                 containerClassName: "px-3",
-                                disabled: data => !!data?.individual,
+                                disabled: data => !!data?.individual || !data?.individualId,
                                 helpMessage: "Sex of the patient.",
                             },
                         },
@@ -1032,7 +1033,7 @@ export default class ClinicalRegistry extends LitElement {
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{
                                             multiple: false,
-                                            disabled: !!data?.individual,
+                                            disabled: !!data?.individual || !data?.individualId,
                                         }}"
                                         @filterChange="${event => onFieldChange(event.detail.value)}">
                                     </catalog-search-autocomplete>
