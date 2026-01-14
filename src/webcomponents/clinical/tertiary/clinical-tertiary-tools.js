@@ -115,8 +115,8 @@ export default class ClinicalTertiaryTools extends LitElement {
     onToolExecutorChange(event) {
         this._toolParams = {
             ...this._toolParams,
-            commandLine: event.detail.params.commandLine || "",
-            params: event.detail.executionParams || {},
+            params: event.detail.params || {},
+            executionParams: event.detail.executionParams || {},
         };
         this.dispatchChange();
     }
