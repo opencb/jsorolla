@@ -62,12 +62,12 @@ export default class ClinicalTertiary extends LitElement {
         }
 
         // 3. execute a job for each clinical analysis selected
-        const allPromises = this._selectedClinicalAnalyses.map(clinicalAnalysisId => {
+        const allPromises = this._selectedClinicalAnalyses.map(clinicalAnalysis => {
             const toolParams = {
                 id: this._selectedTool.tool.id,
                 params: {
                     ...this._selectedTool.executionParams,
-                    clinicalAnalysisId: clinicalAnalysisId,
+                    clinicalAnalysisId: clinicalAnalysis.id,
                 },
             };
             switch (this._selectedTool.tool.type.toUpperCase()) {
