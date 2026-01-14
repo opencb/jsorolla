@@ -1,6 +1,5 @@
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 import "../../commons/filters/disease-panel-filter.js";
@@ -58,7 +57,6 @@ export default class ClinicalTertiarySelect extends LitElement {
     }
 
     selectedClinicalAnalysesObserver() {
-        debugger;
         this.gridCommons.checkedRows.clear();
         this.selectedClinicalAnalyses.forEach(clinicalAnalysis => {
             this.gridCommons.checkedRows.set(clinicalAnalysis.id, clinicalAnalysis);
@@ -66,13 +64,9 @@ export default class ClinicalTertiarySelect extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.size > 0) {
+        if (changedProperties.has("opencgaSession")) {
             this.renderRemoteTable();
         }
-    }
-
-    fetchData(query) {
-        return this.opencgaSession.opencgaClient.clinical().search(query);
     }
 
     renderRemoteTable() {
@@ -96,37 +90,21 @@ export default class ClinicalTertiarySelect extends LitElement {
                 },
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 ajax: params => {
-                    let clinicalAnalysisResponse = null;
-                    this.filters = {
-                        study: this.opencgaSession.study.fqn,
-                        limit: params.data.limit,
-                        skip: params.data.offset || 0,
-                        count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        exclude: "files,interpretation.primaryFindings,secondaryInterpretations",
-                        sort: "creationDate",
-                        ...this.query
-                    };
-
-                    // Store the current filters
-                    this.lastFilters = {...this.filters};
-                    this.fetchData(this.filters)
-                        .then(response => {
-                            clinicalAnalysisResponse = response;
-                            // Prepare data for columns extensions
-                            const rows = clinicalAnalysisResponse.responses?.[0]?.results || [];
-                            return this.gridCommons.prepareDataForExtensions(this.COMPONENT_ID, this.opencgaSession, this.filters, rows);
+                    this.opencgaSession.opencgaClient.clinical()
+                        .search({
+                            study: this.opencgaSession.study.fqn,
+                            limit: params.data.limit,
+                            skip: params.data.offset || 0,
+                            count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                            exclude: "files,interpretation.primaryFindings,secondaryInterpretations,audit",
+                            sort: "creationDate",
                         })
-                        .then(() => {
-                            params.success(clinicalAnalysisResponse);
+                        .then(response => {
+                            params.success(response);
                         })
                         .catch(error => {
                             console.error(error);
                             params.error(error);
-                        })
-                        .finally(() => {
-                            LitUtils.dispatchCustomEvent(this, "queryComplete", null, {
-                                response: clinicalAnalysisResponse,
-                            });
                         });
                 },
                 responseHandler: response => {
@@ -244,7 +222,6 @@ export default class ClinicalTertiarySelect extends LitElement {
             //     visible: this._config.showActions,
             // },
         ];
-        return this._columns;
     }
 
     caseFormatter(value, row) {
@@ -389,6 +366,8 @@ export default class ClinicalTertiarySelect extends LitElement {
 
     render() {
         return html`
+            <h2 class="mb-4">Select Clinical Analyses</h2>
+
             ${this._config.showToolbar ? html`
                 <grid-toolbar
                     .opencgaSession="${this.opencgaSession}"
