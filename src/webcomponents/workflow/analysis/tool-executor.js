@@ -97,7 +97,7 @@ export default class UserToolExecutor extends LitElement {
     addToolVariablesToParams() {
         if (this._tool) {
             // 1. update the commandLine parameter if defined in the tool
-            if (this._tool?.type === "CUSTOM_TOOL" && this._tool?.container?.commandLine) {
+            if (this._tool?.type === "CUSTOM_TOOL" && this._tool?.container?.commandLine && !this._toolParams.commandLine) {
                 this._toolParams.commandLine = this._tool.container.commandLine;
             }
 
