@@ -26,12 +26,9 @@ export default class ClinicalTertiary extends LitElement {
     }
 
     #init() {
-        this.DEFAULT_STEPS_PARAMS = {
-            select: {},
-            tool: {},
-        };
         this._activeStepIndex = 0;
-        this._stepsParams = UtilsNew.objectClone(this.DEFAULT_STEPS_PARAMS);
+        this._selectedClinicalAnalyses = [];
+        this._selectedTool = null;
         this._running = false;
         this._config = this.getDefaultConfig();
     }
@@ -39,47 +36,35 @@ export default class ClinicalTertiary extends LitElement {
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this._activeStepIndex = 0; // reset to first step
-            this._stepsParams = UtilsNew.objectClone(this.DEFAULT_STEPS_PARAMS);
+            this._selectedClinicalAnalyses = [];
+            this._selectedTool = null;
         }
         super.update(changedProperties);
     }
 
     navigationButtonsVisible() {
-        // return this._activeStepIndex > 0;
         return true;
     }
 
     async executeJobs() {
-        // 1. no samples to execute
-        if (this._stepsParams.select?.samples?.length === 0) {
+        // 1. no clinical analysis to execute
+        if (this._selectedClinicalAnalyses?.length === 0) {
             return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                message: "No samples selected to execute the Clinical Tertiary analysis.",
+                message: "No Clinical Analysis selected to execute the Clinical Tertiary analysis.",
             });
         }
 
         // 2. no tool selected
-        if (!this._stepsParams.tool?.toolId) {
+        if (!this._selectedTool?.tool?.id) {
             return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                 message: "No tool selected to execute the Clinical Tertiary analysis.",
             });
         }
 
-        // 3. execute a job for each sample selected
-        await Promise.all(this._stepsParams.select.samples
-            .filter(sample => sample?.clinicalAnalysisId)
-            .map(sample => {
-                const toolParams = {
-                    id: this._stepsParams.tool.toolId,
-                    commandLine: this._stepsParams.tool.commandLine,
-                    params: {
-                        clinicalAnalysisId: sample.clinicalAnalysisId,
-                    },
-                };
-                return this.opencgaSession.opencgaClient.userTool()
-                    .runCustomDocker(toolParams, {
-                        study: this.opencgaSession.study.fqn,
-                    });
-            }));
+        // 3. execute a job for each clinical analysis selected
+        await Promise.all(this._selectedClinicalAnalyses.map(clinicalAnalysis => {
+            // TODO
+        }));
 
         // 4. all jobs executed successfully
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -95,17 +80,12 @@ export default class ClinicalTertiary extends LitElement {
         }
     }
 
-    onSelectParamsChange(event) {
-        this._stepsParams.select = event.detail;
-    }
-
     onClinicalAnalysesChange(event) {
-        this._stepsParams.cases = event.detail.rows;
-        debugger
+        this._selectedClinicalAnalyses = event.detail.rows || [];
     }
 
     onToolsParamsChange(event) {
-        this._stepsParams.tool = event.detail;
+        this._selectedTool = event.detail;
     }
 
     onExecute() {
@@ -209,12 +189,8 @@ export default class ClinicalTertiary extends LitElement {
                     icon: "fas fa-clipboard-list",
                     render: () => html`
                         <clinical-tertiary-select
-                            .toolParams="${this._stepsParams?.select}"
+                            .selectedClinicalAnalyses="${this._selectedClinicalAnalyses}"
                             .opencgaSession="${this.opencgaSession}"
-                            .displayConfig="${{
-                                buttonsVisible: false,
-                            }}"
-                            @paramsChange="${event => this.onSelectParamsChange(event)}"
                             @checkrow="${event => this.onClinicalAnalysesChange(event)}">
                         </clinical-tertiary-select>
                     `,
@@ -225,7 +201,7 @@ export default class ClinicalTertiary extends LitElement {
                     icon: "fas fa-tools",
                     render: () => html`
                         <clinical-tertiary-tools
-                            .toolParams="${this._stepsParams?.tool}"
+                            .toolParams="${this._selectedTool}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: false,
@@ -240,7 +216,7 @@ export default class ClinicalTertiary extends LitElement {
                     icon: "fas fa-check-circle",
                     render: () => html`
                         <clinical-tertiary-review
-                            .toolParams="${this._stepsParams}"
+                            .toolParams="${{}}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: false,
