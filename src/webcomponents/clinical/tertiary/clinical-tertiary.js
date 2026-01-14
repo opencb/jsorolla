@@ -128,6 +128,7 @@ export default class ClinicalTertiary extends LitElement {
         if (this._selectedTool?.params?.variables) {
             this._selectedTool.params.variables.clinicalAnalysisId = this._selectedClinicalAnalyses.map(ca => ca.id).join(",");
         }
+        this.requestUpdate();
     }
 
     onToolIdChange(event) {

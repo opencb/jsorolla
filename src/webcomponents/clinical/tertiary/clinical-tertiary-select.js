@@ -378,8 +378,13 @@ export default class ClinicalTertiarySelect extends LitElement {
             <h2 class="mb-4">Select Clinical Analyses</h2>
 
             ${this._config.filters.length > 0 ? html`
-                <div class="mb-4 d-flex flex-row-reverse gap-2">
-                    ${this.renderFilters()}
+                <div class="mb-4 d-flex justify-content-between align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class=""><b>${this.selectedClinicalAnalyses?.length}</b> Clinical Analysis selected</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        ${this.renderFilters()}
+                    </div>
                 </div>
             ` : nothing}
 
@@ -396,6 +401,19 @@ export default class ClinicalTertiarySelect extends LitElement {
             pageList: [5, 10, 25],
             filters: [
                 {
+                    id: "id",
+                    title: "Clinical Analysis ID",
+                    render: (value, onChange) => html`
+                        <catalog-search-autocomplete
+                            .value="${value}"
+                            .resource="${"CLINICAL_ANALYSIS"}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .config="${{}}"
+                            @filterChange="${event => onChange(event.detail.value)}">
+                        </catalog-search-autocomplete>
+                    `,
+                },
+                {
                     id: "type",
                     title: "Type",
                     render: (value, onChange) => html`
@@ -408,19 +426,6 @@ export default class ClinicalTertiarySelect extends LitElement {
                             .config="${{}}"
                             @filterChange="${event => onChange(event.detail.value)}">
                         </catalog-distinct-autocomplete>
-                    `,
-                },
-                {
-                    id: "id",
-                    title: "Clinical Analysis ID",
-                    render: (value, onChange) => html`
-                        <catalog-search-autocomplete
-                            .value="${value}"
-                            .resource="${"CLINICAL_ANALYSIS"}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .config="${{}}"
-                            @filterChange="${event => onChange(event.detail.value)}">
-                        </catalog-search-autocomplete>
                     `,
                 },
             ],
