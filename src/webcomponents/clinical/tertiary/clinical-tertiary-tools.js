@@ -81,15 +81,6 @@ export default class ClinicalTertiaryTools extends LitElement {
         LitUtils.dispatchCustomEvent(this, "toolIdChange", selectedTool)
     }
 
-    // onToolExecutorChange(event) {
-    //     this._toolParams = {
-    //         ...this._toolParams,
-    //         params: event.detail.params || {},
-    //         executionParams: event.detail.executionParams || {},
-    //     };
-    //     this.dispatchChange();
-    // }
-
     render() {
         if (!this.opencgaSession) {
             return nothing;
