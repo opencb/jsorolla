@@ -28,7 +28,7 @@ export default class ClinicalTertiary extends LitElement {
     #init() {
         this._activeStepIndex = 0;
         this._selectedClinicalAnalyses = [];
-        this._selectedTool = null;
+        this._selectedTool = {};
         this._running = false;
         this._config = this.getDefaultConfig();
     }
@@ -37,7 +37,7 @@ export default class ClinicalTertiary extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this._activeStepIndex = 0; // reset to first step
             this._selectedClinicalAnalyses = [];
-            this._selectedTool = null;
+            this._selectedTool = {};
         }
         super.update(changedProperties);
     }
@@ -55,7 +55,7 @@ export default class ClinicalTertiary extends LitElement {
         }
 
         // 2. no tool selected
-        if (!this._selectedTool?.tool?.id) {
+        if (!this._selectedTool?.id) {
             return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                 message: "No tool selected to execute the Clinical Tertiary analysis.",
             });
@@ -64,7 +64,7 @@ export default class ClinicalTertiary extends LitElement {
         // 3. execute a job for each clinical analysis selected
         const allPromises = this._selectedClinicalAnalyses.map(clinicalAnalysis => {
             const toolParams = {
-                id: this._selectedTool.tool.id,
+                id: this._selectedTool.id,
                 params: {
                     ...this._selectedTool.executionParams,
                     clinicalAnalysisId: clinicalAnalysis.id,
@@ -109,11 +109,34 @@ export default class ClinicalTertiary extends LitElement {
     }
 
     onClinicalAnalysesChange(event) {
-        this._selectedClinicalAnalyses = event.detail.rows || [];
+        // Note: we have to keep the list of selected clinical analyses with only the id field, as the select components
+        // needs them to restore the list of selected items when navigating back and forth between steps.
+        this._selectedClinicalAnalyses = (event.detail.rows || []).map(clinicalAnalysis => {
+            return {
+                id: clinicalAnalysis.id,
+            };
+        });
+        // check if we have to update the tool params with the new clinical analysis ids
+        if (this._selectedTool?.params?.variables) {
+            this._selectedTool.params.variables.clinicalAnalysisId = this._selectedClinicalAnalyses.map(ca => ca.id).join(",");
+        }
+    }
+
+    onToolIdChange(event) {
+        this._selectedTool = {
+            id: event.detail.value,
+            params: {
+                variables: {
+                    clinicalAnalysisId: this._selectedClinicalAnalyses.map(ca => ca.id).join(","),
+                },
+            },
+        };
+        this.requestUpdate();
     }
 
     onToolsParamsChange(event) {
-        this._selectedTool = event.detail;
+        this._selectedTool.params = event.detail.params;
+        this._selectedTool.executionParams = event.detail.executionParams;
     }
 
     onExecute() {
@@ -229,12 +252,14 @@ export default class ClinicalTertiary extends LitElement {
                     icon: "fas fa-tools",
                     render: () => html`
                         <clinical-tertiary-tools
-                            .toolParams="${this._selectedTool}"
+                            .toolId="${this._selectedTool?.id}"
+                            .toolParams="${this._selectedTool?.params}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: false,
                             }}"
-                            @paramsChange="${event => this.onToolsParamsChange(event)}">
+                            @toolIdChange="${event => this.onToolIdChange(event)}"
+                            @toolParamsChange="${event => this.onToolsParamsChange(event)}">
                         </clinical-tertiary-tools>
                     `,
                 },
