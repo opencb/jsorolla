@@ -74,13 +74,12 @@ export default class ClinicalTertiarySelect extends LitElement {
             //     // Abort destroying and creating again the grid. The filters have not changed
             //     return;
             // }
-            this._columns = this._getDefaultColumns();
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
                 classes: "table table-borderless table-hover table-grid",
                 buttonsClass: "light",
-                columns: this._columns,
+                columns: this.getDefaultColumns(),
                 sidePagination: "server",
                 iconsPrefix: GridCommons.GRID_ICONS_PREFIX,
                 icons: GridCommons.GRID_ICONS,
@@ -144,8 +143,8 @@ export default class ClinicalTertiarySelect extends LitElement {
         }
     }
 
-    _getDefaultColumns() {
-        this._columns = [
+    getDefaultColumns() {
+        return [
             {
                 field: "state",
                 checkbox: true,
@@ -158,10 +157,6 @@ export default class ClinicalTertiarySelect extends LitElement {
                 field: "id",
                 valign: "middle",
                 formatter: (value, row) => this.caseFormatter(value, row),
-                events: {
-                    "click a": (event, value, row) => this.onActionClick(event, row),
-                },
-                visible: this.gridCommons.isColumnVisible("caseId")
             },
             {
                 id: "probandId",
@@ -169,10 +164,6 @@ export default class ClinicalTertiarySelect extends LitElement {
                 field: "proband",
                 valign: "middle",
                 formatter: (value, row) => this.probandFormatter(value, row),
-                events: {
-                    "click a": (event, value, row) => this.onActionClick(event, row),
-                },
-                visible: this.gridCommons.isColumnVisible("probandId")
             },
             {
                 id: "disorderId",
@@ -182,7 +173,6 @@ export default class ClinicalTertiarySelect extends LitElement {
                 formatter: value => {
                     return CatalogGridFormatter.disorderFormatter([value]);
                 },
-                visible: this.gridCommons.isColumnVisible("disorderId")
             },
             {
                 id: "panels",
@@ -190,7 +180,6 @@ export default class ClinicalTertiarySelect extends LitElement {
                 field: "panels",
                 valign: "middle",
                 formatter: (value, row) => CatalogGridFormatter.panelFormatter(value),
-                visible: this.gridCommons.isColumnVisible("panels")
             },
 
             {
@@ -199,7 +188,6 @@ export default class ClinicalTertiarySelect extends LitElement {
                 field: "interpretation",
                 valign: "middle",
                 formatter: (value, row) => this.interpretationFormatter(value, row),
-                visible: this.gridCommons.isColumnVisible("interpretation")
             },
             {
                 id: "status",
@@ -207,7 +195,6 @@ export default class ClinicalTertiarySelect extends LitElement {
                 field: "status",
                 valign: "middle",
                 formatter: (value, row) => this.statusFormatter(value, row),
-                visible: this.gridCommons.isColumnVisible("status"),
             },
             {
                 id: "priority",
@@ -215,7 +202,6 @@ export default class ClinicalTertiarySelect extends LitElement {
                 field: "priority",
                 valign: "middle",
                 formatter: (value, row) => this.priorityFormatter(value, row),
-                visible: this.gridCommons.isColumnVisible("priority"),
             },
             {
                 id: "analysts",
@@ -223,7 +209,6 @@ export default class ClinicalTertiarySelect extends LitElement {
                 field: "analysts",
                 valign: "middle",
                 formatter: value => this.analystsFormatter(value),
-                visible: this.gridCommons.isColumnVisible("analysts"),
             },
 
             {
@@ -244,21 +229,6 @@ export default class ClinicalTertiarySelect extends LitElement {
                         <div class="text-body-secondary">${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}</div>
                     `;
                 },
-                visible: this.gridCommons.isColumnVisible("dates"),
-            },
-            {
-                id: "interpreter",
-                title: "Interpreter",
-                field: "interpreter",
-                formatter: (_, row) => {
-                    return `
-                        <a class="btn btn-primary cursor-pointer" href="${WebUtils.getInterpreterLink(this.opencgaSession, {id: row.id})}">
-                            <i class="fas fa-sign-in-alt me-1"></i>
-                            <span>Enter</span>
-                        </a>
-                    `;
-                },
-                visible: this.gridCommons.isColumnVisible("interpreter")
             },
             // {
             //     id: "actions",
@@ -271,8 +241,6 @@ export default class ClinicalTertiarySelect extends LitElement {
             //     visible: this._config.showActions,
             // },
         ];
-
-        this._columns = this.gridCommons.addColumnsFromExtensions(this.COMPONENT_ID, this.opencgaSession, this._columns);
         return this._columns;
     }
 
