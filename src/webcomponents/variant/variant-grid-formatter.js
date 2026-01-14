@@ -1035,7 +1035,7 @@ export default class VariantGridFormatter {
 
     static deleteriousTooltipSummaryContent(chartDelId) {
         return `
-            <div class="fs-6 lh-base">
+            <div class="">
                 Deleterious scores linked to transcripts flagged as MANE-selected and source Ensembl<br>. <strong>Thresholds for each qualitative description:</strong>
                 <ul style="padding-left: 20px; margin-top: 5px;">
                     <li><b>SIFT:</b> Deleterious for scores &le; 0.05, Tolerated for scores &gt; 0.05</li>
