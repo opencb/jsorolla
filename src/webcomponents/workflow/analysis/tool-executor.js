@@ -184,7 +184,7 @@ export default class UserToolExecutor extends LitElement {
                 }
             }
         }
-        
+
         // 4. return prepared execution params
         return executionParams;
     }
