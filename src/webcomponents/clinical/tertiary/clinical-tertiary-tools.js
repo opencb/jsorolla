@@ -33,6 +33,8 @@ export default class ClinicalTertiaryTools extends LitElement {
     #init() {
         this.DEFAULT_TOOLPARAMS = {
             toolId: "",
+            commandLine: "",
+            params: {},
         };
 
         this._tools = [];
@@ -110,7 +112,8 @@ export default class ClinicalTertiaryTools extends LitElement {
     onToolExecutorChange(event) {
         this._toolParams = {
             ...this._toolParams,
-            ...event.detail,
+            commandLine: event.detail.params.commandLine || "",
+            params: event.detail.executionParams || {},
         };
         this.dispatchChange();
     }
