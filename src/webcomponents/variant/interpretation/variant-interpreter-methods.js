@@ -156,6 +156,9 @@ class VariantInterpreterMethods extends LitElement {
                                         study: this.opencgaSession.study.fqn,
                                     },
                                 }}"
+                                .disabledParams="${[
+                                    clinicalAnalysisVariable?.id || "clinicalAnalysisId",
+                                ]}"
                                 .displayConfig="${{
                                     titleVisible: false,
                                 }}"

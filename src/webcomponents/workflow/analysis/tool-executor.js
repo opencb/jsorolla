@@ -41,7 +41,7 @@ export default class UserToolExecutor extends LitElement {
             toolParams: {
                 type: Object,
             },
-            disabled: {
+            disabledParams: {
                 type: Array,
             },
             opencgaSession: {
@@ -280,7 +280,7 @@ export default class UserToolExecutor extends LitElement {
                 };
 
                 // Check if the variable is in the 'disabled' array property
-                if (Array.isArray(this.disabled) && this.disabled.includes(variable.id)) {
+                if (Array.isArray(this.disabledParams) && this.disabledParams.includes(variable.id)) {
                     dataFormElement.display.disabled = true;
                 }
 
