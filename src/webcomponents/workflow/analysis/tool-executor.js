@@ -153,25 +153,24 @@ export default class UserToolExecutor extends LitElement {
             this.fetchUserTool();
         }
 
-        LitUtils.dispatchCustomEvent(this, "toolParamsChange", null, this._toolParams);
+        LitUtils.dispatchCustomEvent(this, "toolParamsChange", null, {
+            params: this._toolParams,
+            executionParams: this.prepareExecutionParams(),
+        });
     }
 
-    prepareExecution() {
-        
-    }
-
-    onSubmit() {
+    prepareExecutionParams() {
         // 1. initialize form params object
-        const formParams = {};
+        const executionParams = {};
 
         // 2. include variables defined in the tool and filled in the form
         Object.keys(this._toolParams.variables || {}).forEach(variableId => {
             const variableConfig = (this._tool?.variables || []).find(v => v.id === variableId);
-            formParams[variableId] = this._toolParams.variables[variableId];
+            executionParams[variableId] = this._toolParams.variables[variableId];
 
             // check if the variable is of type FILE to add the file:// prefix if not present
-            if (variableConfig?.type === "FILE" && formParams[variableId] && !formParams[variableId].startsWith("file://")) {
-                formParams[variableId] = `file://${formParams[variableId]}`;
+            if (variableConfig?.type === "FILE" && executionParams[variableId] && !executionParams[variableId].startsWith("file://")) {
+                executionParams[variableId] = `file://${executionParams[variableId]}`;
             }
         });
 
@@ -181,12 +180,18 @@ export default class UserToolExecutor extends LitElement {
             for (const line of lines) {
                 if (line.includes("=")) {
                     const [key, value] = line.split("=");
-                    formParams[key] = value;
+                    executionParams[key] = value;
                 }
             }
         }
+        
+        // 4. return prepared execution params
+        return executionParams;
+    }
 
-        // 4. prepare the job params
+    onSubmit() {
+        // 4. prepare the execution and job params
+        const executionParams = this.prepareExecutionParams();
         const jobParams = AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL);
         jobParams.jobTags = this._tool.id;
 
@@ -198,7 +203,7 @@ export default class UserToolExecutor extends LitElement {
                 toolParams = {
                     id: this._tool.id,
                     commandLine: this._toolParams.commandLine,
-                    params: formParams,
+                    params: executionParams,
                 };
                 toolRunPromise = this.opencgaSession.opencgaClient.userTool()
                     .runCustomDocker(toolParams, {
@@ -209,7 +214,7 @@ export default class UserToolExecutor extends LitElement {
             case "WORKFLOW":
                 toolParams = {
                     id: this._tool.id,
-                    params: formParams,
+                    params: executionParams,
                 };
                 toolRunPromise = this.opencgaSession.opencgaClient.userTool()
                     .runWorkflow(toolParams, {
@@ -220,7 +225,7 @@ export default class UserToolExecutor extends LitElement {
             case "VARIANT_WALKER":
                 toolParams = {
                     id: this._tool.id,
-                    params: formParams,
+                    params: executionParams,
                 };
                 toolRunPromise = this.opencgaSession.opencgaClient.userTool()
                     .runWalker(toolParams, {
