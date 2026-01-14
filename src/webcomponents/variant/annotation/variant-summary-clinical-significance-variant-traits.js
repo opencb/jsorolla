@@ -255,7 +255,6 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
                             field: "annotation.traitAssociation",
                             display: {
                                 render: traitAssociation => {
-                                    debugger
                                     // Check if trait association exists. Filter evidences from ClinVar source only
                                     this._data = traitAssociation.filter(e => e.source?.name?.toLowerCase() === 'clinvar');
                                     if (this._data?.length === 0) {
