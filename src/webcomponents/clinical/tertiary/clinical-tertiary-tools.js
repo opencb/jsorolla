@@ -18,6 +18,9 @@ export default class ClinicalTertiaryTools extends LitElement {
 
     static get properties() {
         return {
+            toolId: {
+                type: String,
+            },
             toolParams: {
                 type: Object,
             },
@@ -31,14 +34,10 @@ export default class ClinicalTertiaryTools extends LitElement {
     }
 
     #init() {
-        this.DEFAULT_TOOLPARAMS = {
-            tool: null,
-            commandLine: "",
-            params: {},
-        };
+        this.toolId = "";
+        this.toolParams = {};
 
         this._tools = [];
-        this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
         this._config = this.getDefaultConfig();
     }
 
@@ -47,28 +46,11 @@ export default class ClinicalTertiaryTools extends LitElement {
             this.fetchTools();
         }
 
-        if (changedProperties.has("toolParams")) {
-            this.toolParamsObserver();
-        }
-
-        if (changedProperties.has("displayConfig")) {
+        if (changedProperties.has("displayConfig") || changedProperties.has("toolId")) {
             this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
-    }
-
-    toolParamsObserver() {
-        this._toolParams = {
-            ...this.DEFAULT_TOOLPARAMS,
-            ...this.toolParams,
-        };
-    }
-
-    dispatchChange() {
-        LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
-            ...this._toolParams,
-        });
     }
 
     fetchTools() {
@@ -80,46 +62,33 @@ export default class ClinicalTertiaryTools extends LitElement {
                 })
                 .then(response => {
                     this._tools = response.responses[0].results || [];
-                    // set the first tool as selected by default
-                    if (this._tools.length > 0 && !this._toolParams.tool) {
-                        this._toolParams.tool = this._tools[0];
-                    }
-                    // this._toolParams = {
-                    //     ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-                    //     tool: this._tools.length > 0 ? this._tools[0] : null,
-                    // };
                     this._config = this.getDefaultConfig();
                     this.requestUpdate();
-                    this.dispatchChange();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching tools: ", response);
+                })
+                .finally(() => {
+                    // check if no toolId selected, and set a default one
+                    if (!this.toolId && this._tools.length > 0) {
+                        this.onToolIdChange(this._tools[0].id);
+                    }
                 });
         }
     }
 
-    onFieldChange(event) {
-        this._toolParams = {...this._toolParams};
-        this.requestUpdate();
-        this.dispatchChange();
+    onToolIdChange(selectedTool) {
+        LitUtils.dispatchCustomEvent(this, "toolIdChange", selectedTool)
     }
 
-    onToolChange(event, selectedTool) {
-        this._toolParams = {
-            tool: selectedTool,
-        };
-        this.requestUpdate();
-        this.dispatchChange();
-    }
-
-    onToolExecutorChange(event) {
-        this._toolParams = {
-            ...this._toolParams,
-            params: event.detail.params || {},
-            executionParams: event.detail.executionParams || {},
-        };
-        this.dispatchChange();
-    }
+    // onToolExecutorChange(event) {
+    //     this._toolParams = {
+    //         ...this._toolParams,
+    //         params: event.detail.params || {},
+    //         executionParams: event.detail.executionParams || {},
+    //     };
+    //     this.dispatchChange();
+    // }
 
     render() {
         if (!this.opencgaSession) {
@@ -137,9 +106,8 @@ export default class ClinicalTertiaryTools extends LitElement {
 
         return html`
             <data-form
-                .data="${this._toolParams}"
-                .config="${this._config}"
-                @fieldChange="${event => this.onFieldChange(event)}">
+                .data="${this.toolParams}"
+                .config="${this._config}">
             </data-form>
         `;
     }
@@ -171,10 +139,10 @@ export default class ClinicalTertiaryTools extends LitElement {
                     elements: (this._tools || []).map(tool => ({
                         type: "custom",
                         display: {
-                            render: (data) => html`
+                            render: () => html`
                                 <div
-                                    class="border rounded-3 p-3 ${data.tool?.id === tool.id ? "border-primary bg-primary-subtle" : "cursor-pointer bg-white"}"
-                                    @click="${event => this.onToolChange(event, tool)}">
+                                    class="border rounded-3 p-3 ${this.toolId === tool.id ? "border-primary bg-primary-subtle" : "cursor-pointer bg-white"}"
+                                    @click="${() => this.onToolIdChange(tool.id)}">
                                     <div class="fw-bold">${tool.name || tool.id}</div>
                                     ${tool.description ? html`
                                         <div class="text-muted fs-7">${tool.description}</div>
@@ -187,25 +155,20 @@ export default class ClinicalTertiaryTools extends LitElement {
                 {
                     id: "tools-form",
                     display: {
-                        visible: data => !!data.tool,
+                        visible: () => !!this.toolId,
                     },
-                    render: (data) => html`
+                    render: () => html`
                         <tool-executor
                             .opencgaSession="${this.opencgaSession}"
-                            .toolId="${data?.tool?.id}"
-                            .toolParams="${{
-                                variables: {
-                                    clinicalAnalysisId: "",
-                                },
-                            }}"
+                            .toolId="${this.toolId}"
+                            .toolParams="${this.toolParams}"
                             .disabledParams="${[
                                 "clinicalAnalysisId",
                             ]}"
                             .displayConfig="${{
                                 titleVisible: false,
                                 buttonsVisible: false,
-                            }}"
-                            @toolParamsChange="${event => this.onToolExecutorChange(event)}">
+                            }}">
                         </tool-executor>
                     `,
                 },
