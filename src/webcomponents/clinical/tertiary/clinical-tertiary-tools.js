@@ -192,12 +192,15 @@ export default class ClinicalTertiaryTools extends LitElement {
                     render: (data) => html`
                         <tool-executor
                             .opencgaSession="${this.opencgaSession}"
-                            .toolId="${data.tool?.id}"
+                            .toolId="${data?.tool?.id}"
                             .toolParams="${{
                                 variables: {
                                     clinicalAnalysisId: "",
                                 },
                             }}"
+                            .disabledParams="${[
+                                "clinicalAnalysisId",
+                            ]}"
                             .displayConfig="${{
                                 titleVisible: false,
                                 buttonsVisible: false,
