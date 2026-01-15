@@ -116,6 +116,12 @@ export default class ClinicalReportReview extends LitElement {
         }
     }
 
+    filterVariants(variants) {
+        return variants.filter(variant => {
+            return variant.status === "REPORTED" || variant.status === "CANDIDATE";
+        });
+    }
+
     getAnalysts() {
         return (this.clinicalAnalysis?.analysts || []).map(analyst => ({
             id: analyst.id,
@@ -133,9 +139,11 @@ export default class ClinicalReportReview extends LitElement {
                 id: this.clinicalAnalysis.interpretation.id,
                 name: this.clinicalAnalysis.interpretation.name,
                 primary: true,
-                variants: (this.clinicalAnalysis.interpretation.primaryFindings || []).filter(variant => {
-                    return variant.status === "REPORTED" || variant.status === "CANDIDATE";
-                }),
+                // variants: (this.clinicalAnalysis.interpretation.primaryFindings || []).filter(variant => {
+                //     return variant.status === "REPORTED" || variant.status === "CANDIDATE";
+                // }),
+                primaryFindings: this.filterVariants(this.clinicalAnalysis.interpretation.primaryFindings || []),
+                secondaryFindings: this.filterVariants(this.clinicalAnalysis.interpretation.secondaryFindings || []),
             });
         }
 
@@ -146,15 +154,19 @@ export default class ClinicalReportReview extends LitElement {
                     id: interpretation.id,
                     name: interpretation.name,
                     primary: false,
-                    variants: (interpretation.primaryFindings || []).filter(variant => {
-                        return variant.status === "REPORTED" || variant.status === "CANDIDATE";
-                    }),
+                    // variants: (interpretation.primaryFindings || []).filter(variant => {
+                    //     return variant.status === "REPORTED" || variant.status === "CANDIDATE";
+                    // }),
+                    primaryFindings: this.filterVariants(interpretation.primaryFindings || []),
+                    secondaryFindings: [], // currently we do not support secondary findings in secondary interpretations
                 });
             });
         }
 
         // 4. filter only those interpretations with reported variants
-        return interpretations.filter(interpretation => interpretation.variants.length > 0);
+        return interpretations.filter(interpretation => {
+            return interpretation.primaryFindings.length > 0 || interpretation.secondaryFindings.length > 0;
+        });
     }
 
     onVariantInfo(event) {
@@ -337,12 +349,13 @@ export default class ClinicalReportReview extends LitElement {
                             ` : nothing}
                         </div>
                         <div class="gap-3" style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));">
-                            ${interpretation.variants.map(variant => html`
+                            ${[...interpretation.primaryFindings, ...interpretation.secondaryFindings].map(variant => html`
                                 <clinical-report-variant-card
                                     .opencgaSession="${this.opencgaSession}"
                                     .interpretationId="${interpretation.id}"
                                     .variant="${variant}"
                                     .selected="${this._selectedVariant?.id === variant.id && this._selectedVariantInterpretationId === interpretation.id}"
+                                    .secondaryFinding="${interpretation.secondaryFindings.includes(variant)}"
                                     @variantInfo="${event => this.onVariantInfo(event)}"
                                     @variantReviewInfo="${event => this.onVariantReviewInfo(event)}"
                                     @variantReviewUpdate="${event => this.onVariantReviewUpdate(event)}">
