@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import GridCommons from "../../commons/grid-commons.js";
@@ -53,7 +54,7 @@ export default class ClinicalReportReview extends LitElement {
             "view-variant": () => ({
                 display: {
                     scrollable: true,
-                    title: `Variant ${this._selectedVariant.id}`,
+                    modalTitle: `Variant: ${BioinfoUtils.getShortVariantId(this._selectedVariant.id, 50, 10)}`,
                     size: "modal-3xl",
                     buttonsVisible: false,
                 },
@@ -82,7 +83,7 @@ export default class ClinicalReportReview extends LitElement {
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .variant="${this._selectedVariant}"
                         .selected="${true}"
-                        .primaryFinding="${true}"
+                        .primaryFinding="${this._selectedVariantPrimary}"
                         .reviewEvidences="${true}"
                         .settings="${{}}"
                         @variantChange="${event => this.onVariantReviewChange(event)}">
@@ -116,6 +117,19 @@ export default class ClinicalReportReview extends LitElement {
         }
     }
 
+    filterVariants(variants) {
+        // Filter reported and candidate variants from primary findings, sort by tier.
+        return variants
+            .filter(variant => {
+                return variant.status === "REPORTED" || variant.status === "CANDIDATE";
+            })
+            .sort((variantA, variantB) => {
+                const tierA = variantA?.evidences?.find(ev => ev.review?.select === true)?.review?.tier || "None";
+                const tierB = variantB?.evidences?.find(ev => ev.review?.select === true)?.review?.tier || "None";
+                return tierA.localeCompare(tierB);
+            });
+    }
+
     getAnalysts() {
         return (this.clinicalAnalysis?.analysts || []).map(analyst => ({
             id: analyst.id,
@@ -129,23 +143,12 @@ export default class ClinicalReportReview extends LitElement {
 
         // 2. include the primary interpretation if exists
         if (this.clinicalAnalysis?.interpretation) {
-            // Filter reported and candidate variants from primary findings, sort by tier.
-            const reportedVariants = (this.clinicalAnalysis.interpretation.primaryFindings || [])
-                .filter(variant => {
-                    return variant.status === "REPORTED" || variant.status === "CANDIDATE";
-                })
-                .sort((variantA, variantB) => {
-                    const tierA = variantA.evidences.find(ev => ev.review?.select === true)?.review?.tier || "None";
-                    const tierB = variantB.evidences.find(ev => ev.review?.select === true)?.review?.tier || "None";
-                    return tierA.localeCompare(tierB);
-                })
-            ;
-
             interpretations.push({
                 id: this.clinicalAnalysis.interpretation.id,
                 name: this.clinicalAnalysis.interpretation.name,
                 primary: true,
-                variants: reportedVariants
+                primaryFindings: this.filterVariants(this.clinicalAnalysis.interpretation.primaryFindings || []),
+                secondaryFindings: this.filterVariants(this.clinicalAnalysis.interpretation.secondaryFindings || []),
             });
         }
 
@@ -156,15 +159,16 @@ export default class ClinicalReportReview extends LitElement {
                     id: interpretation.id,
                     name: interpretation.name,
                     primary: false,
-                    variants: (interpretation.primaryFindings || []).filter(variant => {
-                        return variant.status === "REPORTED" || variant.status === "CANDIDATE";
-                    }),
+                    primaryFindings: this.filterVariants(interpretation.primaryFindings || []),
+                    secondaryFindings: [], // currently we do not support secondary findings in secondary interpretations
                 });
             });
         }
 
         // 4. filter only those interpretations with reported variants
-        return interpretations.filter(interpretation => interpretation.variants.length > 0);
+        return interpretations.filter(interpretation => {
+            return interpretation.primaryFindings.length > 0 || interpretation.secondaryFindings.length > 0;
+        });
     }
 
     onVariantInfo(event) {
@@ -186,7 +190,7 @@ export default class ClinicalReportReview extends LitElement {
 
     onVariantReviewUpdate(event) {
         this._selectedVariant = UtilsNew.objectClone(event.detail.variant);
-        this._selectedVariantPrimary = true; // by default we only display primary findings in the review tool
+        this._selectedVariantPrimary = !!event.detail.primaryFinding;
         this._selectedVariantChecked = true; // by default the variant is checked as it is a primary finding
         this._selectedVariantInterpretationId = event.detail.interpretationId;
         this._gridCommons.changeActiveModal("review-variant");
@@ -194,7 +198,7 @@ export default class ClinicalReportReview extends LitElement {
 
     onVariantReviewChange(event) {
         this._selectedVariant = event.detail.variant;
-        this._selectedVariantPrimary = event.detail.primary;
+        this._selectedVariantPrimary = event.detail.primaryFinding;
         this._selectedVariantChecked = event.detail.selected;
     }
 
@@ -347,12 +351,13 @@ export default class ClinicalReportReview extends LitElement {
                             ` : nothing}
                         </div>
                         <div class="gap-3" style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));">
-                            ${interpretation.variants.map(variant => html`
+                            ${[...interpretation.primaryFindings, ...interpretation.secondaryFindings].map(variant => html`
                                 <clinical-report-variant-card
                                     .opencgaSession="${this.opencgaSession}"
                                     .interpretationId="${interpretation.id}"
                                     .variant="${variant}"
                                     .selected="${this._selectedVariant?.id === variant.id && this._selectedVariantInterpretationId === interpretation.id}"
+                                    .primaryFinding="${!interpretation.secondaryFindings.includes(variant)}"
                                     @variantInfo="${event => this.onVariantInfo(event)}"
                                     @variantReviewInfo="${event => this.onVariantReviewInfo(event)}"
                                     @variantReviewUpdate="${event => this.onVariantReviewUpdate(event)}">
@@ -410,7 +415,7 @@ export default class ClinicalReportReview extends LitElement {
                 <div class="offcanvas-header p-4">
                     ${this._selectedVariant ? html`
                         <h3 class="offcanvas-title fw-bold">
-                            Variant ${this._selectedVariant?.id}
+                            Variant ${BioinfoUtils.getShortVariantId(this._selectedVariant.id, 30, 10)}
                         </h3>
                     ` : nothing}
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>

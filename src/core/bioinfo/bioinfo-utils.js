@@ -307,7 +307,7 @@ export default class BioinfoUtils {
     }
 
     static getCellbaseLink(id, type = "VARIANT", host = "https://ws.zettagenomics.com/cellbase", version = "v5", dataRelease = "", apiKey = "", species = "hsapiens", assembly) {
-        let url = `${host}/webservices/rest/${version}/${species}`;
+        let url = `${host.replace(/\/$/, "")}/webservices/rest/${version}/${species}`;
         const searchParams = new URLSearchParams();
 
         // 1. check the resource to generate the correct URL

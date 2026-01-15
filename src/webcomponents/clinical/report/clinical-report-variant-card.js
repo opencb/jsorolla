@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import VariantUtils from "../../variant/variant-utils.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
@@ -26,6 +27,9 @@ export default class ClinicalReportVariantCard extends LitElement {
             variant: {
                 type: Object,
             },
+            primaryFinding: {
+                type: Boolean,
+            },
             selected: {
                 type: Boolean,
             },
@@ -36,6 +40,7 @@ export default class ClinicalReportVariantCard extends LitElement {
     }
 
     #init() {
+        this.primaryFinding = true; // default to primary finding
         this._config = this.getDefaultConfig();
     }
 
@@ -67,6 +72,7 @@ export default class ClinicalReportVariantCard extends LitElement {
         event.stopPropagation();
         LitUtils.dispatchCustomEvent(this, "variantReviewUpdate", null, {
             variant: this.variant,
+            primaryFinding: !!this.primaryFinding,
             interpretationId: this.interpretationId,
         });
     }
@@ -110,8 +116,8 @@ export default class ClinicalReportVariantCard extends LitElement {
                                     return html`
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="d-flex align-items-center">
-                                                <a class="link fw-bold text-truncate d-block" style="max-width:240px;" @click="${event => this.onVariantInfo(event)}">
-                                                    <span class="fs-5">${data.id}</span>
+                                                <a class="link fw-bold d-block" @click="${event => this.onVariantInfo(event)}">
+                                                    <span class="fs-5">${BioinfoUtils.getShortVariantId(data.id, 20, 5)}</span>
                                                 </a>
                                             </div>
                                             <div class="d-flex align-items-center gap-2">
@@ -121,7 +127,7 @@ export default class ClinicalReportVariantCard extends LitElement {
                                                 </button>
                                             </div>
                                         </div>
-                                        <div class="">
+                                        <div class="d-flex align-items-center gap-2">
                                             ${tier !== "None" ? html`
                                                 <div class="badge ${tier === "TIER_1" ? "text-white bg-danger" : "text-white bg-warning"} user-select-none">
                                                     <b>${tier}</b>
@@ -130,6 +136,15 @@ export default class ClinicalReportVariantCard extends LitElement {
                                             <div class="badge ${VariantUtils.getStatusColor(data.status)} user-select-none">
                                                 <b>${data.status}</b>
                                             </div>
+                                            ${this.primaryFinding ? html`
+                                                <div class="badge bg-primary user-select-none">
+                                                    <b>Primary Finding</b>
+                                                </div>
+                                            ` : html`
+                                                <div class="badge bg-secondary user-select-none">
+                                                    <b>Secondary Finding</b>
+                                                </div>
+                                            `}
                                         </div>
                                     `;
                                 },
