@@ -26,6 +26,9 @@ export default class ClinicalReportVariantCard extends LitElement {
             variant: {
                 type: Object,
             },
+            secondaryFinding: {
+                type: Boolean,
+            },
             selected: {
                 type: Boolean,
             },
@@ -119,10 +122,15 @@ export default class ClinicalReportVariantCard extends LitElement {
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="">
+                                    <div class="d-flex align-items-center gap-2">
                                         <div class="badge ${VariantUtils.getStatusColor(data.status)} user-select-none">
                                             <b>${data.status}</b>
                                         </div>
+                                        ${this.secondaryFinding ? html`
+                                            <div class="badge bg-secondary user-select-none">
+                                                <b>Secondary Finding</b>
+                                            </div>
+                                        ` : nothing}
                                     </div>
                                 `,
                             },
