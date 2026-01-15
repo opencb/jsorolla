@@ -139,9 +139,6 @@ export default class ClinicalReportReview extends LitElement {
                 id: this.clinicalAnalysis.interpretation.id,
                 name: this.clinicalAnalysis.interpretation.name,
                 primary: true,
-                // variants: (this.clinicalAnalysis.interpretation.primaryFindings || []).filter(variant => {
-                //     return variant.status === "REPORTED" || variant.status === "CANDIDATE";
-                // }),
                 primaryFindings: this.filterVariants(this.clinicalAnalysis.interpretation.primaryFindings || []),
                 secondaryFindings: this.filterVariants(this.clinicalAnalysis.interpretation.secondaryFindings || []),
             });
@@ -154,9 +151,6 @@ export default class ClinicalReportReview extends LitElement {
                     id: interpretation.id,
                     name: interpretation.name,
                     primary: false,
-                    // variants: (interpretation.primaryFindings || []).filter(variant => {
-                    //     return variant.status === "REPORTED" || variant.status === "CANDIDATE";
-                    // }),
                     primaryFindings: this.filterVariants(interpretation.primaryFindings || []),
                     secondaryFindings: [], // currently we do not support secondary findings in secondary interpretations
                 });
