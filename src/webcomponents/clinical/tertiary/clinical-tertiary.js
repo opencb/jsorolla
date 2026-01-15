@@ -122,6 +122,9 @@ export default class ClinicalTertiary extends LitElement {
         this._selectedClinicalAnalyses = (event.detail.rows || []).map(clinicalAnalysis => {
             return {
                 id: clinicalAnalysis.id,
+                type: clinicalAnalysis.type,
+                status: clinicalAnalysis.status,
+                proband: clinicalAnalysis.proband,
             };
         });
         // check if we have to update the tool params with the new clinical analysis ids
@@ -278,7 +281,11 @@ export default class ClinicalTertiary extends LitElement {
                     icon: "fas fa-check-circle",
                     render: () => html`
                         <clinical-tertiary-review
-                            .toolParams="${{}}"
+                            .toolParams="${{
+                                clinicalAnalyses: this._selectedClinicalAnalyses,
+                                tool: this._selectedTool,
+                                toolParams: this._selectedTool?.executionParams || {},
+                            }}"
                             .opencgaSession="${this.opencgaSession}"
                             .displayConfig="${{
                                 buttonsVisible: false,

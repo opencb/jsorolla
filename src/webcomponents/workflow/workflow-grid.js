@@ -499,7 +499,7 @@ export default class WorkflowGrid extends LitElement {
                             <div class="">
                                 ${container?.name ? `
                                     <div>
-                                        <a class="link d-inline-flex align-items-center gap-1" href="https://github.com/${container.name}" target="_blank">
+                                        <a class="link d-inline-flex align-items-center gap-1" href="https://hub.docker.com/r/${container.name}" target="_blank">
                                             <span>${container.name} v${container.tag}</span>
                                             <i class="fa fa-external-link-alt fs-8"></i>
                                         </a>
