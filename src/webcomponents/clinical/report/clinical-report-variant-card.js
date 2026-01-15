@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import VariantUtils from "../../variant/variant-utils.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
@@ -113,8 +114,8 @@ export default class ClinicalReportVariantCard extends LitElement {
                                 render: data => html`
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="d-flex align-items-center">
-                                            <a class="link fw-bold text-truncate d-block" style="max-width:240px;" @click="${event => this.onVariantInfo(event)}">
-                                                <span class="fs-5">${data.id}</span>
+                                            <a class="link fw-bold d-block" @click="${event => this.onVariantInfo(event)}">
+                                                <span class="fs-5">${BioinfoUtils.getShortVariantId(data.id, 20, 5)}</span>
                                             </a>
                                         </div>
                                         <div class="d-flex align-items-center gap-2">
