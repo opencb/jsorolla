@@ -82,7 +82,7 @@ export default class ClinicalReportReview extends LitElement {
                         .clinicalAnalysis="${this.clinicalAnalysis}"
                         .variant="${this._selectedVariant}"
                         .selected="${true}"
-                        .primaryFinding="${true}"
+                        .primaryFinding="${this._selectedVariantPrimary}"
                         .reviewEvidences="${true}"
                         .settings="${{}}"
                         @variantChange="${event => this.onVariantReviewChange(event)}">
@@ -182,7 +182,7 @@ export default class ClinicalReportReview extends LitElement {
 
     onVariantReviewUpdate(event) {
         this._selectedVariant = UtilsNew.objectClone(event.detail.variant);
-        this._selectedVariantPrimary = true; // by default we only display primary findings in the review tool
+        this._selectedVariantPrimary = !!event.detail.primaryFinding;
         this._selectedVariantChecked = true; // by default the variant is checked as it is a primary finding
         this._selectedVariantInterpretationId = event.detail.interpretationId;
         this._gridCommons.changeActiveModal("review-variant");
@@ -349,7 +349,7 @@ export default class ClinicalReportReview extends LitElement {
                                     .interpretationId="${interpretation.id}"
                                     .variant="${variant}"
                                     .selected="${this._selectedVariant?.id === variant.id && this._selectedVariantInterpretationId === interpretation.id}"
-                                    .secondaryFinding="${interpretation.secondaryFindings.includes(variant)}"
+                                    .primaryFinding="${!interpretation.secondaryFindings.includes(variant)}"
                                     @variantInfo="${event => this.onVariantInfo(event)}"
                                     @variantReviewInfo="${event => this.onVariantReviewInfo(event)}"
                                     @variantReviewUpdate="${event => this.onVariantReviewUpdate(event)}">

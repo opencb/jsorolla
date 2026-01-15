@@ -26,7 +26,7 @@ export default class ClinicalReportVariantCard extends LitElement {
             variant: {
                 type: Object,
             },
-            secondaryFinding: {
+            primaryFinding: {
                 type: Boolean,
             },
             selected: {
@@ -39,6 +39,7 @@ export default class ClinicalReportVariantCard extends LitElement {
     }
 
     #init() {
+        this.primaryFinding = true; // default to primary finding
         this._config = this.getDefaultConfig();
     }
 
@@ -70,6 +71,7 @@ export default class ClinicalReportVariantCard extends LitElement {
         event.stopPropagation();
         LitUtils.dispatchCustomEvent(this, "variantReviewUpdate", null, {
             variant: this.variant,
+            primaryFinding: !!this.primaryFinding,
             interpretationId: this.interpretationId,
         });
     }
@@ -126,7 +128,7 @@ export default class ClinicalReportVariantCard extends LitElement {
                                         <div class="badge ${VariantUtils.getStatusColor(data.status)} user-select-none">
                                             <b>${data.status}</b>
                                         </div>
-                                        ${this.secondaryFinding ? html`
+                                        ${!this.primaryFinding ? html`
                                             <div class="badge bg-secondary user-select-none">
                                                 <b>Secondary Finding</b>
                                             </div>
