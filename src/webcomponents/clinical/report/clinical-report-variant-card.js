@@ -129,11 +129,15 @@ export default class ClinicalReportVariantCard extends LitElement {
                                         <div class="badge ${VariantUtils.getStatusColor(data.status)} user-select-none">
                                             <b>${data.status}</b>
                                         </div>
-                                        ${!this.primaryFinding ? html`
+                                        ${this.primaryFinding ? html`
+                                            <div class="badge bg-primary user-select-none">
+                                                <b>Primary Finding</b>
+                                            </div>
+                                        ` : html`
                                             <div class="badge bg-secondary user-select-none">
                                                 <b>Secondary Finding</b>
                                             </div>
-                                        ` : nothing}
+                                        `}
                                     </div>
                                 `,
                             },
