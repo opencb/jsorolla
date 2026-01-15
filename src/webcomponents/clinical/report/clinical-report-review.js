@@ -190,7 +190,7 @@ export default class ClinicalReportReview extends LitElement {
 
     onVariantReviewChange(event) {
         this._selectedVariant = event.detail.variant;
-        this._selectedVariantPrimary = event.detail.primary;
+        this._selectedVariantPrimary = event.detail.primaryFinding;
         this._selectedVariantChecked = event.detail.selected;
     }
 
