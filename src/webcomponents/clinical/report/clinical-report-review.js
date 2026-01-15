@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import GridCommons from "../../commons/grid-commons.js";
@@ -53,7 +54,7 @@ export default class ClinicalReportReview extends LitElement {
             "view-variant": () => ({
                 display: {
                     scrollable: true,
-                    title: `Variant ${this._selectedVariant.id}`,
+                    modalTitle: `Variant: ${BioinfoUtils.getShortVariantId(this._selectedVariant.id, 50, 10)}`,
                     size: "modal-3xl",
                     buttonsVisible: false,
                 },
@@ -407,7 +408,7 @@ export default class ClinicalReportReview extends LitElement {
                 <div class="offcanvas-header p-4">
                     ${this._selectedVariant ? html`
                         <h3 class="offcanvas-title fw-bold">
-                            Variant ${this._selectedVariant?.id}
+                            Variant ${BioinfoUtils.getShortVariantId(this._selectedVariant.id, 30, 10)}
                         </h3>
                     ` : nothing}
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
