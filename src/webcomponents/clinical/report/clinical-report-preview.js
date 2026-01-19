@@ -2,6 +2,7 @@ import {LitElement, html, nothing} from "lit";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
+import WordBuilder from "../../commons/forms/word-builder.js";
 import "../../commons/forms/data-form.js";
 import "../../commons/empty-state.js";
 import "../../file/file-editor.js";
@@ -163,7 +164,7 @@ export default class ClinicalReportPreview extends LitElement {
     }
 
     onToggleTemplateEdition(event) {
-        this._editingTemplate = event.target.checked;
+        this._editingTemplate = !this._editingTemplate;
         this._editingTemplateUnsavedChanges = false; // reset unsaved changes flag
 
         // when enabling edition mode, load the latest template content from the server
@@ -235,6 +236,11 @@ export default class ClinicalReportPreview extends LitElement {
             });
     }
 
+    async onTemplateExport(event) {
+        const wordDocument = new WordBuilder(this.clinicalAnalysis, this._activeTemplateConfig);
+        await wordDocument.exportToWord();
+    }
+
     render() {
         if (!this.opencgaSession || !this.clinicalAnalysis || !this._templates) {
             return nothing;
@@ -245,6 +251,8 @@ export default class ClinicalReportPreview extends LitElement {
         const isStudyAdmin = OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id);
         const hasWritePermission = OpencgaCatalogUtils.hasPermissionInCurrentStudy(this.opencgaSession, "FILES_WRITE");
         const hasDownloadPermission = OpencgaCatalogUtils.hasPermissionInCurrentStudy(this.opencgaSession, "FILES_DOWNLOAD");
+
+        const templateEditionEnabled = isStudyAdmin && hasWritePermission && hasDownloadPermission;
         
         return html`
             ${this._invalidTemplates?.length > 0 ? html`
@@ -258,7 +266,7 @@ export default class ClinicalReportPreview extends LitElement {
                 </div>
             ` : nothing}
             ${this._templates.length > 0 ? html`
-                <div class="p-4 rounded-4 mb-5 bg-white border border-gray-200 d-flex align-items-start gap-4">
+                <div class="p-3 rounded-4 mb-5 bg-white border border-gray-200 d-flex align-items-end gap-2">
                     <div class="form-group flex-grow-1">
                         <label for="templateSelect" class="fw-bold mb-1">Select a Template to generate the preview</label>
                         <select class="form-select" @change="${event => this.onTemplateChange(event)}">
@@ -268,28 +276,26 @@ export default class ClinicalReportPreview extends LitElement {
                                 </option>
                             `)}
                         </select>
-                        <div class="mt-1 small text-muted">
-                            <span>The templates are located in the folder <span class="fw-bold font-monospace small">RESOURCES/clinical/report/templates</span> of this study.</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end" style="width:240px;">
+                            <a class="dropdown-item d-flex align-items-center gap-2 cursor-pointer" data-action="export-word" @click="${event => this.onTemplateExport(event)}">
+                                <i class="fas fa-download"></i>
+                                <span>Export to Word</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item d-flex align-items-center gap-2 ${templateEditionEnabled ? "cursor-pointer" : "disabled"}" @click="${event => this.onToggleTemplateEdition(event)}">
+                                <i class="fas fa-edit"></i>
+                                <span>Edit Template</span>
+                                ${this._editingTemplate ? html`
+                                    <i class="fas fa-check ms-auto"></i>
+                                ` : nothing}
+                            </a>
                         </div>
                     </div>
-                    ${isStudyAdmin && hasWritePermission && hasDownloadPermission ? html`
-                        <div class="form-group flex-shrink-0" style="width:320px;">
-                            <div class="fw-bold mb-1">Template Options</div>
-                            <div class="form-check form-switch">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    id="templateEdition"
-                                    ?checked="${this._editingTemplate}"
-                                    ?disabled="${!isStudyAdmin || !hasWritePermission || !hasDownloadPermission}"
-                                    @change="${event => this.onToggleTemplateEdition(event)}">
-                                <label class="form-check-label" for="templateEdition">Edition Mode</label>
-                            </div>
-                            <div class="mt-1 small text-muted">
-                                <span>Enable or disable the live template editing.</span>
-                            </div>
-                        </div>
-                    ` : nothing}
                 </div>
             ` : nothing}
             ${this._templates && this._templates.length === 0 ? html`
