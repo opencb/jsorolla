@@ -591,7 +591,7 @@ export default class FiltersToolbar extends LitElement {
                             ${filterParams?.length > 0 ? html`
                                 ${filterParams.slice(0, 2).map(key => html`
                                     <div class="" title="${item.query[key]}">
-                                        <b>${key}</b>: ${UtilsNew.substring(item.query[key], 20)}
+                                        <b>${key}</b>: ${UtilsNew.substring(item.query[key], Math.max(0, 35 - key.length))}
                                     </div>
                                 `)}
                             ` : html`Empty query.`}

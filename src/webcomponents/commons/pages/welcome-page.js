@@ -68,38 +68,60 @@ export default class WelcomePage extends LitElement {
     }
 
     renderTools() {
-        const visibleTools = (this.app.menu || []).filter(item => {
-            return UtilsNew.isAppVisible(item, this.opencgaSession);
+        const groupedTools = new Map();
+        const groups = new Set(["empty"]);
+        (this.app.menu || []).forEach(item => {
+            if (UtilsNew.isAppVisible(item, this.opencgaSession)) {
+                const category = item.category || "empty";
+                if (!groupedTools.has(category)) {
+                    groupedTools.set(category, []);
+                    groups.add(category);
+                }
+                groupedTools.get(category).push(item);
+            }
         });
 
-        return html`
-            <div class="row">
-                ${visibleTools.map(item => html`
-                    <div class="col-3 mb-5 d-flex flex-column justify-content-between gap-3" data-cy-welcome-card-id="${item.id}">
-                        <div class="d-none mb-3">
-                            <div class="d-flex align-items-center justify-content-center bg-gray-200 rounded-4" style="width:3rem;height:3rem;">
-                                <i class="fas ${item.icon} fs-2"></i>
-                            </div>
+        return Array.from(groups).map(category => {
+            if (!groupedTools.has(category) || groupedTools.get(category).length === 0) {
+                return nothing;
+            }
+            return html`
+                <div class="mb-5">
+                    ${category !== "empty" ? html`
+                        <div class="mb-4">
+                            <div class="text-secondary fs-5 fw-bold mb-2">${category}</div>
+                            <div class="border-bottom"></div>
                         </div>
-                        <div class="d-flex flex-column gap-1">
-                            <a href="#${this.app.id}/${item.id}" class="d-block fs-3 fw-bold text-decoration-none text-body">
-                                <span>${item.title || item.name}</span>
-                            </a>
-                            ${item.description ? html`
-                                <div class="fs-5 text-gray-700">
-                                    ${UtilsNew.renderHTML(item.description)}
+                    ` : nothing}
+                    <div class="row">
+                        ${groupedTools.get(category).map(item => html`
+                            <div class="col-3 mb-5 d-flex flex-column justify-content-between gap-3" data-cy-welcome-card-id="${item.id}">
+                                <div class="d-none mb-3">
+                                    <div class="d-flex align-items-center justify-content-center bg-gray-200 rounded-4" style="width:3rem;height:3rem;">
+                                        <i class="fas ${item.icon} fs-2"></i>
+                                    </div>
                                 </div>
-                            ` : nothing}
-                        </div>
-                        <div class="d-flex">
-                            <a class="btn border border-dark rounded-circle" href="#${this.app.id}/${item.id}">
-                                <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
+                                <div class="d-flex flex-column gap-1">
+                                    <a href="#${this.app.id}/${item.id}" class="d-block fs-3 fw-bold text-decoration-none text-body">
+                                        <span>${item.title || item.name}</span>
+                                    </a>
+                                    ${item.description ? html`
+                                        <div class="fs-5 text-gray-700">
+                                            ${UtilsNew.renderHTML(item.description)}
+                                        </div>
+                                    ` : nothing}
+                                </div>
+                                <div class="d-flex">
+                                    <a class="btn border border-dark rounded-circle" href="#${this.app.id}/${item.id}">
+                                        <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        `)}
                     </div>
-                `)}
-            </div>
-        `;
+                </div>
+            `;
+        });
     }
 
     render() {

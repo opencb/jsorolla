@@ -21,6 +21,19 @@ import VariantGridFormatter from "./variant-grid-formatter.js";
 
 export default class VariantUtils {
 
+    static VARIANT_STATUS_VALUES = [
+        "NOT_REVIEWED",
+        "UNDER_CONSIDERATION",
+        "REVIEWED",
+        "REPORTED",
+        "CANDIDATE",
+        "ARTIFACT",
+        "DISCARDED",
+    ];
+
+    static VARIANT_CONFIDENCE_VALUES = ["LOW", "MEDIUM", "HIGH"];
+
+
     static jsonToTabConvert(variants, populationFrequenciesStudies, samples, nucleotideGenotype, fieldList) {
         const rows = [];
         let populationMap = {};
@@ -353,6 +366,75 @@ export default class VariantUtils {
         return rows;
     }
 
+    // Not sure if scores are currently used
+    static evidencesScoreStats(evidences) {
+        const scores = evidences
+            .map(e => e.score)
+            .filter(score => typeof score === 'number' && !isNaN(score));
+
+        const count = scores.length;
+        const sum = scores.reduce((acc, val) => acc + val, 0);
+        const avg = count > 0 ? sum / count : 0;
+        const min = Math.min(...scores);
+        const max = Math.max(...scores);
+
+        // Optional: standard deviation
+        const variance = scores.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) / count;
+        const stdDev = Math.sqrt(variance);
+
+        return {
+            average: avg.toFixed(2),
+            min: min.toFixed(2),
+            max: max.toFixed(2),
+            standardDeviation: stdDev.toFixed(2)
+        };
+    }
+
+    // Function to count clinical significance categories in evidences
+    static countEvidencesPerClinicalSignificance(evidences) {
+        return evidences.reduce((acc, evidence) => {
+            const cs = evidence.classification?.clinicalSignificance.toLowerCase() || 'unknown';
+            acc[cs] = (acc[cs] || 0) + 1;
+            return acc;
+        }, {});
+    }
+
+    // Function to count acmgs categories in evidences
+    static countEvidencesAcmg(evidences) {
+        return evidences.reduce((acc, evidence) => {
+            evidence.classification?.acmg?.forEach(acmg => {
+                const cls = acmg.classification;
+                if (cls) {
+                    acc[cls] = (acc[cls] || 0) + 1;
+                }
+            });
+            return acc;
+        }, {});
+    }
+
+
+    static mapClinicalSignificanceToColor(counts) {
+        return CLINICAL_SIGNIFICANCE
+            .filter(cs => counts[cs.id] > 0)
+            .map(cs => ({
+                name: cs.name,
+                y: counts[cs.id],
+                color: cs.color
+            }));
+    }
+
+    static mapAcmgToColor(counts) {
+        return ACMG_CRITERIA_COLOR
+            .filter(cs => counts[cs.id] > 0)
+            .map(cs => ({
+                name: cs.id,
+                strength: cs.strength,
+                y: counts[cs.id],
+                color: cs.color
+            }));
+    }
+
+
     static getClassificationByClinicalSignificance(variant) {
         const clinicalSignificanceMap = {};
         variant.evidences.forEach(({classification}) => {
@@ -557,6 +639,57 @@ export default class VariantUtils {
             if ("panelRoleInCancer" in query) {
                 delete query?.panelRoleInCancer;
             }
+        }
+    }
+
+    static getStatusColor(status = "") {
+        switch (status.toUpperCase()) {
+            case "NOT_REVIEWED":
+                return "text-white bg-secondary";
+            case "UNDER_CONSIDERATION":
+                return "text-primary bg-info";
+            case "REVIEWED":
+                return "text-white bg-primary";
+            case "REPORTED":
+                return "text-white bg-success";
+            case "CANDIDATE":
+                return "text-white bg-warning";
+            case "ARTIFACT":
+                return "text-white bg-danger-subtle";
+            case "DISCARDED":
+                return "text-white bg-danger";
+            default:
+                return "";
+        }
+    }
+
+    // returns a list of genes from the variant annotation
+    static getGenes(variant) {
+        const genes = new Set();
+        (variant?.annotation?.consequenceTypes || []).forEach(ct => {
+            if (ct.geneName) {
+                genes.add(ct.geneName);
+            }
+        });
+        return Array.from(genes);
+    }
+
+    static getTierColor(tier) {
+        switch (tier?.toUpperCase()) {
+            case "TIER1":
+            case "TIER 1":
+            case "TIER_1":
+                return "red";
+            case "TIER2":
+            case "TIER 2":
+            case "TIER_2":
+                return "darkorange";
+            case "TIER3":
+            case "TIER 3":
+            case "TIER_3":
+                return "blue";
+            default:
+                return "black";
         }
     }
 

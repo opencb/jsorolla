@@ -17,6 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import ExtensionsManager from "../extensions-manager.js";
 import "../commons/forms/data-form.js";
+import "../individual/individual-summary.js";
 import "./clinical-analysis-summary.js";
 
 export default class ClinicalAnalysisView extends LitElement {
@@ -123,6 +124,17 @@ export default class ClinicalAnalysisView extends LitElement {
                             .active="${active}"
                             .clinicalAnalysis="${clinicalAnalysis}">
                         </clinical-analysis-summary>
+                    `,
+                },
+                {
+                    id: "proband",
+                    name: "Proband",
+                    render: (clinicalAnalysis, active) => html`
+                        <individual-summary
+                            .opencgaSession="${this.opencgaSession}"
+                            .active="${active}"
+                            .individual="${clinicalAnalysis.proband}">
+                        </individual-summary>
                     `,
                 },
                 ...ExtensionsManager.getViews(this.COMPONENT_ID, this.opencgaSession),

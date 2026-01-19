@@ -30,6 +30,7 @@ const BIOTYPES = [
 
 const VARIANT_TYPES = ["SNV", "INDEL", "MNV", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "SV"];
 
+/*
 const CLINICAL_SIGNIFICANCE = [
     {
         id: "benign", name: "Benign"
@@ -47,7 +48,8 @@ const CLINICAL_SIGNIFICANCE = [
         id: "pathogenic", name: "Pathogenic"
     }
 ];
-
+ */
+/*
 const CLINICAL_SIGNIFICANCE_SETTINGS = {
     NOT_ASSESSED: {id: "NA", code: 0, color: "black"},
     BENIGN: {id: "B", code: 1, color: "green"},
@@ -55,6 +57,42 @@ const CLINICAL_SIGNIFICANCE_SETTINGS = {
     UNCERTAIN_SIGNIFICANCE: {id: "US", code: 3, color: "darkorange"},
     LIKELY_PATHOGENIC: {id: "LP", code: 4, color: "darkred"},
     PATHOGENIC: {id: "P", code: 5, color: "red"}
+};
+ */
+
+// Colours extracted from:
+// https://www.ncbi.nlm.nih.gov/clinvar/?gr=1&term=DSG2[gene]&utm_source=ncbi_insights&utm_medium=referral&utm_campaign=clinvar-graphic-20220830
+// Color conflicts for small points and lines
+// https://projects.susielu.com/viz-palette?colors=[%22#084507%22,%22#1b9f00%22,%22#e9e803%22,%22#fc812a%22,%22#d04040%22]&backgroundColor=%22white%22&fontColor=%22black%22&mode=%22normal%22
+const CLINICAL_SIGNIFICANCE = [
+    {
+        id: "benign", name: "Benign", acronym: "B", color: "#3662a5" // color: "#084507",
+    },
+    {
+        id: "likely_benign", name: "Likely Benign", acronym: "LB", color: "#57b6e0", // color: "#1b9f00",
+    },
+    {
+        id: "uncertain_significance", name: "Uncertain Significance", acronym: "US", color: "#7e7d79", // color: "#e9e803",
+    },
+    {
+        id: "likely_pathogenic", name: "Likely Pathogenic", acronym: "LP", color: "#fb7247", // color: "#fc812a"
+    },
+    {
+        id: "pathogenic", name: "Pathogenic", acronym: "P", color: "#e81802", // color: "#d04040",
+    },
+];
+ // No conflicts: ["#3662a5", "#57b6e0", "#7e7d79", "#fb7247", "#e81802"]
+// Clinvar: ["#084507", "#1b9f00", "#e9e803", "#fc812a", "#d04040"]
+
+// Colours extracted from
+// https://www.ncbi.nlm.nih.gov/clinvar/?gr=1&term=DSG2[gene]&utm_source=ncbi_insights&utm_medium=referral&utm_campaign=clinvar-graphic-20220830
+const CLINICAL_SIGNIFICANCE_SETTINGS = {
+    NOT_ASSESSED: {id: "NA", code: 0, color: "black"},
+    BENIGN: {id: "B", code: 1, color: "#3662a5"},
+    LIKELY_BENIGN: {id: "LB", code: 2, color: "#57b6e0"},
+    UNCERTAIN_SIGNIFICANCE: {id: "US", code: 3, color: "#7e7d79"},
+    LIKELY_PATHOGENIC: {id: "LP", code: 4, color: "#fb7247"},
+    PATHOGENIC: {id: "P", code: 5, color: "#e81802"}
 };
 
 // const MODE_OF_INHERITANCE = ["AUTOSOMAL_DOMINANT", "AUTOSOMAL_RECESSIVE", "X_LINKED_DOMINANT", "X_LINKED_RECESSIVE", "Y_LINKED", "MITOCHONDRIAL"];
@@ -74,6 +112,179 @@ const DISEASE_PANEL_CONFIDENCE = ["HIGH", "MEDIUM", "LOW", "REJECTED"];
 const DISEASE_PANEL_IMPRINTED = ["NOT", "MATERNALLY", "PATERNALLY", "UNKNOWN"];
 
 const ACMG_STRENGTH_LEVEL = ["SUPPORTING", "MODERATE", "STRONG", "VERY_STRONG"];
+
+// From paper: https://pubmed.ncbi.nlm.nih.gov/25741868/
+const ACMG_CRITERIA_COLOR = [
+    // Very Strong - Firebrick
+    {
+        id: "PVS1",
+        description: "Null variant (nonsense, frameshift, canonical ±1 or 2 splice sites, initiation codon, single or multiexon deletion) in a gene where loss of function (LOF) is a known disease mechanism.",
+        strength: "Very Strong",
+        color: "#980c02"
+    },
+    {
+        id: "PS1",
+        description: "Same amino acid change as a previously established pathogenic variant.",
+        strength: "Strong",
+        color: "#d53233"
+    },
+    {
+        id: "PS2",
+        description: "De novo (both maternity and paternity confirmed) in a patient with the disease and no family history.",
+        strength: "Strong",
+        color: "#d53233"
+    },
+    {
+        id: "PS3",
+        description: "Well-established functional studies show a deleterious effect.",
+        strength: "Strong",
+        color: "#d53233"
+    },
+    {
+        id: "PS4",
+        description: "Prevalence in affected individuals significantly increased compared to controls.",
+        strength: "Strong",
+        color: "#d53233"
+    },
+    {
+        id: "PM1",
+        description: "Located in a mutational hot spot and/or critical and well-established functional domain.",
+        strength: "Moderate",
+        color: "#fc7472"
+    },
+    {
+        id: "PM2",
+        description: "Absent or extremely rare in population databases.",
+        strength: "Moderate",
+        color: "#fc7472"
+    },
+    {
+        id: "PM3",
+        description: "For recessive disorders, detected in trans with a pathogenic variant.",
+        strength: "Moderate",
+        color: "#fc7472"
+    },
+    {
+        id: "PM4",
+        description: "Protein length changes due to in-frame deletions/insertions.",
+        strength: "Moderate",
+        color: "#fc7472"
+    },
+    {
+        id: "PM5",
+        description: "Novel missense change at an amino acid residue where a different pathogenic missense change has been seen.",
+        strength: "Moderate",
+        color: "#fc7472"
+    },
+    {
+        id: "PM6",
+        description: "Assumed de novo, but without confirmation of paternity and maternity.",
+        strength: "Moderate",
+        color: "#fc7472"
+    },
+    {
+        id: "PP1",
+        description: "Cosegregation with disease in multiple affected family members.",
+        strength: "Supporting",
+        color: "#fdc4c3"
+    },
+    {
+        id: "PP2",
+        description: "Missense variant in a gene with low rate of benign missense variation.",
+        strength: "Supporting",
+        color: "#fdc4c3"
+    },
+    {
+        id: "PP3",
+        description: "Multiple lines of computational evidence support a deleterious effect.",
+        strength: "Supporting",
+        color: "#fdc4c3"
+    },
+    {
+        id: "PP4",
+        description: "Patient's phenotype or family history highly specific for a disease with a single genetic cause.",
+        strength: "Supporting",
+        color: "#fdc4c3"
+    },
+    {
+        id: "PP5",
+        description: "Reputable source reports variant as pathogenic (not used alone).",
+        strength: "Supporting",
+        color: "#fdc4c3"
+    },
+    {
+        id: "BA1",
+        description: "Allele frequency is too high for disorder.",
+        strength: "Standalone",
+        color: "#015134"
+    },
+    {
+        id: "BS1",
+        description: "Allele frequency is greater than expected for disorder.",
+        strength: "Strong",
+        color: "#13a574"
+    },
+    {
+        id: "BS2",
+        description: "Observed in a healthy adult with full penetrance expected at an early age.",
+        strength: "Strong",
+        color: "#13a574"
+    },
+    {
+        id: "BS3",
+        description: "Well-established functional studies show no deleterious effect.",
+        strength: "Strong",
+        color: "#13a574"
+    },
+    {
+        id: "BS4",
+        description: "Lack of segregation in affected members of a family.",
+        strength: "Strong",
+        color: "#13a574"
+    },
+    {
+        id: "BP1",
+        description: "Missense variant in a gene where only truncating variants cause disease.",
+        strength: "Supporting",
+        color: "#a0f1a0"
+    },
+    {
+        id: "BP2",
+        description: "Observed in trans with a pathogenic variant for dominant disorders or in cis with a pathogenic variant.",
+        strength: "Supporting",
+        color: "#a0f1a0"
+    },
+    {
+        id: "BP3",
+        description: "In-frame indels in repetitive regions without a known function.",
+        strength: "Supporting",
+        color: "#a0f1a0"
+    },
+    {
+        id: "BP4",
+        description: "Multiple lines of computational evidence suggest no impact.",
+        strength: "Supporting",
+        color: "#a0f1a0"
+    },
+    {
+        id: "BP5",
+        description: "Variant found in a case with an alternate molecular basis for disease.",
+        strength: "Supporting",
+        color: "#a0f1a0"
+    },
+    {
+        id: "BP6",
+        description: "Reputable source reports variant as benign (not used alone).",
+        strength: "Supporting",
+        color: "#a0f1a0"
+    },
+    {
+        id: "BP7",
+        description: "Synonymous variant with no predicted splicing impact.",
+        strength: "Supporting",
+        color: "#a0f1a0"
+    }
+];
 
 const AMINOACID_CODE = {
     "A": "Ala",

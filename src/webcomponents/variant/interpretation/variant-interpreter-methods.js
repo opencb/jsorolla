@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import {keyed} from "lit/directives/keyed.js";
+import "../../commons/empty-state.js";
 import "../../commons/view/detail-tabs.js";
 import "../../clinical/analysis/rd-interpreter-analysis.js";
 import "../../clinical/analysis/exomiser-analysis.js";
@@ -103,21 +104,22 @@ class VariantInterpreterMethods extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession?.project) {
-            return html`
-                <div>
-                    <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
-                </div>
-            `;
+        if (!this.opencgaSession) {
+            return nothing;
         }
 
         // If no methods have been configured, we will display a warning message
         if (!this._config || this._config.items.length === 0) {
             return html`
-                <div class="col-md-10 offset-md-1">
-                    <div class="alert alert-warning" role="alert">
-                        No automatic methods available at this time.
-                    </div>
+                <div class="container">
+                    <empty-state
+                        .icon="${"fa-sync"}"
+                        .title="${"No Interpretation Methods Available"}"
+                        .description="${html`
+                            <span>There are no interpretation methods available to be executed. </span>
+                            <span>Please, contact your administrator to configure interpretation methods for this study.</span>
+                        `}">
+                    </empty-state>
                 </div>
             `;
         }
@@ -136,6 +138,9 @@ class VariantInterpreterMethods extends LitElement {
 
         // add custom tools
         (this._customTools || []).forEach(tool => {
+            // Find the clinicalAnalysisId variable, ignoring case and underscores.
+            // Valid examples are: clinical_analysis_id, CLINICALANALYSISID, clinicalAnalysisId, etc.
+            const clinicalAnalysisVariable = tool?.variables?.find(v => v.id?.toUpperCase().replaceAll("_", "") === "CLINICALANALYSISID");
             items.push({
                 id: tool.id,
                 name: tool.name || tool.id,
@@ -147,7 +152,7 @@ class VariantInterpreterMethods extends LitElement {
                                 .toolId="${tool.id}"
                                 .toolParams="${{
                                     variables: {
-                                        clinicalAnalysisId: clinicalAnalysis.id,
+                                        [clinicalAnalysisVariable?.id || "clinicalAnalysisId"]: clinicalAnalysis.id,
                                         study: this.opencgaSession.study.fqn,
                                     },
                                 }}"
@@ -175,12 +180,17 @@ class VariantInterpreterMethods extends LitElement {
                         name: "Exomiser",
                         render: (clinicalAnalysis, active, opencgaSession) => {
                             return html`
-                                <div class="col-md-6 offset-md-3">
+                                <div class="container">
                                     <tool-header title="Exomiser - ${probandId}"></tool-header>
                                     <exomiser-analysis
-                                        .toolParams="${{clinicalAnalysis: clinicalAnalysis.id}}"
+                                        .toolParams="${{
+                                            clinicalAnalysis: clinicalAnalysis.id,
+                                        }}"
                                         .opencgaSession="${opencgaSession}"
-                                        .config="${{title: "", display: {buttonOkDisabled: this.clinicalAnalysis.locked}}}">
+                                        .displayConfig="${{
+                                            titleVisible: false,
+                                            buttonOkDisabled: this.clinicalAnalysis.locked,
+                                        }}">
                                     </exomiser-analysis>
                                 </div>
                             `;
@@ -194,15 +204,16 @@ class VariantInterpreterMethods extends LitElement {
                         name: "RD Interpreter",
                         render: (clinicalAnalysis, active, opencgaSession) => {
                             return html`
-                                <div class="col-md-6 offset-md-3">
-                                    <tool-header title="RD Interpreter - ${probandId}"></tool-header>
-                                    <rd-interpreter-analysis
+                                <div class="container">
+                                    <tool-header title="RD Tiering - ${probandId}"></tool-header>
+                                    <rd-tiering-analysis
                                         .toolParams="${{
                                             clinicalAnalysisId: clinicalAnalysis.id,
                                         }}"
                                         .opencgaSession="${opencgaSession}"
                                         .displayConfig="${{
                                             titleVisible: false,
+                                            buttonOkDisabled: this.clinicalAnalysis.locked,
                                         }}">
                                     </rd-interpreter-analysis>
                                 </div>

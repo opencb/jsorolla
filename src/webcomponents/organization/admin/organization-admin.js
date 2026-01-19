@@ -154,6 +154,7 @@ export default class OrganizationAdmin extends LitElement {
                 {
                     id: "federation",
                     name: "Federation",
+                    visible: false,
                     submenu: [
                         {
                             id: "create",

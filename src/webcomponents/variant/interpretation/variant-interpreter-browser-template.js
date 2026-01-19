@@ -17,9 +17,9 @@
 import {html, LitElement, nothing} from "lit";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import WebUtils from "../../commons/utils/web-utils.js";
+import NotificationUtils from "../../commons/utils/notification-utils.js";
 import Region from "../../../core/bioinfo/region.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
@@ -87,17 +87,17 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         // Variant inclusion list
         this.variantInclusionState = [];
 
-        this.currentQueryBeforeSaveEvent = null;
+        this._currentQueryBeforeSaveEvent = null;
         this.clinicalAnalysisManager = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("opencgaSession")) {
-            this.clinicalAnalysisObserver();
-        }
         if (changedProperties.has("query")) {
             this.queryObserver();
+        }
+        if (changedProperties.has("clinicalAnalysis") || changedProperties.has("opencgaSession")) {
+            this.clinicalAnalysisObserver();
         }
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
@@ -115,16 +115,18 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
 
         // When refreshing AFTER saving variants we set the same query as before refreshing, check 'onSaveVariants'
-        if (this.currentQueryBeforeSaveEvent) {
-            this.query = {...this.currentQueryBeforeSaveEvent};
-            this.currentQueryBeforeEvent = null;
+        if (this._currentQueryBeforeSaveEvent) {
+            this.preparedQuery = {...this._currentQueryBeforeSaveEvent};
+            this.executedQuery = {...this.preparedQuery};
+            this.searchActive = false;
+            this._currentQueryBeforeSaveEvent = null;
         }
     }
 
     queryObserver() {
         if (this.opencgaSession && this.query) {
-            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-            this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            this.preparedQuery = {...this.query};
+            this.executedQuery = {...this.query};
             this.searchActive = false;
         }
     }
@@ -207,9 +209,28 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         }
     }
 
+    getLockedFieldsQuery() {
+        const lockedFields = this._config?.filter?.activeFilters?.lockedFields.map(key => key.id);
+        const query = {};
+
+        // include fields from lockedFields into the new query object
+        lockedFields.forEach(field => {
+            query[field] = this.query[field];
+        });
+
+        // check if panelLock is enabled: in this case we need to keep the panel and panelIntersection fields
+        // in the new query object
+        if (this.clinicalAnalysis.panelLocked) {
+            query.panel = this.query.panel;
+            query.panelIntersection = true;
+        }
+
+        return query;
+    }
+
     notifyQueryChange() {
         LitUtils.dispatchCustomEvent(this, "queryChange", null, {
-            query: this.query,
+            query: this.executedQuery,
         });
     }
 
@@ -219,61 +240,20 @@ class VariantInterpreterBrowserTemplate extends LitElement {
         this.requestUpdate();
     }
 
-    onCheckVariant(e) {
-        const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
-        rows.forEach(row => {
-            if (e.detail.checked) {
-                this.clinicalAnalysisManager.addVariant(row);
-            } else {
-                this.clinicalAnalysisManager.removeVariant(row);
-            }
-        });
-        this.requestUpdate();
-    }
-
-    onUpdateVariant(e) {
-        const rows = Array.isArray(e.detail.row) ? e.detail.row : [e.detail.row];
-        rows.forEach(row => {
-            this.clinicalAnalysisManager.updateSingleVariant(row);
-        });
-        this.requestUpdate();
-    }
-
     onFilterVariants(e) {
         const lockedFields = [
             ...(this._config?.filter?.activeFilters?.lockedFields || []).map(key => key.id),
             "study"
         ];
         const variantIds = new Set(e.detail.variants.map(v => v.id));
-        this.query = {
+        this.preparedQuery = {
             ...UtilsNew.filterKeys(this.executedQuery, lockedFields),
             id: Array.from(variantIds).join(","),
         };
+        this.executedQuery = {...this.preparedQuery};
+        this.searchActive = false;
         this.notifyQueryChange();
         this.requestUpdate();
-    }
-
-    onResetVariants() {
-        this.clinicalAnalysisManager.reset();
-
-        this.preparedQuery = {...this.preparedQuery};
-        this.executedQuery = {...this.executedQuery};
-        delete this.preparedQuery.id;
-        delete this.executedQuery.id;
-
-        this.clinicalAnalysis = {...this.clinicalAnalysis};
-    }
-
-    onSaveVariants(e) {
-        // We save current query so we can execute the same query after refreshing, check 'clinicaAnalysisObserver'
-        this.currentQueryBeforeSaveEvent = this.query;
-
-        const comment = e.detail.comment;
-        this.clinicalAnalysisManager.updateInterpretationVariants(comment, () => {
-            LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
-                clinicalAnalysis: this.clinicalAnalysis,
-            }, null, {bubbles: true, composed: true});
-        });
     }
 
     onVariantFilterChange(e) {
@@ -282,9 +262,12 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     onVariantFilterSearch(e) {
-        this.preparedQuery = {...e.detail.query};
-        this.executedQuery = {...e.detail.query};
-        this.query = {...e.detail.query}; // We need to update the internal query to propagate to filters
+        this.preparedQuery = {
+            ...this.getLockedFieldsQuery(),
+            ...e.detail.query,
+        };
+        this.executedQuery = {...this.preparedQuery};
+        this.searchActive = false;
         this.notifyQueryChange();
         this.requestUpdate();
     }
@@ -298,25 +281,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     }
 
     onVariantFilterClear() {
-        const lockedFields = this._config?.filter?.activeFilters?.lockedFields.map(key => key.id);
-        let _query = {
-            study: this.opencgaSession.study.fqn
-        };
-
-        // Reset filters default
-        lockedFields.forEach(field => {
-            _query = {
-                ..._query,
-                [field]: this.query[field]
-            };
-        });
-
-        // Check if panelLock is enabled
-        if (this.clinicalAnalysis.panelLocked) {
-            _query.panel = this.query.panel;
-            _query.panelIntersection = true;
-        }
-        this.query = UtilsNew.objectClone(_query);
+        this.preparedQuery = this.getLockedFieldsQuery();
+        this.executedQuery = {...this.preparedQuery};
+        this.searchActive = false;
         this.notifyQueryChange();
         this.requestUpdate();
     }
@@ -324,6 +291,31 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     onSettingsUpdate() {
         this.settingsObserver();
         this.requestUpdate();
+    }
+
+    onVariantReview(event) {
+        // 1. save the current query so we can execute the same query after refreshing, check 'clinicaAnalysisObserver'
+        this._currentQueryBeforeSaveEvent = UtilsNew.objectClone(this.executedQuery);
+
+        // 2. display a loading notification
+        const loadingId = NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_LOADING, {
+            message: "Saving review of the variant. Please wait...",
+        });
+
+        // 3. update the variant review, note that reviewed variants are saved in the primary interpretation
+        const interpretationId = this.clinicalAnalysis.interpretation.id;
+        this.clinicalAnalysisManager.updateVariants(interpretationId, event.detail.variant, event.detail.primaryFinding, event.detail.action)
+            .then(() => {
+                LitUtils.dispatchCustomEvent(this, "clinicalAnalysisUpdate", null, {
+                    clinicalAnalysis: this.clinicalAnalysis,
+                });
+            })
+            .catch(response => {
+                console.error(response);
+            })
+            .finally(() => {
+                NotificationUtils.clear(this, loadingId);
+            });
     }
 
     onChangeView(newView) {
@@ -350,19 +342,13 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                         </button>
                     `)}
                 </div>
-                <!-- Variant interpreter browser toolbar -->
                 <div class="w-px bg-gray-200 mx-1"></div>
                 <variant-interpreter-browser-toolbar
                     class="d-flex"
                     .clinicalAnalysis="${this.clinicalAnalysis}"
-                    .state="${this.clinicalAnalysisManager.state}"
                     .variantInclusionState="${this.variantInclusionState || []}"
-                    .write="${OpencgaCatalogUtils.getStudyEffectivePermission(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS", this.opencgaSession.organization?.configuration?.optimizations?.simplifyPermissions)}"
-                    @filterVariants="${e => this.onFilterVariants(e)}"
-                    @resetVariants="${e => this.onResetVariants(e)}"
-                    @saveInterpretation="${e => this.onSaveVariants(e)}">
+                    @filterVariants="${e => this.onFilterVariants(e)}">
                 </variant-interpreter-browser-toolbar>
-                <!-- Separator and buttons -->
                 <div class="w-px bg-gray-200 mx-1"></div>
                 <grid-notifications
                     class="d-flex align-items-stretch"
@@ -393,7 +379,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             ` : nothing}
 
             <div class="">
-                <!-- Filters toolbar -->
                 <variant-browser-filter
                     .resource="${"VARIANT"}"
                     .opencgaSession="${this.opencgaSession}"
@@ -401,9 +386,9 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                     .executedQuery="${this.executedQuery}"
                     .searchActive="${this.searchActive ?? false}"
                     .config="${this._config.filter}"
-                    @queryChange="${this.onVariantFilterChange}"
-                    @querySearch="${this.onVariantFilterSearch}"
-                    @queryClear="${this.onVariantFilterClear}">
+                    @queryChange="${event => this.onVariantFilterChange(event)}"
+                    @querySearch="${event => this.onVariantFilterSearch(event)}"
+                    @queryClear="${event => this.onVariantFilterClear(event)}">
                 </variant-browser-filter>
 
                 <div id="table-view" class="${this.activeView === "table" ? "d-block" : "d-none"}">
@@ -416,11 +401,11 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             .review="${true}"
                             .config="${this._config.filter.result.grid}"
                             .active="${this.active}"
-                            @queryComplete="${this.onQueryComplete}"
-                            @updaterow="${this.onUpdateVariant}"
-                            @checkrow="${this.onCheckVariant}"
-                            @settingsUpdate="${this.onSettingsUpdate}">
-                        </variant-interpreter-grid>` : html`
+                            @queryComplete="${event => this.onQueryComplete(event)}"
+                            @variantReview="${event => this.onVariantReview(event)}"
+                            @settingsUpdate="${event => this.onSettingsUpdate(event)}">
+                        </variant-interpreter-grid>
+                    ` : html`
                         <variant-interpreter-rearrangement-grid
                             .toolId="${this.toolId}"
                             .opencgaSession="${this.opencgaSession}"
@@ -429,14 +414,13 @@ class VariantInterpreterBrowserTemplate extends LitElement {
                             .review="${true}"
                             .config="${this._config.filter.result.grid}"
                             .active="${this.active}"
-                            @queryComplete="${this.onQueryComplete}"
-                            @updaterow="${this.onUpdateVariant}"
-                            @checkrow="${this.onCheckVariant}"
-                            @settingsUpdate="${this.onSettingsUpdate}">
-                        </variant-interpreter-rearrangement-grid>`
-                    }
+                            @queryComplete="${event => this.onQueryComplete(event)}"
+                            @variantReview="${event => this.onVariantReview(event)}"
+                            @settingsUpdate="${event => this.onSettingsUpdate(event)}">
+                        </variant-interpreter-rearrangement-grid>
+                    `}
                 </div>
-                <!-- Genome browser view -->
+
                 ${!this.settings?.hideGenomeBrowser ? html`
                     <div id="genome-browser-view" class="${this.activeView === "genome-browser" ? "d-block" : "d-none"}">
                         ${!this._config.filter.result.grid.isRearrangement ? html`

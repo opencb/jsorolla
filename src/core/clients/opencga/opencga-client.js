@@ -40,6 +40,8 @@ import UtilsNew from "../../utils-new.js";
 export class OpenCGAClient {
 
     constructor(config) {
+        this.version = "";
+
         // this._config = config;
         this.setConfig(config);
         this.check();
@@ -78,8 +80,14 @@ export class OpenCGAClient {
         };
         try {
             this.about = await this.meta().about();
-            if (this.about.getResult(0)) {
-                globalEvent("hostInit", {host: "opencga", value: "v" + this.about.getResult(0)["Version"]});
+            const result = this.about?.response?.[0]?.result[0];
+
+            if (result) {
+                this.version = "v" + result["Version"];
+                globalEvent("hostInit", {
+                    host: "opencga",
+                    value: this.version,
+                });
             } else {
                 globalEvent("signingInError", {value: "Opencga host not available."});
                 globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
@@ -154,7 +162,15 @@ export class OpenCGAClient {
         return this.clients.get("individuals");
     }
 
+    // DEPRECATED use userTool()
     userTool() {
+        if (!this.clients.has("userTool")) {
+            this.clients.set("userTool", new UserTool(this._config));
+        }
+        return this.clients.get("userTool");
+    }
+
+    userTools() {
         if (!this.clients.has("userTool")) {
             this.clients.set("userTool", new UserTool(this._config));
         }

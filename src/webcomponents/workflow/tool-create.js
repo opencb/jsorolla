@@ -60,11 +60,9 @@ export default class ToolCreate extends LitElement {
         if (changedProperties.has("displayConfig") || changedProperties.has("type")) {
             this._config = this.getDefaultConfig();
         }
-
         if (changedProperties.has("type")) {
             this._customTool = {};
         }
-
         super.update(changedProperties);
     }
 
@@ -87,10 +85,16 @@ export default class ToolCreate extends LitElement {
 
     onSubmit() {
         this.#setLoading(true);
-        
+
         // call the right create method according to the tool type
         let toolCreatePromise = null;
         switch (this.type) {
+            case "CUSTOM_TOOL":
+                toolCreatePromise = this.opencgaSession.opencgaClient.userTool()
+                    .createCustom(this._customTool, {
+                        study: this.opencgaSession.study.fqn,
+                    });
+                break;
             case "WORKFLOW":
                 toolCreatePromise = this.opencgaSession.opencgaClient.userTool()
                     .createWorkflow(this._customTool, {
@@ -100,12 +104,6 @@ export default class ToolCreate extends LitElement {
             case "VARIANT_WALKER":
                 toolCreatePromise = this.opencgaSession.opencgaClient.userTool()
                     .createWalker(this._customTool, {
-                        study: this.opencgaSession.study.fqn,
-                    });
-                break;
-            case "CUSTOM_TOOL":
-                toolCreatePromise = this.opencgaSession.opencgaClient.userTool()
-                    .createCustom(this._customTool, {
                         study: this.opencgaSession.study.fqn,
                     });
                 break;
@@ -173,7 +171,7 @@ export default class ToolCreate extends LitElement {
                             display: {
                                 placeholder: "Add an ID...",
                                 help: {
-                                    text: "Add an ID",
+                                    text: "Unique identifier for the tool. Once created, it cannot be changed.",
                                 },
                             },
                         },
@@ -183,6 +181,7 @@ export default class ToolCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Add the tool name...",
+                                helpMessage: "Descriptive name for the tool.",
                             },
                         },
                         {
@@ -191,7 +190,8 @@ export default class ToolCreate extends LitElement {
                             type: "select",
                             allowedValues: ["SECONDARY_ANALYSIS", "RESEARCH_ANALYSIS", "CLINICAL_INTERPRETATION_ANALYSIS", "OTHER"],
                             display: {
-                                placeholder: "Select the type...",
+                                placeholder: "Select the scope...",
+                                helpMessage: "Scope of the tool.",
                             },
                         },
                         {
@@ -200,13 +200,16 @@ export default class ToolCreate extends LitElement {
                             type: "input-tags",
                             display: {
                                 placeholder: "Add tags...",
+                                helpMessage: "Tags to categorize the tool.",
                             },
                         },
                         {
                             title: "Draft",
                             field: "draft",
                             type: "checkbox",
-                            display: {},
+                            display: {
+                                helpMessage: "Indicates whether the tool is in draft status.",
+                            },
                         },
                         {
                             title: "Minimum Requirements",
@@ -217,13 +220,21 @@ export default class ToolCreate extends LitElement {
                                     title: "Min. CPU cores",
                                     field: "minimumRequirements.cpu",
                                     type: "input-text",
-                                    display: {},
+                                    display: {
+                                        defaultValue: "4",
+                                        placeholder: "E.g., 4",
+                                        helpMessage: "Minimum number of CPU cores required to run the tool.",
+                                    },
                                 },
                                 {
                                     title: "Min. memory",
                                     field: "minimumRequirements.memory",
                                     type: "input-text",
-                                    display: {},
+                                    display: {
+                                        defaultValue: "8",
+                                        placeholder: "E.g., 8GB",
+                                        helpMessage: "Minimum memory in GB required to run the tool (e.g., 4). You must include the 'GB' suffix.",
+                                    },
                                 },
                             ]
                         },
@@ -233,7 +244,8 @@ export default class ToolCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Add the tool description...",
+                                placeholder: "Add a description...",
+                                helpMessage: "Detailed description of the tool.",
                             },
                         },
                     ],
@@ -250,23 +262,27 @@ export default class ToolCreate extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
-                                placeholder: "Add container image name...",
+                                placeholder: "E.g., biocontainers/bwa or quay.io/biocontainers/bwa",
+                                helpMessage: "Container name, including the registry if needed. You can use Docker Hub, Quay.io, etc.",
                             },
                         },
                         {
                             title: "Container Tag",
                             field: "container.tag",
                             type: "input-text",
+                            required: true,
                             display: {
-                                placeholder: "Add container image tag...",
+                                placeholder: "E.g., 0.7.17",
+                                helpMessage: "Container tag (version). If not provided, 'latest' will be used.",
                             },
                         },
                         {
-                            title: "Command Line",
+                            title: "Command Line Template",
                             field: "container.commandLine",
                             type: "input-text",
                             display: {
-                                placeholder: "Add contailer command line...",
+                                placeholder: `eg. bwa mem -t $\{num_threads} $\{input} > $\{output}`,
+                                helpMessage: "Command line template to run the tool inside the container. You can use ${input} and ${output} as placeholders for input and output files. E.g., 'bwa mem ${input} > ${output}'",
                             },
                         },
                         {
@@ -274,7 +290,8 @@ export default class ToolCreate extends LitElement {
                             field: "container.user",
                             type: "input-text",
                             display: {
-                                placeholder: "Add container user id...",
+                                placeholder: "",
+                                helpMessage: "Docker user ID for private repositories. At the moment, only Docker Hub is supported for private containers.",
                             },
                         },
                         {
@@ -282,7 +299,8 @@ export default class ToolCreate extends LitElement {
                             field: "container.password",
                             type: "input-password",
                             display: {
-                                placeholder: "Add container password or token...",
+                                placeholder: "",
+                                helpMessage: "Docker password or token for private repositories.",
                             },
                         },
                     ],

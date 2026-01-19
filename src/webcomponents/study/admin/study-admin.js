@@ -17,13 +17,14 @@
 import {LitElement, html} from "lit";
 import WebUtils from "../../commons/utils/web-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import "./clinical/clinical-analysis-case-configuration.js";
+import "./clinical/clinical-analysis-interpretation-configuration.js";
 import "./study-admin-users.js";
 import "./study-admin-permissions.js";
 import "./study-admin-variable.js";
 import "./study-admin-audit.js";
 import "./study-admin-configuration.js";
 import "../../variant/operation/variant-setup-operation.js";
-import "../../variant/operation/clinical-analysis-configuration-update.js";
 import "../../variant/operation/variant-secondary-sample-index-configure-operation.js";
 import "../../commons/view/vertical-menu.js";
 import "../../commons/pages/restricted-access-page.js";
@@ -89,7 +90,7 @@ export default class StudyAdmin extends LitElement {
         return {
             name: "Study Admin",
             display: {
-                menuStyle: "width:240px;",
+                menuStyle: "width:280px;",
             },
             menu: [
                 {
@@ -165,17 +166,6 @@ export default class StudyAdmin extends LitElement {
                             `,
                         },
                         {
-                            id: "clinical-analysis-configuration-operation",
-                            name: "Clinical Analysis Configuration",
-                            icon: "fas fa-key",
-                            render: opencgaSession => html`
-                                <clinical-analysis-configuration-update
-                                    .toolParams="${{study: opencgaSession.study.id}}"
-                                    .opencgaSession="${opencgaSession}">
-                                </clinical-analysis-configuration-update>
-                            `,
-                        },
-                        {
                             id: "variant-secondary-sample-configure-index",
                             name: "Sample Index Configuration",
                             icon: "fas fa-key",
@@ -184,6 +174,35 @@ export default class StudyAdmin extends LitElement {
                                     .toolParams="${{study: opencgaSession.study.id}}"
                                     .opencgaSession="${opencgaSession}">
                                 </variant-secondary-sample-index-configure-operation>
+                            `,
+                        },
+                    ],
+                },
+                {
+                    id: "clinical-configuration",
+                    name: "Clinical Configuration",
+                    description: "",
+                    submenu: [
+                        {
+                            id: "clinical-analysis-case-configuration",
+                            name: "Case Configuration",
+                            icon: "fas fa-key",
+                            render: opencgaSession => html`
+                                <clinical-analysis-case-configuration
+                                    .toolParams="${{study: opencgaSession.study.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </clinical-analysis-case-configuration>
+                            `,
+                        },
+                        {
+                            id: "clinical-analysis-interpretation-configuration",
+                            name: "Interpretation Analysis Configuration",
+                            icon: "fas fa-key",
+                            render: opencgaSession => html`
+                                <clinical-analysis-interpretation-configuration
+                                    .toolParams="${{study: opencgaSession.study.id}}"
+                                    .opencgaSession="${opencgaSession}">
+                                </clinical-analysis-interpretation-configuration>
                             `,
                         },
                     ],

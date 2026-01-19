@@ -29,9 +29,13 @@ import "../job/job-view.js";
 import "./file-folder-create.js";
 import "./file-create.js";
 import "./file-upload.js";
+import "./file-upload-multiple.js";
 import "./file-fetch.js";
+import "./file-reference-genome.js";
 import "./file-update.js";
 import "./file-view.js";
+import "./file-editor.js";
+import "../alignment/analysis/sarek-analysis.js";
 import "../variant/operation/variant-index-operation.js";
 
 export default class OpencgaFileGrid extends LitElement {
@@ -135,6 +139,25 @@ export default class OpencgaFileGrid extends LitElement {
                     </file-view>
                 `,
             }),
+            "edit-content": () => ({
+                display: {
+                    title: `Update ${this._selectedFile?.name} Content`,
+                    size: "modal-2xl",
+                    buttonsVisible: false,
+                    draggable: false,
+                },
+                render: () => html`
+                    <file-editor
+                        .path="${this._selectedFile.path || this._selectedFile.id}"
+                        .opencgaSession="${this.opencgaSession}"
+                        @fileContentSave="${() => {
+                            // note: the next line is commented to prevent to close the modal on save
+                            // this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </file-editor>
+                `,
+            }),
             "update": () => ({
                 display: {
                     modalTitle: `Update File ${this._selectedFile?.name}`,
@@ -217,6 +240,32 @@ export default class OpencgaFileGrid extends LitElement {
                     </file-upload>
                 `,
             },
+            "upload-multiple-files": {
+                display: {
+                    modalTitle: "Upload Multiple Files",
+                    modalSize: "modal-lg",
+                    modalCyDataName: "modal-upload-multiple",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <file-upload-multiple
+                        .opencgaSession="${this.opencgaSession}"
+                        .path="${this.getCurrentPath()}"
+                        .displayConfig="${{
+                            buttonsLayout: "bottom",
+                        }}"
+                        @fileUpload="${event => {
+                            this.table.bootstrapTable("refresh");
+                            this.onPathCreate(event.detail.relativeFilePath);
+                        }}"
+                        @fileUploadAll="${event => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                            this.onPathCreate(event.detail.relativeFilePath);
+                        }}">
+                    </file-upload-multiple>
+                `,
+            },
             "fetch-file": {
                 display: {
                     modalTitle: "Fetch File",
@@ -229,17 +278,53 @@ export default class OpencgaFileGrid extends LitElement {
                         .opencgaSession="${this.opencgaSession}"
                         .path="${this.getCurrentPath()}"
                         .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
-                        @fileUpload="${() => {
+                        @fileFetch="${() => {
                             this.gridCommons.clearActiveModal();
                             this.table.bootstrapTable("refresh");
                         }}">
                     </file-fetch>
                 `,
             },
+            "fetch-reference-genome": {
+                display: {
+                    modalTitle: "Fetch Reference Genome and Create Indexes",
+                    modalSize: "modal-xl",
+                    modalCyDataName: "modal-fetch",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <file-reference-genome
+                        .opencgaSession="${this.opencgaSession}"
+                        .path="${this.getCurrentPath()}"
+                        .displayConfig="${{type: "form", buttonsLayout: "bottom"}}"
+                        @fileReferenceGenome="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </file-reference-genome>
+                `,
+            },
+            "alignment": {
+                display: {
+                    modalTitle: "Run FASTQ Secondary Analysis",
+                    modalSize: "modal-lg",
+                    modalCyDataName: "modal-alignment",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <sarek-analysis
+                        .opencgaSession="${this.opencgaSession}"
+                        .toolParams="${{
+                            file: this._selectedFile.id,
+                            study: this.opencgaSession.study.fqn,
+                        }}">
+                    </sarek-analysis>
+                `,
+            },
             "variant-index": {
                 display: {
                     modalTitle: "Run Variant Index",
-                    modalSize: "modal-lg",
+                    modalSize: "modal-xl",
                     modalCyDataName: "modal-variant-index",
                     modalDraggable: true,
                 },
@@ -627,10 +712,20 @@ export default class OpencgaFileGrid extends LitElement {
                             <span>Open Folder</span>
                         </a>
                         <a data-action="download" target="_blank" class="dropdown-item ${row.type === "DIRECTORY" || !hasDownloadPermission ? "disabled" : "cursor-pointer"}" href="${downloadUrl}">
-                            <i class="fas fa-download me-1"></i> Download
+                            <i class="fas fa-download me-1"></i> Download File
+                        </a>
+                        <hr class="dropdown-divider">
+                        <a data-action="alignment" class="dropdown-item ${row.format === "FASTQ" && isStudyAdmin ? "cursor-pointer" : "disabled"}">
+                            <i class="fas fa-rocket me-1"></i> Run FASTQ Secondary Analysis
+                        </a>
+                        <a data-action="variant-calling" class="dropdown-item ${row.format === "BAM" && isStudyAdmin ? "cursor-pointer" : "disabled"}">
+                            <i class="fas fa-rocket me-1"></i> Run BAM Variant Calling
+                        </a>
+                        <a data-action="edit-content" class="dropdown-item ${this.isUpdateContentAllowed(row) && hasDownloadPermission && hasWritePermission ? "cursor-pointer" : "disabled"}">
+                            <i class="fas fa-edit me-1"></i> Update Content
                         </a>
                         <a data-action="variant-index" class="dropdown-item ${row.format === "VCF" && isStudyAdmin ? "cursor-pointer" : "disabled"}">
-                            <i class="fas fa-rocket me-1"></i> Run Variant Index
+                            <i class="fas fa-rocket me-1"></i> Run VCF Variant Index
                         </a>
                         <hr class="dropdown-divider">
                         <a data-action="edit" class="dropdown-item ${hasWritePermission ? "cursor-pointer" : "disabled"}">
@@ -643,6 +738,10 @@ export default class OpencgaFileGrid extends LitElement {
                 </div>
             </div>
         `;
+    }
+
+    isUpdateContentAllowed(file) {
+        return file.type === "FILE" && ["TAB_SEPARATED_VALUES", "COMMA_SEPARATED_VALUES", "XML", "JSON", "PLAIN", "PED", "JAVASCRIPT", "NONE", "UNKNOWN"].includes(file.format);
     }
 
     onActionClick(event, file) {
@@ -662,6 +761,14 @@ export default class OpencgaFileGrid extends LitElement {
             case "download-json":
                 UtilsNew.downloadData([JSON.stringify(file, null, "\t")], file.id + ".json");
                 break;
+            case "alignment":
+                this._selectedFile = file;
+                this.gridCommons.changeActiveModal("alignment");
+                break;
+            case "variant-calling":
+                this._selectedFile = file;
+                this.gridCommons.changeActiveModal("variant-calling");
+                break;
             case "variant-index":
                 this._selectedFile = file;
                 this.gridCommons.changeActiveModal("variant-index");
@@ -680,6 +787,10 @@ export default class OpencgaFileGrid extends LitElement {
             case "view-job":
                 this._selectedJobId = event.currentTarget.dataset.job;
                 this.gridCommons.changeActiveModal("view-job");
+                break;
+            case "edit-content":
+                this._selectedFile = file;
+                this.gridCommons.changeActiveModal("edit-content");
                 break;
             case "copy-path":
                 const path = file.path.startsWith("/") ? file.path : "/" + file.path;
@@ -837,16 +948,39 @@ export default class OpencgaFileGrid extends LitElement {
                 onClick: () => this.gridCommons.changeActiveModal("create-file"),
             },
             {
-                icon: "fa-file-upload",
-                title: "Upload File",
-                disabled: !hasWritePermission || !hasUploadPermission,
-                onClick: () => this.gridCommons.changeActiveModal("upload-file"),
+                render: () => html`
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle ${!hasWritePermission || !hasUploadPermission ? "disabled" : "cursor-pointer"}" data-bs-toggle="dropdown">
+                            <i class="fa fa-file-upload me-1"></i>
+                            <span class="">Upload File</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <a class="dropdown-item cursor-pointer" @click="${() => this.gridCommons.changeActiveModal("upload-file")}">
+                                <span>Upload Single File</span>
+                            </a>
+                            <a class="dropdown-item cursor-pointer" @click="${() => this.gridCommons.changeActiveModal("upload-multiple-files")}">
+                                <span>Upload Multiple Files</span>
+                            </a>
+                        </div>
+                    </div>
+                `,
             },
             {
                 icon: "fas fa-cloud-download-alt",
                 title: "Fetch File",
                 disabled: !hasWritePermission || !hasJobExecutionPermission,
                 onClick: () => this.gridCommons.changeActiveModal("fetch-file"),
+            },
+            {
+                render: () => {
+                    return html`<div class="w-px bg-gray-200 mx-1"></div>`;
+                },
+            },
+            {
+                icon: "fas fa-cloud-download-alt",
+                title: "Reference Genome",
+                disabled: !hasWritePermission || !hasJobExecutionPermission,
+                onClick: () => this.gridCommons.changeActiveModal("fetch-reference-genome"),
             },
             {
                 render: () => {

@@ -17,7 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import "./variant-interpreter-browser-save.js";
+import VariantUtils from "../variant-utils.js";
 
 class VariantInterpreterBrowserToolbar extends LitElement {
 
@@ -35,17 +35,11 @@ class VariantInterpreterBrowserToolbar extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            state: {
-                type: Object
-            },
             variantInclusionState: {
                 type: Array
             },
             opencgaSession: {
                 type: Object
-            },
-            write: {
-                type: Boolean
             },
             config: {
                 type: Object
@@ -55,7 +49,6 @@ class VariantInterpreterBrowserToolbar extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.write = false;
         this._config = this.getDefaultConfig();
     }
 
@@ -69,86 +62,43 @@ class VariantInterpreterBrowserToolbar extends LitElement {
         super.update(changedProperties);
     }
 
-    onFilterInclusionVariants() {
-        const variants = [];
-        this.variantInclusionState.map(inclusion => variants.push(...inclusion.variants));
+    getSelectedVariants() {
+        return [
+            ...(this.clinicalAnalysis.interpretation.primaryFindings || []),
+            ...(this.clinicalAnalysis.interpretation.secondaryFindings || []),
+        ];
+    }
+
+    getReportedVariants() {
+        return this.getSelectedVariants().filter(variant => {
+            return variant.status === "REPORTED" || variant.status === "CANDIDATE";
+        });
+    }
+
+    filterVariants(variants, elementId) {
         LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
             variants: variants
         });
         // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
         // when user clicks the 'Filter' button in the View menu (primary findings).
-        this.querySelector(`div#${this._prefix}InclusionVariants div.dropdown-menu`)?.classList?.toggle?.("show");
-    }
-
-    onFilterPrimaryFindingVariants() {
-        LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
-            variants: this.clinicalAnalysis.interpretation.primaryFindings,
-        });
-        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
-        // when user clicks the 'Filter' button in the View menu (primary findings).
-        this.querySelector(`div#${this._prefix}View div.dropdown-menu`)?.classList?.toggle?.("show");
-    }
-
-    onFilterModifiedVariants() {
-        LitUtils.dispatchCustomEvent(this, "filterVariants", null, {
-            variants: [
-                ...this.state.addedVariants,
-                ...this.state.updatedVariants,
-                ...this.state.removedVariants,
-            ],
-        });
-        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
-        // when user clicks the 'Filter Variants' button in the Save menu.
-        this.querySelector(`div#${this._prefix}Save div.dropdown-menu`)?.classList?.toggle?.("show");
-    }
-
-    onResetModifiedVariants() {
-        LitUtils.dispatchCustomEvent(this, "resetVariants", null);
-        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
-        // when user clicks the 'Discard Changes' button in the Save menu.
-        this.querySelector(`div#${this._prefix}Save div.dropdown-menu`)?.classList?.toggle?.("show");
-    }
-
-    onSaveInterpretation(event) {
-        LitUtils.dispatchCustomEvent(this, "saveInterpretation", null, {
-            comment: event?.detail?.comment || {},
-        });
-        // Josemi 20240701 NOTE: this is a terrible and temporal fix to force closing the Save Menu
-        // when user clicks the 'Save' button in the Save menu.
-        this.querySelector(`div#${this._prefix}Save div.dropdown-menu`)?.classList?.toggle?.("show");
-    }
-
-    onSaveFieldsChange(type, e) {
-        this.comment = this.comment ? this.comment : {};
-        switch (type) {
-            case "message":
-                this.comment.message = e.detail.value;
-                break;
-            case "tags":
-                this.comment.tags = e.detail.value;
-                break;
+        if (elementId) {
+            this.querySelector(`div#${this._prefix}${elementId} div.dropdown-menu`)?.classList?.toggle?.("show");
         }
     }
 
-    // onInterpretationChangesModalShow() {
-    //     ModalUtils.show();
-    // }
+    onFilterInclusionVariants() {
+        const variants = [];
+        this.variantInclusionState.map(inclusion => variants.push(...inclusion.variants));
+        this.filterVariants(variants, "InclusionVariants");
+    }
 
-    // renderInterpretationChangesSaveModal() {
-    //     return ModalUtils.create(this, `${this._prefix}InterpretationChangesSaveModal`, {
-    //         display: {
-    //             modalTitle: "Review and Save Interpretation Changes",
-    //             modalDraggable: false,
-    //             modalSize: "modal-lg"
-    //         },
-    //         render: () => html`
-    //             <variant-interpreter-save
-    //                 .clinicalAnalysis="${this.clinicalAnalysis}"
-    //                 .state="${this.state}">
-    //             </variant-interpreter-save>
-    //         `,
-    //     });
-    // }
+    onFilterAllVariants() {
+        this.filterVariants(this.getSelectedVariants(), "SelectedVariants");
+    }
+
+    onFilterReportedVariants() {
+        this.filterVariants(this.getReportedVariants(), "SelectedVariants");
+    }
 
     renderInclusionVariant(inclusion) {
         const iconHtml = html`
@@ -188,23 +138,37 @@ class VariantInterpreterBrowserToolbar extends LitElement {
     }
 
     renderVariant(variant) {
-        const geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
+        const geneNames = Array.from(new Set(variant?.annotation?.consequenceTypes?.filter(ct => ct.geneName).map(ct => ct.geneName)));
+        const statusColor = VariantUtils.getStatusColor(variant?.status);
 
         return html`
-            <div class="mb-1 border-start border-4 border-primary">
-                <div class="my-1 mx-2"><b>${variant.id}</b> <i class="ps-3">${variant.annotation.displayConsequenceType || ""}</i></div>
-                <div class="my-1 mx-2 small">${geneNames.join(", ")}</div>
+            <div class="mb-1 d-flex gap-2">
+                <div class="${statusColor} flex-shrink-0" style="width:4px;" title="${variant?.status || ""}"></div>
+                <div class="flex-grow-1">
+                    <div class="my-1"><b>${variant.id}</b> <i class="ps-3">${variant.annotation.displayConsequenceType || ""}</i></div>
+                    <div class="my-1 small text-secondary">${geneNames.join(", ")}</div>
+                </div>
             </div>
         `;
     }
 
     render() {
-        const hasVariantsToSave = this.state.addedVariants?.length || this.state.removedVariants?.length || this.state.updatedVariants?.length;
-        const primaryFindings = this.clinicalAnalysis?.interpretation?.primaryFindings || [];
+        const selectedVariantsCount = this.getSelectedVariants().length;
+        const reportedVariantsCount = this.getReportedVariants().length;
+        const findings = [
+            {
+                title: "Primary Findings",
+                variants: this.clinicalAnalysis?.interpretation?.primaryFindings || [],
+            },
+            {
+                title: "Secondary Findings",
+                variants: this.clinicalAnalysis?.interpretation?.secondaryFindings || [],
+            },
+        ];
 
         return html`
             <div class="d-flex gap-1">
-                <div class="dropdown d-flex" id="${this._previx}InclusionVariants">
+                <div class="dropdown d-flex" id="${this._prefix}InclusionVariants">
                     <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <i class="fas fa-tasks pe-1"></i>
                         <strong>Inclusion Variants</strong>
@@ -232,56 +196,45 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                         `}
                     </div>
                 </div>
-                <div class="dropdown d-flex" id="${this._previx}View">
+                <div class="dropdown d-flex" id="${this._prefix}SelectedVariants">
                     <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <i class="fas fa-eye pe-1"></i>
-                        <strong>View</strong>
+                        <strong>Selected Variants</strong>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end shadow" style="width:400px">
-                        <div class="my-1 mx-0">
-                            <span class="fw-bold">Primary Findings</span>
+                        <div class="d-flex flex-column gap-1">
+                            ${findings.map(finding => html`
+                                <div class="">
+                                    <div class="my-1 mx-0">
+                                        <span class="fw-bold">${finding.title} (${finding.variants.length})</span>
+                                    </div>
+                                    ${finding.variants?.length > 0 ? html`
+                                        <div class="overflow-y-auto m-1" style="max-height:350px;">
+                                            ${finding.variants.map(variant => this.renderVariant(variant))}
+                                        </div>
+                                    ` : html`
+                                        <div class="d-flex flex-column align-items-center py-4 px-4 bg-gray-100 rounded">
+                                            <div class="mb-2">
+                                                <i class="fas fa-list fs-2"></i>
+                                            </div>
+                                            <div class="fw-bold lh-sm">No ${finding.title.toLowerCase()} saved.</div>
+                                        </div>
+                                    `}
+                                </div>
+                            `)}
                         </div>
-                        ${primaryFindings?.length > 0 ? html`
-                            <div class="overflow-y-auto m-1" style="max-height:350px;">
-                                ${primaryFindings.map(variant => this.renderVariant(variant))}
-                            </div>
+                        ${(selectedVariantsCount > 0) ? html`
                             <hr class="dropdown-divider">
-                            <div class="d-flex justify-content-end">
-                                <button class="btn btn-primary" @click="${this.onFilterPrimaryFindingVariants}">
-                                    <i class="fas fa-filter me-1"></i>
-                                    <span>Filter Variants</span>
+                            <div class="d-flex justify-content-end gap-2">
+                                <button class="btn btn-success ${reportedVariantsCount === 0 ? "disabled" : ""}" @click="${() => this.onFilterReportedVariants()}">
+                                    <span>Filter <b>Reported Variants</b> (${reportedVariantsCount})</span>
+                                </button>
+                                <button class="btn btn-primary" @click="${() => this.onFilterAllVariants()}">
+                                    <span>Filter <b>All Variants</b> (${selectedVariantsCount})</span>
                                 </button>
                             </div>
-                        ` : html`
-                            <div class="d-flex flex-column align-items-center py-4 px-4 bg-gray-100 rounded">
-                                <div class="mb-2">
-                                    <i class="fas fa-list fs-2"></i>
-                                </div>
-                                <div class="fw-bold lh-sm">No primary findings saved.</div>
-                            </div>
-                        `}
-                    </div>
-                </div>
-                <div class="dropdown d-flex" id="${this._prefix}Save">
-                    <button class="btn ${hasVariantsToSave ? "btn-danger" : "btn-light"} ${!this.write ? "disabled" : ""} dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                        <i class="fas fa-save pe-1"></i>
-                        <strong>Save</strong>
-                        ${hasVariantsToSave ? html`
-                            <span class="badge bg-white text-danger rounded-pill ms-1">
-                                ${this.state.addedVariants.length + this.state.removedVariants.length + this.state.updatedVariants.length}
-                            </span>
                         ` : nothing}
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end shadow" style="width:500px;">
-                        <variant-interpreter-browser-save
-                            .opencgaSession="${this.opencgaSession}"
-                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .state="${this.state}"
-                            @saveVariants="${e => this.onSaveInterpretation(e)}"
-                            @discardVariants="${() => this.onResetModifiedVariants()}"
-                            @filterVariants="${() => this.onFilterModifiedVariants()}">
-                        </variant-interpreter-browser-save>
-                        </div>
+                    </div>
                 </div>
             </div>
         `;

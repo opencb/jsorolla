@@ -270,7 +270,9 @@ export default class UtilsNew {
             pad2(date.getSeconds());
     }
 
-    static initTooltip(scope) {
+    static initTooltip(scope, onRender, customClasses = "") {
+        let chartInstance = null; // store chart for reflow
+
         $("a[tooltip-title], span[tooltip-title], table[tooltip-title], td[tooltip-title]", scope).each(function () {
             $(this).qtip({
                 content: {
@@ -284,13 +286,30 @@ export default class UtilsNew {
                     my: $(this).attr("tooltip-position-my") ?? "top left",
                     at: $(this).attr("tooltip-position-at") ?? "bottom right"
                 },
-                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow"},
+                style: {width: true, classes: `qtip-light qtip-rounded qtip-shadow ${customClasses}`.trim()},
                 // show: {delay: 200},
                 show: {
                     delay: 200,
                     event: "click mouseenter"
                 },
-                hide: {fixed: true, delay: 300}
+                hide: {fixed: true, delay: 300},
+                events: {
+                    /*
+                    render: function (event, api) {
+                        if (typeof onRender === "function") {
+                            onRender(event, api, this);
+                        }
+                    }
+                     */
+                    show: function (event, api) {
+                        if (typeof onRender === "function" && !chartInstance) {
+                            chartInstance = onRender(event, api, this);
+                        }
+                        if (chartInstance) {
+                            chartInstance.reflow(); // force resize
+                        }
+                    }
+                }
             });
         });
     }
@@ -315,6 +334,11 @@ export default class UtilsNew {
         return first.toUpperCase() + rest.join("").toLowerCase();
     }
 
+    static capitalizeWords(str) {
+        return str
+            .toLowerCase()
+            .replace(/\b\w/g, char => char.toUpperCase());
+    }
     /*
      * This function creates a table (rows and columns) a given Object or array of Objects using the fields provided.
      * Id fields is not defined or empty then it uses the Object keys. Fields can contain arrays and nested arrays.
@@ -1114,6 +1138,19 @@ export default class UtilsNew {
         }
     }
 
+    // convert a file object to DataURL string
+    // reference: https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
+    static fileToDataURL(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.addEventListener("load", () => {
+                resolve(reader.result);
+            });
+            reader.addEventListener("error", error => reject(error));
+            reader.readAsDataURL(file); // Reads file as a Data URL
+        });
+    }
+    
     // checks if the provided file is a binary file
     static isBinaryFile(file) {
         const binaryExtensions = new Set(["tbi", "bai", "zip", "bigWig", "pbi", "gz"]);

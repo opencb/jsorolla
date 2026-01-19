@@ -20,14 +20,14 @@ import VariantInterpreterGridFormatter from "./interpretation/variant-interprete
 
 export default class VariantFormatter {
 
-    static variantIdFormatter(id, variant, alleleStringLengthMax = 20) {
+    static variantIdFormatter(id, variant, alleleStringLengthMax = 20, offset = 4) {
         let ref = variant.reference ? variant.reference : "-";
         let alt = variant.alternate ? variant.alternate : "-";
 
         // Check size
         const maxAlleleLength = alleleStringLengthMax;
-        ref = (ref.length > maxAlleleLength) ? ref.substring(0, 4) + "..." + ref.substring(ref.length - 4) : ref;
-        alt = (alt.length > maxAlleleLength) ? alt.substring(0, 4) + "..." + alt.substring(alt.length - 4) : alt;
+        ref = (ref.length > maxAlleleLength) ? ref.substring(0, offset) + "..." + ref.substring(ref.length - offset) : ref;
+        alt = (alt.length > maxAlleleLength) ? alt.substring(0, offset) + "..." + alt.substring(alt.length - offset) : alt;
 
         // Ww need to escape < and > symbols from <INS>, <DEL>, ...
         alt = alt.replaceAll("<", "&lt;").replaceAll(">", "&gt;");

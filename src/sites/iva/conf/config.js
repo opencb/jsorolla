@@ -22,18 +22,18 @@ const hosts = [
     },
     {
         id: "demo",
-        url: "https://demo.app.zettagenomics.com/opencga"
+        url: "https://demo.app.zettagenomics.com/trial-scs/opencga"
     },
     {
-        id: "reference",
-        url: "https://test.app.zettagenomics.com/task-7610/opencga"
+        id: "task-7645",
+        url: "https://test.app.zettagenomics.com/task-7645/opencga"
     },
 ];
 
 const opencga = {
     host: hosts[2].url,
     version: "v2",
-    // organizations: ["test", "test2"],
+    organizations: ["test"],
     cookie: {
         prefix: "iva-" + hosts[2].id,
         secure: true,
@@ -205,6 +205,7 @@ const SUITE = {
                     id: "variant-browser",
                     name: "Variant Browser",
                     icon: "fa-dna",
+                    category: "Data Exploration",
                     visibility: "public",
                     description: "Explore our high-performance and scalable aggregated variant database in real-time.",
                 },
@@ -212,6 +213,7 @@ const SUITE = {
                     id: "my-analysis-tools",
                     name: "My Tools",
                     icon: "fa-cog",
+                    category: "Data Analysis",
                     visibility: "public",
                     description: "Manage your personal analysis tools.",
                 },
@@ -219,20 +221,15 @@ const SUITE = {
                     id: "analysis-tools",
                     name: "Analysis Tools",
                     icon: "fa-tools",
+                    category: "Data Analysis",
                     visibility: "public",
                     description: "Execute analysis tools using data of the current study.",
-                },
-                {
-                    id: "workflow-manager",
-                    name: "My Tools Manager",
-                    icon: "fa-stream",
-                    visibility: "public",
-                    description: "Build, import and execute NextFlow workflows.",
                 },
                 {
                     id: "jupyter-lab",
                     name: "Jupyter Notebooks",
                     icon: "fa-book",
+                    category: "Data Exploration",
                     visibility: "public",
                     description: "Create, share, and execute Jupyter Notebooks with Python.",
                 },
@@ -240,6 +237,7 @@ const SUITE = {
                     id: "cohort-browser",
                     name: "Cohort Manager",
                     icon: "fa-search",
+                    category: "Data Analysis",
                     visibility: "public",
                     description: "Explore and manage all cohorts in the current study.",
                 },
@@ -264,11 +262,28 @@ const SUITE = {
                 // `,
             },
             menu: [
+                // {
+                //     id: "clinical-file-upload",
+                //     name: "Clinical File Upload",
+                //     icon: "fa-file-medical",
+                //     visibility: "public",
+                //     category: "Data Preprocessing",
+                //     description: "Upload clinical data files (VCF, PED, BAM, etc.) to the current study.",
+                // },
+                // {
+                //     id: "clinical-preprocessing",
+                //     name: "Clinical Preprocessing",
+                //     icon: "fa-file-medical",
+                //     visibility: "public",
+                //     category: "Data Preprocessing",
+                //     description: "Preprocess clinical data and generate the required files to run a clinical analysis.",
+                // },
                 {
                     id: "clinical-analysis-portal",
                     name: "Case Interpreter Portal",
                     icon: "fa-file-medical",
                     visibility: "public",
+                    category: "Data Analysis",
                     description: "Explore and review Clinical Interpretations: filter by gene, consequence, frequency, and create clinical interpretations and reports.",
                 },
                 {
@@ -276,6 +291,7 @@ const SUITE = {
                     name: "Disease Panel Browser",
                     icon: "fa-th-list",
                     visibility: "public",
+                    category: "Data Analysis",
                     description: "Explore, manage, and create any Disease Panel associated with the active Study.",
                 },
                 {
@@ -283,6 +299,7 @@ const SUITE = {
                     name: "Clinical Variant DB",
                     icon: "fa-database",
                     visibility: "none",
+                    category: "Data Analysis",
                     description: "Explore and review relevant information from your clinical analysis: interpretations, variants, and variant evidence.",
                 },
             ],
@@ -311,6 +328,7 @@ const SUITE = {
                     name: "Sample Browser",
                     icon: "fa-vial",
                     visibility: "public",
+                    category: "Clinical Data Management",
                     description: "Explore and manage all samples in the current study.",
                 },
                 {
@@ -318,6 +336,7 @@ const SUITE = {
                     name: "Individual Browser",
                     icon: "fa-user",
                     visibility: "public",
+                    category: "Clinical Data Management",
                     description: "Explore and manage all individuals in the current study.",
                 },
                 {
@@ -325,6 +344,7 @@ const SUITE = {
                     name: "Family Browser",
                     icon: "fa-users",
                     visibility: "public",
+                    category: "Clinical Data Management",
                     description: "Explore and manage all families in the current study.",
                 },
                 {
@@ -332,13 +352,23 @@ const SUITE = {
                     name: "Note Browser",
                     icon: "fa-sticky-note",
                     visibility: "public",
+                    category: "Clinical Data Management",
                     description: "Explore and manage all notes in the current study.",
+                },
+                {
+                    id: "workflow-manager",
+                    name: "My Tools Manager",
+                    icon: "fa-stream",
+                    category: "Metadata Management",
+                    visibility: "public",
+                    description: "Build, import and execute NextFlow workflows.",
                 },
                 {
                     id: "job-browser",
                     name: "Job Browser",
                     icon: "fa-rocket",
                     visibility: "public",
+                    category: "Metadata Management",
                     description: "Explore and manage all jobs in the current study.",
                 },
                 {
@@ -346,6 +376,7 @@ const SUITE = {
                     name: "File Manager",
                     icon: "fa-folder",
                     visibility: "public",
+                    category: "Metadata Management",
                     description: "Manage your data in the cloud.",
                 },
             ],

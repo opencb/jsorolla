@@ -18,7 +18,6 @@ import {LitElement, html} from "lit";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils";
 import "../commons/tool-header.js";
-import "../commons/forms/tags-input.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
 
@@ -194,15 +193,7 @@ export default class CohortCreate extends LitElement {
                         {
                             title: "Tags",
                             field: "tags",
-                            type: "custom",
-                            display: {
-                                render: (tags, dataFormFilterChange) => html`
-                                    <tags-input
-                                        .value="${tags || []}"
-                                        @change="${event => dataFormFilterChange(event.detail.value)}">
-                                    </tags-input>
-                                `,
-                            },
+                            type: "input-tags",
                         },
                         {
                             title: "Status",

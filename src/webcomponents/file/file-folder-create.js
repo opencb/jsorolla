@@ -17,9 +17,9 @@
 import {html, LitElement} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
-import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-distinct-autocomplete.js";
+import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class FileFolderCreate extends LitElement {
 
@@ -49,21 +49,15 @@ export default class FileFolderCreate extends LitElement {
 
     #init() {
         this.isLoading = false;
-        this.displayConfigDefault = {
-            style: "margin: 10px",
-            titleWidth: 3,
-            defaultLayout: "horizontal",
-            buttonOkText: "Create Folder",
-            buttonClearText: "Discard Changes",
-        };
-        this.#initOriginalObjects();
+        this._folder = {};
+        this._config = this.getDefaultConfig();
+        this.initOriginalObjects();
     }
 
-    #initOriginalObjects() {
+    initOriginalObjects() {
         this._folder = {
-            type: "DIRECTORY",
+            path: this.path || "/",
         };
-        this._config = this.getDefaultConfig();
     }
 
     #setLoading(value) {
@@ -72,9 +66,14 @@ export default class FileFolderCreate extends LitElement {
     }
 
     update(changedProperties) {
+        if (changedProperties.has("path")) {
+            this.initOriginalObjects();
+        }
+
         if (changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
+
         super.update(changedProperties);
     }
 
@@ -85,37 +84,38 @@ export default class FileFolderCreate extends LitElement {
 
     onClear() {
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Clear Folder",
-            message: "Are you sure to clear?",
+            title: "Discard Changes",
+            message: "This will discard all changes made on this form. Do you want to continue?",
             ok: () => {
-                this.#initOriginalObjects();
+                this.initOriginalObjects();
                 this.requestUpdate();
             },
         });
     }
 
     onSubmit() {
-        const {name, ...otherFileData} = this._folder;
+        const {name, tags, path, ...otherFolderData} = this._folder;
         const data = {
-            ...otherFileData,
-            tags: otherFileData.tags ? otherFileData.tags.split(",").map(t => t.trim()) : [],
-            path: `${this.path || ""}${name}`,
-            resource: this.path.startsWith("RESOURCES/")
+            ...otherFolderData,
+            tags: tags ? tags.split(",").map(t => t.trim()) : [],
+            path: `${path || ""}${name}`,
+            resource: (path || "").startsWith("RESOURCES/"),
+            type: "DIRECTORY",
         };
 
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.files()
             .create(data, {
                 study: this.opencgaSession.study.fqn,
-                parents: name?.includes("/")
+                parents: name?.includes("/"),
             })
             .then(() => {
-                this.#initOriginalObjects();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Create Folder",
                     message: `Folder ${name} created correctly`,
                 });
                 LitUtils.dispatchCustomEvent(this, "folderCreate", null, data);
+                this.initOriginalObjects();
             })
             .catch(error => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
@@ -146,7 +146,10 @@ export default class FileFolderCreate extends LitElement {
     getDefaultConfig() {
         return {
             display: {
-                ...this.displayConfigDefault,
+                titleWidth: 3,
+                defaultLayout: "horizontal",
+                buttonOkText: "Create Folder",
+                buttonClearText: "Discard Changes",
                 ...this.displayConfig,
             },
             sections: [
@@ -155,10 +158,19 @@ export default class FileFolderCreate extends LitElement {
                         {
                             title: "Path",
                             field: "path",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                defaultValue: `/${this.path}`,
-                                disabled: true,
+                                render: (path, onFieldChange) => html`
+                                    <catalog-search-autocomplete
+                                        .value="${path}"
+                                        .resource="${"DIRECTORY"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config="${{
+                                            multiple: false,
+                                        }}"
+                                        @filterChange="${e => onFieldChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `,
                                 helpMessage: "Path where the folder will be created.",
                             },
                         },
@@ -200,17 +212,6 @@ export default class FileFolderCreate extends LitElement {
                                 helpMessage: "Description of the folder.",
                             },
                         },
-                        // {
-                        //     title: "Resource",
-                        //     field: "resource",
-                        //     type: "checkbox",
-                        //     display: {
-                        //         disabled: () => {
-                        //             return !CatalogUtils.isAdmin(this.opencgaSession?.study, this.opencgaSession?.user?.id);
-                        //         },
-                        //         helpMessage: "If checked, the file will be created as a resource. This option is only available for study administrators.",
-                        //     },
-                        // },
                     ],
                 },
             ],

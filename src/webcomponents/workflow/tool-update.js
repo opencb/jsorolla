@@ -17,6 +17,7 @@
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
+import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 
 export default class ToolUpdate extends LitElement {
@@ -79,7 +80,7 @@ export default class ToolUpdate extends LitElement {
                 .resource="${this.type}"
                 .componentId="${this.toolId}"
                 .opencgaSession="${this.opencgaSession}"
-                .active="${this.active ?? true}"
+                .active="${this.active}"
                 .config="${this._config}"
                 @componentIdObserver="${event => this.onToolIdObserver(event)}">
             </opencga-update>
@@ -130,9 +131,6 @@ export default class ToolUpdate extends LitElement {
                             title: "Tags",
                             field: "tags",
                             type: "input-tags",
-                            display: {
-                                placeholder: "Add tags...",
-                            },
                         },
                         {
                             title: "Draft",
@@ -265,7 +263,7 @@ export default class ToolUpdate extends LitElement {
                 {
                     title: "Input Variables",
                     text: "Optional variables that can be used in the workflow, these are NOT necessary for the workflow to run. " +
-                        "The variables will be ONLY used to create automatic forms.",
+                        "The variables will be ONLY used to create automatic forms and provide default values.",
                     elements: [
                         {
                             title: "Variables",

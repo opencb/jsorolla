@@ -17,10 +17,9 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import WebUtils from "../commons/utils/web-utils.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils";
 import "../commons/forms/data-form.js";
-import "../individual/individual-grid.js";
 
 export default class ClinicalAnalysisSummary extends LitElement {
 
@@ -52,7 +51,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
     }
 
     #init() {
-        this._clinicalAnalysis = {};
+        this._clinicalAnalysis = null;
         this._config = this.getDefaultConfig();
     }
 
@@ -90,7 +89,7 @@ export default class ClinicalAnalysisSummary extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        this._clinicalAnalysis = {...this.clinicalAnalysis};
+        this._clinicalAnalysis = this.clinicalAnalysis;
     }
 
     render() {
@@ -108,19 +107,51 @@ export default class ClinicalAnalysisSummary extends LitElement {
 
     getDefaultConfig() {
         return {
+            title: "Clinical Analysis Overview",
             display: {
-                titleVisible: false,
+                titleVisible: true,
                 buttonsVisible: false,
+                separationClassName: "mb-1",
+                layout: [
+                    {
+                        className: "row mb-4",
+                        sections: [
+                            {
+                                id: "case-general",
+                                className: "col-6",
+                            },
+                            {
+                                id: "case-metadata",
+                                className: "col-6",
+                            },
+                        ],
+                    },
+                    {
+                        id: "interpretations",
+                        className: "mb-4",
+                    },
+                    {
+                        id: "family",
+                        className: "mb-4",
+                    },
+                ],
                 ...this.displayConfig,
             },
             sections: [
                 {
-                    id: "detail",
-                    title: "Details",
+                    id: "case-general",
                     display: {
-                        titleWidth: 3,
+                        titleWidth: 4,
+                        className: "p-4 border border-1 border-gray-200 rounded-4 bg-white",
                     },
                     elements: [
+                        {
+                            type: "text",
+                            text: "General Information",
+                            display: {
+                                className: "mb-2 fs-5 fw-bold",
+                            },
+                        },
                         {
                             title: "Case ID",
                             field: "id",
@@ -141,25 +172,17 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             },
                         },
                         {
-                            title: "Analysis Type",
-                            field: "type",
-                            display: {
-                                visible: !this._config?.hiddenFields?.includes("type"),
-                            },
-                        },
-                        {
                             title: "Flags",
                             field: "flags",
+                            // type: "custom",
                             type: "list",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("flags"),
-                                separator: " ",
-                                contentLayout: "horizontal",
-                                template: "${id}",
-                                className: {
-                                    "id": "badge text-bg-secondary",
-                                },
-                            }
+                                contentLayout: "vertical",
+                                listClassName: "d-flex align-items-center flex-wrap gap-1",
+                                listItemClassName: "badge bg-secondary text-white d-flex align-items-center gap-2",
+                                defaultValue: "-",
+                                template: "<span>${id}</span>",
+                            },
                         },
                         {
                             title: "Status",
@@ -176,282 +199,348 @@ export default class ClinicalAnalysisSummary extends LitElement {
                             }
                         },
                         {
-                            title: "Description",
-                            field: "description",
-                            display: {
-                                errorMessage: "-",
-                            },
-                        },
-                        {
                             title: "Assigned To",
                             field: "analysts",
                             type: "list",
                             display: {
-                                contentLayout: "bullets",
-                                visible: !this._config?.hiddenFields?.includes("analyst.assignee") && !this._config?.hiddenFields?.includes("analyst.id"),
-                                format: analyst => analyst.id,
+                                contentLayout: "vertical",
+                                listClassName: "d-flex align-items-center flex-wrap gap-1",
+                                listItemClassName: "badge bg-secondary text-white d-flex align-items-center gap-2",
+                                defaultValue: "-",
+                                template: "<i class='fas fa-user-md'></i><span>${name}</span>",
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: "case-metadata",
+                    display: {
+                        titleWidth: 4,
+                        className: "p-4 border border-1 border-gray-200 rounded-4 bg-white",
+                    },
+                    elements: [
+                        {
+                            type: "text",
+                            text: "Metadata",
+                            display: {
+                                className: "mb-2 fs-5 fw-bold",
+                            },
+                        },
+                        {
+                            title: "UUID",
+                            field: "uuid",
+                            type: "custom",
+                            display: {
+                                render: uuid => html`
+                                    <code class="text-break">${uuid || "-"}</code>
+                                `,
+                                defaultValue: "-",
+                            },
+                        },
+                        {
+                            title: "Analysis Type",
+                            field: "type",
+                        },
+                        {
+                            title: "Version",
+                            field: "version",
+                            display: {
+                                defaultValue: "-",
+                            },
+                        },
+                        {
+                            title: "Release",
+                            field: "release",
+                            display: {
+                                defaultValue: "-",
                             },
                         },
                         {
                             title: "Creation Date",
                             field: "creationDate",
                             display: {
-                                format: date => UtilsNew.dateFormatter(date)
+                                format: date => UtilsNew.dateFormatter(date),
                             },
                         },
                         {
                             title: "Due date",
                             field: "dueDate",
                             display: {
-                                format: date => UtilsNew.dateFormatter(date)
+                                separationClassName: "mb-0",
+                                defaultValue: "-",
+                                format: date => UtilsNew.dateFormatter(date),
                             },
                         }
-                    ]
+                    ],
                 },
                 {
-                    id: "proband",
-                    title: "Proband",
+                    id: "interpretations",
                     display: {
-                        titleWidth: 3,
+                        titleWidth: 4,
+                        className: "p-4 border border-1 border-gray-200 rounded-4 bg-white",
                     },
                     elements: [
                         {
-                            title: "Proband",
-                            field: "proband.id"
-                        },
-                        {
-                            title: "Sex (Karyotypic)",
-                            field: "proband",
+                            type: "text",
+                            text: "Interpretations",
                             display: {
-                                defaultValue: "Not specified",
-                                format: proband => `${proband?.sex?.id ?? proband?.sex} (${proband?.karyotypicSex})`
+                                className: "mb-2 fs-5 fw-bold",
                             },
                         },
                         {
-                            title: "Date of Birth",
-                            field: "proband.dateOfBirth",
-                        },
-                        {
-                            title: "Life Status",
-                            field: "proband.lifeStatus",
-                        },
-                        {
-                            title: "Disorders",
-                            field: "proband.disorders",
-                            type: "list",
-                            display: {
-                                defaultValue: "-",
-                                contentLayout: "bullets",
-                                transform: disorders => (disorders || []).map(disorder => ({disorder})),
-                                template: "${disorder.name} (${disorder.id})",
-                                link: {
-                                    "disorder.id": id => id.startsWith("OMIM:") ?
-                                        BioinfoUtils.getOmimOntologyLink(id) :
-                                        "",
-                                },
-                            },
-                        },
-                        {
-                            title: "Phenotypes",
-                            field: "proband.phenotypes",
-                            type: "list",
-                            display: {
-                                defaultValue: "-",
-                                contentLayout: "bullets",
-                                transform: phenotypes => (phenotypes || [])
-                                    .sort(item => item?.status === "OBSERVED" ? -1 : 1)
-                                    .map(phenotype => ({phenotype})),
-                                template: "${phenotype.name} (${phenotype.id}) - ${phenotype.status}",
-                                link: {
-                                    "phenotype.id": id => id.startsWith("HP:") ? BioinfoUtils.getHpoLink(id) : id,
-                                }
-                            },
-                        },
-                        {
-                            title: "Samples",
-                            field: "proband.samples",
                             type: "table",
-                            style: {
-                                "margin-top": "1em",
-                            },
                             display: {
-                                // defaultValue: "No sample found",
-                                defaultLayout: "vertical",
-                                headerStyle: {
-                                    background: "#f5f5f5",
-                                    lineHeight: "0.5"
+                                getData: clinicalAnalysis => {
+                                    const allInterpretations = [];
+                                    // 1. include the primary interpretation
+                                    if (clinicalAnalysis?.interpretation) {
+                                        allInterpretations.push({
+                                            ...clinicalAnalysis.interpretation,
+                                            primary: true, // add primary flag
+                                        });
+                                    }
+                                    // 2. include secondary interpretations
+                                    if (clinicalAnalysis?.secondaryInterpretations?.length > 0) {
+                                        allInterpretations.push(...clinicalAnalysis.secondaryInterpretations);
+                                    }
+                                    // 3. return all interpretations
+                                    return allInterpretations;
                                 },
+                                className: "table-borderless table-grid mb-0",
+                                separationClassName: "mb-0",
+                                headerCellClassName: "bg-white",
+                                bodyRowClassName: "bg-gray-100",
+                                bodyCellClassName: "align-middle",
+                                defaultValue: () => html`
+                                    <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
+                                        <i class="fas fa-info-circle fs-3"></i>
+                                        <div class="text-break">No interpretations for this Clinical Analysis.</div>
+                                    </div>
+                                `,
                                 columns: [
-                                //     {
-                                //         title: "ID",
-                                //         field: "id",
-                                //         formatter: (sampleId, sample) => {
-                                //             let somaticHtml = "";
-                                //             if (typeof sample.somatic !== "undefined") {
-                                //                 somaticHtml = sample.somatic ? "Somatic" : "Germline";
-                                //             }
-                                //             return `
-                                //                 <div>
-                                //                     <span style="font-weight: bold; margin: 5px 0">${sampleId}</span>
-                                //                     ${somaticHtml ? `<span class="help-block" style="margin: 5px 0">${somaticHtml}</span>` : nothing}
-                                //                 </div>
-                                //             `;
-                                //         },
-                                //     },
                                     {
-                                        title: "ID",
-                                        type: "complex",
+                                        title: "Interpretation",
+                                        field: "id",
+                                        type: "custom",
                                         display: {
-                                            defaultValue: "-",
-                                            template: "${id} ${somatic}",
-                                            format: {
-                                                "somatic": (somatic, sample) => sample.somatic ? "Somatic" : "Germline",
-                                            },
-                                            className: {
-                                                "somatic": "form-text"
-                                            },
+                                            className: "text-break",
                                             style: {
-                                                "id": {
-                                                    "font-weight": "bold"
-                                                },
-                                                "somatic": {
-                                                    "margin": "5px 0"
-                                                },
+                                                "font-weight": "bold",
+                                            },
+                                            render: (id, onChange, updatedParans, data, row) => html`
+                                                <div class="fw-bold ${id?.length > 20 ? "text-break" : "text-nowrap"}">
+                                                    <span>${id}</span>
+                                                </div>
+                                                <div class="text-muted small">Version ${row.version}</div>
+                                                ${row?.primary ? html`
+                                                    <div class="">
+                                                        <span class="badge bg-primary">PRIMARY</span>
+                                                    </div>
+                                                ` : nothing}
+                                            `,
+                                        },
+                                    },
+                                    // {
+                                    //     title: "Primary",
+                                    //     field: "primary",
+                                    //     type: "custom",
+                                    //     display: {
+                                    //         render: primary => html`
+                                    //             <div class="w-full d-flex justify-content-center">
+                                    //                 <i class="fa ${primary ? "fa-check text-success" : "fa-times text-secondary"}"></i>
+                                    //             </div>
+                                    //         `,
+                                    //     },
+                                    // },
+                                    {
+                                        title: "Status",
+                                        field: "status.id",
+                                        type: "custom",
+                                        display: {
+                                            render: statusId => html`
+                                                <span class="badge ${statusId ? "text-bg-primary" : "text-bg-secondary"}">
+                                                    <strong>${statusId || "NO_STATUS"}</strong>
+                                                </span>
+                                            `,
+                                        },
+                                    },
+                                    {
+                                        title: "Method",
+                                        field: "method",
+                                        type: "custom",
+                                        display: {
+                                            render: method => {
+                                                if (!method || !method?.name) {
+                                                    return "-";
+                                                }
+                                                return html`
+                                                    <div class="fw-bold">${method.name}</div>
+                                                    <div class="text-muted small">Version ${method.version || "-"}</div>
+                                                    <div class="d-flex flex-wrap gap-1">
+                                                        ${(method.dependencies || []).map(item => html`
+                                                            <span class="badge text-bg-primary">${item.name} (${item.version})</span>
+                                                        `)}
+                                                    </div>
+                                                `;
+                                            },
+                                        },
+                                    },
+                                    {
+                                        field: "panels",
+                                        title: "Panels",
+                                        type: "list",
+                                        display: {
+                                            separationClassName: "mb-0",
+                                            listClassName: "mb-0 ps-0",
+                                            contentLayout: "bullets",
+                                            defaultLayout: "vertical",
+                                            defaultValue: "-",
+                                            format: panel => {
+                                                return panel.name || panel.id;
+                                            },
+                                        },
+                                    },
+                                    {
+                                        field: "stats.primaryFindings",
+                                        title: "Primary Findings",
+                                        type: "custom",
+                                        display: {
+                                            render: stats => {
+                                                if (stats.numVariants === 0) {
+                                                    return "No variants selected.";
+                                                }
+                                                return html`
+                                                    <div class="fw-bold">${stats.numVariants} variants selected.</div>
+                                                    <div class="text-muted small">
+                                                        <span>Genes: </span>
+                                                        ${Object.keys(stats.geneCount || {}).map(gene => html`
+                                                            <span><b>${gene}</b> (${stats.geneCount[gene]}) </span>
+                                                        `)}
+                                                    </div>
+                                                `;
                                             }
                                         },
                                     },
                                     {
-                                        title: "Files",
-                                        field: "fileIds",
-                                        type: "list",
+                                        title: "Assigned to",
+                                        field: "analyst",
+                                        type: "custom",
                                         display: {
-                                            defaultValue: "-",
-                                            contentLayout: "vertical",
-                                        },
-                                    },
-                                    {
-                                        title: "Collection Method",
-                                        field: "collection.method",
-                                        display: {
-                                            defaultValue: "-",
-                                        },
-                                    },
-                                    {
-                                        title: "Preparation Method",
-                                        field: "processing.preparationMethod",
-                                        display: {
-                                            defaultValue: "-",
-                                        },
-                                    },
-                                    {
-                                        title: "Creation Date",
-                                        field: "creationDate",
-                                        display: {
-                                            format: creationDate => UtilsNew.dateFormatter(creationDate, "D MMM YYYY, h:mm:ss a"),
-                                        }
-                                    },
-                                    {
-                                        title: "Status",
-                                        field: "status.id",
-                                        display: {
-                                            defaultValue: "-",
+                                            render: analyst => html`
+                                                ${analyst?.id || analyst?.name ? html`
+                                                    <div class="d-inline-flex align-items-center gap-2">
+                                                        <i class="fas fa-user-md"></i>
+                                                        <strong style="white-space:nowrap;">${analyst.name || analyst.id}</strong>
+                                                    </div>
+                                                ` : "-"}
+                                            `,
                                         },
                                     },
                                 ],
                             },
                         },
-                    ]
+                    ],
                 },
                 {
                     id: "family",
-                    title: "Family",
                     display: {
                         visible: clinicalAnalysis => clinicalAnalysis?.id && clinicalAnalysis.type === "FAMILY",
-                    },
-                    elements: [
-                        {
-                            title: "Family ID",
-                            field: "family.id"
-                        },
-                        {
-                            title: "Name",
-                            field: "family.name"
-                        },
-                        {
-                            title: "Members",
-                            field: "family",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: family => html`
-                                    <div class="overflow-y-auto">
-                                        <individual-grid
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .individuals="${family?.members || []}"
-                                            .config="${{
-                                                showToolbar: false,
-                                                showActions: false,
-                                            }}">
-                                        </individual-grid>
-                                    </div>
-                                `,
+                        titleWidth: 4,
+                        className: "p-4 border border-1 border-gray-200 rounded-4 bg-white",
+                        layout: [
+                            {
+                                id: "title",
                             },
-                        },
-                        {
-                            title: "Pedigree",
-                            type: "image",
-                            field: "family.pedigreeGraph.base64",
-                        },
-
-                    ]
-                },
-                {
-                    id: "files",
-                    title: "Files",
-                    elements: [
-                        {
-                            type: "table",
-                            field: "files",
-                            display: {
-                                columns: [
+                            {
+                                className: "row",
+                                elements: [
                                     {
-                                        title: "Name",
-                                        field: "name",
+                                        id: "members",
+                                        className: "col-9",
                                     },
                                     {
-                                        title: "Size",
-                                        field: "size",
-                                        display: {
-                                            format: size => UtilsNew.getDiskUsage(size),
-                                        },
-                                    },
-                                    {
-                                        title: "Format",
-                                        field: "format",
-                                    },
-                                    {
-                                        title: "Software",
-                                        field: "software",
-                                        display: {
-                                            format: software => software?.name ? `${software.name} (${software.version || "-"})` : "-",
-                                        },
-                                    },
-                                    {
-                                        title: "Creation Date",
-                                        field: "creationDate",
-                                        display: {
-                                            format: creationDate => UtilsNew.dateFormatter(creationDate, "D MMM YYYY, h:mm:ss a"),
-                                        }
+                                        id: "pedigree",
+                                        className: "col-3",
                                     },
                                 ],
                             },
-                        }
-                    ]
-                }
-            ]
+                        ],
+                    },
+                    elements: [
+                        {
+                            id: "title",
+                            type: "text",
+                            text: (clinicalAnalysis) => {
+                                return `Family Information - ${clinicalAnalysis?.family?.id || ""}`;
+                            },
+                            display: {
+                                className: "mb-2 fs-5 fw-bold",
+                            },
+                        },
+                        {
+                            id: "members",
+                            title: "Family Members",
+                            field: "family.members",
+                            type: "table",
+                            display: {
+                                defaultLayout: "vertical",
+                                className: "table-borderless table-grid mb-0",
+                                separationClassName: "mb-0",
+                                headerCellClassName: "bg-white",
+                                bodyRowClassName: "bg-gray-100",
+                                bodyCellClassName: "align-middle",
+                                columns: [
+                                    {
+                                        title: "Individual",
+                                        field: "id",
+                                        display: {
+                                            className: "text-break",
+                                            style: {
+                                                "font-weight": "bold"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        title: "Gender",
+                                        field: "sex.id",
+                                        display: {
+                                            className: "text-break",
+                                        }
+                                    },
+                                    {
+                                        id: "disorders",
+                                        field: "disorders",
+                                        title: "Disorders",
+                                        type: "list",
+                                        display: {
+                                            separationClassName: "mb-0",
+                                            listClassName: "mb-0 ps-0",
+                                            contentLayout: "bullets",
+                                            defaultLayout: "vertical",
+                                            defaultValue: "-",
+                                            template: "${name} (${id})",
+                                            link: {
+                                                "id": id => {
+                                                    return BioinfoUtils.getOntologyLink(id);
+                                                },
+                                            },
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                        {
+                            id: "pedigree",
+                            title: "Pedigree",
+                            type: "image",
+                            field: "family.pedigreeGraph.base64",
+                            display: {
+                                defaultLayout: "vertical",
+                            },
+                        },
+                    ],
+                },
+            ],
         };
     }
 

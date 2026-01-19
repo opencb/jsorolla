@@ -195,8 +195,8 @@ export default class VariableSetView extends LitElement {
                             name: "Variables",
                             field: "variables",
                             type: "list",
-                            defaultValue: "N/A",
                             display: {
+                                defaultValue: "-",
                                 contentLayout: "bullets",
                                 format: variable => {
                                     return `${variable?.name} (${variable?.type})`;

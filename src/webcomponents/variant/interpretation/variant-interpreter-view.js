@@ -21,6 +21,7 @@ import "../../commons/forms/data-form.js";
 import "../../commons/json-viewer.js";
 import "../../visualization/protein-lollipop-variant-view.js";
 import "../annotation/cellbase-variant-annotation-summary.js";
+import "../annotation/variant-summary.js";
 import "../annotation/cellbase-population-frequency-grid.js";
 import "../annotation/variant-consequence-type-view.js";
 import "../annotation/variant-annotation-clinical-view.js";
@@ -59,6 +60,17 @@ export default class VariantInterpreterView extends LitElement {
             },
             variantId: {
                 type: String
+            },
+            // True if the variant has been selected for the interpretation
+            selected: {
+                type: Boolean,
+            },
+            // True if the variant has been selected and is a primary finding. If selected and false, secondary finding
+            primaryFinding: {
+                type: Boolean,
+            },
+            settings: {
+                type: Object,
             },
             displayConfig: {
                 type: Object
@@ -139,16 +151,38 @@ export default class VariantInterpreterView extends LitElement {
             sections: [
                 {
                     id: "annotationSummary",
-                    name: "Summary",
-                    render: variant => html`
-                        <cellbase-variant-annotation-summary
-                            .variantAnnotation="${variant?.annotation}"
-                            .consequenceTypes="${CONSEQUENCE_TYPES}"
-                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
-                            .assembly="${this.opencgaSession.project.organism.assembly}">
-                        </cellbase-variant-annotation-summary>
-                    `,
+                    name: "Overview",
+                    render: variant => {
+                        return html`
+                            <variant-summary
+                                .variant="${variant}"
+                                .clinical="${true}"
+                                .selected="${this.selected}"
+                                .primaryFinding="${this.primaryFinding}"
+                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                .consequenceTypes="${CONSEQUENCE_TYPES}"
+                                .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                                .settings="${this.settings}"
+                                .opencgaSession="${this.opencgaSession}"
+                                .assembly="${this.opencgaSession?.project?.organism?.assembly}">
+                            </variant-summary>
+                        `;
+                    }
                 },
+                // {
+                //     id: "annotationSummary",
+                //     name: "Summary 2",
+                //     render: variant => {
+                //         return html`
+                //             <cellbase-variant-annotation-summary
+                //                 .variantAnnotation="${variant?.annotation}"
+                //                 .consequenceTypes="${CONSEQUENCE_TYPES}"
+                //                 .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}"
+                //                 .assembly="${this.opencgaSession.project.organism.assembly}">
+                //             </cellbase-variant-annotation-summary>
+                //         `;
+                //     }
+                // },
                 {
                     id: "annotationConsType",
                     name: "Consequence Type",

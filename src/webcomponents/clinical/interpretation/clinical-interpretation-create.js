@@ -122,6 +122,13 @@ export default class ClinicalInterpretationCreate extends LitElement {
     }
 
     onSubmit() {
+        // 1. prepare cellbase sources
+        const cellbaseSources = {};
+        (this.opencgaSession?.project?.cellbase?.sources || []).map(source => {
+            cellbaseSources[source.name] = source.version || source.date || "-";
+        });
+        
+        // 2. prepare method object with dependencies
         const data = {
             ...this.interpretation,
             method: {
@@ -134,20 +141,20 @@ export default class ClinicalInterpretationCreate extends LitElement {
                         version: this.opencgaSession?.about?.Version || "-",
                     },
                     {
-                        name: "Cellbase",
-                        version: this.opencgaSession.project?.cellbase?.version || "-",
+                        name: "CellBase",
+                        version: `${this.opencgaSession.project?.cellbase?.version} - DR ${this.opencgaSession.project?.cellbase?.dataRelease}`,
+                        params: cellbaseSources,
                     },
                 ],
             },
         };
 
+        // 2. create the clinical interpretation
         this.opencgaSession.opencgaClient.clinical().createInterpretation(this.clinicalAnalysis.id, data, {
             study: this.opencgaSession.study.fqn
         })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    title: "Clinical Interpretation created",
-                    // message: `The clinical interpretation ${response.responses[0].results[0].id} has been created successfully`,
                     message: "The new clinical interpretation has been created successfully",
                 });
                 this.notifyClinicalAnalysisWrite();

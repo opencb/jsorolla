@@ -15,7 +15,6 @@
  */
 
 import UtilsNew from "../../core/utils-new.js";
-import LitUtils from "../commons/utils/lit-utils.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 
 export default class ClinicalAnalysisManager {
@@ -24,27 +23,12 @@ export default class ClinicalAnalysisManager {
         this.ctx = context;
         this.clinicalAnalysis = clinicalAnalysis;
         this.opencgaSession = opencgaSession;
-
-        this.init();
-    }
-
-    init() {
-        this.state = {
-            addedVariants: [],
-            removedVariants: [],
-            updatedVariants: []
-        };
     }
 
     // Clear all changed variants.
     reset() {
-        this.init();
         this.clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
     }
-
-    // getStatuses() {
-    //     return ["READY_FOR_INTERPRETATION", "READY_FOR_REPORT", "CLOSED", "REJECTED"];
-    // }
 
     getProbandQc() {
         return this.clinicalAnalysis?.proband?.qualityControl;
@@ -56,56 +40,6 @@ export default class ClinicalAnalysisManager {
             qc = this.clinicalAnalysis.proband.samples[sampleIdx].qualityControl;
         }
         return qc;
-    }
-
-
-    addVariant(variant) {
-        // First, check if the variant was selected to be removed
-        let index = this.state.removedVariants.findIndex(v => v.id === variant.id);
-        if (index >= 0) {
-            this.state.removedVariants.splice(index, 1);
-        } else {
-            // Second, check variant is new and selected to be added
-            index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === variant.id);
-            if (index === -1) {
-                this.state.addedVariants.push(variant);
-            } else {
-                // Third, this cannot happen, variant must exist somewhere
-                console.error("There must be an error, variant " + variant.id + " seems to exist.");
-            }
-        }
-        this.state = {...this.state};
-    }
-
-    removeVariant(variant) {
-        // First, check if the variant was selected to be added
-        let index = this.state.addedVariants.findIndex(v => v.id === variant.id);
-        if (index >= 0) {
-            this.state.addedVariants.splice(index, 1);
-        } else {
-            // Second, check if the variant was added to be inserted but not inserted yet
-            index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === variant.id);
-            if (index >= 0) {
-                this.state.removedVariants.push(variant);
-            } else {
-                // Third, this cannot happen, variant must exist somewhere
-                console.error("There must be an error, variant " + variant.id + " seems to not exist.");
-            }
-        }
-        // Remove this variant from the list of updated variants (if has been added)
-        this.state.updatedVariants = this.state.updatedVariants.filter(v => v.id !== variant.id);
-        this.state = {...this.state};
-    }
-
-    // TODO: rename this method
-    updateSingleVariant(variant) {
-        const index = this.state.updatedVariants.findIndex(v => v.id === variant.id);
-        if (index >= 0) {
-            this.state.updatedVariants[index] = variant; // Update variant value
-        } else {
-            this.state.updatedVariants.push(variant);
-        }
-        this.state = {...this.state};
     }
 
     setInterpretationAsPrimary(interpretationId, callback) {
@@ -126,82 +60,19 @@ export default class ClinicalAnalysisManager {
             });
     }
 
-    updateInterpretationVariants(comment, callback) {
-        if (this.state.addedVariants.length === 0 && this.state.removedVariants.length === 0 && this.state.updatedVariants.length === 0) {
-            // console.log("Nothing to do");
-            return;
+    getInterpretation(interpretationId) {
+        // 1. check if the requested interpretation is the primary interpretation
+        if (this.clinicalAnalysis?.interpretation?.id === interpretationId) {
+            return this.clinicalAnalysis.interpretation;
         }
 
-        // Prepare interpretation object for the update
-        const interpretation = {
-            primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings,
-            comments: [],
-        };
-        // Check if a comment is provided
-        if (comment?.message) {
-            interpretation.comments.push(comment);
+        // 2. if not, look for it in the secondary interpretations
+        if (this.clinicalAnalysis?.secondaryInterpretations) {
+            return this.clinicalAnalysis.secondaryInterpretations.find(interpretation => interpretation.id === interpretationId);
         }
 
-        // Add selected variants
-        if (this.state.addedVariants.length > 0) {
-            for (const addedVariant of this.state.addedVariants) {
-                const index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === addedVariant.id);
-                if (index === -1) {
-                    interpretation.primaryFindings.push(addedVariant);
-                } else {
-                    console.error("There must be an error, variant " + addedVariant.id + " already exist.");
-                }
-            }
-        }
-
-        // Remove variants
-        if (this.state.removedVariants.length > 0) {
-            for (const removedVariant of this.state.removedVariants) {
-                const index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === removedVariant.id);
-                if (index >= 0) {
-                    interpretation.primaryFindings.splice(index, 1);
-                } else {
-                    console.error("There must be an error, variant " + removedVariant.id + " seems to not exist.");
-                }
-            }
-        }
-
-        // Update variants
-        if (this.state.updatedVariants.length > 0) {
-            this.state.updatedVariants.forEach(variant => {
-                const index = interpretation.primaryFindings.findIndex(v => v.id === variant.id);
-                if (index >= 0) {
-                    interpretation.primaryFindings[index] = variant; // Update variant
-                } else {
-                    console.error("There must be an error, variant " + variant.id + " seems to not exist.");
-                }
-            });
-        }
-
-        const interpretationId = this.clinicalAnalysis.interpretation.id;
-        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, interpretation, {
-            study: this.opencgaSession.study.fqn,
-            primaryFindingsAction: "SET",
-            // secondaryFindingsAction: "SET",
-        }).then(() => {
-            // Notify
-            NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
-                // title: "Interpretation saved",
-                message: "The interpretation has been updated.",
-            });
-            callback(this.clinicalAnalysis);
-
-            // Reset internal state
-            this.state = {
-                ...this.state,
-                addedVariants: [],
-                removedVariants: [],
-                updatedVariants: [],
-            };
-        }).catch(response => {
-            // console.error(response);
-            NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
-        });
+        // 3. not found
+        return null;
     }
 
     createInterpretation(interpretation, callback) {
@@ -297,20 +168,68 @@ export default class ClinicalAnalysisManager {
             });
     }
 
-    updateVariant(variant, interpretation, callback) {
-        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretation.id, {primaryFindings: [variant]}, {
-            study: this.opencgaSession.study.fqn,
-            primaryFindingsAction: "REPLACE",
-        })
+    updateVariants(interpretationId, variants, primaryFinding = true, action = "UPDATE") {
+        const field = primaryFinding ? "primaryFindings" : "secondaryFindings";
+        const originalInterpretation = this.getInterpretation(interpretationId); // get the interpretation to update
+        // prepare interpretation object for the update and clone the findings arrays
+        const interpretation = {
+            primaryFindings: (originalInterpretation.primaryFindings || []).slice(0),
+            secondaryFindings: (originalInterpretation.secondaryFindings || []).slice(0),
+        };
+        // check the action to perform
+        // NOTE: variant can be an array of variants (for example in rearrangements)
+        const variantsArray = Array.isArray(variants) ? variants : [variants];
+        for (let i = 0; i < variantsArray.length; i++) {
+            const variant = variantsArray[i];
+            switch (action) {
+                case "ADD":
+                    // check if the variant is already in the primary findings
+                    if (interpretation[field].find(v => v.id === variant.id)) {
+                        console.error(`There must be an error, variant '${variant.id}' already exists in ${field}.`);
+                        return Promise.reject(new Error(`Variant '${variant.id}' already exists in ${field}.`));
+                    }
+                    // add the variant to the primary/secondary findings
+                    interpretation[field].push(variant);
+                    break;
+                case "UPDATE":
+                    // find the index of the variant in the primary findings
+                    const index = interpretation[field].findIndex(v => v.id === variant.id);
+                    if (index === -1) {
+                        // check if the variant exists in the other field
+                        const otherField = primaryFinding ? "secondaryFindings" : "primaryFindings";
+                        const otherIndex = interpretation[otherField].findIndex(v => v.id === variant.id);
+                        if (otherIndex === -1) {
+                            console.error(`There must be an error, variant '${variant.id}' does not exist in ${field}.`);
+                            return Promise.reject(new Error(`Variant '${variant.id}' does not exist in ${field}.`));
+                        }
+                        // remove from the other field
+                        interpretation[otherField] = interpretation[otherField].filter(v => v.id !== variant.id);
+                        interpretation[field].push(variant);
+                    } else {
+                        // update the variant in the primary findings
+                        interpretation[field][index] = variant;
+                    }
+                    break;
+                case "REMOVE":
+                    // remove from both primary and secondary findings
+                    interpretation.primaryFindings = interpretation.primaryFindings.filter(v => v.id !== variant.id);
+                    interpretation.secondaryFindings = interpretation.secondaryFindings.filter(v => v.id !== variant.id);
+                    break;
+            }
+        }
+        // update the interpretation
+        return this.opencgaSession.opencgaClient.clinical()
+            .updateInterpretation(this.clinicalAnalysis.id, interpretationId, interpretation, {
+                study: this.opencgaSession.study.fqn,
+                primaryFindingsAction: "SET",
+                secondaryFindingsAction: "SET",
+            })
             .then(() => {
                 NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_SUCCESS, {
-                    // title: "Variant Updated",
-                    message: `Variant '${variant.id}' has been updated.`,
+                    message: "The interpretation has been updated.",
                 });
-                // callback(this.clinicalAnalysis);
             })
             .catch(response => {
-                // console.error("An error occurred deleting an interpretation: ", restResponse);
                 NotificationUtils.dispatch(this.ctx, NotificationUtils.NOTIFY_RESPONSE, response);
             });
     }

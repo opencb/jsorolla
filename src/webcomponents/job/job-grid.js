@@ -324,7 +324,9 @@ export default class JobGrid extends LitElement {
                 title: "Parameters",
                 field: "params",
                 formatter: params => this.parametersFormatter(params),
-                visible: this.gridCommons.isColumnVisible("params")
+                visible: this.gridCommons.isColumnVisible("params"),
+                width: "35",
+                widthUnit: "%",
             },
             {
                 id: "output",
@@ -381,8 +383,8 @@ export default class JobGrid extends LitElement {
                     const execution = row.execution;
                     const values = [];
                     if (execution?.start) {
-                        values.push(`<div class="my-1">${moment(execution.start).format("D MMM YYYY, h:mm:ss a")}</div>`);
-                        values.push(execution?.end ? `<div class="my-1">${moment(execution.end).format("D MMM YYYY, h:mm:ss a")}</div>` : "-");
+                        values.push(`<div class="my-1" style="white-space:nowrap">${UtilsNew.dateFormatter(execution.start, "D MMM YYYY, H:mm:ss")}</div>`);
+                        values.push(execution?.end ? `<div class="my-1" style="white-space:nowrap">${UtilsNew.dateFormatter(execution.end, "D MMM YYYY, H:mm:ss")}</div>` : "-");
                     }
                     return values.join("") || "-";
                 },
@@ -410,13 +412,21 @@ export default class JobGrid extends LitElement {
         if (UtilsNew.isNotEmpty(params)) {
             html = "<div>";
             for (const key of Object.keys(params)) {
-                html += `<div style="margin: 2px 0; white-space: nowrap">`;
+                html += `<div style="margin: 2px 0; white-space: wrap">`;
                 // 1. Normal parameter
                 if (typeof params[key] !== "object") {
-                    const value = (params[key]?.length > 25 ? params[key].substring(0, 25) + " ..." : params[key]) || "true";
-                    const tooltip = UtilsNew.escapeHtml((params[key]?.length > 25 ? params[key] : ""));
+                    // const value = (params[key]?.length > 25 ? params[key].substring(0, 40) + " ..." : params[key]) || "true";
+                    // const tooltip = UtilsNew.escapeHtml((params[key]?.length > 40 ? params[key] : ""));
+                    let value = "";
+                    let tooltip = "";
+                    if (params[key]?.length > 25 && !params[key]?.includes(" ")) {
+                        value = (params[key]?.length > 25 ? params[key].substring(0, 50) + " ..." : params[key]) || "true";
+                        tooltip = UtilsNew.escapeHtml((params[key]?.length > 50 ? params[key] : ""));
+                    } else {
+                        value = params[key] || "true";
+                    }
                     html += `
-                        <span style="margin: 2px 0; font-weight: bold" title="${tooltip}">${key}:</span><span title="${tooltip}">${value}</span>
+                        <span style="margin: 2px 0; font-weight: bold">${key}:</span><span class="ps-1" title="${tooltip || ""}">${value}</span>
                     `;
                 } else {
                     // 2. This parameter is an Object, we need to loop its internal subparams.
@@ -424,9 +434,18 @@ export default class JobGrid extends LitElement {
                     // 2.1 It can contain some subparams, or ...
                     if (UtilsNew.isNotEmpty(params[key])) {
                         for (const subKey of Object.keys(params[key])) {
+                            // Check if the subvalue is an object or a primitive
+                            let subvalue = "";
+                            if (typeof params[key][subKey] === "object") {
+                                subvalue = JSON.stringify(params[key][subKey]);
+                            } else {
+                                // subvalue = (params[key][subKey]?.length > 25 ? params[key][subKey].substring(0, 25) + " ..." : params[key][subKey]) || "true";
+                                subvalue = params[key][subKey] || "true";
+                            }
+
                             nestedObject += `
-                                <div style="margin: 2px 0">
-                                    <span style="margin: 2px 0; font-weight: bold">${subKey}:</span> ${params[key][subKey]}
+                                <div style="margin: 2px 0; white-space: wrap">
+                                    <span style="margin: 2px 0; font-weight: bold">${subKey}:</span><span class="ps-1">${subvalue}</span>
                                 </div>
                             `;
                         }

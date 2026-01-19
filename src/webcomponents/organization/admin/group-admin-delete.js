@@ -127,16 +127,13 @@ export default class GroupAdminDelete extends LitElement {
                             },
                         },
                         {
-                            // name: "UserIds",
                             field: "users",
                             type: "list",
                             display: {
                                 separator: " ",
                                 contentLayout: "bullets",
-                                transform: users => users.length ?
-                                    users.map(user => ({userId: user.id})) :
-                                    [{userId: "This group does not have users"}],
-                                template: "${userId}",
+                                template: "${id}",
+                                defaultValue: "This group does not have users.",
                                 // FIXME: why is not working?
                                 // className: {
                                 //     "userId": "badge badge-pill badge-primary",

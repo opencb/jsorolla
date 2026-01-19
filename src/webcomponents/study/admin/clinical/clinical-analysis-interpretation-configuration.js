@@ -1,0 +1,182 @@
+/*
+ * Copyright 2015-2016 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {LitElement, html, nothing} from "lit";
+import UtilsNew from "../../../../core/utils-new.js";
+import NotificationUtils from "../../../commons/utils/notification-utils.js";
+import LitUtils from "../../../commons/utils/lit-utils.js";
+import "../../../commons/forms/data-form.js";
+
+export default class ClinicalAnalysisInterpretationConfiguration extends LitElement {
+
+    constructor() {
+        super();
+
+        this.#init();
+    }
+
+    createRenderRoot() {
+        return this;
+    }
+
+    static get properties() {
+        return {
+            opencgaSession: {
+                type: Object,
+            },
+            displayConfig: {
+                type: Object,
+            },
+        };
+    }
+
+    #init() {
+        this._config = this.getDefaultConfig();
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            // perform a deep clone to avoid modifying the original object
+            this._studyConfiguration = UtilsNew.objectClone(this.opencgaSession.study?.internal?.configuration?.clinical || {});
+        }
+
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
+        }
+
+        super.update(changedProperties);
+    }
+
+    onFieldChange() {
+        this._studyConfiguration = {...this._studyConfiguration};
+        this.requestUpdate();
+    }
+
+    onSubmit() {
+        this.opencgaSession.opencgaClient.clinical()
+            .updateClinicalConfiguration(this._studyConfiguration, {
+                study: this.opencgaSession.study.fqn,
+            })
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: `The Interpretation configuration of study ${this.opencgaSession.study.name || this.opencgaSession.study.fqn} has been successfully updated`,
+                });
+                // If the configuration has been updated, dispatch a study update request
+                LitUtils.dispatchCustomEvent(this, "studyUpdateRequest");
+            })
+            .catch(response => {
+                console.error(response);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
+    }
+
+    render() {
+        if (!this.opencgaSession || !this.opencgaSession.study) {
+            return nothing;
+        }
+
+        return html`
+            <data-form
+                .data="${this._studyConfiguration}"
+                .config="${this._config}"
+                @fieldChange="${event => this.onFieldChange(event)}"
+                @submit="${event => this.onSubmit(event)}">
+            </data-form>
+        `;
+    }
+
+    getDefaultConfig() {
+        return {
+            display: {
+                buttonsVisible: true,
+                buttonOkText: "Save Interpretation Configuration",
+                buttonClearText: "",
+                defaultLayout: "horizontal",
+                ...this.displayConfig,
+            },
+            sections: [
+                {
+                    title: "Clinical Interpretation Configuration",
+                    elements: [
+                        {
+                            title: "Interpretation Status",
+                            description: "Configure the status types that can be assigned to clinical interpretations. Each status has a unique ID and must be associated with a type.",
+                            field: "interpretation.status",
+                            type: "object-list",
+                            display: {
+                                collapsedUpdate: false,
+                                itemAddText: "Add Status",
+                                maxNumItems: 25,
+                                view: status => html`
+                                    <div class="d-flex flex-row align-items-center gap-2">
+                                        <span class="fw-bold">${status.id}</span>
+                                        <span class="badge bg-secondary">${status?.type}</span>
+                                    </div>
+                                `,
+                            },
+                            elements: [
+                                {
+                                    title: "Status ID",
+                                    field: "interpretation.status[].id",
+                                    type: "input-text",
+                                    display: {
+                                        placeholder: "E.g. PENDING_REVIEW",
+                                        helpMessage: "Unique identifier for the new status. Users can use this ID to refer to the status in the interpretation workflow.",
+                                    },
+                                },
+                                {
+                                    title: "Status Type",
+                                    field: "interpretation.status[].type",
+                                    type: "select",
+                                    allowedValues: ["NOT_STARTED", "ACTIVE", "DONE", "CLOSED", "INCONCLUSIVE", "REJECTED"],
+                                    display: {
+                                        placeholder: "Select a status type",
+                                        helpMessage: "Select a type of status from the list. This will determine how the status is managed in the interpretation workflow.",
+                                    },
+                                },
+                                {
+                                    title: "Description",
+                                    field: "interpretation.status[].description",
+                                    type: "input-text",
+                                    display: {
+                                        rows: 2,
+                                        placeholder: "Add a description for this status...",
+                                        helpMessage: "Provide a brief description of the status. This will help users understand the purpose of this status in the interpretation workflow.",
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            title: "Variant Callers",
+                            description: "Configure the variant callers that can be used in clinical interpretations.",
+                            field: "interpretation.variantCallers",
+                            type: "json-editor",
+                        },
+                        {
+                            title: "Inclusion",
+                            description: "Configure the Variant Inclusion query that will be used to filter variants in the Variant Browser of the interpretation.",
+                            field: "interpretation.inclusion",
+                            type: "json-editor",
+                        },
+                    ],
+                },
+            ],
+        };
+    }
+
+}
+
+customElements.define("clinical-analysis-interpretation-configuration", ClinicalAnalysisInterpretationConfiguration);

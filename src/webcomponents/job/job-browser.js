@@ -188,6 +188,14 @@ export default class JobBrowser extends LitElement {
                                 quick: true,
                             },
                             {
+                                id: "type",
+                                title: "Type",
+                                allowedValues: "",
+                                defaultValue: "",
+                                description: "",
+                                quick: true,
+                            },
+                            {
                                 id: "input",
                                 title: "Input File Name",
                                 placeholder: "e.g.  NA12877.vcf.gz",

@@ -59,6 +59,17 @@ export default class BioinfoUtils {
         return text;
     }
 
+    static getShortVariantId(variantId, limit = 20, offset = 5) {
+        let [chr, position, ref, alt] = variantId.split(":");
+        if (ref.length > limit) {
+            ref = ref.substring(0, offset) + "..." + ref.substring(ref.length - offset);
+        }
+        if (alt.length > limit) {
+            alt = alt.substring(0, offset) + "..." + alt.substring(alt.length - offset);
+        }
+        return `${chr}:${position}:${ref}:${alt}`;
+    }
+
     // Generate Variant ID in Varsome format
     // https://varsome.com/how-do-i-create-link-varsome/
     static getVariantInVarsomeFormat(variantId) {
@@ -296,7 +307,7 @@ export default class BioinfoUtils {
     }
 
     static getCellbaseLink(id, type = "VARIANT", host = "https://ws.zettagenomics.com/cellbase", version = "v5", dataRelease = "", apiKey = "", species = "hsapiens", assembly) {
-        let url = `${host}/webservices/rest/${version}/${species}`;
+        let url = `${host.replace(/\/$/, "")}/webservices/rest/${version}/${species}`;
         const searchParams = new URLSearchParams();
 
         // 1. check the resource to generate the correct URL

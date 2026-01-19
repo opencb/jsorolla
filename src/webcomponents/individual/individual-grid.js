@@ -486,20 +486,20 @@ export default class IndividualGrid extends LitElement {
                 events: {
                     "click a": (event, value, row) => this.onActionClick(event, row),
                 },
-                visible: this.gridCommons.isColumnVisible("father")
+                visible: this.gridCommons.isColumnVisible("parents")
             },
             {
                 id: "disorders",
                 title: "Disorders",
                 field: "disorders",
-                formatter: CatalogGridFormatter.disorderFormatter,
+                formatter: disorders => CatalogGridFormatter.disorderFormatter(disorders),
                 visible: this.gridCommons.isColumnVisible("disorders")
             },
             {
                 id: "phenotypes",
                 title: "Phenotypes",
                 field: "phenotypes",
-                formatter: CatalogGridFormatter.phenotypesFormatter,
+                formatter: phenotypes => CatalogGridFormatter.phenotypesFormatter(phenotypes),
                 visible: this.gridCommons.isColumnVisible("phenotypes")
             },
             {

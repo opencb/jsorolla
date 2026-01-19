@@ -124,7 +124,7 @@ export default class GridToolbar extends LitElement {
 
     render() {
         return html`
-            <div class="d-flex align-items-center justify-content-between mb-2" data-cy="toolbar">
+            <div class="d-flex align-items-center justify-content-between mx-2 mb-4" data-cy="toolbar">
                 <div class="d-flex align-items-center" data-cy="toolbar-left-content">
                     ${this.leftContent || nothing}
                 </div>

@@ -112,12 +112,12 @@ class VariantInterpreterExomiserView extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => {
-                                    const modeOfInheritances = evidences[0].modeOfInheritances || [];
+                                    const modeOfInheritances = evidences[0]?.modeOfInheritances || [];
                                     if (modeOfInheritances.length === 0) {
                                         return "-";
                                     }
                                     return modeOfInheritances.map(mode => html`
-                                        <span class="badge badge-default" style="text-transform:uppercase;">
+                                        <span class="badge bg-primary" style="text-transform:uppercase;">
                                             <b>${mode || "-"}</b>
                                         </span>
                                     `);
@@ -129,8 +129,8 @@ class VariantInterpreterExomiserView extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html`
-                                    <span class="badge badge-danger" style="text-transform:uppercase;">
-                                        <b>${evidences[0].attributes?.exomiser?.["FUNCTIONAL_CLASS"] ?? "-"}</b>
+                                    <span class="badge bg-danger" style="text-transform:uppercase;">
+                                        <b>${evidences[0].attributes?.exomiser?.["FUNCTIONAL_CLASS"] || "-"}</b>
                                     </span>
                                 `,
                             },
@@ -168,7 +168,7 @@ class VariantInterpreterExomiserView extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html`
-                                    <span class="badge badge-default">
+                                    <span class="badge bg-primary" style="text-transform:uppercase;">
                                         <b>${evidences[0].attributes?.exomiser?.["EXOMISER_ACMG_CLASSIFICATION"] ?? "-"}</b>
                                     </span>
                                     <span style="margin-left:8px;">

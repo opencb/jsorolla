@@ -26,6 +26,7 @@ import "../commons/grid-toolbar.js";
 import "./disease-panel-view.js";
 import "./disease-panel-update.js";
 import "./disease-panel-create.js";
+import "./disease-panel-gel-import.js";
 
 export default class DiseasePanelGrid extends LitElement {
 
@@ -143,6 +144,23 @@ export default class DiseasePanelGrid extends LitElement {
                             this.table.bootstrapTable("refresh");
                         }}">
                     </disease-panel-create>
+                `,
+            },
+            "import-disease-panel": {
+                display: {
+                    modalTitle: "Import Panel from GEL PanelApp",
+                    modalSize: "modal-2xl",
+                    modalCyDataName: "modal-disease-panel-import",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <disease-panel-gel-import
+                        .opencgaSession="${this.opencgaSession}"
+                        .active="${true}"
+                        @panelImport="${() => {
+                            this.table.bootstrapTable("refresh");
+                        }}">
+                    </disease-panel-gel-import>
                 `,
             },
             "update-disease-panel": () => ({
@@ -471,8 +489,8 @@ export default class DiseasePanelGrid extends LitElement {
                         LitUtils.dispatchCustomEvent(this, "diseasePanelCreate", response.responses[0].results[0]);
                         this.table.bootstrapTable("refresh");
                     }).catch(response => {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                    });
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                });
             },
         });
     }
@@ -497,8 +515,8 @@ export default class DiseasePanelGrid extends LitElement {
                         LitUtils.dispatchCustomEvent(this, "diseasePanelDelete", diseasePanel);
                         this.table.bootstrapTable("refresh");
                     }).catch(response => {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
-                    });
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+                });
             },
         });
     }
@@ -550,10 +568,16 @@ export default class DiseasePanelGrid extends LitElement {
         const hasWritePermission = this.gridCommons.hasPermission("WRITE");
         return [
             {
-                icon: "fa-plus",
+                icon: "fas fa-plus",
                 title: "Create Disease Panel",
                 disabled: !hasWritePermission,
                 onClick: () => this.gridCommons.changeActiveModal("create-disease-panel"),
+            },
+            {
+                icon: "fas fa-file-import me-1",
+                title: "Import from GEL PanelApp",
+                disabled: !hasWritePermission,
+                onClick: () => this.gridCommons.changeActiveModal("import-disease-panel"),
             },
         ];
     }

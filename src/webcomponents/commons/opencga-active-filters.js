@@ -721,8 +721,10 @@ export default class OpencgaActiveFilters extends LitElement {
         // 1. Generate the url to the tool with the current query
         const [app, tool] = WebUtils.getApplicationAndToolFromHash();
         const link = WebUtils.getIVALink(this.opencgaSession, app, tool, this.query);
+
         // 2. Copy this link to the user clipboard
         UtilsNew.copyToClipboard(link);
+
         // 3. Notify user that the link has been copied to the clipboard
         NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
             message: "Link to current query copied to clipboard.",

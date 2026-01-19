@@ -48,98 +48,92 @@ export default class JsonEditor extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.jsonEditor = null;
-        this.jsonEditorId = this._prefix + "jsoneditor";
-        this._data = {};
+        this._data = {}; // internal copy of the data to avoid performing additional updates
+        this._editor = null;
         this._config = this.getDefaultConfig();
-    }
-
-    firstUpdated(changedProperties) {
-        if (changedProperties.has("config")) {
-            console.log("init data...");
-            this._data = this._config?.initAsArray ? [] : {};
-        }
     }
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
+
         super.update(changedProperties);
     }
 
     updated(changedProperties) {
         if (changedProperties.has("data")) {
-            // If element exist and the jsonEditor Obj not exist
-            if (document.getElementById(this.jsonEditorId) && !this.jsonEditor) {
-                this.initJsonEditor();
+            if (!this._editor) {
+                this.initEditor();
+                this._data = UtilsNew.objectClone(this.data);
             }
 
             // We need to check if the current JSON displayed is the same that the one being passed.
             // This avoids the cursor to move to the beginning.
-            if (this.jsonEditor && !UtilsNew.isEqual(JSON.stringify(this._data), JSON.stringify(this.data))) {
-                this.jsonEditor.update({json: this.data});
+            if (this._editor && JSON.stringify(this._data) !== JSON.stringify(this.data)) {
+                this._editor.update({
+                    json: this.data,
+                });
             }
         }
     }
 
-    initJsonEditor() {
-        const content = {
-            json: this.data ? this.data : {}
-        };
-
-        const editorElm = document.getElementById(this.jsonEditorId);
-        // Create Editor
-        this.jsonEditor = createJSONEditor({
-            target: editorElm,
+    initEditor() {
+        this._editor = createJSONEditor({
+            target: this.querySelector(`#${this._prefix}-editor`),
             props: {
-                content,
+                content: {
+                    json: this.data || {},
+                },
                 mode: this._config?.mode || "text",
                 indentation: this._config?.indentation || 4,
                 readOnly: this._config?.readOnly ?? false,
-                onChange: (updatedContent, previousContent, {contentErrors, patchResult}) =>
-                    this.onFilterChange(updatedContent, previousContent, {contentErrors, patchResult}),
-                onError: err => {
+                onChange: (updatedContent, previousContent, {contentErrors, patchResult}) => {
+                    this.onFilterChange(updatedContent, previousContent, {contentErrors, patchResult});
+                },
+                onError: errorMessage => {
                     NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                        message: err
+                        message: errorMessage,
                     });
                 },
-                // onRenderMenu: (mode, items) => {
-                //     // Remove transforms we don't need for the moment
-                //     return items.filter(item => item.className !== "jse-transform");
-                // },
             }
         });
     }
 
-    onFilterChange(updatedContent, previousContent, {contentErrors, patchResult}) {
+    onFilterChange(updatedContent) {
         try {
-            // updatedContent is an object which content 2 props (text & json)
-            this.data = updatedContent.text ? JSON.parse(updatedContent.text) : updatedContent.json;
-            // Copy the updated content
-            this._data = UtilsNew.objectClone(this.data);
-        } catch {}
-        LitUtils.dispatchCustomEvent(this, "fieldChange", {
-            json: {...this.data},
-            text: updatedContent?.text
-        }, null);
+            // internally copy the updated content to avoid performing additional updates
+            this._data = updatedContent.text ? JSON.parse(updatedContent.text) : UtilsNew.objectClone(updatedContent.json);
+
+            // dispatch the fieldChange event with the updated JSON 
+            LitUtils.dispatchCustomEvent(this, "fieldChange", {
+                json: this._data,
+                text: updatedContent?.text
+            });
+        } catch (error) {
+            // If the JSON is not valid, we can ignore the error, as the editor will handle it and the event won't be dispatched.
+            // console.error("Error parsing JSON:", error);
+        }
     }
 
     render() {
-        if (!this.data && !this.jsonEditor) {
-            return html`<h4>No valid data found</h4>`;
+        if (!this.data) {
+            return nothing;
         }
 
         return html`
             ${this._config.showDownloadButton ? html`
-                <div class="float-end">
+                <div class="d-flex justify-content-end">
                     <download-button
-                        .json="${this.data}"
+                        .json="${this._data}"
                         classes="${"btn btn-light my-2"}">
                     </download-button>
                 </div>
             ` : nothing}
-            <div class="pt-2" id="${this.jsonEditorId}"></div>
+            <div class="pt-2" id="${this._prefix}-editor"></div>
         `;
     }
 
@@ -148,7 +142,6 @@ export default class JsonEditor extends LitElement {
             mode: "text", // Two accepted values: text, tree.
             indentation: 4,
             readOnly: false,
-            initAsArray: false,
             showDownloadButton: true
         };
     }

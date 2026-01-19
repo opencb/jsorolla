@@ -163,7 +163,9 @@ export default class FamilySummary extends LitElement {
                             type: "list",
                             display: {
                                 contentLayout: "vertical",
-                                format: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
+                                format: disorder => {
+                                    return UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder]));
+                                },
                                 defaultValue: "-"
                             }
                         },
@@ -173,7 +175,9 @@ export default class FamilySummary extends LitElement {
                             type: "list",
                             display: {
                                 contentLayout: "vertical",
-                                format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
+                                format: phenotype => {
+                                    return UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype]));
+                                },
                                 defaultValue: "-"
                             }
                         },
@@ -234,7 +238,9 @@ export default class FamilySummary extends LitElement {
                                         type: "list",
                                         display: {
                                             defaultValue: "-",
-                                            format: disorder => CatalogGridFormatter.disorderFormatter([disorder])
+                                            format: disorder => {
+                                                return UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter([disorder]));
+                                            },
                                         }
                                     },
                                     {
@@ -243,7 +249,9 @@ export default class FamilySummary extends LitElement {
                                         type: "list",
                                         display: {
                                             defaultValue: "-",
-                                            format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype])
+                                            format: phenotype => {
+                                                return UtilsNew.renderHTML(CatalogGridFormatter.phenotypesFormatter([phenotype]));
+                                            },
                                         }
                                     },
                                 ]

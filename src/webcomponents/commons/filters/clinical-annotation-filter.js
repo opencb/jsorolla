@@ -91,7 +91,8 @@ export default class ClinicalAnnotationFilter extends LitElement {
             placeholder: "RCV000058226",
             clinicalDatabases: [
                 {id: "clinvar", name: "ClinVar"},
-                {id: "cosmic", name: "Cosmic"}
+                {id: "cosmic", name: "Cosmic"},
+                {id: "hgmd", name: "HGMD"},
             ]
         };
     }

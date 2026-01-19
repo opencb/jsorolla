@@ -17,15 +17,15 @@
 export default class WebUtils {
 
     static formatDisplayName(id, name, defaultValue = "-") {
-        if (id && name) {
+        if (id && name && id !== name) {
             // First case: both id and name exists and are not empty
             return `${name} (${id})`;
-        } else if (id) {
-            // Second case: only id exists
-            return id;
         } else if (name) {
-            // Third case: only name exists
+            // Second case: only name exists
             return name;
+        } else if (id) {
+            // Third case: only id exists
+            return id;
         } else {
             // Fallback: neither id and name exists
             return defaultValue;
@@ -100,6 +100,75 @@ export default class WebUtils {
         return [...(response?.events || []), ...(response?.responses?.[0]?.events || [])].filter(event => {
             return event && !!event.message;
         });
+    }
+
+    /**
+     * Apply line clamping to a container and attach a toggle
+     * @param {HTMLElement} container - element containing the text
+     * @param {number} [lines=2] - number of lines to clamp
+     * @param {string} [toggleTextClass='text-primary'] - optional CSS class for the toggle
+     */
+    static clampText(container, lines = 2, toggleTextClass = "text-primary fw-semibold") {
+        if (!(container instanceof HTMLElement)) {
+            console.warn("clampText: container is not a valid HTMLElement", container);
+            return;
+        }
+
+        // Add clamping CSS safely
+        container.style.display = '-webkit-box';
+        container.style.webkitBoxOrient = 'vertical';
+        container.style.webkitLineClamp = String(lines);
+        container.style.overflow = 'hidden';
+        container.style.textOverflow = 'ellipsis';
+
+        // Create toggle only if not already present
+        let toggle = container.nextElementSibling;
+        if (!toggle || !toggle.classList.contains("clamp-toggle")) {
+            toggle = document.createElement("span");
+            toggle.className = `clamp-toggle mb-2 ${toggleTextClass}`;
+            toggle.style.cursor = "pointer";
+            toggle.style.marginLeft = "";
+            toggle.style.userSelect = "none";
+            toggle.style.color = "indigo-700";
+            toggle.textContent = "Read more";
+            container.insertAdjacentElement("afterend", toggle);
+        }
+
+        // Hide toggle if text fits
+        const isOverflowing = container.scrollHeight > container.clientHeight + 1;
+        toggle.style.display = isOverflowing ? "inline" : "none";
+
+        // Toggle click handler
+        let expanded = false;
+        toggle.onclick = () => {
+            expanded = !expanded;
+            container.style.webkitLineClamp = expanded ? "unset" : String(lines);
+            container.style.overflow = expanded ? "visible" : "hidden";
+            toggle.textContent = expanded ? "Read less" : "Read more";
+        };
+    }
+
+    // Converts a parameters object into a list of {name, value} objects
+    // Example: 
+    // Input: { "param1": "value1", "param2": "value2" }
+    // Output: [ { name: "param1", value: "value1" }, { name: "param2", value: "value2" } ]
+    static parseParametersObject(parameters = {}) {
+        return Object.keys(parameters).map(key => {
+            return {
+                name: key,
+                value: parameters[key],
+            };
+        });
+    }
+
+    // Converts a list of {name, value} objects into a parameters object
+    // Example:
+    // Input: [ { name: "param1", value: "value1" }, { name: "param2", value: "value2" } ]
+    // Output: { "param1": "value1", "param2": "value2" }
+    static formatParametersList(parameters = []) {
+        return Object.fromEntries(parameters.map(parameter => {
+            return [parameter.name, parameter.value];
+        }));
     }
 
     static getApplicationAndToolFromHash(hash = "") {

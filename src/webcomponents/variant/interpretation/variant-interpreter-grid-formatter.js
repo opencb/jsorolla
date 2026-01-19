@@ -18,6 +18,7 @@ import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import GridCommons from "../../commons/grid-commons.js";
+import VariantUtils from "../variant-utils.js";
 
 export default class VariantInterpreterGridFormatter {
 
@@ -105,300 +106,43 @@ export default class VariantInterpreterGridFormatter {
         `;
     }
 
-    /*
-    * File attributes formatters
-    */
-    static reportedEventDetailFormatter(value, row, variantGrid, query, review, config) {
-        if (row && row.evidences.length > 0) {
-            // Sort and group CTs by Gene name
-            BioinfoUtils.sort(row.evidences, v => v.genomicFeature?.geneName);
+    static userClassificationFormatter(value, variant, evidences = null) {
+        // note that we only consider the evidences that have been selected for review
+        const visibleEvidences = (Array.isArray(evidences) ? evidences : variant?.evidences || []).filter(evidence => {
+            return evidence?.review?.select && (evidence?.review?.clinicalSignificance || evidence?.review?.acmg?.length > 0 || evidence?.review?.tier);
+        });
 
-            // we need to prepare evidences to be filtered properly,
-            // the easiest way is to recycle the existing function 'consequenceTypeDetailFormatterFilter',
-            // so we need to add consequenceType information
-            const transcriptMap = new Map();
-            row.annotation.consequenceTypes.forEach(ct => transcriptMap.set(ct.transcriptId, ct));
-            const newEvidences = [];
-            row.evidences.forEach((evidence, index) => {
-                // we are missing regulatory variants
-                if (evidence.genomicFeature?.transcriptId) {
-                    const newEvidence = {
-                        index,
-                        ...evidence,
-                        ...transcriptMap.get(evidence.genomicFeature.transcriptId)
-                    };
-                    newEvidences.push(newEvidence);
-                }
+        if (visibleEvidences.length > 0) {
+            const showTranscript = visibleEvidences.length > 1;
+            const content = visibleEvidences.map(evidence => {
+                return `
+                    <div>
+                        ${showTranscript && evidence?.genomicFeature?.transcriptId ? `
+                            <div class="">
+                                <strong>${evidence.genomicFeature.transcriptId}</strong>
+                            </div>    
+                        ` : ""}
+                        ${evidence?.review?.clinicalSignificance ? `
+                            <div class="my-1" style="color: ${CLINICAL_SIGNIFICANCE_SETTINGS[evidence.review.clinicalSignificance].color}">
+                                ${CLINICAL_SIGNIFICANCE_SETTINGS[evidence.review.clinicalSignificance].id}
+                            </div>
+                        ` : ""}
+                        ${evidence?.review?.acmg?.length > 0 ? `
+                            <div class="text-secondary">
+                                ${evidence.review.acmg.map(acmg => acmg.classification || acmg).join(", ")}
+                            </div>
+                        ` : ""}
+                        ${evidence?.review?.tier ? `
+                            <div class="">
+                                <span style="color:${VariantUtils.getTierColor(evidence.review.tier)}">${evidence.review.tier}</span>
+                            </div>
+                        ` : ""}
+                    </div>
+                `;
             });
-            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(newEvidences, config).indexes;
-
-            let message = "";
-            if (config) {
-                // Create two different divs to 'show all' or 'apply filter' title
-                message = `<div class="${variantGrid._prefix}${row.id}EvidenceFiltered">Showing <span class='fw-bold' style="color: red">${showArrayIndexes.length}</span> of
-                                <span class='fw-bold' style=" color: red">${newEvidences.length}</span> clinical evidences
-                                ${showArrayIndexes.length !== newEvidences.length ?
-                    `, <a class="link-primary" id="${variantGrid._prefix}${row.id}ShowEvidence" data-id="${row.id}" style="cursor: pointer">show all...</a>` :
-                    ""
-                }
-                            </div>
-                            <div class="${variantGrid._prefix}${row.id}EvidenceFiltered" style="display: none">Showing <span class='fw-bold' style="color: red">${newEvidences.length}</span> of
-                                <span class='fw-bold' style="color: red">${newEvidences.length}</span> clinical evidences,
-                                ${showArrayIndexes.length !== newEvidences.length ?
-                    `, <a class="link-primary" id="${variantGrid._prefix}${row.id}HideEvidence" data-id="${row.id}" style="cursor: pointer">apply filters...</a>` :
-                    ""
-                }
-                           </div>
-                            `;
-            }
-
-            let ctHtml = `<div style="padding-bottom: 5px">${message}</div>
-                          <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
-            `;
-
-            if (variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
-                ctHtml += `<thead class="table-light">
-                               <tr>
-                                   <th rowspan="2" style="padding: 2px 5px">Gene</th>
-                                   <th rowspan="2" style="padding: 2px 5px">Transcript</th>
-                                   <th rowspan="2" style="padding: 2px 5px">Consequence Type</th>
-                                   <th rowspan="2" style="padding: 2px 5px">Transcript Flags</th>
-                                   <th rowspan="2" style="padding: 2px 5px">Disease Panel</th>
-                                   <th rowspan="2" style="padding: 2px 5px">Automatic<br>Prediction</th>
-                                   <th rowspan="1" colspan="${review ? 5 : 3}" style="text-align: center; padding: 5px 5px">User Classification</th>
-                               </tr>
-                               <tr>
-                                   <th rowspan="1" style="padding-top: 5px">ACMG</th>
-                                   <th rowspan="1">Tier</th>
-                                   ${review ? "<th rowspan=\"1\">Select</th>" : ""}
-                                   ${review ? "<th rowspan=\"1\">Edit</th>" : ""}
-                               </tr>
-                           </thead>
-                           <tbody>`;
-            } else {
-                ctHtml += `<thead class="table-light">
-                               <tr>
-                                   <th rowspan="2" style="padding: 2px 5px">Gene</th>
-                                   <th rowspan="2" style="padding: 2px 5px">Transcript</th>
-                                   <th rowspan="2" style="padding: 2px 5px">Consequence Type</th>
-                                   <th rowspan="2" style="padding: 2px 5px">Transcript Flags</th>
-                                   <th rowspan="2" style="padding: 2px 5px">Disease Panel</th>
-                                   <th rowspan="2" style="padding: 2px 5px">Role in Cancer</th>
-                                   <th rowspan="2" style="padding: 2px 5px">Automatic<br>Prediction</th>
-                                   <th rowspan="1" colspan="${review ? 5 : 3}" style="text-align: center; padding: 5px 5px">User Classification</th>
-                               </tr>
-                               <tr>
-                                    <th rowspan="1" style="padding-top: 5px">ACMG</th>
-                                    <th rowspan="1">Tier</th>
-                                    ${review ? "<th rowspan=\"1\">Select</th>" : ""}
-                                    ${review ? "<th rowspan=\"1\">Edit</th>" : ""}
-                               </tr>
-                           </thead>
-                           <tbody>`;
-            }
-
-            for (let i = 0; i < newEvidences.length; i++) {
-                const re = newEvidences[i];
-
-                // Prepare data info for columns
-                let geneHtml = "-";
-                if (re.genomicFeature.geneName) {
-                    geneHtml = `
-                        <div>
-                            <a class="text-decoration-none" href="${BioinfoUtils.getGeneNameLink(re.genomicFeature.geneName)}" target="_blank">
-                                ${re.genomicFeature.geneName}
-                            </a>
-                        </div>
-                        <div style="margin: 5px 0px">
-                            <a class="text-decoration-none" href="${BioinfoUtils.getGeneLink(re.genomicFeature.id)}" target="_blank">
-                                ${re.genomicFeature.id || ""}
-                            </a>
-                        </div>`;
-                }
-
-                // Get the CT for this transcript ID
-                const ct = row.annotation?.consequenceTypes
-                    ?.find(ct => ct.ensemblTranscriptId === re.genomicFeature.transcriptId || ct.transcriptId === re.genomicFeature.transcriptId);
-
-                let transcriptHtml = "-";
-                if (re.genomicFeature.transcriptId) {
-                    transcriptHtml = `
-                        <div style="">
-                            <span>${ct?.biotype ? ct.biotype : "-"}</span>
-                        </div>
-                        <div style="margin: 5px 0px">
-                            <span>
-                                ${re.genomicFeature.transcriptId ? `
-                                    <div style="margin: 5px 0px">
-                                        ${VariantGridFormatter.getHgvsLink(re.genomicFeature.transcriptId, row.annotation.hgvs) || ""}
-                                    </div>
-                                    <div style="margin: 5px 0px">
-                                        ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, row.annotation.hgvs) || ""}
-                                    </div>` : ""
-                    }
-                            </span>
-                        </div>`;
-                }
-
-                const soArray = [];
-                if (re.genomicFeature.consequenceTypes?.length > 0) {
-                    for (const so of re.genomicFeature.consequenceTypes) {
-                        const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
-                        soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
-                                        <span style="padding-right: 5px">${so.name}</span>
-                                        <a title="Go to Sequence Ontology ${so.accession} term"
-                                            href="${BioinfoUtils.getSequenceOntologyLink(so.accession)}" target="_blank">
-                                            <i class="fas fa-external-link-alt"></i>
-                                        </a>
-                                      </div>`);
-                    }
-                }
-
-                let transcriptFlagHtml = ["-"];
-                if ((ct?.transcriptId || ct?.ensemblTranscriptId) && (ct?.transcriptFlags?.length > 0 || ct?.transcriptAnnotationFlags?.length > 0)) {
-                    transcriptFlagHtml = ct.transcriptFlags ?
-                        ct.transcriptFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`) :
-                        ct.transcriptAnnotationFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`);
-                }
-
-                let panelHtml = "-";
-                if (re.panelId) {
-                    // TODO should we fetch the panel from the case instead the study?
-                    const panel = variantGrid.opencgaSession?.study?.panels?.find(panel => panel.id === re.panelId);
-                    if (panel) {
-                        const gene = panel.genes.find(gene => gene.id === re.genomicFeature.geneName || gene.name === re.genomicFeature.geneName);
-                        const confidenceColor = gene.confidence === "HIGH" ? "green" : gene.confidence === "MEDIUM" ? "darkorange" : "red";
-                        panelHtml = `
-                            <div style="margin: 5px 0">
-                                ${panel.source?.project?.toUpperCase() === "PANELAPP" ? `
-                                    <div>
-                                        <a href="${BioinfoUtils.getPanelAppLink(panel.source.id)}" title="Panel ID: ${panel.id}" target="_blank">
-                                            ${panel.name} (${panel.source.project} v${panel.source.version})
-                                        </a>
-                                    </div>` : `
-                                        <div style="margin: 5px 0">${panel.id}</div>`
-                        }
-                            </div>
-                            ${gene.modesOfInheritance ? `
-                                <div class="text-body-secondary" style="margin: 5px 0" title="Panel Mode of Inheritance of gene ${gene.name}">${gene.modesOfInheritance.join(", ")}</div>
-                                ` : ""
-                        }
-                            ${gene.confidence ? `
-                                <div style="color: ${confidenceColor}" title="Panel Confidence of gene ${gene.name}">${gene.confidence}</div>
-                                ` : ""
-                        }
-                        `;
-                    } else {
-                        panelHtml = re.panelId;
-                    }
-                }
-
-                let roleInCancer = "-";
-                if (re.rolesInCancer) {
-                    roleInCancer = re.rolesInCancer
-                        .map(v => v.match(/^TUMOR_SUP{1,2}RESSOR_GENE$/) ? "TSG" : v)
-                        .join(", ");
-
-                }
-
-                let acmgPrediction = "-";
-                if (re.classification?.clinicalSignificance || re.classification?.acmg?.length > 0) {
-                    acmgPrediction = `
-                        ${re.classification?.clinicalSignificance ? `
-                            <div style="margin: 5px 0; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].color}">
-                                ${CLINICAL_SIGNIFICANCE_SETTINGS[re.classification.clinicalSignificance].id}
-                            </div>
-                        ` : ""
-                    }
-                        <div class="text-body-secondary">${re.classification.acmg?.map(acmg => acmg.classification || acmg)?.join(", ")}</div>
-                    `;
-                }
-
-                // const acmgCustom = re.review?.acmg ? re.review.acmg.join(",") : "-";
-                let acmgCustom = "-";
-                if (re.review?.clinicalSignificance || re.review?.acmg?.length > 0) {
-                    acmgCustom = `
-                        ${re.review?.clinicalSignificance ? `
-                            <div style="margin: 5px 0; color: ${CLINICAL_SIGNIFICANCE_SETTINGS[re.review.clinicalSignificance].color}">
-                                ${CLINICAL_SIGNIFICANCE_SETTINGS[re.review.clinicalSignificance].id}
-                            </div>
-                        ` : ""
-                    }
-                        <div class="text-body-secondary">${re.review.acmg?.map(acmg => acmg.classification)?.join(", ")}</div>
-                    `;
-                }
-
-                let tier = "-";
-                let color = "black";
-                if (re.review?.tier) {
-                    const tierClassification = re.review.tier?.toUpperCase();
-                    color = (tierClassification === "TIER1" || tierClassification === "TIER 1") ? "red" : color;
-                    color = (tierClassification === "TIER2" || tierClassification === "TIER 2") ? "darkorange" : color;
-                    color = (tierClassification === "TIER3" || tierClassification === "TIER 3") ? "blue" : color;
-                    tier = `<span style="color: ${color}">${re.review.tier}</span>`;
-                }
-
-                const clinicalAnalysis = variantGrid.clinicalAnalysis || {};
-                const disabled = (clinicalAnalysis.locked || clinicalAnalysis.interpretation?.locked) ? "disabled" : "";
-                // Evidence selected checkbox
-                const checboxHtml = `
-                    <input
-                        type="checkbox"
-                        ${re?.review?.select ? "checked" : ""}
-                        class="${variantGrid._prefix}EvidenceReviewCheckbox"
-                        data-variant-id="${row.id}"
-                        data-clinical-evidence-index="${re.index}"
-                        ${disabled}>
-                `;
-
-                // Evidence edit button
-                const editButtonLink = `
-                    <button
-                        class="btn btn-link ${variantGrid._prefix}EvidenceReviewButton"
-                        data-variant-id="${row.id}"
-                        data-clinical-evidence-index="${re.index}"
-                        ${disabled}>
-                        <i class="fa fa-edit icon-padding" aria-hidden="true"></i>Edit
-                    </button>
-                `;
-
-                // Create the table row
-                const hideClass = showArrayIndexes.includes(i) ? "" : `${variantGrid._prefix}${row.id}EvidenceFiltered`;
-                const displayStyle = showArrayIndexes.includes(i) ? "" : "display: none";
-
-                // Create the table row
-                if (variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
-                    ctHtml += `
-                        <tr class="detail-view-row ${hideClass}" style="${displayStyle}">
-                            <td>${geneHtml}</td>
-                            <td>${transcriptHtml}</td>
-                            <td>${soArray.join("")}</td>
-                            <td>${transcriptFlagHtml.join("")}</td>
-                            <td>${panelHtml}</td>
-                            <td>${acmgPrediction}</td>
-                            <td>${acmgCustom}</td>
-                            <td>${tier}</td>
-                            ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
-                        </tr>`;
-                } else {
-                    ctHtml += `
-                        <tr class="detail-view-row ${hideClass}" style="${displayStyle}">
-                            <td>${geneHtml}</td>
-                            <td>${transcriptHtml}</td>
-                            <td>${soArray.join("")}</td>
-                            <td>${transcriptFlagHtml.join("")}</td>
-                            <td>${panelHtml}</td>
-                            <td>${roleInCancer}</td>
-                            <td>${acmgPrediction}</td>
-                            <td>${acmgCustom}</td>
-                            <td>${tier}</td>
-                            ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
-                        </tr>`;
-                }
-            }
-            ctHtml += "</tbody></table>";
-            return ctHtml;
+            return content.join(`<hr class="">`);
         }
+
         return "-";
     }
 
@@ -923,7 +667,7 @@ export default class VariantInterpreterGridFormatter {
             `;
 
             return `
-                <div>
+                <div class="text-nowrap">
                     <a tooltip-title="Exomiser Scores" tooltip-text="${tooltipText}">
                         <div><b>Rank</b>: ${evidence.attributes.exomiser["RANK"] || "-"}</div>
                         <div><b>P-Value</b>: ${evidence.attributes.exomiser["P-VALUE"] || "-"}</div>
@@ -936,15 +680,16 @@ export default class VariantInterpreterGridFormatter {
         return "-";
     }
 
-    static reviewFormatter(row, index, checked, disabled, prefix, config) {
-        // Prepare discussion tooltip text
+    static reviewFormatter(variant, clinicalAnalysis, checked = false, config = {}) {
+        const disabled = clinicalAnalysis?.locked || clinicalAnalysis?.interpretation?.locked;
+
         let discussionTooltipText = "";
-        if (row.discussion?.text) {
+        if (variant.discussion?.text) {
             discussionTooltipText = `
                 <div style="min-width:200px;">
-                    <div>${row.discussion?.text || "-"}</div>
+                    <div>${UtilsNew.escapeHtml(variant.discussion?.text || "-")}</div>
                     <div style="margin-top:6px;">
-                        Added by <b>${row.discussion?.author || "-"}</b> on <b>${UtilsNew.dateFormatter(row.discussion?.date)}</b>
+                        Added by <b>${UtilsNew.escapeHtml(variant.discussion?.author || "-")}</b> on <b>${UtilsNew.dateFormatter(variant.discussion?.date)}</b>
                     </div>
                 </div>
             `;
@@ -952,10 +697,10 @@ export default class VariantInterpreterGridFormatter {
         // Prepare comments
         const commentsTooltipText = `
             <div style="min-width:200px;">
-                ${(row.comments || []).map(comment => `
+                ${(variant.comments || []).map(comment => `
                     <div style="padding:4px;">
-                        <label>${comment.author} - ${UtilsNew.dateFormatter(comment.date)}</label>
-                        <div>${comment.message || "-"}</div>
+                        <label>${UtilsNew.escapeHtml(comment.author)} - ${UtilsNew.dateFormatter(comment.date)}</label>
+                        <div>${UtilsNew.escapeHtml(comment.message || "-")}</div>
                     </div>
                 `).join("")}
             </div>
@@ -964,24 +709,30 @@ export default class VariantInterpreterGridFormatter {
         return `
             <div>
                 ${config?.showEditReview ? `
-                    <button id="${prefix}${row.id}VariantReviewButton" class="btn btn-link text-decoration-none" style="width:80px" data-action="review" data-index="${index}" data-variant="${row.id}" ${disabled}>
-                        <i class="fa fa-edit pe-1"></i> Edit ...
-                    </button>
+                    <div class="d-flex justify-content-center">
+                        <button class="d-flex align-items-center btn btn-sm ${checked ? "btn-primary" : "btn-light"} ${disabled ? "disabled" : ""}" data-variant="${variant.id}">
+                            <i class="fa fa-edit pe-2"></i>
+                            <span class="fw-bold" style="white-space:nowrap;">${checked ? "Update" : "Select"}</span>
+                        </button>
+                    </div>
                 `: ""}
-                ${checked && row?.status ? `
-                    <div class="text-body-secondary" style="margin: 5px 0">${row.status}</div>
+                ${checked && variant?.status ? `
+                    <div class="badge ${VariantUtils.getStatusColor(variant.status || "")} user-select-none my-2">
+                        <b>${variant.status}</b>
+                    </div>
                 ` : ""}
-                ${checked && (row.comments?.length > 0 || row.discussion?.text) ? `
-                    <div style="">
-                        ${row.discussion?.text ? `
-                        <a tooltip-title='Discussion' tooltip-text='${discussionTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                            <i class="fas fa-comment-alt" style="margin-right:8px;"></i>
-                        </a>
+                ${checked && (variant.comments?.length > 0 || variant.discussion?.text) ? `
+                    <div class="d-flex justify-content-center gap-2">
+                        ${variant.discussion?.text ? `
+                            <a class='text-decoration-none text-secondary' tooltip-title='Discussion' tooltip-text='${discussionTooltipText}' tooltip-position-at='left bottom' tooltip-position-my='right top'>
+                                <i class="fas fa-comment-alt"></i>
+                            </a>
                         ` : ""}
-                        ${row.comments?.length > 0 ? `
-                        <a tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                            <i class="fas fa-comments" style="margin-right:2px;"></i>${row.comments.length}
-                        </a>
+                        ${variant.comments?.length > 0 ? `
+                            <a class='d-flex align-items-center text-decoration-none text-secondary' tooltip-title='Comments' tooltip-text='${commentsTooltipText}' tooltip-position-at='left bottom' tooltip-position-my='right top'>
+                                <i class="fas fa-comments pe-1"></i>
+                                <span class="d-none">${variant.comments.length}</span>
+                            </a>
                         ` : ""}
                     </div>
                 ` : ""}
@@ -1063,6 +814,24 @@ export default class VariantInterpreterGridFormatter {
                 return `<div><b>Variant ${index + 1}</b>: ${resultHtml}</div>`;
             })
             .join(separator);
+    }
+
+    static statusFormatter(variant, primaryFindings, secondaryFindings) {
+        if (primaryFindings.has(variant.id) || secondaryFindings.has(variant.id)) {
+            const status = primaryFindings.get(variant.id)?.status || secondaryFindings.get(variant.id)?.status || variant.status;
+            if (status) {
+                const color = VariantUtils.getStatusColor(status);
+                const isPrimaryFinding = primaryFindings.has(variant.id);
+                const tooltipText = `
+                    <div><b>Status</b>: ${status}</div>
+                    <div><b>Finding</b>: ${isPrimaryFinding ? "Primary" : "Secondary"}</div>
+                `;
+                return `
+                    <a class="d-block ${color} rounded-circle" tooltip-title="Status" tooltip-text="${tooltipText}" style="width:1.25rem;height:1.25rem;"></a>
+                `;
+            }
+        }
+        return "";
     }
 
 }

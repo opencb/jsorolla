@@ -101,7 +101,7 @@ export default class VariantSecondaryAnnotationIndexOperation extends LitElement
 
     onSubmit() {
         const toolParams = {
-            overwrite: this.toolParams.index || false,
+            overwrite: this.toolParams.overwrite || false,
         };
         const params = {
             project: this.toolParams.project || this.opencgaSession.project.id,
@@ -162,7 +162,7 @@ export default class VariantSecondaryAnnotationIndexOperation extends LitElement
                 title: "Configuration Parameters",
                 elements: [
                     {
-                        title: "Overwrite Index",
+                        title: "Overwrite Secondary Annotation Index",
                         field: "overwrite",
                         type: "checkbox",
                         display: {

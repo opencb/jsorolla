@@ -114,6 +114,15 @@ export default class FileBrowser extends LitElement {
         });
     }
 
+    onTreePathClear(event, params) {
+        // execute the onQuerySearch method of OpencgaBrowser with an empty query
+        params.onQuerySearch({
+            detail: {
+                query: {},
+            },
+        });
+    }
+
     onTreePathCreate(event) {
         this._lastCreatedPath = event.detail.value;
         this.requestUpdate();

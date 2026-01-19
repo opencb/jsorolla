@@ -32,6 +32,11 @@ $white: #fff;
 // custom body configuration
 $body-bg: $gray-50;
 
+// overwrite border radius configuration.
+// this overwrite smooths the difference between the xl and xxl values
+$border-radius-xl: 0.75rem;
+$border-radius-xxl: 1rem;
+
 // Overwrite z-index configuration
 $zindex-dropdown: 1020;
 $zindex-sticky: 1000;
@@ -39,6 +44,10 @@ $zindex-sticky: 1000;
 // custom border configuration
 $border-color: $gray-200;
 $border-width: 1px;
+
+// custom alerts configuration
+// https://getbootstrap.com/docs/5.3/components/alerts/#sass-variables
+$alert-border-radius: $border-radius-xl;
 
 // custom card configuration
 // https://getbootstrap.com/docs/5.3/components/card/#sass-variables
@@ -77,6 +86,56 @@ body {
 :root {
     --bs-dropdown-border-radius: var(--bs-border-radius);
     --bs-dropdown-item-border-radius: var(--bs-border-radius-sm);
+}
+
+// qtip custom
+.qtip-custom-no-maxwidth{
+  max-width: none !important;
+}
+
+.qtip.custom-scroll {
+  max-height: 300px;  /* or whatever max height you want */
+  overflow-y: auto;   /* vertical scrollbar */
+  padding-right: 5px; /* space for scrollbar */
+}
+
+// override card
+.card {
+  border: 0;
+  transition: transform .3s cubic-bezier(.34,2,.6,1), box-shadow .2s ease, -webkit-transform .3s cubic-bezier(.34,2,.6,1);
+}
+
+card .card-header .card-title {
+  margin-top: 10px;
+}
+
+.card-title {
+  margin-bottom: .75rem;
+}
+
+.card-footer {
+  border-top: 0;
+}
+
+.card .card-category, .card label {
+  font-size: .875rem;
+  font-weight: 400;
+  color: #9a9a9a;
+  margin-bottom: 0;
+}
+
+.summary-category{
+  font-size: .875rem;
+  font-weight: 400;
+  color: #9a9a9a;
+  margin-bottom: 0;
+}
+
+.card-divider {
+    height: 0.0625rem;
+    margin: 1rem 0px;
+    opacity: 0.25;
+    background-image: linear-gradient(to right, rgba(52, 71, 103, 0), rgba(52, 71, 103, 0.4), rgba(52, 71, 103, 0)) !important;
 }
 
 // override button styles
@@ -137,16 +196,31 @@ body {
 }
 
 // table for grids styles
+.table {
+  & thead {
+    & th {
+      color: $gray-600;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      padding: 0 0.75rem !important;
+      vertical-align: bottom;;
+    }
+  }
+}
 .table-grid {
     border-collapse: separate;
     border-spacing: 0 0.5rem;
     // overwrite the default styles of thead cells
     & thead {
-        & .th-inner {
+        & th {
             color: $gray-600;
             font-size: $font-size-sm;
             font-weight: $font-weight-medium;
             padding: 0 0.75rem!important;
+            vertical-align: bottom;;
+        }
+        & .th-inner {
+            padding: 0!important;
         }
         & tr:first-child th[rowspan="1"]::after {
             content: "";
@@ -155,6 +229,7 @@ body {
             margin: 4px 4px 0 4px;
         }
     }
+
     // overwrite the default styles of tbody cells
     & tbody tr {
         background-color: $white;
@@ -171,6 +246,11 @@ body {
             border-top-right-radius: $border-radius;
             border-bottom-right-radius: $border-radius;
         }
+    }
+    // row selected style
+    & tbody tr.selected {
+        @extend .table-success;
+        background-color: var(--bs-table-bg)
     }
 }
 
@@ -221,7 +301,10 @@ body {
 
 // additional cursor utilities
 .cursor-pointer {
-    cursor: pointer;
+    cursor: pointer !important;
+}
+.cursor-not-allowed {
+    cursor: not-allowed !important;
 }
 .cursor-not-allowed {
     cursor: not-allowed;
@@ -251,6 +334,9 @@ body {
 }
 .fs-8 {
     font-size: $font-size-base * 0.75;
+}
+.fs-9 {
+    font-size: $font-size-base * 0.625;
 }
 
 // additional text decoration utilities
@@ -315,6 +401,11 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
 }
 .select2-search.select2-search--inline {
     display: inline-block;
+}
+/* this fixes text overflow when the select2 is inside a modal */
+.select2-selection__rendered {
+    white-space: break-spaces !important;
+    word-break: break-word !important;
 }
 
 // bootstrap-table styles override

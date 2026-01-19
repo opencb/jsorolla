@@ -171,28 +171,33 @@ export default class DetailTabs extends LitElement {
     render() {
         // 1. Check If data is undefined or null
         if (!this.data) {
-            return html`<h3>${this._config?.errorMessage || "No data found"}</h3>`;
+            return html`
+                <h3>${this._config?.errorMessage || "No data found"}</h3>
+            `;
         }
 
         // 2. Check the 'mode' is correct
         if (this.mode !== DetailTabs.TABS_MODE && this.mode !== DetailTabs.PILLS_MODE && this.mode !== DetailTabs.PILLS_VERTICAL_MODE) {
-            return html`<h3>No valid mode: '${this.mode || ""}'</h3>`;
+            return html`
+                <h3>No valid mode: '${this.mode || ""}'</h3>
+            `;
         }
 
         // 3. Check tabs exist
         if (this._config?.items?.length === 0) {
-            return html`<h3>No tab items provided</h3>`;
+            return html`
+                <h3>No tab items provided</h3>
+            `;
         }
 
-        // Allow custom tabs alignment:  "center" or "justified"
-        const align = this._config?.display?.align || ""; // deprecated
         const classes = this._config?.display?.classes;
-        const contentClass = this.mode === DetailTabs.PILLS_VERTICAL_MODE ? "col-md-10" : "";
+        const parentClass = this.mode === DetailTabs.PILLS_VERTICAL_MODE ? "row" : "";
+        const contentClass = this.mode === DetailTabs.PILLS_VERTICAL_MODE ? "col-10" : "";
         const visibleTabsCount = this.getVisibleTabs().length;
 
         return html`
             ${this._config.title ? this.renderTitle() : null}
-            <div class="detail-tabs row">
+            <div class="${parentClass} ${this._config?.display?.parentClass || ""}" style="${this._config?.display?.parentStyle || ""}">
                 ${!(this._config.hideTabsIfOnlyOneVisible && visibleTabsCount === 1) ? html`
                     <!-- TABS -->
                     ${this.mode === DetailTabs.TABS_MODE ? html`
@@ -216,7 +221,7 @@ export default class DetailTabs extends LitElement {
                             </ul>
                         </div>
                     ` : nothing}
-                ` : null}
+                ` : nothing}
 
                 <!-- TAB CONTENT -->
                 <div class="${contentClass} ${this._config.display?.contentClass}" style="${this._config.display?.contentStyle || nothing}">

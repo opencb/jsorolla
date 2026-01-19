@@ -20,6 +20,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../loading-spinner.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 
 export default class IndividualSummary extends LitElement {
 
@@ -107,41 +108,77 @@ export default class IndividualSummary extends LitElement {
 
     getDefaultConfig() {
         return {
+            title: "Individual Overview",
             display: {
-                titleVisible: false,
+                titleVisible: true,
                 buttonsVisible: false,
+                separationClassName: "mb-1",
+                layout: [
+                    {
+                        className: "row",
+                        sections: [
+                            {
+                                id: "general",
+                                className: "col-6",
+                            },
+                            {
+                                id: "metadata",
+                                className: "col-6",
+                            },
+                        ],
+                    },
+                    {
+                        id: "disorders-phenotypes",
+                    },
+                    {
+                        id: "samples",
+                    },
+                ],
                 ...this.displayConfig,
             },
             sections: [
                 {
-                    title: "General",
+                    id: "general",
+                    display: {
+                        titleWidth: 4,
+                        className: "border border-1 gorder-gray-200 rounded-4 p-4 bg-white",
+                        separationClassName: "mb-3",
+                    },
                     elements: [
                         {
-                            title: "Individual ID",
-                            type: "complex",
+                            type: "text",
+                            text: "General Information",
                             display: {
-                                template: "${id} (UUID: ${uuid})",
-                                style: {
-                                    id: {
-                                        "font-weight": "bold",
-                                    }
-                                }
+                                className: "mb-2 fs-5 fw-bold",
                             },
+                        },
+                        {
+                            title: "ID",
+                            field: "id",
                         },
                         {
                             id: "name",
                             title: "Name",
                             field: "name",
+                            display: {
+                                defaultValue: "-",
+                            },
                         },
                         {
                             id: "father",
                             title: "Father ID",
                             field: "father.id",
+                            display: {
+                                defaultValue: "-",
+                            },
                         },
                         {
                             id: "mother",
                             title: "Mother ID",
                             field: "mother.id",
+                            display: {
+                                defaultValue: "-",
+                            },
                         },
                         {
                             id: "sex",
@@ -156,102 +193,197 @@ export default class IndividualSummary extends LitElement {
                             title: "Inferred Karyotypic Sex",
                             field: "qualityControl",
                             display: {
+                                separationClassName: "mb-0",
                                 format: qualityControl => {
                                     return qualityControl?.inferredSexReports?.length > 0 ? qualityControl.inferredSexReports[0].inferredKaryotypicSex : "-";
                                 },
                             },
                         },
+                    ],
+                },
+                {
+                    id: "metadata",
+                    display: {
+                        className: "border border-1 gorder-gray-200 rounded-4 p-4 bg-white",
+                        separationClassName: "mb-3",
+                        titleWidth: 4,
+                    },
+                    elements: [
                         {
-                            title: "Ethnicity",
-                            field: "ethnicity.id",
+                            type: "text",
+                            text: "Metadata",
+                            display: {
+                                className: "mb-2 fs-5 fw-bold",
+                            },
                         },
                         {
-                            title: "Disorders",
-                            field: "disorders",
-                            type: "list",
+                            title: "UUID",
+                            field: "uuid",
+                            type: "custom",
                             display: {
-                                contentLayout: "vertical",
-                                format: disorder => CatalogGridFormatter.disorderFormatter([disorder]),
+                                render: uuid => html`
+                                    <code class="text-break">${uuid || "-"}</code>
+                                `,
                                 defaultValue: "-",
                             },
-                        },
-                        {
-                            title: "Phenotypes",
-                            field: "phenotypes",
-                            type: "list",
-                            display: {
-                                contentLayout: "vertical",
-                                format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
-                                defaultValue: "-",
-                            },
-                        },
-                        {
-                            title: "Date of Birth",
-                            field: "dateOfBirth",
-                            display: {
-                                format: date => UtilsNew.dateFormatter(date)
-                            },
-                        },
-                        {
-                            title: "Life Status",
-                            field: "lifeStatus",
                         },
                         {
                             title: "Version",
                             field: "version",
+                            display: {
+                                defaultValue: "-",
+                            },
                         },
                         {
-                            title: "Status",
-                            type: "complex",
+                            title: "Release",
+                            field: "release",
                             display: {
-                                template: "${internal.status.id} (${internal.status.date})",
-                                format: {
-                                    "internal.status.date": date => UtilsNew.dateFormatter(date)
-                                }
+                                defaultValue: "-",
                             },
                         },
                         {
                             title: "Creation Date",
                             field: "creationDate",
+                            type: "custom",
                             display: {
-                                format: date => UtilsNew.dateFormatter(date)
+                                render: creationDate => creationDate ? UtilsNew.dateFormatter(creationDate) : "-",
                             },
                         },
                         {
                             title: "Modification Date",
                             field: "modificationDate",
+                            type: "custom",
                             display: {
-                                format: modificationDate => UtilsNew.dateFormatter(modificationDate),
+                                separationClassName: "mb-0",
+                                render: modificationDate => modificationDate ? UtilsNew.dateFormatter(modificationDate) : "-",
                             },
-                        },
-                        {
-                            title: "Description",
-                            field: "description",
                         },
                     ],
                 },
                 {
-                    title: "Samples",
+                    id: "disorders-phenotypes",
                     display: {
-                        visible: individual => individual?.id,
+                        titleWidth: 2,
+                        className: "border border-1 gorder-gray-200 rounded-4 p-4 bg-white",
+                        separationClassName: "mb-3",
+                        layout: [
+                            {
+                                id: "title",
+                            },
+                            {
+                                className: "row",
+                                elements: [
+                                    {
+                                        id: "disorders",
+                                        className: "col-6",
+                                    },
+                                    {
+                                        id: "phenotypes",
+                                        className: "col-6",
+                                    },
+                                ],
+                            },
+                        ],
                     },
                     elements: [
                         {
-                            title: "List of samples",
+                            id: "title",
+                            type: "text",
+                            text: "Disorders & Phenotypes",
+                            display: {
+                                className: "mb-2 fs-5 fw-bold",
+                            },
+                        },
+                        {
+                            id: "disorders",
+                            field: "disorders",
+                            title: "Disorders",
+                            type: "list",
+                            display: {
+                                separationClassName: "mb-0",
+                                titleWidth: 2,
+                                listClassName: "mb-0 ps-3",
+                                contentLayout: "bullets",
+                                defaultLayout: "vertical",
+                                defaultValue: individual => html`
+                                    <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
+                                        <i class="fas fa-info-circle fs-3"></i>
+                                        <div class="text-break">No disorders available for individual <b>${individual.name || individual.id}</b>.</div>
+                                    </div>
+                                `,
+                                template: "${name} (${id})",
+                                link: {
+                                    "id": id => {
+                                        return BioinfoUtils.getOntologyLink(id);
+                                    },
+                                },
+                            },
+                        },
+                        {
+                            id: "phenotypes",
+                            field: "phenotypes",
+                            title: "Phenotypes",
+                            type: "list",
+                            display: {
+                                separationClassName: "mb-0",
+                                titleWidth: 2,
+                                listClassName: "mb-0 ps-3",
+                                contentLayout: "bullets",
+                                defaultLayout: "vertical",
+                                defaultValue: individual => html`
+                                    <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
+                                        <i class="fas fa-info-circle fs-3"></i>
+                                        <div class="text-break">No phenotypes available for individual <b>${individual.name || individual.id}</b>.</div>
+                                    </div>
+                                `,
+                                transform: phenotypes => {
+                                    return (phenotypes || []).sort(item => item?.status === "OBSERVED" ? -1 : 1);
+                                },
+                                template: "${name} (${id})",
+                                link: {
+                                    "id": id => {
+                                        return BioinfoUtils.getOntologyLink(id);
+                                    },
+                                }
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: "samples",
+                    display: {
+                        className: "border border-1 border-gray-200 rounded-4 p-4 bg-white",
+                        separationClassName: "mb-0",
+                    },
+                    elements: [
+                        {
+                            type: "text",
+                            text: "Samples",
+                            display: {
+                                className: "mb-2 fs-5 fw-bold",
+                            },
+                        },
+                        {
                             field: "samples",
                             type: "table",
                             display: {
-                                className: "",
-                                style: "",
-                                headerClassName: "",
-                                headerStyle: "",
-                                headerVisible: true,
-                                defaultValue: "No phenotypes found",
+                                className: "table-borderless table-grid mb-0",
+                                separationClassName: "mb-0",
+                                headerCellClassName: "bg-white",
+                                bodyRowClassName: "bg-gray-100",
+                                bodyCellClassName: "align-middle",
+                                defaultValue: individual => html`
+                                    <div class="alert alert-light border-0 mb-0 d-flex flex-column align-items-center gap-1">
+                                        <i class="fas fa-info-circle fs-3"></i>
+                                        <div class="text-break">No samples available for individual <b>${individual.name || individual.id}</b>.</div>
+                                    </div>
+                                `,
                                 columns: [
                                     {
-                                        title: "Samples ID",
+                                        title: "Sample",
                                         field: "id",
                                         display: {
+                                            className: "text-break",
                                             style: {
                                                 "font-weight": "bold"
                                             }
@@ -260,20 +392,53 @@ export default class IndividualSummary extends LitElement {
                                     {
                                         title: "Somatic",
                                         field: "somatic",
+                                        type: "custom",
+                                        display: {
+                                            headerCellClassName: "text-center",
+                                            bodyCellClassName: "text-center",
+                                            render: somatic => html`
+                                                <i class="fas ${somatic ? "fa-check text-success": "fa-times text-danger"}"></i>
+                                            `,
+                                        },
                                     },
                                     {
-                                        title: "Phenotypes",
-                                        field: "phenotypes",
+                                        title: "Cohorts",
+                                        field: "cohortIds",
                                         type: "list",
                                         display: {
-                                            contentLayout: "bullets",
+                                            contentLayout: "horizontal",
+                                            listClassName: "d-flex align-items-center flex-wrap",
+                                            listItemClassName: "badge bg-secondary text-white me-1",
                                             defaultValue: "-",
-                                            format: phenotype => CatalogGridFormatter.phenotypesFormatter([phenotype]),
+                                        },
+                                    },
+                                    {
+                                        title: "Files",
+                                        field: "fileIds",
+                                        type: "list",
+                                        display: {
+                                            contentLayout: "vertical",
+                                            listItemClassName: "d-flex align-items-center gap-2",
+                                            defaultValue: "-",
+                                            template: "<i class='far fa-file'></i><span>${id}</span>",
+                                            format: {
+                                                id: (fileId, data) => data.split(":").at(-1),
+                                            },
+                                        },
+                                    },
+                                    {
+                                        title: "Modification / Creation",
+                                        type: "custom",
+                                        display: {
+                                            render: sample => {
+                                                return UtilsNew.renderHTML(CatalogGridFormatter.modifiedAndCreateDateFormatter(null, sample));
+                                            },
                                         },
                                     },
                                 ],
                             },
                         },
+
                     ],
                 },
             ],

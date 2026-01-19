@@ -70,6 +70,9 @@ import "../../webcomponents/commons/analysis/analysis-tools.js";
 import "../../webcomponents/commons/analysis/my-analysis-tools.js";
 import "../../webcomponents/commons/analysis/jupyter-notebook.js";
 
+import "../../webcomponents/clinical/preprocessing/clinical-file-upload.js";
+import "../../webcomponents/clinical/preprocessing/clinical-preprocessing.js";
+
 import "../../webcomponents/commons/layout/layout-footer.js";
 import "../../webcomponents/commons/layout/layout-primary-bar.js";
 import "../../webcomponents/commons/layout/layout-secondary-bar.js";
@@ -163,8 +166,14 @@ class IvaApp extends LitElement {
         // Notify a response
         this.addEventListener(NotificationUtils.NOTIFY_RESPONSE, e => this.notificationManager.response(e.detail));
 
-        // Show confirmation
+        // other notification types
+        this.addEventListener(NotificationUtils.NOTIFY_LOADING, event => this.notificationManager.showLoading(event.detail));
         this.addEventListener(NotificationUtils.NOTIFY_CONFIRMATION, e => this.notificationManager.showConfirmation(e.detail));
+
+        // listener to clear a notification
+        this.addEventListener(NotificationUtils.NOTIFY_CLEAR, event => {
+            event?.detail?.id ? this.notificationManager.clear(event.detail.id) : this.notificationManager.clearAll();
+        });
 
         // keeps track of the executedQueries transitioning from browser tool to facet tool
         this.queries = {};
@@ -729,7 +738,7 @@ class IvaApp extends LitElement {
             // 2. set the new Hash URL
             const [hashFragments, hashQuery] = window.location.hash.replace("#", "").split("?");
             const hashItems = hashFragments.split("/");
-            let newHashFragmentUrl = "";
+            let newHashFragmentUrl = "", newHashQuery = hashQuery || "";
 
             // 2.1. If the hash fragment only contains one or three items, it is a single tool URL
             if (hashItems.length === 1 || hashItems.length === 3) {
@@ -744,8 +753,13 @@ class IvaApp extends LitElement {
                 newHashFragmentUrl = `${hashItems[0]}/${tool}/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}`;
             }
 
-            // 2.3. reset hash including queries (if any)
-            window.location.hash = newHashFragmentUrl + (hashQuery ? `?${hashQuery}` : "");
+            // 2.3. if the current tool is the interpreter, we must clear the hash query
+            if (hashItems[0] === "interpreter" || hashItems[1] === "interpreter") {
+                newHashQuery = "";
+            }
+
+            // 2.4. reset hash including queries (if any)
+            window.location.hash = newHashFragmentUrl + (newHashQuery ? "?" + newHashQuery : "");
 
             // 3. Reset queries from old studies
             this.queries = {};
@@ -1253,15 +1267,14 @@ class IvaApp extends LitElement {
                 break;
             case "interpreter":
                 content = html`
-                    <div class="content">
-                        <variant-interpreter
-                            .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
-                            .clinicalAnalysisId="${this.queries["interpreter"]?.id}"
-                            .settings="${this.settings.VARIANT_INTERPRETER_SETTINGS}"
-                            @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
-                        </variant-interpreter>
-                    </div>
+                    <variant-interpreter
+                        .opencgaSession="${this.opencgaSession}"
+                        .cellbaseClient="${this.cellbaseClient || this.opencgaSession.cellbaseClient}"
+                        .clinicalAnalysisId="${this.queries["interpreter"]?.id}"
+                        .activeTool="${this.queries["interpreter"]?.tool}"
+                        .settings="${this.settings.VARIANT_INTERPRETER_SETTINGS}"
+                        @selectClinicalAnalysis="${this.onSelectClinicalAnalysis}">
+                    </variant-interpreter>
                 `;
                 break;
             case "organization-admin":
@@ -1381,6 +1394,21 @@ class IvaApp extends LitElement {
                     <study-dashboard
                         .opencgaSession="${this.opencgaSession}">
                     </study-dashboard>
+                `;
+                break;
+            case "clinical-file-upload":
+                content = html`
+                    <clinical-file-upload
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-file-upload>
+                `;
+                break;
+            case "clinical-preprocessing":
+            case "preprocessing":
+                content = html`
+                    <clinical-preprocessing
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-preprocessing>
                 `;
                 break;
             default:

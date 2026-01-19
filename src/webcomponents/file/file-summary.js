@@ -154,6 +154,7 @@ export default class FileSummary extends LitElement {
                             type: "list",
                             display: {
                                 separator: ", ",
+                                defaultValue: "-",
                             },
                         },
                         {

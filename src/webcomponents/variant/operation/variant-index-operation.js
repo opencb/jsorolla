@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 
 export default class VariantIndexOperation extends LitElement {
@@ -33,109 +34,100 @@ export default class VariantIndexOperation extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object,
-            },
             toolParams: {
                 type: Object,
             },
             title: {
                 type: String,
             },
+            opencgaSession: {
+                type: Object,
+            },
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
     #init() {
-        this.TOOL = "VariantIndex";
+        this.ANALYSIS_TOOL = "variant-index";
         this.TITLE = "Variant Index Operation";
         this.DESCRIPTION = "Index variant files into the variant storage";
-
         this.DEFAULT_TOOLPARAMS = {};
-        // Make a deep copy to avoid modifying default object.
-        this.toolParams = {
-            ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-        };
 
-        this.config = this.getDefaultConfig();
-    }
-
-    firstUpdated(changedProperties) {
-        if (changedProperties.has("toolParams")) {
-            // This parameter will indicate if either a study is passed as an argument
-            this.study = this.toolParams.study || "";
-        }
+        this._toolParams = UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS);
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            this.toolParams = {
+            this._toolParams = {
                 ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
                 ...this.toolParams,
             };
-            this.config = this.getDefaultConfig();
         }
+
+        if (changedProperties.has("displayConfig")) {
+            this._config = this.getDefaultConfig();
+        }
+
         super.update(changedProperties);
     }
 
     check() {
-        if (!this.toolParams.study) {
-            return {
-                message: "Study is a mandatory parameter, please select one."
-            };
-        }
-        if (!this.toolParams.file) {
-            return {
-                message: "A VCF file is a mandatory parameter, please select one."
-            };
-        }
         return null;
     }
 
-    onFieldChange(e, field) {
-        const param = field || e.detail.param;
-        if (param) {
-            this.toolParams = FormUtils.createObject(this.toolParams, param, e.detail.value);
+    onFieldChange(event) {
+        if (event.detail.param) {
+            this._toolParams = FormUtils.createObject(this._toolParams, event.detail.param, event.detail.value);
         }
-        this.config = this.getDefaultConfig();
+        // this._config = this.getDefaultConfig();
+        LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._toolParams);
         this.requestUpdate();
     }
 
     onSubmit() {
-        const toolParams = {
-            file: this.toolParams.file || "",
-            calculateStats: this.toolParams.calculateStats || false,
-            annotate: this.toolParams.annotate || false,
-            resume: this.toolParams.resume || false,
-            loadMultiFileData: this.toolParams.loadMultiFileData || false,
+        const bodyData = {
+            file: this._toolParams.file || "",
+            calculateStats: this._toolParams.calculateStats || false,
+            annotate: this._toolParams.annotate || false,
+            loadMultiFileData: this._toolParams.loadMultiFileData || false,
+            loadSplitData: this._toolParams.loadSplitData,
+            forceReload: this._toolParams.forceReload || false,
+            resume: this._toolParams.resume || false,
         };
         const params = {
-            study: this.toolParams.study || this.opencgaSession.study.fqn,
-            ...AnalysisUtils.fillJobParams(this.toolParams, this.TOOL),
+            study: this.opencgaSession.study.fqn,
+            ...AnalysisUtils.fillJobParams(this._toolParams, this.ANALYSIS_TOOL),
         };
+
         AnalysisUtils.submit(
             this.TITLE,
             this.opencgaSession.opencgaClient.variantOperations()
-                .indexVariant(toolParams, params),
+                .indexVariant(bodyData, params),
             this,
         );
     }
 
     onClear() {
-        this.toolParams = {
+        this._toolParams = {
             ...UtilsNew.objectClone(this.DEFAULT_TOOLPARAMS),
-            study: this.toolParams.study || "",
+            ...this.toolParams,
         };
-        this.config = this.getDefaultConfig();
+        this._config = this.getDefaultConfig();
+
+        this.requestUpdate();
     }
 
     render() {
         return html`
             <data-form
-                .data="${this.toolParams}"
-                .config="${this.config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                .data="${this._toolParams}"
+                .config="${this._config}"
+                @fieldChange="${event => this.onFieldChange(event)}"
+                @clear="${() => this.onClear()}"
+                @submit="${() => this.onSubmit()}">
             </data-form>
         `;
     }
@@ -147,16 +139,20 @@ export default class VariantIndexOperation extends LitElement {
                 elements: [
                     {
                         title: "Study",
+                        field: "study",
                         type: "custom",
                         required: true,
                         display: {
-                            render: toolParams => html`
+                            render: (study, dataFormFieldChange) => html`
                                 <catalog-search-autocomplete
-                                    .value="${toolParams?.study}"
+                                    .value="${study}"
                                     .resource="${"STUDY"}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false, disabled: !!this.study}}"
-                                    @filterChange="${e => this.onFieldChange(e, "study")}">
+                                    .config="${{
+                                        multiple: false,
+                                        disabled: !!this.toolParams.study,
+                                    }}"
+                                    @filterChange="${event => dataFormFieldChange(event.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
@@ -172,41 +168,80 @@ export default class VariantIndexOperation extends LitElement {
                         type: "custom",
                         required: true,
                         display: {
-                            render: file => html`
+                            render: (file, dataFormFieldChange) => html`
                                 <catalog-search-autocomplete
                                     .value="${file}"
                                     .resource="${"FILE"}"
-                                    .query="${
-                                    {
+                                    .query="${{
                                         type: "FILE",
                                         format: "VCF",
                                         include: "id,name,format,size,path",
                                     }}"
                                     .opencgaSession="${this.opencgaSession}"
-                                    .config="${{multiple: false}}"
-                                    @filterChange="${e => this.onFieldChange(e, "file")}">
+                                    .config="${{
+                                        disabled: !!this.toolParams.file,
+                                        multiple: false,
+                                    }}"
+                                    @filterChange="${event => dataFormFieldChange(event.detail.value)}">
                                 </catalog-search-autocomplete>
                             `,
                         },
                     },
-
                     {
-                        title: "Calculate Stats",
-                        field: "calculateStats",
+                        title: "Load MultiFile Data",
+                        field: "loadMultiFileData",
                         type: "checkbox",
                         display: {
                             help: {
-                                text: "Calculate variant stats for the index file"
+                                text: "Indicate the presence of multiple files for the same sample. Each file could be the result of a different vcf-caller or experiment over the same sample."
                             }
                         }
                     },
                     {
-                        title: "Annotate",
-                        field: "annotate",
+                        title: "Load Split Data",
+                        field: "loadSplitData",
+                        type: "select",
+                        allowedValues: ["CHROMOSOME", "REGION"],
+                        display: {
+                            help: {
+                                text: "Indicate that the variants from a group of samples is split in multiple files, either by CHROMOSOME or by REGION. In either case, variants from different files must not overlap."
+                            }
+                        }
+                    },
+                    {
+                        title: "Additional Operations",
+                        // field: "minimumRequirements",
+                        type: "object",
+                        elements: [
+                            {
+                                title: "Update Cohort Stats:",
+                                field: "calculateStats",
+                                type: "checkbox",
+                                display: {
+                                    help: {
+                                        text: "Update cohort ALL statistics after the variant file is indexed"
+                                    }
+                                }
+                            },
+                            {
+                                title: "Execute Variant Annotation:",
+                                field: "annotate",
+                                type: "checkbox",
+                                display: {
+                                    help: {
+                                        text: "Execute variant annotation for the new variants added in this file"
+                                    }
+                                }
+                            },
+                        ]
+                    },
+                    {
+                        title: "Force Reload",
+                        field: "forceReload",
                         type: "checkbox",
                         display: {
                             help: {
-                                text: "Execute an annotation for the new variants added in this file"
+                                text: "Force reloading the file even if it was already loaded"
                             }
                         }
                     },
@@ -220,28 +255,20 @@ export default class VariantIndexOperation extends LitElement {
                             }
                         }
                     },
-                    {
-                        title: "Load MultiFile Data",
-                        field: "loadMultiFileData",
-                        type: "checkbox",
-                        display: {
-                            help: {
-                                text: "Load variants from multiple files"
-                            }
-                        }
-                    },
                 ],
             }
         ];
 
         return AnalysisUtils.getAnalysisConfiguration(
-            this.TOOL,
+            this.ANALYSIS_TOOL,
             this.title ?? this.TITLE,
             this.DESCRIPTION,
             params,
             this.check(),
-            {},
-            this.opencgaSession
+            {
+                display: this.displayConfig || {},
+            },
+            this.opencgaSession,
         );
     }
 

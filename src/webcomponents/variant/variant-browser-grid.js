@@ -74,7 +74,6 @@ export default class VariantBrowserGrid extends LitElement {
         this.RESOURCE = "VARIANT";
         this._prefix = UtilsNew.randomString(8);
         this.gridId = this._prefix + this.COMPONENT_ID;
-        this.checkedVariants = new Map();
 
         // Set colors
         // eslint-disable-next-line no-undef
@@ -145,14 +144,15 @@ export default class VariantBrowserGrid extends LitElement {
         this.gridCommons.registerModals({
             "view-variant": () => ({
                 display: {
-                    modalTitle: `Variant: ${this.selectedVariantId}`,
+                    modalTitle: `Variant: ${BioinfoUtils.getShortVariantId(this.selectedVariant.id, 50, 10)}`,
                     modalDraggable: true,
                     modalCyDataName: "modal-variant-view",
                     modalSize: "modal-3xl",
                 },
                 render: () => html`
                     <variant-view
-                        .variantId="${this.selectedVariantId}"
+                        .variantId="${this.selectedVariant.id}"
+                        .settings="${this._config}"
                         .opencgaSession="${this.opencgaSession}">
                     </variant-view>
                 `,
@@ -414,31 +414,6 @@ export default class VariantBrowserGrid extends LitElement {
         );
     }
 
-    onCheck(e) {
-        const variantId = e.currentTarget.dataset.variantId;
-        const variant = this._rows.find(e => e.id === variantId);
-
-        if (e.currentTarget.checked) {
-            this.checkedVariants.set(variantId, variant);
-        } else {
-            this.checkedVariants.delete(variantId);
-        }
-
-        this.dispatchEvent(new CustomEvent("checkrow", {
-            detail: {
-                id: variantId,
-                row: variant,
-                checked: e.currentTarget.checked,
-                rows: Array.from(this.checkedVariants.values())
-            }
-        }));
-    }
-
-    checkFormatter(value, row) {
-        const checked = this.checkedVariants && this.checkedVariants.has(row.id) ? "checked" : "";
-        return `<input class="Check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked}>`;
-    }
-
     _getDefaultColumns() {
         // IMPORTANT: empty columns are not supported in boostrap-table,
         let sampleColumns = [{visible: false}];
@@ -552,7 +527,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "type",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => VariantGridFormatter.typeFormatter(value, row),
+                    formatter: value => VariantGridFormatter.typeFormatter(value),
                     visible: this.gridCommons.isColumnVisible("type"),
                 },
                 {
@@ -799,7 +774,7 @@ export default class VariantBrowserGrid extends LitElement {
                 },
                 {
                     id: "omim",
-                    title: "OMIM",
+                    title: "OMIM<br>Orphanet",
                     field: "omim",
                     colspan: 1,
                     rowspan: 1,
@@ -902,18 +877,24 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     onActionClick(event, variant) {
-        const action = event.target?.dataset?.action?.toLowerCase();
+        const action = event.currentTarget?.dataset?.action?.toLowerCase();
         switch (action) {
             case "view":
-                this.selectedVariantId = variant.id;
+                this.selectedVariant = variant;
                 this.gridCommons.changeActiveModal("view-variant");
+                break;
+            case "copy":
+                UtilsNew.copyToClipboard(variant.id);
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {message: `Variant ID ${variant.id} copied to clipboard`});
                 break;
             case "copy-link":
                 // 1. Generate the URL to this variant
                 const [app, tool] = WebUtils.getApplicationAndToolFromHash();
                 const link = WebUtils.getIVALink(this.opencgaSession, app, tool, {id: variant.id});
+
                 // 2. Copy this link to the clipboard
                 UtilsNew.copyToClipboard(link);
+
                 // 3. Notify user that link has been copied to the clipboard
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     message: `Link to variant '${variant.id}' copied to clipboard.`,
@@ -946,7 +927,7 @@ export default class VariantBrowserGrid extends LitElement {
             limit: 1000,
             count: false
         };
-        this.opepncgaSession.opencgaClient.variants().query(filters)
+        this.opencgaSession.opencgaClient.variants().query(filters)
             .then(response => {
                 const results = response.getResults();
                 // Check if user clicked in Tab or JSON format

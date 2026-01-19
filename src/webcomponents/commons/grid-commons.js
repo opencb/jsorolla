@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import WebUtils from "./utils/web-utils.js";
@@ -410,7 +411,7 @@ export default class GridCommons {
                 return ModalUtils.create(this.context, `GridModal${this.activeModal}`, modalConfig);
             }
         }
-        return null;
+        return nothing;
     }
 
     // checks if the current has the provided permission on the specified resource
@@ -424,10 +425,11 @@ export default class GridCommons {
     }
 
     static generateExpandCollapseContent(items = [], maxItems = 5) {
-        let resultHtml = "-";
-        if (items.length > 0) {
+        if (items.length <= maxItems) {
+            return items.join("") || "-";
+        } else {
             const hiddenItemsLength = items.length - maxItems;
-            resultHtml = `
+            return `
                 <div data-role="expand-collapse-content">
                     <div class="d-flex flex-column gap-1 mb-1">
                         ${items.slice(0, maxItems).join("")}
@@ -456,7 +458,6 @@ export default class GridCommons {
                 </div>
             `;
         }
-        return resultHtml;
     }
 
 }

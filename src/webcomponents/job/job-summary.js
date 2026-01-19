@@ -239,6 +239,7 @@ export default class JobSummary extends LitElement {
                             display: {
                                 separator: "",
                                 contentLayout: "bullets",
+                                defaultValue: "-",
                             },
                         },
                         {
