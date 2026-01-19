@@ -914,6 +914,10 @@ export default class ClinicalRegistry extends LitElement {
                                         .value="${sample}"
                                         .resource="${"SAMPLE"}"
                                         .opencgaSession="${this.opencgaSession}"
+                                        .query="${{
+                                            include: "id,individualId",
+                                            individualId: data?.individualId,
+                                        }}"
                                         .config="${{
                                             multiple: false,
                                             disabled: !data?.sample && data?.sampleId,
