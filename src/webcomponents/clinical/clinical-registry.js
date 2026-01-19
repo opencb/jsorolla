@@ -128,8 +128,9 @@ export default class ClinicalRegistry extends LitElement {
         }
 
         // 3. we have to check if the individual already includes the sample
+        const individualId = this._data.individualId || this._data.individual;
         const individualResponse = await this.opencgaSession.opencgaClient.individuals()
-            .info(this._data.individualId, {
+            .info(individualId, {
                 study: this.opencgaSession.study.fqn,
                 include: "samples.id",
             });
@@ -143,7 +144,7 @@ export default class ClinicalRegistry extends LitElement {
                 ],
             };
             await this.opencgaSession.opencgaClient.individuals()
-                .update(individual.id, individualUpdateParams, {
+                .update(individualId, individualUpdateParams, {
                     study: this.opencgaSession.study.fqn,
                     samplesAction: "ADD",
                 });
