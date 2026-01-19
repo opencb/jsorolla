@@ -225,6 +225,7 @@ export default class ClinicalRegistry extends LitElement {
         }
 
         // 5. create the clinical analysis
+        // TODO
     }
 
     async handleBatchUpload() {
@@ -365,56 +366,26 @@ export default class ClinicalRegistry extends LitElement {
 
         // 4. Upload files and link them to samples
         const selectedFiles = this._data.files || [];
+        const relativeFilePath = this._data.relativeFilePath.startsWith("/") ? this._data.relativeFilePath.substring(1) : this._data.relativeFilePath;
         for (const file of selectedFiles) {
-            if (file.status === this.FILE_STATUS.DONE) {
-                continue;
-            }
-
-            file.status = this.FILE_STATUS.UPLOADING;
-            this._data = {...this._data};
-            this.requestUpdate();
-            await this.updateComplete;
-
-            // check if this file is not in the mapping file --> display an error
-            // const mappingEntry = mapping.find(entry => entry.file === file.fileObject.name);
-            if (!mapping.some(entry => entry.file === file.fileObject.name)) {
-                file.status = this.FILE_STATUS.ERROR;
-                console.error(`File ${file.fileObject.name} not found in the mapping file.`);
-                throw new Error(`File ${file.fileObject.name} not found in the mapping file.`);
-            }
-
-            try {
-                let uploadedFileId;
-                const entries = mapping.filter(entry => entry.file === file.fileObject.name);
-                const relativeFilePath = this._data.relativeFilePath.startsWith("/") ? this._data.relativeFilePath.substring(1) : this._data.relativeFilePath;
-
-                // check if the file is already uploaded?
-                const fileSearchResponse = await this.opencgaSession.opencgaClient.files()
-                    .search({
-                        study: this.opencgaSession.study.fqn,
-                        name: file.fileObject.name,
-                        directory: relativeFilePath,
-                        include: "id",
-                    });
-                if (fileSearchResponse.responses[0].results.length === 0) {
-                    const fileUploadResponse = await this.opencgaSession.opencgaClient.files()
-                        .upload({
-                            study: this.opencgaSession.study.fqn,
-                            file: file.fileObject,
-                            fileName: file.fileObject.name,
-                            resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
-                            relativeFilePath: relativeFilePath.endsWith("/") ? relativeFilePath : relativeFilePath + "/",
-                        });
-                    uploadedFileId = fileUploadResponse.responses[0].results[0].id;
-                } else {
-                    // file already exists, get the id
-                    uploadedFileId = fileSearchResponse.responses[0].results[0].id;
+            if (file.status !== this.FILE_STATUS.DONE) {
+                // 4.1. check if this file is not in the mapping file --> display an error
+                // const mappingEntry = mapping.find(entry => entry.file === file.fileObject.name);
+                if (!mapping.some(entry => entry.file === file.fileObject.name)) {
+                    file.status = this.FILE_STATUS.ERROR;
+                    console.error(`File ${file.fileObject.name} not found in the mapping file.`);
+                    throw new Error(`File ${file.fileObject.name} not found in the mapping file.`);
                 }
 
-                // change the status to DONE
-                file.status = this.FILE_STATUS.DONE;
+                // 4.2. force a refresh of the data to update the file status
+                this._data = {...this._data};
+                this.requestUpdate();
+                
+                // 4.3. upload the file and get the uploaded file id
+                const uploadedFileId = await this.uploadFile(file, relativeFilePath);
+                const entries = mapping.filter(entry => entry.file === file.fileObject.name);
 
-                // Link file to the sample
+                // 4.4. link file to the samples
                 const sampleUpdateParams = {
                     sampleIds: entries.map(entry => entry.sample),
                 };
@@ -423,16 +394,6 @@ export default class ClinicalRegistry extends LitElement {
                         study: this.opencgaSession.study.fqn,
                         sampleIdsAction: "ADD",
                     });
-
-                // Dispatch an event to notify that a file has been uploaded
-                LitUtils.dispatchCustomEvent(this, "fileUpload", null, {
-                    relativeFilePath: relativeFilePath,
-                    fileName: file.fileObject.name,
-                });
-            } catch (error) {
-                console.error(`Error processing file ${file.fileObject.name}`, error);
-                file.status = this.FILE_STATUS.ERROR;
-                throw error;
             }
         }
 
