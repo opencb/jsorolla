@@ -82,10 +82,10 @@ export default class ProjectCreate extends LitElement {
             };
             this._config = this.getDefaultConfig();
         }
-        if (changedProperties.has("opencgaSession")) {
-            this.apiKeyProject = this.opencgaSession.projects.find(p => !!p.cellbase.apiKey);
-            this._project.cellbase.apiKey = this.apiKeyProject?.cellbase?.apiKey || "";
-        }
+        // if (changedProperties.has("opencgaSession")) {
+        //     this.apiKeyProject = this.opencgaSession.projects.find(p => !!p.cellbase.apiKey);
+        //     this._project.cellbase.apiKey = this.apiKeyProject?.cellbase?.apiKey || "";
+        // }
         super.update(changedProperties);
     }
 
@@ -216,7 +216,7 @@ export default class ProjectCreate extends LitElement {
                                     title: "Version",
                                     field: "cellbase.version",
                                     type: "select",
-                                    allowedValues: ["v5.2", "v5.8"],
+                                    allowedValues: ["v5.8", "v6.7"],
                                     defaultValue: "v5.8",
                                     display: {}
                                 },
@@ -231,13 +231,7 @@ export default class ProjectCreate extends LitElement {
                                     field: "cellbase.apiKey",
                                     type: "input-text",
                                     display: {
-                                        helpMessage: () => {
-                                            if (this.apiKeyProject) {
-                                                return `This API Key has been taken from the project: '${this.apiKeyProject.id}'`;
-                                            } else {
-                                                return "Add your CellBase API key (optional)"
-                                            }
-                                        },
+                                        helpMessage: "Add your CellBase API key.",
                                     }
                                 },
                             ]

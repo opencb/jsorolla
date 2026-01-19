@@ -1035,7 +1035,7 @@ export default class VariantGridFormatter {
 
     static deleteriousTooltipSummaryContent(chartDelId) {
         return `
-            <div class="fs-6 lh-base">
+            <div class="">
                 Deleterious scores linked to transcripts flagged as MANE-selected and source Ensembl<br>. <strong>Thresholds for each qualitative description:</strong>
                 <ul style="padding-left: 20px; margin-top: 5px;">
                     <li><b>SIFT:</b> Deleterious for scores &le; 0.05, Tolerated for scores &gt; 0.05</li>
@@ -1565,16 +1565,19 @@ export default class VariantGridFormatter {
                     });
 
                     for (const trait of traits) {
+                        const heritableTraits = (trait?.heritableTraits || []).map(t => {
+                            return `<span>${UtilsNew.escapeHtml(t.trait)}</span>`;
+                        });
                         const row = `
                             <tr style="border-top:1px solid #ededed;">
                                 <td class="p-2">
-                                    <span>${trait.id}</span>
+                                    <span>${UtilsNew.escapeHtml(trait.id)}</span>
                                 </td>
                                 <td class="p-2">
-                                     ${trait.heritableTraits?.length > 0 ? trait.heritableTraits.map(t => `<span>${t.trait}</span>`).join(", "): ""}
+                                     ${heritableTraits.join(", ") || ""}
                                 </td>
                                 <td class="p-2">
-                                    ${trait.additionalProperties?.find(p => p.name === "RANKSCORE")?.value || "-"}
+                                    ${UtilsNew.escapeHtml(trait.additionalProperties?.find(p => p.name === "RANKSCORE")?.value || "-")}
                                 </td>
                             </tr>
                         `;

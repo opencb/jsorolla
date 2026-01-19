@@ -62,6 +62,7 @@ export default class VariantSummaryClinicalSignificanceVariantTraits extends Lit
             { status: "criteria provided, single submitter", stars: 1 },
             { status: "CRITERIA_PROVIDED_SINGLE_SUBMITTER", stars: 1 },
             { status: "no assertion criteria provided", stars: 0 },
+            { status: "NO_ASSERTION_CRITERIA_PROVIDED", stars: 0 },
             { status: "no classification provided", stars: 0 },
             { status: "no classification for the individual variant", stars: 0 }
         ];

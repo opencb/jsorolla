@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import VariantUtils from "../../variant/variant-utils.js";
@@ -240,7 +241,9 @@ export default class ClinicalVariantReview extends LitElement {
         return html`
             <div class="alert alert-light bg-white flex-grow-1 d-flex justify-content-center flex-column">
                 <div class="d-flex gap-3">
-                    <span class="fw-bold fs-5 lh-1">${this._variant.id}</span>
+                    <span class="fw-bold fs-5 lh-1">
+                        ${BioinfoUtils.getShortVariantId(this._variant.id, 50, 10)}
+                    </span>
                     ${genes.length > 0 ? html`
                         <span class="text-secondary">
                             ${genes.slice(0, 5).join(", ")}
@@ -252,7 +255,7 @@ export default class ClinicalVariantReview extends LitElement {
                     ${displayConsequenceType ? html`
                         <span style="color:${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[displayConsequenceType]] || "black"}">${displayConsequenceType}</span>
                     ` : nothing}
-                    <span class="fw-bold">${selectedEvidencesCount} Evidence${selectedEvidencesCount > 1 ? "s" : ""} Reviewed</span>
+                    <span class="fw-bold">${selectedEvidencesCount} Evidence${selectedEvidencesCount == 1 ? "" : "s"} Reviewed</span>
                 </div>
             </div>
         `;
@@ -408,7 +411,7 @@ export default class ClinicalVariantReview extends LitElement {
                     render: variant => html`
                             <variant-summary
                                 .variant="${variant}"
-                                .clinical="${false}"
+                                .clinical="${true}"
                                 .primaryFinding="${this.primaryFinding}"
                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                 .consequenceTypes="${CONSEQUENCE_TYPES}"

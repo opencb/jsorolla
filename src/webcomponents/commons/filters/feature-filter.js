@@ -108,15 +108,9 @@ export default class FeatureFilter extends LitElement {
                     let restResponse;
                     if (this.cellbaseClient) {
                         if (params?.data?.term) {
-                            if (this.cellbaseClient.getConfig()?.version?.startsWith("v5")) {
-                                restResponse = await this.cellbaseClient.get("feature", "gene", params?.data?.term?.toUpperCase(), "startsWith", {
-                                    limit: this._config.limit,
-                                }, {});
-                            } else {
-                                restResponse = await this.cellbaseClient.get("feature", "id", params?.data?.term?.toUpperCase(), "starts_with", {
-                                    limit: this._config.limit,
-                                }, {});
-                            }
+                            restResponse = await this.cellbaseClient.get("feature", "gene", params?.data?.term?.toUpperCase(), "startsWith", {
+                                limit: this._config.limit,
+                            }, {});
                         } else {
                             restResponse = await this.cellbaseClient.get("feature", "gene", "search", "", {limit: this._config.limit}, {});
                         }
@@ -167,14 +161,16 @@ export default class FeatureFilter extends LitElement {
                     .config=${this._config}
                     .value="${this.value}"
                     @filterChange="${e => this.onFilterChange(e.detail.value)}">
-                </select-token-filter>`;
+                </select-token-filter>
+            `;
         } else {
             return html`
                 <text-field-filter
                         .value="${this.value}"
                         .config=${this._config}
                         @filterChange="${e => this.onFilterChange(e.detail.value)}">
-                </text-field-filter>`;
+                </text-field-filter>
+            `;
         }
     }
 

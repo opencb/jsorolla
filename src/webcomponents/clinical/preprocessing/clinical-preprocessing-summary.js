@@ -192,7 +192,9 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                 },
                 {
                     title: "Quality Control Params",
-                    display: {},
+                    display: {
+                        visible: data => data?.pipeline?.type === "genomics",
+                    },
                     elements: [
                         {
                             title: "Tool",
@@ -337,7 +339,8 @@ export default class ClinicalPreprocessingSummary extends LitElement {
                 {
                     title: "Genotype Params",
                     display: {
-                        visible: data => data?.pipeline?.type === "affy",
+                        // visible: data => data?.pipeline?.type === "affy",
+                        visible: false,
                     },
                     elements: [
                         {

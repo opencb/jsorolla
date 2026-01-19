@@ -283,7 +283,7 @@ export default class VariantSummaryInterpretation extends LitElement {
                         <div class="d-flex flex-column me-2">
                             <div class="summary-category">#IMAGES</div>
                             ${(() => {
-                                const count = this._variant?.images?.length ?? [];
+                                const count = this._variant?.images?.length ?? 0;
                                 return html`<div><b>${count}</b></div>`;
                             })()}
                         </div>

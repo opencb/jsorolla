@@ -171,10 +171,10 @@ export default class ClinicalAnalysisManager {
     updateVariants(interpretationId, variants, primaryFinding = true, action = "UPDATE") {
         const field = primaryFinding ? "primaryFindings" : "secondaryFindings";
         const originalInterpretation = this.getInterpretation(interpretationId); // get the interpretation to update
-        // prepare interpretation object for the update
+        // prepare interpretation object for the update and clone the findings arrays
         const interpretation = {
-            primaryFindings: originalInterpretation.primaryFindings || [],
-            secondaryFindings: originalInterpretation.secondaryFindings || [],
+            primaryFindings: (originalInterpretation.primaryFindings || []).slice(0),
+            secondaryFindings: (originalInterpretation.secondaryFindings || []).slice(0),
         };
         // check the action to perform
         // NOTE: variant can be an array of variants (for example in rearrangements)
