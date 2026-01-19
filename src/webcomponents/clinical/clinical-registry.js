@@ -100,6 +100,54 @@ export default class ClinicalRegistry extends LitElement {
             });
     }
 
+    async uploadFile(file, relativeFilePath) {
+        let uploadedFileId;
+        try {
+            // 1. change the status of the file to UPLOADING
+            file.status = this.FILE_STATUS.UPLOADING;
+
+            // 2. check if the file is already uploaded
+            const fileSearchResponse = await this.opencgaSession.opencgaClient.files()
+                .search({
+                    study: this.opencgaSession.study.fqn,
+                    name: file.fileObject.name,
+                    directory: relativeFilePath,
+                    include: "id",
+                });
+            if (fileSearchResponse.responses[0].results.length === 0) {
+                // 2.1. file is not uploaded, proceed with the upload
+                const fileUploadResponse = await this.opencgaSession.opencgaClient.files()
+                    .upload({
+                        study: this.opencgaSession.study.fqn,
+                        file: file.fileObject,
+                        fileName: file.fileObject.name,
+                        resource: relativeFilePath.startsWith("/RESOURCES"),
+                        relativeFilePath: relativeFilePath.endsWith("/") ? relativeFilePath : relativeFilePath + "/",
+                    });
+                uploadedFileId = fileUploadResponse.responses[0].results[0].id;
+            } else {
+                // 2.2. file already exists, get the id
+                uploadedFileId = fileSearchResponse.responses[0].results[0].id;
+            }
+
+            // 3. change the status to DONE
+            file.status = this.FILE_STATUS.DONE;
+
+            // 4. dispatch an event to notify that a file has been uploaded
+            // LitUtils.dispatchCustomEvent(this, "fileUpload", null, {
+            //     relativeFilePath: relativeFilePath,
+            //     fileName: file.fileObject.name,
+            // });
+        } catch (error) {
+            console.error(`Error processing file ${file.fileObject.name}`, error);
+            file.status = this.FILE_STATUS.ERROR;
+            throw error;
+        }
+
+        // return the id of the uploaded file
+        return uploadedFileId;
+    }
+
     async handleSingleUpload() {
         // 1. Create Sample if needed
         if (this._data.sampleId && !this._data.sample) {
@@ -151,55 +199,32 @@ export default class ClinicalRegistry extends LitElement {
         }
 
         // 4. upload the files
+        const relativeFilePath = this._data.relativeFilePath.startsWith("/") ? this._data.relativeFilePath.substring(1) : this._data.relativeFilePath;
         const files = this._data.files || [];
         for (const file of files) {
             // check the status of the file: if it is done, skip it
             if (file.status !== this.FILE_STATUS.DONE) {
-                file.status = this.FILE_STATUS.UPLOADING;
                 this._data = {...this._data};
                 this.requestUpdate();
-                await this.updateComplete;
 
-                try {
-                    // 3.1. perform the request to OpenCGA for uploading the file
-                    const filePath = this._data.relativeFilePath.startsWith("/") ? this._data.relativeFilePath.substring(1) : this._data.relativeFilePath;
-                    const fileResult = await this.opencgaSession.opencgaClient.files()
-                        .upload({
-                            study: this.opencgaSession.study.fqn,
-                            file: file.fileObject,
-                            fileName: file.fileObject.name, // get the name from the uploaded file
-                            relativeFilePath: filePath.endsWith("/") ? filePath : filePath + "/",
-                            resource: this._data.relativeFilePath.startsWith("/RESOURCES"),
-                        });
+                // 4.1. upload the file and get the uploaded file id
+                const uploadedFileId = await this.uploadFile(file, relativeFilePath);
 
-                    // 3.2. if everything is ok, set the status to DONE
-                    file.status = this.FILE_STATUS.DONE;
-
-                    // 3.3. Link file to the sample
-                    const uploadedFileId = fileResult.responses[0].results[0].id;
-                    const sampleUpdateParams = {
-                        sampleIds: [
-                            this._data.sampleId,
-                        ],
-                    };
-                    await this.opencgaSession.opencgaClient.files()
-                        .update(uploadedFileId, sampleUpdateParams, {
-                            study: this.opencgaSession.study.fqn,
-                            sampleIdsAction: "ADD",
-                        });
-
-                    // 3.4. dispatch an event to notify that a file has been uploaded
-                    LitUtils.dispatchCustomEvent(this, "fileUpload", null, {
-                        relativeFilePath: this._data.relativeFilePath,
-                        fileName: file.fileObject.name,
+                // 4.2 link the uploaded file to the sample
+                const sampleUpdateParams = {
+                    sampleIds: [
+                        this._data.sampleId,
+                    ],
+                };
+                await this.opencgaSession.opencgaClient.files()
+                    .update(uploadedFileId, sampleUpdateParams, {
+                        study: this.opencgaSession.study.fqn,
+                        sampleIdsAction: "ADD",
                     });
-                } catch (error) {
-                    // if there is an error, set the status to ERROR and stop the upload process
-                    file.status = this.FILE_STATUS.ERROR;
-                    return Promise.reject(error);
-                }
             }
         }
+
+        // 5. create the clinical analysis
     }
 
     async handleBatchUpload() {
