@@ -23,6 +23,7 @@ import LitUtils from "../commons/utils/lit-utils.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/catalog-browser-grid-config.js";
 import "../commons/grid-toolbar.js";
+import "../commons/ai/ai-chat.js";
 import "./disease-panel-view.js";
 import "./disease-panel-update.js";
 import "./disease-panel-create.js";
@@ -578,6 +579,21 @@ export default class DiseasePanelGrid extends LitElement {
                 title: "Import from GEL PanelApp",
                 disabled: !hasWritePermission,
                 onClick: () => this.gridCommons.changeActiveModal("import-disease-panel"),
+            },
+            {
+                render: () => html`
+                    <div class="dropdown">
+                        <button class="btn ai-btn ${!hasWritePermission ? "disabled" : "cursor-pointer"}" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                            <i class="fas fa-brain me-1"></i>
+                            <span class="">Create with AI</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end shadow-sm ai-dropdown p-3 rounded-4" style="width:400px;">
+                            <ai-chat
+                                .opencgaSession="${this.opencgaSession}">
+                            </ai-chat>
+                        </div>
+                    </div>
+                `,
             },
         ];
     }
