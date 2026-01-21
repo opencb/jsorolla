@@ -62,7 +62,7 @@ export default class AIChat extends LitElement {
                     });
                 })
                 .then(response => {
-                    console.log(response.text);
+                    LitUtils.dispatchCustomEvent(this, "aiResponse", response.text);
                 })
                 .catch(error => {
                     console.error(error);
@@ -84,7 +84,7 @@ export default class AIChat extends LitElement {
                 ${this._config.greeting ? html`
                     <div class="fs-5 mb-2">${this._config.greeting}</div>
                 ` : nothing}
-                <textarea class="form-control mb-2" rows="3" placeholder="${this._config.placeholder || ""}"></textarea>
+                <textarea class="form-control mb-2" rows="5" placeholder="${this._config.placeholder || ""}"></textarea>
                 <button class="btn ai-btn d-flex align-items-center justify-content-center gap-2 w-full ${this._executing ? "active disabled" : ""}" @click="${() => this.onExecute()}">
                     <i class="fas fa-paper-plane"></i>
                     <span>${this._executing ? "Running..." : "Execute"}</span>
