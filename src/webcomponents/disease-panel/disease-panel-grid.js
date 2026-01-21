@@ -20,6 +20,7 @@ import GridCommons from "../commons/grid-commons.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
+import AIUtils from "../commons/utils/ai-utils.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/catalog-browser-grid-config.js";
 import "../commons/grid-toolbar.js";
@@ -559,6 +560,31 @@ export default class DiseasePanelGrid extends LitElement {
             });
     }
 
+    onAiResponse(event) {
+        // console.log(event.detail.value);
+        const response = AIUtils.parseJsonResponse(event.detail.value || "");
+        if (response && response.id) {
+            this.opencgaSession.opencgaClient.panels()
+                .create(response, {
+                    study: this.opencgaSession.study.fqn,
+                })
+                .then(res => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                        message: `Disease panel '${response.id}' has been created using AI.`,
+                    });
+                    LitUtils.dispatchCustomEvent(this, "diseasePanelCreate", res.responses[0].results[0]);
+                    this.table.bootstrapTable("refresh");
+                })
+                .catch(err => {
+                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, err);
+                });
+        } else {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                message: "Could not parse a valid Disease Panel from the AI response.",
+            });
+        }
+    }
+
     renderToolbarLeftContent() {
         return html`
             <span id="${this.gridId + "PaginationInfo"}"></span>
@@ -603,7 +629,8 @@ export default class DiseasePanelGrid extends LitElement {
                                             The JSON should be properly formatted and ready to use in OpenCGA.
                                         `;
                                     },
-                                }}">
+                                }}"
+                                @aiResponse="${event => this.onAiResponse(event)}">
                             </ai-chat>
                         </div>
                     </div>
