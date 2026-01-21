@@ -596,7 +596,10 @@ export default class DiseasePanelGrid extends LitElement {
                                     preparePrompt: inputText => {
                                         return `
                                             Based on the following input: "${inputText}", generate a disease panel JSON object including the following fields: 
-                                            id, name, description, disorders (with id and name), and genes (with id, name, and source). 
+                                            id, name, description, disorders (with id and name), genes (with id, name, and coordinates), and regions (with id and coordinates).
+                                            The coordinates of genes and regions should ben an array of objects with assembly, location, and source. Use Ensembl for sources, and if not specified use GRCh38 as assembly.
+                                            Only fill the genes field if the input mentions genes, otherwise leave it empty. Make sure to include gene coordinates from Ensembl.
+                                            Only fill the regions field if the input mentions chromosomal regions, otherwise leave it empty.
                                             The JSON should be properly formatted and ready to use in OpenCGA.
                                         `;
                                     },
