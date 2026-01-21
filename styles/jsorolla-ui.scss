@@ -22,6 +22,16 @@ $gray-800: #31363a;
 $gray-900: #191c1f;
 // $gray-950: #0c0d0e;
 
+// ai colors
+$ai-primary: #8930fd;
+$ai-primary-emphasis: #7a28f7;
+$ai-primary-subtle: #faf8ff;
+$ai-secondary: #ff02f0;
+$ai-secondary-emphasis: #c100b6;
+$ai-secondary-subtle: #ffeffe;
+$ai-tertiary: #0456c8;
+$ai-tertiary-subtle: #f2fafd;
+
 // theme colors
 $primary: #0456C8;
 // $warning: #cc9900;
@@ -86,6 +96,11 @@ body {
 :root {
     --bs-dropdown-border-radius: var(--bs-border-radius);
     --bs-dropdown-item-border-radius: var(--bs-border-radius-sm);
+
+    // ai colors
+    --ai-color-primary: #{$ai-primary};
+    --ai-color-secondary: #{$ai-secondary};
+    --ai-color-tertiary: #{$ai-tertiary};
 }
 
 // qtip custom
@@ -457,4 +472,58 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
     background-color: #1b1b1b;
     border-radius: 0.5em;
     vertical-align: middle;
+}
+
+// AI Components Styles
+// .ai-border-gradient {
+//     background-image: linear-gradient(
+//         0deg,
+//         color-mix(in sRGB, $ai-primary 10%, transparent) 0%,
+//         color-mix(in sRGB, $ai-secondary 10%, transparent) 50%,
+//         color-mix(in sRGB, $ai-tertiary 10%, transparent) 100%,
+//     );
+//     padding: 8px;
+//     border-radius: 26px;
+//     background-origin: border-box;
+//     background-clip: padding-box,border-box;
+// }
+.ai-btn {
+    // background: linear-gradient(90deg, $ai-secondary-subtle 0%, $ai-tertiary-subtle 100%) !important;
+    // border-color: $ai-primary-emphasis !important;
+    // & span, & i {
+    //     background: linear-gradient(90deg, var(--ai-color-primary), var(--ai-color-secondary), var(--ai-color-primary));
+    //     background-clip: text;
+    //     background-size: 300% 100%;
+    //     color: transparent !important;
+    //     // transition: background-position 0.6s ease;
+    // }
+    // &:hover span, &:hover i {
+    //     // background-position: 100% 0;
+    //     animation: ai-move-gradient 3s linear infinite;
+    // }
+    background: linear-gradient(120deg, var(--ai-color-primary), var(--ai-color-secondary), var(--ai-color-primary));
+    background-size: 400% 100%;
+    // border-color: $ai-primary-emphasis !important;
+    color: white !important;
+    &:hover {
+        animation: ai-move-gradient 3s linear infinite;
+        color: white !important;
+    }
+    &.show, &:active, &.active {
+        color: white !important;
+    }
+}
+.ai-dropdown {
+    background: linear-gradient(120deg, $ai-secondary-subtle 0%, $ai-primary-subtle 50%, $ai-tertiary-subtle 100%);
+    border-color: $ai-primary-emphasis !important;
+}
+.ai-text {
+    background: linear-gradient(90deg, var(--ai-color-primary), var(--ai-color-secondary), var(--ai-color-primary));
+    background-clip: text;
+    color: transparent !important;
+}
+
+@keyframes ai-move-gradient {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
 }
