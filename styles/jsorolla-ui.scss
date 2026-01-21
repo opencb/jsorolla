@@ -505,11 +505,11 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
     background-size: 400% 100%;
     // border-color: $ai-primary-emphasis !important;
     color: white !important;
-    &:hover {
+    &:hover, &.active {
         animation: ai-move-gradient 3s linear infinite;
         color: white !important;
     }
-    &.show, &:active, &.active {
+    &.show, &:active {
         color: white !important;
     }
 }
