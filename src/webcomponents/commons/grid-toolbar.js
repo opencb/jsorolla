@@ -115,7 +115,7 @@ export default class GridToolbar extends LitElement {
                 return html`
                     <button class="btn btn-light ${button.className || ""} ${button.disabled ? "disabled" : ""}" @click="${button.onClick}">
                         ${button.icon ? html`<i class="fas ${button.icon} me-1"></i>` : nothing}
-                        ${button.title}
+                        <span>${button.title}</span>
                     </button>
                 `;
             }
