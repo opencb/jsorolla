@@ -589,7 +589,18 @@ export default class DiseasePanelGrid extends LitElement {
                         </button>
                         <div class="dropdown-menu dropdown-menu-end shadow-sm ai-dropdown p-3 rounded-4" style="width:400px;">
                             <ai-chat
-                                .opencgaSession="${this.opencgaSession}">
+                                .opencgaSession="${this.opencgaSession}"
+                                .config="${{
+                                    greeting: "I can help to create disease panels based on disorders or gene lists.",
+                                    placeholder: "E.g.: Create a disease panel for breast cancer including BRCA1 and BRCA2 genes.",
+                                    preparePrompt: inputText => {
+                                        return `
+                                            Based on the following input: "${inputText}", generate a disease panel JSON object including the following fields: 
+                                            id, name, description, disorders (with id and name), and genes (with id, name, and source). 
+                                            The JSON should be properly formatted and ready to use in OpenCGA.
+                                        `;
+                                    },
+                                }}">
                             </ai-chat>
                         </div>
                     </div>
