@@ -1,7 +1,11 @@
 import {LitElement, html} from "lit";
+import {GoogleGenAI} from "@google/genai";
+import LitUtils from "../utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 
 export default class AIChat extends LitElement {
+
+    static STORAGE_GEMINI_API_KEY = "IVA_GEMINI_API_KEY";
 
     constructor() {
         super();
@@ -25,6 +29,10 @@ export default class AIChat extends LitElement {
     }
 
     #init() {
+        this._executing = false;
+        this._apiKey = window.localStorage.getItem(AIChat.STORAGE_GEMINI_API_KEY) || null;
+        this._client = null;
+
         this._config = this.getDefaultConfig();
     }
 
@@ -38,6 +46,34 @@ export default class AIChat extends LitElement {
         super.update(changedProperties);
     }
 
+    onExecute() {
+        const prompt = this.querySelector("textarea").value || "";
+        if (!this._executing && this._apiKey && !!prompt) {
+            this._executing = true;
+            this.requestUpdate();
+            this.updateComplete
+                .then(() => {
+                    const client = new GoogleGenAI({
+                        apiKey: this._apiKey,
+                    });
+                    return client.models.generateContent({
+                        model: "gemini-2.5-flash",
+                        contents: typeof this._config.preparePrompt === "function" ? this._config.preparePrompt(prompt) : prompt,
+                    });
+                })
+                .then(response => {
+                    console.log(response.text);
+                })
+                .catch(error => {
+                    console.error(error);
+                })
+                .finally(() => {
+                    this._executing = false;
+                    this.requestUpdate();
+                });
+        }
+    }
+
     render() {
         return html`
             <div class="ai-chat-window">
@@ -45,11 +81,13 @@ export default class AIChat extends LitElement {
                     <span class="fw-bold">XetaBase</span>
                     <span class="fw-bolder ai-text">AI</span>
                 </div>
-                <div class="fs-5 mb-2">How cal I help you today?</div>
-                <textarea class="form-control mb-2" rows="3"></textarea>
-                <button class="btn ai-btn d-flex align-items-center justify-content-center gap-2 w-full">
+                ${this._config.greeting ? html`
+                    <div class="fs-5 mb-2">${this._config.greeting}</div>
+                ` : nothing}
+                <textarea class="form-control mb-2" rows="3" placeholder="${this._config.placeholder || ""}"></textarea>
+                <button class="btn ai-btn d-flex align-items-center justify-content-center gap-2 w-full ${this._executing ? "active disabled" : ""}" @click="${() => this.onExecute()}">
                     <i class="fas fa-paper-plane"></i>
-                    <span>Execute with AI</span>
+                    <span>${this._executing ? "Running..." : "Execute"}</span>
                 </button>
             </div>
         `;
@@ -57,7 +95,9 @@ export default class AIChat extends LitElement {
 
     getDefaultConfig() {
         return {
-
+            greeting: "How can I help you?",
+            placeholder: "Type your question here...",
+            preparePrompt: (inputText) => inputText,
         };
     }
 
