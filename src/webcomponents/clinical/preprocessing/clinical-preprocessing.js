@@ -222,6 +222,7 @@ export default class ClinicalPreprocessing extends LitElement {
                 data.pipelineParams.dataDir = this._stepsParams.preprocessing.dataDir;
                 data.pipelineParams.variantIndexParams = {
                     annotate: true,
+                    calculateStats: true,
                 };
 
                 // 2.2. create the submit promise
