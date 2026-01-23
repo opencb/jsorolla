@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {html, LitElement} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
@@ -58,6 +58,12 @@ export default class StudyCreate extends LitElement {
             buttonOkText: "Create"
         };
         this._config = this.getDefaultConfig();
+
+        this.dataFormParams = {
+            expectedSamples: 1000,
+            expectedFiles: 1000,
+            fileType: "EXOME",
+        };
     }
 
     #setLoading(value) {
@@ -82,20 +88,28 @@ export default class StudyCreate extends LitElement {
             case "id":
             case "name":
             case "description":
-                this.study = {
+            case "expectedSamples":
+            case "expectedFiles":
+            case "fileType":
+                this.dataFormParams = {
                     ...FormUtils.createObject(
-                        this.study,
+                        this.dataFormParams,
                         param,
                         e.detail.value
                     )
                 };
+                break;
         }
         this.requestUpdate();
     }
 
     onClear() {
         const resetForm = () => {
-            this.study = {};
+            this.dataFormParams = {
+                expectedSamples: 1000,
+                expectedFiles: 1000,
+                fileType: "EXOME",
+            };
             this._config = this.getDefaultConfig();
             this.requestUpdate();
         };
@@ -113,14 +127,21 @@ export default class StudyCreate extends LitElement {
         }
     }
 
-    onSubmit() {
+    async onSubmit() {
         let study, error;
         this.#setLoading(true);
-        this.opencgaSession.opencgaClient.studies()
-            .create(this.study, {project: this.project.fqn})
+
+        // 1. Create the study
+        const studyCreateParams = {
+            id: this.dataFormParams.id,
+            name: this.dataFormParams.name,
+            description: this.dataFormParams.description,
+        };
+        await this.opencgaSession.opencgaClient.studies()
+            .create(studyCreateParams, {project: this.project.fqn})
             .then(() => {
-                this.study = {};
-                this._config = this.getDefaultConfig();
+                // this.dataFormParams = {};
+                // this._config = this.getDefaultConfig();
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Study Create",
                     message: "New study created correctly"
@@ -129,13 +150,42 @@ export default class StudyCreate extends LitElement {
                 LitUtils.dispatchCustomEvent(this, "sessionUpdateRequest", {}, {});
             })
             .catch(reason => {
-                study = this.study;
+                study = this.dataFormParams;
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
             })
             .finally(()=>{
                 this.#setLoading(false);
             });
+
+        // 2. Proceed to variant setup
+        // If study creation failed, do not proceed to variant setup
+        if (error) {
+            return;
+        }
+
+        const toolParams = {
+            expectedSamples: this.dataFormParams.expectedSamples,
+            expectedFiles: this.dataFormParams.expectedFiles,
+            fileType: this.dataFormParams.fileType,
+        };
+        await this.opencgaSession.opencgaClient.variantOperations()
+            .setupVariant(toolParams, {study: this.opencgaSession.study.fqn})
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Variant Setup",
+                    message: "Variant setup operation executed correctly"
+                });
+            })
+            .catch(reason => {
+                study = this.dataFormParams;
+                error = reason;
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            });
+
+        // 3. Initialise objects in the study
+        this.dataFormParams = {};
+        this._config = this.getDefaultConfig();
     }
 
     render() {
@@ -145,7 +195,7 @@ export default class StudyCreate extends LitElement {
 
         return html`
             <data-form
-                .data="${this.study}"
+                .data="${this.dataFormParams}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
@@ -159,14 +209,17 @@ export default class StudyCreate extends LitElement {
             display: this.displayConfig || this.displayConfigDefault,
             sections: [
                 {
+                    title: "Study Information",
+                    description: "Provide the basic information to create a new study.",
                     elements: [
                         {
-                            name: "Id",
+                            name: "Study ID",
                             field: "id",
                             type: "input-text",
                             required: true,
                             display: {
-                                placeholder: "Add a short ID...",
+                                placeholder: "Study ID...",
+                                helpMessage: "Add a short identifier for the study (no spaces, no special characters)...",
                             }
                         },
                         {
@@ -175,6 +228,7 @@ export default class StudyCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Study name...",
+                                helpMessage: "Add a human readable name for the study",
                             }
                         },
                         {
@@ -184,9 +238,44 @@ export default class StudyCreate extends LitElement {
                             display: {
                                 rows: 3,
                                 placeholder: "Study description...",
+                                helpMessage: "Add a brief description for the study",
                             }
                         },
                     ]
+                },
+                {
+                    title: "Variant Setup Configuration",
+                    description: "Configure the initial parameters for variant storage setup.",
+                    elements: [
+                        {
+                            title: "Expected Samples",
+                            field: "expectedSamples",
+                            type: "input-num",
+                            display: {
+                                // defaultValue: 1000,
+                                helpMessage: "Expected number of samples in the study"
+                            }
+                        },
+                        {
+                            title: "Expected Files",
+                            field: "expectedFiles",
+                            type: "input-num",
+                            display: {
+                                // defaultValue: 1000,
+                                helpMessage: "Expected number of files in the study"
+                            }
+                        },
+                        {
+                            title: "File Type",
+                            field: "fileType",
+                            type: "select",
+                            allowedValues: ["GENOME_VCF", "GENOME_gVCF", "EXOME"],
+                            defaultValue: "EXOME",
+                            display: {
+                                helpMessage: "Most common type of VCF file"
+                            }
+                        },
+                    ],
                 }
             ]
         });
