@@ -2,11 +2,13 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import AIUtils from "../../commons/utils/ai-utils.js";
 import ClinicalAnalysisManager from "../clinical-analysis-manager.js";
 import GridCommons from "../../commons/grid-commons.js";
 import WebUtils from "../../commons/utils/web-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../variant/clinical-variant-review.js";
+import "../../commons/ai/ai-chat.js";
 import "./clinical-report-variant-card.js";
 import "./clinical-report-variant-info.js";
 
@@ -48,6 +50,7 @@ export default class ClinicalReportReview extends LitElement {
         this._report = null;
         this._signature = {}; // used to save new signature data
         this._analists = []; // used to store the analysts of the clinical analysis
+        this._aiGenerating = false; // used to track AI generation state
 
         // initialize available modals
         this._gridCommons.registerModals({
@@ -317,6 +320,129 @@ export default class ClinicalReportReview extends LitElement {
             });
     }
 
+    onAiResponse(event) {
+        const response = AIUtils.parseJsonResponse(event.detail.value || "");
+        if (response) {
+            // Create a new report object to trigger data-form reactivity
+            this._report = {
+                ...this._report,
+                discussion: {
+                    ...(this._report.discussion || {}),
+                    text: response.discussion || this._report.discussion?.text || "",
+                },
+                recommendation: response.recommendation || this._report.recommendation || "",
+            };
+            // Request update to refresh the form
+            this.requestUpdate();
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                message: "Discussion and Recommendation have been autofilled using AI.",
+            });
+        } else {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                message: "Could not parse a valid response from the AI.",
+            });
+        }
+    }
+
+    getAiSummary() {
+        const interpretations = this.getInterpretations();
+        const allVariants = interpretations.flatMap(i => [...i.primaryFindings, ...i.secondaryFindings]);
+
+        if (allVariants.length === 0) {
+            return html`
+                <div class="text-secondary">
+                    No reported variants found. Please report variants before generating the report.
+                </div>
+            `;
+        }
+
+        // Get unique genes from all variants
+        const genes = [...new Set(
+            allVariants.flatMap(variant =>
+                (variant.annotation?.consequenceTypes || [])
+                    .map(ct => ct.geneName)
+                    .filter(Boolean)
+            )
+        )].slice(0, 5);
+
+        const disorder = this.clinicalAnalysis?.disorder?.name || this.clinicalAnalysis?.disorder?.id || "the investigated disorder";
+
+        return html`
+            <div class="mb-2">
+                I will generate the <strong>Discussion</strong> and <strong>Recommendation</strong> sections based on:
+            </div>
+            <ul class="mb-0 ps-3">
+                <li><strong>${allVariants.length}</strong> reported variant${allVariants.length > 1 ? "s" : ""}</li>
+                ${genes.length > 0 ? html`
+                    <li>Gene${genes.length > 1 ? "s" : ""}: <strong>${genes.join(", ")}${genes.length === 5 ? "..." : ""}</strong></li>
+                ` : nothing}
+                <li>Disorder: <strong>${disorder}</strong></li>
+            </ul>
+        `;
+    }
+
+    prepareAiPrompt() {
+        // Gather clinical analysis context for the AI
+        const disorder = this.clinicalAnalysis?.disorder?.name || this.clinicalAnalysis?.disorder?.id || "Unknown disorder";
+        const proband = this.clinicalAnalysis?.proband?.id || "Unknown proband";
+        const interpretations = this.getInterpretations();
+
+        // Prepare variants summary with detailed information
+        const variantsSummary = interpretations.map(interpretation => {
+            const variants = [...interpretation.primaryFindings, ...interpretation.secondaryFindings];
+            return variants.map(variant => {
+                // Get genomic position and alleles
+                const position = `${variant.chromosome}:${variant.start}`;
+                const alleles = `${variant.reference || "-"}>${variant.alternate || "-"}`;
+
+                // Get affected genes
+                const genes = (variant.annotation?.consequenceTypes || [])
+                    .map(ct => ct.geneName)
+                    .filter((gene, index, self) => gene && self.indexOf(gene) === index)
+                    .slice(0, 3)
+                    .join(", ");
+
+                // Get consequence types (e.g., missense_variant, frameshift_variant)
+                const consequences = (variant.annotation?.consequenceTypes || [])
+                    .flatMap(ct => ct.sequenceOntologyTerms || [])
+                    .map(so => so.name)
+                    .filter((name, index, self) => name && self.indexOf(name) === index)
+                    .slice(0, 3)
+                    .join(", ");
+
+                // Get clinical significance from ClinVar if available
+                const clinvarEntries = variant.annotation?.traitAssociation?.filter(t => t.source?.name === "clinvar") || [];
+                const clinicalSignificance = clinvarEntries.length > 0
+                    ? clinvarEntries.map(e => e.clinicalSignificance?.clinicalSignificance).filter(Boolean).join(", ")
+                    : "Not reported in ClinVar";
+
+                return `- Variant: ${variant.id}
+                  Position: ${position}, Alleles: ${alleles}
+                  Gene(s): ${genes || "N/A"}
+                  Consequence: ${consequences || "N/A"}
+                  ClinVar significance: ${clinicalSignificance}`;
+            }).join("\n");
+        }).join("\n");
+
+        return `
+            You are a clinical geneticist writing a report for a clinical case.
+            Based on the following clinical analysis information, generate a JSON object with two fields: "discussion" and "recommendation".
+
+            Clinical Analysis Information:
+            - Disorder being investigated: ${disorder}
+            - Proband ID: ${proband}
+            - Reported variants:
+            ${variantsSummary || "No variants reported yet"}
+
+            Guidelines:
+            - The "discussion" field should contain a clinical discussion of the findings, including interpretation of the variants in the context of the disorder.
+            - Use the variant positions and alleles to reference known pathogenic variants from databases like ClinVar when relevant.
+            - The "recommendation" field should contain clinical recommendations for follow-up, additional testing, or management.
+            - Write in a professional clinical tone suitable for a medical report.
+            - Return ONLY a valid JSON object with "discussion" and "recommendation" string fields.
+        `;
+    }
+
     renderReportedVariants() {
         //  get all the interpretations with reported variants
         const interpretations = this.getInterpretations();
@@ -392,7 +518,28 @@ export default class ClinicalReportReview extends LitElement {
             </div>
 
             <div class="">
-                <h2 class="fw-bold mb-4">Report Review</h2>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold mb-0">Report Review</h2>
+                    ${!this.clinicalAnalysis?.locked ? html`
+                        <div class="dropdown">
+                            <button class="btn ai-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                <i class="fas fa-brain me-1"></i>
+                                <span>Autofill with AI</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm ai-dropdown p-3 rounded-4" style="width:400px;">
+                                <ai-chat
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config="${{
+                                        mode: "summary",
+                                        summary: () => this.getAiSummary(),
+                                        preparePrompt: () => this.prepareAiPrompt(),
+                                    }}"
+                                    @aiResponse="${event => this.onAiResponse(event)}">
+                                </ai-chat>
+                            </div>
+                        </div>
+                    ` : nothing}
+                </div>
                 <data-form
                     .data="${{
                         report: this._report,

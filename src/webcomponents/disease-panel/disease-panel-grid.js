@@ -621,7 +621,7 @@ export default class DiseasePanelGrid extends LitElement {
                                     placeholder: "E.g.: Create a disease panel for breast cancer including BRCA1 and BRCA2 genes.",
                                     preparePrompt: inputText => {
                                         return `
-                                            Based on the following input: "${inputText}", generate a disease panel JSON object including the following fields: 
+                                            Based on the following input: "${inputText}", generate a disease panel JSON object including the following fields:
                                             id, name, description, disorders (with id and name), genes (with id, name, and coordinates), and regions (with id and coordinates).
                                             The coordinates of genes and regions should ben an array of objects with assembly, location, and source. Use Ensembl for sources, and if not specified use GRCh38 as assembly.
                                             Only fill the genes field if the input mentions genes, otherwise leave it empty. Make sure to include gene coordinates from Ensembl.
