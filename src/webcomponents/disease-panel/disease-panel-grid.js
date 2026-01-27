@@ -188,6 +188,35 @@ export default class DiseasePanelGrid extends LitElement {
                     </disease-panel-update>
                 `,
             }),
+            "ai-create-panel": {
+                display: {
+                    modalTitle: "Create Disease Panel with AI",
+                    modalSize: "modal-lg",
+                    modalDraggable: true,
+                    modalCyDataName: "modal-ai-create-panel",
+                    buttonsVisible: false,
+                },
+                render: () => html`
+                    <ai-chat
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${{
+                            greeting: "I can help to create disease panels based on disorders or gene lists.",
+                            placeholder: "E.g.: Create a disease panel for breast cancer including BRCA1 and BRCA2 genes.",
+                            preparePrompt: inputText => {
+                                return `
+                                    Based on the following input: "${inputText}", generate a disease panel JSON object including the following fields:
+                                    id, name, description, disorders (with id and name), genes (with id, name, and coordinates), and regions (with id and coordinates).
+                                    The coordinates of genes and regions should ben an array of objects with assembly, location, and source. Use Ensembl for sources, and if not specified use GRCh38 as assembly.
+                                    Only fill the genes field if the input mentions genes, otherwise leave it empty. Make sure to include gene coordinates from Ensembl.
+                                    Only fill the regions field if the input mentions chromosomal regions, otherwise leave it empty.
+                                    The JSON should be properly formatted and ready to use in OpenCGA.
+                                `;
+                            },
+                        }}"
+                        @aiResponse="${event => this.onAiResponse(event)}">
+                    </ai-chat>
+                `,
+            },
         });
     }
 
@@ -608,32 +637,13 @@ export default class DiseasePanelGrid extends LitElement {
             },
             {
                 render: () => html`
-                    <div class="dropdown">
-                        <button class="btn ai-btn ${!hasWritePermission ? "disabled" : "cursor-pointer"}" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                            <i class="fas fa-brain me-1"></i>
-                            <span class="">Create with AI</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end shadow-sm ai-dropdown p-3 rounded-4" style="width:400px;">
-                            <ai-chat
-                                .opencgaSession="${this.opencgaSession}"
-                                .config="${{
-                                    greeting: "I can help to create disease panels based on disorders or gene lists.",
-                                    placeholder: "E.g.: Create a disease panel for breast cancer including BRCA1 and BRCA2 genes.",
-                                    preparePrompt: inputText => {
-                                        return `
-                                            Based on the following input: "${inputText}", generate a disease panel JSON object including the following fields:
-                                            id, name, description, disorders (with id and name), genes (with id, name, and coordinates), and regions (with id and coordinates).
-                                            The coordinates of genes and regions should ben an array of objects with assembly, location, and source. Use Ensembl for sources, and if not specified use GRCh38 as assembly.
-                                            Only fill the genes field if the input mentions genes, otherwise leave it empty. Make sure to include gene coordinates from Ensembl.
-                                            Only fill the regions field if the input mentions chromosomal regions, otherwise leave it empty.
-                                            The JSON should be properly formatted and ready to use in OpenCGA.
-                                        `;
-                                    },
-                                }}"
-                                @aiResponse="${event => this.onAiResponse(event)}">
-                            </ai-chat>
-                        </div>
-                    </div>
+                    <button
+                        class="btn ai-btn ${!hasWritePermission ? "disabled" : ""}"
+                        ?disabled="${!hasWritePermission}"
+                        @click="${() => this.gridCommons.changeActiveModal("ai-create-panel")}">
+                        <i class="fas fa-brain me-1"></i>
+                        <span>Create with AI</span>
+                    </button>
                 `,
             },
         ];

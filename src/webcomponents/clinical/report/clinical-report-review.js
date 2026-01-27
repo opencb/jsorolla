@@ -99,6 +99,26 @@ export default class ClinicalReportReview extends LitElement {
                     this.onVariantReviewSave();
                 },
             }),
+            "ai-autofill-report": {
+                display: {
+                    modalTitle: "Autofill Report with AI",
+                    modalSize: "modal-lg",
+                    modalDraggable: true,
+                    modalCyDataName: "modal-ai-autofill",
+                    buttonsVisible: false,
+                },
+                render: () => html`
+                    <ai-chat
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${{
+                            mode: "summary",
+                            summary: () => this.getAiSummary(),
+                            preparePrompt: () => this.prepareAiPrompt(),
+                        }}"
+                        @aiResponse="${event => this.onAiResponse(event)}">
+                    </ai-chat>
+                `,
+            },
         });
     }
 
@@ -521,23 +541,12 @@ export default class ClinicalReportReview extends LitElement {
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="fw-bold mb-0">Report Review</h2>
                     ${!this.clinicalAnalysis?.locked ? html`
-                        <div class="dropdown">
-                            <button class="btn ai-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                                <i class="fas fa-brain me-1"></i>
-                                <span>Autofill with AI</span>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end shadow-sm ai-dropdown p-3 rounded-4" style="width:400px;">
-                                <ai-chat
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${{
-                                        mode: "summary",
-                                        summary: () => this.getAiSummary(),
-                                        preparePrompt: () => this.prepareAiPrompt(),
-                                    }}"
-                                    @aiResponse="${event => this.onAiResponse(event)}">
-                                </ai-chat>
-                            </div>
-                        </div>
+                        <button
+                            class="btn ai-btn"
+                            @click="${() => this._gridCommons.changeActiveModal("ai-autofill-report")}">
+                            <i class="fas fa-brain me-1"></i>
+                            <span>Autofill with AI</span>
+                        </button>
                     ` : nothing}
                 </div>
                 <data-form
