@@ -213,7 +213,10 @@ export default class DiseasePanelGrid extends LitElement {
                                 `;
                             },
                         }}"
-                        @aiResponse="${event => this.onAiResponse(event)}">
+                        @aiResponse="${event => {
+                            this.gridCommons.clearActiveModal();
+                            this.onAiResponse(event);
+                        }}">
                     </ai-chat>
                 `,
             },
