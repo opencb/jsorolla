@@ -30,7 +30,7 @@ export default class ToolImport extends LitElement {
     #init() {
         this.isLoading = false;
         this._config = this.getDefaultConfig();
-        
+
         // Hard-coded list of available tools
         this.tools = [
             {
@@ -111,7 +111,7 @@ export default class ToolImport extends LitElement {
 
     onImport(e, tool) {
         this.#setLoading(true);
-        
+
         // Call OpenCGA API to create the custom tool
         this.opencgaSession.opencgaClient.userTool()
             .createCustom(tool, {
@@ -187,6 +187,15 @@ export default class ToolImport extends LitElement {
                 },
                 columns: [
                     {
+                        title: "Tool",
+                        field: "id",
+                        formatter: toolId => {
+                            return `
+                                <div class="fw-bold my-1" data-action="view">${toolId}</div>
+                            `;
+                        },
+                    },
+                    {
                         title: "Name",
                         field: "name",
                         formatter: (value, row) => {
@@ -197,8 +206,6 @@ export default class ToolImport extends LitElement {
                                 </div>
                             `;
                         },
-                        width: "35",
-                        widthUnit: "%"
                     },
                     {
                         title: "Scope",
@@ -233,19 +240,24 @@ export default class ToolImport extends LitElement {
                     {
                         title: "Container",
                         field: "container",
-                        formatter: (value, row) => {
-                            if (!value || !value.name) {
+                        formatter: container => {
+                            if (!container || !container.name) {
                                 return "-";
                             }
+                            // Both CUSTOM TOOLS and VARIANT_WALKER use container executor
+                            // We need to find the container repository from the name
+                            const split = container?.name.split("/");
+                            const repositoryName = split?.length > 2 ? split[0] : "DOCKER";
                             return `
-                                <div class="d-flex flex-column gap-1">
-                                    <div>${value.name}</div>
-                                    ${value.tag ? `<div class="text-secondary">v${value.tag}</div>` : ""}
+                                <div>
+                                    <a class="link d-inline-flex align-items-center gap-1" href="https://hub.docker.com/r/${container.name}" target="_blank">
+                                        <span>${container.name} v${container.tag}</span>
+                                        <i class="fa fa-external-link-alt fs-8"></i>
+                                    </a>
                                 </div>
+                                <div class="text-secondary my-1">${repositoryName?.toUpperCase() || "-"}</div>
                             `;
                         },
-                        width: "25",
-                        widthUnit: "%"
                     },
                     {
                         title: "Requirements",
@@ -262,12 +274,12 @@ export default class ToolImport extends LitElement {
                         }
                     },
                     {
-                        title: "Import",
+                        title: "Add",
                         field: "import",
                         formatter: () => {
                             return `
-                                <button type="button" class="btn btn-primary btn-sm">
-                                    Import
+                                <button type="button" class="btn btn-primary">
+                                    Add
                                 </button>
                             `;
                         },
