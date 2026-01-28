@@ -37,7 +37,6 @@ export default class ToolImport extends LitElement {
                 "id": "carrier",
                 "name": "Carrier Single Analysis",
                 "description": "Performs the carrier analysis",
-                "type": "CUSTOM_TOOL",
                 "scope": "CLINICAL_INTERPRETATION_ANALYSIS",
                 "container": {
                     "name": "opencb/gsc-pipeline",
@@ -67,6 +66,38 @@ export default class ToolImport extends LitElement {
                     "memory": "8.0GB"
                 },
             },
+            {
+                "id": "pre-marital",
+                "name": "Pre-marital Analysis",
+                "description": "Performs the pre-marital analysis",
+                "scope": "CLINICAL_INTERPRETATION_ANALYSIS",
+                "container": {
+                    "name": "opencb/gsc-pipeline",
+                    "tag": "1.0.0",
+                    "digest": "",
+                    "commandLine": "/opt/src/main.py pre-marital --case ${clinicalAnalysisId}"
+                },
+                "tags": [],
+                "variables": [
+                    {
+                        "id": "clinicalAnalysisId",
+                        "name": "Case ID",
+                        "description": "Select case ID for the analysis",
+                        "type": "STRING",
+                        "required": true,
+                        "output": false
+                    },
+                    {
+                        "id": "report",
+                        "name": "Create report",
+                        "description": "Whether report must be created",
+                        "type": "BOOLEAN",
+                        "required": false,
+                        "defaultValue": "true",
+                        "output": false
+                    }
+                ],
+            },
         ];
     }
 
@@ -76,24 +107,26 @@ export default class ToolImport extends LitElement {
     }
 
     onImport(e, tool) {
-        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
-            title: "Import Tool",
-            message: `Are you sure you want to import the tool "${tool.name}"?`,
-            ok: () => {
-                this.#setLoading(true);
-                
-                // TODO: Implement actual import logic
-                // For now, just simulate a successful import
-                setTimeout(() => {
-                    NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                        title: "Tool Import",
-                        message: `Tool "${tool.name}" imported successfully`,
-                    });
-                    LitUtils.dispatchCustomEvent(this, "toolImport", { id: tool.id });
-                    this.#setLoading(false);
-                }, 1000);
-            },
-        });
+        this.#setLoading(true);
+        
+        // Call OpenCGA API to create the custom tool
+        this.opencgaSession.opencgaClient.userTool()
+            .createCustom(tool, {
+                study: this.opencgaSession.study.fqn,
+            })
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    title: "Tool Import",
+                    message: `Tool "${tool.name}" imported successfully`,
+                });
+                LitUtils.dispatchCustomEvent(this, "toolImport", { id: tool.id });
+            })
+            .catch(reason => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+            })
+            .finally(() => {
+                this.#setLoading(false);
+            });
     }
 
     render() {

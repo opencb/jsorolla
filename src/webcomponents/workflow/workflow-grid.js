@@ -171,7 +171,11 @@ export default class WorkflowGrid extends LitElement {
                 },
                 render: () => html`
                     <tool-import
-                        .opencgaSession="${this.opencgaSession}">
+                        .opencgaSession="${this.opencgaSession}"
+                        @toolImport="${() => {
+                            this.gridCommons.clearActiveModal();
+                            this.table.bootstrapTable("refresh");
+                        }}">
                     </tool-import>
                 `,
             },
