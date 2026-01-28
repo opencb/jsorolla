@@ -922,6 +922,7 @@ export default class DataForm extends LitElement {
         const [min = undefined, max = undefined] = element.allowedValues || [];
         const step = element.step || "1";
         const rows = element.display && element.display.rows ? element.display.rows : 1;
+        const showAiButton = this._getBooleanValue(element.display?.ai, false, element);
 
         // if (Array.isArray(value)) {
         //     value = value.join(",");
@@ -938,6 +939,7 @@ export default class DataForm extends LitElement {
                 .max="${max}"
                 .step="${step}"
                 .value="${value}"
+                .showAiButton="${showAiButton}"
                 .classes="${this._isUpdated(element) ? "updated" : ""}"
                 @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
             </text-field-filter>

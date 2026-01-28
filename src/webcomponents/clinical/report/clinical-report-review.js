@@ -610,6 +610,7 @@ export default class ClinicalReportReview extends LitElement {
                             defaultValue: "",
                             display: {
                                 rows: 20,
+                                ai: true,
                                 disabled: this.clinicalAnalysis?.locked ?? true,
                             },
                         },

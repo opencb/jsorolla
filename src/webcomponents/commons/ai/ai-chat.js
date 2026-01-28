@@ -1,6 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import {GoogleGenAI} from "@google/genai";
 import LitUtils from "../utils/lit-utils.js";
+import AIUtils from "../utils/ai-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 
 export default class AIChat extends LitElement {
@@ -57,18 +58,15 @@ export default class AIChat extends LitElement {
         if (!this._executing && this._apiKey && canExecute) {
             this._executing = true;
             this.requestUpdate();
+
+            const finalPrompt = typeof this._config.preparePrompt === "function"
+                ? this._config.preparePrompt(prompt)
+                : prompt;
+
             this.updateComplete
-                .then(() => {
-                    const client = new GoogleGenAI({
-                        apiKey: this._apiKey,
-                    });
-                    return client.models.generateContent({
-                        model: "gemini-2.5-flash",
-                        contents: typeof this._config.preparePrompt === "function" ? this._config.preparePrompt(prompt) : prompt,
-                    });
-                })
-                .then(response => {
-                    LitUtils.dispatchCustomEvent(this, "aiResponse", response.text);
+                .then(() => AIUtils.callGeminiAI(finalPrompt))
+                .then(responseText => {
+                    LitUtils.dispatchCustomEvent(this, "aiResponse", responseText);
                 })
                 .catch(error => {
                     console.error(error);
