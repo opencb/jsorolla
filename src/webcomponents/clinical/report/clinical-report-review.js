@@ -605,8 +605,8 @@ export default class ClinicalReportReview extends LitElement {
                     display: {},
                     elements: [
                         {
-                            type: "input-text",
                             field: "report.discussion.text",
+                            type: "markdown-editor",
                             defaultValue: "",
                             display: {
                                 rows: 20,
@@ -624,10 +624,11 @@ export default class ClinicalReportReview extends LitElement {
                     elements: [
                         {
                             field: "report.recommendation",
-                            type: "input-text",
+                            type: "markdown-editor",
                             defaultValue: "",
                             display: {
                                 rows: 20,
+                                ai: true,
                                 disabled: this.clinicalAnalysis?.locked ?? true,
                             },
                         },
@@ -641,10 +642,11 @@ export default class ClinicalReportReview extends LitElement {
                     elements: [
                         {
                             field: "report.methodology",
-                            type: "input-text",
+                            type: "markdown-editor",
                             defaultValue: "",
                             display: {
                                 rows: 20,
+                                ai: true,
                                 disabled: this.clinicalAnalysis?.locked ?? true,
                             },
                         },
@@ -658,10 +660,11 @@ export default class ClinicalReportReview extends LitElement {
                     elements: [
                         {
                             field: "report.experimentalProcedure",
-                            type: "input-text",
+                            type: "markdown-editor",
                             defaultValue: "",
                             display: {
                                 rows: 20,
+                                ai: true,
                                 disabled: this.clinicalAnalysis?.locked ?? true,
                             },
                         },
@@ -675,10 +678,11 @@ export default class ClinicalReportReview extends LitElement {
                     elements: [
                         {
                             field: "report.limitations",
-                            type: "input-text",
+                            type: "markdown-editor",
                             defaultValue: "",
                             display: {
                                 rows: 20,
+                                ai: true,
                                 disabled: this.clinicalAnalysis?.locked ?? true,
                             },
                         },
@@ -692,10 +696,11 @@ export default class ClinicalReportReview extends LitElement {
                     elements: [
                         {
                             field: "report.conclusion.text",
-                            type: "input-text",
+                            type: "markdown-editor",
                             defaultValue: "",
                             display: {
                                 rows: 20,
+                                ai: true,
                                 disabled: this.clinicalAnalysis?.locked ?? true,
                             },
                         },

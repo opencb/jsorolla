@@ -25,6 +25,7 @@ import "../json-editor.js";
 import "../../tree-viewer.js";
 import "../../download-button.js";
 import "../forms/text-field-filter.js";
+import "../forms/markdown-editor.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
 import "./tags-input.js";
@@ -715,6 +716,9 @@ export default class DataForm extends LitElement {
                 case "input-date":
                     content = this._createInputDateElement(element, section);
                     break;
+                case "markdown-editor":
+                    content = this._createMarkdownEditorElement(element, section);
+                    break;
                 case "input-tags":
                 case "tags":
                     content = this._createInputTagsElement(element, section);
@@ -943,6 +947,28 @@ export default class DataForm extends LitElement {
                 .classes="${this._isUpdated(element) ? "updated" : ""}"
                 @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
             </text-field-filter>
+        `;
+
+        return this._createElementTemplate(element, value, content);
+    }
+
+    _createMarkdownEditorElement(element, section) {
+        let value = this.getValue(element.field) || this._getDefaultValue(element, section);
+        const disabled = this._getBooleanValue(element.display?.disabled, false, element);
+        const rows = element.display && element.display.rows ? element.display.rows : 10;
+        const showAiButton = this._getBooleanValue(element.display?.ai, false, element);
+
+        const content = html`
+            <markdown-editor
+                placeholder="${element.display?.placeholder}"
+                .rows="${rows}"
+                ?disabled="${disabled}"
+                ?required="${element.required}"
+                .value="${value}"
+                .showAiButton="${showAiButton}"
+                .classes="${this._isUpdated(element) ? "updated" : ""}"
+                @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
+            </markdown-editor>
         `;
 
         return this._createElementTemplate(element, value, content);

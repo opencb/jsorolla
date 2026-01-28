@@ -39,6 +39,7 @@
     "jwt-decode": "^2.2.0",
     "lit": "^2.7.6",
     "lodash": "^4.17.19",
+    "marked": "^12.0.2",
     "mokai": "^0.6.1",
     "mokai-syntax": "^0.6.1",
     "mokai-themes": "^0.6.1",
