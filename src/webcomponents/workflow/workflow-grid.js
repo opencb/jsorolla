@@ -26,6 +26,7 @@ import "./workflow-nf-import.js";
 import "./tool-view.js";
 import "./tool-update.js";
 import "./tool-create.js";
+import "./tool-import.js";
 import "./analysis/tool-executor.js";
 
 export default class WorkflowGrid extends LitElement {
@@ -160,6 +161,18 @@ export default class WorkflowGrid extends LitElement {
                             this.table.bootstrapTable("refresh");
                         }}">
                     </tool-create>
+                `,
+            },
+            "import-tool": {
+                display: {
+                    modalTitle: "Import User Tool",
+                    modalSize: "modal-xl",
+                    modalCyDataName: "modal-tool-import",
+                },
+                render: () => html`
+                    <tool-import
+                        .opencgaSession="${this.opencgaSession}">
+                    </tool-import>
                 `,
             },
             "create-variant-walker": {
@@ -714,10 +727,30 @@ export default class WorkflowGrid extends LitElement {
     getRightToolbar() {
         return [
             {
-                icon: "fas fa-plus",
-                title: "Create Tool",
+                render: () => {
+                    const hasWritePermission = this.gridCommons.hasPermission("WRITE");
+                    return html`
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle ${!hasWritePermission ? "disabled" : ""}" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-plus me-1"></i>
+                                Create Tool
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item cursor-pointer" @click="${() => this.gridCommons.changeActiveModal('create-tool')}">
+                                        Create New Tool
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item cursor-pointer" @click="${() => this.gridCommons.changeActiveModal('import-tool')}">
+                                        Import Tool
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    `;
+                },
                 disabled: !this.gridCommons.hasPermission("WRITE"),
-                onClick: () => this.gridCommons.changeActiveModal("create-tool"),
             },
             {
                 render: () => {
