@@ -117,7 +117,7 @@ export default class ToolImport extends LitElement {
                 float: "left"
             },
             search: {
-                fields: ["name", "description", "category"],
+                fields: ["name", "description", "scope"],
                 ignoreCase: true
             },
             sortBy: {
@@ -127,8 +127,8 @@ export default class ToolImport extends LitElement {
                         name: "Name",
                     },
                     {
-                        id: "category",
-                        name: "Category",
+                        id: "scope",
+                        name: "Scope",
                     }
                 ]
             },
@@ -151,63 +151,78 @@ export default class ToolImport extends LitElement {
                 },
                 columns: [
                     {
-                        title: "Tool",
+                        title: "Name",
                         field: "name",
                         formatter: (value, row) => {
                             return `
                                 <div class="d-flex flex-column gap-1">
-                                    <div class="fw-bold">${value}</div>
-                                    <div class="text-secondary">${row.description}</div>
+                                    <div>${value}</div>
+                                    ${row.description ? `<div class="text-secondary">${row.description}</div>` : ""}
                                 </div>
                             `;
                         },
-                        width: "40",
+                        width: "35",
                         widthUnit: "%"
                     },
                     {
-                        title: "Category",
-                        field: "category",
+                        title: "Scope",
+                        field: "scope",
                         formatter: value => {
-                            const categoryColors = {
-                                "Variant Analysis": "primary",
-                                "Alignment Analysis": "success",
-                                "Quality Control": "info",
+                            const scopeConfig = {
+                                "SECONDARY_ANALYSIS": {
+                                    label: "SECONDARY",
+                                    color: "#25283D"
+                                },
+                                "RESEARCH_ANALYSIS": {
+                                    label: "RESEARCH",
+                                    color: "#98DFEA"
+                                },
+                                "CLINICAL_INTERPRETATION_ANALYSIS": {
+                                    label: "CLINICAL INTERPRETATION",
+                                    color: "#9F1F93"
+                                },
+                                "OTHER": {
+                                    label: "OTHER",
+                                    color: "#C2CBCF"
+                                }
                             };
-                            const color = categoryColors[value] || "secondary";
+                            const config = scopeConfig[value] || { label: "Unknown", color: "black" };
                             return `
-                                <span class="badge bg-${color}">${value}</span>
-                            `;
-                        }
-                    },
-                    {
-                        title: "Version",
-                        field: "version",
-                        formatter: value => {
-                            return `
-                                <div class="text-center">
-                                    <span class="badge bg-secondary">v${value}</span>
-                                </div>
+                                <span class="badge fs-7" style="background-color: ${config.color};">
+                                    ${config.label}
+                                </span>
                             `;
                         }
                     },
                     {
                         title: "Container",
                         field: "container",
-                        formatter: value => {
+                        formatter: (value, row) => {
+                            if (!value || !value.name) {
+                                return "-";
+                            }
                             return `
                                 <div class="d-flex flex-column gap-1">
-                                    <div class="font-monospace" style="font-size: 0.85em;">${value}</div>
+                                    <div>${value.name}</div>
+                                    ${value.tag ? `<div class="text-secondary">v${value.tag}</div>` : ""}
                                 </div>
                             `;
                         },
-                        width: "30",
+                        width: "25",
                         widthUnit: "%"
                     },
                     {
-                        title: "Author",
-                        field: "author",
+                        title: "Requirements",
+                        field: "minimumRequirements",
                         formatter: value => {
-                            return `<div class="text-secondary">${value}</div>`;
+                            if (!value) {
+                                return "-";
+                            }
+                            return `
+                                <div class="my-1"><b>CPU</b>: ${value.cpu || "-"} core(s)</div>
+                                <div class="my-1"><b>Memory</b>: ${value.memory?.split(".")[0] || "-"} ${value.memory?.endsWith("GB") ? "" : "GB"}</div>
+                                <div class="my-1"><b>Processor</b>: ${value.processorType || "CPU"}</div>
+                            `;
                         }
                     },
                     {
