@@ -42,7 +42,7 @@ export default class ToolImport extends LitElement {
                     "name": "opencb/gsc-pipeline",
                     "tag": "1.0.1",
                     "digest": "",
-                    "commandLine": "/opt/app/src/main.py single --case ${clinicalAnalysisId} -c file://analysis/config.json -s pmszetta4"
+                    "commandLine": "/opt/app/src/main.py single --case ${clinicalAnalysisId} -c file://analysis/config.json -s STUDY_ID"
                 },
                 "variables": [
                     {
@@ -73,11 +73,10 @@ export default class ToolImport extends LitElement {
                 "scope": "CLINICAL_INTERPRETATION_ANALYSIS",
                 "container": {
                     "name": "opencb/gsc-pipeline",
-                    "tag": "1.0.0",
+                    "tag": "1.0.1",
                     "digest": "",
                     "commandLine": "/opt/src/main.py pre-marital --case ${clinicalAnalysisId}"
                 },
-                "tags": [],
                 "variables": [
                     {
                         "id": "clinicalAnalysisId",
@@ -97,6 +96,10 @@ export default class ToolImport extends LitElement {
                         "output": false
                     }
                 ],
+                "minimumRequirements": {
+                    "cpu": "4",
+                    "memory": "8.0GB"
+                },
             },
         ];
     }
