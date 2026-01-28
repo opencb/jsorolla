@@ -138,10 +138,10 @@ export default class DataList extends LitElement {
                 ...this.getDefaultConfig().grid,
                 ...this.config.grid,
                 options: {
-                    ...this.getDefaultConfig().grid.options,
-                    ...this.config.grid.options
+                    ...this.getDefaultConfig().grid?.options,
+                    ...this.config.grid?.options
                 },
-                render: this.config.grid?.render || this.getDefaultConfig().grid.render
+                render: this.config.grid?.render || this.getDefaultConfig().grid?.render
             },
         };
 
