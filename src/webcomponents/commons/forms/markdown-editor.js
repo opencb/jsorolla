@@ -68,6 +68,15 @@ export default class MarkdownEditor extends LitElement {
         this.showAiButton = false;
         this.classes = "";
 
+        // Selection tracking for floating AI button
+        this._hasSelection = false;
+        this._selectedText = "";
+        this._selectionStart = 0;
+        this._selectionEnd = 0;
+        this._mouseX = 0;
+        this._mouseY = 0;
+        this.MIN_SELECTION_LENGTH = 150;
+
         // Configure marked for safe rendering
         marked.setOptions({
             breaks: true,        // Convert \n to <br>
@@ -95,8 +104,8 @@ export default class MarkdownEditor extends LitElement {
         // Use explicit check to handle empty string correctly
         let value = e?.target ? e.target.value : (this.value || "");
 
-        // Clear undo state on manual edit (not from AI transformation)
-        if (!e?.fromAi && this._canUndo) {
+        // Clear undo state only on actual text changes (input event), not on blur
+        if (!e?.fromAi && this._canUndo && e?.type === "input" && this.value !== value) {
             this._canUndo = false;
             this._previousValue = null;
             this.requestUpdate();
@@ -116,6 +125,36 @@ export default class MarkdownEditor extends LitElement {
     onModeChange(mode) {
         this._mode = mode;
         this.requestUpdate();
+    }
+
+    // Handle text selection
+    onTextSelection(e) {
+        // Use setTimeout to check selection after browser processes the event
+        // This ensures selection state is accurate, especially for click events
+        setTimeout(() => {
+            const textarea = e.target;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+
+            // Store mouse position relative to the textarea container
+            const rect = textarea.getBoundingClientRect();
+            this._mouseX = e.clientX - rect.left;
+            this._mouseY = e.clientY - rect.top;
+
+            // Only show floating AI button if selection is long enough
+            if (selectedText.length >= this.MIN_SELECTION_LENGTH) {
+                this._hasSelection = true;
+                this._selectedText = selectedText;
+                this._selectionStart = start;
+                this._selectionEnd = end;
+            } else {
+                this._hasSelection = false;
+                this._selectedText = "";
+            }
+
+            this.requestUpdate();
+        }, 0);
     }
 
     // Markdown formatting actions
@@ -181,9 +220,9 @@ export default class MarkdownEditor extends LitElement {
     }
 
     // AI Integration (same pattern as text-field-filter)
-    onAiAction(action) {
+    onAiAction(action, isSelection = false) {
         const textarea = this.querySelector(`#${this._prefix}-textarea`);
-        const currentText = textarea?.value || "";
+        const currentText = isSelection ? this._selectedText : (textarea?.value || "");
 
         if (!currentText && action !== "custom") {
             console.warn("No text to transform");
@@ -211,7 +250,8 @@ export default class MarkdownEditor extends LitElement {
                 prompt = `Improve the following markdown text, fixing grammar, clarity, and style while maintaining markdown formatting:\n\n${currentText}`;
                 break;
             case "custom":
-                const customTextarea = this.querySelector(`#${this._prefix}-custom-prompt`);
+                const customTextareaId = isSelection ? `${this._prefix}-selection-custom-prompt` : `${this._prefix}-custom-prompt`;
+                const customTextarea = this.querySelector(`#${customTextareaId}`);
                 const customPrompt = customTextarea?.value?.trim() || "";
                 if (!customPrompt) {
                     alert("Please enter a custom instruction in the text area.");
@@ -223,19 +263,34 @@ export default class MarkdownEditor extends LitElement {
                 return;
         }
 
-        this._previousValue = currentText;
+        this._previousValue = isSelection ? null : currentText;
         this._aiProcessing = true;
         this.requestUpdate();
 
         AIUtils.callGeminiAI(prompt)
             .then(responseText => {
-                textarea.value = responseText;
-                this.value = responseText;
+                if (isSelection) {
+                    // Replace only the selected text
+                    const beforeSelection = textarea.value.substring(0, this._selectionStart);
+                    const afterSelection = textarea.value.substring(this._selectionEnd);
+                    textarea.value = beforeSelection + responseText + afterSelection;
+                    this.value = textarea.value;
+
+                    // Clear selection state
+                    this._hasSelection = false;
+                    this._selectedText = "";
+                } else {
+                    // Replace entire text
+                    textarea.value = responseText;
+                    this.value = responseText;
+                    this._canUndo = true;
+                }
+
                 this.filterChange({target: textarea, fromAi: true});
-                this._canUndo = true;
 
                 if (action === "custom") {
-                    const customTextarea = this.querySelector(`#${this._prefix}-custom-prompt`);
+                    const customTextareaId = isSelection ? `${this._prefix}-selection-custom-prompt` : `${this._prefix}-custom-prompt`;
+                    const customTextarea = this.querySelector(`#${customTextareaId}`);
                     if (customTextarea) {
                         customTextarea.value = "";
                     }
@@ -441,22 +496,95 @@ export default class MarkdownEditor extends LitElement {
         `;
     }
 
+    // Render floating AI button for selection
+    renderFloatingAiButton() {
+        if (!this._hasSelection || !this.showAiButton) {
+            return nothing;
+        }
+
+        // Position near mouse cursor, with offset to avoid covering selection
+        const top = this._mouseY + 10;
+        const left = this._mouseX + 10;
+
+        return html`
+            <div class="position-absolute" style="top: ${top}px; left: ${left}px; z-index: 20;">
+                <div class="dropdown">
+                    <button
+                        type="button"
+                        class="btn btn-sm ai-btn"
+                        data-bs-toggle="dropdown"
+                        ?disabled="${this.disabled || this._aiProcessing}"
+                        title="AI Transform Selection">
+                        ${this._aiProcessing ? html`
+                            <i class="fas fa-spinner fa-spin"></i>
+                        ` : html`
+                            <i class="fas fa-brain"></i>
+                        `}
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 320px;">
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold mb-1">Custom Prompt</label>
+                            <textarea
+                                id="${this._prefix}-selection-custom-prompt"
+                                class="form-control form-control-sm mb-2"
+                                rows="3"
+                                placeholder="Enter your custom instruction..."
+                                @click="${e => e.stopPropagation()}"></textarea>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-primary w-100"
+                                @click="${() => this.onAiAction("custom", true)}">
+                                <i class="fas fa-wand-magic-sparkles me-1"></i> Transform Selection
+                            </button>
+                        </div>
+                        <hr class="dropdown-divider my-2">
+                        <div class="small text-muted mb-1">Quick Actions:</div>
+                        <a class="dropdown-item" href="javascript:void(0)" @click="${() => this.onAiAction("make-longer", true)}">
+                            <i class="fas fa-expand me-2"></i> Make longer
+                        </a>
+                        <a class="dropdown-item" href="javascript:void(0)" @click="${() => this.onAiAction("make-shorter", true)}">
+                            <i class="fas fa-compress me-2"></i> Make shorter
+                        </a>
+                        <a class="dropdown-item" href="javascript:void(0)" @click="${() => this.onAiAction("more-formal", true)}">
+                            <i class="fas fa-graduation-cap me-2"></i> More formal
+                        </a>
+                        <a class="dropdown-item" href="javascript:void(0)" @click="${() => this.onAiAction("more-casual", true)}">
+                            <i class="fas fa-smile me-2"></i> More casual
+                        </a>
+                        <a class="dropdown-item" href="javascript:void(0)" @click="${() => this.onAiAction("elaborate", true)}">
+                            <i class="fas fa-align-left me-2"></i> Elaborate
+                        </a>
+                        <a class="dropdown-item" href="javascript:void(0)" @click="${() => this.onAiAction("improve", true)}">
+                            <i class="fas fa-star me-2"></i> AI Improve
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     // Render Edit mode
     renderEditMode() {
         const placeholder = (this.placeholder && this.placeholder !== "undefined") ? this.placeholder : "";
 
         return html`
             ${this.renderToolbar()}
-            <textarea
-                id="${this._prefix}-textarea"
-                class="form-control ${this.classes}"
-                rows="${this.rows}"
-                placeholder="${placeholder}"
-                ?disabled="${this.disabled || this._aiProcessing}"
-                ?required="${this.required}"
-                .value="${this.value || ""}"
-                @input="${e => this.filterChange(e)}"
-                @blur="${e => this.filterChange(e)}"></textarea>
+            <div class="position-relative">
+                <textarea
+                    id="${this._prefix}-textarea"
+                    class="form-control ${this.classes}"
+                    rows="${this.rows}"
+                    placeholder="${placeholder}"
+                    ?disabled="${this.disabled || this._aiProcessing}"
+                    ?required="${this.required}"
+                    .value="${this.value || ""}"
+                    @input="${e => this.filterChange(e)}"
+                    @blur="${e => this.filterChange(e)}"
+                    @mouseup="${e => this.onTextSelection(e)}"
+                    @click="${e => this.onTextSelection(e)}"
+                    @keyup="${e => this.onTextSelection(e)}"></textarea>
+                ${this.renderFloatingAiButton()}
+            </div>
         `;
     }
 
