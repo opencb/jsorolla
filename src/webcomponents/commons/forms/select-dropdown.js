@@ -116,9 +116,55 @@ export default class SelectDropdown extends LitElement {
         `;
     }
 
+    renderGroup(group) {
+        return html`
+            <div>
+                <h6 class="dropdown-header text-uppercase fw-bold">${group.name || group.id}</h6>
+                ${group.values?.map(item => this.renderItem(item))}
+            </div>
+        `;
+    }
+
+    getFilteredValues() {
+        return this.values.map(item => {
+            if (item.values && Array.isArray(item.values)) {
+                const subFilteredValues = item.values.filter(subItem => {
+                    if (!this.search || !this._searchQuery) {
+                        return true;
+                    }
+                    if (this.searchFn) {
+                        return this.searchFn(subItem, this._searchQuery);
+                    }
+                    return (subItem.name || "").toLowerCase().includes(this._searchQuery) ||
+                        (subItem.id || "").toLowerCase().includes(this._searchQuery);
+                });
+                if (subFilteredValues.length > 0) {
+                    return {...item, values: subFilteredValues};
+                }
+            } else {
+                if (!this.search || !this._searchQuery) {
+                    return item;
+                }
+                const match = this.searchFn ? this.searchFn(item, this._searchQuery) :
+                    (item.name || "").toLowerCase().includes(this._searchQuery) ||
+                    (item.id || "").toLowerCase().includes(this._searchQuery);
+                if (match) {
+                    return item;
+                }
+            }
+            return null;
+        }).filter(item => item !== null);
+    }
+
     render() {
         const selectedValues = this.value ? this.value.split(",") : [];
-        const selectedItems = this.values.filter(v => selectedValues.includes(v.id));
+        const allItems = this.values.reduce((acc, item) => {
+            if (item.values && Array.isArray(item.values)) {
+                return [...acc, ...item.values];
+            }
+            return [...acc, item];
+        }, []);
+        const selectedItems = allItems.filter(v => selectedValues.includes(v.id));
 
         // Button text: if nothing selected, show placeholder. If one item, show name. If multiple, show count.
         let buttonText = this.placeholder;
@@ -128,16 +174,7 @@ export default class SelectDropdown extends LitElement {
             buttonText = `${selectedItems.length} items selected`;
         }
 
-        const filteredValues = this.values.filter(item => {
-            if (!this.search || !this._searchQuery) {
-                return true;
-            }
-            if (this.searchFn) {
-                return this.searchFn(item, this._searchQuery);
-            }
-            return (item.name || "").toLowerCase().includes(this._searchQuery) ||
-                (item.id || "").toLowerCase().includes(this._searchQuery);
-        });
+        const filteredValues = this.getFilteredValues();
 
         return html`
             <div class="dropdown">
@@ -164,7 +201,12 @@ export default class SelectDropdown extends LitElement {
                     ` : nothing}
                     <div class="dropdown-list">
                         ${filteredValues.length > 0 ? html`
-                            ${filteredValues.map(item => this.renderItem(item))}
+                            ${filteredValues.map(item => {
+                                if (item.values && Array.isArray(item.values)) {
+                                    return this.renderGroup(item);
+                                }
+                                return this.renderItem(item);
+                            })}
                         ` : html`
                             <div class="dropdown-item disabled text-center">No results found</div>
                         `}
