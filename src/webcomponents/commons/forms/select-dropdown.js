@@ -119,7 +119,9 @@ export default class SelectDropdown extends LitElement {
     renderGroup(group) {
         return html`
             <div>
-                <h6 class="dropdown-header text-uppercase fw-bold">${group.name || group.id}</h6>
+                <h6 class="dropdown-header fw-bold">
+                    ${group.name || group.id}
+                </h6>
                 ${group.values?.map(item => this.renderItem(item))}
             </div>
         `;
