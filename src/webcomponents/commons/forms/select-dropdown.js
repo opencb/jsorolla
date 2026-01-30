@@ -116,21 +116,38 @@ export default class SelectDropdown extends LitElement {
         `;
     }
 
+    renderSeparator() {
+        return html`
+            <hr class="dropdown-divider">
+        `;
+    }
+
     renderGroup(group) {
         return html`
             <div>
                 <h6 class="dropdown-header fw-bold">
                     ${group.name || group.id}
                 </h6>
-                ${group.values?.map(item => this.renderItem(item))}
+                ${group.values?.map(item => {
+                    if (item.separator) {
+                        return this.renderSeparator();
+                    }
+                    return this.renderItem(item);
+                })}
             </div>
         `;
     }
 
     getFilteredValues() {
         return this.values.map(item => {
+            if (item.separator) {
+                return this._searchQuery ? null : item;
+            }
             if (item.values && Array.isArray(item.values)) {
                 const subFilteredValues = item.values.filter(subItem => {
+                    if (subItem.separator) {
+                        return !this._searchQuery;
+                    }
                     if (!this.search || !this._searchQuery) {
                         return true;
                     }
@@ -162,7 +179,10 @@ export default class SelectDropdown extends LitElement {
         const selectedValues = this.value ? this.value.split(",") : [];
         const allItems = this.values.reduce((acc, item) => {
             if (item.values && Array.isArray(item.values)) {
-                return [...acc, ...item.values];
+                return [...acc, ...item.values.filter(v => !v.separator)];
+            }
+            if (item.separator) {
+                return acc;
             }
             return [...acc, item];
         }, []);
@@ -204,6 +224,9 @@ export default class SelectDropdown extends LitElement {
                     <div class="dropdown-list">
                         ${filteredValues.length > 0 ? html`
                             ${filteredValues.map(item => {
+                                if (item.separator) {
+                                    return this.renderSeparator();
+                                }
                                 if (item.values && Array.isArray(item.values)) {
                                     return this.renderGroup(item);
                                 }
