@@ -41,6 +41,9 @@ export default class PedigreeView extends LitElement {
             },
             config: {
                 type: Object
+            },
+            interactive: {
+                type: Boolean
             }
         };
     }
@@ -50,6 +53,8 @@ export default class PedigreeView extends LitElement {
 
         this.pedigreeId = this._prefix + "PedigreeView";
         this._config = this.getDefaultConfig();
+        this._mode = 'view';
+        this.pedigreeInstance = null;
     }
 
     updated(changedProperties) {
@@ -58,9 +63,10 @@ export default class PedigreeView extends LitElement {
             // this._config = {...this.getDefaultConfig(), ...this.config};
             this.pedigreeRender();
         }
-        if (changedProperties.has("config")) {
+        if (changedProperties.has("config") || changedProperties.has("interactive")) {
             this._config = {
                 ...this.getDefaultConfig(),
+                interactive: this.interactive || this.config?.interactive || false,
                 ...this.config
             };
             this.pedigreeRender();
@@ -89,22 +95,89 @@ export default class PedigreeView extends LitElement {
 
             // Render new Pedigree
             const querySelector = this.querySelector("#" + this.pedigreeId);
-            const pedigree = new Pedigree(family, {
+            this.pedigreeInstance = new Pedigree(family, {
                 selectShowSampleNames: true,
             });
 
-            this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree, {
+            this.svg = this.pedigreeInstance.renderPedigree(this.pedigreeInstance.pedigree, {
                 width: querySelector.offsetWidth,
                 height: this._config.height,
+                interactive: this._config.interactive
             });
+
+            // Listen for position changes if interactive
+            if (this._config.interactive) {
+                this.svg.addEventListener('pedigree:positionChanged', (e) => {
+                    // Emit event to parent component
+                    this.dispatchEvent(new CustomEvent('familyChanged', {
+                        detail: { family: this.pedigreeInstance.pedigree },
+                        bubbles: true,
+                        composed: true
+                    }));
+                });
+
+                this.svg.addEventListener('pedigree:dataChanged', (e) => {
+                    // Emit event to parent component
+                    this.dispatchEvent(new CustomEvent('familyChanged', {
+                        detail: { family: this.pedigreeInstance.pedigree },
+                        bubbles: true,
+                        composed: true
+                    }));
+                });
+            }
 
             querySelector.appendChild(this.svg);
         }
         this.requestUpdate();
     }
 
+    _setMode(mode) {
+        this._mode = mode;
+        if (this.pedigreeInstance && this.pedigreeInstance.setMode) {
+            this.pedigreeInstance.setMode(mode);
+        }
+        this.requestUpdate();
+    }
+
+    _resetLayout() {
+        // Clear all manuallyPositioned flags
+        if (this.family?.members) {
+            this.family.members.forEach(member => {
+                if (member.position) {
+                    member.position.manuallyPositioned = false;
+                }
+            });
+        }
+        // Re-render with auto-layout
+        this.pedigreeRender();
+    }
+
     render() {
         return html`
+            ${this._config?.interactive ? html`
+                <div class="pedigree-toolbar mb-2" role="group" style="margin-bottom: 10px;">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button"
+                                class="btn btn-outline-secondary ${this._mode === 'drag' ? 'active' : ''}"
+                                @click="${() => this._setMode('drag')}"
+                                style="padding: 5px 10px; font-size: 12px;">
+                            <i class="fas fa-arrows-alt"></i> Move
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-secondary ${this._mode === 'add_marriage' ? 'active' : ''}"
+                                @click="${() => this._setMode('add_marriage')}"
+                                style="padding: 5px 10px; font-size: 12px;">
+                            <i class="fas fa-link"></i> Add Marriage
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-secondary"
+                                @click="${() => this._resetLayout()}"
+                                style="padding: 5px 10px; font-size: 12px;">
+                            <i class="fas fa-undo"></i> Reset Layout
+                        </button>
+                    </div>
+                </div>
+            ` : ''}
             <div id="${this._prefix}PedigreeView"></div>
         `;
     }

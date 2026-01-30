@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Pedigree Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 { color: #333; }
+        .info {
+            background: #e7f3ff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        svg {
+            border: 1px solid #ddd;
+            margin: 20px 0;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Simple Pedigree Test (No Server Required)</h1>
+
+<div class="info">
+    <strong>This is a basic test using inline SVG</strong><br>
+    If you see a family tree below, the core SVG rendering is working.
+</div>
+
+<div id="pedigree"></div>
+
+<div class="info" id="status">Initializing...</div>
+
+<script>
+    // Simple SVG helper (inline version)
+    const SVG = {
+        create(name, attrs = {}) {
+            const el = document.createElementNS("http://www.w3.org/2000/svg", name);
+            Object.keys(attrs).forEach(key => el.setAttribute(key, attrs[key]));
+            return el;
+        },
+        addChild(parent, name, attrs = {}) {
+            const el = this.create(name, attrs);
+            parent.appendChild(el);
+            return el;
+        }
+    };
+
+    // Create a simple pedigree manually
+    function createSimplePedigree() {
+        const svg = SVG.create("svg", {
+            width: 600,
+            height: 300,
+            viewBox: "0 0 600 300",
+            style: "background: white"
+        });
+
+        // Father (square)
+        SVG.addChild(svg, "rect", {
+            x: 150, y: 20,
+            width: 60, height: 60,
+            style: "fill: white; stroke: black; stroke-width: 2"
+        });
+        SVG.addChild(svg, "text", {
+            x: 165, y: 100,
+            style: "font-size: 12px"
+        }).textContent = "Father";
+
+        // Mother (circle)
+        SVG.addChild(svg, "circle", {
+            cx: 390, cy: 50,
+            r: 30,
+            style: "fill: white; stroke: black; stroke-width: 2"
+        });
+        SVG.addChild(svg, "text", {
+            x: 365, y: 100,
+            style: "font-size: 12px"
+        }).textContent = "Mother";
+
+        // Marriage line
+        SVG.addChild(svg, "line", {
+            x1: 210, y1: 50,
+            x2: 360, y2: 50,
+            style: "stroke: black; stroke-width: 2"
+        });
+
+        // Vertical line to children
+        SVG.addChild(svg, "line", {
+            x1: 285, y1: 50,
+            x2: 285, y2: 120,
+            style: "stroke: black; stroke-width: 2"
+        });
+
+        // Horizontal bar for children
+        SVG.addChild(svg, "line", {
+            x1: 195, y1: 120,
+            x2: 375, y2: 120,
+            style: "stroke: black; stroke-width: 2"
+        });
+
+        // Child 1 (square)
+        SVG.addChild(svg, "line", {
+            x1: 195, y1: 120,
+            x2: 195, y2: 140,
+            style: "stroke: black; stroke-width: 2"
+        });
+        SVG.addChild(svg, "rect", {
+            x: 165, y: 140,
+            width: 60, height: 60,
+            style: "fill: red; stroke: black; stroke-width: 2"
+        });
+        SVG.addChild(svg, "text", {
+            x: 175, y: 220,
+            style: "font-size: 12px"
+        }).textContent = "Son";
+
+        // Child 2 (circle - carrier)
+        SVG.addChild(svg, "line", {
+            x1: 285, y1: 120,
+            x2: 285, y2: 140,
+            style: "stroke: black; stroke-width: 2"
+        });
+        SVG.addChild(svg, "circle", {
+            cx: 285, cy: 170,
+            r: 30,
+            style: "fill: white; stroke: black; stroke-width: 2"
+        });
+        // Carrier dot
+        SVG.addChild(svg, "circle", {
+            cx: 285, cy: 170,
+            r: 5,
+            style: "fill: black"
+        });
+        SVG.addChild(svg, "text", {
+            x: 252, y: 220,
+            style: "font-size: 12px"
+        }).textContent = "Daughter";
+
+        // Child 3 (circle - deceased)
+        SVG.addChild(svg, "line", {
+            x1: 375, y1: 120,
+            x2: 375, y2: 140,
+            style: "stroke: black; stroke-width: 2"
+        });
+        SVG.addChild(svg, "circle", {
+            cx: 375, cy: 170,
+            r: 30,
+            style: "fill: white; stroke: black; stroke-width: 2"
+        });
+        // Deceased line
+        SVG.addChild(svg, "line", {
+            x1: 345, y1: 200,
+            x2: 405, y2: 140,
+            style: "stroke: black; stroke-width: 2"
+        });
+        SVG.addChild(svg, "text", {
+            x: 342, y: 220,
+            style: "font-size: 12px"
+        }).textContent = "Daughter†";
+
+        return svg;
+    }
+
+    // Render the pedigree
+    try {
+        const pedigree = createSimplePedigree();
+        document.getElementById('pedigree').appendChild(pedigree);
+        document.getElementById('status').innerHTML = `
+            <strong>✓ Success!</strong> Basic SVG rendering is working.<br>
+            <strong>Legend:</strong> Red = Affected, Dot = Carrier, † = Deceased<br><br>
+            <strong>Next step:</strong> To test the full multi-generational interactive pedigree,
+            you need to use a web server. Run: <code>python3 -m http.server 8080</code>
+            in the test directory and open <code>http://localhost:8080/pedigree-standalone-test.html</code>
+        `;
+    } catch (error) {
+        document.getElementById('status').innerHTML = `
+            <strong>Error:</strong> ${error.message}
+        `;
+    }
+</script>
+
+</body>
+</html>

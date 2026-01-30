@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pedigree Test - Diagnostic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        h1 { color: #333; }
+        .success { background: #d4edda; padding: 15px; margin: 10px 0; border-left: 4px solid #28a745; }
+        .error { background: #f8d7da; padding: 15px; margin: 10px 0; border-left: 4px solid #dc3545; }
+        .info { background: #d1ecf1; padding: 15px; margin: 10px 0; border-left: 4px solid #0c5460; }
+        button { padding: 10px 20px; margin: 5px; font-size: 14px; cursor: pointer; }
+        #pedigree { margin: 20px 0; text-align: center; }
+        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+
+<h1>Pedigree Module Test</h1>
+
+<div class="info">
+    <strong>Server URL:</strong> <span id="serverUrl"></span><br>
+    <strong>Status:</strong> <span id="status">Testing...</span>
+</div>
+
+<div id="result"></div>
+
+<div id="pedigree"></div>
+
+<script type="module">
+    const resultDiv = document.getElementById('result');
+    const pedigreeDiv = document.getElementById('pedigree');
+    const statusSpan = document.getElementById('status');
+
+    document.getElementById('serverUrl').textContent = window.location.origin;
+
+    // Test data
+    const testFamily = {
+        "name": "Test Family",
+        "disorders": [{"id": "d1", "name": "Disorder 1"}],
+        "members": [
+            {"id": "1", "name": "Father", "sex": "MALE", "disorders": []},
+            {"id": "2", "name": "Mother", "sex": "FEMALE", "disorders": []},
+            {
+                "id": "3",
+                "name": "Child",
+                "father": {"id": "1"},
+                "mother": {"id": "2"},
+                "sex": "MALE",
+                "disorders": [{"id": "d1"}]
+            }
+        ]
+    };
+
+    try {
+        statusSpan.textContent = 'Loading Pedigree module...';
+
+        // Try to import the module
+        const module = await import('./src/core/visualisation/pedigree.js');
+        const Pedigree = module.default;
+
+        statusSpan.textContent = 'Module loaded! Creating pedigree...';
+
+        resultDiv.innerHTML = '<div class="success"><strong>✓ Success!</strong> Pedigree module loaded successfully.</div>';
+
+        // Create pedigree instance
+        const pedigree = new Pedigree(testFamily, {
+            interactive: true,
+            showNames: true
+        });
+
+        // Render it
+        const svg = pedigree.renderPedigree(testFamily, {
+            width: 800,
+            height: 400,
+            interactive: true
+        });
+
+        pedigreeDiv.appendChild(svg);
+
+        // Debug: Check generations
+        console.log('Family data:', pedigree.pedigree);
+        console.log('Generations:', pedigree.pedigree.members.map(m => ({
+            id: m.id,
+            name: m.name,
+            generation: m.generation,
+            position: m.position
+        })));
+
+        statusSpan.textContent = '✓ Pedigree rendered successfully!';
+
+        // Set to drag mode by default for testing
+        if (pedigree.setMode) {
+            pedigree.setMode('drag');
+        }
+
+        resultDiv.innerHTML += `
+            <div class="success">
+                <strong>✓ Pedigree Created!</strong><br>
+                • Module import: OK<br>
+                • Pedigree instantiation: OK<br>
+                • SVG rendering: OK<br>
+                • Interactive mode: ${pedigree.settings?.interactive ? 'Enabled' : 'Disabled'}<br>
+                • Mode set to: drag<br><br>
+                <strong>Debug info in console (F12)</strong><br>
+                <strong>Try dragging the family members!</strong>
+            </div>
+        `;
+
+    } catch (error) {
+        statusSpan.textContent = '✗ Error occurred';
+
+        resultDiv.innerHTML = `
+            <div class="error">
+                <strong>✗ Error:</strong><br>
+                ${error.message}<br><br>
+                <strong>Stack trace:</strong>
+                <pre>${error.stack}</pre>
+
+                <strong>Troubleshooting:</strong>
+                <ul>
+                    <li>Make sure you're accessing via <code>http://localhost:8081/test-pedigree.html</code></li>
+                    <li>Check that all required files exist:
+                        <ul>
+                            <li>src/core/visualisation/pedigree.js</li>
+                            <li>src/core/svg.js</li>
+                            <li>src/core/utils-new.js</li>
+                        </ul>
+                    </li>
+                    <li>Check browser console (F12) for detailed errors</li>
+                    <li>Ensure web server is running from jsorolla root directory</li>
+                </ul>
+            </div>
+        `;
+    }
+</script>
+
+</body>
+</html>

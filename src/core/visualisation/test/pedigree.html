@@ -2091,7 +2091,7 @@
     };
 
         let pedigree = new Pedigree(familyTest, {selectShowSampleNames: true});
-        let svg = pedigree.pedigreeFromFamily(pedigree.pedigree);
+        let svg = pedigree.renderPedigree(pedigree.pedigree);
         document.getElementById("simpleFamilyTestDiv").appendChild(svg);
 
 </script>

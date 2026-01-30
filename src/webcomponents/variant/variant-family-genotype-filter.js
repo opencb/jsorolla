@@ -415,7 +415,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                 // Render new Pedigree
                 const querySelector = PolymerUtils.getElementById(this._prefix + "PedigreeView");
                 const pedigree = new Pedigree(family, {selectShowSampleNames: true});
-                this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree, {
+                this.svg = pedigree.renderPedigree(pedigree.pedigree, {
                     width: 640,
                     height: 240
                 });

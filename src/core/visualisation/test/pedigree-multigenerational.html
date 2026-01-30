@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Multi-Generational Pedigree Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        .pedigree-container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            background: white;
+            border-radius: 4px;
+        }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 16px;
+            border: 1px solid #007bff;
+            background: white;
+            color: #007bff;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: #007bff;
+            color: white;
+        }
+        button.active {
+            background: #007bff;
+            color: white;
+        }
+        .info {
+            background: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        .selected {
+            outline: 3px solid #007bff !important;
+        }
+        svg {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Multi-Generational Interactive Pedigree Editor</h1>
+
+    <div class="info">
+        <strong>Features Demonstrated:</strong>
+        <ul>
+            <li>✓ Multi-generational layout (up to 4 generations)</li>
+            <li>✓ Enhanced pedigree symbols (twins, carriers, adoption, proband)</li>
+            <li>✓ Interactive dragging (move individuals)</li>
+            <li>✓ Relationship editing (add marriages)</li>
+        </ul>
+    </div>
+
+    <h2>4-Generation Family with Special Symbols</h2>
+    <div class="controls">
+        <button id="btnView" class="active" onclick="setMode('view')">View Mode</button>
+        <button id="btnDrag" onclick="setMode('drag')">Move Mode</button>
+        <button id="btnAddMarriage" onclick="setMode('add_marriage')">Add Marriage</button>
+        <button onclick="resetLayout()">Reset Layout</button>
+    </div>
+    <div class="pedigree-container">
+        <div id="pedigree4GenDiv"></div>
+    </div>
+
+    <h2>Legend</h2>
+    <div class="info">
+        <ul>
+            <li><strong>Square:</strong> Male</li>
+            <li><strong>Circle:</strong> Female</li>
+            <li><strong>Diamond:</strong> Unknown sex</li>
+            <li><strong>Filled/Colored:</strong> Affected with disorder</li>
+            <li><strong>Dot inside:</strong> Carrier</li>
+            <li><strong>Diagonal line:</strong> Deceased</li>
+            <li><strong>Brackets [ ]:</strong> Adopted</li>
+            <li><strong>Arrow →:</strong> Proband (index case)</li>
+            <li><strong>Converging lines:</strong> Monozygotic twins</li>
+            <li><strong>Double horizontal line:</strong> Consanguineous marriage</li>
+        </ul>
+    </div>
+</div>
+
+<script type="module">
+    import Pedigree from "../pedigree.js";
+    import family4Gen from "./resources/family-4gen.js";
+
+    let pedigreeInstance = null;
+    let currentMode = 'view';
+
+    // Render the 4-generation pedigree
+    function renderPedigree() {
+        const container = document.getElementById('pedigree4GenDiv');
+        container.innerHTML = '';
+
+        pedigreeInstance = new Pedigree(family4Gen, {
+            interactive: true,
+            showNames: true,
+            showGenerationLabels: false
+        });
+
+        const svg = pedigreeInstance.renderPedigree(family4Gen, {
+            width: 1200,
+            height: 600,
+            interactive: true
+        });
+
+        // Listen for events
+        svg.addEventListener('pedigree:positionChanged', (e) => {
+            console.log('Position changed:', e.detail);
+        });
+
+        svg.addEventListener('pedigree:dataChanged', (e) => {
+            console.log('Data changed:', e.detail);
+            alert('Marriage created successfully!');
+        });
+
+        svg.addEventListener('pedigree:modeChanged', (e) => {
+            console.log('Mode changed:', e.detail.mode);
+        });
+
+        container.appendChild(svg);
+    }
+
+    // Set interaction mode
+    window.setMode = function(mode) {
+        currentMode = mode;
+
+        // Update button states
+        document.querySelectorAll('.controls button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        if (mode === 'view') {
+            document.getElementById('btnView').classList.add('active');
+        } else if (mode === 'drag') {
+            document.getElementById('btnDrag').classList.add('active');
+        } else if (mode === 'add_marriage') {
+            document.getElementById('btnAddMarriage').classList.add('active');
+        }
+
+        if (pedigreeInstance && pedigreeInstance.setMode) {
+            pedigreeInstance.setMode(mode);
+        }
+    };
+
+    // Reset layout
+    window.resetLayout = function() {
+        if (family4Gen.members) {
+            family4Gen.members.forEach(member => {
+                if (member.position) {
+                    member.position.manuallyPositioned = false;
+                }
+            });
+        }
+        renderPedigree();
+    };
+
+    // Initial render
+    renderPedigree();
+
+</script>
+
+</body>
+</html>

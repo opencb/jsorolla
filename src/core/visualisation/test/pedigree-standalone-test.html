@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pedigree Test - Standalone</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .info {
+            background: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        .pedigree-container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            background: white;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            text-align: center;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 16px;
+            border: 1px solid #007bff;
+            background: white;
+            color: #007bff;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: #007bff;
+            color: white;
+        }
+        button.active {
+            background: #007bff;
+            color: white;
+        }
+        .selected {
+            outline: 3px solid #007bff !important;
+        }
+        .error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 12px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Multi-Generational Pedigree Test</h1>
+
+    <div class="info">
+        <strong>Testing Status:</strong>
+        <p id="status">Loading pedigree module...</p>
+    </div>
+
+    <div class="controls">
+        <button id="btnView" class="active" onclick="setMode('view')">View Mode</button>
+        <button id="btnDrag" onclick="setMode('drag')">Move Mode</button>
+        <button id="btnAddMarriage" onclick="setMode('add_marriage')">Add Marriage</button>
+        <button onclick="resetLayout()">Reset Layout</button>
+    </div>
+
+    <div class="pedigree-container">
+        <div id="pedigreeDiv"></div>
+    </div>
+
+    <div class="info">
+        <strong>Instructions:</strong>
+        <ul>
+            <li><strong>View Mode:</strong> Click to select individuals</li>
+            <li><strong>Move Mode:</strong> Drag individuals to reposition them</li>
+            <li><strong>Add Marriage:</strong> Click two individuals to create a marriage line</li>
+            <li><strong>Reset Layout:</strong> Return to automatic positioning</li>
+        </ul>
+    </div>
+
+    <div class="info">
+        <strong>Console Output:</strong>
+        <div id="console" style="font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;"></div>
+    </div>
+</div>
+
+<script type="module">
+    // Inline test data
+    const testFamily = {
+        "name": "4-Generation Test Family",
+        "version": "2.0",
+        "disorders": [
+            {"id": "disorder1", "name": "Disorder 1"},
+            {"id": "disorder2", "name": "Disorder 2"}
+        ],
+        "members": [
+            // Generation 0
+            {"id": "1", "name": "GGF1", "sex": "MALE", "age": "90", "lifeStatus": "DECEASED"},
+            {"id": "2", "name": "GGM1", "sex": "FEMALE", "age": "88", "lifeStatus": "DECEASED"},
+            {"id": "3", "name": "GGF2", "sex": "MALE", "age": "92", "lifeStatus": "DECEASED"},
+            {"id": "4", "name": "GGM2", "sex": "FEMALE", "age": "89", "lifeStatus": "DECEASED", "carrier": true},
+
+            // Generation 1
+            {"id": "5", "name": "GM1", "father": {"id": "1"}, "mother": {"id": "2"}, "sex": "FEMALE", "age": "65"},
+            {"id": "6", "name": "GM2", "father": {"id": "3"}, "mother": {"id": "4"}, "sex": "FEMALE", "age": "63", "carrier": true},
+            {"id": "7", "name": "GF1", "sex": "MALE", "age": "67"},
+            {"id": "8", "name": "GF2", "sex": "MALE", "age": "64"},
+
+            // Generation 2
+            {"id": "11", "name": "F1", "father": {"id": "7"}, "mother": {"id": "5"}, "sex": "MALE", "age": "40", "disorders": [{"id": "disorder1"}]},
+            {"id": "12", "name": "M1", "father": {"id": "8"}, "mother": {"id": "6"}, "sex": "FEMALE", "age": "38", "carrier": true},
+
+            // Generation 3 - Twins
+            {"id": "15", "name": "C1", "father": {"id": "11"}, "mother": {"id": "12"}, "sex": "MALE", "age": "10", "twinGroup": "twin-1", "twinType": "MONOZYGOTIC", "proband": true, "disorders": [{"id": "disorder1"}]},
+            {"id": "16", "name": "C2", "father": {"id": "11"}, "mother": {"id": "12"}, "sex": "FEMALE", "age": "10", "twinGroup": "twin-1", "twinType": "MONOZYGOTIC", "adopted": true}
+        ]
+    };
+
+    let pedigreeInstance = null;
+    let currentMode = 'view';
+
+    function log(message) {
+        const consoleDiv = document.getElementById('console');
+        const timestamp = new Date().toLocaleTimeString();
+        consoleDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        console.log(message);
+    }
+
+    // Import and render
+    try {
+        log('Importing Pedigree module...');
+        const { default: Pedigree } = await import('../pedigree.js');
+
+        log('Pedigree module loaded successfully');
+        document.getElementById('status').textContent = '✓ Module loaded. Rendering pedigree...';
+
+        // Render pedigree
+        const container = document.getElementById('pedigreeDiv');
+        pedigreeInstance = new Pedigree(testFamily, {
+            interactive: true,
+            showNames: true
+        });
+
+        log('Creating pedigree SVG...');
+        const svg = pedigreeInstance.renderPedigree(testFamily, {
+            width: 1200,
+            height: 600,
+            interactive: true
+        });
+
+        log('Pedigree rendered successfully');
+        document.getElementById('status').innerHTML = '✓ <strong>Pedigree loaded successfully!</strong> Try the buttons above.';
+
+        // Event listeners
+        svg.addEventListener('pedigree:positionChanged', (e) => {
+            log(`Position changed: ${e.detail.individual.id}`);
+        });
+
+        svg.addEventListener('pedigree:dataChanged', (e) => {
+            log('Marriage created!');
+            alert('Marriage created successfully!');
+        });
+
+        svg.addEventListener('pedigree:modeChanged', (e) => {
+            log(`Mode changed to: ${e.detail.mode}`);
+        });
+
+        container.appendChild(svg);
+
+        // Make functions global
+        window.setMode = function(mode) {
+            currentMode = mode;
+
+            document.querySelectorAll('.controls button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            if (mode === 'view') {
+                document.getElementById('btnView').classList.add('active');
+            } else if (mode === 'drag') {
+                document.getElementById('btnDrag').classList.add('active');
+            } else if (mode === 'add_marriage') {
+                document.getElementById('btnAddMarriage').classList.add('active');
+            }
+
+            if (pedigreeInstance && pedigreeInstance.setMode) {
+                pedigreeInstance.setMode(mode);
+            }
+
+            log(`Mode set to: ${mode}`);
+        };
+
+        window.resetLayout = function() {
+            if (testFamily.members) {
+                testFamily.members.forEach(member => {
+                    if (member.position) {
+                        member.position.manuallyPositioned = false;
+                    }
+                });
+            }
+            container.innerHTML = '';
+
+            const newSvg = pedigreeInstance.renderPedigree(testFamily, {
+                width: 1200,
+                height: 600,
+                interactive: true
+            });
+
+            container.appendChild(newSvg);
+            log('Layout reset');
+        };
+
+    } catch (error) {
+        console.error('Error:', error);
+        log(`ERROR: ${error.message}`);
+        document.getElementById('status').innerHTML = `
+            <div class="error">
+                <strong>Error loading pedigree:</strong><br>
+                ${error.message}<br><br>
+                <strong>Possible solutions:</strong>
+                <ul>
+                    <li>Open this file using a web server (e.g., <code>python3 -m http.server</code>)</li>
+                    <li>Access via: <code>http://localhost:8080/pedigree-standalone-test.html</code></li>
+                    <li>Check browser console (F12) for detailed errors</li>
+                </ul>
+            </div>
+        `;
+    }
+</script>
+
+</body>
+</html>
