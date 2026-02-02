@@ -52,6 +52,9 @@ export default class SelectDropdown extends LitElement {
             searchFn: {
                 type: Function,
             },
+            forceSelection: {
+                type: Boolean,
+            },
         };
     }
 
@@ -64,6 +67,14 @@ export default class SelectDropdown extends LitElement {
         this.placeholder = "Select an option...";
         this.search = false;
         this._searchQuery = "";
+        this.forceSelection = false;
+    }
+
+    onClear(e) {
+        e.stopPropagation();
+        this.value = "";
+        this.requestUpdate();
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
     }
 
     onSearchInput(e) {
@@ -77,6 +88,9 @@ export default class SelectDropdown extends LitElement {
 
         if (this.multiple) {
             if (index > -1) {
+                if (this.forceSelection && selectedValues.length === 1) {
+                    return;
+                }
                 selectedValues.splice(index, 1);
             } else {
                 selectedValues.push(item.id);
@@ -84,9 +98,10 @@ export default class SelectDropdown extends LitElement {
         } else {
             // Single selection
             if (index !== -1) {
-                // If already selected, do nothing or deselect? Usually single select deselects if it's the same,
-                // but standard dropdowns just keep it selected. Let's keep it simple:
-                // if it's already selected, we don't change anything unless it's a new selection.
+                if (this.forceSelection) {
+                    return;
+                }
+                selectedValues.splice(index, 1);
             } else {
                 selectedValues[0] = item.id;
             }
@@ -201,14 +216,17 @@ export default class SelectDropdown extends LitElement {
         return html`
             <div class="dropdown">
                 <button
-                    class="btn btn-light dropdown-toggle w-100 d-flex justify-content-between align-items-center"
+                    class="btn btn-light dropdown-toggle w-100 d-flex align-items-center"
                     type="button"
                     id="${this._prefix}DropdownButton"
                     data-bs-toggle="dropdown"
                     data-bs-auto-close="outside"
                     aria-expanded="false"
                     ?disabled="${this.disabled}">
-                    <span>${buttonText}</span>
+                    <span class="flex-grow-1 text-start text-truncate">${buttonText}</span>
+                    ${!this.forceSelection && selectedValues.length > 0 ? html`
+                        <i class="fas fa-times me-2 cursor-pointer opacity-50-hover" @click="${e => this.onClear(e)}"></i>
+                    ` : nothing}
                 </button>
                 <div class="dropdown-menu w-100" aria-labelledby="${this._prefix}DropdownButton">
                     ${this.search ? html`
