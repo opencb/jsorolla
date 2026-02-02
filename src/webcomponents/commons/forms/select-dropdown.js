@@ -88,13 +88,13 @@ export default class SelectDropdown extends LitElement {
     }
 
     onSelectAllClick(e) {
-        const allItems = this.getAllItems();
+        const selectableItems = this.getAllItems().filter(item => !item.disabled);
         if (e.target.checked) {
-            // Select all
-            this.value = allItems.map(item => item.id).join(",");
+            // Select all enabled items
+            this.value = selectableItems.map(item => item.id).join(",");
         } else {
             // Deselect all
-            this.value = this.forceSelection && allItems.length > 0 ? allItems[0].id : "";
+            this.value = this.forceSelection && selectableItems.length > 0 ? selectableItems[0].id : "";
         }
 
         this.requestUpdate();
@@ -107,6 +107,9 @@ export default class SelectDropdown extends LitElement {
     }
 
     onItemClick(e, item) {
+        if (item.disabled) {
+            return;
+        }
         const selectedValues = this.value ? this.value.split(",") : [];
         const index = selectedValues.indexOf(item.id);
 
@@ -201,7 +204,9 @@ export default class SelectDropdown extends LitElement {
             content = this.renderItem(item, isSelected);
         } else {
             content = html`
-                <div class="fw-bold">${item.name || item.id}</div>
+                <div class="fw-bold ${item?.className || ""}">
+                    ${item.name || item.id}
+                </div>
                 ${item.description ? html`
                     <small class="text-muted">${item.description}</small>
                 ` : nothing}
@@ -209,13 +214,15 @@ export default class SelectDropdown extends LitElement {
         }
 
         return html`
-            <a class="dropdown-item cursor-pointer d-flex justify-content-between align-items-center ${isSelected ? "active" : ""}" @click="${e => this.onItemClick(e, item)}">
-                <div class="flex-grow-1 ${item?.className || ""}">
-                    ${content}
-                </div>
-                ${isSelected ? html`
-                    <i class="fas fa-check"></i>
-                ` : nothing}
+            <a class="dropdown-item cursor-pointer ${isSelected ? "active" : ""} ${item.disabled ? "disabled" : ""}" @click="${e => this.onItemClick(e, item)}">
+               <div class="d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1">
+                        ${content}
+                    </div>
+                    ${isSelected ? html`
+                        <i class="fas fa-check"></i>
+                    ` : nothing}
+               </div>
             </a>
         `;
     }
@@ -245,6 +252,7 @@ export default class SelectDropdown extends LitElement {
     render() {
         const selectedValues = this.value ? this.value.split(",") : [];
         const allItems = this.getAllItems();
+        const selectableItems = allItems.filter(item => !item.disabled);
         const selectedItems = allItems.filter(v => selectedValues.includes(v.id));
         const filteredValues = this.getFilteredValues();
 
@@ -299,8 +307,8 @@ export default class SelectDropdown extends LitElement {
                             type="checkbox"
                             class="form-check-input mt-0"
                             id="${this._prefix}SelectAllCheckbox"
-                            .checked="${allItems.length > 0 && selectedItems.length === allItems.length}"
-                            .indeterminate="${selectedItems.length > 0 && selectedItems.length < allItems.length}"
+                            .checked="${selectableItems.length > 0 && selectedItems.length === selectableItems.length}"
+                            .indeterminate="${selectedItems.length > 0 && selectedItems.length < selectableItems.length}"
                             @change="${e => this.onSelectAllClick(e)}">
                         <label class="form-check-label small fw-bold ms-1" for="${this._prefix}SelectAllCheckbox">
                             All
