@@ -194,7 +194,7 @@ export default class BioinfoUtils {
         }
     }
 
-    static getTranscriptLink(transcriptId, source, assembly = "GRCh38") {
+    static getTranscriptLink(transcriptId, source, species = "hsapiens", assembly = "GRCh38") {
         if (!transcriptId) {
             return null;
         }
@@ -206,7 +206,7 @@ export default class BioinfoUtils {
 
         switch (s.toUpperCase()) {
             case "ENSEMBL":
-                return BioinfoUtils.getEnsemblLink(transcriptId, "TRANSCRIPT", "hsapiens", assembly);
+                return BioinfoUtils.getEnsemblLink(transcriptId, "TRANSCRIPT", species, assembly);
             case "REFSEQ":
                 return `https://www.ncbi.nlm.nih.gov/gene/?term=${transcriptId}`;
         }

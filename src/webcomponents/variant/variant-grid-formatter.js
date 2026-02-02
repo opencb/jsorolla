@@ -649,7 +649,7 @@ export default class VariantGridFormatter {
                 const geneId = ct.geneId || ct.ensemblGeneId;
                 const transcriptId = ct.transcriptId || ct.ensemblTranscriptId;
                 const geneIdLink = `${BioinfoUtils.getGeneLink(geneId, source, species, assembly)}`;
-                const ensemblTranscriptIdLink = `${BioinfoUtils.getTranscriptLink(transcriptId, source, assembly)}`;
+                const ensemblTranscriptIdLink = `${BioinfoUtils.getTranscriptLink(transcriptId, source, species, assembly)}`;
 
                 // Prepare data info for columns
                 const geneName = ct.geneName ? `<a href="${BioinfoUtils.getGeneNameLink(ct.geneName)}" target="_blank">${ct.geneName}</a>` : "-";
