@@ -129,48 +129,6 @@ export default class SelectDropdown extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
     }
 
-    renderItem(item) {
-        const selectedValues = this.value ? this.value.split(",") : [];
-        const isSelected = selectedValues.includes(item.id);
-        return html`
-            <div @click="${e => this.onItemClick(e, item)}">
-                <a class="dropdown-item cursor-pointer d-flex justify-content-between align-items-center ${isSelected ? "active" : ""}">
-                    <div>
-                        <div class="fw-bold">${item.name || item.id}</div>
-                        ${item.description ? html`
-                            <small class="text-muted">${item.description}</small>
-                        ` : nothing}
-                    </div>
-                    ${isSelected ? html`
-                        <i class="fas fa-check"></i>
-                    ` : nothing}
-                </a>
-            </div>
-        `;
-    }
-
-    renderSeparator() {
-        return html`
-            <hr class="dropdown-divider">
-        `;
-    }
-
-    renderGroup(group) {
-        return html`
-            <div>
-                <h6 class="dropdown-header fw-bold">
-                    ${group.name || group.id}
-                </h6>
-                ${group.values?.map(item => {
-                    if (item.separator) {
-                        return this.renderSeparator();
-                    }
-                    return this.renderItem(item);
-                })}
-            </div>
-        `;
-    }
-
     getFilteredValues() {
         return this.values.map(item => {
             if (item.separator) {
@@ -218,6 +176,48 @@ export default class SelectDropdown extends LitElement {
             }
             return [...acc, item];
         }, []);
+    }
+
+    renderItem(item) {
+        const selectedValues = this.value ? this.value.split(",") : [];
+        const isSelected = selectedValues.includes(item.id);
+        return html`
+            <div @click="${e => this.onItemClick(e, item)}">
+                <a class="dropdown-item cursor-pointer d-flex justify-content-between align-items-center ${isSelected ? "active" : ""}">
+                    <div>
+                        <div class="fw-bold">${item.name || item.id}</div>
+                        ${item.description ? html`
+                            <small class="text-muted">${item.description}</small>
+                        ` : nothing}
+                    </div>
+                    ${isSelected ? html`
+                        <i class="fas fa-check"></i>
+                    ` : nothing}
+                </a>
+            </div>
+        `;
+    }
+
+    renderSeparator() {
+        return html`
+            <hr class="dropdown-divider">
+        `;
+    }
+
+    renderGroup(group) {
+        return html`
+            <div>
+                <h6 class="dropdown-header fw-bold">
+                    ${group.name || group.id}
+                </h6>
+                ${group.values?.map(item => {
+                    if (item.separator) {
+                        return this.renderSeparator();
+                    }
+                    return this.renderItem(item);
+                })}
+            </div>
+        `;
     }
 
     render() {
