@@ -17,7 +17,7 @@
 export default class BioinfoUtils {
 
     static isHuman(species) {
-        return ["hsapiens", "homo_sapiens", "homosapiens", "human"].includes(species.toLowerCase());
+        return ["hsapiens", "homo_sapiens", "homo sapiens", "homosapiens", "human"].includes(species.toLowerCase());
     }
 
     static getEnsemblHost(assembly = "GRCh38") {
