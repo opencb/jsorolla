@@ -58,6 +58,12 @@ export default class SelectDropdown extends LitElement {
             selectAll: {
                 type: Boolean,
             },
+            renderItem: {
+                type: Function,
+            },
+            className: {
+                type: String,
+            },
         };
     }
 
@@ -188,23 +194,29 @@ export default class SelectDropdown extends LitElement {
         return this.placeholder;
     }
 
-    renderItem(item) {
-        const selectedValues = this.value ? this.value.split(",") : [];
-        const isSelected = selectedValues.includes(item.id);
+    renderItemTemplate(item) {
+        const isSelected = this.value?.split(",")?.includes(item.id);
+        let content;
+        if (typeof this.renderItem === "function") {
+            content = this.renderItem(item, isSelected);
+        } else {
+            content = html`
+                <div class="fw-bold">${item.name || item.id}</div>
+                ${item.description ? html`
+                    <small class="text-muted">${item.description}</small>
+                ` : nothing}
+            `;
+        }
+
         return html`
-            <div @click="${e => this.onItemClick(e, item)}">
-                <a class="dropdown-item cursor-pointer d-flex justify-content-between align-items-center ${isSelected ? "active" : ""}">
-                    <div>
-                        <div class="fw-bold">${item.name || item.id}</div>
-                        ${item.description ? html`
-                            <small class="text-muted">${item.description}</small>
-                        ` : nothing}
-                    </div>
-                    ${isSelected ? html`
-                        <i class="fas fa-check"></i>
-                    ` : nothing}
-                </a>
-            </div>
+            <a class="dropdown-item cursor-pointer d-flex justify-content-between align-items-center ${isSelected ? "active" : ""}" @click="${e => this.onItemClick(e, item)}">
+                <div class="flex-grow-1 ${item?.className || ""}">
+                    ${content}
+                </div>
+                ${isSelected ? html`
+                    <i class="fas fa-check"></i>
+                ` : nothing}
+            </a>
         `;
     }
 
@@ -224,7 +236,7 @@ export default class SelectDropdown extends LitElement {
                     if (item.separator) {
                         return this.renderSeparator();
                     }
-                    return this.renderItem(item);
+                    return this.renderItemTemplate(item);
                 })}
             </div>
         `;
@@ -237,7 +249,7 @@ export default class SelectDropdown extends LitElement {
         const filteredValues = this.getFilteredValues();
 
         return html`
-            <div class="${this.selectAll ? "input-group" : ""}">
+            <div class="${this.selectAll ? "input-group" : ""} ${this.className || ""}">
                 <div class="dropdown flex-grow-1">
                     <div
                         class="btn btn-light dropdown-toggle w-100 d-flex align-items-center ${this.selectAll ? "rounded-end-0" : ""}"
@@ -273,7 +285,7 @@ export default class SelectDropdown extends LitElement {
                                     if (item.values && Array.isArray(item.values)) {
                                         return this.renderGroup(item);
                                     }
-                                    return this.renderItem(item);
+                                    return this.renderItemTemplate(item);
                                 })}
                             ` : html`
                                 <div class="dropdown-item disabled text-center">No results found</div>
