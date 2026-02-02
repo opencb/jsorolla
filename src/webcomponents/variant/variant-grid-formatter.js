@@ -593,7 +593,7 @@ export default class VariantGridFormatter {
         }
     }
 
-    static consequenceTypeDetailFormatter(value, row, variantGrid, query, filter, assembly) {
+    static consequenceTypeDetailFormatter(value, row, variantGrid, query, filter, species, assembly) {
         if (row?.annotation?.consequenceTypes && row.annotation.consequenceTypes.length > 0) {
             // Sort and group CTs by Gene name
             BioinfoUtils.sort(row.annotation.consequenceTypes, v => v.geneName);
@@ -648,7 +648,7 @@ export default class VariantGridFormatter {
                 const source = ct.source || "ensembl";
                 const geneId = ct.geneId || ct.ensemblGeneId;
                 const transcriptId = ct.transcriptId || ct.ensemblTranscriptId;
-                const geneIdLink = `${BioinfoUtils.getGeneLink(geneId, source, assembly)}`;
+                const geneIdLink = `${BioinfoUtils.getGeneLink(geneId, source, species, assembly)}`;
                 const ensemblTranscriptIdLink = `${BioinfoUtils.getTranscriptLink(transcriptId, source, assembly)}`;
 
                 // Prepare data info for columns
