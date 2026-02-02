@@ -178,6 +178,16 @@ export default class SelectDropdown extends LitElement {
         }, []);
     }
 
+    getDisplayText(selectedItems = []) {
+        if (selectedItems.length === 1) {
+            return selectedItems[0].name || selectedItems[0].id;
+        } else if (selectedItems.length > 1) {
+            return `${selectedItems.length} items selected`;
+        }
+        // Button text: if nothing selected, show placeholder. If one item, show name. If multiple, show count.
+        return this.placeholder;
+    }
+
     renderItem(item) {
         const selectedValues = this.value ? this.value.split(",") : [];
         const isSelected = selectedValues.includes(item.id);
@@ -224,15 +234,6 @@ export default class SelectDropdown extends LitElement {
         const selectedValues = this.value ? this.value.split(",") : [];
         const allItems = this.getAllItems();
         const selectedItems = allItems.filter(v => selectedValues.includes(v.id));
-
-        // Button text: if nothing selected, show placeholder. If one item, show name. If multiple, show count.
-        let buttonText = this.placeholder;
-        if (selectedItems.length === 1) {
-            buttonText = selectedItems[0].name || selectedItems[0].id;
-        } else if (selectedItems.length > 1) {
-            buttonText = `${selectedItems.length} items selected`;
-        }
-
         const filteredValues = this.getFilteredValues();
 
         return html`
@@ -245,7 +246,9 @@ export default class SelectDropdown extends LitElement {
                         data-bs-auto-close="outside"
                         aria-expanded="false"
                         ?disabled="${this.disabled}">
-                        <span class="flex-grow-1 text-start text-truncate">${buttonText}</span>
+                        <span class="flex-grow-1 text-start text-truncate">
+                            ${this.getDisplayText(selectedItems)}
+                        </span>
                         ${!this.forceSelection && selectedValues.length > 0 ? html`
                             <i class="fas fa-times me-2 cursor-pointer opacity-50-hover" @click="${e => this.onClear(e)}"></i>
                         ` : nothing}
