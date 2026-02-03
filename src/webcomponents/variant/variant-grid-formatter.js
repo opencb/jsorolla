@@ -564,14 +564,13 @@ export default class VariantGridFormatter {
 
             const split = hgvs.split(":");
             let link;
-            if (hgvs.includes(":c.")) {
-                link = BioinfoUtils.getTranscriptLink(split[0]);
-            }
             if (hgvs.includes(":p.")) {
                 link = BioinfoUtils.getProteinLink(split[0]);
+            } else {
+                link = BioinfoUtils.getTranscriptLink(split[0]);
             }
 
-            return `<a href=${link} target="_blank">${split[0]}</a>:<span style="font-weight:bold">${split[1]}</span>`;
+            return `<a href="${link}" target="_blank">${split[0]}</a>:<span style="font-weight:bold">${split[1]}</span>`;
         } else {
             if (id.startsWith("ENST") || id.startsWith("NM_") || id.startsWith("NR_")) {
                 return `<a href=${BioinfoUtils.getTranscriptLink(id)} target="_blank">${id}</a>`;
