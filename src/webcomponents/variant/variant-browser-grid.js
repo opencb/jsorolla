@@ -343,8 +343,8 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     detailFormatter(index, row) {
-        const species = this.opencgaSession.project.organism?.scientificName;
-        const assembly = this.opencgaSession.project.organism?.assembly;
+        const species = this.opencgaSession.project?.organism?.scientificName;
+        const assembly = this.opencgaSession.project?.organism?.assembly;
 
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
@@ -549,8 +549,8 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => {
-                        const species = this.opencgaSession?.project?.organism?.scientificName;
-                        const assembly = this.opencgaSession.project.organism.assembly;
+                        const species = this.opencgaSession.project?.organism?.scientificName;
+                        const assembly = this.opencgaSession.project?.organism?.assembly;
                         return VariantGridFormatter.hgvsFormatter(row, this._config, species, assembly);
                     },
                     visible: this.gridCommons.isColumnVisible("hgvs"),

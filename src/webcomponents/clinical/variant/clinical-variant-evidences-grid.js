@@ -209,8 +209,8 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
     }
 
     transcriptFormatter(evidence) {
-        const species = this.opencgaSession?.project?.organism?.scientificName;
-        const assembly = this.opencgaSession.project.organism.assembly;
+        const species = this.opencgaSession.project?.organism?.scientificName;
+        const assembly = this.opencgaSession.project?.organism?.assembly;
         const ct = (this.variant.annotation?.consequenceTypes || []).find(ct => {
             return ct.ensemblTranscriptId === evidence?.genomicFeature?.transcriptId || ct.transcriptId === evidence?.genomicFeature?.transcriptId;
         });
