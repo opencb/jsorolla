@@ -218,7 +218,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                 ` : nothing}
             </div>
 
-            <div class="mb-3">
+            <div class="">
                 <label class="form-label">Or select terms manually:</label>
                 <select-dropdown
                     .values="${this._options}"
