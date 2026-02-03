@@ -674,7 +674,7 @@ const POPULATION_FREQUENCIES = {
         },
         {
             id: "GNOMAD_GENOMES",
-            title: "gnomAD Genomes",
+            title: "gnomAD v3.12",
             populations: [
                 {
                     id: "ALL", title: "gnomAD [ALL]"
@@ -694,6 +694,21 @@ const POPULATION_FREQUENCIES = {
                 {
                     id: "NFE", title: "Non-Finnish European [NFE]"
                 }
+            ]
+        },
+        {
+            id: "GNOMAD_V4_1",
+            title: "gnomAD v4.1",
+            populations: [
+                {
+                    id: "JOINT", title: "Joint [JOINT]"
+                },
+                {
+                    id: "GENOMES", title: "Genomes [GENOMES]"
+                },
+                {
+                    id: "EXOMES", title: "Exomes [EXOMES]"
+                },
             ]
         },
         {

@@ -233,12 +233,6 @@ export default class PopulationFrequencyFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
-    getDefaultConfig() {
-        return {
-            comparators: [{id: "=", name: "="}, {id: "<", name: "<"}, {id: "<=", name: "&#8804;"}, {id: ">", name: ">"}, {id: ">=", name: "&#8805;"}]
-        };
-    }
-
     render() {
         const getStateValue = (state, study, popFreq) => state[study.id + ":" + popFreq.id]?.value ?
             ((state[study.id + ":" + popFreq.id]?.comparator ?? this.defaultComparator) + state[study.id + ":" + popFreq.id]?.value) : "";
@@ -254,13 +248,13 @@ export default class PopulationFrequencyFilter extends LitElement {
                 ${this._populationFrequencies.studies.map(study => html`
                     <div class="mb-2">
                         <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" data-cy="pop-freq-toggle-${study.id}"
-                            style="cursor: pointer" @click="${this.handleCollapseAction}">
+                           style="cursor: pointer" @click="${this.handleCollapseAction}">
                         </i>
                         <span class="form-label fw-bold">${study.title}</span>
                         <div class="row g-2"  id="${this._prefix}${study.id}" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
                             ${study.populations && study.populations.length && study.populations.map(popFreq => html`
                                 <label class="col-md-3 col-sm-2 col-form-label">
-                                    >${popFreq.id}
+                                        >${popFreq.id}
                                 </label>
                                 <div class="col-md-4">
                                     <select-field-filter
@@ -291,20 +285,20 @@ export default class PopulationFrequencyFilter extends LitElement {
         } else {
             return html`
                 ${this._populationFrequencies.studies.map(study => html`
-                    <div class="mb-2">
+                    <div class="my-2">
                         <i class="fa fa-plus ps-1" id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" data-cy="pop-freq-toggle-${study.id}"
-                            style="cursor: pointer;"
-                            @click="${this.handleCollapseAction}">
+                           style="cursor: pointer;"
+                           @click="${this.handleCollapseAction}">
                         </i>
                         <span class="text-break fw-bold">${study.title}</span>
-                        <div class="row g-2" id="${this._prefix}${study.id}" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
+                        <div class="row g-2 my-2" id="${this._prefix}${study.id}" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
                             ${this.showSetAll ? html`
-                                    <label class="form-label text-center col-sm-7 col-md-7" data-bs-toggle="tooltip">Set all</label>
-                                    <div class="col-sm-5">
-                                        <input class="form-control input-sm ${this._prefix}FilterTextInput" id="${this._prefix}${study.id}Input"
-                                            type="text" data-mode="all" data-study="${study.id}"
-                                            name="${study.id}Input" @input="${this.onSetAllFreqChange}">
-                                    </div>
+                                <label class="form-label text-center col-sm-7 col-md-7" data-bs-toggle="tooltip">Set all</label>
+                                <div class="col-sm-5">
+                                    <input class="form-control input-sm ${this._prefix}FilterTextInput" id="${this._prefix}${study.id}Input"
+                                           type="text" data-mode="all" data-study="${study.id}"
+                                           name="${study.id}Input" @input="${this.onSetAllFreqChange}">
+                                </div>
                             ` : ""}
                             ${study.populations && study.populations.length && study.populations.map(popFreq => {
                                 const stateValue = getStateValue(this.state, study, popFreq);
@@ -313,7 +307,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                                         .value="${stateValue}"
                                         .config="${{
                                             comparator: true,
-                                            layout: [2, 5, 5]
+                                            layout: [3, 4, 5]
                                         }}"
                                         .label="${popFreq.id}"
                                         data-study="${study.id}"
@@ -327,6 +321,12 @@ export default class PopulationFrequencyFilter extends LitElement {
                 `)}
             `;
         }
+    }
+
+    getDefaultConfig() {
+        return {
+            comparators: [{id: "=", name: "="}, {id: "<", name: "<"}, {id: "<=", name: "&#8804;"}, {id: ">", name: ">"}, {id: ">=", name: "&#8805;"}]
+        };
     }
 
 }
