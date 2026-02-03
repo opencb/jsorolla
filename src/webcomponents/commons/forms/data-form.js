@@ -2083,7 +2083,7 @@ export default class DataForm extends LitElement {
                 const fields = line.split(",");
                 for (let i = 0; i < fields.length; i++) {
                     const fieldName = element.elements[i].field.split(".").at(-1);
-                    value[fieldName] = fields[i];
+                    value[fieldName] = this.parseValue(element.elements[i], fields[i]);
                 }
                 const event = {
                     action: "ADD",
