@@ -231,6 +231,11 @@ export default class Pedigree {
         // Initialize interactivity if enabled
         this._initInteractivity(svg, settings);
 
+        // Draw disorder legend if there are disorders
+        if (pedigree.disorders && pedigree.disorders.length > 0) {
+            this._drawDisorderLegend(pedigree, svg, settings);
+        }
+
         return svg;
     }
 
@@ -889,6 +894,62 @@ export default class Pedigree {
         }).textContent = "P";
     }
 
+    /**
+     * Draw disorder legend at bottom right of pedigree
+     */
+    _drawDisorderLegend(pedigree, svg, settings) {
+        const legendWidth = 200;
+        const legendItemHeight = 25;
+        const legendPadding = 15;
+        const boxSize = 16;
+
+        const legendHeight = (pedigree.disorders.length * legendItemHeight) + (2 * legendPadding);
+        const legendX = settings.width - legendWidth - 20;
+        const legendY = settings.height - legendHeight - 20;
+
+        // Create legend group
+        const legendGroup = SVG.addChild(svg, "g", {
+            transform: `translate(${legendX}, ${legendY})`
+        });
+
+        // Background box
+        SVG.addChild(legendGroup, "rect", {
+            x: 0, y: 0,
+            width: legendWidth,
+            height: legendHeight,
+            style: "fill: white; stroke: #333; stroke-width: 1; rx: 5"
+        });
+
+        // Legend title
+        SVG.addChild(legendGroup, "text", {
+            x: legendPadding,
+            y: legendPadding + 12,
+            style: "fill: black; font-size: 13px; font-weight: bold"
+        }).textContent = "Disorders";
+
+        // Draw each disorder
+        pedigree.disorders.forEach((disorder, index) => {
+            const itemY = legendPadding + 20 + (index * legendItemHeight);
+            const color = settings.colors[index] || "gray";
+
+            // Color box
+            SVG.addChild(legendGroup, "rect", {
+                x: legendPadding,
+                y: itemY,
+                width: boxSize,
+                height: boxSize,
+                style: `fill: ${color}; stroke: black; stroke-width: 1`
+            });
+
+            // Disorder name
+            SVG.addChild(legendGroup, "text", {
+                x: legendPadding + boxSize + 8,
+                y: itemY + 12,
+                style: "fill: black; font-size: 11px"
+            }).textContent = disorder.name || disorder.id;
+        });
+    }
+
     _addFamilyMember(object, x, y, width, radius, showSampleNames, svg) {
         // Create a group element to wrap the individual
         const group = SVG.addChild(svg, "g", {
@@ -959,12 +1020,24 @@ export default class Pedigree {
         }
 
         if (showSampleNames && object.name) {
+            // Truncate long names and add tooltip
+            const maxLength = 12;
+            const displayName = object.name.length > maxLength
+                ? object.name.substring(0, maxLength) + "..."
+                : object.name;
+
             let text = SVG.addChild(group, "text", {
                 x: -radius + 2,
                 y: width + 15,
                 style: "fill: black;font-size:11px"
             });
-            text.textContent = object.name;
+            text.textContent = displayName;
+
+            // Add SVG tooltip if name was truncated
+            if (object.name.length > maxLength) {
+                let title = SVG.addChild(text, "title");
+                title.textContent = object.name;
+            }
         }
 
         return group;
