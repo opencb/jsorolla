@@ -17,7 +17,7 @@
 import {LitElement, html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
-import "../forms/select-field-filter.js";
+import "../forms/select-dropdown.js";
 
 export default class ConsequenceTypeSelectFilter extends LitElement {
 
@@ -76,10 +76,20 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
             if (item.title) {
                 return {
                     id: item.title.toUpperCase(),
-                    fields: item.terms.map(term => this.mapTerm(term))
+                    values: item.terms.map(term => {
+                        return {
+                            id: term.name,
+                            name: term.name,
+                            soTermId: term.id,
+                        };
+                    })
                 };
             } else {
-                return this.mapTerm(item);
+                return {
+                    id: item.name,
+                    name: item.name,
+                    soTermId: item.id,
+                };
             }
         });
     }
@@ -117,15 +127,6 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
             this._ct = [];
             this._presetSelected.clear();
         }
-    }
-
-    mapTerm(term) {
-        // TODO think about this badge:
-        // <span class='badge badge-light' style="color: ${CONSEQUENCE_TYPES.style[term.impact]}">${term.impact}</span>
-        return {
-            id: term.name,
-            name: `${term.name}  <span class="badge text-bg-secondary">${term.id}</span>`
-        };
     }
 
     onPresetSelect(preset, e) {
@@ -219,12 +220,18 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
 
             <div class="mb-3">
                 <label class="form-label">Or select terms manually:</label>
-                <select-field-filter
-                    .data="${this._options}"
-                    .value="${this._ct}"
-                    .config="${{multiple: true}}"
-                    @filterChange="${this.onFilterChange}">
-                </select-field-filter>
+                <select-dropdown
+                    .values="${this._options}"
+                    .value="${this._ct.join(",")}"
+                    .renderItem="${item => html`
+                        <div class="text-wrap p-1">
+                            <span>${item.name}</span>
+                            <span class="badge text-bg-secondary">${item.soTermId}</span>
+                        </div>
+                    `}"
+                    ?multiple="${true}"
+                    @filterChange="${event => this.onFilterChange(event)}">
+                </select-dropdown>
             </div>
         `;
     }
