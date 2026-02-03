@@ -284,7 +284,7 @@ export default class SelectDropdown extends LitElement {
                                     @input="${this.onSearchInput}">
                             </div>
                         ` : nothing}
-                        <div class="dropdown-list">
+                        <div class="dropdown-list overflow-y-auto" style="max-height:15rem;">
                             ${filteredValues.length > 0 ? html`
                                 ${filteredValues.map(item => {
                                     if (item.separator) {
