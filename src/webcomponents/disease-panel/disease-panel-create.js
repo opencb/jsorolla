@@ -345,6 +345,7 @@ export default class DiseasePanelCreate extends LitElement {
                             type: "object-list",
                             display: {
                                 style: "border-left: 2px solid #0c2f4c; padding-left: 12px; margin-bottom:24px",
+                                showAddBatchListButton: true,
                                 collapsedUpdate: true,
                                 view: gene => html`
                                     <div>
