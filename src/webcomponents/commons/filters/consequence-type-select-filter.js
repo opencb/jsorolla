@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../forms/select-field-filter.js";
@@ -45,38 +45,43 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
         this._ct = []; // this.ct is a comma separated list, this._ct is an array of the same data
-        this.presetSelected = new Map();
-        // this.isChecked = {};
-        this.options = [];
+        this._presetSelected = new Map();
+        this._options = [];
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.options = this._config.categories.map(item => item.title ?
-            {
-                id: item.title.toUpperCase(),
-                fields: item.terms.map(term => this.mapTerm(term))
-            } :
-            this.mapTerm(item)
-        );
-    }
-
-    // eslint-disable-next-line no-unused-vars
-    firstUpdated(changedProperties) {
-        // Display SO terms in the badgers
+    firstUpdated() {
         UtilsNew.initTooltip(this);
     }
 
     update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            }
+            this.configObserver();
+        }
+
         if (changedProperties.has("ct")) {
             this.consequenceTypesObserver();
         }
 
         super.update(changedProperties);
+    }
+
+    configObserver() {
+        this._options = this._config.categories.map(item => {
+            if (item.title) {
+                return {
+                    id: item.title.toUpperCase(),
+                    fields: item.terms.map(term => this.mapTerm(term))
+                };
+            } else {
+                return this.mapTerm(item);
+            }
+        });
     }
 
     consequenceTypesObserver() {
@@ -86,19 +91,19 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
             // Josemi 2022-01-27 NOTE: this implementation has been reverted. We need to discuss this behavior in the future.
             // See issue https://github.com/opencb/jsorolla/issues/376
             // Add active presets using selected CT terms
-            // this.presetSelected = new Map(); // Reset active presets
+            // this._presetSelected = new Map(); // Reset active presets
             // (this._config.alias || []).forEach(preset => {
             //     const allTermsSelected = preset.terms.every(term => this._ct.includes(term));
             //     if (allTermsSelected) {
-            //         this.presetSelected.set(preset.name, preset);
+            //         this._presetSelected.set(preset.name, preset);
             //     }
             // });
 
             // NOTE (Nacho 2022-01-31): we need to check if any ALREADY select alias is incomplete to remove it.
             // But we keep NOT selecting a new alias even all its terms are selected.
             const aliasToBeDeleted = [];
-            for (const key of this.presetSelected.keys()) {
-                for (const value of this.presetSelected.get(key).terms) {
+            for (const key of this._presetSelected.keys()) {
+                for (const value of this._presetSelected.get(key).terms) {
                     if (!this._ct.includes(value)) {
                         aliasToBeDeleted.push(key);
                         break;
@@ -106,11 +111,11 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                 }
             }
             for (const alias of aliasToBeDeleted) {
-                this.presetSelected.delete(alias);
+                this._presetSelected.delete(alias);
             }
         } else {
             this._ct = [];
-            this.presetSelected.clear();
+            this._presetSelected.clear();
         }
     }
 
@@ -131,17 +136,17 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                 // 1. Add/delete selected presets
                 if (e.currentTarget.checked) {
                     // Just keep track of the selected preset
-                    this.presetSelected.set(aliasSelect.name, aliasSelect);
+                    this._presetSelected.set(aliasSelect.name, aliasSelect);
                 } else {
                     // Remove preset selection and all its terms
-                    this.presetSelected.delete(aliasSelect.name);
+                    this._presetSelected.delete(aliasSelect.name);
                     this._ct = this._ct.filter(ct => !aliasSelect.terms.includes(ct));
                 }
 
                 // 2. Add all terms from the still selected presets, just in case some shared terms were deleted
                 const ctSet = new Set(this._ct);
-                for (const key of this.presetSelected.keys()) {
-                    for (const term of this.presetSelected.get(key).terms) {
+                for (const key of this._presetSelected.keys()) {
+                    for (const term of this._presetSelected.get(key).terms) {
                         ctSet.add(term);
                     }
                 }
@@ -164,10 +169,10 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         this._ct = [...ctSet];
 
         // 2. Remove any preset election, this is not compatible with manual selection
-        for (const key of this.presetSelected.keys()) {
-            const allTermsSelected = this.presetSelected.get(key).terms.every(ct => this._ct.indexOf(ct) > -1);
+        for (const key of this._presetSelected.keys()) {
+            const allTermsSelected = this._presetSelected.get(key).terms.every(ct => this._ct.indexOf(ct) > -1);
             if (!allTermsSelected) {
-                this.presetSelected.delete(key);
+                this._presetSelected.delete(key);
             }
         }
 
@@ -180,10 +185,6 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
 
     filterChange() {
         LitUtils.dispatchCustomEvent(this, "filterChange", this._ct.join(","));
-    }
-
-    getDefaultConfig() {
-        return CONSEQUENCE_TYPES;
     }
 
     render() {
@@ -203,7 +204,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                                         id="${id}"
                                         name="layout"
                                         value="${alias.name}"
-                                        .checked="${this.presetSelected.has(alias.name)}"
+                                        .checked="${this._presetSelected.has(alias.name)}"
                                         @click="${e => this.onPresetSelect(alias.name, e)}">
                                     <span>${alias.name} </span>
                                 </label>
@@ -213,19 +214,23 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                             </div>
                         `;
                     })}
-                ` : null}
+                ` : nothing}
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Or select terms manually:</label>
                 <select-field-filter
-                    .data="${this.options}"
+                    .data="${this._options}"
                     .value="${this._ct}"
                     .config="${{multiple: true}}"
                     @filterChange="${this.onFilterChange}">
                 </select-field-filter>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return CONSEQUENCE_TYPES;
     }
 
 }
