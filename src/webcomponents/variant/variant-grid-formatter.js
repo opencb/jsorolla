@@ -230,7 +230,7 @@ export default class VariantGridFormatter {
         `;
     }
 
-    static hgvsFormatter(variant, gridConfig) {
+    static hgvsFormatter(variant, gridConfig, species, assembly) {
         BioinfoUtils.sort(variant.annotation?.consequenceTypes, v => v.geneName);
         const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(variant.annotation?.consequenceTypes, gridConfig).indexes;
 
@@ -243,10 +243,10 @@ export default class VariantGridFormatter {
                 if (hgvsTranscriptIndex > -1 || hgvsProteingIndex > -1) {
                     results.push(`
                         <div style="margin: 5px 0">
-                            ${VariantGridFormatter.getHgvsLink(consequenceType.transcriptId, variant.annotation.hgvs) || "-"}
+                            ${VariantGridFormatter.getHgvsLink(consequenceType.transcriptId, variant.annotation.hgvs, species, assembly) || "-"}
                         </div>
                         <div style="margin: 5px 0">
-                            ${VariantGridFormatter.getHgvsLink(consequenceType.proteinVariantAnnotation?.proteinId, variant.annotation.hgvs) || "-"}
+                            ${VariantGridFormatter.getHgvsLink(consequenceType.proteinVariantAnnotation?.proteinId, variant.annotation.hgvs, species, assembly) || "-"}
                         </div>
                     `);
                 }
@@ -550,7 +550,7 @@ export default class VariantGridFormatter {
         };
     }
 
-    static getHgvsLink(id, hgvsArray) {
+    static getHgvsLink(id, hgvsArray, species = "hsapiens", assembly = "GRCh38") {
         if (!id) {
             return;
         }
@@ -565,17 +565,17 @@ export default class VariantGridFormatter {
             const split = hgvs.split(":");
             let link;
             if (hgvs.includes(":p.")) {
-                link = BioinfoUtils.getProteinLink(split[0]);
+                link = BioinfoUtils.getProteinLink(split[0], null, species, assembly);
             } else {
-                link = BioinfoUtils.getTranscriptLink(split[0]);
+                link = BioinfoUtils.getTranscriptLink(split[0], null, species, assembly);
             }
 
             return `<a href="${link}" target="_blank">${split[0]}</a>:<span style="font-weight:bold">${split[1]}</span>`;
         } else {
             if (id.startsWith("ENST") || id.startsWith("NM_") || id.startsWith("NR_")) {
-                return `<a href=${BioinfoUtils.getTranscriptLink(id)} target="_blank">${id}</a>`;
+                return `<a href=${BioinfoUtils.getTranscriptLink(id, null, species, assembly)} target="_blank">${id}</a>`;
             } else {
-                return `<a href=${BioinfoUtils.getProteinLink(id)} target="_blank">${id}</a>`;
+                return `<a href=${BioinfoUtils.getProteinLink(id, null, species, assembly)} target="_blank">${id}</a>`;
             }
         }
     }
@@ -667,14 +667,15 @@ export default class VariantGridFormatter {
                         <span>
                             ${transcriptId ? `
                                 <div style="margin: 5px 0px">
-                                    ${VariantGridFormatter.getHgvsLink(transcriptId, row.annotation.hgvs) || ""}
+                                    ${VariantGridFormatter.getHgvsLink(transcriptId, row.annotation.hgvs, species, assembly) || ""}
                                 </div>
                                 <div style="margin: 5px 0px">
-                                    ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, row.annotation.hgvs) || ""}
-                                </div>` : ""
-                }
+                                    ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, row.annotation.hgvs, species, assembly) || ""}
+                                </div>
+                            ` : ""}
                         </span>
-                    </div>`;
+                    </div>
+                `;
 
                 const soArray = [];
                 for (const so of ct.sequenceOntologyTerms) {
