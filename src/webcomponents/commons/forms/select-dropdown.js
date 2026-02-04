@@ -264,57 +264,58 @@ export default class SelectDropdown extends LitElement {
         const filteredValues = this.getFilteredValues();
 
         return html`
-            <div class="select-dropdown ${this.selectAll ? "input-group" : ""} ${this.className || ""}">
-                <div class="dropdown flex-grow-1">
-                    <div
-                        class="form-select w-100 d-flex align-items-center ${this.selectAll ? "rounded-end-0" : ""}"
-                        id="${this._prefix}DropdownButton"
-                        data-bs-toggle="dropdown"
-                        data-bs-auto-close="outside"
-                        aria-expanded="false"
-                        ?disabled="${this.disabled}">
-                        <span class="flex-grow-1 text-start text-truncate">
-                            ${this.getDisplayText(selectedItems)}
-                        </span>
-                        ${!this.forceSelection && selectedValues.length > 0 ? html`
-                            <i class="fas fa-times cursor-pointer" @click="${event => this.onClear(event)}"></i>
-                        ` : nothing}
-                    </div>
-                    <div class="dropdown-menu w-100" aria-labelledby="${this._prefix}DropdownButton">
-                        ${this.search ? html`
-                            <div class="input-group p-2">
-                                <span class="input-group-text bg-white">
-                                    <i class="fas fa-search"></i>
-                                </span>
-                                <input
-                                    type="text"
-                                    class="form-control border-start-0"
-                                    placeholder="${this.searchPlaceholder}"
-                                    .value="${this._searchQuery}"
-                                    @input="${event => this.onSearchInput(event)}">
-                            </div>
-                        ` : nothing}
-                        <div class="dropdown-list overflow-y-auto" style="max-height:25rem;">
-                            ${filteredValues.length > 0 ? html`
-                                <div class="d-flex flex-column gap-1">
-                                    ${filteredValues.map((item, index) => {
-                                        if (item.separator) {
-                                            return this.renderSeparator();
-                                        }
-                                        if (item.values && Array.isArray(item.values)) {
-                                            return this.renderGroup(item, index === filteredValues.length - 1);
-                                        }
-                                        return this.renderItemTemplate(item);
-                                    })}
-                                </div>
-                            ` : html`
-                                <div class="dropdown-item disabled text-center">No results found</div>
-                            `}
+            <div class="select-dropdown dropdown input-group ${this.className || ""}">
+                <div class="dropdown-menu w-100" aria-labelledby="${this._prefix}DropdownButton">
+                    ${this.search ? html`
+                        <div class="input-group p-2">
+                            <span class="input-group-text bg-white">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input
+                                type="text"
+                                class="form-control border-start-0"
+                                placeholder="${this.searchPlaceholder}"
+                                .value="${this._searchQuery}"
+                                @input="${event => this.onSearchInput(event)}">
                         </div>
+                    ` : nothing}
+                    <div class="dropdown-list overflow-y-auto" style="max-height:25rem;">
+                        ${filteredValues.length > 0 ? html`
+                            <div class="d-flex flex-column gap-1">
+                                ${filteredValues.map((item, index) => {
+                                    if (item.separator) {
+                                        return this.renderSeparator();
+                                    }
+                                    if (item.values && Array.isArray(item.values)) {
+                                        return this.renderGroup(item, index === filteredValues.length - 1);
+                                    }
+                                    return this.renderItemTemplate(item);
+                                })}
+                            </div>
+                        ` : html`
+                            <div class="dropdown-item disabled text-center">No results found</div>
+                        `}
                     </div>
                 </div>
+                <div
+                    class="form-select flex-grow-1 d-flex align-items-center rounded-start"
+                    id="${this._prefix}DropdownButton"
+                    data-bs-toggle="dropdown"
+                    data-bs-auto-close="outside"
+                    data-bs-reference="parent"
+                    aria-expanded="false"
+                    ?disabled="${this.disabled}">
+                    <span class="flex-grow-1 text-start text-truncate">
+                        ${this.getDisplayText(selectedItems)}
+                    </span>
+                </div>
+                ${!this.forceSelection && selectedValues.length > 0 ? html`
+                    <span class="input-group-text bg-white cursor-pointer" @click="${event => this.onClear(event)}">
+                        <i class="fas fa-times"></i>
+                    </span>
+                ` : nothing}
                 ${this.selectAll ? html`
-                    <div class="input-group-text">
+                    <div class="input-group-text bg-white">
                         <input
                             type="checkbox"
                             class="form-check-input mt-0"
@@ -322,7 +323,7 @@ export default class SelectDropdown extends LitElement {
                             .checked="${selectableItems.length > 0 && selectedItems.length === selectableItems.length}"
                             .indeterminate="${selectedItems.length > 0 && selectedItems.length < selectableItems.length}"
                             @change="${event => this.onSelectAllClick(event)}">
-                        <label class="form-check-label small fw-bold ms-1" for="${this._prefix}SelectAllCheckbox">
+                        <label class="form-check-label small fw-bold ps-2" for="${this._prefix}SelectAllCheckbox">
                             All
                         </label>
                     </div>

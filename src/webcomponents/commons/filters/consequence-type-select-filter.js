@@ -223,7 +223,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                 <select-dropdown
                     .values="${this._options}"
                     .value="${this._ct.join(",")}"
-                    .searchPlaceholder="${"Search by consequence type..."}"
+                    .searchPlaceholder="${"Search by term name..."}"
                     .renderItem="${item => html`
                         <div class="text-wrap p-1">
                             <span>${item.name}</span>
