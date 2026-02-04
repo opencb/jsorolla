@@ -267,7 +267,7 @@ export default class SelectDropdown extends LitElement {
             <div class="select-dropdown ${this.selectAll ? "input-group" : ""} ${this.className || ""}">
                 <div class="dropdown flex-grow-1">
                     <div
-                        class="btn btn-light dropdown-toggle w-100 d-flex align-items-center ${this.selectAll ? "rounded-end-0" : ""}"
+                        class="form-select w-100 d-flex align-items-center ${this.selectAll ? "rounded-end-0" : ""}"
                         id="${this._prefix}DropdownButton"
                         data-bs-toggle="dropdown"
                         data-bs-auto-close="outside"
@@ -277,7 +277,7 @@ export default class SelectDropdown extends LitElement {
                             ${this.getDisplayText(selectedItems)}
                         </span>
                         ${!this.forceSelection && selectedValues.length > 0 ? html`
-                            <i class="fas fa-times me-2 cursor-pointer opacity-50-hover" @click="${event => this.onClear(event)}"></i>
+                            <i class="fas fa-times cursor-pointer" @click="${event => this.onClear(event)}"></i>
                         ` : nothing}
                     </div>
                     <div class="dropdown-menu w-100" aria-labelledby="${this._prefix}DropdownButton">
