@@ -214,7 +214,7 @@ export default class SelectDropdown extends LitElement {
         }
 
         return html`
-            <a class="dropdown-item cursor-pointer ${isSelected ? "active" : ""} ${item.disabled ? "disabled" : ""}" @click="${e => this.onItemClick(e, item)}">
+            <a class="dropdown-item cursor-pointer ${isSelected ? "bg-primary-subtle" : ""} ${item.disabled ? "disabled" : ""}" @click="${e => this.onItemClick(e, item)}">
                <div class="d-flex justify-content-between align-items-center">
                     <div class="flex-grow-1">
                         ${content}
@@ -235,7 +235,7 @@ export default class SelectDropdown extends LitElement {
 
     renderGroup(group) {
         return html`
-            <div>
+            <div class="d-flex flex-column gap-1">
                 <h6 class="dropdown-header fw-bold">
                     ${group.name || group.id}
                 </h6>
@@ -286,15 +286,17 @@ export default class SelectDropdown extends LitElement {
                         ` : nothing}
                         <div class="dropdown-list overflow-y-auto" style="max-height:15rem;">
                             ${filteredValues.length > 0 ? html`
-                                ${filteredValues.map(item => {
-                                    if (item.separator) {
-                                        return this.renderSeparator();
-                                    }
-                                    if (item.values && Array.isArray(item.values)) {
-                                        return this.renderGroup(item);
-                                    }
-                                    return this.renderItemTemplate(item);
-                                })}
+                                <div class="d-flex flex-column gap-1">
+                                    ${filteredValues.map(item => {
+                                        if (item.separator) {
+                                            return this.renderSeparator();
+                                        }
+                                        if (item.values && Array.isArray(item.values)) {
+                                            return this.renderGroup(item);
+                                        }
+                                        return this.renderItemTemplate(item);
+                                    })}
+                                </div>
                             ` : html`
                                 <div class="dropdown-item disabled text-center">No results found</div>
                             `}
