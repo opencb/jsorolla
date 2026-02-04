@@ -257,7 +257,7 @@ export default class SelectDropdown extends LitElement {
         const filteredValues = this.getFilteredValues();
 
         return html`
-            <div class="${this.selectAll ? "input-group" : ""} ${this.className || ""}">
+            <div class="select-dropdown ${this.selectAll ? "input-group" : ""} ${this.className || ""}">
                 <div class="dropdown flex-grow-1">
                     <div
                         class="btn btn-light dropdown-toggle w-100 d-flex align-items-center ${this.selectAll ? "rounded-end-0" : ""}"
