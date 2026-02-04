@@ -196,7 +196,9 @@ class VariantInterpreterExomiserView extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => evidences.map(evidence => {
-                                    const link = VariantGridFormatter.getHgvsLink(evidence.genomicFeature.transcriptId, this.variant.annotation.hgvs) || "";
+                                    const species = this.opencgaSession.project?.organism?.scientificName;
+                                    const assembly = this.opencgaSession.project?.organism?.assembly;
+                                    const link = VariantGridFormatter.getHgvsLink(evidence.genomicFeature.transcriptId, this.variant.annotation.hgvs, species, assembly) || "";
                                     return html`
                                         <div>${UtilsNew.renderHTML(link)}</div>
                                     `;

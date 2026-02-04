@@ -574,7 +574,11 @@ export default class VariantInterpreterGrid extends LitElement {
                     title: "HGVS",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => VariantGridFormatter.hgvsFormatter(row, this._config),
+                    formatter: (value, row) => {
+                        const species = this.opencgaSession.project?.organism?.scientificName;
+                        const assembly = this.opencgaSession.project?.organism?.assembly;
+                        return VariantGridFormatter.hgvsFormatter(row, this._config, species, assembly);
+                    },
                     visible: this.gridCommons.isColumnVisible("hgvs"),
                 },
                 {
