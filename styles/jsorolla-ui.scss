@@ -10,7 +10,7 @@ $spacer: 1rem;
 
 // gray color palette
 // https://github.com/twbs/bootstrap/blob/main/scss/_variables.scss#L24-L34
-$gray-50:  #f9fafa;
+$gray-50: #f9fafa;
 $gray-100: #f3f4f5;
 $gray-200: #d5d9dc;
 $gray-300: #b7bdc3;
@@ -104,46 +104,50 @@ body {
 }
 
 // qtip custom
-.qtip-custom-no-maxwidth{
-  max-width: none !important;
+.qtip-custom-no-maxwidth {
+    max-width: none !important;
 }
 
 .qtip.custom-scroll {
-  max-height: 300px;  /* or whatever max height you want */
-  overflow-y: auto;   /* vertical scrollbar */
-  padding-right: 5px; /* space for scrollbar */
+    max-height: 300px;
+    /* or whatever max height you want */
+    overflow-y: auto;
+    /* vertical scrollbar */
+    padding-right: 5px;
+    /* space for scrollbar */
 }
 
 // override card
 .card {
-  border: 0;
-  transition: transform .3s cubic-bezier(.34,2,.6,1), box-shadow .2s ease, -webkit-transform .3s cubic-bezier(.34,2,.6,1);
+    border: 0;
+    transition: transform .3s cubic-bezier(.34, 2, .6, 1), box-shadow .2s ease, -webkit-transform .3s cubic-bezier(.34, 2, .6, 1);
 }
 
 card .card-header .card-title {
-  margin-top: 10px;
+    margin-top: 10px;
 }
 
 .card-title {
-  margin-bottom: .75rem;
+    margin-bottom: .75rem;
 }
 
 .card-footer {
-  border-top: 0;
+    border-top: 0;
 }
 
-.card .card-category, .card label {
-  font-size: .875rem;
-  font-weight: 400;
-  color: #9a9a9a;
-  margin-bottom: 0;
+.card .card-category,
+.card label {
+    font-size: .875rem;
+    font-weight: 400;
+    color: #9a9a9a;
+    margin-bottom: 0;
 }
 
-.summary-category{
-  font-size: .875rem;
-  font-weight: 400;
-  color: #9a9a9a;
-  margin-bottom: 0;
+.summary-category {
+    font-size: .875rem;
+    font-weight: 400;
+    color: #9a9a9a;
+    margin-bottom: 0;
 }
 
 .card-divider {
@@ -158,6 +162,7 @@ card .card-header .card-title {
     --bs-btn-border-color: #{$gray-200};
     --bs-btn-border-width: #{$border-width};
 }
+
 // button toggle styles from https://getbootstrap.com/docs/5.3/examples/sidebars/sidebars.css
 .btn-toggle {
     padding: 0.25rem 0.5rem;
@@ -165,11 +170,13 @@ card .card-header .card-title {
     color: var(--bs-emphasis-color);
     background-color: transparent;
 }
+
 .btn-toggle:hover,
 .btn-toggle:focus {
     color: rgba(var(--bs-emphasis-color-rgb), .85);
     background-color: var(--bs-tertiary-bg);
 }
+
 .btn-toggle::before {
     width: 1.25em;
     line-height: 0;
@@ -177,9 +184,11 @@ card .card-header .card-title {
     transition: transform .35s ease;
     transform-origin: .5em 50%;
 }
+
 .btn-toggle[aria-expanded="true"] {
     color: rgba(var(--bs-emphasis-color-rgb), .85);
 }
+
 .btn-toggle[aria-expanded="true"]::before {
     transform: rotate(90deg);
 }
@@ -187,15 +196,18 @@ card .card-header .card-title {
 // override modal fullsize
 .modal.fullscreen-modal .modal-dialog {
     position: fixed;
-    top: 40px; /* Adjust this to match your navbar height */
+    top: 40px;
+    /* Adjust this to match your navbar height */
     left: 0;
     right: 0;
     bottom: 0;
     width: 100%;
     max-width: none;
-    height: calc(100% - 40px); /* Adjust based on navbar height */
+    height: calc(100% - 40px);
+    /* Adjust based on navbar height */
     margin: 0;
 }
+
 .modal.fullscreen-modal .modal-content {
     height: 100%;
     width: 100%;
@@ -206,37 +218,44 @@ card .card-header .card-title {
 .modal-2xl {
     --bs-modal-width: 1400px;
 }
+
 .modal-3xl {
     --bs-modal-width: 1600px;
 }
 
 // table for grids styles
 .table {
-  & thead {
-    & th {
-      color: $gray-600;
-      font-size: $font-size-sm;
-      font-weight: $font-weight-medium;
-      padding: 0 0.75rem !important;
-      vertical-align: bottom;;
+    & thead {
+        & th {
+            color: $gray-600;
+            font-size: $font-size-sm;
+            font-weight: $font-weight-medium;
+            padding: 0 0.75rem !important;
+            vertical-align: bottom;
+            ;
+        }
     }
-  }
 }
+
 .table-grid {
     border-collapse: separate;
     border-spacing: 0 0.5rem;
+
     // overwrite the default styles of thead cells
     & thead {
         & th {
             color: $gray-600;
             font-size: $font-size-sm;
             font-weight: $font-weight-medium;
-            padding: 0 0.75rem!important;
-            vertical-align: bottom;;
+            padding: 0 0.75rem !important;
+            vertical-align: bottom;
+            ;
         }
+
         & .th-inner {
-            padding: 0!important;
+            padding: 0 !important;
         }
+
         & tr:first-child th[rowspan="1"]::after {
             content: "";
             display: block;
@@ -250,18 +269,22 @@ card .card-header .card-title {
         background-color: $white;
         border-radius: $border-radius;
     }
+
     & tbody tr td {
         background-color: inherit;
         padding: 0.75rem 0.75rem;
+
         &:first-child {
             border-top-left-radius: $border-radius;
             border-bottom-left-radius: $border-radius;
         }
+
         &:last-child {
             border-top-right-radius: $border-radius;
             border-bottom-right-radius: $border-radius;
         }
     }
+
     // row selected style
     & tbody tr.selected {
         @extend .table-success;
@@ -286,6 +309,7 @@ card .card-header .card-title {
     color: #{$primary};
     cursor: pointer;
     text-decoration: none;
+
     &:hover {
         text-decoration: underline;
     }
@@ -293,23 +317,28 @@ card .card-header .card-title {
 
 // additional color utilities
 // Note: the $grays map is a Sass map that contains all the gray colors
-@each $shade,$color in $grays {
+@each $shade, $color in $grays {
     .bg-gray-#{$shade} {
         background-color: $color !important;
     }
+
     .hover\:bg-gray-#{$shade}:hover {
         background-color: $color !important;
     }
+
     .text-gray-#{$shade} {
         color: $color;
     }
+
     .hover\:text-gray-#{$shade}:hover {
         color: $color;
     }
+
     .border-gray-#{$shade} {
         border-color: $color !important;
     }
 }
+
 .hover\:bg-white:hover {
     background-color: $white !important;
 }
@@ -318,9 +347,11 @@ card .card-header .card-title {
 .cursor-pointer {
     cursor: pointer !important;
 }
+
 .cursor-not-allowed {
     cursor: not-allowed !important;
 }
+
 .cursor-not-allowed {
     cursor: not-allowed;
 }
@@ -329,15 +360,19 @@ card .card-header .card-title {
 .w-full {
     width: 100%;
 }
+
 .w-px {
     width: 1px;
 }
+
 .h-full {
     height: 100%;
 }
+
 .h-px {
     height: 1px;
 }
+
 .h-screen {
     height: 100vh;
 }
@@ -347,9 +382,11 @@ card .card-header .card-title {
 .fs-7 {
     font-size: $font-size-base * 0.875;
 }
+
 .fs-8 {
     font-size: $font-size-base * 0.75;
 }
+
 .fs-9 {
     font-size: $font-size-base * 0.625;
 }
@@ -359,22 +396,34 @@ card .card-header .card-title {
 .hover\:text-decoration-line-through:hover {
     text-decoration: line-through;
 }
+
 .hover\:text-decoration-underline:hover {
     text-decoration: underline;
+}
+
+// styles for the custom select-dropdown component
+.select-dropdown {
+    & .dropdown-item:active {
+        background-color: var(--bs-primary-subtle) !important;
+        color: inherit !important;
+    }
 }
 
 
 // select2 styles override
 
 .select2-container--bootstrap-5 .select2-selection--multiple .select2-search--inline .select2-search__field {
-    line-height: 1.8;  // fix vertical alignment of the placeholder
+    line-height: 1.8; // fix vertical alignment of the placeholder
 }
+
 .select2-selection__choice__display {
     white-space: break-spaces; // selected tag on multiple lines if needed
 }
+
 .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove {
     margin-right: 9px !important;
 }
+
 .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice {
     border: 1px solid #cdd5e3;
     position: relative;
@@ -383,40 +432,50 @@ card .card-header .card-title {
     background-color: #eff2f7;
     border-radius: 2px;
     line-height: 1;
-    word-break: break-all; /* selected tag on multiple lines if needed */
+    word-break: break-all;
+    /* selected tag on multiple lines if needed */
 }
+
 .select2-results__option.select2-results__option--selected {
     background-color: #eee;
 }
+
 .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove {
     background: transparent;
     border: 0;
 }
+
 .select2-container .select2-selection--multiple {
     cursor: text;
     padding-right: 20px;
 }
+
 /* fix the select2 UI in case the autocomplete dropdown is hidden */
-select.no-data + .select2-container--bootstrap-5.select2-container--open.select2-container--below .select2-selection {
+select.no-data+.select2-container--bootstrap-5.select2-container--open.select2-container--below .select2-selection {
     border-bottom-color: rgb(126, 182, 226);
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px
 }
+
 /* adapt select2 placeholder text to the default BT ones */
 .select2-container--bootstrap-5 .select2-search--inline .select2-search__field {
     font-family: inherit !important; // "Lato", Helvetica, Arial, sans-serif;
     line-height: 1.5;
 }
+
 /* dynamic width: it renders active area for the dropdown and selected tokens in one line, where possible */
 .select2-selection__rendered {
     width: auto;
 }
+
 .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__rendered {
     width: auto;
 }
+
 .select2-search.select2-search--inline {
     display: inline-block;
 }
+
 /* this fixes text overflow when the select2 is inside a modal */
 .select2-selection__rendered {
     white-space: break-spaces !important;
@@ -428,6 +487,7 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
     min-height: 120px;
     z-index: 500 !important;
 }
+
 // Custom pagination-detail on top of the boostrap-table grids.
 // This removes the pager buttons on top pf the grids leaving only the counter of records.
 // nth-child(2) is the top pager while nth-child(4) would the bottom pager.
@@ -450,15 +510,15 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
 }
 
 @supports selector(:has(*)) {
-  .qtip:has(.tooltip-xl) {
-    max-width: 600px !important;
-  }
+    .qtip:has(.tooltip-xl) {
+        max-width: 600px !important;
+    }
 }
 
 @supports selector(:has(*)) {
-  .qtip:has(.tooltip-2xl) {
-    max-width: 800px !important;
-  }
+    .qtip:has(.tooltip-2xl) {
+        max-width: 800px !important;
+    }
 }
 
 // Customization for SwaggerUI
@@ -505,18 +565,24 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
     background-size: 400% 100%;
     // border-color: $ai-primary-emphasis !important;
     color: white !important;
-    &:hover, &.active {
+
+    &:hover,
+    &.active {
         animation: ai-move-gradient 3s linear infinite;
         color: white !important;
     }
-    &.show, &:active {
+
+    &.show,
+    &:active {
         color: white !important;
     }
 }
+
 .ai-dropdown {
     background: linear-gradient(120deg, $ai-secondary-subtle 0%, $ai-primary-subtle 50%, $ai-tertiary-subtle 100%);
     border-color: $ai-primary-emphasis !important;
 }
+
 .ai-text {
     background: linear-gradient(90deg, var(--ai-color-primary), var(--ai-color-secondary), var(--ai-color-primary));
     background-clip: text;
@@ -524,6 +590,11 @@ select.no-data + .select2-container--bootstrap-5.select2-container--open.select2
 }
 
 @keyframes ai-move-gradient {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 100% 50%; }
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 100% 50%;
+    }
 }
