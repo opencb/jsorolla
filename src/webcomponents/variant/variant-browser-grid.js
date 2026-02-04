@@ -190,7 +190,7 @@ export default class VariantBrowserGrid extends LitElement {
                     return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, this.totalRowsNotTruncated);
                 },
                 detailView: this._config.detailView,
-                detailFormatter: this.detailFormatter,
+                detailFormatter: (index, row) => this.detailFormatter(index, row),
                 loadingTemplate: () => GridCommons.loadingFormatter(),
                 // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
                 variantGrid: this,
@@ -327,7 +327,7 @@ export default class VariantBrowserGrid extends LitElement {
                 return this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows);
             },
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
+            detailFormatter: (index, row) => this.detailFormatter(index, row),
             loadingTemplate: () => GridCommons.loadingFormatter(),
             // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
             variantGrid: this,
@@ -342,15 +342,17 @@ export default class VariantBrowserGrid extends LitElement {
         });
     }
 
-    detailFormatter(index, row, a) {
+    detailFormatter(index, row) {
+        const species = this.opencgaSession.project?.organism?.scientificName;
+        const assembly = this.opencgaSession.project?.organism?.assembly;
+
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
 
         if (row?.annotation) {
             detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantGridFormatter
-                .consequenceTypeDetailFormatter(index, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
+            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(index, row, this, this.query, this._config, species, assembly);
             detailHtml += "</div>";
         }
         result += detailHtml + "</div>";
@@ -546,7 +548,11 @@ export default class VariantBrowserGrid extends LitElement {
                     title: "HGVS",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => VariantGridFormatter.hgvsFormatter(row, this._config),
+                    formatter: (value, row) => {
+                        const species = this.opencgaSession.project?.organism?.scientificName;
+                        const assembly = this.opencgaSession.project?.organism?.assembly;
+                        return VariantGridFormatter.hgvsFormatter(row, this._config, species, assembly);
+                    },
                     visible: this.gridCommons.isColumnVisible("hgvs"),
                 },
                 {
