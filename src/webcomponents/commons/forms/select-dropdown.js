@@ -233,7 +233,7 @@ export default class SelectDropdown extends LitElement {
         `;
     }
 
-    renderGroup(group) {
+    renderGroup(group, isLast = false) {
         return html`
             <div class="d-flex flex-column gap-1">
                 <h6 class="dropdown-header fw-bold">
@@ -246,6 +246,9 @@ export default class SelectDropdown extends LitElement {
                     return this.renderItemTemplate(item);
                 })}
             </div>
+            ${!isLast ? html`
+                <hr class="dropdown-divider">
+            ` : nothing}
         `;
     }
 
@@ -284,15 +287,15 @@ export default class SelectDropdown extends LitElement {
                                     @input="${this.onSearchInput}">
                             </div>
                         ` : nothing}
-                        <div class="dropdown-list overflow-y-auto" style="max-height:15rem;">
+                        <div class="dropdown-list overflow-y-auto" style="max-height:25rem;">
                             ${filteredValues.length > 0 ? html`
                                 <div class="d-flex flex-column gap-1">
-                                    ${filteredValues.map(item => {
+                                    ${filteredValues.map((item, index) => {
                                         if (item.separator) {
                                             return this.renderSeparator();
                                         }
                                         if (item.values && Array.isArray(item.values)) {
-                                            return this.renderGroup(item);
+                                            return this.renderGroup(item, index === filteredValues.length - 1);
                                         }
                                         return this.renderItemTemplate(item);
                                     })}
