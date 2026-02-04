@@ -49,6 +49,9 @@ export default class SelectDropdown extends LitElement {
             search: {
                 type: Boolean,
             },
+            searchPlaceholder: {
+                type: String,
+            },
             searchFn: {
                 type: Function,
             },
@@ -75,9 +78,10 @@ export default class SelectDropdown extends LitElement {
         this.disabled = false;
         this.placeholder = "Select an option...";
         this.search = false;
-        this._searchQuery = "";
+        this.searchPlaceholder = "Search...";
         this.forceSelection = false;
         this.selectAll = false;
+        this._searchQuery = "";
     }
 
     onClear(e) {
@@ -273,18 +277,21 @@ export default class SelectDropdown extends LitElement {
                             ${this.getDisplayText(selectedItems)}
                         </span>
                         ${!this.forceSelection && selectedValues.length > 0 ? html`
-                            <i class="fas fa-times me-2 cursor-pointer opacity-50-hover" @click="${e => this.onClear(e)}"></i>
+                            <i class="fas fa-times me-2 cursor-pointer opacity-50-hover" @click="${event => this.onClear(event)}"></i>
                         ` : nothing}
                     </div>
                     <div class="dropdown-menu w-100" aria-labelledby="${this._prefix}DropdownButton">
                         ${this.search ? html`
-                            <div class="p-2">
+                            <div class="input-group p-2">
+                                <span class="input-group-text bg-white">
+                                    <i class="fas fa-search"></i>
+                                </span>
                                 <input
                                     type="text"
-                                    class="form-control"
-                                    placeholder="Search..."
+                                    class="form-control border-start-0"
+                                    placeholder="${this.searchPlaceholder}"
                                     .value="${this._searchQuery}"
-                                    @input="${this.onSearchInput}">
+                                    @input="${event => this.onSearchInput(event)}">
                             </div>
                         ` : nothing}
                         <div class="dropdown-list overflow-y-auto" style="max-height:25rem;">
@@ -314,7 +321,7 @@ export default class SelectDropdown extends LitElement {
                             id="${this._prefix}SelectAllCheckbox"
                             .checked="${selectableItems.length > 0 && selectedItems.length === selectableItems.length}"
                             .indeterminate="${selectedItems.length > 0 && selectedItems.length < selectableItems.length}"
-                            @change="${e => this.onSelectAllClick(e)}">
+                            @change="${event => this.onSelectAllClick(event)}">
                         <label class="form-check-label small fw-bold ms-1" for="${this._prefix}SelectAllCheckbox">
                             All
                         </label>
