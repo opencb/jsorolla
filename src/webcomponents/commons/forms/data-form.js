@@ -1887,9 +1887,14 @@ export default class DataForm extends LitElement {
                         .rows="${3}"
                         @filterChange="${e => this.#addBatchTextChange(element, e.detail.value)}">
                     </text-field-filter>
-                    <div class="d-flex flex-row-reverse mt-3">
+                    <div class="d-flex justify-content-end gap-1 mt-3">
+                        <button class="btn btn-danger" @click="${e => this.#toggleAddBatchToObjectList(e, element)}">
+                            <i class="fas fa-trash pe-1"></i>
+                            <span>Discard</span>
+                        </button>
                         <button class="btn btn-light" ?disabled="${!this.batchItems[element.field]}" @click="${e => this.#addBatchToObjectList(e, element)}">
-                            <span>Apply Batch</span>
+                            <i class="fas fa-plus pe-1"></i>
+                            <span>Add</span>
                         </button>
                     </div>
                 </div>
@@ -1904,7 +1909,7 @@ export default class DataForm extends LitElement {
                     <div class="text-muted small">
                         ${items?.length > 0 ? html`Items: ${items.length}` : nothing}
                     </div>
-                    <div class="">
+                    <div class="d-flex gap-1 align-items-center">
                         ${this._getBooleanValue(element.display.showAddItemListButton, true) ? html`
                             <button class="btn btn-light" ?disabled="${isDisabled}" @click="${e => this.#addToObjectList(e, element)}">
                                 <i class="fas fa-plus pe-1"></i>
@@ -1914,7 +1919,7 @@ export default class DataForm extends LitElement {
                         ${this._getBooleanValue(element.display.showAddBatchListButton, false) ? html`
                             <button class="btn btn-light" ?disabled="${isDisabled}" @click="${e => this.#toggleAddBatchToObjectList(e, element)}">
                                 <i aria-hidden="true" class="fas fa-file-import pe-1"></i>
-                                <span>Add Batch</span>
+                                <span>${element.display?.itemAddBatchText || "Add Batch"}</span>
                             </button>
                         `: nothing}
                         ${this._getBooleanValue(element.display.showResetListButton, false) ? html`
@@ -2078,7 +2083,7 @@ export default class DataForm extends LitElement {
                 const fields = line.split(",");
                 for (let i = 0; i < fields.length; i++) {
                     const fieldName = element.elements[i].field.split(".").at(-1);
-                    value[fieldName] = fields[i];
+                    value[fieldName] = this.parseValue(element.elements[i], fields[i]);
                 }
                 const event = {
                     action: "ADD",
