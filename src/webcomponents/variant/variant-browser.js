@@ -395,7 +395,7 @@ export default class VariantBrowser extends LitElement {
                                 tooltip: tooltips.populationFrequencies,
                                 params: {
                                     populationFrequencies: this.populationFrequencies || POPULATION_FREQUENCIES,
-                                    showSetAll: true
+                                    showSetAll: false
                                 },
                                 quick: true
                             }

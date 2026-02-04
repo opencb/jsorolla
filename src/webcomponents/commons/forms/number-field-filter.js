@@ -127,10 +127,10 @@ export default class NumberFieldFilter extends LitElement {
         return html`
             <div class="row g-2" data-cy="number-field-filter-wrapper-${this.label ?? ""}">
                 ${this.label ? html`
-                        <label class="col-md-${this._config.layout[0]} col-sm-2 col-form-label"
-                            data-bs-toggle="tooltip" data-placement="top" title="${this.label}">
-                            ${this.label}
-                        </label>` : nothing
+                    <label class="col-md-${this._config.layout[0]} col-form-label"
+                           data-bs-toggle="tooltip" data-placement="top" title="${this.label}">
+                        ${this.label}
+                    </label>` : nothing
                 }
 
                 ${this._config.comparator ? html`
@@ -160,7 +160,8 @@ export default class NumberFieldFilter extends LitElement {
                         </select-field-filter>
                     </div>` : html`
                     <div class="col-md-${this._config.layout[2]}">
-                        <input  type="${this.type ?? "number"}"
+                        <input
+                            type="${this.type ?? "number"}"
                             class="form-control ${this._prefix}FilterTextInput"
                             data-field="value"
                             .min="${this.min ?? false}"

@@ -46,6 +46,7 @@ export default class IndividualCreate extends LitElement {
 
     #init() {
         this._individual = {};
+        this._samples = "";
         this._disordersQueryParams = {};
         this._phenotypesQueryParams = {};
         this._config = this.getDefaultConfig();
@@ -80,6 +81,12 @@ export default class IndividualCreate extends LitElement {
     }
 
     onFieldChange(e) {
+        // Check if 'samples' is being updated to convert from array of strings to array of objects.
+        if (e.detail.param === "samples") {
+            this._samples = e.detail.value
+                ?.join(",") || "";
+        }
+
         this._individual = {...e.detail.data}; // force to refresh the object-list
         this.requestUpdate();
     }
@@ -90,6 +97,7 @@ export default class IndividualCreate extends LitElement {
             message: "Are you sure to clear?",
             ok: () => {
                 this._individual = {};
+                this._samples = "";
                 this._config = this.getDefaultConfig();
                 this.requestUpdate();
             },
@@ -97,11 +105,17 @@ export default class IndividualCreate extends LitElement {
     }
 
     onSubmit() {
+        // 1. Prepare individual object
+        // Remove samples from individual object to send them as a separated parameter
+        delete this._individual.samples;
+
+        // 2. Call to create individual API
         let error;
         this.#setLoading(true);
         this.opencgaSession.opencgaClient.individuals()
             .create(this._individual, {
                 study: this.opencgaSession.study.fqn,
+                samples: this._samples || "",
                 includeResult: true
             })
             .then(() => {
@@ -111,11 +125,13 @@ export default class IndividualCreate extends LitElement {
                 });
                 LitUtils.dispatchCustomEvent(this, "individualCreate", this._individual, {}, error);
                 this._individual = {};
+                this._samples = "";
                 this._config = this.getDefaultConfig();
             })
             .catch(reason => {
                 error = reason;
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, reason);
+                this._samples = "";
             })
             .finally(() => {
                 this.#setLoading(false);
@@ -205,6 +221,32 @@ export default class IndividualCreate extends LitElement {
                                         @filterChange="${e => dataFormFilterChange({id: e.detail.value})}">
                                     </catalog-search-autocomplete>
                                 `,
+                            },
+                        },
+                        {
+                            title: "Sample ID(s)",
+                            field: "samples",
+                            type: "custom",
+                            display: {
+                                placeholder: "Select the sample IDs ...",
+                                render: (samples, dataFormFilterChange, updateParams) => {
+                                    const handleSamplesFilterChange = e => {
+                                        // We need to convert value from a string wth commas to an array of IDs
+                                        const sampleList = (e.detail.value?.split(",") || [])
+                                            .filter(sampleId => sampleId)
+                                            .map(sampleId => sampleId);
+                                        dataFormFilterChange(sampleList);
+                                    };
+                                    return html`
+                                        <catalog-search-autocomplete
+                                            .value="${samples?.map(s => s.id).join(",")}"
+                                            .resource="${"SAMPLE"}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .config="${{multiple: true}}"
+                                            @filterChange="${e => handleSamplesFilterChange(e)}">
+                                        </catalog-search-autocomplete>
+                                    `;
+                                },
                             },
                         },
                         {
