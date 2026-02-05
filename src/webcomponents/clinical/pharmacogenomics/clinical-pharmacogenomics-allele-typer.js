@@ -219,7 +219,7 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
                                     <catalog-search-autocomplete
                                         .value="${translationFile}"
                                         .resource="${"FILE"}"
-                                        .searchField="${"path"}"
+                                        .searchField="${"id"}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config="${{
                                             multiple: false,

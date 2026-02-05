@@ -24,6 +24,7 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
 
     #init() {
         this._results = [];
+        this._translationFileContent = null;
         this._translationFileStats = null;
     }
 
@@ -31,34 +32,28 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
         if (changedProperties.has("toolParams")) {
             // Process tool params to prepare results view
             this._prepareResultsView();
-
-            const oldTranslationFile = this._oldTranslationFile;
-            const newTranslationFile = this.toolParams?.alleleTyper?.translationFile || "";
-            if (newTranslationFile && newTranslationFile !== oldTranslationFile) {
-                this._fetchTranslationFileStats(newTranslationFile);
-            } else if (!newTranslationFile) {
-                this._translationFileStats = null;
-            }
-            this._oldTranslationFile = newTranslationFile;
+            this._fetchTranslationFileStats();
         }
         super.update(changedProperties);
     }
 
-    async _fetchTranslationFileStats(translationFile) {
-        if (this.opencgaSession && translationFile) {
+    async _fetchTranslationFileStats() {
+        this._translationFileContent = null;
+        this._translationFileStats = null;
+        if (this.opencgaSession && this.toolParams?.alleleTyper?.translationFile) {
             try {
                 // Fetch the file content from OpenCGA
                 const response = await this.opencgaSession.opencgaClient.files()
-                    .content(translationFile, {
+                    .download(this.toolParams?.alleleTyper?.translationFile, {
                         study: this.opencgaSession.study.fqn,
                     });
 
-                const content = response.responses[0].results[0];
+                const content = response;
+                this._translationFileContent = content;
                 this._parseTranslationFileStats(content);
                 this.requestUpdate();
             } catch (error) {
                 console.error("Error fetching translation file:", error);
-                this._translationFileStats = null;
             }
         }
     }
