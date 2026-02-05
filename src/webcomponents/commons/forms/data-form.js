@@ -372,6 +372,10 @@ export default class DataForm extends LitElement {
         return element.display?.helpMode ?? element.display?.help?.mode ?? "";
     }
 
+    _getHelpTitle(element) {
+        return element.display?.helpTitle ?? element.display?.help?.title ?? "Help";
+    }
+
     _getHelpIcon(element, section) {
         return element?.display?.helpIcon ?? section?.display?.helpIcon ?? this.config?.display?.helpIcon ?? "fas fa-info-circle";
     }
@@ -625,7 +629,7 @@ export default class DataForm extends LitElement {
                         </div>
                     ` : nothing}
                     ${description ? html`
-                        <div class="mb-3">
+                        <div class="px-1 mb-3">
                             <div class="${descriptionClassName}" style="${descriptionStyle}">
                                 <span>${description}</span>
                             </div>
@@ -866,7 +870,19 @@ export default class DataForm extends LitElement {
                 <div data-testid="${this.config.test?.active ? `${this.config.test.prefix || "test"}-${element.field}` : nothing}">
                     ${contentHtml}
                 </div>
-                ${helpMessage && helpMode !== "block" ? html`
+                <!-- Help messages -->
+                ${helpMessage && helpMode === "collapsible" ? html`
+                    <details class="mt-2">
+                        <summary class="cursor-pointer text-primary fw-bold">
+                            <i class="fas fa-question-circle me-1"></i>
+                            ${this._getHelpTitle(element)}
+                        </summary>
+                        <div class="mt-2">
+                            ${helpMessage}
+                        </div>
+                    </details>
+                ` : nothing}
+                ${helpMessage && helpMode !== "block" && helpMode !== "collapsible" ? html`
                     <div class="form-text">${helpMessage}</div>
                 ` : nothing}
                 ${hasErrorMessages ? html`
