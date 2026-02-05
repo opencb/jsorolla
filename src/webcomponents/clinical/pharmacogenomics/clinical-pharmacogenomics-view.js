@@ -66,7 +66,7 @@ export default class ClinicalPharmacogenomicsView extends LitElement {
 
         const hasGenotyping = registry.genotypingFileContent && registry.genotypingFileContent.length > 0;
         const hasSamplesheet = registry.samplesheetFileContent && registry.samplesheetFileContent.length > 0;
-        const selectedGenes = alleleTyper.genes || [];
+        const translationFile = alleleTyper.translationFile || "";
         const annotationSources = annotation.annotationSources || {};
 
         const enabledSources = Object.entries(annotationSources)
@@ -127,43 +127,21 @@ export default class ClinicalPharmacogenomicsView extends LitElement {
                         "Allele Typer Configuration",
                         "fas fa-dna",
                         html`
-                            <div class="mb-3">
-                                <strong>Selected Genes (${selectedGenes.length}):</strong>
+                            <div class="mb-0">
+                                <strong>Translation File:</strong>
                                 <div class="ms-3">
-                                    ${selectedGenes.length === 0 ? html`
-                                        <span class="text-muted">No genes selected</span>
-                                    ` : html`
-                                        <div class="d-flex flex-wrap gap-1">
-                                            ${selectedGenes.map(gene => html`
-                                                <span class="badge bg-primary">${gene}</span>
-                                            `)}
+                                    ${translationFile ? html`
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                            <span>${translationFile}</span>
                                         </div>
+                                    ` : html`
+                                        <span class="text-danger">
+                                            <i class="fas fa-times-circle me-1"></i>No file selected
+                                        </span>
                                     `}
                                 </div>
                             </div>
-                            <div class="mb-2">
-                                <strong>Configuration:</strong>
-                                <ul class="mb-0">
-                                    <li>
-                                        Star Alleles:
-                                        <span class="badge ${alleleTyper.configuration?.includeStarAlleles ? "bg-success" : "bg-secondary"}">
-                                            ${alleleTyper.configuration?.includeStarAlleles ? "Enabled" : "Disabled"}
-                                        </span>
-                                    </li>
-                                    <li>
-                                        Structural Variants:
-                                        <span class="badge ${alleleTyper.configuration?.includeStructuralVariants ? "bg-success" : "bg-secondary"}">
-                                            ${alleleTyper.configuration?.includeStructuralVariants ? "Enabled" : "Disabled"}
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
-                            ${alleleTyper.configuration?.customRegions ? html`
-                                <div class="mb-0">
-                                    <strong>Custom Regions:</strong>
-                                    <pre class="bg-light p-2 rounded mt-1 mb-0">${alleleTyper.configuration.customRegions}</pre>
-                                </div>
-                            ` : nothing}
                         `
                     )}
                 </div>

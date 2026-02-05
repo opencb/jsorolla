@@ -33,8 +33,7 @@ export default class ClinicalPharmacogenomics extends LitElement {
                 samplesheetFileContent: "",
             },
             alleleTyper: {
-                genes: [],
-                configuration: {},
+                translationFile: "",
             },
             annotation: {
                 annotationSources: [],

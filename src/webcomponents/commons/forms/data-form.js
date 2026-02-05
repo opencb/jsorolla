@@ -1412,10 +1412,11 @@ export default class DataForm extends LitElement {
         }
 
         // 5. Render the table
-        const content = html`
+        const maxHeight = element.display?.maxHeight || "";
+        const tableContent = html`
             <table class="table ${tableClassName}" style="${tableStyle}">
                 ${headerVisible ? html`
-                    <thead class="${headerClassName}" style="${headerStyle}">
+                    <thead class="${headerClassName}" style="${headerStyle}${maxHeight ? "; position: sticky; top: 0; z-index: 1; background-color: inherit;" : ""}">
                     ${supraColumns.length > 0 ? html`
                         <tr class="${headerRowClassName}">
                             ${supraColumns.map(elem => html`
@@ -1477,6 +1478,13 @@ export default class DataForm extends LitElement {
                 </tbody>
             </table>
         `;
+
+        // 6. Wrap table in scrollable container if maxHeight is specified
+        const content = maxHeight ? html`
+            <div style="max-height: ${maxHeight}; overflow-y: auto; overflow-x: auto;">
+                ${tableContent}
+            </div>
+        ` : tableContent;
 
         return this._createElementTemplate(element, null, content);
     }
