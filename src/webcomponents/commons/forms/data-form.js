@@ -1792,39 +1792,39 @@ export default class DataForm extends LitElement {
 
                         <div class="list-group rounded-3">
                             ${items?.slice(0, maxNumItems).map((item, index) => {
-                    const _element = JSON.parse(JSON.stringify(element));
-                    const isOpen = index === this._objectListEditIndex && element.field === this._objectListEditField;
-                    // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
-                    // items have a virtual element associated, this will allow to get the proper value later.
-                    if (_element.display?.search && typeof element.display?.search?.render === "function") {
-                        _element.index = index;
-                        _element.display.search.render = element.display.search.render;
-                    }
-                    for (let i = 0; i < _element.elements.length; i++) {
-                        // This support nested object
-                        const [left, right] = _element.elements[i].field.split("[].");
-                        _element.elements[i].field = left + "[]." + index + "." + right;
-                        if (_element.elements[i].type === "custom") {
-                            _element.elements[i].display.render = element.elements[i].display.render;
-                        }
-                        // Copy JSON stringify and parse ignores functions, we need to copy them
-                        if (_element.elements[i].type === "select" && typeof element.elements[i].allowedValues === "function") {
-                            _element.elements[i].allowedValues = element.elements[i].allowedValues;
-                        }
-                        if (typeof element.elements[i]?.validation?.validate === "function") {
-                            _element.elements[i].validation.validate = element.elements[i].validation.validate;
-                        }
-                        if (typeof element.elements[i]?.save === "function") {
-                            _element.elements[i].save = element.elements[i].save;
-                        }
-                        if (typeof element.elements[i]?.display?.disabled === "function") {
-                            _element.elements[i].display.disabled = element.elements[i].display.disabled;
-                        }
-                        if (typeof element.elements[i]?.display?.visible === "function") {
-                            _element.elements[i].display.visible = element.elements[i].display.visible;
-                        }
-                    }
-                    return html`
+                                const _element = JSON.parse(JSON.stringify(element));
+                                const isOpen = index === this._objectListEditIndex && element.field === this._objectListEditField;
+                                // We create 'virtual' element fields:  phenotypes[].1.id, by doing this all existing
+                                // items have a virtual element associated, this will allow to get the proper value later.
+                                if (_element.display?.search && typeof element.display?.search?.render === "function") {
+                                    _element.index = index;
+                                    _element.display.search.render = element.display.search.render;
+                                }
+                                for (let i = 0; i < _element.elements.length; i++) {
+                                    // This support nested object
+                                    const [left, right] = _element.elements[i].field.split("[].");
+                                    _element.elements[i].field = left + "[]." + index + "." + right;
+                                    if (_element.elements[i].type === "custom") {
+                                        _element.elements[i].display.render = element.elements[i].display.render;
+                                    }
+                                    // Copy JSON stringify and parse ignores functions, we need to copy them
+                                    if (_element.elements[i].type === "select" && typeof element.elements[i].allowedValues === "function") {
+                                        _element.elements[i].allowedValues = element.elements[i].allowedValues;
+                                    }
+                                    if (typeof element.elements[i]?.validation?.validate === "function") {
+                                        _element.elements[i].validation.validate = element.elements[i].validation.validate;
+                                    }
+                                    if (typeof element.elements[i]?.save === "function") {
+                                        _element.elements[i].save = element.elements[i].save;
+                                    }
+                                    if (typeof element.elements[i]?.display?.disabled === "function") {
+                                        _element.elements[i].display.disabled = element.elements[i].display.disabled;
+                                    }
+                                    if (typeof element.elements[i]?.display?.visible === "function") {
+                                        _element.elements[i].display.visible = element.elements[i].display.visible;
+                                    }
+                                }
+                                return html`
                                     <div class="list-group-item bg-white p-3">
                                         <div class="d-flex flex-row justify-content-between align-items-stretch gap-2">
                                             <div class="d-flex flex-column justify-content-center">
@@ -1867,7 +1867,7 @@ export default class DataForm extends LitElement {
                                         </div>
                                     </div>
                                 `;
-                })}
+                            })}
                         </div>
                     </div>
 
