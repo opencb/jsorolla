@@ -1859,7 +1859,7 @@ export default class DataForm extends LitElement {
                                                 </button>
                                                 ${this._objectListEditAction === "ADD" ? html`
                                                     <button class="btn btn-danger d-flex align-items-center gap-2" @click="${e => this.#removeFromObjectList(e, item, index, element)}">
-                                                        <i class="fas fa-trash-alt"></i>
+                                                        <i class="fas fa-trash"></i>
                                                         <span>Discard</span>
                                                     </button>
                                                 ` : nothing}
