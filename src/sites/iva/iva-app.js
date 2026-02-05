@@ -73,6 +73,7 @@ import "../../webcomponents/commons/analysis/jupyter-notebook.js";
 import "../../webcomponents/clinical/clinical-registry.js";
 import "../../webcomponents/clinical/preprocessing/clinical-preprocessing.js";
 import "../../webcomponents/clinical/tertiary/clinical-tertiary.js";
+import "../../webcomponents/clinical/pharmacogenomics/clinical-pharmacogenomics.js";
 
 import "../../webcomponents/commons/layout/layout-footer.js";
 import "../../webcomponents/commons/layout/layout-primary-bar.js";
@@ -1419,6 +1420,14 @@ class IvaApp extends LitElement {
                     <clinical-tertiary
                         .opencgaSession="${this.opencgaSession}">
                     </clinical-tertiary>
+                `;
+                break;
+            case "clinical-pharmacogenomics":
+            case "pharmacogenomics":
+                content = html`
+                    <clinical-pharmacogenomics
+                        .opencgaSession="${this.opencgaSession}">
+                    </clinical-pharmacogenomics>
                 `;
                 break;
             default:

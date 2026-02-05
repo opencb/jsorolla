@@ -287,6 +287,14 @@ const SUITE = {
                     description: "Clinical Interpretation analysis tool to prioritize and filter variants in a clinical case.",
                 },
                 {
+                    id: "clinical-pharmacogenomics",
+                    name: "Pharmacogenomics",
+                    icon: "fa-cogs",
+                    visibility: "public",
+                    category: "Data Preprocessing",
+                    description: "Pharmacogenomics analysis tool to identify variants affecting drug response in a clinical case.",
+                },
+                {
                     id: "clinical-analysis-portal",
                     name: "Case Interpreter Portal",
                     icon: "fa-file-medical",
