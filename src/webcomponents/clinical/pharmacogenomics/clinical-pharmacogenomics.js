@@ -4,8 +4,7 @@ import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../../commons/tool-header.js";
 import "./clinical-pharmacogenomics-registry.js";
 import "./clinical-pharmacogenomics-allele-typer.js";
-import "./clinical-pharmacogenomics-annotation.js";
-import "./clinical-pharmacogenomics-view.js";
+import "./clinical-pharmacogenomics-review.js";
 
 export default class ClinicalPharmacogenomics extends LitElement {
 
@@ -35,11 +34,7 @@ export default class ClinicalPharmacogenomics extends LitElement {
             alleleTyper: {
                 translationFile: "",
             },
-            annotation: {
-                annotationSources: [],
-                customAnnotations: [],
-            },
-            view: {
+            review: {
                 results: [],
             },
         };
@@ -79,11 +74,6 @@ export default class ClinicalPharmacogenomics extends LitElement {
         this.requestUpdate();
     }
 
-    onAnnotationParamsChange(event) {
-        this._stepsParams.annotation = event.detail;
-        this.requestUpdate();
-    }
-
     async onExecute() {
         // avoid clicking twice the run button
         if (this._running) {
@@ -105,15 +95,14 @@ export default class ClinicalPharmacogenomics extends LitElement {
             // TODO: Implement the actual pharmacogenomics analysis execution
             // This will involve:
             // 1. Allele typing analysis
-            // 2. Pharmacogenomics annotation
-            // 3. Generate results
+            // 2. Generate results
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                 message: "Pharmacogenomics analysis completed successfully.",
             });
 
-            // Move to view step to show results
-            this._activeStepIndex = 3;
+            // Move to review step to show results
+            this._activeStepIndex = 2;
         } catch (error) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                 message: `Pharmacogenomics analysis failed: ${error.message}`,
@@ -228,27 +217,14 @@ export default class ClinicalPharmacogenomics extends LitElement {
                     `,
                 },
                 {
-                    id: "annotation",
-                    title: "Annotation",
-                    icon: "fas fa-tags",
+                    id: "review",
+                    title: "Review",
+                    icon: "fas fa-clipboard-check",
                     render: () => html`
-                        <clinical-pharmacogenomics-annotation
-                            .toolParams="${this._stepsParams.annotation}"
-                            .alleleTyperParams="${this._stepsParams.alleleTyper}"
-                            .opencgaSession="${this.opencgaSession}"
-                            @paramsChange="${event => this.onAnnotationParamsChange(event)}">
-                        </clinical-pharmacogenomics-annotation>
-                    `,
-                },
-                {
-                    id: "view",
-                    title: "View",
-                    icon: "fas fa-eye",
-                    render: () => html`
-                        <clinical-pharmacogenomics-view
+                        <clinical-pharmacogenomics-review
                             .toolParams="${this._stepsParams}"
                             .opencgaSession="${this.opencgaSession}">
-                        </clinical-pharmacogenomics-view>
+                        </clinical-pharmacogenomics-review>
                     `,
                 },
             ],

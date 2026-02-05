@@ -1,6 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 
-export default class ClinicalPharmacogenomicsView extends LitElement {
+export default class ClinicalPharmacogenomicsReview extends LitElement {
 
     constructor() {
         super();
@@ -62,16 +62,10 @@ export default class ClinicalPharmacogenomicsView extends LitElement {
 
         const registry = this.toolParams?.registry || {};
         const alleleTyper = this.toolParams?.alleleTyper || {};
-        const annotation = this.toolParams?.annotation || {};
 
         const hasGenotyping = registry.genotypingFileContent && registry.genotypingFileContent.length > 0;
         const hasSamplesheet = registry.samplesheetFileContent && registry.samplesheetFileContent.length > 0;
         const translationFile = alleleTyper.translationFile || "";
-        const annotationSources = annotation.annotationSources || {};
-
-        const enabledSources = Object.entries(annotationSources)
-            .filter(([_, enabled]) => enabled)
-            .map(([source, _]) => source);
 
         return html`
             <div class="mb-4">
@@ -148,49 +142,6 @@ export default class ClinicalPharmacogenomicsView extends LitElement {
 
                 <div class="col-md-6">
                     ${this.renderSummaryCard(
-                        "Annotation Sources",
-                        "fas fa-tags",
-                        html`
-                            <div class="mb-3">
-                                <strong>Enabled Sources (${enabledSources.length}):</strong>
-                                <div class="ms-3 mt-2">
-                                    ${enabledSources.length === 0 ? html`
-                                        <span class="text-muted">No sources enabled</span>
-                                    ` : html`
-                                        <ul class="mb-0">
-                                            ${enabledSources.map(source => html`
-                                                <li>
-                                                    <span class="badge bg-success me-2">
-                                                        <i class="fas fa-check"></i>
-                                                    </span>
-                                                    ${source.toUpperCase()}
-                                                </li>
-                                            `)}
-                                        </ul>
-                                    `}
-                                </div>
-                            </div>
-                            ${annotation.customAnnotations?.length > 0 ? html`
-                                <div class="mb-0">
-                                    <strong>Custom Annotations (${annotation.customAnnotations.length}):</strong>
-                                    <div class="ms-3 mt-2">
-                                        <ul class="mb-0">
-                                            ${annotation.customAnnotations.map(custom => html`
-                                                <li>
-                                                    <strong>${custom.name || "Unnamed"}</strong>
-                                                    ${custom.description ? html`
-                                                        <br><small class="text-muted">${custom.description}</small>
-                                                    ` : nothing}
-                                                </li>
-                                            `)}
-                                        </ul>
-                                    </div>
-                                </div>
-                            ` : nothing}
-                        `
-                    )}
-
-                    ${this.renderSummaryCard(
                         "Analysis Results",
                         "fas fa-chart-bar",
                         html`
@@ -236,4 +187,4 @@ export default class ClinicalPharmacogenomicsView extends LitElement {
 
 }
 
-customElements.define("clinical-pharmacogenomics-view", ClinicalPharmacogenomicsView);
+customElements.define("clinical-pharmacogenomics-review", ClinicalPharmacogenomicsReview);
