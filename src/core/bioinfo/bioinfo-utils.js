@@ -17,7 +17,7 @@
 export default class BioinfoUtils {
 
     static isHuman(species) {
-        return ["hsapiens", "homo_sapiens", "homosapiens", "human"].includes(species.toLowerCase());
+        return ["hsapiens", "homo_sapiens", "homo sapiens", "homosapiens", "human"].includes(species.toLowerCase());
     }
 
     static getEnsemblHost(assembly = "GRCh38") {
@@ -90,6 +90,8 @@ export default class BioinfoUtils {
                 return `${ensemblHost}/${ensemblSpecies}/Gene/Summary?db=core;g=${featureId}`;
             case "TRANSCRIPT":
                 return `${ensemblHost}/${ensemblSpecies}/Transcript/Summary?db=core;t=${featureId}`;
+            case "PROTEIN":
+                return `${ensemblHost}/${ensemblSpecies}/Transcript/Summary?db=core;p=${featureId}`;
             case "VARIANT":
             case "VARIATION":
                 return `${ensemblHost}/${ensemblSpecies}/Variation/Explore?vdb=variation;v=${featureId}`;
@@ -194,7 +196,7 @@ export default class BioinfoUtils {
         }
     }
 
-    static getTranscriptLink(transcriptId, source, assembly = "GRCh38") {
+    static getTranscriptLink(transcriptId, source, species = "hsapiens", assembly = "GRCh38") {
         if (!transcriptId) {
             return null;
         }
@@ -206,13 +208,13 @@ export default class BioinfoUtils {
 
         switch (s.toUpperCase()) {
             case "ENSEMBL":
-                return BioinfoUtils.getEnsemblLink(transcriptId, "TRANSCRIPT", "hsapiens", assembly);
+                return BioinfoUtils.getEnsemblLink(transcriptId, "TRANSCRIPT", species, assembly);
             case "REFSEQ":
                 return `https://www.ncbi.nlm.nih.gov/gene/?term=${transcriptId}`;
         }
     }
 
-    static getProteinLink(proteinId, source) {
+    static getProteinLink(proteinId, source, species = "hsapiens", assembly = "GRCh38") {
         if (!proteinId) {
             return null;
         }
@@ -224,7 +226,7 @@ export default class BioinfoUtils {
 
         switch (s.toUpperCase()) {
             case "ENSEMBL":
-                return BioinfoUtils.getEnsemblLink(proteinId, "PROTEIN", "hsapiens", "");
+                return BioinfoUtils.getEnsemblLink(proteinId, "PROTEIN", species, assembly);
             case "REFSEQ":
                 return `https://www.ncbi.nlm.nih.gov/gene/?term=${proteinId}`;
         }

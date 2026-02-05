@@ -209,6 +209,8 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
     }
 
     transcriptFormatter(evidence) {
+        const species = this.opencgaSession.project?.organism?.scientificName;
+        const assembly = this.opencgaSession.project?.organism?.assembly;
         const ct = (this.variant.annotation?.consequenceTypes || []).find(ct => {
             return ct.ensemblTranscriptId === evidence?.genomicFeature?.transcriptId || ct.transcriptId === evidence?.genomicFeature?.transcriptId;
         });
@@ -217,10 +219,10 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
             ${evidence?.genomicFeature?.transcriptId ? `
                 <div class="">
                     <div class="">
-                        ${VariantGridFormatter.getHgvsLink(evidence.genomicFeature.transcriptId, this.variant.annotation.hgvs) || ""}
+                        ${VariantGridFormatter.getHgvsLink(evidence.genomicFeature.transcriptId, this.variant.annotation.hgvs, species, assembly) || ""}
                     </div>
                     <div class="">
-                        ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, this.variant.annotation.hgvs) || ""}
+                        ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, this.variant.annotation.hgvs, species, assembly) || ""}
                     </div>
                 </div>
             ` : ""}
