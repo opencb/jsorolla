@@ -24,14 +24,98 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
 
     #init() {
         this._results = [];
+        this._translationFileStats = null;
     }
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
             // Process tool params to prepare results view
             this._prepareResultsView();
+
+            const oldTranslationFile = this._oldTranslationFile;
+            const newTranslationFile = this.toolParams?.alleleTyper?.translationFile || "";
+            if (newTranslationFile && newTranslationFile !== oldTranslationFile) {
+                this._fetchTranslationFileStats(newTranslationFile);
+            } else if (!newTranslationFile) {
+                this._translationFileStats = null;
+            }
+            this._oldTranslationFile = newTranslationFile;
         }
         super.update(changedProperties);
+    }
+
+    async _fetchTranslationFileStats(translationFile) {
+        if (this.opencgaSession && translationFile) {
+            try {
+                // Fetch the file content from OpenCGA
+                const response = await this.opencgaSession.opencgaClient.files()
+                    .content(translationFile, {
+                        study: this.opencgaSession.study.fqn,
+                    });
+
+                const content = response.responses[0].results[0];
+                this._parseTranslationFileStats(content);
+                this.requestUpdate();
+            } catch (error) {
+                console.error("Error fetching translation file:", error);
+                this._translationFileStats = null;
+            }
+        }
+    }
+
+    _parseTranslationFileStats(content) {
+        const lines = content.trim().split(/\r?\n/);
+        const genes = new Map();
+        let totalAlleles = 0;
+        let assayCount = 0;
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+
+            // Skip comment lines
+            if (line.startsWith("*") || line.startsWith("#")) {
+                continue;
+            }
+
+            const columns = line.split(/\t|,/); // Support both tab and comma separation
+
+            // Header line (contains 'gene' and 'allele')
+            if (columns[0] === "gene" && columns[1] === "allele") {
+                // Count assays (columns after gene and allele)
+                assayCount = columns.length - 2;
+                continue;
+            }
+
+            // Data lines
+            if (columns.length > 2 && columns[0]) {
+                const gene = columns[0];
+                const allele = columns[1];
+
+                if (gene && allele) {
+                    totalAlleles++;
+                    if (!genes.has(gene)) {
+                        genes.set(gene, {
+                            name: gene,
+                            alleles: [],
+                        });
+                    }
+                    genes.get(gene).alleles.push(allele);
+                }
+            }
+        }
+
+        // Calculate assays per gene
+        const geneStats = Array.from(genes.values()).map(gene => ({
+            name: gene.name,
+            alleleCount: gene.alleles.length,
+        }));
+
+        this._translationFileStats = {
+            totalGenes: genes.size,
+            totalAlleles: totalAlleles,
+            totalAssays: assayCount,
+            genes: geneStats,
+        };
     }
 
     _prepareResultsView() {
@@ -121,7 +205,7 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                         "Allele Typer Configuration",
                         "fas fa-dna",
                         html`
-                            <div class="mb-0">
+                            <div class="mb-3">
                                 <strong>Translation File:</strong>
                                 <div class="ms-3">
                                     ${translationFile ? html`
@@ -136,6 +220,41 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                                     `}
                                 </div>
                             </div>
+                            ${this._translationFileStats ? html`
+                                <div class="mt-3">
+                                    <strong>Translation File Statistics:</strong>
+                                    <div class="row g-2 mt-1">
+                                        <div class="col-4">
+                                            <div class="text-center p-2 border rounded bg-light">
+                                                <div class="fw-bold text-primary">${this._translationFileStats.totalGenes}</div>
+                                                <div class="text-muted small">Genes</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="text-center p-2 border rounded bg-light">
+                                                <div class="fw-bold text-success">${this._translationFileStats.totalAlleles}</div>
+                                                <div class="text-muted small">Alleles</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="text-center p-2 border rounded bg-light">
+                                                <div class="fw-bold text-info">${this._translationFileStats.totalAssays}</div>
+                                                <div class="text-muted small">Assays</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <div class="small fw-bold mb-1">Alleles per Gene:</div>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            ${this._translationFileStats.genes.map(gene => html`
+                                                <span class="badge border text-dark bg-light">
+                                                    ${gene.name}: ${gene.alleleCount}
+                                                </span>
+                                            `)}
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : nothing}
                         `
                     )}
                 </div>

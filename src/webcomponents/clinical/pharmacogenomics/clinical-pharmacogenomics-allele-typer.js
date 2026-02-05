@@ -33,23 +33,15 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
             translationFile: "",
             genotypingData: [],
         };
-        this._translationFileStats = null;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
-            const oldTranslationFile = this._data.translationFile;
             this._data = {
                 translationFile: this.toolParams?.translationFile || "",
                 genotypingData: this._data.genotypingData, // Keep parsed data
             };
-            // Fetch translation file stats when it changes
-            if (this._data.translationFile && this._data.translationFile !== oldTranslationFile) {
-                this._fetchTranslationFileStats();
-            } else if (!this._data.translationFile) {
-                this._translationFileStats = null;
-            }
         }
         if (changedProperties.has("registryParams")) {
             // Parse genotyping file when registry params change
@@ -97,78 +89,6 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
 
         this._data.genotypingData = data;
         this._genotypingHeaders = headers;
-    }
-
-    async _fetchTranslationFileStats() {
-        try {
-            // Fetch the file content from OpenCGA
-            const response = await this.opencgaSession.opencgaClient.files()
-                .content(this._data.translationFile, {
-                    study: this.opencgaSession.study.fqn,
-                });
-
-            const content = response.responses[0].results[0];
-            this._parseTranslationFileStats(content);
-            this.requestUpdate();
-        } catch (error) {
-            console.error("Error fetching translation file:", error);
-            this._translationFileStats = null;
-        }
-    }
-
-    _parseTranslationFileStats(content) {
-        const lines = content.trim().split(/\r?\n/);
-        const genes = new Map();
-        let totalAlleles = 0;
-        let assayCount = 0;
-
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
-
-            // Skip comment lines
-            if (line.startsWith("*") || line.startsWith("#")) {
-                continue;
-            }
-
-            const columns = line.split(/\t|,/); // Support both tab and comma separation
-
-            // Header line (contains 'gene' and 'allele')
-            if (columns[0] === "gene" && columns[1] === "allele") {
-                // Count assays (columns after gene and allele)
-                assayCount = columns.length - 2;
-                continue;
-            }
-
-            // Data lines
-            if (columns.length > 2 && columns[0]) {
-                const gene = columns[0];
-                const allele = columns[1];
-
-                if (gene && allele) {
-                    totalAlleles++;
-                    if (!genes.has(gene)) {
-                        genes.set(gene, {
-                            name: gene,
-                            alleles: [],
-                        });
-                    }
-                    genes.get(gene).alleles.push(allele);
-                }
-            }
-        }
-
-        // Calculate assays per gene
-        const geneStats = Array.from(genes.values()).map(gene => ({
-            name: gene.name,
-            alleleCount: gene.alleles.length,
-        }));
-
-        this._translationFileStats = {
-            totalGenes: genes.size,
-            totalAlleles: totalAlleles,
-            totalAssays: assayCount,
-            genes: geneStats,
-        };
     }
 
     onFieldChange(event) {
@@ -321,65 +241,6 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
                                         Example files can be found in the Catalog under RESOURCES/pharmacogenomics/
                                     </p>
                                 `,
-                            },
-                        },
-                        {
-                            type: "custom",
-                            display: {
-                                visible: () => this._translationFileStats !== null,
-                                render: () => {
-                                    if (!this._translationFileStats) {
-                                        return html``;
-                                    }
-
-                                    const stats = this._translationFileStats;
-                                    return html`
-                                        <div class="card border-success mt-3">
-                                            <div class="card-header bg-success text-white">
-                                                <h6 class="mb-0">
-                                                    <i class="fas fa-chart-bar me-2"></i>Translation File Statistics
-                                                </h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <div class="text-center p-2 border rounded bg-light">
-                                                            <div class="fs-3 fw-bold text-primary">${stats.totalGenes}</div>
-                                                            <div class="text-muted small">Total Genes</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <div class="text-center p-2 border rounded bg-light">
-                                                            <div class="fs-3 fw-bold text-success">${stats.totalAlleles}</div>
-                                                            <div class="text-muted small">Total Alleles</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <div class="text-center p-2 border rounded bg-light">
-                                                            <div class="fs-3 fw-bold text-info">${stats.totalAssays}</div>
-                                                            <div class="text-muted small">Total Assays</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="mt-3">
-                                                    <h6 class="fw-bold mb-2">
-                                                        <i class="fas fa-dna me-1"></i>Alleles per Gene:
-                                                    </h6>
-                                                    <div class="row">
-                                                        ${stats.genes.map(gene => html`
-                                                            <div class="col-md-3 mb-2">
-                                                                <div class="border rounded p-2">
-                                                                    <div class="fw-bold">${gene.name}</div>
-                                                                    <div class="text-muted small">${gene.alleleCount} alleles</div>
-                                                                </div>
-                                                            </div>
-                                                        `)}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    `;
-                                },
                             },
                         },
                     ],
