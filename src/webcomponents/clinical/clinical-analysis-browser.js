@@ -204,6 +204,11 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                                 quick: true,
                             },
                             {
+                                id: "disorders",
+                                title: "Disorder",
+                                quick: true,
+                            },
+                            {
                                 id: "type",
                                 title: "Case Type",
                                 description: "",
