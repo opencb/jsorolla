@@ -48,6 +48,7 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
 
     #init() {
         this.updateParams = {};
+        this._evidence = {};
         this._review = {};
         this._config = this.getDefaultConfig();
     }
@@ -65,6 +66,7 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
     }
 
     evidenceObserver() {
+        this._evidence = UtilsNew.objectClone(this.evidence || {}); 
         this._review = UtilsNew.objectClone(this.evidence?.review || {});
     }
 
@@ -76,7 +78,7 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
             this._config = this.getDefaultConfig();
             // also, if the acmg review is empty, we have to initialize it with the automatic prediction
             if (!this._review.acmg || this._review.acmg.length === 0) {
-                this._review.acmg = (this.evidence?.classification?.acmg || []).map(acmg => {
+                this._review.acmg = (this._evidence?.classification?.acmg || []).map(acmg => {
                     return UtilsNew.objectClone(acmg);
                 });
             }
@@ -88,13 +90,14 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
                 delete this._review.clinicalSignificance;
             }
         } else if (param === "discussion.text") {
-            if (typeof this.updateParams?.discussion?.text !== "undefined") {
+            // if (typeof this.updateParams?.discussion?.text !== "undefined") {
+            if (!this._evidence?.review?.discussion?.text) {
                 this._review.discussion.author = this.opencgaSession.user?.id || "-";
                 this._review.discussion.date = UtilsNew.getDatetime();
             } else {
                 // We need to reset discussion author and date
-                this._review.discussion.author = this.evidence?.review?.discussion?.author;
-                this._review.discussion.date = this.evidence?.review?.discussion?.date;
+                this._review.discussion.author = this._evidence?.review?.discussion?.author;
+                this._review.discussion.date = this._evidence?.review?.discussion?.date;
             }
         } else if (param.startsWith("acmg")) {
             if (event.detail.action === "ADD") {
@@ -140,7 +143,7 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
     }
 
     getDefaultConfig() {
-        const discussion = this.evidence?.review?.discussion || {};
+        const discussion = this._evidence?.review?.discussion || {};
         return {
             display: {
                 defaultValue: "",
@@ -149,7 +152,7 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
                 buttonsVisible: true,
                 buttonOkText: "Save",
                 buttonClearText: "Clear",
-                buttonOkDisabled: review => !review?.select && review?.select === this.evidence?.review?.select,
+                buttonOkDisabled: review => !review?.select && review?.select === this._evidence?.review?.select,
                 layout: [
                     {
                         id: "review-select",
