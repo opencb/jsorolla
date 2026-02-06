@@ -57,7 +57,7 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
             this.evidenceObserver();
         }
 
-        if (changedProperties.has("opencgaSession") || changedProperties.has("displayConfig")) {
+        if (changedProperties.has("evidence") || changedProperties.has("opencgaSession") || changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
 
