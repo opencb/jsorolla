@@ -345,7 +345,6 @@ export default class ClinicalVariantEvidencesGrid extends LitElement {
                             <clinical-variant-evidence-review
                                 .opencgaSession="${this.opencgaSession}"
                                 .evidence="${this._selectedEvidence}"
-                                .review="${this._selectedEvidence?.review}"
                                 .displayConfig="${{
                                     defaultLayout: "vertical",
                                     buttonClearText: "Cancel",

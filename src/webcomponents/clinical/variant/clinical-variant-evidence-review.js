@@ -40,9 +40,6 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
             evidence: {
                 type: Object,
             },
-            review: {
-                type: Object,
-            },
             displayConfig: {
                 type: Object
             },
@@ -56,8 +53,8 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("review") || changedProperties.has("evidence")) {
-            this.reviewObserver();
+        if (changedProperties.has("evidence")) {
+            this.evidenceObserver();
         }
 
         if (changedProperties.has("opencgaSession") || changedProperties.has("displayConfig")) {
@@ -67,8 +64,7 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
         super.update(changedProperties);
     }
 
-    reviewObserver() {
-        // this._review = UtilsNew.objectClone(this.review);
+    evidenceObserver() {
         this._review = UtilsNew.objectClone(this.evidence?.review || {});
     }
 
@@ -97,8 +93,8 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
                 this._review.discussion.date = UtilsNew.getDatetime();
             } else {
                 // We need to reset discussion author and date
-                this._review.discussion.author = this.review.discussion?.author;
-                this._review.discussion.date = this.review.discussion?.date;
+                this._review.discussion.author = this.evidence?.review?.discussion?.author;
+                this._review.discussion.date = this.evidence?.review?.discussion?.date;
             }
         } else if (param.startsWith("acmg")) {
             if (event.detail.action === "ADD") {
@@ -144,7 +140,7 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
     }
 
     getDefaultConfig() {
-        const discussion = this.review?.discussion || {};
+        const discussion = this.evidence?.review?.discussion || {};
         return {
             display: {
                 defaultValue: "",
@@ -153,7 +149,7 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
                 buttonsVisible: true,
                 buttonOkText: "Save",
                 buttonClearText: "Clear",
-                buttonOkDisabled: review => !review?.select && review?.select === this.review?.select,
+                buttonOkDisabled: review => !review?.select && review?.select === this.evidence?.review?.select,
                 layout: [
                     {
                         id: "review-select",
