@@ -79,7 +79,7 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
             // If the field is selected, we need to refresh the configuration
             this._config = this.getDefaultConfig();
             // also, if the acmg review is empty, we have to initialize it with the automatic prediction
-            if (!this._review.acmg) {
+            if (!this._review.acmg || this._review.acmg.length === 0) {
                 this._review.acmg = (this.evidence?.classification?.acmg || []).map(acmg => {
                     return UtilsNew.objectClone(acmg);
                 });
