@@ -37,6 +37,9 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
             opencgaSession: {
                 type: Object,
             },
+            evidence: {
+                type: Object,
+            },
             review: {
                 type: Object,
             },
@@ -53,7 +56,7 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("review")) {
+        if (changedProperties.has("review") || changedProperties.has("evidence")) {
             this.reviewObserver();
         }
 
@@ -65,7 +68,8 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
     }
 
     reviewObserver() {
-        this._review = UtilsNew.objectClone(this.review);
+        // this._review = UtilsNew.objectClone(this.review);
+        this._review = UtilsNew.objectClone(this.evidence?.review || {});
     }
 
     onFieldChange(event) {
@@ -74,6 +78,12 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
         if (param === "select") {
             // If the field is selected, we need to refresh the configuration
             this._config = this.getDefaultConfig();
+            // also, if the acmg review is empty, we have to initialize it with the automatic prediction
+            if (!this._review.acmg) {
+                this._review.acmg = (this.evidence?.classification?.acmg || []).map(acmg => {
+                    return UtilsNew.objectClone(acmg);
+                });
+            }
         } else if (param === "clinicalSignificance") {
             // Fix clinical significance value --> must be in uppercase
             if (event.detail.value) {
