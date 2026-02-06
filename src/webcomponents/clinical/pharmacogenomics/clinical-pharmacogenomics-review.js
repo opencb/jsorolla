@@ -26,6 +26,7 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
         this._results = [];
         this._translationFileContent = null;
         this._translationFileStats = null;
+        this._genotypingFileStats = null;
     }
 
     update(changedProperties) {
@@ -33,6 +34,7 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
             // Process tool params to prepare results view
             this._prepareResultsView();
             this._fetchTranslationFileStats();
+            this._parseGenotypingFileStats();
         }
         super.update(changedProperties);
     }
@@ -113,6 +115,74 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
         };
     }
 
+    _parseGenotypingFileStats() {
+        this._genotypingFileStats = null;
+
+        const genotypingFileContent = this.toolParams?.registry?.genotypingFileContent;
+        if (!genotypingFileContent) {
+            return;
+        }
+
+        const lines = genotypingFileContent.trim().split(/\r?\n/);
+        const samples = new Set();
+        const assays = new Set();
+        const genes = new Map();
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+
+            // Skip comments and empty lines
+            if (line.startsWith("#") || line.length === 0) {
+                continue;
+            }
+
+            const columns = line.split("\t");
+
+            // Skip header line
+            if (columns[0] === "Assay Name") {
+                continue;
+            }
+
+            // Parse data rows
+            if (columns.length > 4) {
+                const assayName = columns[0]?.trim();
+                const gene = columns[2]?.trim();
+                const sample = columns[4]?.trim();
+
+                // Collect unique assays
+                if (assayName) {
+                    assays.add(assayName);
+                }
+
+                // Collect unique samples
+                if (sample) {
+                    samples.add(sample);
+                }
+
+                // Collect assays per gene
+                if (gene && assayName) {
+                    if (!genes.has(gene)) {
+                        genes.set(gene, new Set());
+                    }
+                    genes.get(gene).add(assayName);
+                }
+            }
+        }
+
+        // Calculate assays per gene
+        const geneStats = Array.from(genes.entries()).map(([geneName, geneAssays]) => ({
+            name: geneName,
+            assayCount: geneAssays.size,
+        }));
+
+        this._genotypingFileStats = {
+            totalSamples: samples.size,
+            totalAssays: assays.size,
+            totalGenes: genes.size,
+            genes: geneStats,
+        };
+    }
+
     _prepareResultsView() {
         // TODO: This will be populated with actual analysis results
         // For now, we'll show a summary of the configuration
@@ -177,25 +247,46 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                                     `}
                                 </div>
                             </div>
-                            <div class="mb-0">
-                                <strong>Samplesheet:</strong>
-                                <div class="ms-3">
-                                    ${hasSamplesheet ? html`
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="fas fa-check-circle text-success"></i>
-                                            <span>File uploaded</span>
-                                            <span class="badge bg-secondary">${(registry.samplesheetFileContent.length / 1024).toFixed(2)} KB</span>
+                            ${this._genotypingFileStats ? html`
+                                <div class="mt-3">
+                                    <strong>Genotyping File Statistics:</strong>
+                                    <div class="row g-2 mt-1">
+                                        <div class="col-4">
+                                            <div class="text-center p-2 border rounded bg-light">
+                                                <div class="fw-bold text-primary">${this._genotypingFileStats.totalSamples}</div>
+                                                <div class="text-muted small">Samples</div>
+                                            </div>
                                         </div>
-                                    ` : html`
-                                        <span class="text-muted">
-                                            <i class="fas fa-minus-circle me-1"></i>Optional - not uploaded
-                                        </span>
-                                    `}
+                                        <div class="col-4">
+                                            <div class="text-center p-2 border rounded bg-light">
+                                                <div class="fw-bold text-success">${this._genotypingFileStats.totalAssays}</div>
+                                                <div class="text-muted small">Assays</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="text-center p-2 border rounded bg-light">
+                                                <div class="fw-bold text-info">${this._genotypingFileStats.totalGenes}</div>
+                                                <div class="text-muted small">Genes</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <div class="small fw-bold mb-1">Assays per Gene:</div>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            ${this._genotypingFileStats.genes.map(gene => html`
+                                                <span class="badge border text-dark bg-light">
+                                                    ${gene.name}: ${gene.assayCount}
+                                                </span>
+                                            `)}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            ` : nothing}
                         `
                     )}
+                </div>
 
+                <div class="col-md-6">
                     ${this.renderSummaryCard(
                         "Allele Typer Configuration",
                         "fas fa-dna",
@@ -253,38 +344,30 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                         `
                     )}
                 </div>
-
-                <div class="col-md-6">
-                    ${this.renderSummaryCard(
-                        "Analysis Results",
-                        "fas fa-chart-bar",
-                        html`
-                            <div class="alert alert-info mb-0">
-                                <i class="fas fa-info-circle me-2"></i>
-                                <strong>Analysis Not Yet Run</strong>
-                                <p class="mb-0 mt-2">
-                                    Click the <strong>"Run Analysis"</strong> button to execute the pharmacogenomics analysis
-                                    with the current configuration. Results will appear here after completion.
-                                </p>
-                            </div>
-                        `
-                    )}
-                </div>
             </div>
 
             <div class="row mt-3">
                 <div class="col-md-12">
                     <div class="card">
-                        <div class="card-header bg-secondary text-white">
+                        <div class="card-header bg-primary text-white">
                             <h5 class="mb-0">
-                                <i class="fas fa-table me-2"></i>Pharmacogenomics Findings
+                                <i class="fas fa-chart-bar me-2"></i>Pharmacogenomics Analysis Results
                             </h5>
                         </div>
                         <div class="card-body">
-                            <div class="alert alert-warning">
-                                <i class="fas fa-flask me-2"></i>
-                                <strong>Coming Soon:</strong> This section will display detailed pharmacogenomics findings including:
-                                <ul class="mb-0 mt-2">
+                            <div class="alert alert-info mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Analysis Not Yet Run</strong>
+                                <p class="mb-0 mt-2">
+                                    Click the <strong>"Run Analysis"</strong> button to execute the pharmacogenomics analysis
+                                    with the current configuration. Results will appear below after completion.
+                                </p>
+                            </div>
+                            <div class="border rounded p-3 bg-light">
+                                <h6 class="fw-bold mb-2">
+                                    <i class="fas fa-flask me-1"></i>Results will include:
+                                </h6>
+                                <ul class="mb-0">
                                     <li>Identified star alleles and genotypes</li>
                                     <li>Drug-gene interaction predictions</li>
                                     <li>Clinical guidelines and recommendations</li>

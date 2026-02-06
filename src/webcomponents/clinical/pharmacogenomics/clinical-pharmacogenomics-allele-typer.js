@@ -49,6 +49,10 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
         }
         if (changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
+            // Initialize translation file with first CSV from catalog
+            if (this.opencgaSession && !this.toolParams?.translationFile) {
+                this._initializeDefaultTranslationFile();
+            }
         }
         super.update(changedProperties);
     }
@@ -91,6 +95,28 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
         this._genotypingHeaders = headers;
     }
 
+    async _initializeDefaultTranslationFile() {
+        try {
+            const response = await this.opencgaSession.opencgaClient.files()
+                .search({
+                    study: this.opencgaSession.study.fqn,
+                    path: "~/RESOURCES/pharmacogenomics/.*/",
+                    type: "FILE",
+                    format: "COMMA_SEPARATED_VALUES",
+                    limit: 1,
+                });
+
+            const files = response.responses[0].results;
+            if (files && files.length > 0) {
+                this._data.translationFile = files[0].id;
+                this.notifyParamsChange();
+                this.requestUpdate();
+            }
+        } catch (error) {
+            console.error("Error initializing default translation file:", error);
+        }
+    }
+
     onFieldChange(event) {
         this.notifyParamsChange();
     }
@@ -107,15 +133,6 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
         }
 
         return html`
-            <div class="mb-4">
-                <h3 class="mb-3">
-                    <i class="fas fa-dna me-2"></i>Allele Typer Configuration
-                </h3>
-                <p class="text-muted">
-                    Select the translation file from the Catalog to map genotype calls to star alleles and pharmacogenomics annotations.
-                </p>
-            </div>
-
             <data-form
                 .data="${this._data}"
                 .config="${this._config}"
@@ -127,8 +144,10 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
     getDefaultConfig() {
         return {
             title: "Allele Typer Configuration",
+            icon: "fas fa-dna",
+            description: "Select the translation file from the Catalog to map genotype calls to star alleles and pharmacogenomics annotations.",
             display: {
-                titleVisible: false,
+                titleVisible: true,
                 defaultLayout: "vertical",
                 buttonsVisible: false,
             },
@@ -153,10 +172,9 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
                             },
                         },
                         {
-                            type: "custom",
-                            display: {
-                                visible: data => data?.genotypingData?.length > 0,
-                                render: () => html`
+                            field: "genotypingData",
+                            type: "table",
+                            description:  html`
                                     <div class="border-start border-3 border-info bg-light py-2 px-2 mb-3">
                                         <div class="text-muted">
                                             <i class="fas fa-table text-info me-1"></i>
@@ -164,16 +182,11 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
                                         </div>
                                     </div>
                                 `,
-                            },
-                        },
-                        {
-                            field: "genotypingData",
-                            type: "table",
                             display: {
                                 visible: data => data?.genotypingData?.length > 0,
                                 className: "table table-sm table-hover",
                                 headerClassName: "table-light",
-                                maxHeight: "360px",
+                                maxHeight: "320px",
                                 defaultValue: "",
                                 columns: this._genotypingHeaders?.map((header, index) => ({
                                     title: header,
@@ -204,7 +217,7 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
                         <div class="border-start border-3 border-primary bg-light py-2 px-2 mb-3">
                             <div class="text-muted">
                                 <i class="fas fa-file-alt text-primary me-1"></i>
-                                <strong>Required:</strong> Select a translation file (CSV or XLS) from the Catalog that maps genotype calls to star alleles.
+                                <strong>Required:</strong> Select a translation file from Catalog that maps genotype calls to star alleles.
                             </div>
                         </div>
                     `,

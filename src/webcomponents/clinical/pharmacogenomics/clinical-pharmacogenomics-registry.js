@@ -216,16 +216,6 @@ export default class ClinicalPharmacogenomicsRegistry extends LitElement {
         }
 
         return html`
-            <div class="mb-4">
-                <h3 class="mb-3">
-                    <i class="fas fa-file-upload me-2"></i>Upload Pharmacogenomics Files
-                </h3>
-                <p class="text-muted">
-                    Upload the required genotyping output file from Thermo Fisher analysis tool and an optional samplesheet
-                    to map samples to individuals and families.
-                </p>
-            </div>
-
             <data-form
                 .data="${this._data}"
                 .config="${this._config}"
@@ -237,8 +227,11 @@ export default class ClinicalPharmacogenomicsRegistry extends LitElement {
 
     getDefaultConfig() {
         return {
+            title: "Upload Pharmacogenomics Microarray Files",
+            icon: "fas fa-file-upload",
+            description: "Upload the required genotyping output file from Thermo Fisher analysis tool and an optional samplesheet to map samples to individuals and families.",
             display: {
-                titleVisible: false,
+                titleVisible: true,
                 defaultLayout: "vertical",
                 buttonsVisible: true,
                 buttonOkText: "Register",

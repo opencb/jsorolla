@@ -176,7 +176,7 @@ export default class ClinicalPharmacogenomics extends LitElement {
                                 Next <i class="fas fa-arrow-right ms-1"></i>
                             </button>
                         ` : nothing}
-                        ${this._activeStepIndex === this._config.steps.length - 2 ? html`
+                        ${this._activeStepIndex === this._config.steps.length - 1 ? html`
                             <button class="btn btn-success ${this._running ? "disabled": ""}" @click="${e => this.onExecute(e)}">
                                 <i class="fas fa-play-circle me-1"></i> Run Analysis
                             </button>

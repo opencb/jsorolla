@@ -175,7 +175,7 @@ export default class FileFolderCreate extends LitElement {
                             },
                         },
                         {
-                            title: "Path",
+                            title: "Folder Name",
                             field: "name",
                             required: true,
                             type: "input-text",

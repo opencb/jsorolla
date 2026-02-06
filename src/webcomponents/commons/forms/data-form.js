@@ -574,50 +574,52 @@ export default class DataForm extends LitElement {
                     ${render(this.data, this.activeSection === sectionIndex, section)}
                 </div>
             `;
-        } else if (section.display?.layout && Array.isArray(section.display.layout)) {
-            // 2. render with a specific layout
-            content = html`
-                <div class="${sectionClassName}" style="${sectionStyle}">
-                    ${section.display.layout.map(element => {
-                        const elementClassName = element.className ?? element.classes ?? "";
-                        const elementStyle = element.style ?? "";
-
-                        if (element.id) {
-                            return html`
-                                <div class="${elementClassName}" style="${elementStyle}">
-                                    ${this._createElement(section.elements.find(s => s.id === element.id))}
-                                </div>
-                            `;
-                        } else {
-                            // this section contains nested subsections: 'sections'
-                            return html`
-                                <div class="${elementClassName}" style="${elementStyle}">
-                                    ${(element.elements || []).map(subelement => {
-                                        const subsectionClassName = subelement.className ?? subelement.classes ?? "";
-                                        const subsectionStyle = this._parseStyleField(subelement.style);
-                                        if (subelement.id) {
-                                            return html`
-                                                <div class="${subsectionClassName}" style="${subsectionStyle}">
-                                                    ${this._createElement(section.elements.find(s => s.id === subelement.id))}
-                                                </div>
-                                            `;
-                                        } else {
-                                            return nothing;
-                                        }
-                                    })}
-                                </div>
-                            `;
-                        }
-                    })}
-                </div>
-            `;
         } else {
-            // 3. otherwise render vertically
-            content = html`
-                <div class="${sectionClassName}" style="${sectionStyle}">
-                    ${(section.elements || []).map(element => this._createElement(element, section))}
-                </div>
-            `;
+            if (section.display?.layout && Array.isArray(section.display.layout)) {
+                // 2. render with a specific layout
+                content = html`
+                    <div class="${sectionClassName}" style="${sectionStyle}">
+                        ${section.display.layout.map(element => {
+                            const elementClassName = element.className ?? element.classes ?? "";
+                            const elementStyle = element.style ?? "";
+
+                            if (element.id) {
+                                return html`
+                                    <div class="${elementClassName}" style="${elementStyle}">
+                                        ${this._createElement(section.elements.find(s => s.id === element.id))}
+                                    </div>
+                                `;
+                            } else {
+                                // this section contains nested subsections: 'sections'
+                                return html`
+                                    <div class="${elementClassName}" style="${elementStyle}">
+                                        ${(element.elements || []).map(subelement => {
+                                            const subsectionClassName = subelement.className ?? subelement.classes ?? "";
+                                            const subsectionStyle = this._parseStyleField(subelement.style);
+                                            if (subelement.id) {
+                                                return html`
+                                                    <div class="${subsectionClassName}" style="${subsectionStyle}">
+                                                        ${this._createElement(section.elements.find(s => s.id === subelement.id))}
+                                                    </div>
+                                                `;
+                                            } else {
+                                                return nothing;
+                                            }
+                                        })}
+                                    </div>
+                                `;
+                            }
+                        })}
+                    </div>
+                `;
+            } else {
+                // 3. otherwise render vertically
+                content = html`
+                    <div class="${sectionClassName}" style="${sectionStyle}">
+                        ${(section.elements || []).map(element => this._createElement(element, section))}
+                    </div>
+                `;
+            }
         }
 
         return html`
@@ -1014,12 +1016,12 @@ export default class DataForm extends LitElement {
                 .value="${value}"
                 .disabled="${disabled}"
                 .config="${{
-                placeholder: element.display?.placeholder || "",
-            }}"
+                    placeholder: element.display?.placeholder || "",
+                }}"
                 @change="${event => {
-                event.stopPropagation();
-                this.onFilterChange(element, event.detail.value);
-            }}">
+                    event.stopPropagation();
+                    this.onFilterChange(element, event.detail.value);
+                }}">
             </tags-input>
         `;
 
@@ -1179,13 +1181,13 @@ export default class DataForm extends LitElement {
                 <select-field-filter
                     .data="${allowedValues}"
                     .config="${{
-                liveSearch: element?.search,
-                multiple: element?.multiple,
-                all: element?.all,
-                maxOptions: element?.maxOptions,
-                disabled: disabled,
-                required: element?.required,
-            }}"
+                        liveSearch: element?.search,
+                        multiple: element?.multiple,
+                        all: element?.all,
+                        maxOptions: element?.maxOptions,
+                        disabled: disabled,
+                        required: element?.required,
+                    }}"
                     .forceSelection="${element?.forceSelection ?? false}"
                     .value="${defaultValue}"
                     .classes="${this._isUpdated(element) ? "updated" : ""}"
@@ -1440,39 +1442,39 @@ export default class DataForm extends LitElement {
                 ${array.map((row, index) => html`
                     <tr data-row-index="${index}" class="${bodyRowClassName}">
                         ${columns.map(elem => {
-            // @deprecated: 'elem.display.className' and 'elem.display.cellClassName' is deprecated, use 'elem.display.bodyCellClassName' instead
-            const elemClassName = elem.display?.bodyCellClassName || elem.display?.cellClassName || elem.display?.className || "";
-            const elemStyle = this._parseStyleField(elem.display?.bodyCellStyle);
+                            // @deprecated: 'elem.display.className' and 'elem.display.cellClassName' is deprecated, use 'elem.display.bodyCellClassName' instead
+                            const elemClassName = elem.display?.bodyCellClassName || elem.display?.cellClassName || elem.display?.className || "";
+                            const elemStyle = this._parseStyleField(elem.display?.bodyCellStyle);
 
-            // Check the element type
-            let content;
-            switch (elem.type) {
-                case "complex":
-                    content = this._createComplexElement(elem, row);
-                    break;
-                case "list":
-                    content = this._createListElement(elem, row, section);
-                    break;
-                case "image":
-                    content = this._createImageElement(elem);
-                    break;
-                case "custom":
-                    // Josemi 20251001 TODO: review in which cases we need to call onFilterChange with the column element instead of
-                    // passing the full element. I have changed this to use 'element' instead of 'elem' to support checkboxes in the table
-                    const currentValue = this.getValue(elem.field, row);
-                    content = elem.display?.render(currentValue, value => this.onFilterChange(element, value), this.updateParams, this.data, row);
-                    // content = elem.display?.render(this.getValue(elem.field, row), value => this.onFilterChange(elem, value), this.updateParams, this.data, row);
-                    break;
-                default:
-                    content = this.getValue(elem.field, row, this._getDefaultValue(elem, section), elem.display);
-            }
+                            // Check the element type
+                            let content;
+                            switch (elem.type) {
+                                case "complex":
+                                    content = this._createComplexElement(elem, row);
+                                    break;
+                                case "list":
+                                    content = this._createListElement(elem, row, section);
+                                    break;
+                                case "image":
+                                    content = this._createImageElement(elem);
+                                    break;
+                                case "custom":
+                                    // Josemi 20251001 TODO: review in which cases we need to call onFilterChange with the column element instead of
+                                    // passing the full element. I have changed this to use 'element' instead of 'elem' to support checkboxes in the table
+                                    const currentValue = this.getValue(elem.field, row);
+                                    content = elem.display?.render(currentValue, value => this.onFilterChange(element, value), this.updateParams, this.data, row);
+                                    // content = elem.display?.render(this.getValue(elem.field, row), value => this.onFilterChange(elem, value), this.updateParams, this.data, row);
+                                    break;
+                                default:
+                                    content = this.getValue(elem.field, row, this._getDefaultValue(elem, section), elem.display);
+                            }
 
-            return html`
+                            return html`
                                 <td class="${bodyCellClassName} ${elemClassName}" style="${elemStyle}">
                                     ${content}
                                 </td>
                             `;
-        })}
+                        })}
                     </tr>
                 `)}
                 </tbody>
@@ -2409,21 +2411,21 @@ export default class DataForm extends LitElement {
                             ${buttonPreviewText}
                         </button>
                     `: nothing
-            }
+                    }
                     ${buttonClearVisible ? html`
                         <button type="button" class="btn btn-light ${btnClassName}" data-bs-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonClearDisabled}
                                 @click="${this.onClear}">
                             ${buttonClearText}
                         </button>
                     `: nothing
-            }
+                    }
                     ${buttonOkVisible ? html`
                         <button type="button" class="btn btn-primary ${btnClassName}" data-bs-dismiss="${dismiss}" style="${btnStyle}" ?disabled=${buttonOkDisabled}
                                 @click="${e => this.onSubmit(e, sectionId)}">
                             ${buttonOkText}
                         </button>
                     `: nothing
-            }
+                    }
                 </div>
             </div>
         `;
@@ -2443,14 +2445,26 @@ export default class DataForm extends LitElement {
         const titleStyle = this.config.display?.titleStyle ?? this.config.display?.title?.style ?? "";
         const titleVisible = this._getBooleanValue(this.config.display?.titleVisible ?? this.config.display?.showTitle, true);
 
+        const description = this.config.description || this.config.display?.description;
+        const descriptionClassName = this.config.display?.descriptionClassName ?? "text-muted";
+        const icon = this.config.icon || this.config.display?.icon;
+
         if (this.config.title && titleVisible) {
             return html`
-                <div class="d-flex mb-2">
-                    <h2 class="${titleClassName}" style="${titleStyle}">${this.config.title}</h2>
-                    ${this.config.logo ? html`
-                        <div class="ms-auto">
-                            <img src="${this.config.logo}" />
-                        </div>
+                <div class="mb-3">
+                    <div class="d-flex mb-2">
+                        <h2 class="${titleClassName}" style="${titleStyle}">
+                            ${icon ? html`<i class="${icon} me-2"></i>` : nothing}
+                            ${this.config.title}
+                        </h2>
+                        ${this.config.logo ? html`
+                            <div class="ms-auto">
+                                <img src="${this.config.logo}" />
+                            </div>
+                        ` : nothing}
+                    </div>
+                    ${description ? html`
+                        <p class="${descriptionClassName}">${description}</p>
                     ` : nothing}
                 </div>
             `;
