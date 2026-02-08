@@ -5,6 +5,7 @@ import "../../commons/tool-header.js";
 import "./clinical-pharmacogenomics-registry.js";
 import "./clinical-pharmacogenomics-allele-typer.js";
 import "./clinical-pharmacogenomics-review.js";
+import data from "./pharmacogenomics_results.jsonl";
 
 export default class ClinicalPharmacogenomics extends LitElement {
 
@@ -92,17 +93,39 @@ export default class ClinicalPharmacogenomics extends LitElement {
         this.requestUpdate();
 
         try {
-            // TODO: Implement the actual pharmacogenomics analysis execution
-            // This will involve:
-            // 1. Allele typing analysis
-            // 2. Generate results
+            // Simulate REST API call with 2-second delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Load results from imported JSONL file (temporary solution until REST endpoint is ready)
+            // Parse JSONL - one JSON object per line
+            const results = data
+                .trim()
+                .split("\n")
+                .map((line, index) => {
+                    try {
+                        return JSON.parse(line);
+                    } catch (e) {
+                        console.error(`Error parsing line ${index + 1}:`, line, e);
+                        throw new Error(`Invalid JSON at line ${index + 1}: ${e.message}`);
+                    }
+                });
+
+            // Store results in review params - create new object to trigger re-render
+            this._stepsParams = {
+                ...this._stepsParams,
+                review: {
+                    results: results,
+                    analysisCompleted: true,
+                },
+            };
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: "Pharmacogenomics analysis completed successfully.",
+                message: `Pharmacogenomics analysis completed successfully. ${results.length} samples analyzed.`,
             });
 
-            // Move to review step to show results
-            this._activeStepIndex = 2;
+            // Stay on review step (already there) - just need to trigger re-render
+            // this._activeStepIndex = 2; // Already on review step
+            this.requestUpdate();
         } catch (error) {
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
                 message: `Pharmacogenomics analysis failed: ${error.message}`,

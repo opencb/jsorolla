@@ -22,6 +22,7 @@ import "../clinical/clinical-analysis-grid.js";
 import "./individual-summary.js";
 import "./qc/individual-qc-inferred-sex.js";
 import "./qc/individual-qc-mendelian-errors.js";
+import "./individual-pharmacogenomics-view.js";
 
 export default class IndividualView extends LitElement {
 
@@ -170,6 +171,17 @@ export default class IndividualView extends LitElement {
                             .active="${active}"
                             .opencgaSession="${this.opencgaSession}">
                         </individual-qc-mendelian-errors>
+                    `,
+                },
+                {
+                    id: "individual-pharmacogenomics",
+                    name: "Pharmacogenomics",
+                    render: (individual, active) => html`
+                        <individual-pharmacogenomics-view
+                            .individual="${individual}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </individual-pharmacogenomics-view>
                     `,
                 },
                 {

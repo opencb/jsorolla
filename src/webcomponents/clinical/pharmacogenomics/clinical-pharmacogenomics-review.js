@@ -204,6 +204,72 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
         `;
     }
 
+    renderResults() {
+        const results = this.toolParams?.review?.results || [];
+
+        if (results.length === 0) {
+            return html`
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    No results found.
+                </div>
+            `;
+        }
+
+        return html`
+            <div class="alert alert-success mb-3">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong>Analysis Completed Successfully!</strong>
+                <span class="ms-2">${results.length} sample${results.length > 1 ? "s" : ""} analyzed</span>
+            </div>
+
+            <table class="table table-hover table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 15%">Sample ID</th>
+                        <th style="width: 10%">Genes</th>
+                        <th>Star Alleles Summary</th>
+                        <th style="width: 15%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${results.map(sample => {
+                        const genesCount = sample.starAlleles?.length || 0;
+                        // Create a summary of star alleles (first 5 genes)
+                        const allelesSummary = sample.starAlleles?.slice(0, 5).map(gene =>
+                            `${gene.gene}: ${gene.alleles?.map(a => a.allele).join(", ")}`
+                        ).join(" | ");
+                        const hasMore = genesCount > 5;
+
+                        return html`
+                            <tr>
+                                <td><strong>${sample.sampleId}</strong></td>
+                                <td>
+                                    <span class="badge bg-primary">${genesCount}</span>
+                                </td>
+                                <td>
+                                    <small>${allelesSummary}</small>
+                                    ${hasMore ? html`<span class="text-muted">... and ${genesCount - 5} more</span>` : nothing}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" @click="${() => this.showSampleDetails(sample)}">
+                                        <i class="fas fa-eye me-1"></i>View Details
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    })}
+                </tbody>
+            </table>
+        `;
+    }
+
+    showSampleDetails(sample) {
+        // TODO: Implement modal or expandable view with full details
+        console.log("Sample details:", sample);
+        alert(`Sample ${sample.sampleId}\n\nGenes analyzed: ${sample.starAlleles?.length}\n\nClick OK to see details in console.`);
+    }
+
     render() {
         if (!this.opencgaSession) {
             return nothing;
@@ -355,26 +421,30 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                             </h5>
                         </div>
                         <div class="card-body">
-                            <div class="alert alert-info mb-3">
-                                <i class="fas fa-info-circle me-2"></i>
-                                <strong>Analysis Not Yet Run</strong>
-                                <p class="mb-0 mt-2">
-                                    Click the <strong>"Run Analysis"</strong> button to execute the pharmacogenomics analysis
-                                    with the current configuration. Results will appear below after completion.
-                                </p>
-                            </div>
-                            <div class="border rounded p-3 bg-light">
-                                <h6 class="fw-bold mb-2">
-                                    <i class="fas fa-flask me-1"></i>Results will include:
-                                </h6>
-                                <ul class="mb-0">
-                                    <li>Identified star alleles and genotypes</li>
-                                    <li>Drug-gene interaction predictions</li>
-                                    <li>Clinical guidelines and recommendations</li>
-                                    <li>Metabolizer phenotype predictions (PM, IM, NM, RM, UM)</li>
-                                    <li>Exportable pharmacogenomics report</li>
-                                </ul>
-                            </div>
+                            ${this.toolParams?.review?.analysisCompleted ? html`
+                                ${this.renderResults()}
+                            ` : html`
+                                <div class="alert alert-info mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Analysis Not Yet Run</strong>
+                                    <p class="mb-0 mt-2">
+                                        Click the <strong>"Run Analysis"</strong> button to execute the pharmacogenomics analysis
+                                        with the current configuration. Results will appear below after completion.
+                                    </p>
+                                </div>
+                                <div class="border rounded p-3 bg-light">
+                                    <h6 class="fw-bold mb-2">
+                                        <i class="fas fa-flask me-1"></i>Results will include:
+                                    </h6>
+                                    <ul class="mb-0">
+                                        <li>Identified star alleles and genotypes</li>
+                                        <li>Drug-gene interaction predictions</li>
+                                        <li>Clinical guidelines and recommendations</li>
+                                        <li>Metabolizer phenotype predictions (PM, IM, NM, RM, UM)</li>
+                                        <li>Exportable pharmacogenomics report</li>
+                                    </ul>
+                                </div>
+                            `}
                         </div>
                     </div>
                 </div>
