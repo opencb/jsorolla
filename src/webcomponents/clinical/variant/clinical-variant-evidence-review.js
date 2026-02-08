@@ -37,7 +37,7 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
             opencgaSession: {
                 type: Object,
             },
-            review: {
+            evidence: {
                 type: Object,
             },
             displayConfig: {
@@ -48,24 +48,26 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
 
     #init() {
         this.updateParams = {};
+        this._evidence = {};
         this._review = {};
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("review")) {
-            this.reviewObserver();
+        if (changedProperties.has("evidence")) {
+            this.evidenceObserver();
         }
 
-        if (changedProperties.has("opencgaSession") || changedProperties.has("displayConfig")) {
+        if (changedProperties.has("evidence") || changedProperties.has("opencgaSession") || changedProperties.has("displayConfig")) {
             this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
     }
 
-    reviewObserver() {
-        this._review = UtilsNew.objectClone(this.review);
+    evidenceObserver() {
+        this._evidence = UtilsNew.objectClone(this.evidence || {}); 
+        this._review = UtilsNew.objectClone(this.evidence?.review || {});
     }
 
     onFieldChange(event) {
@@ -74,6 +76,12 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
         if (param === "select") {
             // If the field is selected, we need to refresh the configuration
             this._config = this.getDefaultConfig();
+            // also, if the acmg review is empty, we have to initialize it with the automatic prediction
+            if (!this._review.acmg || this._review.acmg.length === 0) {
+                this._review.acmg = (this._evidence?.classification?.acmg || []).map(acmg => {
+                    return UtilsNew.objectClone(acmg);
+                });
+            }
         } else if (param === "clinicalSignificance") {
             // Fix clinical significance value --> must be in uppercase
             if (event.detail.value) {
@@ -82,13 +90,14 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
                 delete this._review.clinicalSignificance;
             }
         } else if (param === "discussion.text") {
-            if (typeof this.updateParams?.discussion?.text !== "undefined") {
+            // if (typeof this.updateParams?.discussion?.text !== "undefined") {
+            if (!this._evidence?.review?.discussion?.text) {
                 this._review.discussion.author = this.opencgaSession.user?.id || "-";
                 this._review.discussion.date = UtilsNew.getDatetime();
             } else {
                 // We need to reset discussion author and date
-                this._review.discussion.author = this.review.discussion?.author;
-                this._review.discussion.date = this.review.discussion?.date;
+                this._review.discussion.author = this._evidence?.review?.discussion?.author;
+                this._review.discussion.date = this._evidence?.review?.discussion?.date;
             }
         } else if (param.startsWith("acmg")) {
             if (event.detail.action === "ADD") {
@@ -134,7 +143,7 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
     }
 
     getDefaultConfig() {
-        const discussion = this.review?.discussion || {};
+        const discussion = this._evidence?.review?.discussion || {};
         return {
             display: {
                 defaultValue: "",
@@ -143,7 +152,7 @@ export default class ClinicalVariantEvidenceReview extends LitElement {
                 buttonsVisible: true,
                 buttonOkText: "Save",
                 buttonClearText: "Clear",
-                buttonOkDisabled: review => !review?.select && review?.select === this.review?.select,
+                buttonOkDisabled: review => !review?.select && review?.select === this._evidence?.review?.select,
                 layout: [
                     {
                         id: "review-select",
