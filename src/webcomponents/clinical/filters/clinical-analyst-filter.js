@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-field-filter.js";
+import "../../commons/forms/select-dropdown.js";
 
 export default class ClinicalAnalystFilter extends LitElement {
 
@@ -73,17 +73,15 @@ export default class ClinicalAnalystFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter
-                .data="${this.analysts}"
+            <select-dropdown
+                .values="${this.analysts}"
                 .value="${this.analyst}"
-                .config="${{
-                    multiple: this.multiple,
-                    disabled: this.disabled,
-                    placeholder: this.placeholder
-                }}"
-                .classes="${this.classes}"
+                .placeholder="${this.placeholder}"
+                .className="${this.classes}"
+                ?multiple="${this.multiple}"
+                ?disabled="${this.disabled}"
                 @filterChange="${e => this.filterChange(e)}">
-            </select-field-filter>
+            </select-dropdown>
         `;
     }
 

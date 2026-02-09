@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import "../../commons/forms/select-field-filter.js";
+import "../../commons/forms/select-dropdown.js";
 
 export default class ClinicalStatusFilter extends LitElement {
 
@@ -83,19 +83,17 @@ export default class ClinicalStatusFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter
-                .data="${this.uniqueStatuses}"
+            <select-dropdown
+                .values="${this.uniqueStatuses}"
                 .value="${this.status}"
-                .forceSelection="${this.forceSelection}"
-                .config="${{
-                    placeholder: this.placeholder,
-                    multiple: this.multiple,
-                    liveSearch: false,
-                    disabled: this.disabled,
-                }}"
-                .classes="${this.classes}"
+                .placeholder="${this.placeholder}"
+                .className="${this.classes}"
+                ?multiple="${this.multiple}"
+                ?forceSelection="${this.forceSelection}"
+                ?disabled="${this.disabled}"
+                ?search="${false}"
                 @filterChange="${e => this.filterChange(e)}">
-            </select-field-filter>
+            </select-dropdown>
 
             <!-- Only show description when one single values is expected -->
             ${!this.multiple && this.statusObject?.description ? html`

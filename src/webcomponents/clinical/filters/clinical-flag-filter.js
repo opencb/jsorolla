@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-field-filter.js";
+import "../../commons/forms/select-dropdown.js";
 
 export default class ClinicalFlagFilter extends LitElement {
 
@@ -80,17 +80,15 @@ export default class ClinicalFlagFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter
-                .data="${this.flags}"
+            <select-dropdown
+                .values="${this.flags}"
                 .value="${this.flag}"
-                .config="${{
-                    placeholder: this.placeholder,
-                    multiple: this.multiple,
-                    disabled: this.disabled,
-                }}"
-                .classes="${this.classes}"
+                .placeholder="${this.placeholder}"
+                .className="${this.classes}"
+                ?multiple="${this.multiple}"
+                ?disabled="${this.disabled}"
                 @filterChange="${e => this.filterChange(e)}">
-            </select-field-filter>
+            </select-dropdown>
 
             <!-- Only show description when one single values is expected -->
             ${!this.multiple && this.flagObject?.description ? html`
