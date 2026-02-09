@@ -422,6 +422,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
             display: {
                 buttonClearText: "Clear",
                 buttonOkText: "Create Clinical Analysis",
+                buttonsLayout: "bottom",
                 ...this.displayConfig,
             },
             sections: [
