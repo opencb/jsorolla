@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-import "../forms/select-field-filter.js";
+import "../forms/select-dropdown.js";
 import "../forms/toggle-switch.js";
 import "../forms/toggle-radio.js";
 
@@ -210,17 +210,14 @@ export default class DiseasePanelFilter extends LitElement {
                         </label>
                     ` : nothing
                     }
-                    <select-field-filter
-                        .data="${this.diseasePanelsSelectOptions}"
+                    <select-dropdown
+                        .values="${this.diseasePanelsSelectOptions}"
                         .value=${this.panel}
-                        .classes="${this.classes}"
-                        .config="${{
-                            liveSearch: true,
-                            multiple: this.multiple,
-                            separator: "\n"
-                        }}"
+                        .className="${this.classes}"
+                        ?multiple="${this.multiple}"
+                        ?search="${true}"
                         @filterChange="${e => this.filterChange(e, "panel")}">
-                    </select-field-filter>
+                    </select-dropdown>
                 </div>
 
             ${this.showSelectedPanels && this.panel?.length > 0 ? html`
@@ -255,60 +252,52 @@ export default class DiseasePanelFilter extends LitElement {
                     <label class="form-label">
                         Filter by Feature Type
                     </label>
-                    <select-field-filter
-                        .data="${this.panelFeatureTypes}"
+                    <select-dropdown
+                        .values="${this.panelFeatureTypes}"
                         .value=${this.panelFeatureType}
-                        .config=${{
-                            multiple: true,
-                            disabled: this.genes?.length === 0 || this.disabled
-                            }}
+                        ?multiple="${true}"
+                        ?disabled="${this.genes?.length === 0 || this.disabled}"
                         @filterChange="${e => this.filterChange(e, "panelFeatureType")}">
-                    </select-field-filter>
+                    </select-dropdown>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">
                         Filter Genes by Mode of Inheritance
                     </label>
-                    <select-field-filter
-                        .data="${MODE_OF_INHERITANCE}"
+                    <select-dropdown
+                        .values="${MODE_OF_INHERITANCE}"
                         .value=${this.panelModeOfInheritance}
-                        .config=${{
-                            multiple: true,
-                            disabled: this.genes?.length === 0 || this.disabled
-                        }}
+                        ?multiple="${true}"
+                        ?disabled="${this.genes?.length === 0 || this.disabled}"
                         @filterChange="${e => this.filterChange(e, "panelModeOfInheritance")}">
-                    </select-field-filter>
+                    </select-dropdown>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">
                         Filter Genes by Confidence
                     </label>
-                    <select-field-filter
-                        .data="${DISEASE_PANEL_CONFIDENCE}"
+                    <select-dropdown
+                        .values="${DISEASE_PANEL_CONFIDENCE}"
                         .value=${this.panelConfidence}
-                        .config=${{
-                            multiple: true,
-                            disabled: this.genes?.length === 0 || this.disabled
-                        }}
+                        ?multiple="${true}"
+                        ?disabled="${this.genes?.length === 0 || this.disabled}"
                         @filterChange="${e => this.filterChange(e, "panelConfidence")}">
-                    </select-field-filter>
+                    </select-dropdown>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">
                         Filter Genes by Role in Cancer
                     </label>
-                    <select-field-filter
-                        .data="${ROLE_IN_CANCER}"
+                    <select-dropdown
+                        .values="${ROLE_IN_CANCER}"
                         .value=${this.panelRoleInCancer}
-                        .config=${{
-                            multiple: true,
-                            disabled: this.genes?.length === 0 || this.disabled
-                        }}
+                        ?multiple="${true}"
+                        ?disabled="${this.genes?.length === 0 || this.disabled}"
                         @filterChange="${e => this.filterChange(e, "panelRoleInCancer")}">
-                    </select-field-filter>
+                    </select-dropdown>
                 </div>
             ` : nothing}
         </div>
