@@ -19,6 +19,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import FormUtils from "../../commons/forms/form-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import Types from "../../commons/types.js";
+import UtilsNew from "../../../core/utils-new";
 
 export default class StudyCreate extends LitElement {
 
@@ -169,8 +170,9 @@ export default class StudyCreate extends LitElement {
             expectedFiles: this.dataFormParams.expectedFiles,
             fileType: this.dataFormParams.fileType,
         };
+        const newStudyFqn = `${this.project.fqn}:${this.dataFormParams.id}`;
         await this.opencgaSession.opencgaClient.variantOperations()
-            .setupVariant(toolParams, {study: this.opencgaSession.study.fqn})
+            .setupVariant(toolParams, {study: newStudyFqn, jobId: `variant-setup-${UtilsNew.getDatetime()}`})
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
                     title: "Variant Setup",

@@ -40,9 +40,9 @@ export default class ToolImport extends LitElement {
                 "scope": "CLINICAL_INTERPRETATION_ANALYSIS",
                 "container": {
                     "name": "opencb/gsc-pipeline",
-                    "tag": "1.0.1",
+                    "tag": "1.0.2",
                     "digest": "",
-                    "commandLine": "/opt/app/src/main.py single --case ${clinicalAnalysisId} -c file://analysis/config.json -s STUDY_ID"
+                    "commandLine": "/opt/app/src/main.py single --case ${clinicalAnalysisId} --host ${host}"
                 },
                 "variables": [
                     {
@@ -53,11 +53,11 @@ export default class ToolImport extends LitElement {
                         "output": false
                     },
                     {
-                        "id": "report",
-                        "name": "Create report",
-                        "type": "BOOLEAN",
-                        "required": false,
-                        "defaultValue": "true",
+                        "id": "host",
+                        "name": "XetaBase Host",
+                        "type": "STRING",
+                        "required": true,
+                        "defaultValue": `${window.location.origin}/opencga`,
                         "output": false
                     }
                 ],
@@ -73,9 +73,9 @@ export default class ToolImport extends LitElement {
                 "scope": "CLINICAL_INTERPRETATION_ANALYSIS",
                 "container": {
                     "name": "opencb/gsc-pipeline",
-                    "tag": "1.0.1",
+                    "tag": "1.0.2",
                     "digest": "",
-                    "commandLine": "/opt/src/main.py pre-marital --case ${clinicalAnalysisId}"
+                    "commandLine": "/opt/src/main.py pre-marital --case ${clinicalAnalysisId} --host ${host}"
                 },
                 "variables": [
                     {
@@ -87,12 +87,11 @@ export default class ToolImport extends LitElement {
                         "output": false
                     },
                     {
-                        "id": "report",
-                        "name": "Create report",
-                        "description": "Whether report must be created",
-                        "type": "BOOLEAN",
-                        "required": false,
-                        "defaultValue": "true",
+                        "id": "host",
+                        "name": "XetaBase Host",
+                        "type": "STRING",
+                        "required": true,
+                        "defaultValue": `${window.location.origin}/opencga`,
                         "output": false
                     }
                 ],

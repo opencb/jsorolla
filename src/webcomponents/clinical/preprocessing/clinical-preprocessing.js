@@ -242,29 +242,22 @@ export default class ClinicalPreprocessing extends LitElement {
         }
 
         // 3. submit job
-        await AnalysisUtils.submit("NGS Pipeline Analysis", submitPromise, this);
+        const pipelineResponse = await AnalysisUtils.submit("NGS Pipeline Analysis", submitPromise, this);
 
-        // 5. Prepare data and Submit variant index job
-        // const variantIndexJobData = {
-        //     file: this._stepsParams?.variantIndex?.file || "",
-        //     calculateStats: this._stepsParams?.variantIndex?.calculateStats || false,
-        //     annotate: this._stepsParams?.variantIndex?.annotate || false,
-        //     resume: this._stepsParams?.variantIndex?.resume || false,
-        //     loadMultiFileData: this._stepsParams?.variantIndex?.loadMultiFileData || false,
-        // };
-        // const variantIndexJobParams = {
-        //     study: this.opencgaSession.study.fqn,
-        //     ...AnalysisUtils.fillJobParams(this._stepsParams.variantIndex, "variant-index"),
-        //     jobDependsOn: ngsPipelineJobParams.jobId,
-        // };
-        //
-        // // 6. Submit variant index job
-        // await AnalysisUtils.submit(
-        //     "Variant Index",
-        //     this.opencgaSession.opencgaClient.variantOperations()
-        //         .indexVariant(variantIndexJobData, variantIndexJobParams),
-        //     this,
-        // );
+        // 4. For affy pipeline, chain a variant stats index job depending on the pipeline job
+        if (pipelineResponse && this._stepsParams?.pipeline?.type === "affy") {
+            const pipelineJobId = pipelineResponse.responses[0].results[0].id;
+            await AnalysisUtils.submit(
+                "Variant Stats Index",
+                this.opencgaSession.opencgaClient.variantOperations()
+                    .indexVariantStats({cohort: ["ALL"]}, {
+                        study: this.opencgaSession.study.fqn,
+                        jobId: `variant-stats-index-${UtilsNew.getDatetime()}`,
+                        jobDependsOn: pipelineJobId,
+                    }),
+                this,
+            );
+        }
 
         // run completed
         this._running = false;
