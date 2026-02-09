@@ -22,8 +22,8 @@ import WebUtils from "../commons/utils/web-utils.js";
 import UtilsNew from "../../core/utils-new.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter";
 import ClinicalVariantUtils from "./variant/clinical-variant-utils.js";
+import "../commons/forms/select-dropdown.js";
 import "../commons/forms/data-form.js";
-import "../commons/forms/select-token-filter.js";
 import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/catalog-search-autocomplete.js";
 import "../commons/image-viewer.js";
@@ -392,14 +392,12 @@ export default class ClinicalAnalysisCreate extends LitElement {
             };
         });
         return html`
-            <select-field-filter
-                .data="${data}"
-                .value=${selectedSamples}
-                .config="${{
-                    multiple: isMultiple,
-                }}"
+            <select-dropdown
+                .values="${data}"
+                .value="${selectedSamples}"
+                ?multiple="${isMultiple}"
                 @filterChange="${e => this.onSampleChange(e)}">
-            </select-field-filter>
+            </select-dropdown>
         `;
     }
 
