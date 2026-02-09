@@ -192,13 +192,13 @@ export default class SelectDropdown extends LitElement {
     }
 
     getDisplayText(selectedItems = []) {
+        // Button text: if nothing selected, show placeholder. If one item, show name. If multiple, show count.
         if (selectedItems.length === 1) {
             return selectedItems[0].name || selectedItems[0].id;
         } else if (selectedItems.length > 1) {
             return `${selectedItems.length} items selected`;
         }
-        // Button text: if nothing selected, show placeholder. If one item, show name. If multiple, show count.
-        return this.placeholder;
+        return this.placeholder || "Select an option...";
     }
 
     renderItemTemplate(item) {
