@@ -73,7 +73,6 @@ export default class SelectDropdown extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.values = [];
-        this._normalizedValues = [];
         this.value = "";
         this.multiple = false;
         this.disabled = false;
@@ -82,27 +81,35 @@ export default class SelectDropdown extends LitElement {
         this.searchPlaceholder = "Search...";
         this.forceSelection = false;
         this.selectAll = false;
+        this._normalizedValues = [];
         this._searchQuery = "";
     }
 
     update(changedProperties) {
         if (changedProperties.has("values")) {
-            this._normalizedValues = this.#normalizeValues(this.values);
+            this.valuesObserver();
         }
         super.update(changedProperties);
     }
 
-    #normalizeValues(values) {
-        return (values || []).map(item => {
+    valuesObserver() {
+        this._normalizedValues = (this.values || []).map(item => {
+            // 1. if item is a string, return {id: item}
             if (typeof item === "string") {
-                return {id: item, name: item};
-            }
-            if (item.values && Array.isArray(item.values)) {
                 return {
-                    ...item,
-                    values: this.#normalizeValues(item.values),
+                    id: item,
                 };
             }
+            // 2. if item is an object with values, return it with normalized values
+            if (item?.values && Array.isArray(item.values)) {
+                return {
+                    ...item,
+                    values: item.values.map(value => {
+                        return typeof value === "string" ? {id: value} : value;
+                    }),
+                };
+            }
+            // 3. return item as is
             return item;
         });
     }
