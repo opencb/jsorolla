@@ -18,6 +18,7 @@ import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/simple-chart.js";
 import "../commons/forms/data-form.js";
+import "../commons/forms/select-dropdown.js";
 
 /**
  * This component can work on two different ways:
@@ -203,16 +204,14 @@ class SampleVariantStatsView extends LitElement {
                 <div class="row my-3">
                     <label class="col-md-2 col-form-label fw-bold">Select Variant Stat</label>
                     <div class="col-md-2">
-                        <select-field-filter
-                            .data="${this.statsSelect}"
+                        <select-dropdown
+                            .values="${this.statsSelect}"
                             .value="${this.variantStats.id}"
-                            .forceSelection="${true}"
-                            .config="${{
-                                liveSearch: false,
-                                multiple: false
-                            }}"
+                            ?forceSelection="${true}"
+                            ?multiple="${false}"
+                            ?search="${false}"
                             @filterChange="${this.statChange}">
-                        </select-field-filter>
+                        </select-dropdown>
                     </div>
                 </div>
             ` : nothing}

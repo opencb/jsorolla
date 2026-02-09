@@ -16,6 +16,7 @@
 
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import "../../commons/forms/select-dropdown.js";
 import GridCommons from "../../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import {guardPage} from "../../commons/html-utils.js";
@@ -292,64 +293,56 @@ export default class StudyAdminAudit extends LitElement {
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "userId") ? html`
                         <!-- User ID -->
                         <div class="col-12">
-                            <select-field-filter
-                                .data="${this.sortedUserIds || []}"
-                                .config=${{
-                                    ...this._config,
-                                    multiple: true,
-                                    placeholder: "User: All",
-                                    liveSearch: false,
-                                }}
+                            <select-dropdown
+                                .values="${this.sortedUserIds || []}"
                                 .value="${this.query?.userId}"
+                                placeholder="User: All"
+                                ?multiple="${true}"
+                                ?search="${false}"
                                 @filterChange="${e => this.onFilterChange("userId", e.detail.value)}">
-                            </select-field-filter>
+                            </select-dropdown>
                         </div>
                     `: nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "action") ? html`
                         <!-- TODO: Action build autocomplete-->
                         <div class="col-12">
-                            <select-field-filter
-                                .data="${this.actionValues}"
-                                .config=${{
-                                    ...this._config,
-                                    multiple: true,
-                                    placeholder: "Action: All",
-                                    liveSearch: false,
-                                }}
+                            <select-dropdown
+                                .values="${this.actionValues}"
                                 .value="${this.query?.action}"
+                                placeholder="Action: All"
+                                ?multiple="${true}"
+                                ?search="${false}"
                                 @filterChange="${e => this.onFilterChange("action", e.detail.value)}">
-                            </select-field-filter>
+                            </select-dropdown>
                         </div>
                     ` : nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "resource") ? html`
                         <!-- Resource -->
                         <div class="col-12">
-                            <select-field-filter
-                                .data="${this.resourceTypeValues}"
+                            <select-dropdown
+                                .values="${this.resourceTypeValues}"
                                 .value=${this.query?.resource}
-                                .config=${{
-                                    placeholder: "Resource: All",
-                                    liveSearch: false,
-                                }}
+                                placeholder="Resource: All"
+                                ?multiple="${false}"
+                                ?search="${false}"
                                 @filterChange="${e => this.onFilterChange("resource", e.detail.value)}">
-                            </select-field-filter>
+                            </select-dropdown>
                         </div>
                     ` : nothing}
 
                     ${~this._config.filter.sections[0].filters.findIndex(field => field.id === "status") ? html`
                         <!-- Status -->
                         <div class="col-12">
-                            <select-field-filter
-                                .data="${this.statusTypeValues}"
+                            <select-dropdown
+                                .values="${this.statusTypeValues}"
                                 .value=${this.query?.status}
-                                .config=${{
-                                    placeholder: "Status: All",
-                                    liveSearch: false,
-                                }}
+                                placeholder="Status: All"
+                                ?multiple="${false}"
+                                ?search="${false}"
                                 @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
-                            </select-field-filter>
+                            </select-dropdown>
                         </div>
                     ` : nothing}
 

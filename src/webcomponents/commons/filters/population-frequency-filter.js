@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../forms/select-field-filter.js";
+import "../forms/select-dropdown.js";
 import "../forms/number-field-filter.js";
 
 export default class PopulationFrequencyFilter extends LitElement {
@@ -263,25 +263,25 @@ export default class PopulationFrequencyFilter extends LitElement {
                                     >${popFreq.id}
                                 </label>
                                 <div class="col-md-4">
-                                    <select-field-filter
-                                        .data="${this._config.comparators}"
+                                    <select-dropdown
+                                        .values="${this._config.comparators}"
                                         .value="${this.state[study.id + ":" + popFreq.id]?.comparator}"
+                                        ?multiple="${false}"
                                         @filterChange="${e => {
                                             this.filterSelectChange(e, study.id + ":" + popFreq.id, "comparator");
                                         }}">
-                                    </select-field-filter>
+                                    </select-dropdown>
                                 </div>
                                 <div class="col-md-5">
-                                    <select-field-filter
-                                        .data="${allowedFrequenciesArray}"
+                                    <select-dropdown
+                                        .values="${allowedFrequenciesArray}"
                                         .value="${this.state[study.id + ":" + popFreq.id]?.value}"
-                                        .config="${{
-                                            placeholder: "Frequency ..."
-                                        }}"
+                                        placeholder="Frequency ..."
+                                        ?multiple="${false}"
                                         @filterChange="${e => {
                                             this.filterSelectChange(e, study.id + ":" + popFreq.id, "value");
                                         }}">
-                                    </select-field-filter>
+                                    </select-dropdown>
                                 </div>
                             `)}
                         </div>

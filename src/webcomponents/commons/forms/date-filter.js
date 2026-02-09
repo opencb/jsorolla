@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../forms/select-field-filter.js";
+import "../forms/select-dropdown.js";
 
 // DEPRECATED : Use date-picker
 export default class DateFilter extends LitElement {
@@ -252,30 +252,33 @@ export default class DateFilter extends LitElement {
                         <div data-cy="date-single">
                             <form class="row">
                                 <div class="col-md-4">
-                                    <select-field-filter
+                                    <select-dropdown
                                         data-type="date"
                                         data-field="year"
-                                        .data="${this.years}"
+                                        .values="${this.years}"
                                         .value=${this.selectedDate.year}
+                                        ?multiple="${false}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </select-field-filter>
+                                    </select-dropdown>
                                 </div>
                                 <div class="col-md-4">
-                                    <select-field-filter
+                                    <select-dropdown
                                         data-type="date"
                                         data-field="month"
-                                        .data="${this.months}"
+                                        .values="${this.months}"
                                         .value=${this.selectedDate.month}
+                                        ?multiple="${false}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </select-field-filter>
+                                    </select-dropdown>
                                 </div>
                                 <div class="col-md-4">
-                                    <select-field-filter
+                                    <select-dropdown
                                         data-type="date" data-field="day"
-                                        .data="${this.daysInMonth(this.selectedDate.year, this.selectedDate.month)}"
+                                        .values="${this.daysInMonth(this.selectedDate.year, this.selectedDate.month)}"
                                         .value=${this.selectedDate.day}
+                                        ?multiple="${false}"
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </select-field-filter>
+                                    </select-dropdown>
                                 </div>
                             </form>
                         </div>
@@ -287,33 +290,36 @@ export default class DateFilter extends LitElement {
                                 <form class="row">
                                     <label class="${this._prefix}-text fw-bold">Begin period</label>
                                     <div class="col-md-4">
-                                        <select-field-filter
+                                        <select-dropdown
                                             data-type="range"
                                             data-endpoint="start"
                                             data-field="year"
-                                            .data="${this.years}"
+                                            .values="${this.years}"
                                             .value=${this.selectedPeriod.start.year}
+                                            ?multiple="${false}"
                                             @filterChange="${e => this.onFilterChange(e)}">
-                                        </select-field-filter>
+                                        </select-dropdown>
                                     </div>
                                     <div class="col-md-4">
-                                        <select-field-filter
+                                        <select-dropdown
                                             data-type="range"
                                             data-endpoint="start" data-field="month"
-                                            .data="${this.months}"
+                                            .values="${this.months}"
                                             .value=${this.selectedPeriod.start.month}
+                                            ?multiple="${false}"
                                             @filterChange="${e => this.onFilterChange(e)}">
-                                        </select-field-filter>
+                                        </select-dropdown>
                                     </div>
                                     <div class="col-md-4">
-                                        <select-field-filter
+                                        <select-dropdown
                                             data-type="range"
                                             data-endpoint="start"
                                             data-field="day"
-                                            .data="${this.daysInMonth(this.selectedPeriod.start.year, this.selectedPeriod.start.month)}"
+                                            .values="${this.daysInMonth(this.selectedPeriod.start.year, this.selectedPeriod.start.month)}"
                                             .value=${this.selectedPeriod.start.day}
+                                            ?multiple="${false}"
                                             @filterChange="${e => this.onFilterChange(e)}">
-                                        </select-field-filter>
+                                        </select-dropdown>
                                     </div>
                                 </form>
                             </div>
@@ -321,34 +327,37 @@ export default class DateFilter extends LitElement {
                                 <form class="row">
                                     <label class="${this._prefix}-text fw-bold">End period</label>
                                     <div class="col-md-4">
-                                        <select-field-filter
+                                        <select-dropdown
                                             data-type="range"
                                             data-endpoint="end"
                                             data-field="year"
-                                            .data="${this.years}"
+                                            .values="${this.years}"
                                             .value=${this.selectedPeriod.end.year}
+                                            ?multiple="${false}"
                                             @filterChange="${e => this.onFilterChange(e)}">
-                                        </select-field-filter>
+                                        </select-dropdown>
                                     </div>
                                     <div class="col-md-4">
-                                        <select-field-filter
+                                        <select-dropdown
                                             data-type="range"
                                             data-endpoint="end"
                                             data-field="month"
-                                            .data="${this.months}"
+                                            .values="${this.months}"
                                             .value=${this.selectedPeriod.end.month}
+                                            ?multiple="${false}"
                                             @filterChange="${e => this.onFilterChange(e)}">
-                                        </select-field-filter>
+                                        </select-dropdown>
                                     </div>
                                     <div class="col-md-4">
-                                        <select-field-filter
+                                        <select-dropdown
                                             data-type="range"
                                             data-endpoint="end"
                                             data-field="day"
-                                            .data="${this.daysInMonth(this.selectedPeriod.end.year, this.selectedPeriod.end.month)}"
+                                            .values="${this.daysInMonth(this.selectedPeriod.end.year, this.selectedPeriod.end.month)}"
                                             .value=${this.selectedPeriod.end.day}
+                                            ?multiple="${false}"
                                             @filterChange="${e => this.onFilterChange(e)}">
-                                        </select-field-filter>
+                                        </select-dropdown>
                                     </div>
                                 </form>
                             </div>

@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import "../forms/select-dropdown.js";
 
 export default class BiotypeFilter extends LitElement {
 
@@ -83,15 +84,13 @@ export default class BiotypeFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter
-                .data="${this._config.biotypes}"
-                .value=${this.biotype}
-                .config="${{
-                    multiple: this._config.multiple,
-                    liveSearch: this._config.liveSearch
-                }}"
+            <select-dropdown
+                .values="${this._config.biotypes}"
+                .value="${this.biotype}"
+                ?multiple="${this._config.multiple}"
+                ?search="${this._config.liveSearch}"
                 @filterChange="${this.filterChange}">
-            </select-field-filter>
+            </select-dropdown>
         `;
     }
 

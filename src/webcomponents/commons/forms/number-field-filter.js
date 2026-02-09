@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "./select-field-filter.js";
+import "./select-dropdown.js";
 
 export default class NumberFieldFilter extends LitElement {
 
@@ -135,29 +135,27 @@ export default class NumberFieldFilter extends LitElement {
 
                 ${this._config.comparator ? html`
                     <div class="col-md-${this._config.layout[1]}">
-                        <select-field-filter
-                            .data="${this._config.values}"
+                        <select-dropdown
+                            .values="${this._config.values}"
                             .value="${this.state.comparator}"
-                            .forceSelection="${this._config.comparatorForceSelection}"
-                            .config="${{
-                                liveSearch: false
-                            }}"
+                            ?forceSelection="${this._config.comparatorForceSelection}"
+                            ?multiple="${false}"
+                            ?search="${false}"
                             @filterChange="${e => this.filterChange(e, "comparator", e.detail.value)}">
-                        </select-field-filter>
+                        </select-dropdown>
                     </div>` : nothing
                 }
 
                 ${this.allowedValues?.length > 0 ? html`
                     <div class="col-md-${this._config.layout[2]}">
-                        <select-field-filter
-                            .data="${this.allowedValues}"
+                        <select-dropdown
+                            .values="${this.allowedValues}"
                             .value="${this.state.value ?? ""}"
-                            .config="${{
-                                placeholder: "Select ...",
-                                liveSearch: false,
-                            }}"
+                            placeholder="Select ..."
+                            ?multiple="${false}"
+                            ?search="${false}"
                             @filterChange="${e => this.filterChange(e, "value", e.detail.value)}">
-                        </select-field-filter>
+                        </select-dropdown>
                     </div>` : html`
                     <div class="col-md-${this._config.layout[2]}">
                         <input  type="${this.type ?? "number"}"
