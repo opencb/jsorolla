@@ -94,10 +94,10 @@ export default class SelectDropdown extends LitElement {
 
     valuesObserver() {
         this._normalizedValues = (this.values || []).map(item => {
-            // 1. if item is a string, return {id: item}
-            if (typeof item === "string") {
+            // 1. if item is a string or a number, return {id: item}
+            if (typeof item === "string" || typeof item === "number") {
                 return {
-                    id: item,
+                    id: `${item}`,
                 };
             }
             // 2. if item is an object with values, return it with normalized values
@@ -105,7 +105,7 @@ export default class SelectDropdown extends LitElement {
                 return {
                     ...item,
                     values: item.values.map(value => {
-                        return typeof value === "string" ? {id: value} : value;
+                        return (typeof value === "string" || typeof value === "number") ? {id: `${value}`} : value;
                     }),
                 };
             }
