@@ -19,7 +19,7 @@ import LitUtils from "./utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "./utils/notification-utils.js";
 import "./forms/data-form.js";
-import "./forms/select-field-filter.js";
+import "./forms/select-dropdown.js";
 
 export default class CatalogBrowserGridConfig extends LitElement {
 
@@ -219,15 +219,14 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                 containerStyle: "margin: 5px 5px 5px 0px",
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
-                                        <select-field-filter
-                                            .data="${this.config.pageList}"
+                                        <select-dropdown
+                                            .values="${this.config.pageList}"
                                             .value="${this.config.pageSize}"
-                                            .config="${{
-                                                multiple: false,
-                                                liveSearch: false,
-                                            }}"
+                                            .forceSelection="${true}"
+                                            ?multiple="${false}"
+                                            ?search="${false}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </select-field-filter>
+                                        </select-dropdown>
                                     `;
                                 }
                             }
@@ -247,16 +246,14 @@ export default class CatalogBrowserGridConfig extends LitElement {
                                 containerStyle: "margin: 5px 5px 5px 0px",
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
-                                        <select-field-filter
-                                            .data="${this.selectColumnData}"
+                                        <select-dropdown
+                                            .values="${this.selectColumnData}"
                                             .value="${this.selectedColumns?.join(",")}"
-                                            .config="${{
-                                                title: "Columns",
-                                                liveSearch: false,
-                                                multiple: true,
-                                            }}"
+                                            placeholder="Columns"
+                                            ?multiple="${true}"
+                                            ?search="${false}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </select-field-filter>
+                                        </select-dropdown>
                                     `;
                                 }
                             }
