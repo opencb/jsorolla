@@ -40,7 +40,7 @@ export default class ToolImport extends LitElement {
                 "scope": "CLINICAL_INTERPRETATION_ANALYSIS",
                 "container": {
                     "name": "opencb/gsc-pipeline",
-                    "tag": "1.0.2",
+                    "tag": "1.0.3",
                     "digest": "",
                     "commandLine": "/opt/app/src/main.py single --case ${clinicalAnalysisId} --host ${host}"
                 },
@@ -73,7 +73,7 @@ export default class ToolImport extends LitElement {
                 "scope": "CLINICAL_INTERPRETATION_ANALYSIS",
                 "container": {
                     "name": "opencb/gsc-pipeline",
-                    "tag": "1.0.2",
+                    "tag": "1.0.3",
                     "digest": "",
                     "commandLine": "/opt/src/main.py pre-marital --case ${clinicalAnalysisId} --host ${host}"
                 },
