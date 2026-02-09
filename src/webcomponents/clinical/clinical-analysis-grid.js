@@ -136,7 +136,6 @@ export default class ClinicalAnalysisGrid extends LitElement {
                     <clinical-analysis-create
                         .displayConfig="${{
                             type: "tabs",
-                            buttonsLayout: "upper",
                         }}"
                         .opencgaSession="${this.opencgaSession}"
                         @clinicalAnalysisCreate="${() => {
