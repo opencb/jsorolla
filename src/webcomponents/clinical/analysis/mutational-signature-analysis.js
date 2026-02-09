@@ -18,7 +18,7 @@ import {LitElement, html} from "lit";
 import AnalysisUtils from "../../commons/analysis/analysis-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
-import "../../commons/forms/select-field-filter.js";
+import "../../commons/forms/select-dropdown.js";
 import "../../commons/filters/catalog-search-autocomplete.js";
 import "../../commons/view/signature-view.js";
 
@@ -276,15 +276,13 @@ export default class MutationalSignatureAnalysis extends LitElement {
                         display: {
                             visible: signatures.length > 0,
                             render: (signature, dataFormFilterChange) => html`
-                                <select-field-filter
-                                    .data="${this.generateSignaturesDropdown()}"
+                                <select-dropdown
+                                    .values="${this.generateSignaturesDropdown()}"
                                     .value=${signature}
-                                    .config="${{
-                                        multiple: false,
-                                        liveSearch: false
-                                    }}"
+                                    ?multiple="${false}"
+                                    ?search="${false}"
                                     @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                </select-field-filter>
+                                </select-dropdown>
                             `,
                         },
                     },
