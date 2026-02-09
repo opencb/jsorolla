@@ -238,11 +238,11 @@ export default class SelectDropdown extends LitElement {
             content = this.renderItem(item, isSelected);
         } else {
             content = html`
-                <div class="fw-bold ${item?.className || ""}">
+                <div class="fw-bold text-wrap ${item?.className || ""}">
                     ${item.name || item.id}
                 </div>
                 ${item.description ? html`
-                    <small class="text-muted">${item.description}</small>
+                    <div class="small text-wrap text-muted">${item.description}</div>
                 ` : nothing}
             `;
         }
