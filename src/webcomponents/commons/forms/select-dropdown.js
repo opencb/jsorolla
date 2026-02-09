@@ -73,6 +73,7 @@ export default class SelectDropdown extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.values = [];
+        this._normalizedValues = [];
         this.value = "";
         this.multiple = false;
         this.disabled = false;
@@ -82,6 +83,28 @@ export default class SelectDropdown extends LitElement {
         this.forceSelection = false;
         this.selectAll = false;
         this._searchQuery = "";
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("values")) {
+            this._normalizedValues = this.#normalizeValues(this.values);
+        }
+        super.update(changedProperties);
+    }
+
+    #normalizeValues(values) {
+        return (values || []).map(item => {
+            if (typeof item === "string") {
+                return {id: item, name: item};
+            }
+            if (item.values && Array.isArray(item.values)) {
+                return {
+                    ...item,
+                    values: this.#normalizeValues(item.values),
+                };
+            }
+            return item;
+        });
     }
 
     onClear(e) {
@@ -143,7 +166,7 @@ export default class SelectDropdown extends LitElement {
     }
 
     getFilteredValues() {
-        return this.values.map(item => {
+        return (this._normalizedValues || []).map(item => {
             if (item.separator) {
                 return this._searchQuery ? null : item;
             }
@@ -180,7 +203,7 @@ export default class SelectDropdown extends LitElement {
     }
 
     getAllItems() {
-        return (this.values || []).reduce((acc, item) => {
+        return (this._normalizedValues || []).reduce((acc, item) => {
             if (item.values && Array.isArray(item.values)) {
                 return [...acc, ...item.values.filter(v => !v.separator)];
             }
