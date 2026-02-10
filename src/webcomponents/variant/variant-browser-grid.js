@@ -566,6 +566,7 @@ export default class VariantBrowserGrid extends LitElement {
                 },
                 {
                     id: "deleteriousness",
+                    columnTitle: "Deleteriousness",
                     title: `
                         <span>Deleteriousness</span>
                         <a tooltip-title="Deleteriousness" tooltip-text="${VariantGridFormatter.deleteriousnessInfoTooltipContent()}">
@@ -579,6 +580,7 @@ export default class VariantBrowserGrid extends LitElement {
                 },
                 {
                     id: "conservation",
+                    columnTitle: "Conservation",
                     title: `
                         <span>Conservation</span>
                         <a tooltip-title="Conservation" tooltip-text="${VariantGridFormatter.conservationInfoTooltipContent()}">
@@ -601,6 +603,7 @@ export default class VariantBrowserGrid extends LitElement {
                 },
                 {
                     id: "cohorts",
+                    columnTitle: "Cohort Stats",
                     title: `
                         <span>Cohort Stats</span>
                         <a tooltip-title="Cohort Stats" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}">
@@ -615,6 +618,7 @@ export default class VariantBrowserGrid extends LitElement {
                 },
                 {
                     id: "popfreq",
+                    columnTitle: "Population Frequencies",
                     title: `
                         <span>Population Frequencies</span>
                         <a tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}">
@@ -629,6 +633,7 @@ export default class VariantBrowserGrid extends LitElement {
                 },
                 {
                     id: "clinicalInfo",
+                    columnTitle: "Clinical Info",
                     title: `
                         <span>Clinical Info</span>
                         <a tooltip-title="Clinical Info" tooltip-text="${VariantGridFormatter.clinicalInfoTooltipContent()}" tooltip-position-my="right top">
@@ -780,6 +785,7 @@ export default class VariantBrowserGrid extends LitElement {
                 },
                 {
                     id: "omim",
+                    columnTitle: "OMIM / Orphanet",
                     title: "OMIM<br>Orphanet",
                     field: "omim",
                     colspan: 1,
