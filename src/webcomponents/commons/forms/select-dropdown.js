@@ -144,7 +144,7 @@ export default class SelectDropdown extends LitElement {
         if (item.disabled) {
             return;
         }
-        const selectedValues = this.value ? this.value.split(",") : [];
+        const selectedValues = this.getSelectedValues();
         const index = selectedValues.indexOf(item.id);
 
         if (this.multiple) {
@@ -221,6 +221,19 @@ export default class SelectDropdown extends LitElement {
         }, []);
     }
 
+    getSelectedValues() {
+        // 1. check if the value is a string
+        if (this.value && typeof this.value === "string") {
+            return this.value.split(",").filter(Boolean);
+        }
+        // 2. check if value is a number
+        if (typeof this.value === "number") {
+            return [this.value.toString()];
+        }
+        // 3. other case
+        return [];
+    }
+
     getDisplayText(selectedItems = []) {
         // Button text: if nothing selected, show placeholder. If one item, show name. If multiple, show count.
         if (selectedItems.length === 1) {
@@ -232,7 +245,7 @@ export default class SelectDropdown extends LitElement {
     }
 
     renderItemTemplate(item) {
-        const isSelected = this.value?.split(",")?.includes(item.id);
+        const isSelected = this.getSelectedValues().includes(item.id);
         let content;
         if (typeof this.renderItem === "function") {
             content = this.renderItem(item, isSelected);
@@ -287,7 +300,7 @@ export default class SelectDropdown extends LitElement {
     }
 
     render() {
-        const selectedValues = this.value ? this.value.split(",") : [];
+        const selectedValues = this.getSelectedValues();
         const allItems = this.getAllItems();
         const selectableItems = allItems.filter(item => !item.disabled);
         const selectedItems = allItems.filter(v => selectedValues.includes(v.id));
