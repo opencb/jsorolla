@@ -21,6 +21,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import GridCommons from "../commons/grid-commons.js";
 import "../commons/grid-toolbar.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
+import "../commons/forms/select-dropdown.js";
 
 export default class VariantSamples extends LitElement {
 
@@ -458,13 +459,13 @@ export default class VariantSamples extends LitElement {
                     </div>
                     <div class="col-md-12">
                         <div class="d-flex gap-1">
-                            <select-field-filter
-                                .data="${this.config.genotypes}"
+                            <select-dropdown
+                                class="flex-grow-1"
+                                .values="${this.config.genotypes}"
                                 .value="${this.selectedGenotypes}"
-                                .selectedTextFormat="${"count > 3"}"
-                                .config="${{multiple: true}}"
+                                ?multiple="${true}"
                                 @filterChange="${this.onSelectFilterChange}">
-                            </select-field-filter>
+                            </select-dropdown>
                             <button class="btn btn-light" type="button" @click="${this.onSearch}">
                                 <i class="fas fa-search me-1"></i> Search
                             </button>
