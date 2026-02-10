@@ -16,7 +16,7 @@
 
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
-import "../forms/select-field-filter.js";
+import "../forms/select-dropdown.js";
 import "../forms/text-field-filter.js";
 import "../filters/population-frequency-filter.js";
 import "../filters/clinvar-accessions-filter.js";
@@ -69,16 +69,14 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
         switch (fieldConfig.type) {
             case "category":
                 return html`
-                    <select-field-filter
-                        .data="${fieldConfig.allowedValues}"
+                    <select-dropdown
+                        .values="${fieldConfig.allowedValues}"
                         .value="${fieldConfig.defaultValue}"
-                        .config="${{
-                            multiple: fieldConfig.multiple,
-                            disabled: fieldConfig.disabled,
-                            required: fieldConfig.required
-                        }}"
+                        ?multiple="${fieldConfig.multiple}"
+                        ?disabled="${fieldConfig.disabled}"
+                        ?required="${fieldConfig.required}"
                         @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
-                    </select-field-filter>
+                    </select-dropdown>
                 `;
             case "string":
                 return html`

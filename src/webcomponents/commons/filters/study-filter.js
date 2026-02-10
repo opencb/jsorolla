@@ -17,7 +17,7 @@
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils.js";
-import "../forms/select-field-filter.js";
+import "../forms/select-dropdown.js";
 
 export default class StudyFilter extends LitElement {
 
@@ -124,12 +124,13 @@ export default class StudyFilter extends LitElement {
 
         return html`
             <div class="mb-3">
-                <select-field-filter
-                    .data="${this._studies}"
-                    .value="${this._selection}"
-                    .config="${this._config}"
+                <select-dropdown
+                    .values="${this._studies}"
+                    .value="${this._selection?.join(",")}"
+                    ?multiple="${this._config.multiple}"
+                    ?disabled="${this._config.disabled}"
                     @filterChange="${event => this.onStudyChange(event)}">
-                </select-field-filter>
+                </select-dropdown>
                 <fieldset class="d-grid my-1 mx-0" ?disabled="${this._selection.length < 2}">
                     <div class="btn-group" role="group">
                         <input
