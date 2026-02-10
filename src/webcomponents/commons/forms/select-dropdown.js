@@ -114,9 +114,14 @@ export default class SelectDropdown extends LitElement {
         });
     }
 
-    onClear(e) {
-        e.stopPropagation();
-        this.value = "";
+    onClear() {
+        const selectedValues = this.getSelectedValues();
+        const disabledAndSelectedItems = this.getDisabledItems().filter(item => {
+            return selectedValues.includes(item.id);
+        });
+        // note that disabled items are not selectable, so we need to keep them in
+        // the value if they are already selected
+        this.value = disabledAndSelectedItems.map(item => item.id).join(",");
         this.requestUpdate();
         LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
     }
@@ -127,8 +132,16 @@ export default class SelectDropdown extends LitElement {
             // Select all enabled items
             this.value = selectableItems.map(item => item.id).join(",");
         } else {
-            // Deselect all
-            this.value = this.forceSelection && selectableItems.length > 0 ? selectableItems[0].id : "";
+            // deselect all items, and keep also the disabled ones
+            const selectedValues = this.getSelectedValues();
+            const itemsToKeep = this.getDisabledItems().filter(item => {
+                return selectedValues.includes(item.id);
+            });
+            // make sure that if forceSelection is true, we keep at least one item
+            if (this.forceSelection && itemsToKeep.length === 0) {
+                itemsToKeep.push(selectableItems[0]);
+            }
+            this.value = itemsToKeep.map(item => item.id).join(",");
         }
 
         this.requestUpdate();
@@ -219,6 +232,10 @@ export default class SelectDropdown extends LitElement {
             }
             return [...acc, item];
         }, []);
+    }
+
+    getDisabledItems() {
+        return this.getAllItems().filter(item => item.disabled);
     }
 
     getSelectedValues() {
