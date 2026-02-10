@@ -172,7 +172,7 @@ export default class SelectDropdown extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
     }
 
-    getFilteredValues() {
+    getFilteredItems() {
         return (this._normalizedValues || []).map(item => {
             if (item.separator) {
                 return this._searchQuery ? null : item;
@@ -304,7 +304,7 @@ export default class SelectDropdown extends LitElement {
         const allItems = this.getAllItems();
         const selectableItems = allItems.filter(item => !item.disabled);
         const selectedItems = allItems.filter(v => selectedValues.includes(v.id));
-        const filteredValues = this.getFilteredValues();
+        const filteredItems = this.getFilteredItems();
 
         return html`
             <div class="select-dropdown dropdown input-group ${this.className || ""}">
@@ -323,14 +323,14 @@ export default class SelectDropdown extends LitElement {
                         </div>
                     ` : nothing}
                     <div class="dropdown-list overflow-y-auto" style="max-height:25rem;">
-                        ${filteredValues.length > 0 ? html`
+                        ${filteredItems.length > 0 ? html`
                             <div class="d-flex flex-column gap-1">
-                                ${filteredValues.map((item, index) => {
+                                ${filteredItems.map((item, index) => {
                                     if (item.separator) {
                                         return this.renderSeparator();
                                     }
                                     if (item.values && Array.isArray(item.values)) {
-                                        return this.renderGroup(item, index === filteredValues.length - 1);
+                                        return this.renderGroup(item, index === filteredItems.length - 1);
                                     }
                                     return this.renderItemTemplate(item);
                                 })}
