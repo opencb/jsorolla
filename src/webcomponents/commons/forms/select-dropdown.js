@@ -294,7 +294,7 @@ export default class SelectDropdown extends LitElement {
                 })}
             </div>
             ${!isLast ? html`
-                <hr class="dropdown-divider">
+                <hr class="dropdown-divider my-0">
             ` : nothing}
         `;
     }
