@@ -19,7 +19,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import "../../commons/forms/data-form.js";
-import "../../commons/forms/select-field-filter.js";
+import "../../commons/forms/select-dropdown.js";
 
 export default class VariantInterpreterGridConfig extends LitElement {
 
@@ -79,10 +79,14 @@ export default class VariantInterpreterGridConfig extends LitElement {
                         }
                     }
                 } else {
-                    const option = {id: gridColumn.id, name: gridColumn.columnTitle || gridColumn.title, fields: []};
+                    const option = {
+                        id: gridColumn.id,
+                        name: gridColumn.columnTitle || gridColumn.title,
+                        values: [],
+                    };
                     for (let i = lastSubColumn; i < lastSubColumn + gridColumn.colspan; i++) {
                         if (!this.gridColumns[1][i].excludeFromSettings) {
-                            option.fields.push({
+                            option.values.push({
                                 id: this.gridColumns[1][i].id,
                                 name: this.gridColumns[1][i].columnTitle || this.gridColumns[1][i].title,
                             });
@@ -91,7 +95,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             this.selectedColumns.push(this.gridColumns[1][i].id);
                         }
                     }
-                    if (option.fields[0]?.id) {
+                    if (option.values[0]?.id) {
                         this.selectColumnData.push(option);
                     }
                     lastSubColumn += gridColumn.colspan;
@@ -164,23 +168,17 @@ export default class VariantInterpreterGridConfig extends LitElement {
 
         try {
             // Update user configuration
-            await OpencgaCatalogUtils
-                .updateGridConfig(
-                    "IVA",
-                    this.opencgaSession,
-                    this.toolId,
-                    {
-                        // All Variant Grids
-                        pageSize: this.config.pageSize,
-                        columns: this.config.columns,
-                        geneSet: this.config.geneSet,
-                        consequenceType: this.config.consequenceType,
-                        populationFrequenciesConfig: this.config.populationFrequenciesConfig,
-                        highlights: this.config.highlights,
-                        // Only Variant Interpreter Grids
-                        genotype: this.config.genotype,
-                    }
-                );
+            await OpencgaCatalogUtils.updateGridConfig("IVA", this.opencgaSession, this.toolId, {
+                // All Variant Grids
+                pageSize: this.config.pageSize,
+                columns: this.config.columns,
+                geneSet: this.config.geneSet,
+                consequenceType: this.config.consequenceType,
+                populationFrequenciesConfig: this.config.populationFrequenciesConfig,
+                highlights: this.config.highlights,
+                // Only Variant Interpreter Grids
+                genotype: this.config.genotype,
+            });
             LitUtils.dispatchCustomEvent(this, "settingsUpdate");
 
             NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
@@ -253,16 +251,14 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 containerStyle: "margin: 5px 5px 5px 0px",
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
-                                        <select-field-filter
-                                            .data="${this.config?.pageList}"
+                                        <select-dropdown
+                                            .values="${this.config?.pageList}"
                                             .value="${this.config?.pageSize}"
-                                            .config="${{
-                                                liveSearch: false,
-                                                multiple: false
-                                            }}"
-                                            .classes="${"btn-sm"}"
+                                            .forceSelection="${true}"
+                                            ?multiple="${false}"
+                                            ?search="${false}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </select-field-filter>
+                                        </select-dropdown>
                                     `;
                                 }
                             }
@@ -282,16 +278,15 @@ export default class VariantInterpreterGridConfig extends LitElement {
                                 containerStyle: "margin: 5px 5px 5px 0px",
                                 render: (columns, dataFormFilterChange) => {
                                     return html`
-                                        <select-field-filter
-                                            .data="${this.selectColumnData}"
+                                        <select-dropdown
+                                            .values="${this.selectColumnData}"
                                             .value="${this.selectedColumns?.join(",")}"
-                                            .config="${{
-                                                title: "Columns",
-                                                multiple: true,
-                                                liveSearch: false,
-                                            }}"
+                                            .placeholder="${"Columns"}"
+                                            .forceSelection="${true}"
+                                            ?multiple="${true}"
+                                            ?search="${false}"
                                             @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                        </select-field-filter>
+                                        </select-dropdown>
                                     `;
                                 }
                             }

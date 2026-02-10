@@ -592,6 +592,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "deleteriousness",
+                    columnTitle: "Deleteriousness",
                     title: `
                         <span>Deleteriousness</span>
                         <a tooltip-title="Deleteriousness" tooltip-text="${VariantGridFormatter.deleteriousnessInfoTooltipContent()}">
@@ -651,6 +652,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "clinicalInfo",
+                    columnTitle: "Clinical Info",
                     title: `
                         <span>Clinical Info</span>
                         <a tooltip-title="Clinical Info" tooltip-text="${VariantGridFormatter.clinicalInfoTooltipContent()}" tooltip-position-my="right top">
@@ -669,6 +671,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "interpretation",
+                    columnTitle: "Interpretation",
                     title: `
                         <span>Interpretation</span>
                         <a tooltip-title="Interpretation" tooltip-text="${VariantGridFormatter.interpretationInfoTooltipContent()}" tooltip-position-my="right top">
@@ -828,6 +831,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 // Interpretation Column
                 {
                     id: "reported",
+                    columnTitle: "Interpreted and/or Reported",
                     title: "Interpreted and/or<br> Reported",
                     field: "reported",
                     rowspan: 1,
