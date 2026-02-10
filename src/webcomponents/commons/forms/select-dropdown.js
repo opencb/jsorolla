@@ -276,7 +276,7 @@ export default class SelectDropdown extends LitElement {
 
     renderSeparator() {
         return html`
-            <hr class="dropdown-divider">
+            <hr class="dropdown-divider my-0">
         `;
     }
 
