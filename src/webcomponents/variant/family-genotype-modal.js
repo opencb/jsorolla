@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html, nothing} from "lit";
+import {portal} from "../../core/directives/portal.js";
 import UtilsNew from "../../core/utils-new.js";
 import "./family-genotype-filter.js";
 
@@ -56,11 +57,11 @@ export default class FamilyGenotypeModal extends LitElement {
     firstUpdated() {
         // Note: this is a workaround to show/hide the modal-backdrop when the modal is shown/hidden
         // this is needed when this modal is rendered inside an offcanvas
-        this.querySelector(".modal").addEventListener("show.bs.modal", () => {
-            this.querySelector(".modal-backdrop").style.display = "block";
+        document.querySelector("#" + this._prefix + "SampleGenotypeFilterModal").addEventListener("show.bs.modal", () => {
+            document.querySelector("#" + this._prefix + "SampleGenotypeFilterModalBackdrop").style.display = "block";
         });
-        this.querySelector(".modal").addEventListener("hide.bs.modal", () => {
-            this.querySelector(".modal-backdrop").style.display = "none";
+        document.querySelector("#" + this._prefix + "SampleGenotypeFilterModal").addEventListener("hide.bs.modal", () => {
+            document.querySelector("#" + this._prefix + "SampleGenotypeFilterModalBackdrop").style.display = "none";
         });
     }
 
@@ -102,28 +103,30 @@ export default class FamilyGenotypeModal extends LitElement {
                     </button>
                 </div>
             </div>
-            <div class="modal-backdrop show" style="display:none;"></div>
-            <div class="modal fade" id="${this._prefix}SampleGenotypeFilterModal" tabindex="-1" style="overflow-y:visible;" data-bs-backdrop="false">
-                <div class="modal-dialog" style="min-width: 1280px;max-width: 1280px;">
-                    <div class="modal-content">
-                        <div class="modal-header my-2 mx-1">
-                            <h3>Family Genotype Filter</h3>
-                        </div>
-                        <div class="modal-body">
-                            <family-genotype-filter
-                                .opencgaSession="${this.opencgaSession}"
-                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                .genotype="${this.genotype}"
-                                @filterChange="${this.onFilterChange}">
-                            </family-genotype-filter>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" .disabled=${!!this._errorState}>Save</button>
+            ${portal(document.body, html`
+                <div class="modal-backdrop show" id="${this._prefix}SampleGenotypeFilterModalBackdrop" style="display:none;"></div>
+                <div class="modal fade" id="${this._prefix}SampleGenotypeFilterModal" tabindex="-1" style="overflow-y:visible;" data-bs-backdrop="false">
+                    <div class="modal-dialog" style="min-width: 1280px;max-width: 1280px;">
+                        <div class="modal-content">
+                            <div class="modal-header my-2 mx-1">
+                                <h3>Family Genotype Filter</h3>
+                            </div>
+                            <div class="modal-body">
+                                <family-genotype-filter
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .genotype="${this.genotype}"
+                                    @filterChange="${this.onFilterChange}">
+                                </family-genotype-filter>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" .disabled=${!!this._errorState}>Save</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            `)}
         `;
     }
 

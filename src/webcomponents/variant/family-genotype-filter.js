@@ -18,7 +18,7 @@ import {html, LitElement, nothing} from "lit";
 import LitUtils from "../commons/utils/lit-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 import UtilsNew from "../../core/utils-new.js";
-import "../commons/forms/select-field-filter.js";
+import "../commons/forms/select-dropdown.js";
 
 export default class FamilyGenotypeFilter extends LitElement {
 
@@ -320,16 +320,14 @@ export default class FamilyGenotypeFilter extends LitElement {
                 </div>
                 <div class="col-md-4 mb-2">
                     <div class="form-check-label mode-button">
-                        <select-field-filter
-                            .data="${this.modeSelectData}"
+                        <select-dropdown
+                            .values="${this.modeSelectData}"
                             .value="${this.mode}"
-                            .forceSelection="${true}"
-                            .config="${{
-                                liveSearch: false,
-                                multiple: false,
-                            }}"
+                            ?forceSelection="${true}"
+                            ?multiple="${false}"
+                            ?search="${false}"
                             @filterChange="${this.setMode}">
-                        </select-field-filter>
+                        </select-dropdown>
                     </div>
                 </div>
                 <div class="col-md-12">
