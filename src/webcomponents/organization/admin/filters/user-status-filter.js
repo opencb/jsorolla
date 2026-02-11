@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import "../../../commons/forms/select-field-filter.js";
 import UtilsNew from "../../../../core/utils-new.js";
 import LitUtils from "../../../commons/utils/lit-utils";
 
