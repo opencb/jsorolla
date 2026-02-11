@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-import "../forms/select-field-filter.js";
+import "../forms/select-dropdown.js";
 
 export default class SampleGenotypeFilter extends LitElement {
 
@@ -24,7 +24,7 @@ export default class SampleGenotypeFilter extends LitElement {
         super();
 
         // Set status and init private properties
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -36,29 +36,23 @@ export default class SampleGenotypeFilter extends LitElement {
             sample: {
                 type: String
             },
-            genotypes: {
-                type: Array
-            },
-            sampleId: {
-                type: String
-            },
             config: {
                 type: Object
             }
         };
     }
 
-    _init() {
+    #init() {
+        this._sampleId = "";
+        this._genotypes = "";
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("sample") && this.sample) {
-            const [sample, genotype] = this.sample.split(":");
-            this.sampleId = sample;
-            if (genotype) {
-                this.genotypes = genotype.split(",");
-            }
+        if (changedProperties.has("sample")) {
+            const entries = this.sample?.split(":");
+            this._sampleId = entries?.[0] || "";
+            this._genotypes = entries?.[1] || "";
         }
 
         if (changedProperties.has("config")) {
@@ -71,28 +65,26 @@ export default class SampleGenotypeFilter extends LitElement {
         super.update(changedProperties);
     }
 
-    filterChange(e) {
+    onFilterChange(event) {
+        event.stopPropagation();
         // Prepare sample query filter
-        let sampleFilter = this.sampleId;
-        if (e.detail.value) {
-            sampleFilter += ":" + e.detail.value;
+        let sampleFilter = this._sampleId;
+        if (event.detail.value) {
+            sampleFilter += ":" + event.detail.value;
         }
 
         LitUtils.dispatchCustomEvent(this, "filterChange", sampleFilter);
     }
 
     render() {
-        const genotypes = this.genotypes ?? [];
         return html`
-            <select-field-filter
-                .data="${this._config?.genotypes}"
-                .value=${genotypes}
-                .config="${{
-                    multiple: true,
-                    liveSearch: false
-                }}"
-                @filterChange="${this.filterChange}">
-            </select-field-filter>
+            <select-dropdown
+                .values="${this._config?.genotypes}"
+                .value=${this._genotypes}
+                ?multiple="${true}"
+                ?search="${false}"
+                @filterChange="${event => this.onFilterChange(event)}">
+            </select-dropdown>
         `;
     }
 
