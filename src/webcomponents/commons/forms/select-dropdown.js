@@ -101,16 +101,29 @@ export default class SelectDropdown extends LitElement {
                 };
             }
             // 2. if item is an object with values, return it with normalized values
-            if (item?.values && Array.isArray(item.values)) {
+            // note that we also include a backward compatibility for the old format where values was called fields
+            if ((item?.values && Array.isArray(item.values)) || (item?.fields && Array.isArray(item.fields))) {
                 return {
                     ...item,
-                    values: item.values.map(value => {
-                        return (typeof value === "string" || typeof value === "number") ? {id: `${value}`} : value;
+                    id: item?.id || item?.name,
+                    values: (item?.values || item?.fields).map(value => {
+                        if (typeof value === "string" || typeof value === "number") {
+                            return {
+                                id: `${value}`,
+                            };
+                        }
+                        return {
+                            ...value,
+                            id: value?.id || value?.name,
+                        };
                     }),
                 };
             }
             // 3. return item as is
-            return item;
+            return {
+                ...item,
+                id: item?.id || item?.name,
+            };
         });
     }
 
