@@ -17,7 +17,7 @@
 import {html, LitElement, nothing} from "lit";
 import UtilsNew from "../../core/utils-new.js";
 import "../commons/filters/consequence-type-select-filter.js";
-import "../commons/forms/select-field-filter.js";
+import "../commons/forms/select-dropdown.js";
 import LitUtils from "./utils/lit-utils";
 
 export default class FacetFilter extends LitElement {
@@ -342,11 +342,11 @@ export default class FacetFilter extends LitElement {
                         <i class="fas fa-arrow-alt-circle-down"></i> Nested Facet (optional)
                     </a>
                     <div class="collapse ${this.selectedFacet[facet.id].nested ? "in" : ""}" id="${facet.id}_nested">
-                        <select-field-filter
-                            .data="${this.config.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id}))}))}"
+                        <select-dropdown
+                            .values="${this.config.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id}))}))}"
                             .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null}
                             @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}">
-                        </select-field-filter>
+                        </select-dropdown>
                         <div class="pt-1 pb-2">
                             ${this.renderNestedField(this.selectedFacet[facet.id].nested, facet.id)}
                         </div>
@@ -381,16 +381,14 @@ export default class FacetFilter extends LitElement {
                 return html`
                     <div class="row">
                         <div class="col-md-12">
-                            <select-field-filter
-                                .data="${facet.allowedValues}"
+                            <select-dropdown
+                                .values="${facet.allowedValues}"
                                 .value="${value ?? facet.defaultValue ?? ""}"
-                                .config="${{
-                                    multiple: facet.multiple === undefined || facet.multiple,
-                                }}"
+                                ?multiple="${facet.multiple === undefined || facet.multiple}"
                                 id="${facet.id}_Select"
                                 data-id="${facet.id}"
                                 @filterChange="${e => this.onFacetChange(e, facet.id)}">
-                            </select-field-filter>
+                            </select-dropdown>
                         </div>
                     </div>
                     ${this.config.display?.showNested ? renderNestedFieldWrapper(facet) : nothing}
@@ -428,13 +426,13 @@ export default class FacetFilter extends LitElement {
                         <!-- this.fncs -->
                         <div class="col-4">
                             <div class="col">
-                                <select-field-filter
-                                    .data="${this.selectFns || {}}"
+                                <select-dropdown
+                                    .values="${this.selectFns || {}}"
                                     .value="${facet.fn ?? "range"}"
                                     id="${this._prefix}${facet.id}_FnSelect"
                                     data-facet="${facet.id}"
                                     @filterChange="${this.onFacetFnChange}">
-                                </select-field-filter>
+                                </select-dropdown>
                             </div>
                         </div>
                     </div>
@@ -497,16 +495,14 @@ export default class FacetFilter extends LitElement {
                     [...facet.value.matchAll(/\[([^\s]+)]/gim)][0] : "";
                 return html`
                     <div class="col-md-12">
-                        <select-field-filter
-                            .data="${facet.allowedValues}"
+                        <select-dropdown
+                            .values="${facet.allowedValues}"
                             .value="${value}"
-                            .config="${{
-                                multiple: facet.multiple === undefined || facet.multiple
-                            }}"
+                            ?multiple="${facet.multiple === undefined || facet.multiple}"
                             id="${facet.id}_NestedSelect"
                             data-parent-facet="${parent}"
                             @filterChange="${this.onNestedFacetSelectChange}">
-                        </select-field-filter>
+                        </select-dropdown>
                     </div>
                 `;
             case "number":
@@ -543,16 +539,14 @@ export default class FacetFilter extends LitElement {
                             .value="\${num_value || ""}"  @input="\${this.onNestedFacetValueChange}"  />-->
                         </div>
                         <div class="col-md-4">
-                            <select-field-filter
-                                .data="${this.selectFns || {}}"
+                            <select-dropdown
+                                .values="${this.selectFns || {}}"
                                 .value="${facet.fn ?? "range"}"
-                                .config="${{
-                                    disabled: false
-                                }}"
+                                ?disabled="${false}"
                                 id="${parent}_NestedFnSelect"
                                 data-parent-facet="${parent}"
                                 @filterChange="${this.onNestedFacetFnChange}">
-                            </select-field-filter>
+                            </select-dropdown>
                         </div>
                     </div>
                 `;
@@ -600,14 +594,12 @@ export default class FacetFilter extends LitElement {
                 <label class="form-label fw-bold">
                     Select an Aggregation Field
                 </label>
-                <select-field-filter
-                    .data="${this.config.sections}"
+                <select-dropdown
+                    .values="${this.config.sections}"
                     .value="${Object.keys(this.selectedFacet).join(",")}"
-                    .config="${{
-                        multiple: true,
-                    }}"
-                    @filterChange="${this.onFacetFieldChange}">
-                </select-field-filter>
+                    ?multiple="${true}"
+                    @filterChange="${event => this.onFacetFieldChange(event)}">
+                </select-dropdown>
                 <div class="text-center">
                     <div>- or -</div>
                     <button class="btn btn-light btn-small cy-default-facets-button" @click="${this.addDefaultFacet}">
