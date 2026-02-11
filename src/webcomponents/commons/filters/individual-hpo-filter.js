@@ -49,15 +49,15 @@ export default class IndividualHpoFilter extends LitElement {
     }
 
     _init() {
-        this.phenotypes = [];
-        this.value = "";
-        this.allChecked = false;
+        this._phenotypes = [];
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("individual")) {
-            this.phenotypes = this.individual?.phenotypes?.filter(phenotype => phenotype.id?.startsWith("HP:"));
+            this._phenotypes = (this.individual?.phenotypes || []).filter(phenotype => {
+                return phenotype.id?.startsWith("HP:");
+            });
         }
         if (changedProperties.has("config")) {
             this._config = {
@@ -68,70 +68,22 @@ export default class IndividualHpoFilter extends LitElement {
         super.update(changedProperties);
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("value") || changedProperties.has("individual")) {
-            const allChecked = (this.phenotypes || []).every(phenotype => {
-                return (this.value || "").includes(phenotype.id);
-            });
-
-            if (!allChecked && this.allChecked) {
-                // eslint-disable-next-line quotes
-                this.querySelector(`input[type="checkbox"]`).checked = false;
-                this.allChecked = false;
-                this.requestUpdate();
-            }
-        }
-    }
-
-    filterChange(e, source) {
-        e.stopPropagation();
-        // Check if the event has been fired by checkbox or by selecting some phenotypes
-        let value;
-        if (source === "ALL") {
-            this.allChecked = e.currentTarget.checked;
-            if (this.allChecked) {
-                value = this.phenotypes
-                    .filter(phenotype => !!phenotype.id)
-                    .map(phenotype => phenotype.id)
-                    .join(",");
-            } else {
-                value = "";
-            }
-            this.requestUpdate();
-        } else {
-            value = e.detail.value;
-        }
-
-        LitUtils.dispatchCustomEvent(this, "filterChange", value);
+    onFilterChange(event) {
+        event.stopPropagation();
+        LitUtils.dispatchCustomEvent(this, "filterChange", event.detail.value);
     }
 
     render() {
         return html`
-            <div>
-                <label style="padding-top: 0; font-weight: normal;margin: 0">
-                    <input
-                        type="checkbox"
-                        ?disabled="${this.phenotypes?.length === 0 || this.disabled}"
-                        @click="${e => this.filterChange(e, "ALL")}">
-                    <span style="margin: 0 5px" title="${this.phenotypes?.map(phenotype => phenotype.id).join(",") || ""}">
-                        Select all HPOs terms (${this.phenotypes?.length || 0} terms found)
-                    </span>
-                </label>
-            </div>
-
-            <div class="form-group">
-                <div style="margin: 10px 0">
-                    <span>Or select terms manually:</span>
-                </div>
-                <select-dropdown
-                    .values="${this.phenotypes}"
-                    .value="${this.value || ""}"
-                    ?multiple="${true}"
-                    ?search="${this.phenotypes?.length > 25}"
-                    ?disabled="${this.phenotypes?.length === 0 || this.allChecked || this.disabled}"
-                    @filterChange="${e => this.filterChange(e)}">
-                </select-dropdown>
-            </div>
+            <select-dropdown
+                .values="${this._phenotypes}"
+                .value="${this.value || ""}"
+                ?multiple="${true}"
+                ?selectAll="${true}"
+                ?search="${this._phenotypes?.length > 25}"
+                ?disabled="${this._phenotypes?.length === 0 || this.disabled}"
+                @filterChange="${event => this.onFilterChange(event)}">
+            </select-dropdown>
         `;
     }
 
