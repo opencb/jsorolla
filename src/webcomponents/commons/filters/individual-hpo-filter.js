@@ -16,7 +16,7 @@
 
 import {html, LitElement} from "lit";
 import LitUtils from "../utils/lit-utils";
-import "../forms/select-field-filter.js";
+import "../forms/select-dropdown.js";
 
 export default class IndividualHpoFilter extends LitElement {
 
@@ -84,6 +84,7 @@ export default class IndividualHpoFilter extends LitElement {
     }
 
     filterChange(e, source) {
+        e.stopPropagation();
         // Check if the event has been fired by checkbox or by selecting some phenotypes
         let value;
         if (source === "ALL") {
@@ -122,23 +123,20 @@ export default class IndividualHpoFilter extends LitElement {
                 <div style="margin: 10px 0">
                     <span>Or select terms manually:</span>
                 </div>
-                <select-field-filter
+                <select-dropdown
+                    .values="${this.phenotypes}"
                     .value="${this.value || ""}"
-                    .data="${this.phenotypes}"
-                    .config="${{
-                        multiple: true,
-                        liveSearch: this.phenotypes?.length > 25,
-                        disabled: this.phenotypes?.length === 0 || this.allChecked || this.disabled
-                    }}"
+                    ?multiple="${true}"
+                    ?search="${this.phenotypes?.length > 25}"
+                    ?disabled="${this.phenotypes?.length === 0 || this.allChecked || this.disabled}"
                     @filterChange="${e => this.filterChange(e)}">
-                </select-field-filter>
+                </select-dropdown>
             </div>
         `;
     }
 
     getDefaultConfig() {
-        return {
-        };
+        return {};
     }
 
 }
