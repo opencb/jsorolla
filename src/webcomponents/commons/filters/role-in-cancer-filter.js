@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import LitUtils from "../utils/lit-utils";
+import "../forms/select-dropdown.js";
 
 export default class RoleInCancerFilter extends LitElement {
 
@@ -51,27 +52,29 @@ export default class RoleInCancerFilter extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
         super.update(changedProperties);
     }
 
     filterChange(e) {
+        e.stopPropagation();
         LitUtils.dispatchCustomEvent(this, "filterChange", e.detail.value);
     }
 
     render() {
         return html`
-            <select-field-filter
-                .data="${this._config.rolesInCancer}"
+            <select-dropdown
+                .values="${this._config.rolesInCancer}"
                 .value=${this.roleInCancer}
-                .config="${{
-                    multiple: this._config.multiple,
-                    disabled: this.disabled,
-                    liveSearch: false
-                }}"
+                ?multiple="${this._config.multiple}"
+                ?disabled="${this.disabled}"
+                ?search="${false}"
                 @filterChange="${this.filterChange}">
-            </select-field-filter>
+            </select-dropdown>
         `;
     }
 
