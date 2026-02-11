@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import UtilsNew from "../../../core/utils-new.js";
-import "../forms/select-field-filter.js";
+import LitUtils from "../utils/lit-utils.js";
+import "../forms/select-dropdown.js";
 
 export default class VariantFileFilter extends LitElement {
 
@@ -46,40 +46,28 @@ export default class VariantFileFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
-
         this._config = this.getDefaultConfig();
     }
 
-    filterChange(e) {
-        // select-field-filter already emits a bubbled filterChange event.
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: e.detail.value
-            },
-            bubbles: true,
-            composed: true
-        });
-
-        this.dispatchEvent(event);
-    }
-
-    getDefaultConfig() {
-        return {};
+    onFilterChange(e) {
+        e.stopPropagation();
+        LitUtils.dispatchCustomEvent(this, "filterChange", e.detail.value);
     }
 
     render() {
         return html`
-            <select-field-filter
-                .data="${this.files}"
+            <select-dropdown
+                .values="${this.files}"
                 .value="${this.value}"
-                .config="${{
-                    multiple: true,
-                    liveSearch: false,
-                }}"
-                @filterChange="${this.filterChange}">
-            </select-field-filter>
+                ?multiple="${true}"
+                ?search="${false}"
+                @filterChange="${event => this.onFilterChange(event)}">
+            </select-dropdown>
         `;
+    }
+
+    getDefaultConfig() {
+        return {};
     }
 
 }
