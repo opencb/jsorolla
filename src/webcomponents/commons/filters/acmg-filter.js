@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-import "../forms/select-field-filter.js";
+import "../forms/select-dropdown.js";
 
 export default class AcmgFilter extends LitElement {
 
@@ -47,21 +47,20 @@ export default class AcmgFilter extends LitElement {
     }
 
     filterChange(e) {
+        e.stopPropagation();
         const value = (e.detail.value || "").split(",").filter(v => !!v);
         LitUtils.dispatchCustomEvent(this, "filterChange", value);
     }
 
     render() {
         return html`
-            <select-field-filter
-                .data="${this.config.data}"
-                .value=${this.acmg || []}
-                .config="${{
-                    multiple: this.multiple ?? this.config.multiple,
-                    liveSearch: this.config.liveSearch
-                }}"
+            <select-dropdown
+                .values="${this.config.data}"
+                .value=${[this.acmg || []].flat().join(",")}
+                ?multiple="${this.multiple ?? this.config.multiple}"
+                ?search="${this.config.liveSearch}"
                 @filterChange="${this.filterChange}">
-            </select-field-filter>
+            </select-dropdown>
         `;
     }
 
