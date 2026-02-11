@@ -15,7 +15,8 @@
  */
 
 import {html, LitElement} from "lit";
-import "../../commons/forms/select-field-filter.js";
+import LitUtils from "../utils/lit-utils.js";
+import "../../commons/forms/select-dropdown.js";
 import "../../commons/forms/checkbox-field-filter.js";
 
 export default class ClinicalAnnotationFilter extends LitElement {
@@ -80,10 +81,52 @@ export default class ClinicalAnnotationFilter extends LitElement {
             this.query[field] = e.detail.value === "Confirmed";
         }
 
-        const event = new CustomEvent("filterChange", {
-            detail: this.query
-        });
-        this.dispatchEvent(event);
+        LitUtils.dispatchCustomEvent(this, "filterChange", null, this.query);
+    }
+
+    render() {
+        return html`
+            <div class="mb-3">
+                <label class="form-label">
+                    Select Clinical Database
+                </label>
+                <div data-cy="clinical-db">
+                    <select-dropdown
+                        .values="${this._config.clinicalDatabases}"
+                        .value=${this.clinical}
+                        ?multiple="${true}"
+                        @filterChange="${e => this.filterChange(e, "clinical")}">
+                    </select-dropdown>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">
+                    Select Clinical Significance
+                </label>
+                <div data-cy="clinical-significance">
+                    <select-dropdown
+                        .values=${CLINICAL_SIGNIFICANCE}
+                        .value=${this.clinicalSignificance}
+                        ?multiple="${true}"
+                        @filterChange="${e => this.filterChange(e, "clinicalSignificance")}">
+                    </select-dropdown>
+                </div>
+            </div>
+
+            <div class="">
+                <label class="form-label">
+                    Check Status
+                </label>
+                <div class="clinical-status">
+                    <checkbox-field-filter
+                        .data="${["Confirmed"]}"
+                        .value=${this.clinicalConfirmedStatus === true || this.clinicalConfirmedStatus === "true" ? "Confirmed" : null}
+                        @filterChange="${e => this.filterChange(e, "clinicalConfirmedStatus")}">
+                    </checkbox-field-filter>
+                </div>
+            </div>
+        `;
     }
 
     getDefaultConfig() {
@@ -95,50 +138,6 @@ export default class ClinicalAnnotationFilter extends LitElement {
                 {id: "hgmd", name: "HGMD"},
             ]
         };
-    }
-
-    render() {
-        return html`
-            <div class="mb-3">
-                <label class="form-label">
-                    Select Clinical Database
-                </label>
-                <div data-cy="clinical-db">
-                    <select-field-filter
-                        .data="${this._config.clinicalDatabases}"
-                        .value=${this.clinical}
-                        .config="${{multiple: true}}"
-                        @filterChange="${e => this.filterChange(e, "clinical")}">
-                    </select-field-filter>
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">
-                    Select Clinical Significance
-                </label>
-                <div data-cy="clinical-significance">
-                    <select-field-filter
-                        .data=${CLINICAL_SIGNIFICANCE}
-                        .value=${this.clinicalSignificance}
-                        .config="${{multiple: true}}"
-                        @filterChange="${e => this.filterChange(e, "clinicalSignificance")}">
-                    </select-field-filter>
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">
-                    Check Status
-                </label>
-                <div class="clinical-status">
-                    <checkbox-field-filter
-                        .data="${["Confirmed"]}"
-                        .value=${this.clinicalConfirmedStatus === true || this.clinicalConfirmedStatus === "true" ? "Confirmed" : null}
-                        @filterChange="${e => this.filterChange(e, "clinicalConfirmedStatus")}">
-                    </checkbox-field-filter>
-                </div>
-            </div>`;
     }
 
 }
