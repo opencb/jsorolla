@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utils-new";
 import NotificationUtils from "./utils/notification-utils";
 import LitUtils from "./utils/lit-utils";
 import "./tool-settings-preview.js";
-import "./forms/select-field-filter.js";
+import "./forms/select-dropdown.js";
 
 export default class ToolSettingsEditor extends LitElement {
 
@@ -126,18 +126,16 @@ export default class ToolSettingsEditor extends LitElement {
 
     renderSelect() {
         return html `
-        <div style="width:20rem">
-            <select-field-filter
-                .data="${Object.keys(this.toolSettings)}"
-                .value="${this._toolName}"
-                .forceSelection="${true}"
-                .config="${{
-                    multiple: false,
-                    liveSearch: false
-                }}"
-                @filterChange="${this.onToolChange}">
-            </select-field-filter>
-        </div>
+            <div style="width:20rem">
+                <select-dropdown
+                    .values="${Object.keys(this.toolSettings)}"
+                    .value="${this._toolName}"
+                    ?multiple="${false}"
+                    ?forceSelection="${true}"
+                    ?search="${false}"
+                    @filterChange="${this.onToolChange}">
+                </select-dropdown>
+            </div>
         `;
     }
 
