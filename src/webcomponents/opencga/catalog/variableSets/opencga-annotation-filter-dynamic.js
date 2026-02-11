@@ -3,7 +3,7 @@ import UtilsNew from "../../../../core/utils-new.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import LitUtils from "../../../commons/utils/lit-utils.js";
 import "./opencga-variable-selector.js";
-import "./../../../commons/forms/select-field-filter.js";
+import "../../../commons/forms/select-dropdown.js";
 import NotificationUtils from "../../../commons/utils/notification-utils.js";
 
 /**
@@ -417,18 +417,12 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
             ${this.variableSets.map(variableSet => html`
                 <div class="variable-set-wrapper">
                     <p>${variableSet.description}</p>
-                    <select class="selectpicker ovs-list" id="${this._prefix}-annotation-picker-${variableSet.id}" data-live-search="true" data-size="10"
-                                @change="${e => this.onChangeSelectedVariable(e, variableSet.id)}" data-width="100%" ?multiple="${this._config.multiSelection}">
-                        ${variableSet.variables.map((variable, i) => {
-                            return html`
-                                <option data-tokens="${variable.tags}" data-index="${i}"
-                                        style="padding-left: ${variable.margin}px; cursor: ${variable.cursor};"
-                                        ?disabled="${variable.disabled}">
-                                    ${variable.id}
-                                </option>
-                            `;
-                        })}
-                    </select>
+                    <select-dropdown
+                        id="${this._prefix}-annotation-picker-${variableSet.id}"
+                        .values="${variableSet.variables}"
+                        ?multiple="${this._config.multiSelection}"
+                        @filterChange="${e => this.onChangeSelectedVariable(e, variableSet.id)}">
+                    </select-dropdown>
                     ${this.selectedVariables[variableSet.id].map(variable => html`${this.renderVariable(variable, variableSet.id)}`)}
                 </div>
             `)}

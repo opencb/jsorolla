@@ -19,7 +19,7 @@ import UtilsNew from "../../../../core/utils-new.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import "./opencga-variable-selector.js";
 import NotificationUtils from "../../../commons/utils/notification-utils.js";
-import "../../../commons/forms/select-field-filter.js";
+import "../../../commons/forms/select-dropdown.js";
 
 /**
  * @deprecated
@@ -319,14 +319,11 @@ export default class OpencgaAnnotationFilter extends LitElement {
             <!-- Annotations -->
             ${this.multipleVariableSets ? html`
                 <label for="${this._prefix}-variableSetSelect">Select Variable Set</label>
-                <select-field-filter
-                    .data="${this.variableSets.map(_ => _.name)}"
-                    .config="${{
-                        liveSearch: false,
-                        multiple: false,
-                    }}"
+                <select-dropdown
+                    .values="${this.variableSets.map(_ => _.name)}"
+                    ?search="${false}"
                     @filterChange="${this.onSelectedVariableSetChange}">
-                </select-field-filter>
+                </select-dropdown>
             ` :
             null}
 
@@ -351,12 +348,12 @@ export default class OpencgaAnnotationFilter extends LitElement {
                            placeholder="${this.selectedVariable.id} number" data-variable-name="${this.selectedVariable.id}"
                            pattern="^[0-9]+$" @input="${this.addInputFilter}">
                 ` : this.selectedVariable.type === "CATEGORICAL" ? html`
-                    <select id="${this._prefix}-categorical-selector" class="selectpicker" multiple @change="${this.addCategoricalFilter}"
-                            data-width="100%">
-                        ${this.selectedVariable.allowedValues && this.selectedVariable.allowedValues.length && this.selectedVariable.allowedValues.map(item => html`
-                                    <option value="${item}" on-dom-change="renderDomRepeat">${item}</option>
-                                `)}
-                    </select>
+                    <select-dropdown
+                        id="${this._prefix}-categorical-selector"
+                        .values="${this.selectedVariable.allowedValues || []}"
+                        ?multiple="${true}"
+                        @filterChange="${e => this.addCategoricalFilter(e)}">
+                    </select-dropdown>
                 ` : this.selectedVariable.type === "BOOLEAN" ? html`
                     <!-- BOOLEAN type, 2 values: radio buttons for selection: yes or no -->
                     <div class="form-check form-check-inline">
