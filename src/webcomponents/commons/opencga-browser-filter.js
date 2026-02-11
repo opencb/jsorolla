@@ -22,7 +22,7 @@ import "./forms/date-filter.js";
 import "./forms/date-picker.js";
 import "./forms/text-field-filter.js";
 import "./filters/somatic-filter.js";
-import "./forms/select-field-filter.js";
+import "./forms/select-dropdown.js";
 import "./forms/select-token-filter-static.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 
@@ -183,14 +183,12 @@ export default class OpencgaBrowserFilter extends LitElement {
             case "job_priority":
             case "visibility":
                 content = html`
-                    <select-field-filter
+                    <select-dropdown
                         .value="${preparedQuery[subsection.id]}"
-                        .data="${subsection.allowedValues}"
-                        .config="${{
-                            multiple: subsection?.multiple
-                        }}"
+                        .values="${subsection.allowedValues}"
+                        ?multiple="${subsection?.multiple}"
                         @filterChange="${e => onFilterChange(subsection.id, e.detail.value)}">
-                    </select-field-filter>
+                    </select-dropdown>
                 `;
                 break;
             case "path":
@@ -272,14 +270,12 @@ export default class OpencgaBrowserFilter extends LitElement {
                 // Josemi Note 2024-12-11: the 'type' id is associated with the cohort's type and uses catalog-distinct-autocomplete
                 // but for the note's type, we need to use select-field-filter as we have a fixed set of values
                 content = html`
-                    <select-field-filter
+                    <select-dropdown
                         .value="${this.preparedQuery.type}"
-                        .data="${subsection.allowedValues || []}"
-                        .config="${{
-                            multiple: subsection?.multiple
-                        }}"
+                        .values="${subsection.allowedValues || []}"
+                        ?multiple="${subsection?.multiple}"
                         @filterChange="${e => onFilterChange("type", e.detail.value)}">
-                    </select-field-filter>
+                    </select-dropdown>
                 `;
                 break;
             default:
