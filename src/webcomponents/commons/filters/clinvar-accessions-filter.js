@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import LitUtils from "../utils/lit-utils.js";
+import "../forms/select-dropdown.js";
 
 export default class ClinvarAccessionsFilter extends LitElement {
 
@@ -77,7 +79,17 @@ export default class ClinvarAccessionsFilter extends LitElement {
     //     this.filterChange();
     // }
 
-    filterChange(e, field) {
+    getClinicalSignificanceValues() {
+        return Object.entries(this._config?.clinicalSignificanceValues || {}).map(entry => {
+            return {
+                id: entry[0],
+                name: entry[1],
+            };
+        });
+    }
+
+    onFilterChange(e, field) {
+        e.stopPropagation();
         if (field === "clinvar") {
             const textArea = e.target.value;
             this._clinVar = textArea?.trim()?.replace(/\r?\n/g, ",").replace(/\s/g, "");
@@ -85,16 +97,37 @@ export default class ClinvarAccessionsFilter extends LitElement {
             this.clinicalSignificance = e.detail.value;
         }
 
-        e.stopPropagation();
         const value = {};
-        if (this._config.clinvar) {
+        if (this._config?.clinvar) {
             value.clinvar = this._clinVar || null;
         }
         value.clinicalSignificance = this.clinicalSignificance || null;
-        const event = new CustomEvent("filterChange", {
-            detail: {value}
-        });
-        this.dispatchEvent(event);
+        LitUtils.dispatchCustomEvent(this, "filterChange", value);
+    }
+
+    render() {
+        return html`
+            <div class="form-group">
+                <select-dropdown
+                    .values="${this.getClinicalSignificanceValues()}"
+                    .value="${this.clinicalSignificance}"
+                    ?multiple="${true}"
+                    @filterChange="${e => this.onFilterChange(e, "clinicalSignificance")}">
+                </select-dropdown>
+            </div>
+            ${this._config?.clinvar ? html`
+                <div class="form-group">
+                    <textarea
+                        id="${this._prefix}ClinVarTextarea"
+                        class="form-control clearable ${this._prefix}FilterTextInput"
+                        rows="3"
+                        name="clinvar"
+                        placeholder="${this.placeholder}"
+                        @keyup="${e => this.onFilterChange(e, "clinvar")}">
+                    </textarea>
+                </div>
+            ` : nothing}
+        `;
     }
 
     getDefaultConfig() {
@@ -108,30 +141,6 @@ export default class ClinvarAccessionsFilter extends LitElement {
                 pathogenic: "Pathogenic"
             }
         };
-    }
-
-    render() {
-        return html`
-            <div class="form-group">
-                <select-field-filter
-                    .data="${Object.entries(this._config.clinicalSignificanceValues).map(([code, label]) => ({id: code, name: label}))}"
-                    .value="${this.clinicalSignificance}"
-                    .config="${{multiple: true}}"
-                    @filterChange="${e => this.filterChange(e, "clinicalSignificance")}">
-                </select-field-filter>
-            </div>
-            ${this._config.clinvar ? html`
-                <div class="form-group">
-                    <textarea
-                        id="${this._prefix}ClinVarTextarea"
-                        class="form-control clearable ${this._prefix}FilterTextInput"
-                        rows="3"
-                        name="clinvar"
-                        placeholder="${this.placeholder}"
-                        @keyup="${e => this.filterChange(e, "clinvar")}">
-                    </textarea>
-                </div>` : null
-        }`;
     }
 
 }
