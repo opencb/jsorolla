@@ -25,6 +25,7 @@ import "../json-editor.js";
 import "../../tree-viewer.js";
 import "../../download-button.js";
 import "../forms/text-field-filter.js";
+import "../forms/select-dropdown.js";
 import "../forms/markdown-editor.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
@@ -1189,21 +1190,18 @@ export default class DataForm extends LitElement {
         const disabled = this._getBooleanValue(element?.display?.disabled, false, element);
         const content = html`
             <div class="">
-                <select-field-filter
-                    .data="${allowedValues}"
-                    .config="${{
-                        liveSearch: element?.search,
-                        multiple: element?.multiple,
-                        all: element?.all,
-                        maxOptions: element?.maxOptions,
-                        disabled: disabled,
-                        required: element?.required,
-                    }}"
+                <select-dropdown
+                    .values="${allowedValues}"
+                    .multiple="${element?.multiple}"
+                    .search="${element?.search}"
+                    .selectAll="${element?.all}"
+                    .disabled="${disabled}"
+                    .required="${element?.required}"
                     .forceSelection="${element?.forceSelection ?? false}"
                     .value="${defaultValue}"
-                    .classes="${this._isUpdated(element) ? "updated" : ""}"
+                    .className="${this._isUpdated(element) ? "updated" : ""}"
                     @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
-                </select-field-filter>
+                </select-dropdown>
             </div>
         `;
 
