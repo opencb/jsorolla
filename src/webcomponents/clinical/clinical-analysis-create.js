@@ -449,6 +449,7 @@ export default class ClinicalAnalysisCreate extends LitElement {
                             field: "type",
                             type: "select",
                             required: true,
+                            forceSelection: true,
                             allowedValues: ["SINGLE", "FAMILY", "CANCER"],
                         },
                         {
