@@ -371,7 +371,7 @@ export default class SelectDropdown extends LitElement {
                     </div>
                 </div>
                 <div
-                    class="form-select flex-grow-1 d-flex align-items-center rounded-start"
+                    class="form-select flex-grow-1 d-flex align-items-center rounded-start cursor-pointer"
                     id="${this._prefix}DropdownButton"
                     data-bs-toggle="dropdown"
                     data-bs-auto-close="outside"
