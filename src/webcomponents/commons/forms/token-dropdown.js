@@ -58,6 +58,9 @@ export default class TokenDropdown extends LitElement {
             separator: {
                 type: String,
             },
+            renderItem: {
+                type: Function,
+            },
         };
     }
 
@@ -216,7 +219,12 @@ export default class TokenDropdown extends LitElement {
 
     onItemClick(event, item) {
         event.stopPropagation();
-        this.addToken(item[this.field] || item);
+        const value = item[this.field] || item;
+        if (this.getSelectedValues().includes(value)) {
+            this.removeToken(value);
+        } else {
+            this.addToken(value);
+        }
     }
 
     renderToken(value) {
@@ -228,10 +236,29 @@ export default class TokenDropdown extends LitElement {
         `;
     }
 
-    renderResultItem(item, index, isFocused) {
-        return html`
-            <a class="dropdown-item cursor-pointer ${isFocused ? "bg-primary-subtle" : ""}" @click="${e => this.onItemClick(e, item)}">
+    renderResultItem(item, index) {
+        const isActive = this.getSelectedValues().includes(item[this.field] || item);
+        const isFocused = this._focusedIndex === index;
+        let content = nothing;
+
+        if (typeof this.renderItem === "function") {
+            content = this.renderItem(item, isActive);
+        } else {
+            content = html`
                 <span>${item.name || item.id}</span>
+            `;
+        }
+
+        return html`
+            <a class="dropdown-item cursor-pointer ${isFocused || isActive ? "bg-primary-subtle" : ""}" @click="${e => this.onItemClick(e, item)}">
+                <div class="d-flex w-full align-items-center justify-between gap-2">
+                    <div class="text-wrap flex-grow-1">
+                        ${content}
+                    </div>
+                    ${isActive ? html`
+                        <i class="fas fa-check"></i>
+                    ` : nothing}
+                </div>
             </a>
         `;
     }
@@ -263,9 +290,7 @@ export default class TokenDropdown extends LitElement {
                     ${!this._loading && this._results.length === 0 && this._searchQuery ? html`
                         <div class="dropdown-item disabled text-muted">No results found</div>
                     ` : nothing}
-                    ${this._results.map((item, index) => {
-                        return this.renderResultItem(item, index, this._focusedIndex === index);
-                    })}
+                    ${this._results.map((item, index) => this.renderResultItem(item, index))}
                 </div>
             </div>
         `;
