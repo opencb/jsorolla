@@ -77,29 +77,7 @@ export default class TokenDropdown extends LitElement {
         this._loading = false;
         this._open = false;
         this._focusedIndex = -1;
-        this._selectedItems = [];
     }
-
-    // update(changedProperties) {
-    //     if (changedProperties.has("value") || changedProperties.has("values")) {
-    //         this.updateSelectedValues();
-    //     }
-    //     super.update(changedProperties);
-    // }
-
-    // updateSelectedValues() {
-    //     if (this.values && this.values.length > 0) {
-    //         this._selectedItems = [...this.values];
-    //     } else if (this.value) {
-    //         const ids = this.value.split(",").filter(id => !!id);
-    //         this._selectedItems = ids.map(id => {
-    //             const existing = this._selectedItems?.find(item => item.id === id);
-    //             return existing || {id: id, name: id};
-    //         });
-    //     } else {
-    //         this._selectedItems = [];
-    //     }
-    // }
 
     getSelectedValues() {
         return (this.value || "").split(this.separator).filter(Boolean);
@@ -178,6 +156,7 @@ export default class TokenDropdown extends LitElement {
         this._focused = false;
         setTimeout(() => {
             this._open = false;
+            this._searchQuery = ""; // reset search query
             this.requestUpdate();
         }, 200);
     }
