@@ -209,51 +209,49 @@ export default class TokenDropdown extends LitElement {
         this.requestUpdate();
     }
 
-    renderToken(item, index) {
+    renderTokenItem(item, index) {
         return html`
             <span class="badge d-flex align-items-center bg-primary me-1 mb-1 p-2">
-                ${item.name || item.id}
+                <span>${item.name || item.id}</span>
                 <i class="fas fa-times ms-2 cursor-pointer" @click="${e => this.onRemoveTokenClick(e, index)}"></i>
             </span>
+        `;
+    }
+
+    renderResultItem(item, index) {
+        return html`
+            <a class="dropdown-item ${this._focusedIndex === index ? "active" : ""}" @click="${e => this.onItemClick(e, item)}">
+                <span>${item.name || item.id}</span>
+            </a>
         `;
     }
 
     render() {
         return html`
             <div class="token-dropdown position-relative">
-                <div 
-                    class="token-dropdown-container d-flex flex-wrap align-items-center form-control bg-white h-auto py-1 px-2"
-                    @click="${e => this.onContainerClick(e)}">
-                    
-                    ${this._selectedItems?.map((item, index) => this.renderToken(item, index))}
-                    
+                <div class="d-flex flex-wrap align-items-center form-control bg-white h-auto py-1 px-2" @click="${e => this.onContainerClick(e)}">
+                    ${this._selectedItems?.map((item, index) => this.renderTokenItem(item, index))}
                     <input 
                         type="text" 
                         class="border-0 outline-none flex-grow-1 p-1"
                         style="outline: none; min-width: 100px;"
-                        .value="${this._searchQuery}"
                         placeholder="${this._selectedItems?.length > 0 ? "" : this.placeholder}"
+                        .value="${this._searchQuery}"
+                        ?disabled="${this.disabled}"
                         @input="${e => this.onInputChange(e)}"
                         @keydown="${e => this.onKeyDown(e)}"
                         @focus="${e => this.onInputFocus(e)}"
                         @blur="${e => this.onInputBlur(e)}"
-                        ?disabled="${this.disabled}"
                     />
                 </div>
-
                 <div class="dropdown-menu w-100 ${this._open ? "show" : ""}" style="max-height: 300px; overflow-y: auto;">
-                    ${this._loading ? html`<div class="dropdown-item disabled text-muted">Loading...</div>` : nothing}
+                    ${this._loading ? html`
+                        <div class="dropdown-item disabled text-muted">Loading...</div>
+                    ` : nothing}
                     ${!this._loading && this._results.length === 0 && this._searchQuery ? html`
                         <div class="dropdown-item disabled text-muted">No results found</div>
                     ` : nothing}
-                    ${this._results.map((item, index) => html`
-                        <button 
-                            type="button"
-                            class="dropdown-item ${index === this._focusedIndex ? "active" : ""}" 
-                            @click="${e => this.onItemClick(e, item)}">
-                            ${item.name || item.id}
-                        </button>
-                    `)}
+                    ${this._results.map((item, index) => this.renderResultItem(item, index))}
                 </div>
             </div>
         `;
