@@ -52,6 +52,12 @@ export default class TokenDropdown extends LitElement {
             fetch: {
                 type: Object
             },
+            field: {
+                type: String,
+            },
+            separator: {
+                type: String,
+            },
         };
     }
 
@@ -63,6 +69,8 @@ export default class TokenDropdown extends LitElement {
         this.multiple = true;
         this.editable = false;
         this.disabled = false;
+        this.field = "id";
+        this.separator = ",";
 
         this._searchQuery = "";
         this._results = [];
@@ -72,95 +80,97 @@ export default class TokenDropdown extends LitElement {
         this._selectedItems = [];
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("value") || changedProperties.has("values")) {
-            this.updateSelectedValues();
-        }
-        super.update(changedProperties);
+    // update(changedProperties) {
+    //     if (changedProperties.has("value") || changedProperties.has("values")) {
+    //         this.updateSelectedValues();
+    //     }
+    //     super.update(changedProperties);
+    // }
+
+    // updateSelectedValues() {
+    //     if (this.values && this.values.length > 0) {
+    //         this._selectedItems = [...this.values];
+    //     } else if (this.value) {
+    //         const ids = this.value.split(",").filter(id => !!id);
+    //         this._selectedItems = ids.map(id => {
+    //             const existing = this._selectedItems?.find(item => item.id === id);
+    //             return existing || {id: id, name: id};
+    //         });
+    //     } else {
+    //         this._selectedItems = [];
+    //     }
+    // }
+
+    getSelectedValues() {
+        return (this.value || "").split(this.separator).filter(Boolean);
     }
 
-    updateSelectedValues() {
-        if (this.values && this.values.length > 0) {
-            this._selectedItems = [...this.values];
-        } else if (this.value) {
-            const ids = this.value.split(",").filter(id => !!id);
-            this._selectedItems = ids.map(id => {
-                const existing = this._selectedItems?.find(item => item.id === id);
-                return existing || {id: id, name: id};
-            });
-        } else {
-            this._selectedItems = [];
-        }
-    }
-
-    addToken(text) {
-        const item = {id: text, name: text};
+    addToken(value) {
         if (this.multiple) {
-            if (!this._selectedItems.find(i => i.id === item.id)) {
-                this._selectedItems.push(item);
+            const selectedValues = this.getSelectedValues();
+            if (!selectedValues.includes(value)) {
+                selectedValues.push(value);
+                this.value = selectedValues.join(this.separator);
             }
         } else {
-            this._selectedItems = [item];
+            this.value = value;
         }
-        this._searchQuery = "";
-        this._open = false;
-        this.notifyChange();
+        // this._searchQuery = "";
+        // this._open = false;
+        // this.requestUpdate();
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
+    }
+
+    removeToken(value) {
+        const newValues = this.getSelectedValues().filter(selectedValue => {
+            return selectedValue !== value;
+        });
+        this.value = newValues.join(this.separator);
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
+    }
+
+    fetchResults(query = "") {
+        this._searchQuery = query || "";
+        this._results = []; // reset results
+        this._loading = true;
+        this._open = true;
         this.requestUpdate();
+
+        // initialize params and success/error callbacks
+        const params = {
+            query: this._searchQuery || "",
+        };
+        const successCallback = (results = []) => {
+            this._results = results;
+            this._loading = false;
+            this._focusedIndex = -1;
+            this.requestUpdate();
+        };
+        const errorCallback = (error) => {
+            console.error("Fetch error:", error);
+            this._loading = false;
+            this.requestUpdate();
+        };
+
+        // run the provided fetch method
+        this.fetch(params, successCallback, errorCallback);
     }
 
-    onRemoveTokenClick(e, index) {
-        e.stopPropagation();
-        this.removeToken(index);
-    }
-
-    removeToken(index) {
-        this._selectedItems.splice(index, 1);
-        this.notifyChange();
-        this.requestUpdate();
-    }
-
-    notifyChange() {
-        const selection = this._selectedItems.map(item => item.id).join(",");
-        LitUtils.dispatchCustomEvent(this, "filterChange", selection, {
-            data: this._selectedItems
-        }, null, {bubbles: false, composed: false});
+    onRemoveTokenClick(event, value) {
+        event.stopPropagation();
+        this.removeToken(value);
     }
 
     onContainerClick(e) {
         this.renderRoot.querySelector("input").focus();
     }
 
-    onInputChange(e) {
-        this._searchQuery = e?.target?.value || "";
-        this._results = [];
-        this._loading = true;
-        this._open = true;
-        this.requestUpdate();
-
-        const params = {
-            data: {
-                q: this._searchQuery
-            }
-        };
-
-        this.fetch(params,
-            (response) => {
-                this._results = response.getResults ? response.getResults() : response;
-                this._loading = false;
-                this._focusedIndex = -1;
-                this.requestUpdate();
-            },
-            (error) => {
-                console.error("Fetch error:", error);
-                this._loading = false;
-                this.requestUpdate();
-            }
-        );
+    onInputChange(event) {
+        this.fetchResults(event?.target?.value || "");
     }
 
     onInputFocus(e) {
         this._focused = true;
-        // Trigger initial fetch when focused
         this.onInputChange();
     }
 
@@ -172,70 +182,67 @@ export default class TokenDropdown extends LitElement {
         }, 200);
     }
 
-    onKeyDown(e) {
-        if (e.key === "ArrowDown") {
-            e.preventDefault();
+    onKeyDown(event) {
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
             this._focusedIndex = Math.min(this._focusedIndex + 1, this._results.length - 1);
             this._open = true;
-        } else if (e.key === "ArrowUp") {
-            e.preventDefault();
+        } else if (event.key === "ArrowUp") {
+            event.preventDefault();
             this._focusedIndex = Math.max(this._focusedIndex - 1, 0);
-        } else if (e.key === "Enter") {
-            e.preventDefault();
-            if (this._focusedIndex >= 0 && this._results[this._focusedIndex]) {
-                this.onItemClick(e, this._results[this._focusedIndex]);
-            } else if (this.editable && this._searchQuery) {
+            this._open = true;
+        } else if (event.key === "Enter") {
+            event.preventDefault();
+            if (this._focusedIndex >= 0 && !!this._results[this._focusedIndex]) {
+                this.onItemClick(event, this._results[this._focusedIndex]);
+            } else if (this.editable && !!this._searchQuery) {
                 this.addToken(this._searchQuery);
             }
-        } else if (e.key === "Escape") {
+        } else if (event.key === "Escape") {
             this._open = false;
-        } else if (e.key === "Backspace" && !this._searchQuery && this._selectedItems.length > 0) {
-            this.removeToken(this._selectedItems.length - 1);
-        }
-        this.requestUpdate();
-    }
-
-    onItemClick(e, item) {
-        if (this.multiple) {
-            if (!this._selectedItems.find(i => i.id === item.id)) {
-                this._selectedItems.push(item);
+        } else if (event.key === "Backspace" && !this._searchQuery) {
+            const selectedValues = this.getSelectedValues();
+            if (selectedValues.length > 0) {
+                this.removeToken(selectedValues[selectedValues.length - 1]);
             }
-        } else {
-            this._selectedItems = [item];
         }
-        this._searchQuery = "";
-        this._open = false;
-        this.notifyChange();
         this.requestUpdate();
     }
 
-    renderTokenItem(item, index) {
+    onItemClick(event, item) {
+        event.stopPropagation();
+        this.addToken(item[this.field] || item);
+    }
+
+    renderToken(value) {
         return html`
             <span class="badge d-flex align-items-center bg-primary me-1 mb-1 p-2">
-                <span>${item.name || item.id}</span>
-                <i class="fas fa-times ms-2 cursor-pointer" @click="${e => this.onRemoveTokenClick(e, index)}"></i>
+                <span>${value}</span>
+                <i class="fas fa-times ms-2 cursor-pointer" @click="${e => this.onRemoveTokenClick(e, value)}"></i>
             </span>
         `;
     }
 
-    renderResultItem(item, index) {
+    renderResultItem(item, index, isFocused) {
         return html`
-            <a class="dropdown-item ${this._focusedIndex === index ? "active" : ""}" @click="${e => this.onItemClick(e, item)}">
+            <a class="dropdown-item cursor-pointer ${isFocused ? "bg-primary-subtle" : ""}" @click="${e => this.onItemClick(e, item)}">
                 <span>${item.name || item.id}</span>
             </a>
         `;
     }
 
     render() {
+        const selectedValues = this.getSelectedValues();
+
         return html`
             <div class="token-dropdown position-relative">
                 <div class="d-flex flex-wrap align-items-center form-control bg-white h-auto py-1 px-2" @click="${e => this.onContainerClick(e)}">
-                    ${this._selectedItems?.map((item, index) => this.renderTokenItem(item, index))}
+                    ${selectedValues?.map(value => this.renderToken(value))}
                     <input 
                         type="text" 
                         class="border-0 outline-none flex-grow-1 p-1"
                         style="outline: none; min-width: 100px;"
-                        placeholder="${this._selectedItems?.length > 0 ? "" : this.placeholder}"
+                        placeholder="${selectedValues?.length > 0 ? "" : this.placeholder}"
                         .value="${this._searchQuery}"
                         ?disabled="${this.disabled}"
                         @input="${e => this.onInputChange(e)}"
@@ -251,7 +258,9 @@ export default class TokenDropdown extends LitElement {
                     ${!this._loading && this._results.length === 0 && this._searchQuery ? html`
                         <div class="dropdown-item disabled text-muted">No results found</div>
                     ` : nothing}
-                    ${this._results.map((item, index) => this.renderResultItem(item, index))}
+                    ${this._results.map((item, index) => {
+                        return this.renderResultItem(item, index, this._focusedIndex === index);
+                    })}
                 </div>
             </div>
         `;
