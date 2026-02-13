@@ -175,19 +175,19 @@ context("Sample Browser Grid", () => {
                 .find(`button[data-action="settings"]`)
                 .click();
             cy.get("@sample-grid")
-                .find(`div[data-testid="test-columns"] select-field-filter`)
+                .find(`div[data-testid="test-columns"] div[data-cy="select-dropdown"]`)
                 .as("columnsSelector");
             cy.get("@columnsSelector")
-                .find(".select2-container")
+                .find(`div[data-cy="select-dropdown-toggle"]`)
                 .click();
             columns.forEach(col => {
                 cy.get("@columnsSelector")
-                    .find("span.select2-results li")
+                    .find(`div[data-cy="select-dropdown-menu"] a`)
                     .contains(col)
                     .click();
             });
             cy.get("@columnsSelector")
-                .find(".select2-selection")
+                .find(`div[data-cy="select-dropdown-toggle"]`)
                 .click();
             cy.get("@sample-grid")
                 .find(".modal-body")

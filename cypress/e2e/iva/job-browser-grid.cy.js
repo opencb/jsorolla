@@ -80,19 +80,19 @@ context("Job Browser Grid", () => {
                 .find(`button[data-cy="toolbar-btn-settings"]`)
                 .click();
             cy.get("@job-grid")
-                .find(`div[data-testid="test-columns"] select-field-filter`)
+                .find(`div[data-testid="test-columns"] div[data-cy="select-dropdown"]`)
                 .as("columnsSelector");
             cy.get("@columnsSelector")
-                .find(".select2-container")
+                .find(`div[data-cy="select-dropdown-toggle"]`)
                 .click();
             columns.forEach(col => {
                 cy.get("@columnsSelector")
-                    .find("span.select2-results li")
+                    .find(`div[data-cy="select-dropdown-menu"] a`)
                     .contains(col)
                     .click();
             });
             cy.get("@columnsSelector")
-                .find(".select2-selection")
+                .find(`div[data-cy="select-dropdown-toggle"]`)
                 .click();
             cy.get("@job-grid")
                 .find(".modal-body")
