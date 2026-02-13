@@ -337,8 +337,8 @@ export default class SelectDropdown extends LitElement {
         const filteredItems = this.getFilteredItems();
 
         return html`
-            <div class="select-dropdown dropdown input-group ${this.className || ""}">
-                <div class="dropdown-menu w-100" aria-labelledby="${this._prefix}DropdownButton">
+            <div class="select-dropdown dropdown input-group ${this.className || ""}" data-cy="select-dropdown">
+                <div class="dropdown-menu w-100" data-cy="select-dropdown-menu">
                     ${this.search ? html`
                         <div class="input-group p-2">
                             <span class="input-group-text bg-white">
@@ -372,11 +372,10 @@ export default class SelectDropdown extends LitElement {
                 </div>
                 <div
                     class="form-select flex-grow-1 d-flex align-items-center rounded-start cursor-pointer"
-                    id="${this._prefix}DropdownButton"
                     data-bs-toggle="dropdown"
                     data-bs-auto-close="outside"
                     data-bs-reference="parent"
-                    aria-expanded="false"
+                    data-cy="select-dropdown-toggle"
                     ?disabled="${this.disabled}">
                     <span class="flex-grow-1 text-start text-truncate">
                         ${this.getDisplayText(selectedItems)}
