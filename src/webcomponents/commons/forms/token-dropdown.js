@@ -77,6 +77,8 @@ export default class TokenDropdown extends LitElement {
         this._loading = false;
         this._open = false;
         this._focusedIndex = -1;
+        this._debounceTimer = null;
+        this._requestCount = 0;
     }
 
     getSelectedValues() {
@@ -114,20 +116,32 @@ export default class TokenDropdown extends LitElement {
         this._open = true;
         this.requestUpdate();
 
+        // Increment request count to track current request
+        this._requestCount++;
+        const currentRequest = this._requestCount;
+
         // initialize params and success/error callbacks
         const params = {
             query: this._searchQuery || "",
         };
+
         const successCallback = (results = []) => {
-            this._results = results;
-            this._loading = false;
-            this._focusedIndex = -1;
-            this.requestUpdate();
+            // Only update results if this is the most recent request
+            if (currentRequest === this._requestCount) {
+                this._results = results;
+                this._loading = false;
+                this._focusedIndex = -1;
+                this.requestUpdate();
+            }
         };
+
         const errorCallback = (error) => {
-            console.error("Fetch error:", error);
-            this._loading = false;
-            this.requestUpdate();
+            // Only update state if this is the most recent request
+            if (currentRequest === this._requestCount) {
+                console.error("Fetch error:", error);
+                this._loading = false;
+                this.requestUpdate();
+            }
         };
 
         // run the provided fetch method
@@ -144,7 +158,19 @@ export default class TokenDropdown extends LitElement {
     }
 
     onInputChange(event) {
-        this.fetchResults(event?.target?.value || "");
+        const query = event?.target?.value || "";
+        this._searchQuery = query;
+
+        // Clear existing debounce timer
+        if (this._debounceTimer) {
+            clearTimeout(this._debounceTimer);
+        }
+
+        // debounce the fetch call
+        this._debounceTimer = setTimeout(() => {
+            this.fetchResults(query);
+            this._debounceTimer = null;
+        }, 300);
     }
 
     onInputFocus(e) {
