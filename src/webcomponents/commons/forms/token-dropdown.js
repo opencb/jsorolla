@@ -236,8 +236,8 @@ export default class TokenDropdown extends LitElement {
     renderToken(value) {
         return html`
             <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-secondary text-wrap">
-                    <span>${value}</span>
+                <button type="button" class="btn btn-secondary text-wrap" text-break>
+                    <span>${value.trim()}</span>
                 </button>
                 <button type="button" class="btn btn-secondary" @click="${event => this.onRemoveTokenClick(event, value)}">
                     <i class="fas fa-times"></i>
