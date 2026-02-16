@@ -296,7 +296,7 @@ export default class TokenDropdown extends LitElement {
                         ${selectedValues?.map(value => this.renderToken(value))}
                         <input 
                             type="text" 
-                            class="border-0 outline-none flex-grow-1 p-1"
+                            class="border-0 outline-none flex-grow-1 p-0"
                             style="outline: none; min-width: 100px;"
                             placeholder="${selectedValues?.length > 0 ? "" : this.placeholder}"
                             .value="${this._searchQuery}"
