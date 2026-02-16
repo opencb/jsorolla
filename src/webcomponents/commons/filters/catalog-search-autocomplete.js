@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "lit";
+import {html, LitElement, nothing} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../forms/token-dropdown.js";
@@ -259,21 +259,73 @@ export default class CatalogSearchAutocomplete extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    fetch(params, success, failure) {
+        const query = params?.query || "";
+        const searchField = this.getSearchField();
+        const attr = query ? {[searchField]: "~/" + query.trim() + "/i"} : null;
+        const filters = {
+            study: this.opencgaSession.study.fqn,
+            limit: this._config.limit,
+            count: false,
+            ...this.query || this.RESOURCES[this.resource].query,
+            ...attr,
+        };
+
+        this.RESOURCES[this.resource].fetch(filters)
+            .then(response => {
+                let results = response.getResults();
+                if (this._config.additionalValues?.length > 0) {
+                    results = [
+                        ...this._config.additionalValues,
+                        ...results
+                    ];
+                }
+
+                // preprocessResults logic
+                results = results.filter(r => !!r);
+                if (searchField && searchField !== "id") {
+                    results = results.map(item => {
+                        return {
+                            ...item,
+                            id: item[searchField],
+                        };
+                    });
+                }
+
+                success(results);
+            })
+            .catch(error => failure(error));
+    }
+
+    getFields(item) {
+        if (typeof this.RESOURCES[this.resource].fields === "function") {
+            return this.RESOURCES[this.resource].fields(item);
+        }
+        return item.id;
+    }
+
+    getSearchField() {
+        return this.searchField || this.RESOURCES[this.resource]?.searchField;
+    }
+
     onFilterChange(value) {
         LitUtils.dispatchCustomEvent(this, "filterChange", value);
     }
 
     renderItem(item) {
-        const fields = this._config.fields(item) ?? item.id;
+        const fields = this.getFields(item);
         const {name, ...rest} = typeof fields === "object" ? fields : {name: fields};
         return html`
             <div class="d-flex flex-column my-1">
                 <span class="fw-bold">${name}</span>
-                ${rest ? Object.entries(rest).map(([label, value]) => html`
+                ${Object.entries(rest || {}).map(([label, value]) => html`
                     <div class="small text-secondary">
-                        ${!label.startsWith("#") ? html`<label class="pe-1">${label}: </label>` : ""}${value || ""}
+                        ${!label.startsWith("#") ? html`
+                            <label class="pe-1">${label}: </label>
+                        ` : nothing}
+                        <span>${value || nothing}</span>
                     </div>
-                `) : nothing}
+                `)}
             </div>
         `;
     }
@@ -286,12 +338,12 @@ export default class CatalogSearchAutocomplete extends LitElement {
         return html`
             <token-dropdown
                 .value="${this.value}"
-                .placeholder="${this._config.placeholder}"
-                .fetch="${this._config.fetch}"
+                .placeholder="${this._config.placeholder || this.RESOURCES[this.resource]?.placeholder}"
+                .fetch="${(params, success, failure) => this.fetch(params, success, failure)}"
                 .renderItem="${item => this.renderItem(item)}"
                 ?disabled="${this._config.disabled}"
                 ?editable="${this._config.editable}"
-                @filterChange="${e => this.onFilterChange(e.detail.value)}">
+                @filterChange="${event => this.onFilterChange(event.detail.value)}">
             </token-dropdown>
         `;
     }
@@ -301,43 +353,8 @@ export default class CatalogSearchAutocomplete extends LitElement {
             limit: 10,
             disabled: false,
             editable: false,
-            placeholder: this.RESOURCES[this.resource]?.placeholder,
-            searchField: this.searchField || this.RESOURCES[this.resource]?.searchField,
-            fields: this.RESOURCES[this.resource]?.fields,
-            fetch: (params, success, failure) => {
-                const query = params?.query || "";
-                const attr = query ? {[this._config.searchField]: "~/" + query.trim() + "/i"} : null;
-                const filters = {
-                    study: this.opencgaSession.study.fqn,
-                    limit: this._config.limit,
-                    count: false,
-                    ...this.query || this.RESOURCES[this.resource].query,
-                    ...attr,
-                };
-
-                this.RESOURCES[this.resource].fetch(filters)
-                    .then(response => {
-                        let results = response.getResults();
-
-                        if (this._config.additionalValues?.length > 0) {
-                            results = [...this._config.additionalValues, ...results];
-                        }
-
-                        // preprocessResults logic
-                        results = results.filter(r => !!r);
-                        if (this._config.searchField && this._config.searchField !== "id") {
-                            results = results.map(item => {
-                                return {
-                                    ...item,
-                                    id: item[this._config.searchField]
-                                };
-                            });
-                        }
-
-                        success(results);
-                    })
-                    .catch(error => failure(error));
-            }
+            placeholder: "",
+            additionalValues: [],
         };
     }
 
