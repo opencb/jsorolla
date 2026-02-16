@@ -227,11 +227,17 @@ export default class TokenDropdown extends LitElement {
         }
     }
 
+    onClear(event) {
+        event.stopPropagation();
+        this.value = "";
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
+    }
+
     renderToken(value) {
         return html`
             <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-secondary text-truncate" style="max-width: 120px;">
-                    <span title="${UtilsNew.escapeHtml(value)}">${value}</span>
+                <button type="button" class="btn btn-secondary text-wrap">
+                    <span>${value}</span>
                 </button>
                 <button type="button" class="btn btn-secondary" @click="${event => this.onRemoveTokenClick(event, value)}">
                     <i class="fas fa-times"></i>
@@ -271,23 +277,8 @@ export default class TokenDropdown extends LitElement {
         const selectedValues = this.getSelectedValues();
 
         return html`
-            <div class="token-dropdown position-relative">
-                <div class="d-flex gap-1 flex-wrap align-items-center form-control bg-white h-auto py-1 px-2" @click="${e => this.onContainerClick(e)}">
-                    ${selectedValues?.map(value => this.renderToken(value))}
-                    <input 
-                        type="text" 
-                        class="border-0 outline-none flex-grow-1 p-1"
-                        style="outline: none; min-width: 100px;"
-                        placeholder="${selectedValues?.length > 0 ? "" : this.placeholder}"
-                        .value="${this._searchQuery}"
-                        ?disabled="${this.disabled}"
-                        @input="${e => this.onInputChange(e)}"
-                        @keydown="${e => this.onKeyDown(e)}"
-                        @focus="${e => this.onInputFocus(e)}"
-                        @blur="${e => this.onInputBlur(e)}"
-                    />
-                </div>
-                <div class="dropdown-menu w-100 ${this._open ? "show" : ""}">
+            <div class="dropdown token-dropdown position-relative input-group">
+                <div class="dropdown-menu w-100 ${this._open ? "show top-100" : ""}">
                     ${this._loading ? html`
                         <div class="dropdown-item disabled text-muted">Loading...</div>
                     ` : nothing}
@@ -300,6 +291,28 @@ export default class TokenDropdown extends LitElement {
                         </div>
                     </div>
                 </div>
+                <div class="form-control rounded-start" @click="${e => this.onContainerClick(e)}">
+                    <div class="d-flex gap-1 flex-wrap align-items-center">
+                        ${selectedValues?.map(value => this.renderToken(value))}
+                        <input 
+                            type="text" 
+                            class="border-0 outline-none flex-grow-1 p-1"
+                            style="outline: none; min-width: 100px;"
+                            placeholder="${selectedValues?.length > 0 ? "" : this.placeholder}"
+                            .value="${this._searchQuery}"
+                            ?disabled="${this.disabled}"
+                            @input="${e => this.onInputChange(e)}"
+                            @keydown="${e => this.onKeyDown(e)}"
+                            @focus="${e => this.onInputFocus(e)}"
+                            @blur="${e => this.onInputBlur(e)}"
+                        />
+                    </div>
+                </div>
+                ${selectedValues.length > 0 ? html`
+                    <span class="input-group-text bg-white cursor-pointer" @click="${event => this.onClear(event)}">
+                        <i class="fas fa-times"></i>
+                    </span>
+                ` : nothing}
             </div>
         `;
     }
