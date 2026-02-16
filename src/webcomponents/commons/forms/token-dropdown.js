@@ -283,14 +283,18 @@ export default class TokenDropdown extends LitElement {
                         @blur="${e => this.onInputBlur(e)}"
                     />
                 </div>
-                <div class="dropdown-menu w-100 ${this._open ? "show" : ""}" style="max-height: 300px; overflow-y: auto;">
+                <div class="dropdown-menu w-100 ${this._open ? "show" : ""}">
                     ${this._loading ? html`
                         <div class="dropdown-item disabled text-muted">Loading...</div>
                     ` : nothing}
                     ${!this._loading && this._results.length === 0 && this._searchQuery ? html`
                         <div class="dropdown-item disabled text-muted">No results found</div>
                     ` : nothing}
-                    ${this._results.map((item, index) => this.renderResultItem(item, index))}
+                    <div class="overflow-y-auto" style="max-height: 300px;">
+                        <div class="d-flex flex-column gap-1">
+                            ${this._results.map((item, index) => this.renderResultItem(item, index))}
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
