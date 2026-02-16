@@ -204,7 +204,18 @@ export default class TokenDropdown extends LitElement {
             if (this._focusedIndex >= 0 && !!this._results[this._focusedIndex]) {
                 this.onItemClick(event, this._results[this._focusedIndex]);
             } else if (this.editable && !!this._searchQuery) {
-                this.addToken(this._searchQuery);
+                // split the search query by separator and add each token
+                this._searchQuery.split(this.separator).forEach(value => {
+                    const trimmedValue = value.trim();
+                    if (trimmedValue) {
+                        this.addToken(trimmedValue);
+                    }
+                });
+                
+                // reset search query and close dropdown
+                this._searchQuery = "";
+                this._open = false;
+                this.requestUpdate();
             }
         } else if (event.key === "Escape") {
             this._open = false;
