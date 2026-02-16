@@ -229,10 +229,14 @@ export default class TokenDropdown extends LitElement {
 
     renderToken(value) {
         return html`
-            <span class="badge d-flex align-items-center bg-primary me-1 mb-1 p-2">
-                <span>${value}</span>
-                <i class="fas fa-times ms-2 cursor-pointer" @click="${e => this.onRemoveTokenClick(e, value)}"></i>
-            </span>
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-secondary text-truncate" style="max-width: 120px;">
+                    <span title="${UtilsNew.escapeHtml(value)}">${value}</span>
+                </button>
+                <button type="button" class="btn btn-secondary" @click="${event => this.onRemoveTokenClick(event, value)}">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         `;
     }
 
@@ -268,7 +272,7 @@ export default class TokenDropdown extends LitElement {
 
         return html`
             <div class="token-dropdown position-relative">
-                <div class="d-flex flex-wrap align-items-center form-control bg-white h-auto py-1 px-2" @click="${e => this.onContainerClick(e)}">
+                <div class="d-flex gap-1 flex-wrap align-items-center form-control bg-white h-auto py-1 px-2" @click="${e => this.onContainerClick(e)}">
                     ${selectedValues?.map(value => this.renderToken(value))}
                     <input 
                         type="text" 
