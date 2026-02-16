@@ -17,7 +17,7 @@
 import {html, LitElement} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
-import "../forms/select-token-filter.js";
+import "../forms/token-dropdown.js";
 
 export default class CatalogSearchAutocomplete extends LitElement {
 
@@ -263,19 +263,36 @@ export default class CatalogSearchAutocomplete extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterChange", value);
     }
 
+    renderItem(item) {
+        const fields = this._config.fields(item) ?? item.id;
+        const {name, ...rest} = typeof fields === "object" ? fields : {name: fields};
+        return html`
+            <div class="d-flex flex-column my-1">
+                <span class="fw-bold">${name}</span>
+                ${rest ? Object.entries(rest).map(([label, value]) => html`
+                    <div class="small text-secondary">
+                        ${!label.startsWith("#") ? html`<label class="pe-1">${label}: </label>` : ""}${value || ""}
+                    </div>
+                `) : nothing}
+            </div>
+        `;
+    }
+
     render() {
         if (!this.resource) {
             return html`resource not provided`;
         }
 
         return html`
-            <select-token-filter
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}"
-                .classes="${this.classes}"
+            <token-dropdown
                 .value="${this.value}"
+                .placeholder="${this._config.placeholder}"
+                .fetch="${this._config.fetch}"
+                .renderItem="${item => this.renderItem(item)}"
+                ?disabled="${this._config.disabled}"
+                ?editable="${this._config.editable}"
                 @filterChange="${e => this.onFilterChange(e.detail.value)}">
-            </select-token-filter>
+            </token-dropdown>
         `;
     }
 
@@ -283,46 +300,43 @@ export default class CatalogSearchAutocomplete extends LitElement {
         return {
             limit: 10,
             disabled: false,
-            maxItems: 0, // no limit set
-            placeholder: this.RESOURCES[this.resource].placeholder,
-            searchField: this.searchField || this.RESOURCES[this.resource].searchField,
-            fields: this.RESOURCES[this.resource].fields,
-            source: (params, success, failure) => {
-                const page = params?.data?.page || 1;
-                const attr = params?.data?.term ? {[this.searchField || this.RESOURCES[this.resource].searchField]: "~/" + params?.data?.term.trim() + "/i"} : null;
+            editable: false,
+            placeholder: this.RESOURCES[this.resource]?.placeholder,
+            searchField: this.searchField || this.RESOURCES[this.resource]?.searchField,
+            fields: this.RESOURCES[this.resource]?.fields,
+            fetch: (params, success, failure) => {
+                const query = params?.query || "";
+                const attr = query ? {[this._config.searchField]: "~/" + query.trim() + "/i"} : null;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: false,
-                    skip: (page - 1) * this._config.limit,
                     ...this.query || this.RESOURCES[this.resource].query,
                     ...attr,
                 };
 
                 this.RESOURCES[this.resource].fetch(filters)
                     .then(response => {
+                        let results = response.getResults();
+
                         if (this._config.additionalValues?.length > 0) {
-                            this._config.additionalValues.forEach(v => response.responses[0].results.unshift(v));
+                            results = [...this._config.additionalValues, ...results];
                         }
-                        success(response)
+
+                        // preprocessResults logic
+                        results = results.filter(r => !!r);
+                        if (this._config.searchField && this._config.searchField !== "id") {
+                            results = results.map(item => {
+                                return {
+                                    ...item,
+                                    id: item[this._config.searchField]
+                                };
+                            });
+                        }
+
+                        success(results);
                     })
                     .catch(error => failure(error));
-            },
-            preprocessResults(results) {
-                // if results come with null, empty or undefined it'll be removed.
-                let resultsCleaned = results.filter(r => r);
-                if (this.searchField && this.searchField !== "id") {
-                    resultsCleaned = resultsCleaned.map(item => {
-                        item["id"] = item[this.searchField];
-                        return item;
-                    });
-                }
-                if (resultsCleaned.length) {
-                    if ("string" === typeof resultsCleaned[0]) {
-                        return resultsCleaned.map(s => ({id: s}));
-                    }
-                }
-                return resultsCleaned;
             }
         };
     }
