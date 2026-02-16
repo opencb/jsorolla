@@ -308,8 +308,9 @@ export default class CatalogSearchAutocomplete extends LitElement {
         return this.searchField || this.RESOURCES[this.resource]?.searchField;
     }
 
-    onFilterChange(value) {
-        LitUtils.dispatchCustomEvent(this, "filterChange", value);
+    onFilterChange(event) {
+        event.stopPropagation();
+        LitUtils.dispatchCustomEvent(this, "filterChange", event.detail.value);
     }
 
     renderItem(item) {
@@ -343,7 +344,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 .renderItem="${item => this.renderItem(item)}"
                 ?disabled="${this._config.disabled}"
                 ?editable="${this._config.editable}"
-                @filterChange="${event => this.onFilterChange(event.detail.value)}">
+                @filterChange="${event => this.onFilterChange(event)}">
             </token-dropdown>
         `;
     }
