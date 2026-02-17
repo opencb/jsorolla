@@ -75,7 +75,7 @@ export default class TokenDropdown extends LitElement {
         this.field = "id";
         this.separator = ",";
 
-        this._searchQuery = "";
+        this._query = "";
         this._results = [];
         this._loading = false;
         this._open = false;
@@ -98,9 +98,6 @@ export default class TokenDropdown extends LitElement {
         } else {
             this.value = value;
         }
-        // this._searchQuery = "";
-        // this._open = false;
-        // this.requestUpdate();
         LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
     }
 
@@ -113,7 +110,7 @@ export default class TokenDropdown extends LitElement {
     }
 
     fetchResults(query = "") {
-        this._searchQuery = query || "";
+        this._query = query || "";
         this._results = []; // reset results
         this._loading = true;
         this._open = true;
@@ -125,7 +122,7 @@ export default class TokenDropdown extends LitElement {
 
         // initialize params and success/error callbacks
         const params = {
-            query: this._searchQuery || "",
+            query: this._query,
         };
 
         const successCallback = (results = []) => {
@@ -162,7 +159,6 @@ export default class TokenDropdown extends LitElement {
 
     onInputChange(event) {
         const query = event?.target?.value || "";
-        this._searchQuery = query;
 
         // Clear existing debounce timer
         if (this._debounceTimer) {
@@ -185,7 +181,6 @@ export default class TokenDropdown extends LitElement {
         this._focused = false;
         setTimeout(() => {
             this._open = false;
-            this._searchQuery = ""; // reset search query
             this.requestUpdate();
         }, 200);
     }
@@ -201,25 +196,26 @@ export default class TokenDropdown extends LitElement {
             this._open = true;
         } else if (event.key === "Enter") {
             event.preventDefault();
+            const currentValue = event.currentTarget?.value || "";
             if (this._focusedIndex >= 0 && !!this._results[this._focusedIndex]) {
                 this.onItemClick(event, this._results[this._focusedIndex]);
-            } else if (this.editable && !!this._searchQuery) {
+            } else if (this.editable && !!currentValue) {
                 // split the search query by separator and add each token
-                this._searchQuery.split(this.separator).forEach(value => {
+                currentValue.split(this.separator).forEach(value => {
                     const trimmedValue = value.trim();
                     if (trimmedValue) {
                         this.addToken(trimmedValue);
                     }
                 });
-                
-                // reset search query and close dropdown
-                this._searchQuery = "";
+                // force to clear the input
+                event.currentTarget.value = "";
+                // close dropdown
                 this._open = false;
                 this.requestUpdate();
             }
         } else if (event.key === "Escape") {
             this._open = false;
-        } else if (event.key === "Backspace" && !this._searchQuery) {
+        } else if (event.key === "Backspace" && !event.currentTarget?.value) {
             const selectedValues = this.getSelectedValues();
             if (selectedValues.length > 0) {
                 this.removeToken(selectedValues[selectedValues.length - 1]);
@@ -299,9 +295,9 @@ export default class TokenDropdown extends LitElement {
                                 <i class="fas fa-info-circle fs-4"></i>
                             </div>
                             <span class="fw-bold text-center">No results found</span>
-                            ${this._searchQuery ? html`
+                            ${this._query ? html`
                                 <span class="text-center small text-muted text-wrap">
-                                    <span>We could not find any results for <b>${this._searchQuery}</b>.</span>
+                                    <span>We could not find any results for <b>${this._query}</b>.</span>
                                 </span>
                             ` : nothing}
                         </div>
@@ -320,7 +316,6 @@ export default class TokenDropdown extends LitElement {
                             class="border-0 outline-none flex-grow-1 p-0"
                             style="outline: none; min-width: 100px;"
                             placeholder="${selectedValues?.length > 0 ? "" : this.placeholder}"
-                            .value="${this._searchQuery}"
                             ?disabled="${this.disabled}"
                             @input="${e => this.onInputChange(e)}"
                             @keydown="${e => this.onKeyDown(e)}"
