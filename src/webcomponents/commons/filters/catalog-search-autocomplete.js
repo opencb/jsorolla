@@ -344,6 +344,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
                 .renderItem="${item => this.renderItem(item)}"
                 ?disabled="${this._config.disabled}"
                 ?editable="${this._config.editable}"
+                ?multiple="${this._config.multiple}"
                 @filterChange="${event => this.onFilterChange(event)}">
             </token-dropdown>
         `;
@@ -355,6 +356,7 @@ export default class CatalogSearchAutocomplete extends LitElement {
             disabled: false,
             editable: false,
             placeholder: "",
+            multiple: true,
             additionalValues: [],
         };
     }
