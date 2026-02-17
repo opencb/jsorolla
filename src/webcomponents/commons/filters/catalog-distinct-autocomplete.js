@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-import "../forms/select-token-filter.js";
+import "../forms/token-dropdown.js";
 
 export default class CatalogDistinctAutocomplete extends LitElement {
 
@@ -58,74 +58,75 @@ export default class CatalogDistinctAutocomplete extends LitElement {
         LitUtils.dispatchCustomEvent(this, "filterChange", value);
     }
 
+    onFetch(params, success, failure) {
+        const RESOURCES = {
+            "SAMPLE": this.opencgaSession.opencgaClient.samples(),
+            "INDIVIDUAL": this.opencgaSession.opencgaClient.individuals(),
+            "FAMILY": this.opencgaSession.opencgaClient.families(),
+            "CLINICAL_ANALYSIS": this.opencgaSession.opencgaClient.clinical(),
+            "DISEASE_PANEL": this.opencgaSession.opencgaClient.panels(),
+            "JOB": this.opencgaSession.opencgaClient.jobs(),
+            "FILE": this.opencgaSession.opencgaClient.files(),
+            "COHORT": this.opencgaSession.opencgaClient.cohorts(),
+            "WORKFLOW": this.opencgaSession.opencgaClient.workflows(),
+        };
+
+        const query = params?.query || "";
+        // 'queryField' is the name of the REST parameter to filter documents, normally this will be the same as 'distinctFields'.
+        // But in some cases it can be different. For example, 'disorders' and 'disorders.id'
+        const attr = query ? {[this.queryField]: "~/" + query + "/i"} : null;
+        const filters = {
+            study: this.opencgaSession.study.fqn,
+            limit: this._config.limit,
+            count: false,
+            ...attr
+        };
+
+        // The exact name of the field, see the example above about 'disorders' and 'disorders.id'
+        RESOURCES[this.resource].distinct(this.distinctFields, filters)
+            .then(response => {
+                let results = response.getResults();
+                if (query) {
+                    const term = query.toUpperCase();
+                    results = results.filter(item => {
+                        return item.toUpperCase().includes(term);
+                    });
+                }
+
+                // preprocessResults logic
+                results = results.filter(r => !!r);
+                if (results.length > 0 && typeof results[0] === "string") {
+                    results = results.map(s => ({id: s, name: s}));
+                }
+
+                success(results);
+            })
+            .catch(error => failure(error));
+    }
+
     render() {
         if (!this.resource) {
             return html`resource not provided`;
         }
 
         return html`
-            <select-token-filter
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}"
+            <token-dropdown
                 .value="${this.value}"
+                .placeholder="${this._config.placeholder}"
+                .fetch="${(p, s, f) => this.onFetch(p, s, f)}"
+                ?disabled="${this._config.disabled}"
+                ?editable="${this._config.editable}"
                 @filterChange="${e => this.onFilterChange(e.detail.value)}">
-            </select-token-filter>
+            </token-dropdown>
         `;
     }
 
     getDefaultConfig() {
         return {
             limit: 10,
-            disablePagination: true,
-            source: (params, success, failure) => {
-                const RESOURCES = {
-                    "SAMPLE": this.opencgaSession.opencgaClient.samples(),
-                    "INDIVIDUAL": this.opencgaSession.opencgaClient.individuals(),
-                    "FAMILY": this.opencgaSession.opencgaClient.families(),
-                    "CLINICAL_ANALYSIS": this.opencgaSession.opencgaClient.clinical(),
-                    "DISEASE_PANEL": this.opencgaSession.opencgaClient.panels(),
-                    "JOB": this.opencgaSession.opencgaClient.jobs(),
-                    "FILE": this.opencgaSession.opencgaClient.files(),
-                    "COHORT": this.opencgaSession.opencgaClient.cohorts(),
-                    "WORKFLOW": this.opencgaSession.opencgaClient.workflows(),
-                };
-
-                const page = params?.data?.page || 1;
-                // 'queryField' is the name of the REST parameter to filter documents, normally this will be the same as 'distinctFields'.
-                // But in some cases it can be different. For example, 'disorders' and 'disorders.id'
-                const attr = params?.data?.term ? {[this.queryField]: "~/" + params?.data?.term + "/i"} : null;
-                const filters = {
-                    study: this.opencgaSession.study.fqn,
-                    limit: this._config.limit,
-                    count: false,
-                    skip: (page - 1) * this._config.limit,
-                    ...attr
-                };
-
-                // The exact name of the field, see the example above about 'disorders' and 'disorders.id'
-                RESOURCES[this.resource].distinct(this.distinctFields, filters)
-                    .then(response => {
-                        if (params?.data?.term) {
-                            const term = params.data.term.toUpperCase();
-                            response.responses[0].results = response.responses[0].results.filter(item => {
-                                return item.toUpperCase().includes(term);
-                            });
-                        }
-                        success(response);
-                    })
-                    .catch(error => failure(error));
-
-            },
-            preprocessResults(results) {
-                // if results come with null, emtpy or undefined it'll removed.
-                const resultsCleaned = results.filter(r => r);
-                if (resultsCleaned.length) {
-                    if ("string" === typeof resultsCleaned[0]) {
-                        return resultsCleaned.map(s => ({id: s}));
-                    }
-                }
-                return resultsCleaned;
-            }
+            disabled: false,
+            editable: false,
+            placeholder: "Start typing",
         };
     }
 
