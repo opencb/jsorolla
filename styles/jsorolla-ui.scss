@@ -402,7 +402,8 @@ card .card-header .card-title {
 }
 
 // styles for the custom select-dropdown component
-.select-dropdown {
+.select-dropdown,
+.token-dropdown {
     & .dropdown-item:active {
         background-color: var(--bs-primary-subtle) !important;
         color: inherit !important;
