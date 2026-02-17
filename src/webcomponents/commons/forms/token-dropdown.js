@@ -293,8 +293,18 @@ export default class TokenDropdown extends LitElement {
                     ${this._loading ? html`
                         <div class="dropdown-item disabled text-muted">Loading...</div>
                     ` : nothing}
-                    ${!this._loading && this._results.length === 0 && this._searchQuery ? html`
-                        <div class="dropdown-item disabled text-muted">No results found</div>
+                    ${!this._loading && this._results.length === 0 ? html`
+                        <div class="rounded d-flex align-items-center gap-1 flex-column p-3 bg-gray-100">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-info-circle fs-4"></i>
+                            </div>
+                            <span class="fw-bold text-center">No results found</span>
+                            ${this._searchQuery ? html`
+                                <span class="text-center small text-muted text-wrap">
+                                    <span>We could not find any results for <b>${this._searchQuery}</b>.</span>
+                                </span>
+                            ` : nothing}
+                        </div>
                     ` : nothing}
                     <div class="overflow-y-auto" style="max-height: 300px;">
                         <div class="d-flex flex-column gap-1">
