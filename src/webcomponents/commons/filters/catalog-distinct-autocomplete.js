@@ -119,7 +119,8 @@ export default class CatalogDistinctAutocomplete extends LitElement {
                 .placeholder="${this._config.placeholder}"
                 .fetch="${(params, success, failure) => this.onFetch(params, success, failure)}"
                 ?disabled="${this._config.disabled}"
-                ?editable="${this._config.editable}"
+                ?editable="${this._config.editable || this._config.freeTag}"
+                ?multiple="${this._config.multiple}"
                 @filterChange="${event => this.onFilterChange(event)}">
             </token-dropdown>
         `;
@@ -130,6 +131,8 @@ export default class CatalogDistinctAutocomplete extends LitElement {
             limit: 10,
             disabled: false,
             editable: false,
+            freeTag: false,
+            multiple: true,
             placeholder: "Start typing",
         };
     }
