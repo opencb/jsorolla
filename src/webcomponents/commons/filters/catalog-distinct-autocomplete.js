@@ -49,13 +49,12 @@ export default class CatalogDistinctAutocomplete extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
         super.update(changedProperties);
-    }
-
-    onFilterChange(value) {
-        LitUtils.dispatchCustomEvent(this, "filterChange", value);
     }
 
     onFetch(params, success, failure) {
@@ -104,19 +103,24 @@ export default class CatalogDistinctAutocomplete extends LitElement {
             .catch(error => failure(error));
     }
 
+    onFilterChange(event) {
+        event.stopPropagation();
+        LitUtils.dispatchCustomEvent(this, "filterChange", event.detail.value);
+    }
+
     render() {
-        if (!this.resource) {
-            return html`resource not provided`;
+        if (!this.resource || !this.opencgaSession) {
+            return html`Resource not provided`;
         }
 
         return html`
             <token-dropdown
                 .value="${this.value}"
                 .placeholder="${this._config.placeholder}"
-                .fetch="${(p, s, f) => this.onFetch(p, s, f)}"
+                .fetch="${(params, success, failure) => this.onFetch(params, success, failure)}"
                 ?disabled="${this._config.disabled}"
                 ?editable="${this._config.editable}"
-                @filterChange="${e => this.onFilterChange(e.detail.value)}">
+                @filterChange="${event => this.onFilterChange(event)}">
             </token-dropdown>
         `;
     }
