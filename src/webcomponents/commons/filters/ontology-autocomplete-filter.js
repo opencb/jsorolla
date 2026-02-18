@@ -22,6 +22,11 @@ import "../forms/token-dropdown.js";
 
 export default class OntologyAutocompleteFilter extends LitElement {
 
+    constructor() {
+        super();
+        this.#init();
+    }
+
     createRenderRoot() {
         return this;
     }
@@ -40,8 +45,12 @@ export default class OntologyAutocompleteFilter extends LitElement {
         };
     }
 
+    #init() {
+        this._config = this.getDefaultConfig();
+    }
+
     update(changedProperties) {
-        if (changedProperties.has("source") || changedProperties.has("config")) {
+        if (changedProperties.has("config")) {
             this._config = {
                 ...this.getDefaultConfig(),
                 ...this.config,
@@ -57,10 +66,14 @@ export default class OntologyAutocompleteFilter extends LitElement {
 
     async onFetch(params, success, failure) {
         const query = {
-            id: params?.query ? `~/${params.query}/` : "",
             limit: this._config.limit,
             source: (this._config.source || "").toLowerCase(),
         };
+
+        // include id in search params if user has typed something
+        if (params?.query) {
+            query.id = `~/${params.query}/`;
+        }
 
         try {
             const fetchGoOntologies = await this.cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
@@ -96,7 +109,7 @@ export default class OntologyAutocompleteFilter extends LitElement {
             freeTag: true,
             placeholder: "Start typing",
             maximumSelectionLength: 100,
-            source: "go",
+            source: "GO",
         };
     }
 
