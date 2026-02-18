@@ -35,7 +35,7 @@ export default class TokenDropdown extends LitElement {
                 type: String
             },
             values: {
-                type: Array
+                type: Array,
             },
             placeholder: {
                 type: String
@@ -110,7 +110,7 @@ export default class TokenDropdown extends LitElement {
     }
 
     fetchResults(query = "") {
-        this._query = query || "";
+        this._searchQuery = query || "";
         this._results = []; // reset results
         this._loading = true;
         this._open = true;
@@ -119,11 +119,6 @@ export default class TokenDropdown extends LitElement {
         // Increment request count to track current request
         this._requestCount++;
         const currentRequest = this._requestCount;
-
-        // initialize params and success/error callbacks
-        const params = {
-            query: this._query,
-        };
 
         const successCallback = (results = []) => {
             // Only update results if this is the most recent request
@@ -144,8 +139,25 @@ export default class TokenDropdown extends LitElement {
             }
         };
 
-        // run the provided fetch method
-        this.fetch(params, successCallback, errorCallback);
+        // Case 1: Local values provided
+        if (this.values && this.values.length > 0) {
+            const results = this.values.filter(item => {
+                const value = (item[this.field] || item).toString().toUpperCase();
+                return value.includes(this._searchQuery.toUpperCase());
+            });
+            return successCallback(results);
+        }
+
+        // Case 2: Fetch method provided
+        if (typeof this.fetch === "function") {
+            const params = {
+                query: this._searchQuery || "",
+            };
+            this.fetch(params, successCallback, errorCallback);
+        } else {
+            this._loading = false;
+            this.requestUpdate();
+        }
     }
 
     onRemoveTokenClick(event, value) {
@@ -159,6 +171,7 @@ export default class TokenDropdown extends LitElement {
 
     onInputChange(event) {
         const query = event?.target?.value || "";
+        this._searchQuery = query;
 
         // Clear existing debounce timer
         if (this._debounceTimer) {
