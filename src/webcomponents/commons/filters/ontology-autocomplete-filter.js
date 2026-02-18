@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils.js";
 import NotificationUtils from "../utils/notification-utils.js";
-import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 import "../forms/token-dropdown.js";
 
 export default class OntologyAutocompleteFilter extends LitElement {
@@ -81,7 +80,7 @@ export default class OntologyAutocompleteFilter extends LitElement {
             const data = results.map(ontology => ({
                 name: ontology.name,
                 id: ontology.id,
-                IRI: BioinfoUtils.getOboLink(ontology.id),
+                description: ontology.description,
             }));
             success(data);
         } catch (error) {
@@ -90,12 +89,25 @@ export default class OntologyAutocompleteFilter extends LitElement {
         }
     }
 
+    renderItem(item) {
+        return html`
+            <div class="">
+                <span class="badge text-bg-danger me-1">${item.id}</span>
+                <span class="fw-bold">${item.name}</span>
+            </div>
+            ${item.description ? html`
+                <div class="small text-muted">${item.description}</div>
+            ` : nothing}
+        `;
+    }
+
     render() {
         return html`
             <token-dropdown
                 .value="${this.value}"
                 .placeholder="${this._config.placeholder}"
                 .fetch="${(params, success, failure) => this.onFetch(params, success, failure)}"
+                .renderItem="${item => this.renderItem(item)}"
                 ?disabled="${this._config.disabled}"
                 ?editable="${this._config.freeTag}"
                 @filterChange="${event => this.onFilterChange(event)}">
