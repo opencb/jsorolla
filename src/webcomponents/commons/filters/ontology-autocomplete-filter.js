@@ -15,13 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-token-filter.js";
 import LitUtils from "../utils/lit-utils.js";
 import NotificationUtils from "../utils/notification-utils.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
-// FIXME remove in CellBase v5
-import {CellBaseClient} from "../../../core/clients/cellbase/cellbase-client.js";
-
+import "../forms/token-dropdown.js";
 
 export default class OntologyAutocompleteFilter extends LitElement {
 
@@ -43,66 +40,63 @@ export default class OntologyAutocompleteFilter extends LitElement {
         };
     }
 
-    update(_changedProperties) {
-        if (_changedProperties.has("source") || _changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+    update(changedProperties) {
+        if (changedProperties.has("source") || changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
-        super.update(_changedProperties);
+        super.update(changedProperties);
     }
 
-    onFilterChange(value) {
-        LitUtils.dispatchCustomEvent(this, "filterChange", value);
+    onFilterChange(event) {
+        event.stopPropagation();
+        LitUtils.dispatchCustomEvent(this, "filterChange", event.detail.value);
+    }
+
+    async onFetch(params, success, failure) {
+        const query = {
+            id: params?.query ? `~/${params.query}/` : "",
+            limit: this._config.limit,
+            source: (this._config.source || "").toLowerCase(),
+        };
+
+        try {
+            const fetchGoOntologies = await this.cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
+            const results = fetchGoOntologies.responses[0].results;
+            const data = results.map(ontology => ({
+                name: ontology.name,
+                id: ontology.id,
+                IRI: BioinfoUtils.getOboLink(ontology.id),
+            }));
+            success(data);
+        } catch (error) {
+            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, error);
+            failure(error);
+        }
     }
 
     render() {
         return html`
-            <select-token-filter
-                .config=${this._config}
+            <token-dropdown
                 .value="${this.value}"
-                @filterChange="${e => this.onFilterChange(e.detail.value)}">
-            </select-token-filter>
+                .placeholder="${this._config.placeholder}"
+                .fetch="${(params, success, failure) => this.onFetch(params, success, failure)}"
+                ?disabled="${this._config.disabled}"
+                ?editable="${this._config.freeTag}"
+                @filterChange="${event => this.onFilterChange(event)}">
+            </token-dropdown>
         `;
     }
 
     getDefaultConfig() {
         return {
             limit: 10,
-            fields: item => ({
-                name: item?.name,
-                id: item?.id,
-                IRI: BioinfoUtils.getOboLink(item?.id)
-            }),
-            // * enables copy/paste of multiple terms
             freeTag: true,
+            placeholder: "Start typing",
             maximumSelectionLength: 100,
-            tokenSeparators: this._config?.separator ?? [","],
-            ajax: {
-                transport: async (params, success, failure) => {
-                    const _params = params;
-                    _params.data.page = params.data.page || 1;
-                    const query = {
-                        id: `^${_params?.data?.term ? _params.data.term : ""}`,
-                        limit: this._config.limit,
-                        source: this._config.ontologyFilter
-                    };
-                    try {
-                        const fetchGoOntologies = await this.cellbaseClient.get("feature", "ontology", undefined, "search", query, {});
-                        const results = fetchGoOntologies.responses[0].results;
-                        const data = results.map(ontology => ({name: ontology.name, id: ontology.id}));
-                        success(data);
-                    } catch (e) {
-                        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, e);
-                        failure(e);
-                    }
-                },
-                processResults: (response, params) => {
-                    const _params = params;
-                    _params.page = _params.page || 1;
-                    return {
-                        results: response,
-                    };
-                }
-            },
+            source: "go",
         };
     }
 
