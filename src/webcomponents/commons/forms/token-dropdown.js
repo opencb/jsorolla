@@ -110,7 +110,7 @@ export default class TokenDropdown extends LitElement {
     }
 
     fetchResults(query = "") {
-        this._searchQuery = query || "";
+        this._query = query || "";
         this._results = []; // reset results
         this._loading = true;
         this._open = true;
@@ -143,7 +143,7 @@ export default class TokenDropdown extends LitElement {
         if (this.values && this.values.length > 0) {
             const results = this.values.filter(item => {
                 const value = (item[this.field] || item).toString().toUpperCase();
-                return value.includes(this._searchQuery.toUpperCase());
+                return value.includes(this._query.toUpperCase());
             });
             return successCallback(results);
         }
@@ -151,7 +151,7 @@ export default class TokenDropdown extends LitElement {
         // Case 2: Fetch method provided
         if (typeof this.fetch === "function") {
             const params = {
-                query: this._searchQuery || "",
+                query: this._query || "",
             };
             this.fetch(params, successCallback, errorCallback);
         } else {
@@ -171,7 +171,6 @@ export default class TokenDropdown extends LitElement {
 
     onInputChange(event) {
         const query = event?.target?.value || "";
-        this._searchQuery = query;
 
         // Clear existing debounce timer
         if (this._debounceTimer) {
