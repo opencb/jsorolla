@@ -85,7 +85,7 @@ export default class GoAccessionsFilter extends LitElement {
                 </ontology-autocomplete-filter>
             </div>
             <div class="d-grid">
-                <button class="btn btn-primary d-flex align-items-center gap-2" id="${this._prefix}buttonOpenGoAccesions" @click="${this.openModal}">
+                <button class="btn btn-primary d-flex align-items-center justify-content-center gap-2" id="${this._prefix}buttonOpenGoAccesions" @click="${this.openModal}">
                     <i class="fa fa-search"></i>
                     <span>Browse GO Terms</span>
                 </button>
