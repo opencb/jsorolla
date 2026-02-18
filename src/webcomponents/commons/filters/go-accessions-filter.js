@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
+import LitUtils from "../utils/lit-utils.js";
 import "../variant-modal-ontology.js";
 import "./ontology-autocomplete-filter.js";
-import NotificationUtils from "../utils/notification-utils.js";
 
 
 export default class GoAccessionsFilter extends LitElement {
@@ -45,42 +45,21 @@ export default class GoAccessionsFilter extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
-        this.selectedTerms = "";
         this._config = this.getDefaultConfig();
     }
 
-    update(_changedProperties) {
-        if (_changedProperties.has("go")) {
-            this.selectedTerms = this.go;
-        }
-        super.update(_changedProperties);
-    }
-
-    onFilterChange(e) {
-        console.log("filterChange", e || null);
-        let terms = e.detail?.value;
-        this.warnMessage = null;
-        if (terms) {
-            const arr = terms.split(/[;,]/);
-            if (arr.length > 100) {
-                console.log("more than 100 terms");
-                this.warnMessage = html`<i class="fa fa-exclamation-triangle fa-2x"></i><span></span>`;
-                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
-                    message: `${arr.length} has been selected. Only the first 100 will be taken into account.`,
-                });
-                terms = arr.slice(0, 99).join(",");
+    onFilterChange(event) {
+        event.stopPropagation();
+        let selectedTerms = event.detail?.value;
+        if (selectedTerms) {
+            const selectedTermsCount = selectedTerms.split(this._config.separator);
+            if (selectedTermsCount.length > this._config.maxSelectedTerms) {
+                selectedTerms = selectedTerms.slice(0, 99).join(this._config.separator);
             }
         }
 
-        this.selectedTerms = terms;
-        this.requestUpdate();
-
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: terms ?? null
-            }
-        });
-        this.dispatchEvent(event);
+        // dispatch the filter change event
+        LitUtils.dispatchCustomEvent(this, "filterChange", selectedTerms || "");
     }
 
     openModal() {
@@ -88,33 +67,45 @@ export default class GoAccessionsFilter extends LitElement {
         ontologyModal.show();
     }
 
-    getDefaultConfig() {
-        return {
-            placeholder: "GO:0000145",
-            ontologyFilter: "GO"
-        };
-    }
-
     render() {
+        const selectedGoTermsCount = (this.go || "").split(this._config.separator).filter(Boolean).length;
         return html`
-            <ontology-autocomplete-filter
-                .cellbaseClient="${this.cellbaseClient}"
-                .value="${this.selectedTerms}"
-                .config="${this._config}"
-                @filterChange="${this.onFilterChange}">
-            </ontology-autocomplete-filter>
+            ${selectedGoTermsCount > this._config.maxSelectedTerms ? html`
+                <div class="alert alert-warning">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    <span>${selectedGoTermsCount} GO terms selected. Only the first ${this._config.maxSelectedTerms} will be taken into account.</span>
+                </div>
+            ` : nothing}
+            <div class="mb-1">
+                <ontology-autocomplete-filter
+                    .cellbaseClient="${this.cellbaseClient}"
+                    .value="${this.go}"
+                    .config="${this._config}"
+                    @filterChange="${event => this.onFilterChange(event)}">
+                </ontology-autocomplete-filter>
+            </div>
             <div class="d-grid">
-                <button class="btn btn-primary full-width" id="${this._prefix}buttonOpenGoAccesions" @click="${this.openModal}">
-                    <i class="fa fa-search" aria-hidden="true"></i> Browse GO Terms
+                <button class="btn btn-primary d-flex align-items-center gap-2" id="${this._prefix}buttonOpenGoAccesions" @click="${this.openModal}">
+                    <i class="fa fa-search"></i>
+                    <span>Browse GO Terms</span>
                 </button>
             </div>
             <variant-modal-ontology
-                .config="${this._config}"
                 .cellbaseClient="${this.cellbaseClient}"
-                .selectedTerms="${this.selectedTerms}"
-                @filterChange="${this.onFilterChange}">
+                .selectedTerms="${this.go}"
+                .config="${this._config}"
+                @filterChange="${event => this.onFilterChange(event)}">
             </variant-modal-ontology>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            placeholder: "GO:0000145",
+            source: "GO",
+            separator: ",",
+            maxSelectedTerms: 100,
+        };
     }
 
 }
