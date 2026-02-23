@@ -65,8 +65,10 @@ export default class VariantSummaryPopulation extends LitElement {
     updated(changedProperties) {
         UtilsNew.initTooltip(this);
         this.querySelector("#summary-population data-form").updateComplete.then(() => {
-            Object.keys(this._dataCohortsTransformed).forEach(study => {
-                if (study !== "GNOMAD_EXOMES") {
+            const studies = Object.keys(this._dataCohortsTransformed);
+            const hasGnomadV41 = studies.includes("GNOMAD_V4_1");
+            studies.forEach(study => {
+                if (study !== "GNOMAD_EXOMES" && !(hasGnomadV41 && study === "GNOMAD_GENOMES")) {
                     (this._dataCohorts[study]?.total && this._dataCohorts[study]?.total !== 0) ?
                         this.#renderCharts(study) :
                         this.querySelector(`div#stats-${study}`).innerHTML = `
@@ -301,11 +303,12 @@ export default class VariantSummaryPopulation extends LitElement {
                                     this._dataCohorts = dataCohorts;
                                     this._dataAll = dataAll;
                                     this._dataCohortsTransformed = VariantGridFormatter.applyLinearTransform(dataCohorts);
-
+                                    const studies = Object.keys(this._dataCohortsTransformed);
+                                    const hasGnomadV41 = studies.includes("GNOMAD_V4_1");
                                     return html`
                                         <div class="d-flex align-items-stretch">
-                                            ${Object.keys(this._dataCohortsTransformed)
-                                                .filter(study => study !== "GNOMAD_EXOMES") // Exclude it here
+                                            ${studies
+                                                .filter(study => study !== "GNOMAD_EXOMES" && !(hasGnomadV41 && study === "GNOMAD_GENOMES"))
                                                 .map(study => {
                                                     const chartId = `chart-${study}`;
                                                     const statsId = `stats-${study}`;
@@ -321,7 +324,7 @@ export default class VariantSummaryPopulation extends LitElement {
                                                             <div class="ps-3" id="${statsId}" style="border-left: 1px solid #d9dada; flex: 0 1 auto">
                                                                 <div class="d-flex align-items-center flex-wrap text-dark">
                                                                     <div class="me-2" style="width: 10px;height: 10px;background: ${all.color};border-radius: 2px;"></div>
-                                                                    <div class="me-2 fw-bold">Population ALL:</div>
+                                                                    <div class="me-2 fw-bold">Population ${all.label}:</div>
                                                                     <div class="me-2 text-secondary">${prettyCategory}</div>
                                                                     <div class="text-secondary me-2">(Alt. AF: ${all.freq.toFixed(4)})</div>
                                                                 </div>
