@@ -1223,11 +1223,12 @@ export default class VariantGridFormatter {
                 };
             }
 
-            if (population === 'ALL') {
+            if (population === 'ALL' || population === 'JOINT') {
                 const category = VariantGridFormatter.classifyFrequency(maf);
                 const color = POPULATION_FREQUENCIES.style[category] || '#999';
                 dataAll[study] = {
                     freq: maf,
+                    label: population,
                     category,
                     color
                 };
