@@ -137,7 +137,7 @@ export default class HpoAccessionsFilter extends LitElement {
             </div>
 
             <div class="d-grid mb-2">
-                <button class="btn btn-primary d-flex align-items-center justify-content-center gap-2" id="${this._prefix}buttonOpenHpoAccesions" @click="${this.openModal}">
+                <button class="btn btn-primary d-flex align-items-center justify-content-center gap-2" @click="${() => this.openModal()}">
                     <i class="fa fa-search"></i>
                     <span>Browse HPO Terms</span>
                 </button>
@@ -174,10 +174,9 @@ export default class HpoAccessionsFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            // separator: [",", ";"], // this is being used in select-token-filter updated() fn and select2 config itself
-            // ontologyFilter: "HP",
+            ontologyFilter: "HP",
             placeholder: "HP:0000001, HP:3000079",
-            source: "GO",
+            source: "HPO",
             separator: ",",
             maxSelectedTerms: 100,
         };
