@@ -78,9 +78,9 @@ export default class HpoAccessionsFilter extends LitElement {
         super.update(_changedProperties);
     }
 
-    onFilterChange(e) {
-        console.log("filterChange", e || null);
-        let terms = e.detail?.value;
+    onFilterChange(event) {
+        event.stopPropagation();
+        let terms = event.detail?.value;
         this.warnMessage = null;
         if (terms) {
             let arr = terms.split(this.operator);
@@ -124,20 +124,22 @@ export default class HpoAccessionsFilter extends LitElement {
 
     render() {
         return html`
-
             <div class="mb-1">
                 <ontology-autocomplete-filter
                     .value="${this.selectedTerms}"
                     .cellbaseClient="${this.cellbaseClient}"
-                    .config="${this._config}"
-                    @filterChange="${this.onFilterChange}">
+                    .config="${{
+                        ...this._config,
+                        separator: this.operator,
+                    }}"
+                    @filterChange="${event => this.onFilterChange(event)}">
                 </ontology-autocomplete-filter>
             </div>
 
             <div class="d-grid mb-2">
-                <button class="btn btn-primary full-width" id="${this._prefix}buttonOpenHpoAccesions" @click="${this.openModal}">
-                    <i class="fa fa-search searchingButton" aria-hidden="true"></i>
-                    Browse HPO Terms
+                <button class="btn btn-primary d-flex align-items-center justify-content-center gap-2" id="${this._prefix}buttonOpenHpoAccesions" @click="${this.openModal}">
+                    <i class="fa fa-search"></i>
+                    <span>Browse HPO Terms</span>
                 </button>
             </div>
 
