@@ -122,23 +122,17 @@ export default class HpoAccessionsFilter extends LitElement {
         ontologyModal.show();
     }
 
-    getDefaultConfig() {
-        return {
-            separator: [",", ";"], // this is being used in select-token-filter updated() fn and select2 config itself
-            ontologyFilter: "HP",
-            placeholder: "HP:0000001, HP:3000079"
-        };
-    }
-
     render() {
         return html`
 
-            <ontology-autocomplete-filter
-                .value="${this.selectedTerms}"
-                .cellbaseClient="${this.cellbaseClient}"
-                .config="${this._config}"
-                @filterChange="${this.onFilterChange}">
-            </ontology-autocomplete-filter>
+            <div class="mb-1">
+                <ontology-autocomplete-filter
+                    .value="${this.selectedTerms}"
+                    .cellbaseClient="${this.cellbaseClient}"
+                    .config="${this._config}"
+                    @filterChange="${this.onFilterChange}">
+                </ontology-autocomplete-filter>
+            </div>
 
             <div class="d-grid mb-2">
                 <button class="btn btn-primary full-width" id="${this._prefix}buttonOpenHpoAccesions" @click="${this.openModal}">
@@ -174,6 +168,17 @@ export default class HpoAccessionsFilter extends LitElement {
                 @filterChange="${this.onFilterChange}">
             </variant-modal-ontology>
         `;
+    }
+
+    getDefaultConfig() {
+        return {
+            // separator: [",", ";"], // this is being used in select-token-filter updated() fn and select2 config itself
+            // ontologyFilter: "HP",
+            placeholder: "HP:0000001, HP:3000079",
+            source: "GO",
+            separator: ",",
+            maxSelectedTerms: 100,
+        };
     }
 
 }
