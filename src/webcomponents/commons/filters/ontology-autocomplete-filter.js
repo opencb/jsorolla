@@ -106,6 +106,7 @@ export default class OntologyAutocompleteFilter extends LitElement {
             <token-dropdown
                 .value="${this.value}"
                 .placeholder="${this._config.placeholder}"
+                .separator="${this._config.separator}"
                 .fetch="${(params, success, failure) => this.onFetch(params, success, failure)}"
                 .renderItem="${item => this.renderItem(item)}"
                 ?disabled="${this._config.disabled}"
@@ -122,6 +123,7 @@ export default class OntologyAutocompleteFilter extends LitElement {
             placeholder: "Start typing",
             maximumSelectionLength: 100,
             source: "GO",
+            separator: ",",
         };
     }
 
