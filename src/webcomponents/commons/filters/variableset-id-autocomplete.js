@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-
+import "../forms/token-dropdown.js";
 
 export default class VariableSetIdAutocomplete extends LitElement {
 
@@ -47,71 +47,58 @@ export default class VariableSetIdAutocomplete extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-
     update(changedProperties) {
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
         super.update(changedProperties);
     }
 
-    variableSetIdObserver() {
-        if (this.opencgaSession) {
-            let error;
-            this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn, {id: ""})
-                .then(response => {
-                    const variableSets = response.responses[0].results;
-                    this.variableSetIds = variableSets.map(variableSet => variableSet.id);
-                })
-                .catch(reason => {
-                    this.variableSetIds = [];
-                    error = reason;
-                    console.error(reason);
-                })
-                .finally(() => {
-                    this.requestUpdate();
-                });
-        }
+    onFilterChange(event) {
+        event.stopPropagation();
+        LitUtils.dispatchCustomEvent(this, "filterChange", event.detail.value);
     }
 
-    onFilterChange(key, value) {
-        LitUtils.dispatchCustomEvent(this, "filterChange", value);
+    onFetch(params, success, failure) {
+        const queryTerm = params?.query || "";
+        this.opencgaSession.opencgaClient.studies()
+            .variableSets(this.opencgaSession.study.fqn, {
+                id: "",
+            })
+            .then(response => {
+                let results = response.getResults();
+                if (queryTerm) {
+                    const term = queryTerm.toUpperCase();
+                    results = results.filter(v => v.id.toUpperCase().includes(term));
+                }
+                success(results.map(v => ({id: v.id, name: v.id})));
+            })
+            .catch(error => failure(error));
+    }
+
+    render() {
+        return html`
+            <token-dropdown
+                .value="${this.value}"
+                .placeholder="${this._config.placeholder}"
+                .fetch="${(params, success, failure) => this.onFetch(params, success, failure)}"
+                ?disabled="${this._config.disabled}"
+                ?editable="${this._config.editable}"
+                @filterChange="${event => this.onFilterChange(event)}">
+            </token-dropdown>
+        `;
     }
 
     getDefaultConfig() {
         return {
             placeholder: "Search by VariableSet ID...",
             limit: 10,
-            fields: item => ({
-                "name": item.id,
-            }),
-            source: (params, success, failure) => {
-                const page = params?.data?.page || 1;
-                const id = params?.data?.term ? {id: "~/" + params?.data?.term + "/i"} : null;
-                const filters = {
-                    study: this.opencgaSession.study.fqn,
-                    limit: this._config.limit,
-                    count: true,
-                    skip: (page - 1) * this._config.limit,
-                    include: "id",
-                    ...id
-                };
-                this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn, {id: ""})
-                    .then(response => success(response))
-                    .catch(error => failure(error));
-            },
+            disabled: false,
+            editable: false,
         };
-    }
-
-    render() {
-        return html`
-            <select-token-filter
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}"
-                .value="${this.value}"
-                @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
-            </select-token-filter>
-        `;
     }
 
 }
