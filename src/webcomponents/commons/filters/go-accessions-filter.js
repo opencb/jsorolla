@@ -45,16 +45,23 @@ export default class GoAccessionsFilter extends LitElement {
 
     #init() {
         this._prefix = UtilsNew.randomString(8);
+        this._showWarningMessage = false;
         this._config = this.getDefaultConfig();
     }
 
     onFilterChange(event) {
         event.stopPropagation();
+        this._showWarningMessage = false;
         let selectedTerms = event.detail?.value;
         if (selectedTerms) {
-            const selectedTermsCount = selectedTerms.split(this._config.separator);
-            if (selectedTermsCount.length > this._config.maxSelectedTerms) {
-                selectedTerms = selectedTerms.slice(0, 99).join(this._config.separator);
+            const selectedTermsCount = selectedTerms.split(this._config.separator).filter(Boolean).length;
+            if (selectedTermsCount > this._config.maxSelectedTerms) {
+                this._showWarningMessage = true;
+                selectedTerms = selectedTerms
+                    .split(this._config.separator)
+                    .filter(Boolean)
+                    .slice(0, this._config.maxSelectedTerms)
+                    .join(this._config.separator);
             }
         }
 
@@ -68,12 +75,12 @@ export default class GoAccessionsFilter extends LitElement {
     }
 
     render() {
-        const selectedGoTermsCount = (this.go || "").split(this._config.separator).filter(Boolean).length;
         return html`
-            ${selectedGoTermsCount > this._config.maxSelectedTerms ? html`
+            ${this._showWarningMessage ? html`
                 <div class="alert alert-warning">
                     <i class="fa fa-exclamation-triangle"></i>
-                    <span>${selectedGoTermsCount} GO terms selected. Only the first ${this._config.maxSelectedTerms} will be taken into account.</span>
+                    <span>More than ${this._config.maxSelectedTerms} GO terms selected. </span>
+                    <span>Only the first ${this._config.maxSelectedTerms} will be taken into account.</span>
                 </div>
             ` : nothing}
             <div class="mb-1">
