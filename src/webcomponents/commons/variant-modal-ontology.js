@@ -21,7 +21,6 @@ import UtilsNew from "../../core/utils-new.js";
 import LitUtils from "./utils/lit-utils.js";
 import NotificationUtils from "./utils/notification-utils.js";
 import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
-import "./forms/select-token-filter";
 import "../commons/filters/ontology-autocomplete-filter.js";
 
 
