@@ -88,7 +88,7 @@ export default class TokenDropdown extends LitElement {
         return (this.value || "").split(this.separator).filter(Boolean);
     }
 
-    addToken(value) {
+    addToken(value, item = null) {
         if (this.multiple) {
             const selectedValues = this.getSelectedValues();
             if (!selectedValues.includes(value)) {
@@ -98,7 +98,9 @@ export default class TokenDropdown extends LitElement {
         } else {
             this.value = value;
         }
-        LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.value, {
+            data: item || { [this.field]: value },
+        });
     }
 
     removeToken(value) {
@@ -242,7 +244,7 @@ export default class TokenDropdown extends LitElement {
         if (this.getSelectedValues().includes(value)) {
             this.removeToken(value);
         } else {
-            this.addToken(value);
+            this.addToken(value, item);
         }
     }
 
