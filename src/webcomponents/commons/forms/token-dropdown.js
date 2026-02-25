@@ -108,7 +108,9 @@ export default class TokenDropdown extends LitElement {
             return selectedValue !== value;
         });
         this.value = newValues.join(this.separator);
-        LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.value, {
+            data: {},
+        });
     }
 
     fetchResults(query = "") {
@@ -195,6 +197,7 @@ export default class TokenDropdown extends LitElement {
         this._focused = false;
         setTimeout(() => {
             this._open = false;
+            this.renderRoot.querySelector("input").value = ""; // clear input
             this.requestUpdate();
         }, 200);
     }
@@ -251,7 +254,9 @@ export default class TokenDropdown extends LitElement {
     onClear(event) {
         event.stopPropagation();
         this.value = "";
-        LitUtils.dispatchCustomEvent(this, "filterChange", this.value);
+        LitUtils.dispatchCustomEvent(this, "filterChange", this.value, {
+            data: {},
+        });
     }
 
     renderToken(value) {
