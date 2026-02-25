@@ -15,10 +15,15 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-token-filter.js";
-
+import LitUtils from "../utils/lit-utils.js";
+import "../forms/token-dropdown.js";
 
 export default class AnalysisToolIdAutocomplete extends LitElement {
+
+    constructor() {
+        super();
+        this.#init();
+    }
 
     createRenderRoot() {
         return this;
@@ -38,53 +43,68 @@ export default class AnalysisToolIdAutocomplete extends LitElement {
         };
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    #init() {
+        this._config = this.getDefaultConfig();
     }
 
-    onFilterChange(key, value) {
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: value
-            }
-        });
-        this.dispatchEvent(event);
+    update(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
+        }
+        super.update(changedProperties);
+    }
+
+    onFilterChange(event) {
+        event.stopPropagation();
+        LitUtils.dispatchCustomEvent(this, "filterChange", event.detail.value);
+    }
+
+    onFetch(params, success, failure) {
+        const queryTerm = params?.query || "";
+
+        this.opencgaSession.opencgaClient.jobs()
+            .distinct("tool.id", {
+                study: this.opencgaSession.study.fqn,
+                limit: this._config.limit,
+                count: false,
+                include: "id",
+                id: queryTerm ? `~/${queryTerm}/i` : null,
+            })
+            .then(response => {
+                let results = response.getResults();
+                if (queryTerm) {
+                    const term = queryTerm.toUpperCase();
+                    results = results.filter(item => item.toUpperCase().includes(term));
+                }
+                // Preprocess string results
+                success(results.map(id => ({id: id, name: id})));
+            })
+            .catch(error => failure(error));
+    }
+
+    render() {
+        return html`
+            <token-dropdown
+                .value="${this.value}"
+                .placeholder="${this._config.placeholder}"
+                .fetch="${(p, success, failure) => this.onFetch(p, success, failure)}"
+                ?disabled="${this._config.disabled}"
+                ?editable="${this._config.editable}"
+                @filterChange="${event => this.onFilterChange(event)}">
+            </token-dropdown>
+        `;
     }
 
     getDefaultConfig() {
         return {
             limit: 10,
-            /* fields: item => ({
-                name: item
-            }),*/
-            source: (params, success, failure) => {
-                const page = params?.data?.page || 1;
-                const id = params?.data?.term ? {id: "~/" + params.data.term + "/i"} : null;
-                const filters = {
-                    study: this.opencgaSession.study.fqn,
-                    limit: this._config.limit,
-                    count: false,
-                    skip: (page - 1) * this._config.limit,
-                    include: "id",
-                    ...id
-                };
-                this.opencgaSession.opencgaClient.jobs().distinct("tool.id", filters)
-                    .then(response => success(response))
-                    .catch(error => failure(error));
-            },
+            disabled: false,
+            editable: false,
+            placeholder: "Start typing",
         };
-    }
-
-    render() {
-        return html`
-            <select-token-filter
-                .opencgaSession="${this.opencgaSession}"
-                .config="${this._config}"
-                .value="${this.value}"
-                @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
-            </select-token-filter>
-        `;
     }
 
 }
