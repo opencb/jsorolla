@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-import "../forms/select-token-filter.js";
-import UtilsNew from "../../../core/utils-new";
+import "../forms/token-dropdown.js";
 
 export default class CellbaseSearchAutocomplete extends LitElement {
 
@@ -60,10 +59,6 @@ export default class CellbaseSearchAutocomplete extends LitElement {
     #init() {
         this.RESOURCES = {};
         this.endpoint = {};
-        this.defaultQueryParams = {
-            limit: 10,
-            count: false,
-        };
         this.#initResourcesConfig();
         this.searchField = "";
         this.queryParams = {};
@@ -75,35 +70,31 @@ export default class CellbaseSearchAutocomplete extends LitElement {
                 category: "feature",
                 subcategory: "ontology",
                 operation: "search",
-                getSearchField: term => /^[^:\s]+:/.test(term) ? "id": "name",
+                getSearchField: term => /^[^:\s]+:/.test(term) ? "id" : "name",
                 placeholder: "Start typing a phenotype ID or name...",
                 queryParams: {},
-                // Pre-process the results of the query if needed.
             },
             "DISORDER": {
                 category: "feature",
                 subcategory: "ontology",
                 operation: "search",
-                getSearchField: term => /^[^:\s]+:/.test(term) ? "id": "name",
+                getSearchField: term => /^[^:\s]+:/.test(term) ? "id" : "name",
                 placeholder: "Start typing a disorder ID or name ...",
                 queryParams: {},
-                // Pre-process the results of the query if needed.
             },
             "GENE": {
-                // CAUTION: In feature-filter.js L71, we are autocompleting: xref, ids, gene, geneName.
                 category: "feature",
                 subcategory: "gene",
                 operation: "search",
                 getSearchField: term => {
                     // FIXME: Query gene by id is not working! Temporarily returning ALWAYS name
-                    // return term.startsWith("ENSG0") ? "id" : "name";
-                    return term.startsWith("ENSG0") ? "name" : "name";
+                    return "name";
                 },
                 valueField: "name",
                 placeholder: "Start typing an ensemble gene ID or name...",
                 queryParams: {
                     exclude: "transcripts,annotation",
-                }, // CAUTION: query params depends on the resource/operation (i.e. search, info) used
+                },
             },
             "VARIANT": {},
             "PROTEIN": {},
@@ -122,49 +113,6 @@ export default class CellbaseSearchAutocomplete extends LitElement {
             description: item.description,
             text: item.name || item.id,
         }));
-    }
-
-    // Templating one option of dropdown
-    // TODO Vero: Style with default bootstrap
-    #viewResultStyle() {
-        return html `
-            <style>
-                .result-wrapper {
-                    display: flex;
-                    flex-direction: column;
-                }
-                .result-name-wrapper {
-                    display: flex;
-                    align-items: center;
-                }
-                .result-source {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin-right: 8px;
-                    font-size: 10px;
-                    padding: 2px 4px;
-                    color: white;
-                    background-color: #d91c5e;
-                    border: 1px solid #d91c5e;
-                    border-radius: 2px;
-                }
-            </style>
-        `;
-    }
-
-    #viewResult(option) {
-        return option.name ? $(`
-            <div class="result-wrapper">
-                <div class="result-name-wrapper">
-                    <div class="result-source">${option.source}</div>
-                    <div class="result-source-name">${option.name}</div>
-                </div>
-                <div class="dropdown-item-extra">${option.id || "-"}</div>
-            </div>
-        `) : $(`
-            <span>${option.text}</span>
-        `);
     }
 
     update(changedProperties) {
@@ -196,20 +144,55 @@ export default class CellbaseSearchAutocomplete extends LitElement {
         };
     }
 
-    onFilterChange(e) {
-        const value = e.detail.value;
-        const data = e.detail.data.selected ? e.detail.data : {};
-        if (!UtilsNew.isEmpty(data)) {
-            // 1. To remove internal keys from select2 that are not part of the data model.
-            const internalKeys = ["selected", "text"];
-            internalKeys.forEach(key => delete data[key]);
-            // 2. To filter out entries with undefined values
-            Object.keys(data).forEach(key => typeof data[key] === "undefined" && delete data[key]);
+    async onFetch(params, success, failure) {
+        const queryTerm = params?.query || "";
+        if (!queryTerm) {
+            return success([]);
         }
-        // 3. To dispatch event with value autocompleted and data filtered
-        LitUtils.dispatchCustomEvent(this, "filterChange", value, {
-            data: data,
-        });
+
+        const queryParams = {
+            limit: 10,
+            count: false,
+            ...this.RESOURCES[this.resource].queryParams,
+            ...this.queryParams,
+        };
+
+        // Get the query param field. It will vary with the text typed by the user according to a regex
+        this.searchField = this.RESOURCES[this.resource].getSearchField(queryTerm);
+        // Set the query params
+        const queryParamsField = {
+            [this.searchField]: `~/${queryTerm}/i`,
+            ...queryParams,
+        };
+
+        try {
+            const response = await this.cellbaseClient.get(
+                this.RESOURCES[this.resource].category,
+                this.RESOURCES[this.resource].subcategory,
+                "",
+                this.RESOURCES[this.resource].operation,
+                queryParamsField
+            );
+            const results = this.#filterResults(response.responses[0].results);
+            success(results);
+        } catch (error) {
+            console.error(error);
+            failure(error);
+        }
+    }
+
+    renderItem(item) {
+        return html`
+            <div class="d-flex flex-column my-1">
+                <div class="d-flex align-items-center">
+                    ${item.source ? html`
+                        <span class="badge bg-danger me-2" style="font-size: 10px;">${item.source}</span>
+                    ` : nothing}
+                    <span class="fw-bold">${item.name || item.id}</span>
+                </div>
+                <div class="small text-secondary">${item.id || "-"}</div>
+            </div>
+        `;
     }
 
     render() {
@@ -218,12 +201,16 @@ export default class CellbaseSearchAutocomplete extends LitElement {
         }
 
         return html`
-            <select-token-filter
-                .keyObject="${this.RESOURCES[this.resource].valueField || "id"}"
-                .classes="${this.classes}"
-                .config="${this._config}"
-                @filterChange="${e => this.onFilterChange(e)}">
-            </select-token-filter>
+            <token-dropdown
+                .value="${this.value}"
+                .field="${this.RESOURCES[this.resource].valueField || "id"}"
+                .placeholder="${this._config.placeholder}"
+                .multiple="${this._config.multiple}"
+                .fetch="${(params, success, failure) => this.onFetch(params, success, failure)}"
+                .renderItem="${item => this.renderItem(item)}"
+                ?disabled="${this._config.disabled}"
+                ?editable="${this._config.freeTag}">
+            </token-dropdown>
         `;
     }
 
@@ -233,45 +220,7 @@ export default class CellbaseSearchAutocomplete extends LitElement {
             multiple: false,
             freeTag: false,
             limit: 10,
-            maxItems: 0, // No limit set
-            minimumInputLength: 3, // Only start searching when the user has input 3 or more characters
             placeholder: this.RESOURCES[this.resource].placeholder,
-            filterResults: this.#filterResults,
-            viewResultStyle: this.#viewResultStyle,
-            viewResult: this.#viewResult,
-            viewSelection: result => result[this.searchField],
-            // TODO Vero: change name to fetch
-            source: async (params, success, failure) => {
-                const page = params?.data?.page || 1;
-                const queryParams = {
-                    ...this.defaultQueryParams,
-                    ...this.RESOURCES[this.resource].queryParams,
-                    ...this.queryParams,
-                    skip: (page - 1) * this._config.limit,
-                };
-                if (params?.data?.term) {
-                    // Get the query param field. It will vary with the text typed by the user according to a regex
-                    this.searchField = this.RESOURCES[this.resource].getSearchField(params.data.term);
-                    // Set the query params
-                    const queryParamsField = {
-                        [this.searchField]: `~/${params?.data?.term}/i`,
-                        ...queryParams,
-                    };
-                    // Query cellbase with the appropriate resource params
-                    try {
-                        const response = await this.cellbaseClient.get(
-                            this.RESOURCES[this.resource].category,
-                            this.RESOURCES[this.resource].subcategory,
-                            "",
-                            this.RESOURCES[this.resource].operation,
-                            queryParamsField);
-                        success(response);
-                    } catch (error) {
-                        // TODO Vero 20230928: manage failure
-                        console.log(error);
-                    }
-                }
-            },
         };
     }
 
