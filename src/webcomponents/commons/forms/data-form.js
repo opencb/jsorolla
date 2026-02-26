@@ -1188,6 +1188,7 @@ export default class DataForm extends LitElement {
 
         // Default values
         const disabled = this._getBooleanValue(element?.display?.disabled, false, element);
+        const separator = element?.separator || ",";
         const content = html`
             <div class="">
                 <select-dropdown
@@ -1198,7 +1199,8 @@ export default class DataForm extends LitElement {
                     .disabled="${disabled}"
                     .required="${element?.required}"
                     .forceSelection="${element?.forceSelection ?? false}"
-                    .value="${defaultValue}"
+                    .value="${Array.isArray(defaultValue) ? defaultValue.join(separator) : defaultValue}"
+                    .separator="${separator}"
                     .className="${this._isUpdated(element) ? "updated" : ""}"
                     @filterChange="${e => this.onFilterChange(element, e.detail.value)}">
                 </select-dropdown>
