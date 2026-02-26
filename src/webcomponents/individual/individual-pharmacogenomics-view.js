@@ -64,55 +64,6 @@ export default class IndividualPharmacogenomicsView extends LitElement {
         super.update(changedProperties);
     }
 
-    _loadPharmacogenomicsData() {
-        this._pharmacogenomicsData = null;
-
-        // Get the sample ID from the first sample in the individual
-        const sampleId = this.individual?.samples?.[0]?.id;
-        console.log("Individual:", this.individual?.id);
-        console.log("Looking for sample ID:", sampleId);
-        console.log("Individual samples:", this.individual?.samples);
-
-        if (!sampleId) {
-            console.warn("No sample ID found for individual:", this.individual?.id);
-            this.requestUpdate();
-            return;
-        }
-
-        try {
-            // Parse JSONL data - one JSON object per line
-            const allResults = data
-                .trim()
-                .split("\n")
-                .map((line, index) => {
-                    try {
-                        return JSON.parse(line);
-                    } catch (e) {
-                        console.error(`Error parsing line ${index + 1}:`, e);
-                        return null;
-                    }
-                })
-                .filter(result => result !== null);
-
-            console.log("Total results parsed:", allResults.length);
-            console.log("Available sample IDs:", allResults.map(r => r.sampleId));
-
-            // Find the matching sample by sampleId
-            this._pharmacogenomicsData = allResults.find(result => result.sampleId === sampleId);
-
-            if (this._pharmacogenomicsData) {
-                console.log("Found pharmacogenomics data for sample:", sampleId);
-            } else {
-                console.warn(`No pharmacogenomics data found for sample: ${sampleId}`);
-                console.warn("Available samples:", allResults.map(r => r.sampleId).join(", "));
-            }
-        } catch (error) {
-            console.error("Error loading pharmacogenomics data:", error);
-        }
-
-        this.requestUpdate();
-    }
-
     loadPharmacogenomicsData() {
         const sampleId = this.individual?.samples?.[0]?.id;
         const individualPharmacogenomicsFolder = this.individual?.attributes?.OPENCGA_PHARMACOGENOMICS;
@@ -120,7 +71,7 @@ export default class IndividualPharmacogenomicsView extends LitElement {
         if (sampleId && individualPharmacogenomicsFolder) {
             const resultsFile = `${individualPharmacogenomicsFolder}/results/${sampleId}.json`.replaceAll("/", ":");
             this.opencgaSession.opencgaClient.files()
-                .download(  resultsFile, {
+                .download(resultsFile, {
                     study: this.opencgaSession.study.fqn,
                 })
                 .then(response => {
@@ -128,6 +79,7 @@ export default class IndividualPharmacogenomicsView extends LitElement {
                 })
                 .then(data => {
                     this._pharmacogenomicsData = data;
+                    this._config = this.getDefaultConfig();
                 })
                 .catch(error => {
                     console.error("Error loading pharmacogenomics data:", error);
@@ -161,41 +113,51 @@ export default class IndividualPharmacogenomicsView extends LitElement {
             sections: [
                 {
                     title: "Summary",
+                    display: {
+                        defaultLayout: "horizontal",
+                    },
                     elements: [
                         {
-                            name: "Sample ID",
+                            title: "Sample ID",
                             field: "sampleId",
+                        },
+                        {
+                            title: "Genes Analyzed",
+                            field: "alleleTyperResults",
                             type: "custom",
                             display: {
-                                render: data => {
-                                    if (!data) {
-                                        return html`
-                                            <div class="alert alert-warning">
-                                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                                No pharmacogenomics data found for this individual.
-                                            </div>
-                                        `;
-                                    }
-                                    return html`<strong>${data.sampleId}</strong>`;
-                                },
+                                render: results => html`
+                                    <span class="badge bg-primary">${results?.length || 0}</span>
+                                `,
                             },
                         },
                         {
-                            name: "Analysis Date",
-                            field: "analysisDate",
+                            title: "Total Drugs",
+                            field: "alleleTyperResults",
                             type: "custom",
                             display: {
-                                render: data => data?.analysisDate ? html`${data.analysisDate}` : html`<span class="text-muted">Not available</span>`,
+                                render: results => {
+                                    const drugSet = new Set();
+                                    (results || []).forEach(geneResult => {
+                                        (geneResult.alleleCalls || []).forEach(call => {
+                                            (call.annotation?.drugs || []).forEach(drug => {
+                                                drugSet.add(drug.name);
+                                            });
+                                        });
+                                    });
+                                    return html`
+                                        <span class="badge bg-primary">${drugSet.size}</span>
+                                    `;
+                                },
                             },
                         },
                     ],
                 },
                 {
-                    title: "Star Alleles",
+                    title: "Allele Typer Results",
                     elements: [
                         {
-                            name: "Pharmacogenes",
-                            field: "starAlleles",
+                            field: "alleleTyperResults",
                             type: "table",
                             display: {
                                 maxHeight: "600px",
@@ -205,45 +167,69 @@ export default class IndividualPharmacogenomicsView extends LitElement {
                                         field: "gene",
                                     },
                                     {
-                                        title: "Star Alleles",
-                                        field: "alleles",
-                                        format: (alleles, row) => {
-                                            if (!Array.isArray(alleles) || alleles.length === 0) {
-                                                return "-";
-                                            }
-                                            // Extract allele names from the alleles array
-                                            const alleleNames = alleles
-                                                .map(a => a.allele ? a.allele : null)
-                                                .filter(a => a !== null && a !== undefined)
-                                                .join(", ");
-                                            debugger
-                                            return alleleNames || "-";
+                                        title: "Allele Calls",
+                                        field: "alleleCalls",
+                                        type: "custom",
+                                        display: {
+                                            render: alleleCalls => {
+                                                const calls = alleleCalls || [];
+                                                if (calls.length === 0) {
+                                                    return "-";
+                                                }
+                                                return html`
+                                                    ${calls.map(call => html`
+                                                        <span class="badge bg-primary me-1">${call.allele || "-"}</span>
+                                                    `)}
+                                                `;
+                                            },
                                         },
                                     },
                                     {
-                                        title: "Genotype",
-                                        field: "alleles",
-                                        format: (alleles, row) => {
-                                            if (!Array.isArray(alleles) || alleles.length === 0) {
-                                                return "-";
-                                            }
-                                            // Show the genotype as allele1/allele2
-                                            const alleleNames = alleles
-                                                .map(a => {
-                                                    if (a && typeof a === "object" && a.allele) {
-                                                        return a.allele;
+                                        title: "Associated Drugs",
+                                        field: "alleleCalls",
+                                        type: "custom",
+                                        display: {
+                                            render: alleleCalls => {
+                                                // Collect unique drugs across all allele calls for this gene
+                                                const drugMap = new Map();
+                                                for (const call of (alleleCalls || [])) {
+                                                    for (const drug of (call.annotation?.drugs || [])) {
+                                                        if (!drugMap.has(drug.name)) {
+                                                            drugMap.set(drug.name, drug);
+                                                        }
                                                     }
-                                                    return null;
-                                                })
-                                                .filter(a => a !== null && a !== undefined);
-                                            return alleleNames.length > 0 ? alleleNames.join("/") : "-";
+                                                }
+                                                if (drugMap.size === 0) {
+                                                    return html`<span class="text-muted">-</span>`;
+                                                }
+                                                return html`
+                                                    <div class="d-flex flex-wrap gap-1">
+                                                        ${Array.from(drugMap.values()).map(drug => html`
+                                                            <span class="badge border text-dark bg-light" title="${drug.source || ""}: ${drug.id || ""}">
+                                                                ${drug.name}
+                                                            </span>
+                                                        `)}
+                                                    </div>
+                                                `;
+                                            },
                                         },
                                     },
                                     {
-                                        title: "Variants",
-                                        field: "variants",
-                                        formatter: (variants, row) => {
-                                            return Array.isArray(variants) ? variants.length : 0;
+                                        title: "Drug Count",
+                                        field: "alleleCalls",
+                                        type: "custom",
+                                        display: {
+                                            render: alleleCalls => {
+                                                const drugSet = new Set();
+                                                for (const call of (alleleCalls || [])) {
+                                                    for (const drug of (call.annotation?.drugs || [])) {
+                                                        drugSet.add(drug.name);
+                                                    }
+                                                }
+                                                return html`
+                                                    <span class="badge bg-secondary">${drugSet.size}</span>
+                                                `;
+                                            },
                                         },
                                     },
                                 ],
