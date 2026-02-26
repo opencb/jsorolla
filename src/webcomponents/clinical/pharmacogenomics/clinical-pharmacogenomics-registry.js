@@ -233,7 +233,7 @@ export default class ClinicalPharmacogenomicsRegistry extends LitElement {
             display: {
                 titleVisible: true,
                 defaultLayout: "vertical",
-                buttonsVisible: true,
+                buttonsVisible: false,
                 buttonOkText: "Register",
                 buttonClearText: "Discard",
             },
