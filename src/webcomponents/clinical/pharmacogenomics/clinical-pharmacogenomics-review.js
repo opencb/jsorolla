@@ -1,4 +1,5 @@
 import {LitElement, html, nothing} from "lit";
+import "../../commons/forms/data-form.js";
 
 export default class ClinicalPharmacogenomicsReview extends LitElement {
 
@@ -24,17 +25,25 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
 
     #init() {
         this._results = [];
+        this._data = {};
         this._translationFileContent = null;
         this._translationFileStats = null;
         this._genotypingFileStats = null;
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("toolParams")) {
+            this._data = {
+                registry: this.toolParams?.registry || {},
+                alleleTyper: this.toolParams?.alleleTyper || {},
+                review: this.toolParams?.review || {},
+            };
             // Process tool params to prepare results view
             this._prepareResultsView();
             this._fetchTranslationFileStats();
             this._parseGenotypingFileStats();
+            this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
@@ -53,6 +62,7 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                 const content = response;
                 this._translationFileContent = content;
                 this._parseTranslationFileStats(content);
+                this._config = this.getDefaultConfig();
                 this.requestUpdate();
             } catch (error) {
                 console.error("Error fetching translation file:", error);
@@ -189,81 +199,6 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
         this._results = [];
     }
 
-    renderSummaryCard(title, icon, content) {
-        return html`
-            <div class="card mb-3">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="${icon} me-2"></i>${title}
-                    </h5>
-                </div>
-                <div class="card-body">
-                    ${content}
-                </div>
-            </div>
-        `;
-    }
-
-    renderResults() {
-        const results = this.toolParams?.review?.results || [];
-
-        if (results.length === 0) {
-            return html`
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    No results found.
-                </div>
-            `;
-        }
-
-        return html`
-            <div class="alert alert-success mb-3">
-                <i class="fas fa-check-circle me-2"></i>
-                <strong>Analysis Completed Successfully!</strong>
-                <span class="ms-2">${results.length} sample${results.length > 1 ? "s" : ""} analyzed</span>
-            </div>
-
-            <table class="table table-hover table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th style="width: 15%">Sample ID</th>
-                        <th style="width: 10%">Genes</th>
-                        <th>Star Alleles Summary</th>
-                        <th style="width: 15%">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${results.map(sample => {
-                        const genesCount = sample.starAlleles?.length || 0;
-                        // Create a summary of star alleles (first 5 genes)
-                        const allelesSummary = sample.starAlleles?.slice(0, 5).map(gene =>
-                            `${gene.gene}: ${gene.alleles?.map(a => a.allele).join(", ")}`
-                        ).join(" | ");
-                        const hasMore = genesCount > 5;
-
-                        return html`
-                            <tr>
-                                <td><strong>${sample.sampleId}</strong></td>
-                                <td>
-                                    <span class="badge bg-primary">${genesCount}</span>
-                                </td>
-                                <td>
-                                    <small>${allelesSummary}</small>
-                                    ${hasMore ? html`<span class="text-muted">... and ${genesCount - 5} more</span>` : nothing}
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary" @click="${() => this.showSampleDetails(sample)}">
-                                        <i class="fas fa-eye me-1"></i>View Details
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    })}
-                </tbody>
-            </table>
-        `;
-    }
-
     showSampleDetails(sample) {
         // TODO: Implement modal or expandable view with full details
         console.log("Sample details:", sample);
@@ -275,181 +210,235 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
             return nothing;
         }
 
-        const registry = this.toolParams?.registry || {};
-        const alleleTyper = this.toolParams?.alleleTyper || {};
-
-        const hasGenotyping = registry.genotypingFileContent && registry.genotypingFileContent.length > 0;
-        const hasSamplesheet = registry.samplesheetFileContent && registry.samplesheetFileContent.length > 0;
-        const translationFile = alleleTyper.translationFile || "";
-
         return html`
-            <div class="mb-4">
-                <h3 class="mb-3">Analysis Results & Configuration Summary</h3>
-                <p class="text-muted">
-                    Review the pharmacogenomics analysis configuration and results.
-                    This view provides a comprehensive summary of the analysis parameters and identified findings.
-                </p>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    ${this.renderSummaryCard(
-                        "Uploaded Files",
-                        "fas fa-file-upload",
-                        html`
-                            <div class="mb-3">
-                                <strong>Genotyping Output File:</strong>
-                                <div class="ms-3">
-                                    ${hasGenotyping ? html`
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="fas fa-check-circle text-success"></i>
-                                            <span>File uploaded</span>
-                                            <span class="badge bg-secondary">${(registry.genotypingFileContent.length / 1024).toFixed(2)} KB</span>
-                                        </div>
-                                    ` : html`
-                                        <span class="text-danger">
-                                            <i class="fas fa-times-circle me-1"></i>No file uploaded
-                                        </span>
-                                    `}
-                                </div>
-                            </div>
-                            ${this._genotypingFileStats ? html`
-                                <div class="mt-3">
-                                    <strong>Genotyping File Statistics:</strong>
-                                    <div class="row g-2 mt-1">
-                                        <div class="col-4">
-                                            <div class="text-center p-2 border rounded bg-light">
-                                                <div class="fw-bold text-primary">${this._genotypingFileStats.totalSamples}</div>
-                                                <div class="text-muted small">Samples</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="text-center p-2 border rounded bg-light">
-                                                <div class="fw-bold text-success">${this._genotypingFileStats.totalAssays}</div>
-                                                <div class="text-muted small">Assays</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="text-center p-2 border rounded bg-light">
-                                                <div class="fw-bold text-info">${this._genotypingFileStats.totalGenes}</div>
-                                                <div class="text-muted small">Genes</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="mt-3">
-                                        <div class="small fw-bold mb-1">Assays per Gene:</div>
-                                        <div class="d-flex flex-wrap gap-1">
-                                            ${this._genotypingFileStats.genes.map(gene => html`
-                                                <span class="badge border text-dark bg-light">
-                                                    ${gene.name}: ${gene.assayCount}
-                                                </span>
-                                            `)}
-                                        </div>
-                                    </div>
-                                </div>
-                            ` : nothing}
-                        `
-                    )}
-                </div>
-
-                <div class="col-md-6">
-                    ${this.renderSummaryCard(
-                        "Allele Typer Configuration",
-                        "fas fa-dna",
-                        html`
-                            <div class="mb-3">
-                                <strong>Translation File:</strong>
-                                <div class="ms-3">
-                                    ${translationFile ? html`
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="fas fa-check-circle text-success"></i>
-                                            <span>${translationFile}</span>
-                                        </div>
-                                    ` : html`
-                                        <span class="text-danger">
-                                            <i class="fas fa-times-circle me-1"></i>No file selected
-                                        </span>
-                                    `}
-                                </div>
-                            </div>
-                            ${this._translationFileStats ? html`
-                                <div class="mt-3">
-                                    <strong>Translation File Statistics:</strong>
-                                    <div class="row g-2 mt-1">
-                                        <div class="col-4">
-                                            <div class="text-center p-2 border rounded bg-light">
-                                                <div class="fw-bold text-primary">${this._translationFileStats.totalGenes}</div>
-                                                <div class="text-muted small">Genes</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="text-center p-2 border rounded bg-light">
-                                                <div class="fw-bold text-success">${this._translationFileStats.totalAlleles}</div>
-                                                <div class="text-muted small">Alleles</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="text-center p-2 border rounded bg-light">
-                                                <div class="fw-bold text-info">${this._translationFileStats.totalAssays}</div>
-                                                <div class="text-muted small">Assays</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="mt-3">
-                                        <div class="small fw-bold mb-1">Alleles per Gene:</div>
-                                        <div class="d-flex flex-wrap gap-1">
-                                            ${this._translationFileStats.genes.map(gene => html`
-                                                <span class="badge border text-dark bg-light">
-                                                    ${gene.name}: ${gene.alleleCount}
-                                                </span>
-                                            `)}
-                                        </div>
-                                    </div>
-                                </div>
-                            ` : nothing}
-                        `
-                    )}
-                </div>
-            </div>
-
-            <div class="row mt-3">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0">
-                                <i class="fas fa-chart-bar me-2"></i>Pharmacogenomics Analysis Results
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            ${this.toolParams?.review?.analysisCompleted ? html`
-                                ${this.renderResults()}
-                            ` : html`
-                                <div class="alert alert-info mb-3">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    <strong>Analysis Not Yet Run</strong>
-                                    <p class="mb-0 mt-2">
-                                        Click the <strong>"Run Analysis"</strong> button to execute the pharmacogenomics analysis
-                                        with the current configuration. Results will appear below after completion.
-                                    </p>
-                                </div>
-                                <div class="border rounded p-3 bg-light">
-                                    <h6 class="fw-bold mb-2">
-                                        <i class="fas fa-flask me-1"></i>Results will include:
-                                    </h6>
-                                    <ul class="mb-0">
-                                        <li>Identified star alleles and genotypes</li>
-                                        <li>Drug-gene interaction predictions</li>
-                                        <li>Clinical guidelines and recommendations</li>
-                                        <li>Metabolizer phenotype predictions (PM, IM, NM, RM, UM)</li>
-                                        <li>Exportable pharmacogenomics report</li>
-                                    </ul>
-                                </div>
-                            `}
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <data-form
+                .data="${this._data}"
+                .config="${this._config}">
+            </data-form>
         `;
+    }
+
+    getDefaultConfig() {
+        const registry = this._data?.registry || {};
+        const alleleTyper = this._data?.alleleTyper || {};
+        const hasGenotyping = registry.genotypingFileContent && registry.genotypingFileContent.length > 0;
+        const translationFile = alleleTyper.translationFile || "";
+        const results = this._data?.review?.results || [];
+
+        return {
+            title: "Analysis Results & Configuration Summary",
+            icon: "fas fa-clipboard-check",
+            description: "Review the pharmacogenomics analysis configuration and results. ",
+            display: {
+                titleVisible: true,
+                defaultLayout: "vertical",
+                buttonsVisible: false,
+                layout: [
+                    {
+                        className: "row",
+                        sections: [
+                            {
+                                id: "registry",
+                                className: "col-6",
+                            },
+                            {
+                                id: "allele-typer",
+                                className: "col-6",
+                            },
+                        ]
+                    },
+                ],
+            },
+            sections: [
+                {
+                    id: "results",
+                    title: "Analysis Results",
+                    display: {
+                        visible: () => false, // results.length > 0,
+                    },
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <div class="alert alert-success mb-3">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        <strong>Analysis Completed Successfully!</strong>
+                                        <span class="ms-2">${results.length} sample${results.length > 1 ? "s" : ""} analyzed</span>
+                                    </div>
+                                    <table class="table table-hover table-bordered">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 15%">Sample ID</th>
+                                                <th style="width: 10%">Genes</th>
+                                                <th>Star Alleles Summary</th>
+                                                <th style="width: 15%">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${results.map(sample => {
+                                                const genesCount = sample.starAlleles?.length || 0;
+                                                const allelesSummary = sample.starAlleles?.slice(0, 5).map(gene =>
+                                                    `${gene.gene}: ${gene.alleles?.map(a => a.allele).join(", ")}`
+                                                ).join(" | ");
+                                                const hasMore = genesCount > 5;
+                                                return html`
+                                                    <tr>
+                                                        <td><strong>${sample.sampleId}</strong></td>
+                                                        <td>
+                                                            <span class="badge bg-primary">${genesCount}</span>
+                                                        </td>
+                                                        <td>
+                                                            <small>${allelesSummary}</small>
+                                                            ${hasMore ? html`<span class="text-muted">... and ${genesCount - 5} more</span>` : nothing}
+                                                        </td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-outline-primary" @click="${() => this.showSampleDetails(sample)}">
+                                                                <i class="fas fa-eye me-1"></i>View Details
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                `;
+                                            })}
+                                        </tbody>
+                                    </table>
+                                `,
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: "registry",
+                    title: "Uploaded Files",
+                    display: {
+                        className: "p-4 bg-white rounded-5 shadow-sm",
+                    },
+                    elements: [
+                        {
+                            title: "Genotyping Output File",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <div class="ms-3">
+                                        ${hasGenotyping ? html`
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="fas fa-check-circle text-success"></i>
+                                                <span>File uploaded</span>
+                                                <span class="badge bg-secondary">${(registry.genotypingFileContent.length / 1024).toFixed(2)} KB</span>
+                                            </div>
+                                        ` : html`
+                                            <span class="text-danger">
+                                                <i class="fas fa-times-circle me-1"></i>No file uploaded
+                                            </span>
+                                        `}
+                                    </div>
+                                    ${this._genotypingFileStats ? html`
+                                        <div class="mt-3">
+                                            <strong>Genotyping File Statistics:</strong>
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-4">
+                                                    <div class="text-center p-2 border rounded bg-light">
+                                                        <div class="fw-bold text-primary">${this._genotypingFileStats.totalSamples}</div>
+                                                        <div class="text-muted small">Samples</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="text-center p-2 border rounded bg-light">
+                                                        <div class="fw-bold text-success">${this._genotypingFileStats.totalAssays}</div>
+                                                        <div class="text-muted small">Assays</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="text-center p-2 border rounded bg-light">
+                                                        <div class="fw-bold text-info">${this._genotypingFileStats.totalGenes}</div>
+                                                        <div class="text-muted small">Genes</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <div class="small fw-bold mb-1">Assays per Gene:</div>
+                                                <div class="d-flex flex-wrap gap-1">
+                                                    ${this._genotypingFileStats.genes.map(gene => html`
+                                                        <span class="badge border text-dark bg-light">
+                                                            ${gene.name}: ${gene.assayCount}
+                                                        </span>
+                                                    `)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ` : nothing}
+                                `,
+                            },
+                        },
+                    ],
+                },
+                // Allele Typer Configuration section
+                {
+                    id: "allele-typer",
+                    title: "Allele Typer Configuration",
+                    display: {
+                        className: "p-4 bg-white rounded-5 shadow-sm",
+                    },
+                    elements: [
+                        {
+                            title: "Translation File",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <div class="ms-3">
+                                        ${translationFile ? html`
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="fas fa-check-circle text-success"></i>
+                                                <span>${translationFile}</span>
+                                            </div>
+                                        ` : html`
+                                            <span class="text-danger">
+                                                <i class="fas fa-times-circle me-1"></i>No file selected
+                                            </span>
+                                        `}
+                                    </div>
+                                    ${this._translationFileStats ? html`
+                                        <div class="mt-3">
+                                            <strong>Translation File Statistics:</strong>
+                                            <div class="row g-2 mt-1">
+                                                <div class="col-4">
+                                                    <div class="text-center p-2 border rounded bg-light">
+                                                        <div class="fw-bold text-primary">${this._translationFileStats.totalGenes}</div>
+                                                        <div class="text-muted small">Genes</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="text-center p-2 border rounded bg-light">
+                                                        <div class="fw-bold text-success">${this._translationFileStats.totalAlleles}</div>
+                                                        <div class="text-muted small">Alleles</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="text-center p-2 border rounded bg-light">
+                                                        <div class="fw-bold text-info">${this._translationFileStats.totalAssays}</div>
+                                                        <div class="text-muted small">Assays</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <div class="small fw-bold mb-1">Alleles per Gene:</div>
+                                                <div class="d-flex flex-wrap gap-1">
+                                                    ${this._translationFileStats.genes.map(gene => html`
+                                                        <span class="badge border text-dark bg-light">
+                                                            ${gene.name}: ${gene.alleleCount}
+                                                        </span>
+                                                    `)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ` : nothing}
+                                `,
+                            },
+                        },
+                    ],
+                },
+            ],
+        };
     }
 
 }
