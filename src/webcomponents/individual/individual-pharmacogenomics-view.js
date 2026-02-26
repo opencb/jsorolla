@@ -44,6 +44,7 @@ export default class IndividualPharmacogenomicsView extends LitElement {
 
     #init() {
         this._pharmacogenomicsData = null;
+        this._loading = false;
         this._config = this.getDefaultConfig();
     }
 
@@ -69,6 +70,10 @@ export default class IndividualPharmacogenomicsView extends LitElement {
         const individualPharmacogenomicsFolder = this.individual?.attributes?.OPENCGA_PHARMACOGENOMICS;
 
         if (sampleId && individualPharmacogenomicsFolder) {
+            this._loading = true;
+            this._pharmacogenomicsData = null;
+            this.requestUpdate();
+
             const resultsFile = `${individualPharmacogenomicsFolder}/results/${sampleId}.json`.replaceAll("/", ":");
             this.opencgaSession.opencgaClient.files()
                 .download(resultsFile, {
@@ -86,6 +91,7 @@ export default class IndividualPharmacogenomicsView extends LitElement {
                     this._pharmacogenomicsData = null;
                 })
                 .finally(() => {
+                    this._loading = false;
                     this.requestUpdate();
                 });
         }
@@ -94,6 +100,17 @@ export default class IndividualPharmacogenomicsView extends LitElement {
     render() {
         if (!this.opencgaSession || !this.individual) {
             return nothing;
+        }
+
+        if (this._loading) {
+            return html`
+                <div class="d-flex justify-content-center align-items-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="ms-3 text-muted">Loading pharmacogenomics data...</span>
+                </div>
+            `;
         }
 
         return html`
@@ -115,6 +132,7 @@ export default class IndividualPharmacogenomicsView extends LitElement {
                     title: "Summary",
                     display: {
                         defaultLayout: "horizontal",
+                        visible: () => this._pharmacogenomicsData !== null,
                     },
                     elements: [
                         {
@@ -155,6 +173,9 @@ export default class IndividualPharmacogenomicsView extends LitElement {
                 },
                 {
                     title: "Allele Typer Results",
+                    display: {
+                        visible: () => this._pharmacogenomicsData !== null,
+                    },
                     elements: [
                         {
                             field: "alleleTyperResults",
