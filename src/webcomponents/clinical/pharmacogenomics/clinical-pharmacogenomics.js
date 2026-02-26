@@ -6,7 +6,6 @@ import "../../commons/tool-header.js";
 import "./clinical-pharmacogenomics-registry.js";
 import "./clinical-pharmacogenomics-allele-typer.js";
 import "./clinical-pharmacogenomics-review.js";
-import data from "./pharmacogenomics_results.jsonl";
 
 export default class ClinicalPharmacogenomics extends LitElement {
 
