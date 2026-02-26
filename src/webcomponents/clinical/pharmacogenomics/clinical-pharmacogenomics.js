@@ -75,6 +75,11 @@ export default class ClinicalPharmacogenomics extends LitElement {
         this.requestUpdate();
     }
 
+    onReviewParamsChange(event) {
+        this._stepsParams.review = event.detail;
+        this.requestUpdate();
+    }
+
     async onExecute() {
         // avoid clicking twice the run button
         if (this._running) {
@@ -241,12 +246,13 @@ export default class ClinicalPharmacogenomics extends LitElement {
                 },
                 {
                     id: "review",
-                    title: "Review",
+                    title: "Review And Run",
                     icon: "fas fa-clipboard-check",
                     render: () => html`
                         <clinical-pharmacogenomics-review
                             .toolParams="${this._stepsParams}"
-                            .opencgaSession="${this.opencgaSession}">
+                            .opencgaSession="${this.opencgaSession}"
+                            @paramsChange="${event => this.onReviewParamsChange(event)}">
                         </clinical-pharmacogenomics-review>
                     `,
                 },

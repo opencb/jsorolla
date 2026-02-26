@@ -1,5 +1,6 @@
 import {LitElement, html, nothing} from "lit";
 import "../../commons/forms/data-form.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 export default class ClinicalPharmacogenomicsReview extends LitElement {
 
@@ -205,6 +206,13 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
         alert(`Sample ${sample.sampleId}\n\nGenes analyzed: ${sample.starAlleles?.length}\n\nClick OK to see details in console.`);
     }
 
+    onFieldChange(event) {
+        event.stopPropagation();
+        LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
+            review: this._data.review,
+        });
+    }
+
     render() {
         if (!this.opencgaSession) {
             return nothing;
@@ -213,7 +221,8 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
         return html`
             <data-form
                 .data="${this._data}"
-                .config="${this._config}">
+                .config="${this._config}"
+                @fieldChange="${event => this.onFieldChange(event)}">
             </data-form>
         `;
     }
@@ -226,9 +235,9 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
         const results = this._data?.review?.results || [];
 
         return {
-            title: "Analysis Results & Configuration Summary",
+            title: "Analysis Summary & Run",
             icon: "fas fa-clipboard-check",
-            description: "Review the pharmacogenomics analysis configuration and results. ",
+            description: "Review the pharmacogenomics configuration and execute the analysis.",
             display: {
                 titleVisible: true,
                 defaultLayout: "vertical",
@@ -246,6 +255,9 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                                 className: "col-6",
                             },
                         ]
+                    },
+                    {
+                        id: "configuration",
                     },
                 ],
             },
@@ -433,6 +445,20 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                                         </div>
                                     ` : nothing}
                                 `,
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: "configuration",
+                    title: "Configuration",
+                    elements: [
+                        {
+                            title: "Output directory",
+                            field: "outdir",
+                            type: "input-text",
+                            display: {
+                                
                             },
                         },
                     ],
