@@ -102,25 +102,44 @@ export default class ClinicalPharmacogenomics extends LitElement {
         Promise.resolve(true)
             .then(() => {
                 // 2. update the individuals to include the folder where the pharmacogenomics results are stored
-                const individualPromises = {};
-                if (this.toolParams.registry.samplesheetFileContent) {
-                    const mapping = CatalogUtils.parseMappingFile(this.toolParams.registry.samplesheetFileContent);
-                    mapping.forEach(entry => {
-                        if (entry.sample && entry.individual && !individualPromises[entry.individual]) {
-                            const updateParams = {
-                                attributes: {
-                                    OPENCGA_PHARMACOGENOMICS: this.toolParams.review.outdir,
-                                },
-                            };
-                            individualPromises[entry.individual] = this.opencgaSession.opencgaClient.individuals()
-                                .update(entry.individual, updateParams, {
-                                    study: this.opencgaSession.study.fqn,
-                                });
+                const individuals = new Set();
+                const sampleToIndividualMapping = new Map();
+                const genotypingLines = this._stepsParams.registry.genotypingFileContent.trim().split(/\r?\n/);
+                // parse the samplesheet if provided
+                if (this._stepsParams.registry.samplesheetFileContent && this._stepsParams.registry.samplesheetFileContent.trim().length > 0) {
+                    const samplesheetContent = this._stepsParams.registry.samplesheetFileContent;
+                    CatalogUtils.parseMappingFile(samplesheetContent).forEach(entry => {
+                        if (entry?.sample) {
+                            sampleToIndividualMapping.set(entry.sample, entry.individual || entry.sample);
                         }
                     });
                 }
-                // wait until all promises have been resolved
-                return Promise.all(Object.values(individualPromises));
+                // iterate over all lines of the genotyping file to extract the sample IDs and map to the individual Id
+                for (let i = 0; i < genotypingLines.length; i++) {
+                    const line = genotypingLines[i].trim();
+                    // skip comments, empty lines, and header line
+                    if (line.startsWith("#") || line.length === 0 || line.startsWith("Assay Name")) {
+                        continue;
+                    }
+                    const columns = line.split("\t");
+                    if (columns.length > 4 && columns[4]) {
+                        const sampleId = columns[4].trim();
+                        const individualId = sampleToIndividualMapping.get(sampleId) || sampleId;
+                        individuals.add(individualId);
+                    }
+                }
+                // update all individuals
+                return Promise.all(Array.from(individuals).map(individualId => {
+                    const individualUpdateParams = {
+                        attributes: {
+                            OPENCGA_PHARMACOGENOMICS: this._stepsParams.review.outdir,
+                        },
+                    };
+                    return this.opencgaSession.opencgaClient.individuals()
+                        .update(individualId, individualUpdateParams, {
+                            study: this.opencgaSession.study.fqn,
+                        });
+                }));
             })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
