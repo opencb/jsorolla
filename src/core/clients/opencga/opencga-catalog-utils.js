@@ -323,7 +323,7 @@ export default class OpencgaCatalogUtils {
      * @returns {Array<Object>} - An array of mapping objects.
      * @throws {Error} - If the content is empty or the 'File' column is missing.
      */
-    static parseMappingFile(content) {
+    static parseMappingFile(content, mustIncludeFileColumn = false) {
         if (!content) {
             throw new Error("Mapping content is empty");
         }
@@ -342,7 +342,7 @@ export default class OpencgaCatalogUtils {
             .map(h => h.trim().toLowerCase());
 
         // validate File column
-        if (!headers.includes("file")) {
+        if (!headers.includes("file") && mustIncludeFileColumn) {
             throw new Error("Mapping file must contain a 'File' column");
         }
 
@@ -373,10 +373,10 @@ export default class OpencgaCatalogUtils {
                 mapping.push(entry);
             }
         }
-        return OpencgaCatalogUtils.processMappingFileContent(mapping);
+        return OpencgaCatalogUtils.processMappingFileContent(mapping, mustIncludeFileColumn);
     }
 
-    static processMappingFileContent(content) {
+    static processMappingFileContent(content, mustIncludeFileColumn = false) {
         try {
             const processedMapping = [];
 
@@ -384,7 +384,7 @@ export default class OpencgaCatalogUtils {
                 const processedEntry = {...entry};
 
                 // Validate and process 'file' field
-                if (!processedEntry.file) {
+                if (!processedEntry.file && mustIncludeFileColumn) {
                     throw new Error(`Missing 'File' value at line ${index + 2}`);
                 }
 
