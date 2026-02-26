@@ -208,9 +208,7 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
 
     onFieldChange(event) {
         event.stopPropagation();
-        LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
-            review: this._data.review,
-        });
+        LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._data.review);
     }
 
     render() {
@@ -454,11 +452,12 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                     title: "Configuration",
                     elements: [
                         {
-                            title: "Output directory",
-                            field: "outdir",
+                            title: "Batch Identifier",
+                            field: "review.batchId",
                             type: "input-text",
                             display: {
-                                
+                                placeholder: "001",
+                                helpMessage: "Identifier for the batch of pharmacogenomics results. Results will be saved in the folder pharmacogenomics/batch-BATCH_ID.",
                             },
                         },
                     ],

@@ -37,7 +37,7 @@ export default class ClinicalPharmacogenomics extends LitElement {
                 translationFile: "",
             },
             review: {
-                outdir: "",
+                batchId: "",
             },
         };
         this._activeStepIndex = 0;
@@ -132,7 +132,7 @@ export default class ClinicalPharmacogenomics extends LitElement {
                 return Promise.all(Array.from(individuals).map(individualId => {
                     const individualUpdateParams = {
                         attributes: {
-                            OPENCGA_PHARMACOGENOMICS: this._stepsParams.review.outdir,
+                            OPENCGA_PHARMACOGENOMICS: `pharmacogenomics/batch-${this._stepsParams.review.batchId}`,
                         },
                     };
                     return this.opencgaSession.opencgaClient.individuals()
