@@ -454,9 +454,19 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                         {
                             title: "Batch Identifier",
                             field: "review.batchId",
-                            type: "input-text",
+                            type: "custom",
                             display: {
-                                placeholder: "001",
+                                render: (batchId, dataFormFieldChange) => html`
+                                    <div class="input-group">
+                                        <span class="input-group-text">batch-</span>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            value="${batchId}"
+                                            placeholder="001"
+                                            @change="${event => dataFormFieldChange(event.target.value)}">
+                                    </div>
+                                `,
                                 helpMessage: "Identifier for the batch of pharmacogenomics results. Results will be saved in the folder pharmacogenomics/batch-BATCH_ID.",
                             },
                         },
