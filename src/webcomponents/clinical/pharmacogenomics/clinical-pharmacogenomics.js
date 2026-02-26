@@ -1,6 +1,7 @@
 import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
+import CatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "../../commons/tool-header.js";
 import "./clinical-pharmacogenomics-registry.js";
 import "./clinical-pharmacogenomics-allele-typer.js";
@@ -36,7 +37,7 @@ export default class ClinicalPharmacogenomics extends LitElement {
                 translationFile: "",
             },
             review: {
-                results: [],
+                outdir: "",
             },
         };
         this._activeStepIndex = 0;
@@ -80,7 +81,7 @@ export default class ClinicalPharmacogenomics extends LitElement {
         this.requestUpdate();
     }
 
-    async onExecute() {
+    onExecute() {
         // avoid clicking twice the run button
         if (this._running) {
             return;
@@ -97,48 +98,44 @@ export default class ClinicalPharmacogenomics extends LitElement {
         this._running = true;
         this.requestUpdate();
 
-        try {
-            // Simulate REST API call with 2-second delay
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // Load results from imported JSONL file (temporary solution until REST endpoint is ready)
-            // Parse JSONL - one JSON object per line
-            const results = data
-                .trim()
-                .split("\n")
-                .map((line, index) => {
-                    try {
-                        return JSON.parse(line);
-                    } catch (e) {
-                        console.error(`Error parsing line ${index + 1}:`, line, e);
-                        throw new Error(`Invalid JSON at line ${index + 1}: ${e.message}`);
-                    }
+        // 1. launch the job
+        Promise.resolve(true)
+            .then(() => {
+                // 2. update the individuals to include the folder where the pharmacogenomics results are stored
+                const individualPromises = {};
+                if (this.toolParams.registry.samplesheetFileContent) {
+                    const mapping = CatalogUtils.parseMappingFile(this.toolParams.registry.samplesheetFileContent);
+                    mapping.forEach(entry => {
+                        if (entry.sample && entry.individual && !individualPromises[entry.individual]) {
+                            const updateParams = {
+                                attributes: {
+                                    OPENCGA_PHARMACOGENOMICS: this.toolParams.review.outdir,
+                                },
+                            };
+                            individualPromises[entry.individual] = this.opencgaSession.opencgaClient.individuals()
+                                .update(entry.individual, updateParams, {
+                                    study: this.opencgaSession.study.fqn,
+                                });
+                        }
+                    });
+                }
+                // wait until all promises have been resolved
+                return Promise.all(Object.values(individualPromises));
+            })
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "Pharmacogenomics job launched.",
                 });
-
-            // Store results in review params - create new object to trigger re-render
-            this._stepsParams = {
-                ...this._stepsParams,
-                review: {
-                    results: results,
-                    analysisCompleted: true,
-                },
-            };
-
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: `Pharmacogenomics analysis completed successfully. ${results.length} samples analyzed.`,
+            })
+            .catch(error => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                    message: `Pharmacogenomics analysis failed: ${error.message}`,
+                });
+            })
+            .finally(() => {
+                this._running = false;
+                this.requestUpdate();
             });
-
-            // Stay on review step (already there) - just need to trigger re-render
-            // this._activeStepIndex = 2; // Already on review step
-            this.requestUpdate();
-        } catch (error) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                message: `Pharmacogenomics analysis failed: ${error.message}`,
-            });
-        } finally {
-            this._running = false;
-            this.requestUpdate();
-        }
     }
 
     renderToolbarCenterContent() {
