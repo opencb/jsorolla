@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html, nothing} from "lit";
-import data from "../clinical/pharmacogenomics/pharmacogenomics_results.jsonl";
 import "../commons/forms/data-form.js";
 
 export default class IndividualPharmacogenomicsView extends LitElement {
@@ -50,12 +49,12 @@ export default class IndividualPharmacogenomicsView extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("individual") && this.active) {
-            this._loadPharmacogenomicsData();
+            this.loadPharmacogenomicsData();
         }
 
         if (changedProperties.has("active") && this.active && this.individual) {
             // Load data when tab becomes active
-            this._loadPharmacogenomicsData();
+            this.loadPharmacogenomicsData();
         }
 
         if (changedProperties.has("opencgaSession")) {
@@ -112,6 +111,32 @@ export default class IndividualPharmacogenomicsView extends LitElement {
         }
 
         this.requestUpdate();
+    }
+
+    loadPharmacogenomicsData() {
+        const sampleId = this.individual?.samples?.[0]?.id;
+        const individualPharmacogenomicsFolder = this.individual?.attributes?.OPENCGA_PHARMACOGENOMICS;
+
+        if (sampleId && individualPharmacogenomicsFolder) {
+            const resultsFile = `${individualPharmacogenomicsFolder}/results/${sampleId}.json`.replaceAll("/", ":");
+            this.opencgaSession.opencgaClient.files()
+                .download(  resultsFile, {
+                    study: this.opencgaSession.study.fqn,
+                })
+                .then(response => {
+                    return JSON.parse(response);
+                })
+                .then(data => {
+                    this._pharmacogenomicsData = data;
+                })
+                .catch(error => {
+                    console.error("Error loading pharmacogenomics data:", error);
+                    this._pharmacogenomicsData = null;
+                })
+                .finally(() => {
+                    this.requestUpdate();
+                });
+        }
     }
 
     render() {
