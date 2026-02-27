@@ -196,18 +196,6 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
         };
     }
 
-    _prepareResultsView() {
-        // TODO: This will be populated with actual analysis results
-        // For now, we'll show a summary of the configuration
-        this._results = [];
-    }
-
-    showSampleDetails(sample) {
-        // TODO: Implement modal or expandable view with full details
-        console.log("Sample details:", sample);
-        alert(`Sample ${sample.sampleId}\n\nGenes analyzed: ${sample.starAlleles?.length}\n\nClick OK to see details in console.`);
-    }
-
     onFieldChange(event) {
         event.stopPropagation();
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, this._data.review);
@@ -266,63 +254,6 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                 ],
             },
             sections: [
-                {
-                    id: "results",
-                    title: "Analysis Results",
-                    display: {
-                        visible: () => false, // results.length > 0,
-                    },
-                    elements: [
-                        {
-                            type: "custom",
-                            display: {
-                                render: () => html`
-                                    <div class="alert alert-success mb-3">
-                                        <i class="fas fa-check-circle me-2"></i>
-                                        <strong>Analysis Completed Successfully!</strong>
-                                        <span class="ms-2">${results.length} sample${results.length > 1 ? "s" : ""} analyzed</span>
-                                    </div>
-                                    <table class="table table-hover table-bordered">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th style="width: 15%">Sample ID</th>
-                                                <th style="width: 10%">Genes</th>
-                                                <th>Star Alleles Summary</th>
-                                                <th style="width: 15%">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            ${results.map(sample => {
-                                                const genesCount = sample.starAlleles?.length || 0;
-                                                const allelesSummary = sample.starAlleles?.slice(0, 5).map(gene =>
-                                                    `${gene.gene}: ${gene.alleles?.map(a => a.allele).join(", ")}`
-                                                ).join(" | ");
-                                                const hasMore = genesCount > 5;
-                                                return html`
-                                                    <tr>
-                                                        <td><strong>${sample.sampleId}</strong></td>
-                                                        <td>
-                                                            <span class="badge bg-primary">${genesCount}</span>
-                                                        </td>
-                                                        <td>
-                                                            <small>${allelesSummary}</small>
-                                                            ${hasMore ? html`<span class="text-muted">... and ${genesCount - 5} more</span>` : nothing}
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-outline-primary" @click="${() => this.showSampleDetails(sample)}">
-                                                                <i class="fas fa-eye me-1"></i>View Details
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                `;
-                                            })}
-                                        </tbody>
-                                    </table>
-                                `,
-                            },
-                        },
-                    ],
-                },
                 {
                     id: "registry",
                     title: "Uploaded Files",
@@ -525,12 +456,13 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                                     <catalog-search-autocomplete
                                         .resource="${"JOB"}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .query="${
-                                            {
-                                                internalStatus: "PENDING,QUEUED,RUNNING",
-                                                include: "id,name",
-                                            }}"
-                                        .config="${{multiple: false}}"
+                                        .query="${{
+                                            internalStatus: "PENDING,QUEUED,RUNNING",
+                                            include: "id,name",
+                                        }}"
+                                        .config="${{
+                                            multiple: false
+                                        }}"
                                         .value="${jobDependsOn}"
                                         @filterChange="${e => dataFormFilterChange(e.detail.value)}">
                                     </catalog-search-autocomplete>
