@@ -108,13 +108,12 @@ export default class ClinicalPharmacogenomics extends LitElement {
             annotate: true,
             outdir: `pharmacogenomics/batch-${this._stepsParams.review.batchId}`,
         };
-        this.opencgaSession.opencgaClient.clinicalAnalysis()
+        this.opencgaSession.opencgaClient.clinical()
             .runPharmacogenomicsAlleleTyper(pharmacogenomicsAlleleTyperData, {
                 study: this.opencgaSession.study.fqn,
                 jobId: this._stepsParams.review.jobId,
                 jobDescription: this._stepsParams.review.jobDescription,
                 jobTags: this._stepsParams.review.jobTags,
-                jobDependsOn: this._stepsParams.review.jobDependsOn,
             })
             .then(() => {
                 // 2. update the individuals to include the folder where the pharmacogenomics results are stored
