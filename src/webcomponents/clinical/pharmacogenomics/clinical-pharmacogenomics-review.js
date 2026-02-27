@@ -2,7 +2,6 @@ import {LitElement, html, nothing} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utils-new.js";
 import "../../commons/forms/data-form.js";
-import "../../commons/filters/catalog-search-autocomplete.js";
 
 export default class ClinicalPharmacogenomicsReview extends LitElement {
 
@@ -43,7 +42,6 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                 review: this.toolParams?.review || {},
             };
             // Process tool params to prepare results view
-            this._prepareResultsView();
             this._fetchTranslationFileStats();
             this._parseGenotypingFileStats();
             this._config = this.getDefaultConfig();
@@ -221,7 +219,6 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
         const hasGenotyping = registry.genotypingFileContent && registry.genotypingFileContent.length > 0;
         const hasCnvGenotyping = registry.cnvGenotypingFileContent && registry.cnvGenotypingFileContent.length > 0;
         const translationFile = alleleTyper.translationFile || "";
-        const results = this._data?.review?.results || [];
 
         return {
             title: "Analysis Summary & Run",
@@ -443,31 +440,6 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                                 help: {
                                     text: "If empty then it is automatically initialized with the tool ID and current date"
                                 }
-                            },
-                        },
-                        {
-                            title: "Depends On",
-                            field: "review.jobDependsOn",
-                            type: "custom",
-                            display: {
-                                placeholder: "Add job tags...",
-                                visible: () => !!this.opencgaSession,
-                                render: (jobDependsOn, dataFormFilterChange) => html`
-                                    <catalog-search-autocomplete
-                                        .resource="${"JOB"}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        .query="${{
-                                            internalStatus: "PENDING,QUEUED,RUNNING",
-                                            include: "id,name",
-                                        }}"
-                                        .config="${{
-                                            multiple: false
-                                        }}"
-                                        .value="${jobDependsOn}"
-                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
-                                    </catalog-search-autocomplete>
-                                `,
-                                helpMessage: "Job ID that this job depends on. The job will not start until the specified job has finished. Only jobs in PENDING, QUEUED or RUNNING status can be selected.",
                             },
                         },
                         {
