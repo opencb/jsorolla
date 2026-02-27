@@ -101,25 +101,31 @@ export default class ClinicalPharmacogenomics extends LitElement {
         this._running = true;
         this.requestUpdate();
 
-        // 1. launch the job
-        const pharmacogenomicsAlleleTyperData = {
-            genotypingContent: this._stepsParams.registry.genotypingFileContent,
-            translationContent: this._stepsParams.alleleTyper.translationFile,
-            annotate: true,
-            outdir: `pharmacogenomics/batch-${this._stepsParams.review.batchId}`,
-        };
-        this.opencgaSession.opencgaClient.clinical()
-            .runPharmacogenomicsAlleleTyper(pharmacogenomicsAlleleTyperData, {
-                study: this.opencgaSession.study.fqn,
-                jobId: this._stepsParams.review.jobId,
-                jobDescription: this._stepsParams.review.jobDescription,
-                jobTags: this._stepsParams.review.jobTags,
+        // 1. Register samples and individuals if they don't exist
+        this.registerSamplesAndIndividuals()
+            .then(() => {
+                // 2. launch the job
+                const pharmacogenomicsAlleleTyperData = {
+                    genotypingContent: this._stepsParams.registry.genotypingFileContent,
+                    translationContent: this._stepsParams.alleleTyper.translationFile,
+                    annotate: true,
+                    outdir: `pharmacogenomics/batch-${this._stepsParams.review.batchId}`,
+                };
+
+                return this.opencgaSession.opencgaClient.clinical()
+                    .runPharmacogenomicsAlleleTyper(pharmacogenomicsAlleleTyperData, {
+                        study: this.opencgaSession.study.fqn,
+                        jobId: this._stepsParams.review.jobId,
+                        jobDescription: this._stepsParams.review.jobDescription,
+                        jobTags: this._stepsParams.review.jobTags,
+                    });
             })
             .then(() => {
-                // 2. update the individuals to include the folder where the pharmacogenomics results are stored
+                // 3. update the individuals to include the folder where the pharmacogenomics results are stored
                 const individuals = new Set();
                 const sampleToIndividualMapping = new Map();
                 const genotypingLines = this._stepsParams.registry.genotypingFileContent.trim().split(/\r?\n/);
+
                 // parse the samplesheet if provided
                 if (this._stepsParams.registry.samplesheetFileContent && this._stepsParams.registry.samplesheetFileContent.trim().length > 0) {
                     const samplesheetContent = this._stepsParams.registry.samplesheetFileContent;
@@ -129,6 +135,7 @@ export default class ClinicalPharmacogenomics extends LitElement {
                         }
                     });
                 }
+
                 // iterate over all lines of the genotyping file to extract the sample IDs and map to the individual Id
                 for (let i = 0; i < genotypingLines.length; i++) {
                     const line = genotypingLines[i].trim();
@@ -143,6 +150,7 @@ export default class ClinicalPharmacogenomics extends LitElement {
                         individuals.add(individualId);
                     }
                 }
+
                 // update all individuals
                 return Promise.all(Array.from(individuals).map(individualId => {
                     const individualUpdateData = {
@@ -158,7 +166,7 @@ export default class ClinicalPharmacogenomics extends LitElement {
             })
             .then(() => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                    message: "Pharmacogenomics job launched.",
+                    message: "Pharmacogenomics job launched and individuals updated.",
                 });
             })
             .catch(error => {
@@ -170,6 +178,89 @@ export default class ClinicalPharmacogenomics extends LitElement {
                 this._running = false;
                 this.requestUpdate();
             });
+    }
+
+    async registerSamplesAndIndividuals() {
+        // 1. Extract unique sample IDs from genotyping file (column 5, tab-separated)
+        const genotypingLines = this._stepsParams.registry.genotypingFileContent.trim().split(/\r?\n/);
+        const sampleIds = new Set();
+
+        for (let i = 0; i < genotypingLines.length; i++) {
+            const line = genotypingLines[i].trim();
+            if (line.startsWith("#") || line.length === 0 || line.startsWith("Assay Name")) {
+                continue;
+            }
+            const columns = line.split("\t");
+            if (columns.length > 4 && columns[4]) {
+                sampleIds.add(columns[4].trim());
+            }
+        }
+
+        // 2. Parse samplesheet if provided (optional)
+        let samplesheetMapping = {};
+        if (this._stepsParams.registry.samplesheetFileContent && this._stepsParams.registry.samplesheetFileContent.trim().length > 0) {
+            const mapping = CatalogUtils.parseMappingFile(this._stepsParams.registry.samplesheetFileContent);
+            mapping.forEach(entry => {
+                if (entry.sample) {
+                    samplesheetMapping[entry.sample] = {
+                        individual: entry.individual || entry.sample,
+                        sex: entry.sex || "UNKNOWN",
+                        disorder: entry.disorder || "",
+                    };
+                }
+            });
+        }
+
+        // 3. Create individuals and samples for each unique sample ID if they don't exist
+        for (const sampleId of sampleIds) {
+            const info = samplesheetMapping[sampleId] || {
+                individual: sampleId,
+                sex: "UNKNOWN",
+                disorder: "",
+            };
+
+            const individualId = info.individual;
+            const sex = info.sex;
+            const disorder = info.disorder;
+
+            // 3.1. Create individual if needed
+            const individualResponse = await this.opencgaSession.opencgaClient.individuals()
+                .search({
+                    id: individualId,
+                    study: this.opencgaSession.study.fqn,
+                    include: "id",
+                });
+
+            if (individualResponse.responses[0].results.length === 0) {
+                const individualParams = {
+                    id: individualId,
+                    sex: {id: sex.toUpperCase()},
+                };
+                if (disorder) {
+                    individualParams.disorders = [{id: disorder}];
+                }
+                await this.opencgaSession.opencgaClient.individuals()
+                    .create(individualParams, {study: this.opencgaSession.study.fqn});
+            }
+
+            // 3.2. Create sample if needed
+            const sampleResponse = await this.opencgaSession.opencgaClient.samples()
+                .search({
+                    id: sampleId,
+                    study: this.opencgaSession.study.fqn,
+                    include: "id",
+                });
+
+            if (sampleResponse.responses[0].results.length === 0) {
+                const sampleParams = {
+                    id: sampleId,
+                    individualId: individualId,
+                    somatic: false,
+                };
+                await this.opencgaSession.opencgaClient.samples()
+                    .create(sampleParams, {study: this.opencgaSession.study.fqn});
+            }
+        }
     }
 
     renderToolbarCenterContent() {

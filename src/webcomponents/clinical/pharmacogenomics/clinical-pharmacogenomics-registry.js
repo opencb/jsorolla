@@ -1,6 +1,5 @@
 import {html, LitElement, nothing} from "lit";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import NotificationUtils from "../../commons/utils/notification-utils.js";
 import CatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "../../commons/forms/data-form.js";
 import DataFormElements from "../../commons/forms/data-form-elements.js";
@@ -54,156 +53,7 @@ export default class ClinicalPharmacogenomicsRegistry extends LitElement {
         this.notifyParamsChange();
     }
 
-    async onSubmit(event) {
-        // Validate genotyping file is provided
-        if (!this._data.genotypingFileContent || this._data.genotypingFileContent.trim().length === 0) {
-            return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_WARNING, {
-                message: "Genotyping file is required to create samples and individuals.",
-            });
-        }
 
-        // Show loading notification
-        const loadingId = NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_LOADING, {
-            message: "Creating samples and individuals from genotyping file. Please wait...",
-        });
-
-        try {
-            // 1. Extract unique sample IDs from genotyping file (column 5, tab-separated)
-            const genotypingLines = this._data.genotypingFileContent.trim().split(/\r?\n/);
-            const sampleIds = new Set();
-
-            for (let i = 0; i < genotypingLines.length; i++) {
-                const line = genotypingLines[i].trim();
-                // Skip comments and empty lines
-                if (line.startsWith("#") || line.length === 0) {
-                    continue;
-                }
-                // Skip header line
-                if (line.startsWith("Assay Name")) {
-                    continue;
-                }
-                const columns = line.split("\t");
-                if (columns.length > 4 && columns[4]) {
-                    sampleIds.add(columns[4].trim());
-                }
-            }
-
-            // 2. Parse samplesheet if provided (optional)
-            let samplesheetMapping = {};
-            if (this._data.samplesheetFileContent && this._data.samplesheetFileContent.trim().length > 0) {
-                const mapping = CatalogUtils.parseMappingFile(this._data.samplesheetFileContent);
-                // Create a map: sample ID -> {individual, sex, disorder}
-                mapping.forEach(entry => {
-                    if (entry.sample) {
-                        samplesheetMapping[entry.sample] = {
-                            individual: entry.individual || entry.sample,
-                            sex: entry.sex || "UNKNOWN",
-                            disorder: entry.disorder || "",
-                        };
-                    }
-                });
-            }
-
-            const processedSamples = new Set();
-            const processedIndividuals = new Set();
-
-            // 3. Create individuals and samples for each unique sample ID
-            for (const sampleId of sampleIds) {
-                // Get info from samplesheet or use defaults
-                const info = samplesheetMapping[sampleId] || {
-                    individual: sampleId, // Use sample ID as individual ID if not in samplesheet
-                    sex: "UNKNOWN",
-                    disorder: "",
-                };
-
-                const individualId = info.individual;
-                const sex = info.sex;
-                const disorder = info.disorder;
-
-                // 2.1. Create the individual if needed
-                if (individualId && !processedIndividuals.has(individualId)) {
-                    try {
-                        const individualResponse = await this.opencgaSession.opencgaClient.individuals()
-                            .search({
-                                id: individualId,
-                                study: this.opencgaSession.study.fqn,
-                                include: "id",
-                            });
-
-                        // Only create the individual if it does not exist
-                        if (individualResponse.responses[0].results.length === 0) {
-                            const individualParams = {
-                                id: individualId,
-                                sex: {
-                                    id: sex.toUpperCase(),
-                                },
-                            };
-
-                            // Add disorder if provided
-                            if (disorder) {
-                                individualParams.disorders = [
-                                    {
-                                        id: disorder,
-                                    },
-                                ];
-                            }
-
-                            await this.opencgaSession.opencgaClient.individuals()
-                                .create(individualParams, {
-                                    study: this.opencgaSession.study.fqn,
-                                });
-                        }
-                    } catch (error) {
-                        console.error(`Individual ${individualId} creation failed:`, error);
-                        throw new Error(`Failed to create individual ${individualId}. ${error.message}`);
-                    }
-                    processedIndividuals.add(individualId);
-                }
-
-                // 2.2. Create the sample if needed
-                if (sampleId && !processedSamples.has(sampleId)) {
-                    try {
-                        const sampleResponse = await this.opencgaSession.opencgaClient.samples()
-                            .search({
-                                id: sampleId,
-                                study: this.opencgaSession.study.fqn,
-                                include: "id",
-                            });
-
-                        // Only create the sample if it does not exist
-                        if (sampleResponse.responses[0].results.length === 0) {
-                            const sampleParams = {
-                                id: sampleId,
-                                individualId: individualId,
-                                somatic: false,
-                            };
-
-                            await this.opencgaSession.opencgaClient.samples()
-                                .create(sampleParams, {
-                                    study: this.opencgaSession.study.fqn,
-                                });
-                        }
-                    } catch (error) {
-                        console.error(`Sample ${sampleId} creation failed:`, error);
-                        throw new Error(`Failed to create sample ${sampleId}. ${error.message}`);
-                    }
-                    processedSamples.add(sampleId);
-                }
-            }
-
-            // Show success message
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
-                message: `Successfully created ${processedIndividuals.size} individuals and ${processedSamples.size} samples.`,
-            });
-
-        } catch (error) {
-            NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
-                message: `Failed to create samples and individuals: ${error.message}`,
-            });
-        } finally {
-            NotificationUtils.clear(this, loadingId);
-        }
-    }
 
     notifyParamsChange() {
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
@@ -236,7 +86,7 @@ export default class ClinicalPharmacogenomicsRegistry extends LitElement {
             display: {
                 titleVisible: true,
                 defaultLayout: "vertical",
-                buttonsVisible: true,
+                buttonsVisible: false,
                 buttonOkText: "Register",
                 buttonClearText: "Discard",
             },
