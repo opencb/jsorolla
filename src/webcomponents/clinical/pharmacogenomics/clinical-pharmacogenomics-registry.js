@@ -50,12 +50,6 @@ export default class ClinicalPharmacogenomicsRegistry extends LitElement {
     }
 
     onFieldChange(event) {
-        this.notifyParamsChange();
-    }
-
-
-
-    notifyParamsChange() {
         LitUtils.dispatchCustomEvent(this, "paramsChange", null, {
             genotypingFileContent: this._data.genotypingFileContent,
             cnvGenotypingFileContent: this._data.cnvGenotypingFileContent,
