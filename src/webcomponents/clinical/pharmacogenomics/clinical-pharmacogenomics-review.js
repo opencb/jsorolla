@@ -1,6 +1,8 @@
 import {LitElement, html, nothing} from "lit";
-import "../../commons/forms/data-form.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import UtilsNew from "../../../core/utils-new.js";
+import "../../commons/forms/data-form.js";
+import "../../commons/filters/catalog-search-autocomplete.js";
 
 export default class ClinicalPharmacogenomicsReview extends LitElement {
 
@@ -256,7 +258,10 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                         ]
                     },
                     {
-                        id: "configuration",
+                        id: "analysis-configuration",
+                    },
+                    {
+                        id: "job-configuration",
                     },
                 ],
             },
@@ -470,8 +475,8 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                     ],
                 },
                 {
-                    id: "configuration",
-                    title: "Configuration",
+                    id: "analysis-configuration",
+                    title: "Analysis Configuration",
                     elements: [
                         {
                             title: "Batch Identifier",
@@ -494,6 +499,66 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                         },
                     ],
                 },
+                {
+                    id: "job-configuration",
+                    title: "Job Configuration",
+                    elements: [
+                        {
+                            title: "Job ID",
+                            field: "review.jobId",
+                            type: "input-text",
+                            display: {
+                                placeholder: `pharmacogenomics-${UtilsNew.getDatetime()}`,
+                                help: {
+                                    text: "If empty then it is automatically initialized with the tool ID and current date"
+                                }
+                            },
+                        },
+                        {
+                            title: "Depends On",
+                            field: "review.jobDependsOn",
+                            type: "custom",
+                            display: {
+                                placeholder: "Add job tags...",
+                                visible: () => !!this.opencgaSession,
+                                render: (jobDependsOn, dataFormFilterChange) => html`
+                                    <catalog-search-autocomplete
+                                        .resource="${"JOB"}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .query="${
+                                            {
+                                                internalStatus: "PENDING,QUEUED,RUNNING",
+                                                include: "id,name",
+                                            }}"
+                                        .config="${{multiple: false}}"
+                                        .value="${jobDependsOn}"
+                                        @filterChange="${e => dataFormFilterChange(e.detail.value)}">
+                                    </catalog-search-autocomplete>
+                                `,
+                                helpMessage: "Job ID that this job depends on. The job will not start until the specified job has finished. Only jobs in PENDING, QUEUED or RUNNING status can be selected.",
+                            },
+                        },
+                        {
+                            title: "Tags",
+                            field: "review.jobTags",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add job tags...",
+                                helpMessage: "Comma separated list of tags to be associated to the job",
+                            },
+                        },
+                        {
+                            title: "Description",
+                            field: "review.jobDescription",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Add a job description...",
+                                helpMessage: "Description of the job",
+                            },
+                        },
+                    ]
+                }
             ],
         };
     }

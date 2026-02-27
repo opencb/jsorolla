@@ -38,6 +38,9 @@ export default class ClinicalPharmacogenomics extends LitElement {
             },
             review: {
                 batchId: "",
+                jobId: "",
+                jobTags: "",
+                jobDescription: "",
             },
         };
         this._activeStepIndex = 0;
