@@ -30,6 +30,7 @@ export default class ClinicalPharmacogenomics extends LitElement {
         this.DEFAULT_STEPS_PARAMS = {
             registry: {
                 genotypingFileContent: "",
+                cnvGenotypingFileContent: "",
                 samplesheetFileContent: "",
             },
             alleleTyper: {

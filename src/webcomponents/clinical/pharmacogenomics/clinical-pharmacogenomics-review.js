@@ -229,6 +229,7 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
         const registry = this._data?.registry || {};
         const alleleTyper = this._data?.alleleTyper || {};
         const hasGenotyping = registry.genotypingFileContent && registry.genotypingFileContent.length > 0;
+        const hasCnvGenotyping = registry.cnvGenotypingFileContent && registry.cnvGenotypingFileContent.length > 0;
         const translationFile = alleleTyper.translationFile || "";
         const results = this._data?.review?.results || [];
 
@@ -377,6 +378,27 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                                             </div>
                                         </div>
                                     ` : nothing}
+                                `,
+                            },
+                        },
+                        {
+                            title: "CNV Genotyping Output File",
+                            type: "custom",
+                            display: {
+                                render: () => html`
+                                    <div class="ms-3">
+                                        ${hasCnvGenotyping ? html`
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="fas fa-check-circle text-success"></i>
+                                                <span>File uploaded</span>
+                                                <span class="badge bg-secondary">${(registry.cnvGenotypingFileContent.length / 1024).toFixed(2)} KB</span>
+                                            </div>
+                                        ` : html`
+                                            <span class="text-muted">
+                                                <i class="fas fa-minus-circle me-1"></i>No file uploaded (optional)
+                                            </span>
+                                        `}
+                                    </div>
                                 `,
                             },
                         },
