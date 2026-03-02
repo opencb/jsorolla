@@ -96,6 +96,11 @@ export default class ClinicalPharmacogenomics extends LitElement {
                 message: "Genotyping output file is required for Pharmacogenomics analysis.",
             });
         }
+        if (!this._stepsParams.registry?.cnvGenotypingFileContent || this._stepsParams.registry.cnvGenotypingFileContent.length === 0) {
+            return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_ERROR, {
+                message: "CNV genotyping output file is required for Pharmacogenomics analysis.",
+            });
+        }
 
         // set running state to true to disable buttons and navigate between steps
         this._running = true;
@@ -107,6 +112,7 @@ export default class ClinicalPharmacogenomics extends LitElement {
                 // 2. launch the job
                 const pharmacogenomicsAlleleTyperData = {
                     genotypingContent: this._stepsParams.registry.genotypingFileContent,
+                    cnvGenotypingContent: this._stepsParams.registry.cnvGenotypingFileContent,
                     translationContent: this._stepsParams.alleleTyper.translationFile,
                     annotate: true,
                     outdir: `pharmacogenomics/batch-${this._stepsParams.review.batchId}`,

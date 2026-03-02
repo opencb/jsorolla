@@ -131,7 +131,7 @@ export default class ClinicalPharmacogenomicsRegistry extends LitElement {
                         DataFormElements.fileContentElement({
                             title: "Thermo Fisher CNV Genotyping Output",
                             field: "cnvGenotypingFileContent",
-                            required: false,
+                            required: true,
                             display: {
                                 rows: 10,
                                 helpMessage: "Upload the CNV genotyping calls file from Thermo Fisher OpenArray Analysis Suite.",
@@ -215,13 +215,13 @@ sample004,IND004,female,</pre>
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="d-flex align-items-center gap-2 mb-2">
-                                                            <i class="fas ${hasCnvGenotyping ? "fa-check-circle text-success" : "fa-minus-circle text-muted"} fs-5"></i>
+                                                            <i class="fas ${hasCnvGenotyping ? "fa-check-circle text-success" : "fa-times-circle text-danger"} fs-5"></i>
                                                             <div>
                                                                 <strong>CNV Genotyping File:</strong>
                                                                 ${hasCnvGenotyping ? html`
                                                                     <span class="text-success ms-1">Uploaded</span>
                                                                 ` : html`
-                                                                    <span class="text-muted ms-1">Optional</span>
+                                                                    <span class="text-danger ms-1">Required</span>
                                                                 `}
                                                             </div>
                                                         </div>

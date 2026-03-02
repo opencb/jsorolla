@@ -327,8 +327,8 @@ export default class ClinicalPharmacogenomicsReview extends LitElement {
                                                 <span class="badge bg-secondary">${(registry.cnvGenotypingFileContent.length / 1024).toFixed(2)} KB</span>
                                             </div>
                                         ` : html`
-                                            <span class="text-muted">
-                                                <i class="fas fa-minus-circle me-1"></i>No file uploaded (optional)
+                                            <span class="text-danger">
+                                                <i class="fas fa-times-circle me-1"></i>No file uploaded
                                             </span>
                                         `}
                                     </div>

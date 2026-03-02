@@ -32,6 +32,7 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
         this._data = {
             translationFile: "",
             genotypingData: [],
+            cnvGenotypingData: [],
         };
         this._config = this.getDefaultConfig();
     }
@@ -40,12 +41,14 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
         if (changedProperties.has("toolParams")) {
             this._data = {
                 translationFile: this.toolParams?.translationFile || "",
-                genotypingData: this._data.genotypingData, // Keep parsed data
+                genotypingData: this._data.genotypingData,
+                cnvGenotypingData: this._data.cnvGenotypingData,
             };
         }
         if (changedProperties.has("registryParams")) {
-            // Parse genotyping file when registry params change
+            // Parse genotyping files when registry params change
             this._parseGenotypingFile();
+            this._parseCnvGenotypingFile();
         }
         if (changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
@@ -95,19 +98,58 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
         this._genotypingHeaders = headers;
     }
 
+    _parseCnvGenotypingFile() {
+        if (!this.registryParams?.cnvGenotypingFileContent) {
+            this._data.cnvGenotypingData = [];
+            return;
+        }
+
+        const lines = this.registryParams.cnvGenotypingFileContent.trim().split(/\r?\n/);
+        const data = [];
+        let headers = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+
+            // Skip comments and empty lines
+            if (line.startsWith("#") || line.length === 0) {
+                continue;
+            }
+
+            const columns = line.split("\t");
+
+            // First non-comment line is the header
+            if (headers.length === 0) {
+                headers = columns.slice(0, 11);
+                continue;
+            }
+
+            // Parse all data rows
+            const row = {};
+            columns.slice(0, 11).forEach((value, index) => {
+                row[`col${index}`] = value || "-";
+            });
+            data.push(row);
+        }
+
+        this._data.cnvGenotypingData = data;
+        this._cnvGenotypingHeaders = headers;
+    }
+
     async _initializeDefaultTranslationFile() {
         try {
             const response = await this.opencgaSession.opencgaClient.files()
                 .search({
                     study: this.opencgaSession.study.fqn,
-                    path: "~/RESOURCES/pharmacogenomics/.*/",
+                    directory: "/pharmacogenomics/",
                     type: "FILE",
                     format: "COMMA_SEPARATED_VALUES",
-                    limit: 1,
+                    limit: 5,
                 });
 
             const files = response.responses[0].results;
-            if (files && files.length > 0) {
+            // Auto-select only if there is exactly one CSV file
+            if (files && files.length === 1) {
                 this._data.translationFile = files[0].id;
                 this.notifyParamsChange();
                 this.requestUpdate();
@@ -211,6 +253,64 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
                     ],
                 },
                 {
+                    id: "cnv-genotyping-preview",
+                    title: "CNV Genotyping File Preview",
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                visible: data => !data?.cnvGenotypingData || data.cnvGenotypingData.length === 0,
+                                render: () => html`
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>No CNV genotyping file uploaded yet.</strong>
+                                        <p class="mb-0 mt-2">
+                                            Please upload a CNV genotyping file in the <strong>Registry</strong> step to see the data preview here.
+                                        </p>
+                                    </div>
+                                `,
+                            },
+                        },
+                        {
+                            field: "cnvGenotypingData",
+                            type: "table",
+                            description: html`
+                                <div class="border-start border-3 border-info bg-light py-2 px-2 mb-3">
+                                    <div class="text-muted">
+                                        <i class="fas fa-table text-info me-1"></i>
+                                        Showing the first 11 columns from the uploaded CNV genotyping file.
+                                    </div>
+                                </div>
+                            `,
+                            display: {
+                                visible: data => data?.cnvGenotypingData?.length > 0,
+                                className: "table table-sm table-hover",
+                                headerClassName: "table-light",
+                                maxHeight: "320px",
+                                defaultValue: "",
+                                columns: this._cnvGenotypingHeaders?.map((header, index) => ({
+                                    title: header,
+                                    field: `col${index}`,
+                                    type: "custom",
+                                    display: {
+                                        defaultValue: "-",
+                                        render: value => {
+                                            if (!value || value === "-") {
+                                                return "-";
+                                            }
+                                            const num = parseFloat(value);
+                                            if (!isNaN(num) && value.includes(".")) {
+                                                return num.toFixed(4);
+                                            }
+                                            return value;
+                                        },
+                                    },
+                                })) || [],
+                            },
+                        },
+                    ],
+                },
+                {
                     id: "translation-file",
                     title: "Translation File",
                     description: html`
@@ -234,6 +334,12 @@ export default class ClinicalPharmacogenomicsAlleleTyper extends LitElement {
                                         .resource="${"FILE"}"
                                         .searchField="${"id"}"
                                         .opencgaSession="${this.opencgaSession}"
+                                        .query="${{
+                                            type: "FILE",
+                                            format: "COMMA_SEPARATED_VALUES",
+                                            directory: "/pharmacogenomics/",
+                                            include: "id,name,type,format,size,path",
+                                        }}"
                                         .config="${{
                                             multiple: false,
                                         }}"

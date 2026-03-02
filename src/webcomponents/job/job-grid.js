@@ -419,7 +419,7 @@ export default class JobGrid extends LitElement {
                     // const tooltip = UtilsNew.escapeHtml((params[key]?.length > 40 ? params[key] : ""));
                     let value = "";
                     let tooltip = "";
-                    if (params[key]?.length > 25 && !params[key]?.includes(" ")) {
+                    if (params[key]?.length > 25) {
                         value = (params[key]?.length > 25 ? params[key].substring(0, 50) + " ..." : params[key]) || "true";
                         tooltip = UtilsNew.escapeHtml((params[key]?.length > 50 ? params[key] : ""));
                     } else {
