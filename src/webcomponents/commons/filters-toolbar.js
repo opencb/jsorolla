@@ -329,7 +329,9 @@ export default class FiltersToolbar extends LitElement {
                         options: {}
                     };
                     this.opencgaSession.opencgaClient.users()
-                        .updateFilters(this.opencgaSession.user.id, data, {action: "ADD"})
+                        .updateFilters(this.opencgaSession.user.id, data, {
+                            action: "ADD",
+                        })
                         .then(() => {
                             // if (response.getEvents?.("ERROR")?.length) {
                             //     return NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
@@ -355,6 +357,41 @@ export default class FiltersToolbar extends LitElement {
             .catch(response => {
                 NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
             });
+    }
+
+    deleteUserFilter(filterId) {
+        const data = {
+            id: filterId,
+        };
+        this.opencgaSession.opencgaClient.users()
+            .updateFilters(this.opencgaSession.user.id, data, {
+                action: "REMOVE",
+            })
+            .then(() => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_SUCCESS, {
+                    message: "Filter has been deleted",
+                });
+
+                // update user filters
+                this.updateUserFilters();
+            })
+            .catch(response => {
+                NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_RESPONSE, response);
+            });
+    }
+
+    onDeleteUserFilter(filterId) {
+        NotificationUtils.dispatch(this, NotificationUtils.NOTIFY_CONFIRMATION, {
+            display: {
+                okButtonText: "Yes, delete filter",
+                cancelButtonText: "Cancel",
+            },
+            title: "Delete Filter",
+            message: `Are you sure you want to delete the filter <b>${filterId}</b>?`,
+            ok: () => {
+                this.deleteUserFilter(filterId);
+            },
+        });
     }
 
     onFilterChange(key, value) {
@@ -571,7 +608,7 @@ export default class FiltersToolbar extends LitElement {
         `;
     }
 
-    renderFilterItems(items, highlightActiveFilter = true) {
+    renderFilterItems(items, highlightActiveFilter = true, showFilterDelete = false) {
         return items.map(item => {
             const isActive = highlightActiveFilter && UtilsNew.objectCompare(this.preparedQuery, item.query);
             const filterParams = Object.keys(item.query)
@@ -601,6 +638,11 @@ export default class FiltersToolbar extends LitElement {
                             <span tooltip-title="${item.id}" tooltip-text="${filterTooltip || "Empty query."}" tooltip-position-my="top right">
                                 <i class="fas fa-eye opacity-75" data-action="view-filter"></i>
                             </span>
+                            ${showFilterDelete ? html`
+                                <span class="cursor-pointer" @click="${() => this.onDeleteUserFilter(item.id)}">
+                                    <i class="fas fa-trash opacity-75"></i>
+                                </span>
+                            ` : nothing}
                         </div>
                     </div>
                 </a>
@@ -706,13 +748,13 @@ export default class FiltersToolbar extends LitElement {
                                     <div class="dropdown-header user-select-none">
                                         <span class="fw-bold">Application Filters</span>
                                     </div>
-                                    ${this.renderFilterItems(this.applicationFilters, true)}
+                                    ${this.renderFilterItems(this.applicationFilters, true, false)}
                                 ` : nothing}
                                 ${this.userFilters.length > 0 ? html`
                                     <div class="dropdown-header user-select-none">
                                         <span class="fw-bold">User Filters</span>
                                     </div>
-                                    ${this.renderFilterItems(this.userFilters, true)}
+                                    ${this.renderFilterItems(this.userFilters, true, true)}
                                 ` : nothing}
                                 ${this.applicationFilters.length > 0 || this.userFilters.length > 0 ? html`
                                     <hr class="dropdown-divider">
@@ -730,7 +772,7 @@ export default class FiltersToolbar extends LitElement {
                                 <span class="fw-bold">History</span>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end shadow" style="width:240px;">
-                                ${this.renderFilterItems(this.historyFilters, false)}
+                                ${this.renderFilterItems(this.historyFilters, false, false)}
                             </div>
                         </div>
                         <!-- Copy IVA Link -->
