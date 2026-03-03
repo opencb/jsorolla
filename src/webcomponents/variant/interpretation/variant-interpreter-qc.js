@@ -48,9 +48,6 @@ class VariantInterpreterQc extends LitElement {
 
     static get properties() {
         return {
-            cellbaseClient: {
-                type: Object
-            },
             clinicalAnalysis: {
                 type: Object
             },
@@ -216,7 +213,6 @@ class VariantInterpreterQc extends LitElement {
                                             <tool-header title="Sample Variant Stats - ${probandId} (${this.sample?.id})"></tool-header>
                                             <sample-variant-stats-browser
                                                 .opencgaSession="${opencgaSession}"
-                                                .cellbaseClient="${this.cellbaseClient}"
                                                 .sample="${this.sample}"
                                                 .active="${active}"
                                                 .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
@@ -268,7 +264,6 @@ class VariantInterpreterQc extends LitElement {
                                             <tool-header title="Sample Variant Stats - ${probandId} (${this.sample?.id})"></tool-header>
                                             <sample-variant-stats-browser
                                                 .opencgaSession="${opencgaSession}"
-                                                .cellbaseClient="${this.cellbaseClient}"
                                                 .sample="${this.sample}"
                                                 .active="${active}"
                                                 .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
@@ -290,7 +285,6 @@ class VariantInterpreterQc extends LitElement {
                                             <tool-header title="Somatic Variant Stats - ${probandId} (${this.somaticSample?.id})"></tool-header>
                                             <sample-variant-stats-browser
                                                 .opencgaSession="${opencgaSession}"
-                                                .cellbaseClient="${this.cellbaseClient}"
                                                 .sample="${this.somaticSample}"
                                                 .active="${active}"
                                                 .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
@@ -312,7 +306,6 @@ class VariantInterpreterQc extends LitElement {
                                             <tool-header title="Germline Variant Stats - ${probandId} (${this.sample?.id})"></tool-header>
                                             <sample-variant-stats-browser
                                                 .opencgaSession="${opencgaSession}"
-                                                .cellbaseClient="${this.cellbaseClient}"
                                                 .sample="${this.sample}"
                                                 .active="${active}"
                                                 .settings="${this.settings?.tabs?.find(tab => "sampleVariantStats" === tab.id)?.settings}">
@@ -333,7 +326,6 @@ class VariantInterpreterQc extends LitElement {
                                         <tool-header title="Gene Coverage Stats - ${probandId}"></tool-header>
                                         <variant-interpreter-qc-gene-coverage
                                             .opencgaSession="${opencgaSession}"
-                                            .cellbaseClient="${this.cellbaseClient}"
                                             .clinicalAnalysis="${clinicalAnalysis}"
                                             .active="${active}">
                                         </variant-interpreter-qc-gene-coverage>

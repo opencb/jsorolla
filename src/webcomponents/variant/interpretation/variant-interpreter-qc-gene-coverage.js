@@ -43,9 +43,6 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
             config: {
                 type: Object
             }
@@ -138,11 +135,6 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
             });
     }
 
-    getDefaultConfig() {
-        return {
-        };
-    }
-
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {
@@ -162,13 +154,17 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
                 <gene-coverage-browser
                     .opencgaSession="${this.opencgaSession}"
                     .clinicalAnalysis="${this.clinicalAnalysis}"
-                    .cellbaseClient="${this.cellbaseClient}"
+                    .cellbaseClient="${this.opencgaSession.cellbaseClient}"
                     .geneIds="${this.geneIds}"
                     .panelIds="${this.diseasePanelIds}"
                     .fileId="${this.file?.id}">
                 </gene-coverage-browser>
             </div>
         `;
+    }
+
+    getDefaultConfig() {
+        return {};
     }
 
 }
