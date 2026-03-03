@@ -59,9 +59,6 @@ class VariantInterpreter extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
             activeTool: {
                 type: String,
             },
@@ -254,7 +251,6 @@ class VariantInterpreter extends LitElement {
                     return html`
                         <variant-interpreter-qc
                             .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient="${this.cellbaseClient}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .settings="${tool}"
                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
