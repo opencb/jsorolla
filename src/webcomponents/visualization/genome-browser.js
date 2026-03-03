@@ -111,6 +111,7 @@ export default class GenomeBrowserComponent extends LitElement {
         };
 
         this.genomeBrowser = new GenomeBrowser(parent, {
+            cellBaseClient: this.opencgaSession?.cellbaseClient,
             width: parent.getBoundingClientRect().width || 100,
             region: new Region(initialRegion),
             resizable: true,
