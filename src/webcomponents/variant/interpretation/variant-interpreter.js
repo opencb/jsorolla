@@ -281,7 +281,6 @@ class VariantInterpreter extends LitElement {
                         <variant-interpreter-browser
                             .opencgaSession="${this.opencgaSession}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                            .cellbaseClient="${this.cellbaseClient}"
                             .settings="${tool}"
                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                         </variant-interpreter-browser>
