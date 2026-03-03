@@ -41,9 +41,6 @@ class VariantInterpreterBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
             clinicalAnalysis: {
                 type: Object
             },
@@ -161,7 +158,6 @@ class VariantInterpreterBrowser extends LitElement {
                             <variant-interpreter-browser-rd
                                 .opencgaSession="${opencgaSession}"
                                 .clinicalAnalysis="${clinicalAnalysis}"
-                                .cellbaseClient="${this.cellbaseClient}"
                                 .title="${"Small Variants - " + this._sample?.id}"
                                 .settings="${browserSettings}"
                                 .active="${active}"
@@ -187,7 +183,6 @@ class VariantInterpreterBrowser extends LitElement {
                                 <variant-interpreter-browser-cancer
                                     .opencgaSession="${opencgaSession}"
                                     .clinicalAnalysis="${clinicalAnalysis}"
-                                    .cellbaseClient="${this.cellbaseClient}"
                                     .title="${"Somatic Variant Browser - " + this._somaticSample?.id}"
                                     .settings="${browserSettings}"
                                     .active="${active}"
@@ -214,7 +209,6 @@ class VariantInterpreterBrowser extends LitElement {
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .query="${this.query}"
                                         .title="${"Somatic CNV Variant Browser - " + this._somaticSample?.id}"
-                                        .cellbaseClient="${this.cellbaseClient}"
                                         .settings="${browserSettings}"
                                         .active="${active}"
                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
@@ -238,7 +232,6 @@ class VariantInterpreterBrowser extends LitElement {
                                     <variant-interpreter-browser-rearrangement
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
-                                        .cellbaseClient="${this.cellbaseClient}"
                                         .title="${"Somatic Rearrangement Variant Browser - " + this._somaticSample?.id}"
                                         .settings="${browserSettings}"
                                         .active="${active}"
@@ -263,12 +256,10 @@ class VariantInterpreterBrowser extends LitElement {
                                     <variant-interpreter-browser-rd
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
-                                        .cellbaseClient="${this.cellbaseClient}"
                                         .title="${"Germline Variant Browser - " + this._germlineSample?.id}"
                                         .settings="${browserSettings}"
                                         .active="${active}"
-                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
-                                        @samplechange="${this.onSampleChange}">
+                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-browser-rd>
                                 `;
                             },
@@ -286,7 +277,6 @@ class VariantInterpreterBrowser extends LitElement {
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .somatic="${false}"
-                                        .cellbaseClient="${this.cellbaseClient}"
                                         .title="${"Germline Rearrangement Variant Browser - " + this._germlineSample?.id}"
                                         .settings="${browserSettings}"
                                         .active="${active}"

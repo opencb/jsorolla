@@ -44,9 +44,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
             title: {
                 type: String,
             },
@@ -257,7 +254,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
         return html`
             <variant-interpreter-browser-template
                 .clinicalAnalysis="${this.clinicalAnalysis}"
-                .cellbaseClient="${this.cellbaseClient}"
                 .query="${this.query}"
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
@@ -404,7 +400,6 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
             aggregation: {},
             genomeBrowser: {
                 config: {
-                    cellBaseClient: this.cellbaseClient,
                     karyotypePanelVisible: false,
                     overviewPanelVisible: false,
                     navigationPanelHistoryControlsVisible: false,

@@ -56,9 +56,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            cellbaseClient: {
-                type: Object
-            },
             toolId: {
                 type: String
             },
@@ -447,7 +444,6 @@ class VariantInterpreterBrowserTemplate extends LitElement {
     getDefaultConfig() {
         let genomeBrowserTracks = [];
         const genomeBrowserConfig = {
-            cellBaseClient: this.opencgaSession?.cellbaseClient,
             featuresOfInterest: [],
         };
 
