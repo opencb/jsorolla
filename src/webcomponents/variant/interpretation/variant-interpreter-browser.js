@@ -17,6 +17,7 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utils-new.js";
 import {guardPage} from "../../commons/html-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-browser-cnv.js";
@@ -47,6 +48,9 @@ class VariantInterpreterBrowser extends LitElement {
             clinicalAnalysisId: {
                 type: String
             },
+            queries: {
+                type: Object,
+            },
             settings: {
                 type: Object
             }
@@ -56,11 +60,16 @@ class VariantInterpreterBrowser extends LitElement {
     #init() {
         this._prefix = UtilsNew.randomString(8);
         this._activeTab = null;
-
+        this._queries = {};
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
+        if (changedProperties.has("queries")) {
+            this._queries = {
+                ...this.queries,
+            };
+        }
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
@@ -102,6 +111,14 @@ class VariantInterpreterBrowser extends LitElement {
     onActiveTabChange(event) {
         this._activeTab = event.detail.value;
         this.requestUpdate();
+    }
+
+    onQueryChange(event, browserType) {
+        event.stopPropagation();
+        this._queries[browserType] = event.detail.query;
+        LitUtils.dispatchCustomEvent(this, "queryChange", null, {
+            query: this._queries,
+        });
     }
 
     render() {
@@ -160,9 +177,9 @@ class VariantInterpreterBrowser extends LitElement {
                                 .clinicalAnalysis="${clinicalAnalysis}"
                                 .title="${"Small Variants - " + this._sample?.id}"
                                 .settings="${browserSettings}"
+                                .query="${this._queries.rd}"
                                 .active="${active}"
-                                @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
-                                @samplechange="${this.onSampleChange}">
+                                @queryChange="${event => this.onQueryChange(event, "rd")}">
                             </variant-interpreter-browser-rd>
                         `;
                     }
