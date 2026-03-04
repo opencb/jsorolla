@@ -51,17 +51,16 @@ class VariantInterpreterBrowserRd extends LitElement {
             active: {
                 type: Boolean,
             },
+            query: {
+                type: Object,
+            },
         };
     }
 
     #init() {
         this.COMPONENT_ID = "variant-interpreter-rd";
         this._prefix = UtilsNew.randomString(8);
-
-        this.query = {};
-        this.activeFilterFilters = [];
-        this.savedVariants = [];
-
+        this._query = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -93,6 +92,13 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        if (this.query) {
+            this._query = {
+                ...this.query,
+            };
+            return;
+        }
+
         // Configuration is using the clinicalAnalysis
         this._config = this.getDefaultConfig();
 
@@ -118,12 +124,12 @@ class VariantInterpreterBrowserRd extends LitElement {
         this.sample = this.clinicalAnalysis.proband?.samples?.find(sample => !sample.somatic);
         if (this.sample) {
             // Init query object if needed
-            if (!this.query) {
-                this.query = {};
+            if (!this._query) {
+                this._query = {};
             }
 
             // 1. 'sample' query param: if sample is not defined then we must set the sample and genotype
-            if (!this.query?.sample) {
+            if (!this._query?.sample) {
                 this._sampleQuery = null;
                 switch (this.clinicalAnalysis.type.toUpperCase()) {
                     case "SINGLE":
@@ -147,22 +153,22 @@ class VariantInterpreterBrowserRd extends LitElement {
 
                 // Set query object
                 if (this._sampleQuery) {
-                    this.query.sample = this._sampleQuery;
+                    this._query.sample = this._sampleQuery;
                 }
             }
 
             // 2. 'panel' query param: add case panels to query object
             if (this.clinicalAnalysis.interpretation?.panels?.length > 0) {
-                this.query.panel = this.clinicalAnalysis.interpretation.panels.map(panel => panel.id).join(",");
+                this._query.panel = this.clinicalAnalysis.interpretation.panels.map(panel => panel.id).join(",");
             } else {
                 if (this.clinicalAnalysis.panels?.length > 0) {
-                    this.query.panel = this.clinicalAnalysis.panels.map(panel => panel.id).join(",");
+                    this._query.panel = this.clinicalAnalysis.panels.map(panel => panel.id).join(",");
                 }
             }
 
             // 3. panelIntersection param: if panel lock is enabled, this param should be also enabled
             if (this.clinicalAnalysis.panelLocked) {
-                this.query.panelIntersection = true;
+                this._query.panelIntersection = true;
             }
 
             // 4. 'fileData' query param: fetch non SV files and set init query
@@ -206,7 +212,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                         });
 
                     // Update query with default 'fileData' parameters
-                    this.query.fileData = fileDataFilters.join(",");
+                    this._query.fileData = fileDataFilters.join(",");
                 } else {
                     this.files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
                 }
@@ -216,8 +222,8 @@ class VariantInterpreterBrowserRd extends LitElement {
 
             // 5. Read defaultFilter from browser settings
             if (this.settings?.menu?.defaultFilter) {
-                this.query = {
-                    ...this.query,
+                this._query = {
+                    ...this._query,
                     ...this.settings.menu.defaultFilter,
                 };
             }
@@ -245,7 +251,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             _activeFilterFilters.unshift({
                 id: "Default Filter",
                 active: false,
-                query: this.query,
+                query: this._query,
             });
 
             // Add 'file' filter if 'fileData' exists
@@ -268,7 +274,10 @@ class VariantInterpreterBrowserRd extends LitElement {
             this._config.filter.activeFilters.filters = _activeFilterFilters;
             const activeFilter = this._config.filter.activeFilters.filters.find(filter => filter.active);
             if (activeFilter?.query) {
-                this.query = {...this.query, ...activeFilter.query};
+                this._query = {
+                    ...this._query,
+                    ...activeFilter.query,
+                };
             }
         } else {
             // No germline sample found, this is weird scenario but can happen if a case is created empty.
@@ -276,24 +285,24 @@ class VariantInterpreterBrowserRd extends LitElement {
             this._config.filter.activeFilters.filters = [];
         }
 
-        this.query = {...this.query};
+        this._query = {...this._query};
     }
 
     onQueryChange(event) {
-        this.query = event.detail.query;
+        this._query = event.detail.query;
     }
 
     render() {
         return html`
             <variant-interpreter-browser-template
                 .clinicalAnalysis="${this.clinicalAnalysis}"
-                .query="${this.query}"
+                .query="${this._query}"
                 .opencgaSession="${this.opencgaSession}"
                 .settings="${this.settings}"
                 .toolId="${this.COMPONENT_ID}"
                 .config="${this._config}"
                 .active="${this.active}"
-                @queryChange="${this.onQueryChange}">
+                @queryChange="${event => this.onQueryChange(event)}">
             </variant-interpreter-browser-template>
         `;
     }
