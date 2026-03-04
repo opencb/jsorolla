@@ -300,6 +300,54 @@ export default class BioinfoUtils {
         return `https://www.omim.org/entry/${soTerm}"`;
     }
 
+    /**
+     * Fetch phenotype and inheritance information from an OMIM entry page.
+     * Note: this may be blocked by CORS when called from a browser without a proxy.
+     * @param {string} id - OMIM entry ID (e.g. "618415")
+     * @returns {Promise<Object>} JSON with phenotype and inheritance data
+     */
+    static async getOmimInformation(id) {
+        const url = `https://www.omim.org/entry/${id}`;
+        const response = await fetch(url);
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, "text/html");
+
+        // 1. Extract entry title
+        const title = doc.querySelector("h1, h2, h3")?.textContent?.trim() || "";
+
+        // 2. Extract phenotype-gene relationships from the table
+        const phenotypes = [];
+        const tables = doc.querySelectorAll("table");
+        for (const table of tables) {
+            const headers = [...table.querySelectorAll("thead th")].map(th => th.textContent.trim());
+            if (headers.includes("Phenotype") && headers.includes("Inheritance")) {
+                const rows = table.querySelectorAll("tbody tr");
+                for (const row of rows) {
+                    const cells = [...row.querySelectorAll("td")].map(td => td.textContent.trim());
+                    if (cells.length >= 7) {
+                        phenotypes.push({
+                            location: cells[0],
+                            phenotype: cells[1],
+                            phenotypeMimNumber: cells[2],
+                            inheritance: cells[3],
+                            phenotypeMappingKey: cells[4],
+                            geneLocus: cells[5],
+                            geneLocusMimNumber: cells[6],
+                        });
+                    }
+                }
+                break;
+            }
+        }
+
+        return {
+            id,
+            title,
+            url,
+            phenotypes,
+        };
+    }
+
     static getOrphanetLink(orphaId) {
         return `https://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=EN&Expert=${orphaId}`;
     }

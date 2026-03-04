@@ -93,6 +93,15 @@ export default class VariantGridFormatter {
                 return `<i title="${description}" class="fas fa-${icon}" style="color:${color};margin-left:4px;"></i>`;
             });
 
+        // 3. Get cytoband (for structural variants, show first and last)
+        const cytobands = variant.annotation?.cytoband || [];
+        let cytoband = "";
+        if (cytobands.length === 1) {
+            cytoband = `${variant.chromosome}${cytobands[0].name}`;
+        } else if (cytobands.length > 1) {
+            cytoband = `${variant.chromosome}${cytobands[0].name} - ${variant.chromosome}${cytobands[cytobands.length - 1].name}`;
+        }
+
         return `
             <div class="text-nowrap">
                 <a class="link" data-action="copy" data-variant="${variant.id}">
@@ -113,8 +122,13 @@ export default class VariantGridFormatter {
                     `).join("")}
                 </div>
             ` : ""}
+            ${cytoband ? `
+                <div class="mt-0">
+                    <i class="fas fa-map-marker-alt small text-secondary me-1" title="Cytoband"></i>
+                    <span class="small text-secondary" title="Cytoband">${cytoband}</span>
+                </div>
+            ` : ""}
         `;
-        // 3. render the content of the variant ID section
     }
 
     static geneFormatter(variant, index, query, opencgaSession, gridCtSettings) {
@@ -882,6 +896,7 @@ export default class VariantGridFormatter {
             //      Delta score of a variant, defined as the maximum of (DS_AG, DS_AL, DS_DG, DS_DL),
             //      ranges from 0 to 1 and can be interpreted as the probability of the variant being splice-altering.
             let dscore = 0;
+            let spliceAiScores = [];
             let transcriptId;
             for (const ct of row.annotation.consequenceTypes) {
                 if (ct.spliceScores?.length > 0) {
@@ -890,38 +905,45 @@ export default class VariantGridFormatter {
                         const max = Math.max(spliceAi.scores["DS_AG"], spliceAi.scores["DS_AL"], spliceAi.scores["DS_DG"], spliceAi.scores["DS_DL"]);
                         if (max > dscore) {
                             dscore = max;
+                            spliceAiScores = spliceAi.scores;
                             transcriptId = ct.transcriptId;
                         }
                     }
                 }
             }
 
-            // const color = (dscore >= 0.8) ? "red" : (dscore >= 0.5) ? "darkorange" : "black";
-            /*
+            // const color = VariantGridFormatter.spliceAIColor(dscore);
+            // <div>
+            //     <span title="${transcriptId || "not found"}" style="color: ${color}; font-weight: bold;">${dscore || "-"}</span>
+            // </div>
+            const hasScores = spliceAiScores["DS_AG"] != null;
             return `
-                <div>
-                    <span title="${transcriptId || "not found"}" style="color: ${color}">${dscore || "-"}</span>
-                </div>
+                ${hasScores ? `
+                    <div class="text-secondary my-1"
+                         title="Transcript: ${transcriptId || "not found"}&#10;&#10;Delta Positions:&#10;  AG: ${spliceAiScores["DP_AG"]}&#10;  AL: ${spliceAiScores["DP_AL"]}&#10;  DG: ${spliceAiScores["DP_DG"]}&#10;  DL: ${spliceAiScores["DP_DL"]}">
+                        <div class="text-nowrap" style="color: ${VariantGridFormatter.spliceAIColor(spliceAiScores["DS_AG"])}">AG: ${spliceAiScores["DS_AG"]}</div>
+                        <div class="text-nowrap" style="color: ${VariantGridFormatter.spliceAIColor(spliceAiScores["DS_AL"])}">AL: ${spliceAiScores["DS_AL"]}</div>
+                        <div class="text-nowrap" style="color: ${VariantGridFormatter.spliceAIColor(spliceAiScores["DS_DG"])}">DG: ${spliceAiScores["DS_DG"]}</div>
+                        <div class="text-nowrap" style="color: ${VariantGridFormatter.spliceAIColor(spliceAiScores["DS_DL"])}">DL: ${spliceAiScores["DS_DL"]}</div>
+                    </div>
+                ` : ""}
             `;
-             */
-            const color = VariantGridFormatter.spliceAIColor(dscore);
-            return VariantGridFormatter.spliceAIDiv(transcriptId, color, dscore);
-
         } else {
             return "-";
         }
     }
 
     static spliceAIColor(dscore) {
-        return (dscore >= 0.8) ? "red" : (dscore >= 0.5) ? "darkorange" : "black";
-    }
-
-    static spliceAIDiv(transcriptId, color, dscore) {
-        return `
-            <div>
-                <span title="${transcriptId || "not found"}" style="color: ${color}">${dscore || "-"}</span>
-            </div>
-        `;
+        if (dscore >= 0.8) {
+            return "red";
+        }
+        if (dscore >= 0.5) {
+            return "darkorange";
+        }
+        if (dscore >= 0.2) {
+            return "goldenrod";
+        }
+        return "black";
     }
 
     static populationFrequenciesInfoTooltipContent(populationFrequencies) {
