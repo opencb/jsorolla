@@ -92,83 +92,76 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        if (this.query) {
-            this._query = {
-                ...this.query,
-            };
-            return;
-        }
-
         // Configuration is using the clinicalAnalysis
         this._config = this.getDefaultConfig();
 
+        let query = {};
+        let activeFilterFilters;
+        let files = [];
+
         // Init the active filters with every new Case opened. Then we add the default filters for the given sample.
-        let _activeFilterFilters;
         if (this.settings?.menu?.examples?.length > 0) {
             // Load custom filters if configured
             // We need to clone to make sure we reset active fields
-            _activeFilterFilters = UtilsNew.objectClone(this.settings.menu.examples);
+            activeFilterFilters = UtilsNew.objectClone(this.settings.menu.examples);
         } else {
             // Load default filters if not custom defined
-            _activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
+            activeFilterFilters = this._config?.filter?.examples ? [...this._config.filter.examples] : [];
         }
 
         // Check for adding the examples filters section
-        if (_activeFilterFilters?.length > 0) {
-            _activeFilterFilters.unshift({
+        if (activeFilterFilters?.length > 0) {
+            activeFilterFilters.unshift({
                 category: true,
                 name: "Example Filters",
             });
         }
 
-        this.sample = this.clinicalAnalysis.proband?.samples?.find(sample => !sample.somatic);
-        if (this.sample) {
-            // Init query object if needed
-            if (!this._query) {
-                this._query = {};
-            }
+        // get the germline sample
+        const sample = this.clinicalAnalysis.proband?.samples?.find(sample => !sample.somatic);
 
+        if (sample) {
             // 1. 'sample' query param: if sample is not defined then we must set the sample and genotype
-            if (!this._query?.sample) {
-                this._sampleQuery = null;
+            if (!query?.sample) {
+                let sampleQuery = null;
                 switch (this.clinicalAnalysis.type.toUpperCase()) {
                     case "SINGLE":
                     case "CANCER":
                         // Nacho (29-7-24): we have found too many exceptions in the genotypes, we should NOT add the genotypes here
                         // this._sampleQuery = this.sample.id + ":" + ["0/1", "1/1", "1", "1/2"].join(",");
-                        this._sampleQuery = this.sample.id;
+                        sampleQuery = sample.id;
                         break;
                     case "FAMILY":
                         // Add proband genotypes
-                        const sampleIds = [this.sample.id + ":" + ["0/1", "1/1", "1", "1/2"].join(",")];
+                        const sampleIds = [sample.id + ":" + ["0/1", "1/1", "1", "1/2"].join(",")];
                         for (const member of this.clinicalAnalysis.family?.members) {
                             // Proband is already in the array in the first position, we add other family members
                             if (member.id !== this.clinicalAnalysis.proband?.id && member.samples?.length > 0) {
                                 sampleIds.push(member.samples[0].id + ":" + ["0/0", "0/1", "1/1", "1", "1/2"].join(","));
                             }
                         }
-                        this._sampleQuery = sampleIds.join(";");
+                        sampleQuery = sampleIds.join(";");
                         break;
                 }
 
                 // Set query object
-                if (this._sampleQuery) {
-                    this._query.sample = this._sampleQuery;
+                if (sampleQuery) {
+                    query.sample = sampleQuery;
                 }
             }
 
             // 2. 'panel' query param: add case panels to query object
             if (this.clinicalAnalysis.interpretation?.panels?.length > 0) {
-                this._query.panel = this.clinicalAnalysis.interpretation.panels.map(panel => panel.id).join(",");
+                query.panel = this.clinicalAnalysis.interpretation.panels.map(panel => panel.id).join(",");
             } else {
                 if (this.clinicalAnalysis.panels?.length > 0) {
-                    this._query.panel = this.clinicalAnalysis.panels.map(panel => panel.id).join(",");
+                    query.panel = this.clinicalAnalysis.panels.map(panel => panel.id).join(",");
                 }
             }
 
             // 3. panelIntersection param: if panel lock is enabled, this param should be also enabled
             if (this.clinicalAnalysis.panelLocked) {
-                this._query.panelIntersection = true;
+                query.panelIntersection = true;
             }
 
             // 4. 'fileData' query param: fetch non SV files and set init query
@@ -182,12 +175,12 @@ class VariantInterpreterBrowserRd extends LitElement {
                     .filter(vc => vc.dataFilters.findIndex(filter => !filter.source || filter.source === "FILE") !== -1);
 
                 // Files matching the selected Variant Callers
-                this.files = (this.clinicalAnalysis.files || [])
+                files = (this.clinicalAnalysis.files || [])
                     .filter(file => file.format.toUpperCase() === "VCF")
                     .filter(file =>
                         nonSvGermlineVariantCallers.findIndex(vc => vc.id.toUpperCase() === file.software?.name?.toUpperCase()) !== -1);
 
-                if (this.files?.length > 0) {
+                if (files?.length > 0) {
                     const fileDataFilters = [];
                     nonSvGermlineVariantCallers
                         .forEach(vc => {
@@ -202,7 +195,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                             // Only add this file to the filter if we have at least one default value
                             if (filtersWithDefaultValues.length > 0) {
                                 // We need to find the file for that caller, file MUST be indexed
-                                const fileId = this.files
+                                const fileId = files
                                     .filter(file => file.internal?.variant?.index?.status?.id === "READY")
                                     .find(file => file.software.name === vc.id)?.name;
                                 if (fileId) {
@@ -212,18 +205,18 @@ class VariantInterpreterBrowserRd extends LitElement {
                         });
 
                     // Update query with default 'fileData' parameters
-                    this._query.fileData = fileDataFilters.join(",");
+                    query.fileData = fileDataFilters.join(",");
                 } else {
-                    this.files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
+                    files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
                 }
             } else {
-                this.files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
+                files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
             }
 
             // 5. Read defaultFilter from browser settings
             if (this.settings?.menu?.defaultFilter) {
-                this._query = {
-                    ...this._query,
+                query = {
+                    ...query,
                     ...this.settings.menu.defaultFilter,
                 };
             }
@@ -233,13 +226,13 @@ class VariantInterpreterBrowserRd extends LitElement {
 
             // Add filter to Active Filter's menu
             // 1. Add variant stats saved queries to the Active Filters menu
-            if (this.sample.qualityControl?.variant?.variantStats?.length > 0) {
-                _activeFilterFilters.push({
+            if (sample.qualityControl?.variant?.variantStats?.length > 0) {
+                activeFilterFilters.push({
                     category: true,
                     name: "Variant Stats Filters",
                 });
-                _activeFilterFilters.push(
-                    ...this.sample.qualityControl.variant.variantStats.map(variantStat => ({
+                activeFilterFilters.push(
+                    ...sample.qualityControl.variant.variantStats.map(variantStat => ({
                         id: variantStat.id,
                         active: false,
                         query: variantStat.query,
@@ -248,21 +241,21 @@ class VariantInterpreterBrowserRd extends LitElement {
             }
 
             // 2. Add default initial query the active filter menu
-            _activeFilterFilters.unshift({
+            activeFilterFilters.unshift({
                 id: "Default Filter",
                 active: false,
-                query: this._query,
+                query: query,
             });
 
             // Add 'file' filter if 'fileData' exists
-            if (this.files) {
-                const fileNames = this.files
+            if (files) {
+                const fileNames = files
                     .filter(file => file.internal?.variant?.index?.status?.id === "READY")
                     .map(f => f.name);
                 // Only filter by file if there are more than 1 file indexed
                 if (fileNames.length > 0) {
                     const joinedFileNames = fileNames.join(",");
-                    for (const filter of _activeFilterFilters) {
+                    for (const filter of activeFilterFilters) {
                         if (filter.query?.fileData && !filter.query?.file) {
                             filter.query.file = joinedFileNames;
                         }
@@ -271,11 +264,11 @@ class VariantInterpreterBrowserRd extends LitElement {
             }
 
             // Set active filters
-            this._config.filter.activeFilters.filters = _activeFilterFilters;
+            this._config.filter.activeFilters.filters = activeFilterFilters;
             const activeFilter = this._config.filter.activeFilters.filters.find(filter => filter.active);
             if (activeFilter?.query) {
-                this._query = {
-                    ...this._query,
+                query = {
+                    ...query,
                     ...activeFilter.query,
                 };
             }
@@ -285,7 +278,8 @@ class VariantInterpreterBrowserRd extends LitElement {
             this._config.filter.activeFilters.filters = [];
         }
 
-        this._query = {...this._query};
+        // set the initial query: use the query from the property (to restore the previous query) or the default query
+        this._query = this.query ? UtilsNew.objectClone(this.query) : query;
     }
 
     onQueryChange(event) {
