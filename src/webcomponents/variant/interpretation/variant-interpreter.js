@@ -74,6 +74,7 @@ class VariantInterpreter extends LitElement {
 
         this._activeModal = null;
         this._config = this.getDefaultConfig();
+        this._queries = {}; // to save queries for each tool
         this.#updateInterpreterTools();
     }
 
@@ -233,6 +234,11 @@ class VariantInterpreter extends LitElement {
             });
     }
 
+    onQueryChange(event, tool) {
+        event.stopPropagation();
+        this._queries[tool] = event.detail.query;
+    }
+
     renderTool(tool) {
         if (this.getActiveToolId() === tool.id) {
             switch (tool.id) {
@@ -278,7 +284,9 @@ class VariantInterpreter extends LitElement {
                             .opencgaSession="${this.opencgaSession}"
                             .clinicalAnalysis="${this.clinicalAnalysis}"
                             .settings="${tool}"
-                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                            .queries="${this._queries?.browser}"
+                            @clinicalAnalysisUpdate="${event => this.onClinicalAnalysisUpdate(event)}"
+                            @queryChange="${event => this.onQueryChange(event, "browser")}">
                         </variant-interpreter-browser>
                     `;
                 case "report":
