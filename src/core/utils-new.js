@@ -645,7 +645,7 @@ export default class UtilsNew {
         const detail = internal.detail;
 
         // Get default filters
-        const defaultFilter = external?.menu?.defaultFilter || {};
+        const defaultFilter = external?.menu?.defaultFilter || null;
 
         if (external?.menu?.sections?.length) {
             sections = UtilsNew.mergeSections(sections, external.menu.sections);
