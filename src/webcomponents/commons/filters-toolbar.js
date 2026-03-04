@@ -611,7 +611,7 @@ export default class FiltersToolbar extends LitElement {
     renderFilterItems(items, highlightActiveFilter = true, showFilterDelete = false) {
         return items.map(item => {
             const isActive = highlightActiveFilter && UtilsNew.objectCompare(this.preparedQuery, item.query);
-            const filterParams = Object.keys(item.query)
+            const filterParams = Object.keys(item.query || {})
                 .filter(key => key !== "study" && !!item.query[key]);
             const filterTooltip = filterParams
                 .map(key => `<b>${key}</b> = ${item.query[key]}`)
@@ -827,7 +827,8 @@ export default class FiltersToolbar extends LitElement {
             },
             sections: [],
             examples: [],
-            defaultFilter: {},
+            filters: [],
+            defaultFilter: null,
             searchButton: true,
             searchButtonText: "Search",
             searchButtonIcon: "fas fa-search",
