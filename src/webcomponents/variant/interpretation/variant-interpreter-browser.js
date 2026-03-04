@@ -249,10 +249,12 @@ class VariantInterpreterBrowser extends LitElement {
                                     <variant-interpreter-browser-rearrangement
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
+                                        .somatic="${true}"
+                                        .query="${this._queries.rearrangement}"
                                         .title="${"Somatic Rearrangement Variant Browser - " + this._somaticSample?.id}"
                                         .settings="${browserSettings}"
                                         .active="${active}"
-                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                        @queryChange="${event => this.onQueryChange(event, "rearrangement")}">
                                     </variant-interpreter-browser-rearrangement>
                                 `;
                             },
@@ -294,10 +296,11 @@ class VariantInterpreterBrowser extends LitElement {
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .somatic="${false}"
+                                        .query="${this._queries.rearrangement}"
                                         .title="${"Germline Rearrangement Variant Browser - " + this._germlineSample?.id}"
                                         .settings="${browserSettings}"
                                         .active="${active}"
-                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                        @queryChange="${event => this.onQueryChange(event, "rearrangement")}"
                                     </variant-interpreter-browser-rearrangement>
                                 `;
                             },
