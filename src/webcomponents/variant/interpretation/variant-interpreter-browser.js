@@ -202,8 +202,9 @@ class VariantInterpreterBrowser extends LitElement {
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .title="${"Somatic Variant Browser - " + this._somaticSample?.id}"
                                     .settings="${browserSettings}"
+                                    .query="${this._queries.snv}"
                                     .active="${active}"
-                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                    @queryChange="${event => this.onQueryChange(event, "snv")}">
                                 </variant-interpreter-browser-cancer>
                             `;
                         }
@@ -277,8 +278,9 @@ class VariantInterpreterBrowser extends LitElement {
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .title="${"Germline Variant Browser - " + this._germlineSample?.id}"
                                         .settings="${browserSettings}"
+                                        .query="${this._queries.rd}"
                                         .active="${active}"
-                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                        @queryChange="${event => this.onQueryChange(event, "rd")}">
                                     </variant-interpreter-browser-rd>
                                 `;
                             },
