@@ -202,8 +202,9 @@ class VariantInterpreterBrowser extends LitElement {
                                     .clinicalAnalysis="${clinicalAnalysis}"
                                     .title="${"Somatic Variant Browser - " + this._somaticSample?.id}"
                                     .settings="${browserSettings}"
+                                    .query="${this._queries.snv}"
                                     .active="${active}"
-                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                    @queryChange="${event => this.onQueryChange(event, "snv")}">
                                 </variant-interpreter-browser-cancer>
                             `;
                         }
@@ -224,11 +225,11 @@ class VariantInterpreterBrowser extends LitElement {
                                     <variant-interpreter-browser-cnv
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
-                                        .query="${this.query}"
+                                        .query="${this._queries.cnv}"
                                         .title="${"Somatic CNV Variant Browser - " + this._somaticSample?.id}"
                                         .settings="${browserSettings}"
                                         .active="${active}"
-                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                        @queryChange="${event => this.onQueryChange(event, "cnv")}">
                                     </variant-interpreter-browser-cnv>
                                 `;
                             },
@@ -249,10 +250,12 @@ class VariantInterpreterBrowser extends LitElement {
                                     <variant-interpreter-browser-rearrangement
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
+                                        .somatic="${true}"
+                                        .query="${this._queries.somaticRearrangement}"
                                         .title="${"Somatic Rearrangement Variant Browser - " + this._somaticSample?.id}"
                                         .settings="${browserSettings}"
                                         .active="${active}"
-                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                        @queryChange="${event => this.onQueryChange(event, "somaticRearrangement")}">
                                     </variant-interpreter-browser-rearrangement>
                                 `;
                             },
@@ -275,8 +278,9 @@ class VariantInterpreterBrowser extends LitElement {
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .title="${"Germline Variant Browser - " + this._germlineSample?.id}"
                                         .settings="${browserSettings}"
+                                        .query="${this._queries.rd}"
                                         .active="${active}"
-                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                        @queryChange="${event => this.onQueryChange(event, "rd")}">
                                     </variant-interpreter-browser-rd>
                                 `;
                             },
@@ -294,10 +298,11 @@ class VariantInterpreterBrowser extends LitElement {
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .somatic="${false}"
+                                        .query="${this._queries.germlineRearrangement}"
                                         .title="${"Germline Rearrangement Variant Browser - " + this._germlineSample?.id}"
                                         .settings="${browserSettings}"
                                         .active="${active}"
-                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                        @queryChange="${event => this.onQueryChange(event, "germlineRearrangement")}"
                                     </variant-interpreter-browser-rearrangement>
                                 `;
                             },

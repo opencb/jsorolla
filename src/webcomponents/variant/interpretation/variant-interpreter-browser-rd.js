@@ -61,6 +61,7 @@ class VariantInterpreterBrowserRd extends LitElement {
         this.COMPONENT_ID = "variant-interpreter-rd";
         this._prefix = UtilsNew.randomString(8);
         this._query = {};
+        this._files = [];
         this._config = this.getDefaultConfig();
     }
 
@@ -97,7 +98,6 @@ class VariantInterpreterBrowserRd extends LitElement {
 
         let query = {};
         let activeFilterFilters;
-        let files = [];
 
         // Init the active filters with every new Case opened. Then we add the default filters for the given sample.
         if (this.settings?.menu?.examples?.length > 0) {
@@ -175,12 +175,12 @@ class VariantInterpreterBrowserRd extends LitElement {
                     .filter(vc => vc.dataFilters.findIndex(filter => !filter.source || filter.source === "FILE") !== -1);
 
                 // Files matching the selected Variant Callers
-                files = (this.clinicalAnalysis.files || [])
+                this._files = (this.clinicalAnalysis.files || [])
                     .filter(file => file.format.toUpperCase() === "VCF")
                     .filter(file =>
                         nonSvGermlineVariantCallers.findIndex(vc => vc.id.toUpperCase() === file.software?.name?.toUpperCase()) !== -1);
 
-                if (files?.length > 0) {
+                if (this._files?.length > 0) {
                     const fileDataFilters = [];
                     nonSvGermlineVariantCallers
                         .forEach(vc => {
@@ -195,7 +195,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                             // Only add this file to the filter if we have at least one default value
                             if (filtersWithDefaultValues.length > 0) {
                                 // We need to find the file for that caller, file MUST be indexed
-                                const fileId = files
+                                const fileId = this._files
                                     .filter(file => file.internal?.variant?.index?.status?.id === "READY")
                                     .find(file => file.software.name === vc.id)?.name;
                                 if (fileId) {
@@ -207,10 +207,10 @@ class VariantInterpreterBrowserRd extends LitElement {
                     // Update query with default 'fileData' parameters
                     query.fileData = fileDataFilters.join(",");
                 } else {
-                    files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
+                    this._files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
                 }
             } else {
-                files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
+                this._files = this.clinicalAnalysis.files?.filter(file => file.format.toUpperCase() === "VCF") || [];
             }
 
             // 5. Read defaultFilter from browser settings
@@ -248,8 +248,8 @@ class VariantInterpreterBrowserRd extends LitElement {
             });
 
             // Add 'file' filter if 'fileData' exists
-            if (files) {
-                const fileNames = files
+            if (this._files) {
+                const fileNames = this._files
                     .filter(file => file.internal?.variant?.index?.status?.id === "READY")
                     .map(f => f.name);
                 // Only filter by file if there are more than 1 file indexed
@@ -264,8 +264,8 @@ class VariantInterpreterBrowserRd extends LitElement {
             }
 
             // Set active filters
-            this._config.filter.activeFilters.filters = activeFilterFilters;
-            const activeFilter = this._config.filter.activeFilters.filters.find(filter => filter.active);
+            this._config.filter.filters = activeFilterFilters;
+            const activeFilter = this._config.filter.filters.find(filter => filter.active);
             if (activeFilter?.query) {
                 query = {
                     ...query,
@@ -275,7 +275,7 @@ class VariantInterpreterBrowserRd extends LitElement {
         } else {
             // No germline sample found, this is weird scenario but can happen if a case is created empty.
             // We init active filters anyway.
-            this._config.filter.activeFilters.filters = [];
+            this._config.filter.filters = [];
         }
 
         // set the initial query: use the query from the property (to restore the previous query) or the default query
@@ -318,6 +318,8 @@ class VariantInterpreterBrowserRd extends LitElement {
         return {
             title: this.title || "RD Variant Browser",
             filter: {
+                filters: [],
+                defaultFilter: null,
                 activeFilters: {
                     hiddenFields: [],
                     lockedFields: lockedFields
@@ -361,9 +363,9 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "variant-file",
                                 title: "VCF File Filter",
-                                visible: () => this.files?.length > 1,
+                                visible: () => this._files?.length > 1,
                                 params: {
-                                    files: this.files,
+                                    files: this._files,
                                 },
                                 tooltip: tooltips.vcfFile,
                             },
@@ -376,9 +378,9 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "variant-file-info-filter",
                                 title: "Variant Caller File Filter",
-                                visible: () => this.files?.length > 0,
+                                visible: () => this._files?.length > 0,
                                 params: {
-                                    files: this.files,
+                                    files: this._files,
                                     opencgaSession: this.opencgaSession,
                                 },
                                 tooltip: tooltips.variantCallerFile,

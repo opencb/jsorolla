@@ -108,6 +108,8 @@ export default class OpencgaBrowserFilter extends LitElement {
             "type": "type",
             "scope": "scope",
             "internalStatus": "internal.status.id",
+            "flags": "flags.id",
+            "analysts": "analysts.id",
         };
     }
 
@@ -162,6 +164,8 @@ export default class OpencgaBrowserFilter extends LitElement {
             case "type":
             case "scope":
             case "internalStatus":
+            case "flags":
+            case "analysts":
                 content = html`
                     <catalog-distinct-autocomplete
                         .value="${preparedQuery[subsection.id]}"
