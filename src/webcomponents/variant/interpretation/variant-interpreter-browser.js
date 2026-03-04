@@ -224,11 +224,11 @@ class VariantInterpreterBrowser extends LitElement {
                                     <variant-interpreter-browser-cnv
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
-                                        .query="${this.query}"
+                                        .query="${this._queries.cnv}"
                                         .title="${"Somatic CNV Variant Browser - " + this._somaticSample?.id}"
                                         .settings="${browserSettings}"
                                         .active="${active}"
-                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                        @queryChange="${event => this.onQueryChange(event, "cnv")}">
                                     </variant-interpreter-browser-cnv>
                                 `;
                             },
