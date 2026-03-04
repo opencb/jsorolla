@@ -227,6 +227,12 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                                 description: ""
                             },
                             {
+                                id: "flags",
+                                title: "Flags",
+                                description: "",
+                                quick: true,
+                            },
+                            {
                                 id: "creationDate",
                                 title: "Creation Date",
                                 description: ""
