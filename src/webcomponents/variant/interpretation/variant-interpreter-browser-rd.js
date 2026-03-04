@@ -264,8 +264,8 @@ class VariantInterpreterBrowserRd extends LitElement {
             }
 
             // Set active filters
-            this._config.filter.activeFilters.filters = activeFilterFilters;
-            const activeFilter = this._config.filter.activeFilters.filters.find(filter => filter.active);
+            this._config.filter.filters = activeFilterFilters;
+            const activeFilter = this._config.filter.filters.find(filter => filter.active);
             if (activeFilter?.query) {
                 query = {
                     ...query,
@@ -275,7 +275,7 @@ class VariantInterpreterBrowserRd extends LitElement {
         } else {
             // No germline sample found, this is weird scenario but can happen if a case is created empty.
             // We init active filters anyway.
-            this._config.filter.activeFilters.filters = [];
+            this._config.filter.filters = [];
         }
 
         // set the initial query: use the query from the property (to restore the previous query) or the default query
@@ -318,6 +318,8 @@ class VariantInterpreterBrowserRd extends LitElement {
         return {
             title: this.title || "RD Variant Browser",
             filter: {
+                filters: [],
+                defaultFilter: null,
                 activeFilters: {
                     hiddenFields: [],
                     lockedFields: lockedFields
