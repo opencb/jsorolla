@@ -250,11 +250,11 @@ class VariantInterpreterBrowser extends LitElement {
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .somatic="${true}"
-                                        .query="${this._queries.rearrangement}"
+                                        .query="${this._queries.somaticRearrangement}"
                                         .title="${"Somatic Rearrangement Variant Browser - " + this._somaticSample?.id}"
                                         .settings="${browserSettings}"
                                         .active="${active}"
-                                        @queryChange="${event => this.onQueryChange(event, "rearrangement")}">
+                                        @queryChange="${event => this.onQueryChange(event, "somaticRearrangement")}">
                                     </variant-interpreter-browser-rearrangement>
                                 `;
                             },
@@ -296,11 +296,11 @@ class VariantInterpreterBrowser extends LitElement {
                                         .opencgaSession="${opencgaSession}"
                                         .clinicalAnalysis="${clinicalAnalysis}"
                                         .somatic="${false}"
-                                        .query="${this._queries.rearrangement}"
+                                        .query="${this._queries.germlineRearrangement}"
                                         .title="${"Germline Rearrangement Variant Browser - " + this._germlineSample?.id}"
                                         .settings="${browserSettings}"
                                         .active="${active}"
-                                        @queryChange="${event => this.onQueryChange(event, "rearrangement")}"
+                                        @queryChange="${event => this.onQueryChange(event, "germlineRearrangement")}"
                                     </variant-interpreter-browser-rearrangement>
                                 `;
                             },
