@@ -233,6 +233,12 @@ export default class ClinicalAnalysisBrowser extends LitElement {
                                 quick: true,
                             },
                             {
+                                id: "analysts",
+                                title: "Analysts",
+                                description: "",
+                                quick: true,
+                            },
+                            {
                                 id: "creationDate",
                                 title: "Creation Date",
                                 description: ""
