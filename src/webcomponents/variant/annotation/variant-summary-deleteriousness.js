@@ -193,8 +193,8 @@ export default class VariantSummaryDeleteriousness extends LitElement {
         const q = qualitative.toLowerCase().trim();
 
         const colorMap = [
-            { keywords: ["benign", "tolerated", "low", "bottom 90%"], color: "#13a574" },
-            { keywords: ["potentially pathogenic", "possibly damaging", "top 10%"], color: "#f7b233" },
+            { keywords: ["benign", "tolerated", "none", "bottom 90%"], color: "#13a574" },
+            { keywords: ["potentially pathogenic", "possibly damaging", "low", "top 10%"], color: "#f7b233" },
             { keywords: ["moderate", "top 5%"], color: "#dd7a16" },
             { keywords: ["likely pathogenic", "probably damaging", "top 1%"], color: "#d9534f" },
             { keywords: ["deleterious", "damaging", "pathogenic", "high", "top 0.1%"], color: "#d9534f" },
@@ -236,9 +236,9 @@ export default class VariantSummaryDeleteriousness extends LitElement {
                 console.log("fallback spliceai")
                 if (score >= 0.8) return "High";
                 if (score >= 0.5) return "Moderate";
-                //if (score >= 0.2) return 'Low';
-                // return 'Minimal/None';
-                return "Low";
+                if (score >= 0.2) return 'Low';
+                return 'None';
+                // return "Low";
             default:
                 return '';
         }
