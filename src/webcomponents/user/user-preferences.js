@@ -25,8 +25,8 @@ export default class UserPreferences extends LitElement {
     }
 
     #init() {
-        this.STORAGE_KEY = "iva.externalApiKeys";
-        this._apiKeys = this.#loadFromStorage();
+        this.STORAGE_KEY = "iva.preferences";
+        this._preferences = this.#loadFromStorage();
         this._config = this.getDefaultConfig();
     }
 
@@ -39,19 +39,28 @@ export default class UserPreferences extends LitElement {
     }
 
     #saveToStorage() {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this._apiKeys));
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this._preferences));
+    }
+
+    static getPreference(key) {
+        try {
+            const prefs = JSON.parse(localStorage.getItem("iva.preferences") || "{}");
+            return prefs[key] || "";
+        } catch (e) {
+            return "";
+        }
     }
 
     update(changedProperties) {
         if (changedProperties.has("active") && this.active) {
-            this._apiKeys = this.#loadFromStorage();
+            this._preferences = this.#loadFromStorage();
             this._config = this.getDefaultConfig();
         }
         super.update(changedProperties);
     }
 
     onFieldChange(e) {
-        this._apiKeys = {...e.detail.data};
+        this._preferences = {...e.detail.data};
         this.requestUpdate();
     }
 
@@ -63,7 +72,7 @@ export default class UserPreferences extends LitElement {
     }
 
     onClear() {
-        this._apiKeys = this.#loadFromStorage();
+        this._preferences = this.#loadFromStorage();
         this._config = this.getDefaultConfig();
         this.requestUpdate();
     }
@@ -71,7 +80,7 @@ export default class UserPreferences extends LitElement {
     render() {
         return html`
             <data-form
-                .data="${this._apiKeys}"
+                .data="${this._preferences}"
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @submit="${() => this.onSubmit()}"
@@ -97,10 +106,35 @@ export default class UserPreferences extends LitElement {
                         {
                             title: "MobiDetails API Key",
                             type: "input-text",
-                            field: "mobidetails",
+                            field: "mobidetailsApiKey",
                             defaultValue: "",
                             display: {
                                 helpMessage: "Get your API key from https://mobidetails.chu-montpellier.fr",
+                            },
+                        },
+                    ],
+                },
+                {
+                    title: "cBioPortal",
+                    description: "Configure cBioPortal settings. If no studies are specified, the default cross-cancer study set will be used.",
+                    elements: [
+                        {
+                            title: "Study IDs",
+                            type: "custom",
+                            field: "cbioportalStudyIds",
+                            display: {
+                                helpMessage: "One study ID per line",
+                                render: () => html`
+                                    <textarea
+                                        class="form-control"
+                                        rows="5"
+                                        placeholder="Enter one study ID per line"
+                                        .value="${this._preferences.cbioportalStudyIds || ""}"
+                                        @input="${e => {
+                                            this._preferences = {...this._preferences, cbioportalStudyIds: e.target.value};
+                                        }}">
+                                    </textarea>
+                                `,
                             },
                         },
                     ],

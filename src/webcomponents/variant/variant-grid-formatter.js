@@ -241,6 +241,9 @@ export default class VariantGridFormatter {
             <div class='p-1'>
                 <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
             </div>
+            <div class='p-1'>
+                <a class='text-decoration-none' target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cbioportal")}'>cBioPortal</a>
+            </div>
         `;
     }
 

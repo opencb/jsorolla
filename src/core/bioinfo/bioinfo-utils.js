@@ -167,9 +167,9 @@ export default class BioinfoUtils {
                 const [chr, pos, ref, alt] = id.split(":");
                 let url = `https://mobidetails.chu-montpellier.fr/api/variant/create_vcf_str?vcf_str=${chr}-${pos}-${ref}-${alt}&caller=browser`;
                 try {
-                    const keys = JSON.parse(localStorage.getItem("iva.externalApiKeys") || "{}");
-                    if (keys.mobidetails) {
-                        url += `&api_key=${keys.mobidetails}`;
+                    const prefs = JSON.parse(localStorage.getItem("iva.preferences") || "{}");
+                    if (prefs.mobidetailsApiKey) {
+                        url += `&api_key=${prefs.mobidetailsApiKey}`;
                     }
                 } catch (e) {
                     // ignore localStorage errors
@@ -212,6 +212,19 @@ export default class BioinfoUtils {
                 } else {
                     return `https://varsome.com/gene/hg19/${geneId}`;
                 }
+            case "CBIOPORTAL": {
+                // If user has configured study IDs, use the results page; otherwise use the quick link
+                try {
+                    const prefs = JSON.parse(localStorage.getItem("iva.preferences") || "{}");
+                    if (prefs.cbioportalStudyIds) {
+                        const studyIds = prefs.cbioportalStudyIds.trim().replace(/\s+/g, ",");
+                        return `https://www.cbioportal.org/results/cancerTypesSummary?case_set_id=all&gene_list=${geneId}&cancer_study_list=${studyIds}`;
+                    }
+                } catch (e) {
+                    // ignore localStorage errors
+                }
+                return `https://www.cbioportal.org/ln?q=${geneId}`;
+            }
         }
     }
 
