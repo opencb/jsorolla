@@ -166,6 +166,7 @@ export default class OpencgaBrowserFilter extends LitElement {
             case "internalStatus":
             case "flags":
             case "analysts":
+            case "batch":
                 content = html`
                     <catalog-distinct-autocomplete
                         .value="${preparedQuery[subsection.id]}"
