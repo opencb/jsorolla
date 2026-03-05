@@ -621,14 +621,14 @@ export default class FiltersToolbar extends LitElement {
                 <a class="dropdown-item cursor-pointer ${isActive ? "active" : ""}" @click="${() => this.onApplyQuery(item.query)}">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
-                            <div class="text-truncate">
-                                ${item.id} ${item.latest ? html` <b>(latest)</b>` : nothing}
+                            <div class="text-truncate" title="${item.id}">
+                                ${UtilsNew.substring(item.id, 20)} ${item.latest ? html` <b>(latest)</b>` : nothing}
                             </div>
                             <div class="small opacity-50">
                             ${filterParams?.length > 0 ? html`
                                 ${filterParams.slice(0, 2).map(key => html`
                                     <div class="" title="${item.query[key]}">
-                                        <b>${key}</b>: ${UtilsNew.substring(item.query[key], Math.max(0, 35 - key.length))}
+                                        <b>${key}</b>: ${UtilsNew.substring(item.query[key], Math.max(0, 25 - key.length))}
                                     </div>
                                 `)}
                             ` : html`Empty query.`}
