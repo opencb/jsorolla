@@ -146,9 +146,9 @@ export default class CellbaseSearchAutocomplete extends LitElement {
 
     async onFetch(params, success, failure) {
         const queryTerm = params?.query || "";
-        if (!queryTerm) {
-            return success([]);
-        }
+        // if (!queryTerm) {
+        //     return success([]);
+        // }
 
         const queryParams = {
             limit: 10,
@@ -186,7 +186,7 @@ export default class CellbaseSearchAutocomplete extends LitElement {
             <div class="d-flex flex-column my-1">
                 <div class="d-flex align-items-center">
                     ${item.source ? html`
-                        <span class="badge bg-danger me-2" style="font-size: 10px;">${item.source}</span>
+                        <span class="badge bg-danger me-2 small lh-1">${item.source}</span>
                     ` : nothing}
                     <span class="fw-bold">${item.name || item.id}</span>
                 </div>
