@@ -368,7 +368,7 @@ export default class DiseasePanelCreate extends LitElement {
                                             <cellbase-search-autocomplete
                                                 .resource="${"GENE"}"
                                                 .cellbaseClient="${this.opencgaSession.cellbaseClient}"
-                                                @filterChange="${e => dataFormFilterChange(e.detail.data.name)}">
+                                                @filterChange="${event => dataFormFilterChange(event.detail.data?.name)}">
                                             </cellbase-search-autocomplete>
                                         `,
                                     }
