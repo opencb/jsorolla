@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html} from "lit";
 import Types from "../commons/types.js";
-import UtilsNew from "../../core/utils-new.js";
 import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
-import "../commons/forms/select-token-filter-static.js";
+import "../commons/forms/token-dropdown.js";
 
 export default class NoteUpdate extends LitElement {
 
@@ -191,11 +190,11 @@ export default class NoteUpdate extends LitElement {
                                         dataFormFilterChange(e.detail.value ? e.detail.value?.split(",") : []);
                                     };
                                     return html`
-                                        <select-token-filter-static
-                                            .data="${data}"
+                                        <token-dropdown
+                                            .values="${data}"
                                             .value="${data?.join(",")}"
                                             @filterChange="${e => handleTagsFilterChange(e)}">
-                                        </select-token-filter-static>
+                                        </token-dropdown>
                                     `;
                                 },
                             },
