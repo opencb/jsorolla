@@ -17,9 +17,8 @@
 import {html, LitElement} from "lit";
 import NotificationUtils from "../../commons/utils/notification-utils.js";
 import Types from "../../commons/types.js";
-import "../../commons/forms/select-token-filter-static.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-
+import "../../commons/forms/token-dropdown.js";
 
 export default class VariableSetCreate extends LitElement {
 
@@ -381,11 +380,11 @@ export default class VariableSetCreate extends LitElement {
                                                 variable(e.detail.value ? e.detail.value?.split(",") :[]);
                                             };
                                             return html`
-                                                <select-token-filter-static
+                                                <token-dropdown
                                                     .values="${variable?.allowedValues}"
-                                                    .config="${selectConfig}"
+                                                    .placeholder="${selectConfig.placeholder}"
                                                     @filterChange=${e => handleVariableFilterChange(e)}>
-                                                </select-token-filter-static>
+                                                </token-dropdown>
                                             `;
                                         },
                                         helpMessage: "Follow one of this format valid for the number range: 0:1, -10:100",
@@ -402,10 +401,10 @@ export default class VariableSetCreate extends LitElement {
                                                 dataFormFilterChange(e.detail.value ? e.detail.value?.split(",") : []);
                                             };
                                             return html`
-                                                <select-token-filter-static
+                                                <token-dropdown
                                                     .values="${variable?.allowedValues}"
                                                     @filterChange=${e => handleVariableFilterChange(e)}>
-                                                </select-token-filter-static>
+                                                </token-dropdown>
                                             `;
                                         }
                                     }
