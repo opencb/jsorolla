@@ -1691,7 +1691,7 @@ export default class DataForm extends LitElement {
             // If 'field' is defined then we pass it to the 'render' function, otherwise 'data' object is passed
             const data = this.data[element.field][element.index];
             const searchContent = html `
-                <div class="form-group">
+                <div class="form-group mb-3">
                     ${element.display.search.title ? html`
                         <div>
                             <label class="control-label" style="padding-top: 0;">
