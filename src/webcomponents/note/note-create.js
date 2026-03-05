@@ -18,10 +18,10 @@ import {LitElement, html} from "lit";
 import Types from "../commons/types.js";
 import NotificationUtils from "../commons/utils/notification-utils.js";
 import LitUtils from "../commons/utils/lit-utils.js";
-import UtilsNew from "../../core/utils-new.js";
 import CatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/tool-header.js";
 import "../commons/filters/catalog-search-autocomplete.js";
+import "../commons/forms/token-dropdown.js";
 import "../commons/json-editor.js";
 
 export default class NoteCreate extends LitElement {
@@ -228,11 +228,11 @@ export default class NoteCreate extends LitElement {
                                         dataFormFieldChange(e.detail.value ? e.detail.value?.split(",") : []);
                                     };
                                     return html`
-                                        <select-token-filter-static
-                                            .data="${data}"
+                                        <token-dropdown
+                                            .values="${data}"
                                             .value="${data?.join(",")}"
                                             @filterChange="${e => handleTagsChange(e)}">
-                                        </select-token-filter-static>
+                                        </token-dropdown>
                                     `;
                                 },
                             },
