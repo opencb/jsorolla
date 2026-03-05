@@ -1,6 +1,6 @@
 import {LitElement, html} from "lit";
 import LitUtils from "../utils/lit-utils.js";
-import "../forms/select-token-filter.js";
+import "./catalog-search-autocomplete.js";
 
 export default class FileFilter extends LitElement {
 
