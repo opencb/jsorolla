@@ -23,7 +23,6 @@ import "./forms/date-picker.js";
 import "./forms/text-field-filter.js";
 import "./filters/somatic-filter.js";
 import "./forms/select-dropdown.js";
-import "./forms/select-token-filter-static.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 
 export default class OpencgaBrowserFilter extends LitElement {
