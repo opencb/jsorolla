@@ -654,7 +654,7 @@ const INTERPRETER_SETTINGS = {
             // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
             sections: [
                 {
-                    filters: ["id", "family", "proband", "sample", "disorders", "status", "priority", "type", "creationDate", "dueDate"]
+                    filters: ["id", "family", "proband", "sample", "disorders", "status", "priority", "type", "flags", "analysts", "creationDate", "dueDate"]
                 }
             ],
             // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.
