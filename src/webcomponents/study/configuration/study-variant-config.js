@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-import {LitElement, html, nothing} from "lit";
+import {LitElement, html} from "lit";
 import "./config-list-update.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
-import UtilsNew from "../../../core/utils-new.js";
+import "../../commons/forms/token-dropdown.js";
 
 export default class StudyVariantConfig extends LitElement {
 
     constructor() {
         super();
-        this._init();
+        this.#init();
     }
 
     createRenderRoot() {
@@ -44,19 +43,19 @@ export default class StudyVariantConfig extends LitElement {
         };
     }
 
-    _init() {
-        // console.log("init study variant config");
-
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+    #init() {
+        this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
         if (changedProperties.has("variantEngineConfig")) {
             this.variantEngineConfigObserver();
+        }
+        if (changedProperties.has("config")) {
+            this._config = {
+                ...this.getDefaultConfig(),
+                ...this.config,
+            };
         }
         super.update(changedProperties);
     }
@@ -167,7 +166,6 @@ export default class StudyVariantConfig extends LitElement {
     onSubmit() {
         // operation/variant/configure
         console.log("submit variant configs", this.variantEngineConfig);
-
     }
 
     configVariant(key, item, modal) {
@@ -223,10 +221,11 @@ export default class StudyVariantConfig extends LitElement {
                                     width: 12,
                                     style: "padding-left: 0px",
                                     render: variant => html`
-                                        <select-token-filter-static
-                                            .data=${variant}
+                                        <token-dropdown
+                                            .values=${variant}
                                             .value="${variant?.join(",")}">
-                                        </select-token-filter-static>`
+                                        </token-dropdown>
+                                    `,
                                 }
                             },
                             {
@@ -240,10 +239,11 @@ export default class StudyVariantConfig extends LitElement {
                                     width: 12,
                                     style: "padding-left: 0px",
                                     render: data => html`
-                                        <select-token-filter-static
-                                            .data=${data}
+                                        <token-dropdown
+                                            .values=${data}
                                             .value="${data?.join(",")}">
-                                        </select-token-filter-static>`
+                                        </token-dropdown>
+                                    `,
                                 }
                             },
                             {
@@ -262,7 +262,8 @@ export default class StudyVariantConfig extends LitElement {
                                                 .node=${node}
                                                 .data="${{items: valuesMapping}}"
                                                 .config=${this.configVariant("valuesMapping", {}, true)}>
-                                            </list-update>`;
+                                            </list-update>
+                                        `;
                                     }
                                 }
                             },
@@ -302,10 +303,11 @@ export default class StudyVariantConfig extends LitElement {
                                 type: "custom",
                                 display: {
                                     render: data => html `
-                                        <select-token-filter-static
-                                            .data=${data}
+                                        <token-dropdown
+                                            .values=${data}
                                             .value="${data?.join(",")}">
-                                        </select-token-filter-static>`
+                                        </token-dropdown>
+                                    `,
                                 }
                             }
                         ]
@@ -329,7 +331,8 @@ export default class StudyVariantConfig extends LitElement {
                                             .node=${node}
                                             .data="${{items: variant}}"
                                             .config=${this.configVariant("populations", {title: "study", subtitle: "population"}, true)}>
-                                        </list-update>`
+                                        </list-update>
+                                    `,
                                 }
                             },
                             {
@@ -343,10 +346,11 @@ export default class StudyVariantConfig extends LitElement {
                                     width: 12,
                                     style: "padding-left: 0px",
                                     render: data => html`
-                                        <select-token-filter-static
-                                            .data=${data}
+                                        <token-dropdown
+                                            .values=${data}
                                             .value="${data?.join(",")}">
-                                        </select-token-filter-static>`
+                                        </token-dropdown>
+                                    `,
                                 }
                             },
                         ]
@@ -390,10 +394,11 @@ export default class StudyVariantConfig extends LitElement {
                                     width: 12,
                                     style: "padding-left: 0px",
                                     render: variant => html`
-                                        <select-token-filter-static
-                                            .data=${variant}
+                                        <token-dropdown
+                                            .values=${variant}
                                             .value="${variant?.join(",")}">
-                                        </select-token-filter-static>`
+                                        </token-dropdown>
+                                    `,
                                 }
                             },
                             {
@@ -411,7 +416,8 @@ export default class StudyVariantConfig extends LitElement {
                                                 .node=${node}
                                                 .data="${{items: valuesMapping}}"
                                                 .config=${this.configVariant("valuesMapping", {}, true)}>
-                                            </list-update>`;
+                                            </list-update>
+                                        `;
                                     }
                                 }
                             },
@@ -467,6 +473,53 @@ export default class StudyVariantConfig extends LitElement {
             edit: configForm(key, false),
             new: configForm(key, true)
         };
+    }
+
+    render() {
+        if (!this.variantEngineConfig) {
+            // If the study does not have a configuration
+            // It'll create a new configuration object to add value.
+            const indexFieldConfiguration = {
+                source: "",
+                key: "",
+                type: "",
+                values: [],
+                valuesMapping: {},
+                nullable: false
+            };
+
+            this.variantEngineConfig = {
+                sampleIndex: {
+                    fileIndexConfiguration: {
+                        customFields: [],
+                    },
+                    annotationIndexConfiguration: {
+                        populationFrequency: {
+                            populations: [],
+                            thresholds: []
+                        },
+                        biotype: {...indexFieldConfiguration},
+                        consequenceType: {...indexFieldConfiguration},
+                        clinicalSource: {...indexFieldConfiguration},
+                        clinicalSignificance: {...indexFieldConfiguration},
+                        transcriptFlagIndexConfiguration: {...indexFieldConfiguration}
+                    }
+                }
+            };
+
+        }
+        return html`
+            <div style="margin: 25px 40px">
+                <data-form
+                    .data=${this.variantEngineConfig}
+                    .config=${this._config}
+                    @fieldChange="${e => this.onFieldChange(e)}"
+                    @addValues="${e => this.onAddValues(e)}"
+                    @clear="${this.onClear}"
+                    @submit="${this.onSubmit}">
+                </data-form>
+            </div>
+        `;
     }
 
     getDefaultConfig() {
@@ -548,53 +601,6 @@ export default class StudyVariantConfig extends LitElement {
                 },
             ]
         };
-    }
-
-    render() {
-        if (!this.variantEngineConfig) {
-            // If the study does not have a configuration
-            // It'll create a new configuration object to add value.
-            const indexFieldConfiguration = {
-                source: "",
-                key: "",
-                type: "",
-                values: [],
-                valuesMapping: {},
-                nullable: false
-            };
-
-            this.variantEngineConfig = {
-                sampleIndex: {
-                    fileIndexConfiguration: {
-                        customFields: [],
-                    },
-                    annotationIndexConfiguration: {
-                        populationFrequency: {
-                            populations: [],
-                            thresholds: []
-                        },
-                        biotype: {...indexFieldConfiguration},
-                        consequenceType: {...indexFieldConfiguration},
-                        clinicalSource: {...indexFieldConfiguration},
-                        clinicalSignificance: {...indexFieldConfiguration},
-                        transcriptFlagIndexConfiguration: {...indexFieldConfiguration}
-                    }
-                }
-            };
-
-        }
-        return html`
-            <div style="margin: 25px 40px">
-                <data-form
-                    .data=${this.variantEngineConfig}
-                    .config=${this._config}
-                    @fieldChange="${e => this.onFieldChange(e)}"
-                    @addValues="${e => this.onAddValues(e)}"
-                    @clear="${this.onClear}"
-                    @submit="${this.onSubmit}">
-                </data-form>
-            </div>
-        `;
     }
 
 }
