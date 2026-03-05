@@ -860,6 +860,12 @@ export default class VariantBrowserGrid extends LitElement {
                     <a target="_blank" class="dropdown-item ${row.type === "COPY_NUMBER" ? "disabled" : ""}" href="${BioinfoUtils.getVariantLink(row.id, "", "varsome", species, assembly)}">
                         <i class="fas fa-external-link-alt me-1"></i> Varsome
                     </a>
+                    <a target="_blank" class="dropdown-item ${row.type !== "SNV" ? "disabled" : ""}" href="${BioinfoUtils.getVariantLink(row.id, "", "franklin", species, assembly)}">
+                        <i class="fas fa-external-link-alt me-1"></i> Franklin
+                    </a>
+                    <a target="_blank" class="dropdown-item ${row.type !== "SNV" ? "disabled" : ""}" href="${BioinfoUtils.getVariantLink(row.id, "", "mobidetails", species, assembly)}">
+                        <i class="fas fa-external-link-alt me-1"></i> MobiDetails
+                    </a>
                     <div class="dropdown-header">CellBase Links</div>
                     ${cellbaseLinks.join("")}
                     <div class="dropdown-header">External Genome Browsers</div>

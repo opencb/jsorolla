@@ -4,6 +4,7 @@ import "../commons/view/detail-tabs.js";
 import "./user-info.js";
 import "./user-projects.js";
 import "./user-password-change.js";
+import "./user-preferences.js";
 import ExtensionsManager from "../extensions-manager.js";
 
 export default class UserProfile extends LitElement {
@@ -99,6 +100,19 @@ export default class UserProfile extends LitElement {
                                 .organizationId="${this.opencgaSession?.user?.organization}"
                                 .opencgaSession="${opencgaSession}">
                             </user-password-change>
+                        </div>
+                    `,
+                },
+                {
+                    id: "user-preferences",
+                    name: "Preferences",
+                    active: false,
+                    render: (data, active, opencgaSession) => html`
+                        <div>
+                            <user-preferences
+                                .opencgaSession="${opencgaSession}"
+                                .active="${active}">
+                            </user-preferences>
                         </div>
                     `,
                 },

@@ -157,6 +157,25 @@ export default class BioinfoUtils {
                 return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=${hg}&position=chr${region}`;
             case "VARSOME":
                 return `https://varsome.com/variant/${assembly?.toUpperCase() === "GRCH38" ? "hg38" : "hg19"}/${BioinfoUtils.getVariantInVarsomeFormat(id)}`;
+            case "FRANKLIN": {
+                // Franklin format: chr{chr}-{pos}-{ref}-{alt}
+                const [chr, pos, ref, alt] = id.split(":");
+                return `https://franklin.genoox.com/clinical-db/variant/snp/chr${chr}-${pos}-${ref}-${alt}`;
+            }
+            case "MOBIDETAILS": {
+                // MobiDetails VCF format: {chr}-{pos}-{ref}-{alt}
+                const [chr, pos, ref, alt] = id.split(":");
+                let url = `https://mobidetails.chu-montpellier.fr/api/variant/create_vcf_str?vcf_str=${chr}-${pos}-${ref}-${alt}&caller=browser`;
+                try {
+                    const keys = JSON.parse(localStorage.getItem("iva.externalApiKeys") || "{}");
+                    if (keys.mobidetails) {
+                        url += `&api_key=${keys.mobidetails}`;
+                    }
+                } catch (e) {
+                    // ignore localStorage errors
+                }
+                return url;
+            }
         }
     }
 
