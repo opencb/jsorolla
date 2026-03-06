@@ -567,7 +567,7 @@ export default class VariantInterpreterGridFormatter {
                 return `
                     <div class="row mb-1">
                         <div class="col-4 fw-bold">${key}</div>
-                        <div class="col-8">${file.data[key]}</div>
+                        <div class="col-8">${UtilsNew.escapeHtml(file.data[key])}</div>
                     </div>
                 `;
             });
@@ -581,7 +581,7 @@ export default class VariantInterpreterGridFormatter {
                 return `
                     <div class="row mb-1">
                         <div class="col-4 fw-bold">${key}</div>
-                        <div class="col-8">${value}</div>
+                        <div class="col-8">${UtilsNew.escapeHtml(value)}</div>
                     </div>
                 `;
             });
