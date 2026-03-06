@@ -218,15 +218,15 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 render: () => {
                     return html`
-                    <variant-interpreter-view
-                        .opencgaSession="${this.opencgaSession}"
-                        .settings="${this._config}"
-                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                        .toolId="${this.toolId}"
-                        .variant="${this._selectedVariant}"
-                        .selected="${this._primaryFindings.has(this._selectedVariant.id) || this._secondaryFindings.has(this._selectedVariant.id)}"
-                        .primaryFinding="${this._selectedVariantPrimary}">
-                    </variant-interpreter-view>
+                        <variant-interpreter-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${this._config}"
+                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                            .toolId="${this.toolId}"
+                            .variant="${this._selectedVariant}"
+                            .selected="${this._primaryFindings.has(this._selectedVariant.id) || this._secondaryFindings.has(this._selectedVariant.id)}"
+                            .primaryFinding="${this._selectedVariantPrimary}">
+                        </variant-interpreter-view>
                     `;
                 }
             }),
