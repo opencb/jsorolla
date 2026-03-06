@@ -148,22 +148,22 @@ export default class GenomeBrowserComponent extends LitElement {
                 switch (track.type) {
                     case "sequence":
                         return new SequenceTrack({
-                            cellBaseClient: this.config.cellBaseClient,
+                            cellBaseClient: this.opencgaSession?.cellbaseClient,
                             ...track.config,
                         });
                     case "gene":
                         return new GeneTrack({
-                            cellBaseClient: this.config.cellBaseClient,
+                            cellBaseClient: this.opencgaSession?.cellbaseClient,
                             ...track.config,
                         });
                     case "gene-overview":
                         return new GeneOverviewTrack({
-                            cellBaseClient: this.config.cellBaseClient,
+                            cellBaseClient: this.opencgaSession?.cellbaseClient,
                             ...track.config,
                         });
                     case "variant":
                         return new VariantTrack({
-                            cellBaseClient: this.config.cellBaseClient,
+                            cellBaseClient: this.opencgaSession?.cellbaseClient,
                             ...track.config,
                         });
                     case "opencga-variant":
@@ -180,7 +180,7 @@ export default class GenomeBrowserComponent extends LitElement {
                         });
                     default:
                         return new FeatureTrack({
-                            cellBaseClient: this.config.cellBaseClient,
+                            cellBaseClient: this.opencgaSession?.cellbaseClient,
                             ...track.config,
                         });
                 }
