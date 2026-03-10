@@ -233,6 +233,49 @@ export default class VariantInterpreterGrid extends LitElement {
         });
     }
 
+    getVariant(variant) {
+        // check if the variant is already selected
+        if (this._primaryFindings.has(variant.id)) {
+            return this._primaryFindings.get(variant.id);
+        } else if (this._secondaryFindings.has(variant.id)) {
+            return this._secondaryFindings.get(variant.id);
+        } else {
+            return variant;
+        }
+    }
+
+    saveVariant(variant, isSelected, isPrimaryFinding = true) {
+        // 1. get the action to perform based on the selected variant state
+        let action = "";
+        if (isSelected) {
+            if (!this._primaryFindings.has(variant.id) && !this._secondaryFindings.has(variant.id)) {
+                action = "ADD";
+                // check if the new filter field is available
+                if (variant.filter) {
+                    variant.filter = {
+                        query: {
+                            ...this.filters,
+                        },
+                        opencgaVersion: this.opencgaSession?.opencgaClient?.version || "",
+                        cellbaseVersion: this.opencgaSession?.cellbaseClient?.version || this.opencgaSession?.project?.cellbase?.version || "",
+                    };
+                }
+            } else {
+                action = "UPDATE";
+            }
+        } else {
+            action = "REMOVE";
+        }
+
+        // 2. emit the event with the selected variant and action
+        LitUtils.dispatchCustomEvent(this, "variantReview", null, {
+            id: variant.id,
+            variant: variant,
+            primaryFinding: !!isPrimaryFinding,
+            action: action,
+        });
+    }
+
     renderVariants() {
         if (this.active) {
             if (this.clinicalVariants?.length > 0) {
@@ -533,6 +576,9 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center",
                     formatter: (value, row) => {
                         return VariantInterpreterGridFormatter.statusFormatter(row, this.clinicalAnalysis, this._primaryFindings, this._secondaryFindings);
+                    },
+                    events: {
+                        "click a": (event, value, row) => this.onActionClick(event, row),
                     },
                     excludeFromExport: true,
                     excludeFromSettings: true,
@@ -1173,6 +1219,11 @@ export default class VariantInterpreterGrid extends LitElement {
                     UtilsNew.copyToClipboard(CustomActions.get(copy).execute(variant, showArrayIndexes));
                 }
                 break;
+            case "change-status":
+                // const newStatus = event.currentTarget?.dataset?.status;
+                const newVariantObject = UtilsNew.objectClone(this.getVariant(variant));
+                newVariantObject.status = event.currentTarget?.dataset?.status;
+                this.saveVariant(newVariantObject, true, !this._secondaryFindings.has(variant.id));
         }
     }
 
