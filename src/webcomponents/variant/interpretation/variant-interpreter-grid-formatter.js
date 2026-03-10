@@ -833,7 +833,7 @@ export default class VariantInterpreterGridFormatter {
         // }
         // return "";
         let variantColor = "";
-        let variantStatus = "NOT_REVIEWED";
+        let variantStatus = "";
         if (primaryFindings.has(variant.id) || secondaryFindings.has(variant.id)) {
             variantStatus = primaryFindings.get(variant.id)?.status || secondaryFindings.get(variant.id)?.status || variant.status;
             if (variantStatus) {
@@ -847,8 +847,9 @@ export default class VariantInterpreterGridFormatter {
                 <div class="dropdown-menu dropdown-menu-end">
                     <div class="d-flex flex-column gap-1">
                         ${VariantUtils.VARIANT_STATUS_VALUES.map(status => `
-                            <div class="dropdown-item ${variantStatus === status ? "active" : "cursor-pointer"}">
-                                ${status}
+                            <div class="dropdown-item d-flex align-items-center gap-2 ${variantStatus === status ? "active" : "cursor-pointer"}">
+                                <div class="d-block ${VariantUtils.getStatusColor(status)} rounded-circle border border-white" style="width:1rem;height:1rem;"></div>
+                                <div class="lh-1 py-1">${status}</div>
                             </div>
                         `).join("")}
                     </div>
