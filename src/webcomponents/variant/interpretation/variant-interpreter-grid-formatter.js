@@ -817,21 +817,44 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static statusFormatter(variant, primaryFindings, secondaryFindings) {
+        // if (primaryFindings.has(variant.id) || secondaryFindings.has(variant.id)) {
+        //     const status = primaryFindings.get(variant.id)?.status || secondaryFindings.get(variant.id)?.status || variant.status;
+        //     if (status) {
+        //         const color = VariantUtils.getStatusColor(status);
+        //         const isPrimaryFinding = primaryFindings.has(variant.id);
+        //         const tooltipText = `
+        //             <div><b>Status</b>: ${status}</div>
+        //             <div><b>Finding</b>: ${isPrimaryFinding ? "Primary" : "Secondary"}</div>
+        //         `;
+        //         return `
+        //             <a class="d-block ${color} rounded-circle" tooltip-title="Status" tooltip-text="${tooltipText}" style="width:1.25rem;height:1.25rem;"></a>
+        //         `;
+        //     }
+        // }
+        // return "";
+        let variantColor = "";
+        let variantStatus = "NOT_REVIEWED";
         if (primaryFindings.has(variant.id) || secondaryFindings.has(variant.id)) {
-            const status = primaryFindings.get(variant.id)?.status || secondaryFindings.get(variant.id)?.status || variant.status;
-            if (status) {
-                const color = VariantUtils.getStatusColor(status);
-                const isPrimaryFinding = primaryFindings.has(variant.id);
-                const tooltipText = `
-                    <div><b>Status</b>: ${status}</div>
-                    <div><b>Finding</b>: ${isPrimaryFinding ? "Primary" : "Secondary"}</div>
-                `;
-                return `
-                    <a class="d-block ${color} rounded-circle" tooltip-title="Status" tooltip-text="${tooltipText}" style="width:1.25rem;height:1.25rem;"></a>
-                `;
+            variantStatus = primaryFindings.get(variant.id)?.status || secondaryFindings.get(variant.id)?.status || variant.status;
+            if (variantStatus) {
+                variantColor = VariantUtils.getStatusColor(variantStatus);
+                // const isPrimaryFinding = primaryFindings.has(variant.id);
             }
         }
-        return "";
+        return `
+            <div class="dropdown">
+                <a class="d-block ${variantColor} rounded-circle" style="width:1.25rem;height:1.25rem;" data-bs-toggle="dropdown"></a>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <div class="d-flex flex-column gap-1">
+                        ${VariantUtils.VARIANT_STATUS_VALUES.map(status => `
+                            <div class="dropdown-item ${variantStatus === status ? "active" : "cursor-pointer"}">
+                                ${status}
+                            </div>
+                        `).join("")}
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
 }
