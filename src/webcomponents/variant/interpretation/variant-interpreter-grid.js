@@ -233,17 +233,6 @@ export default class VariantInterpreterGrid extends LitElement {
         });
     }
 
-    getVariant(variant) {
-        // check if the variant is already selected
-        if (this._primaryFindings.has(variant.id)) {
-            return this._primaryFindings.get(variant.id);
-        } else if (this._secondaryFindings.has(variant.id)) {
-            return this._secondaryFindings.get(variant.id);
-        } else {
-            return variant;
-        }
-    }
-
     saveVariant(variant, isSelected, isPrimaryFinding = true) {
         // 1. get the action to perform based on the selected variant state
         let action = "";
@@ -1221,9 +1210,12 @@ export default class VariantInterpreterGrid extends LitElement {
                 break;
             case "change-status":
                 // const newStatus = event.currentTarget?.dataset?.status;
-                const newVariantObject = UtilsNew.objectClone(this.getVariant(variant));
-                newVariantObject.status = event.currentTarget?.dataset?.status;
-                this.saveVariant(newVariantObject, true, !this._secondaryFindings.has(variant.id));
+                let isPrimaryFinding = !this._secondaryFindings.has(variant.id); // if is not marked as secondary, we add it as a primary
+                const variantToSave = {
+                    ...UtilsNew.objectClone(this._primaryFindings.get(variant.id) || this._secondaryFindings.get(variant.id) || variant),
+                    status: event.currentTarget?.dataset?.status,
+                };
+                this.saveVariant(variantToSave, true, isPrimaryFinding);
         }
     }
 
