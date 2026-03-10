@@ -844,15 +844,17 @@ export default class VariantInterpreterGridFormatter {
         return `
             <div class="dropdown">
                 <div class="d-flex ${disabled ? "disabled" : ""}" data-bs-toggle="dropdown">
-                    <a class="d-block ${variantClassName} rounded-circle" style="width:1.25rem;height:1.25rem;"></a>
+                    <div class="${variantClassName} rounded-circle" style="width:1.25rem;height:1.25rem;"></siv>
                 </div>
                 <div class="dropdown-menu dropdown-menu-end">
                     <div class="d-flex flex-column gap-1">
                         ${VariantUtils.VARIANT_STATUS_VALUES.map(status => `
-                            <div class="dropdown-item d-flex align-items-center gap-2 ${variantStatus === status ? "active" : "cursor-pointer"}">
-                                <div class="d-block ${VariantUtils.getStatusColor(status)} rounded-circle border border-white" style="width:1rem;height:1rem;"></div>
-                                <div class="lh-1 py-1">${status}</div>
-                            </div>
+                            <a class="dropdown-item ${variantStatus === status ? "active" : "cursor-pointer"}" data-action="change-status" data-status="${status}">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-block ${VariantUtils.getStatusColor(status)} rounded-circle border border-white" style="width:1rem;height:1rem;"></div>
+                                    <div class="lh-1 py-1">${status}</div>
+                                </div>
+                            </a>
                         `).join("")}
                     </div>
                 </div>
