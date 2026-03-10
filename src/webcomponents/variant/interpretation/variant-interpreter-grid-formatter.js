@@ -833,18 +833,18 @@ export default class VariantInterpreterGridFormatter {
         //     }
         // }
         // return "";
-        let variantColor = "";
+        let variantClassName = "border border-gray-500";
         let variantStatus = "";
         if (primaryFindings.has(variant.id) || secondaryFindings.has(variant.id)) {
             variantStatus = primaryFindings.get(variant.id)?.status || secondaryFindings.get(variant.id)?.status || variant.status;
             if (variantStatus) {
-                variantColor = VariantUtils.getStatusColor(variantStatus);
+                variantClassName = VariantUtils.getStatusColor(variantStatus);
             }
         }
         return `
             <div class="dropdown">
                 <div class="d-flex ${disabled ? "disabled" : ""}" data-bs-toggle="dropdown">
-                    <a class="d-block ${variantColor} rounded-circle" style="width:1.25rem;height:1.25rem;"></a>
+                    <a class="d-block ${variantClassName} rounded-circle" style="width:1.25rem;height:1.25rem;"></a>
                 </div>
                 <div class="dropdown-menu dropdown-menu-end">
                     <div class="d-flex flex-column gap-1">
