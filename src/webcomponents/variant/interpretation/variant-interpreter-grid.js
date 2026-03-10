@@ -1311,37 +1311,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     onVariantReviewSave() {
-        // 1. get the action to perform based on the selected variant state
-        let action = "";
-        if (this._selectedVariantChecked) {
-            if (!this._primaryFindings.has(this._selectedVariant.id) && !this._secondaryFindings.has(this._selectedVariant.id)) {
-                action = "ADD";
-                // check if the new filter field is available
-                if (this._selectedVariant.filter) {
-                    this._selectedVariant.filter = {
-                        query: {
-                            ...this.filters,
-                        },
-                        opencgaVersion: this.opencgaSession?.opencgaClient?.version || "",
-                        cellbaseVersion: this.opencgaSession?.cellbaseClient?.version || this.opencgaSession?.project?.cellbase?.version || "",
-                    };
-                }
-            } else {
-                action = "UPDATE";
-            }
-        } else {
-            action = "REMOVE";
-        }
-
-        // 2. emit the event with the selected variant and action
-        LitUtils.dispatchCustomEvent(this, "variantReview", null, {
-            id: this._selectedVariant.id,
-            variant: this._selectedVariant,
-            primaryFinding: this._selectedVariantPrimary,
-            action: action,
-        });
-
-        // 3. clear selected variant to review
+        this.saveVariant(this._selectedVariant, this._selectedVariantChecked, this._selectedVariantPrimary);
         this._selectedVariant = null;
         this.gridCommons.clearActiveModal();
     }
