@@ -816,7 +816,8 @@ export default class VariantInterpreterGridFormatter {
             .join(separator);
     }
 
-    static statusFormatter(variant, primaryFindings, secondaryFindings) {
+    static statusFormatter(variant, clinicalAnalysis, primaryFindings, secondaryFindings) {
+        const disabled = clinicalAnalysis?.locked || clinicalAnalysis?.interpretation?.locked;
         // if (primaryFindings.has(variant.id) || secondaryFindings.has(variant.id)) {
         //     const status = primaryFindings.get(variant.id)?.status || secondaryFindings.get(variant.id)?.status || variant.status;
         //     if (status) {
@@ -838,12 +839,13 @@ export default class VariantInterpreterGridFormatter {
             variantStatus = primaryFindings.get(variant.id)?.status || secondaryFindings.get(variant.id)?.status || variant.status;
             if (variantStatus) {
                 variantColor = VariantUtils.getStatusColor(variantStatus);
-                // const isPrimaryFinding = primaryFindings.has(variant.id);
             }
         }
         return `
             <div class="dropdown">
-                <a class="d-block ${variantColor} rounded-circle" style="width:1.25rem;height:1.25rem;" data-bs-toggle="dropdown"></a>
+                <div class="d-flex ${disabled ? "disabled" : ""}" data-bs-toggle="dropdown">
+                    <a class="d-block ${variantColor} rounded-circle" style="width:1.25rem;height:1.25rem;"></a>
+                </div>
                 <div class="dropdown-menu dropdown-menu-end">
                     <div class="d-flex flex-column gap-1">
                         ${VariantUtils.VARIANT_STATUS_VALUES.map(status => `

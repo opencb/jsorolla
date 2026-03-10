@@ -532,7 +532,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     align: "center",
                     formatter: (value, row) => {
-                        return VariantInterpreterGridFormatter.statusFormatter(row, this._primaryFindings, this._secondaryFindings);
+                        return VariantInterpreterGridFormatter.statusFormatter(row, this.clinicalAnalysis, this._primaryFindings, this._secondaryFindings);
                     },
                     excludeFromExport: true,
                     excludeFromSettings: true,
