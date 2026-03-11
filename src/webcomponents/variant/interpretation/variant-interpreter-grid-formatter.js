@@ -843,7 +843,7 @@ export default class VariantInterpreterGridFormatter {
         }
         return `
             <div class="dropdown">
-                <div class="d-flex ${disabled ? "disabled" : ""}" data-bs-toggle="dropdown">
+                <div class="d-flex ${disabled ? "disabled" : "cursor-pointer"}" data-bs-toggle="dropdown">
                     <div class="${variantClassName} rounded-circle" style="width:1.25rem;height:1.25rem;"></siv>
                 </div>
                 <div class="dropdown-menu dropdown-menu-end">
