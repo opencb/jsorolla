@@ -818,21 +818,6 @@ export default class VariantInterpreterGridFormatter {
 
     static statusFormatter(variant, clinicalAnalysis, primaryFindings, secondaryFindings) {
         const disabled = clinicalAnalysis?.locked || clinicalAnalysis?.interpretation?.locked;
-        // if (primaryFindings.has(variant.id) || secondaryFindings.has(variant.id)) {
-        //     const status = primaryFindings.get(variant.id)?.status || secondaryFindings.get(variant.id)?.status || variant.status;
-        //     if (status) {
-        //         const color = VariantUtils.getStatusColor(status);
-        //         const isPrimaryFinding = primaryFindings.has(variant.id);
-        //         const tooltipText = `
-        //             <div><b>Status</b>: ${status}</div>
-        //             <div><b>Finding</b>: ${isPrimaryFinding ? "Primary" : "Secondary"}</div>
-        //         `;
-        //         return `
-        //             <a class="d-block ${color} rounded-circle" tooltip-title="Status" tooltip-text="${tooltipText}" style="width:1.25rem;height:1.25rem;"></a>
-        //         `;
-        //     }
-        // }
-        // return "";
         let variantClassName = "border border-gray-500";
         let variantStatus = "";
         if (primaryFindings.has(variant.id) || secondaryFindings.has(variant.id)) {
