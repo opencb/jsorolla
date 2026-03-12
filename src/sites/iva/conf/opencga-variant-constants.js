@@ -701,14 +701,26 @@ const POPULATION_FREQUENCIES = {
             title: "gnomAD v4.1",
             populations: [
                 {
-                    id: "JOINT", title: "Joint [JOINT]"
+                    id: "JOINT", title: "gnomAD [JOINT]"
                 },
                 {
-                    id: "GENOMES", title: "Genomes [GENOMES]"
+                    id: "JOINT_AFR", title: "African/African American [JOINT_AFR]"
                 },
                 {
-                    id: "EXOMES", title: "Exomes [EXOMES]"
+                    id: "JOINT_AMR", title: "American [JOINT_AMR]"
                 },
+                {
+                    id: "JOINT_EAS", title: "East Asian [JOINT_EAS]"
+                },
+                {
+                    id: "JOINT_FIN", title: "Finnish [JOINT_FIN]"
+                },
+                {
+                    id: "JOINT_NFE", title: "Non-Finnish European [JOINT_NFE]"
+                },
+                {
+                    id: "JOINT_nonUKB", title: "Non-UKBiobank [JOINT_nonUKB]"
+                }
             ]
         },
         {
@@ -734,33 +746,6 @@ const POPULATION_FREQUENCIES = {
                     id: "NFE", title: "Non-Finnish European [NFE]"
                 },
             ],
-        },
-        {
-            id: "GNOMAD_V4_1",
-            title: "gnomAD v4.1",
-            populations: [
-                {
-                    id: "JOINT", title: "gnomAD [JOINT]"
-                },
-                {
-                    id: "JOINT_AFR", title: "African/African American [JOINT_AFR]"
-                },
-                {
-                    id: "JOINT_AMR", title: "American [JOINT_AMR]"
-                },
-                {
-                    id: "JOINT_EAS", title: "East Asian [JOINT_EAS]"
-                },
-                {
-                    id: "JOINT_FIN", title: "Finnish [JOINT_FIN]"
-                },
-                {
-                    id: "JOINT_NFE", title: "Non-Finnish European [JOINT_NFE]"
-                },
-                {
-                    id: "JOINT_nonUKB", title: "Non-UKBiobank [JOINT_nonUKB]"
-                }
-            ]
         },
     ],
 };

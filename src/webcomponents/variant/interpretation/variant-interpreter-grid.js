@@ -218,18 +218,50 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 render: () => {
                     return html`
-                    <variant-interpreter-view
-                        .opencgaSession="${this.opencgaSession}"
-                        .settings="${this._config}"
-                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                        .toolId="${this.toolId}"
-                        .variant="${this._selectedVariant}"
-                        .selected="${this._primaryFindings.has(this._selectedVariant.id) || this._secondaryFindings.has(this._selectedVariant.id)}"
-                        .primaryFinding="${this._selectedVariantPrimary}">
-                    </variant-interpreter-view>
+                        <variant-interpreter-view
+                            .opencgaSession="${this.opencgaSession}"
+                            .settings="${this._config}"
+                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                            .toolId="${this.toolId}"
+                            .variant="${this._selectedVariant}"
+                            .selected="${this._primaryFindings.has(this._selectedVariant.id) || this._secondaryFindings.has(this._selectedVariant.id)}"
+                            .primaryFinding="${this._selectedVariantPrimary}">
+                        </variant-interpreter-view>
                     `;
                 }
             }),
+        });
+    }
+
+    saveVariant(variant, isSelected, isPrimaryFinding = true) {
+        // 1. get the action to perform based on the selected variant state
+        let action = "";
+        if (isSelected) {
+            if (!this._primaryFindings.has(variant.id) && !this._secondaryFindings.has(variant.id)) {
+                action = "ADD";
+                // check if the new filter field is available
+                if (variant.filter) {
+                    variant.filter = {
+                        query: {
+                            ...this.filters,
+                        },
+                        opencgaVersion: this.opencgaSession?.opencgaClient?.version || "",
+                        cellbaseVersion: this.opencgaSession?.cellbaseClient?.version || this.opencgaSession?.project?.cellbase?.version || "",
+                    };
+                }
+            } else {
+                action = "UPDATE";
+            }
+        } else {
+            action = "REMOVE";
+        }
+
+        // 2. emit the event with the selected variant and action
+        LitUtils.dispatchCustomEvent(this, "variantReview", null, {
+            id: variant.id,
+            variant: variant,
+            primaryFinding: !!isPrimaryFinding,
+            action: action,
         });
     }
 
@@ -532,7 +564,10 @@ export default class VariantInterpreterGrid extends LitElement {
                     colspan: 1,
                     align: "center",
                     formatter: (value, row) => {
-                        return VariantInterpreterGridFormatter.statusFormatter(row, this._primaryFindings, this._secondaryFindings);
+                        return VariantInterpreterGridFormatter.statusFormatter(row, this.clinicalAnalysis, this._primaryFindings, this._secondaryFindings);
+                    },
+                    events: {
+                        "click a": (event, value, row) => this.onActionClick(event, row),
                     },
                     excludeFromExport: true,
                     excludeFromSettings: true,
@@ -1173,6 +1208,14 @@ export default class VariantInterpreterGrid extends LitElement {
                     UtilsNew.copyToClipboard(CustomActions.get(copy).execute(variant, showArrayIndexes));
                 }
                 break;
+            case "change-status":
+                // const newStatus = event.currentTarget?.dataset?.status;
+                let isPrimaryFinding = !this._secondaryFindings.has(variant.id); // if is not marked as secondary, we add it as a primary
+                const variantToSave = {
+                    ...UtilsNew.objectClone(this._primaryFindings.get(variant.id) || this._secondaryFindings.get(variant.id) || variant),
+                    status: event.currentTarget?.dataset?.status,
+                };
+                this.saveVariant(variantToSave, true, isPrimaryFinding);
         }
     }
 
@@ -1268,37 +1311,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     onVariantReviewSave() {
-        // 1. get the action to perform based on the selected variant state
-        let action = "";
-        if (this._selectedVariantChecked) {
-            if (!this._primaryFindings.has(this._selectedVariant.id) && !this._secondaryFindings.has(this._selectedVariant.id)) {
-                action = "ADD";
-                // check if the new filter field is available
-                if (this._selectedVariant.filter) {
-                    this._selectedVariant.filter = {
-                        query: {
-                            ...this.filters,
-                        },
-                        opencgaVersion: this.opencgaSession?.opencgaClient?.version || "",
-                        cellbaseVersion: this.opencgaSession?.cellbaseClient?.version || this.opencgaSession?.project?.cellbase?.version || "",
-                    };
-                }
-            } else {
-                action = "UPDATE";
-            }
-        } else {
-            action = "REMOVE";
-        }
-
-        // 2. emit the event with the selected variant and action
-        LitUtils.dispatchCustomEvent(this, "variantReview", null, {
-            id: this._selectedVariant.id,
-            variant: this._selectedVariant,
-            primaryFinding: this._selectedVariantPrimary,
-            action: action,
-        });
-
-        // 3. clear selected variant to review
+        this.saveVariant(this._selectedVariant, this._selectedVariantChecked, this._selectedVariantPrimary);
         this._selectedVariant = null;
         this.gridCommons.clearActiveModal();
     }

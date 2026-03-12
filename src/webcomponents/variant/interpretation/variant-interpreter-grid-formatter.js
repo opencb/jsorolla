@@ -567,7 +567,7 @@ export default class VariantInterpreterGridFormatter {
                 return `
                     <div class="row mb-1">
                         <div class="col-4 fw-bold">${key}</div>
-                        <div class="col-8">${file.data[key]}</div>
+                        <div class="col-8">${UtilsNew.escapeHtml(file.data[key])}</div>
                     </div>
                 `;
             });
@@ -581,7 +581,7 @@ export default class VariantInterpreterGridFormatter {
                 return `
                     <div class="row mb-1">
                         <div class="col-4 fw-bold">${key}</div>
-                        <div class="col-8">${value}</div>
+                        <div class="col-8">${UtilsNew.escapeHtml(value)}</div>
                     </div>
                 `;
             });
@@ -816,22 +816,35 @@ export default class VariantInterpreterGridFormatter {
             .join(separator);
     }
 
-    static statusFormatter(variant, primaryFindings, secondaryFindings) {
+    static statusFormatter(variant, clinicalAnalysis, primaryFindings, secondaryFindings) {
+        const disabled = clinicalAnalysis?.locked || clinicalAnalysis?.interpretation?.locked;
+        let variantClassName = "border border-gray-500";
+        let variantStatus = "";
         if (primaryFindings.has(variant.id) || secondaryFindings.has(variant.id)) {
-            const status = primaryFindings.get(variant.id)?.status || secondaryFindings.get(variant.id)?.status || variant.status;
-            if (status) {
-                const color = VariantUtils.getStatusColor(status);
-                const isPrimaryFinding = primaryFindings.has(variant.id);
-                const tooltipText = `
-                    <div><b>Status</b>: ${status}</div>
-                    <div><b>Finding</b>: ${isPrimaryFinding ? "Primary" : "Secondary"}</div>
-                `;
-                return `
-                    <a class="d-block ${color} rounded-circle" tooltip-title="Status" tooltip-text="${tooltipText}" style="width:1.25rem;height:1.25rem;"></a>
-                `;
+            variantStatus = primaryFindings.get(variant.id)?.status || secondaryFindings.get(variant.id)?.status || variant.status;
+            if (variantStatus) {
+                variantClassName = VariantUtils.getStatusColor(variantStatus);
             }
         }
-        return "";
+        return `
+            <div class="dropdown">
+                <div class="d-flex ${disabled ? "disabled" : "cursor-pointer"}" data-bs-toggle="dropdown">
+                    <div class="${variantClassName} rounded-circle" style="width:1.25rem;height:1.25rem;"></siv>
+                </div>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <div class="d-flex flex-column gap-1">
+                        ${VariantUtils.VARIANT_STATUS_VALUES.map(status => `
+                            <a class="dropdown-item ${variantStatus === status ? "active" : "cursor-pointer"}" data-action="change-status" data-status="${status}">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-block ${VariantUtils.getStatusColor(status)} rounded-circle border border-white" style="width:1rem;height:1rem;"></div>
+                                    <div class="lh-1 py-1">${status}</div>
+                                </div>
+                            </a>
+                        `).join("")}
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
 }
