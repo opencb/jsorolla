@@ -16,6 +16,10 @@
 
 import {LitElement, html, nothing} from "lit";
 import "../commons/forms/data-form.js";
+import "./individual-pharmacogenomics-summary.js";
+import "./pharmacogenomics/individual-pharmacogenomics-genes.js";
+import "./pharmacogenomics/individual-pharmacogenomics-drugs.js";
+import "./pharmacogenomics/individual-pharmacogenomics-variants.js";
 
 export default class IndividualPharmacogenomicsView extends LitElement {
 
@@ -33,55 +37,82 @@ export default class IndividualPharmacogenomicsView extends LitElement {
             individual: {
                 type: Object,
             },
+            individualId: {
+                type: String,
+            },
             opencgaSession: {
                 type: Object,
             },
             active: {
                 type: Boolean,
             },
+            displayConfig: {
+                type: Object,
+            },
         };
     }
 
     #init() {
+        this.COMPONENT_ID = "individual-pharmacogenomics-view";
+        this._individual = null;
         this._pharmacogenomicsData = null;
         this._loading = false;
         this._config = this.getDefaultConfig();
     }
 
     update(changedProperties) {
-        if (changedProperties.has("individual") && this.active) {
-            this.loadPharmacogenomicsData();
+        if (changedProperties.has("individualId")) {
+            this.individualIdObserver();
         }
 
-        if (changedProperties.has("active") && this.active && this.individual) {
-            // Load data when tab becomes active
-            this.loadPharmacogenomicsData();
+        if (changedProperties.has("individual")) {
+            this.individualObserver();
         }
 
-        if (changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("displayConfig") || changedProperties.has("opencgaSession")) {
             this._config = this.getDefaultConfig();
         }
 
         super.update(changedProperties);
     }
 
-    loadPharmacogenomicsData() {
-        const sampleId = this.individual?.samples?.[0]?.id;
-        const individualPharmacogenomicsFolder = this.individual?.attributes?.OPENCGA_PHARMACOGENOMICS;
+    individualIdObserver() {
+        if (this.opencgaSession && this.individualId) {
+            this.opencgaSession.opencgaClient.individuals()
+                .info(this.individualId, {
+                    study: this.opencgaSession.study.fqn,
+                })
+                .then(response => {
+                    this._individual = response.getResult(0);
+                    this._loadPharmacogenomicsData();
+                    this.requestUpdate();
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+    }
 
-        if (sampleId && individualPharmacogenomicsFolder) {
+    individualObserver() {
+        this._individual = {...this.individual};
+        this._loadPharmacogenomicsData();
+    }
+
+    _loadPharmacogenomicsData() {
+        const sampleId = this._individual?.samples?.[0]?.id;
+        const folder = this._individual?.attributes?.OPENCGA_PHARMACOGENOMICS;
+
+        if (sampleId && folder) {
             this._loading = true;
             this._pharmacogenomicsData = null;
             this.requestUpdate();
 
-            const resultsFile = `${individualPharmacogenomicsFolder}/results/${sampleId}.json`.replaceAll("/", ":");
+            const resultsFile = `${folder}/results/${sampleId}.json`.replaceAll("/", ":");
             this.opencgaSession.opencgaClient.files()
                 .download(resultsFile, {
                     study: this.opencgaSession.study.fqn,
                 })
-                .then(response => {
-                    return JSON.parse(response);
-                })
+                .then(response => JSON.parse(response))
                 .then(data => {
                     this._pharmacogenomicsData = data;
                     this._config = this.getDefaultConfig();
@@ -98,7 +129,7 @@ export default class IndividualPharmacogenomicsView extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession || !this.individual) {
+        if (!this.opencgaSession || !this._individual) {
             return nothing;
         }
 
@@ -115,7 +146,7 @@ export default class IndividualPharmacogenomicsView extends LitElement {
 
         return html`
             <data-form
-                .data="${this._pharmacogenomicsData}"
+                .data="${this._individual}"
                 .config="${this._config}">
             </data-form>
         `;
@@ -124,139 +155,56 @@ export default class IndividualPharmacogenomicsView extends LitElement {
     getDefaultConfig() {
         return {
             display: {
+                type: "pills",
+                pillsLeftColumnClass: "col-md-2",
+                pillsRightColumnClass: "col-md-10",
                 buttonsVisible: false,
-                defaultLayout: "vertical",
+                ...this.displayConfig,
             },
             sections: [
                 {
-                    title: "Summary",
-                    display: {
-                        defaultLayout: "horizontal",
-                        visible: () => this._pharmacogenomicsData !== null,
-                    },
-                    elements: [
-                        {
-                            title: "Sample ID",
-                            field: "sampleId",
-                        },
-                        {
-                            title: "Genes Analyzed",
-                            field: "alleleTyperResults",
-                            type: "custom",
-                            display: {
-                                render: results => html`
-                                    <span class="badge bg-primary">${results?.length || 0}</span>
-                                `,
-                            },
-                        },
-                        {
-                            title: "Total Drugs",
-                            field: "alleleTyperResults",
-                            type: "custom",
-                            display: {
-                                render: results => {
-                                    const drugSet = new Set();
-                                    (results || []).forEach(geneResult => {
-                                        (geneResult.alleleCalls || []).forEach(call => {
-                                            (call.annotation?.drugs || []).forEach(drug => {
-                                                drugSet.add(drug.name);
-                                            });
-                                        });
-                                    });
-                                    return html`
-                                        <span class="badge bg-primary">${drugSet.size}</span>
-                                    `;
-                                },
-                            },
-                        },
-                    ],
+                    id: "overview",
+                    name: "Overview",
+                    render: (individual, active) => html`
+                        <individual-pharmacogenomics-summary
+                            .individual="${individual}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </individual-pharmacogenomics-summary>
+                    `,
                 },
                 {
-                    title: "Allele Typer Results",
-                    display: {
-                        visible: () => this._pharmacogenomicsData !== null,
-                    },
-                    elements: [
-                        {
-                            field: "alleleTyperResults",
-                            type: "table",
-                            display: {
-                                maxHeight: "600px",
-                                columns: [
-                                    {
-                                        title: "Gene",
-                                        field: "gene",
-                                    },
-                                    {
-                                        title: "Allele Calls",
-                                        field: "alleleCalls",
-                                        type: "custom",
-                                        display: {
-                                            render: alleleCalls => {
-                                                const calls = alleleCalls || [];
-                                                if (calls.length === 0) {
-                                                    return "-";
-                                                }
-                                                return html`
-                                                    ${calls.map(call => html`
-                                                        <span class="badge bg-primary me-1">${call.allele || "-"}</span>
-                                                    `)}
-                                                `;
-                                            },
-                                        },
-                                    },
-                                    {
-                                        title: "Associated Drugs",
-                                        field: "alleleCalls",
-                                        type: "custom",
-                                        display: {
-                                            render: alleleCalls => {
-                                                // Collect unique drugs across all allele calls for this gene
-                                                const drugMap = new Map();
-                                                for (const call of (alleleCalls || [])) {
-                                                    for (const drug of (call.annotation?.drugs || [])) {
-                                                        if (!drugMap.has(drug.name)) {
-                                                            drugMap.set(drug.name, drug);
-                                                        }
-                                                    }
-                                                }
-                                                if (drugMap.size === 0) {
-                                                    return html`<span class="text-muted">-</span>`;
-                                                }
-                                                return html`
-                                                    <div class="d-flex flex-wrap gap-1">
-                                                        ${Array.from(drugMap.values()).map(drug => html`
-                                                            <span class="badge border text-dark bg-light" title="${drug.source || ""}: ${drug.id || ""}">
-                                                                ${drug.name}
-                                                            </span>
-                                                        `)}
-                                                    </div>
-                                                `;
-                                            },
-                                        },
-                                    },
-                                    {
-                                        title: "Drug Count",
-                                        field: "alleleCalls",
-                                        type: "custom",
-                                        display: {
-                                            render: alleleCalls => {
-                                                const drugSet = new Set();
-                                                for (const call of (alleleCalls || [])) {
-                                                    for (const drug of (call.annotation?.drugs || [])) {
-                                                        drugSet.add(drug.name);
-                                                    }
-                                                }
-                                                return html`
-                                                    <span class="badge bg-secondary">${drugSet.size}</span>
-                                                `;
-                                            },
-                                        },
-                                    },
-                                ],
-                            },
-                        },
-                    ],
+                    id: "genes",
+                    name: "Genes",
+                    render: (individual, active) => html`
+                        <individual-pharmacogenomics-genes
+                            .pharmacogenomicsData="${this._pharmacogenomicsData}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </individual-pharmacogenomics-genes>
+                    `,
+                },
+                {
+                    id: "drugs",
+                    name: "Drugs",
+                    render: (individual, active) => html`
+                        <individual-pharmacogenomics-drugs
+                            .pharmacogenomicsData="${this._pharmacogenomicsData}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </individual-pharmacogenomics-drugs>
+                    `,
+                },
+                {
+                    id: "variants",
+                    name: "Variants",
+                    render: (individual, active) => html`
+                        <individual-pharmacogenomics-variants
+                            .pharmacogenomicsData="${this._pharmacogenomicsData}"
+                            .active="${active}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </individual-pharmacogenomics-variants>
+                    `,
                 },
             ],
         };

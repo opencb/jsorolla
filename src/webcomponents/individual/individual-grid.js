@@ -29,6 +29,7 @@ import "../variant/analysis/individual-qc-analysis.js";
 import "./individual-view.js";
 import "./individual-create.js";
 import "./individual-update.js";
+import "./individual-pharmacogenomics-view.js";
 
 export default class IndividualGrid extends LitElement {
 
@@ -260,6 +261,21 @@ export default class IndividualGrid extends LitElement {
                             },
                         }}">
                     </individual-qc-analysis>
+                `,
+            }),
+            "view-pharmacogenomics": () => ({
+                display: {
+                    modalTitle: `Pharmacogenomics ${this._selectedIndividualId}`,
+                    modalSize: "modal-3xl",
+                    modalCyDataName: "individual-pharmacogenomics-view",
+                    modalDraggable: true,
+                },
+                render: () => html`
+                    <individual-pharmacogenomics-view
+                        .individualId="${this._selectedIndividualId}"
+                        .active="${true}"
+                        .opencgaSession="${this.opencgaSession}">
+                    </individual-pharmacogenomics-view>
                 `,
             }),
         });
@@ -564,6 +580,9 @@ export default class IndividualGrid extends LitElement {
                     <a data-action="individual-qc-analysis" class="dropdown-item ${hasJobExecutionPermission ? "cursor-pointer" : "disabled"}">
                         <i class="fas fa-rocket me-1"></i> Quality Control
                     </a>
+                    <a data-action="view-pharmacogenomics" class="dropdown-item cursor-pointer">
+                        <i class="fas fa-pills me-1"></i> Pharmacogenomics
+                    </a>
                     <hr class="dropdown-divider">
                     <div class="dropdown-header">Clinical Interpreter</div>
                     ${hasClinicalAnalysis ? row.attributes.OPENCGA_CLINICAL_ANALYSIS.map(clinicalAnalysis => `
@@ -619,6 +638,10 @@ export default class IndividualGrid extends LitElement {
             case "individual-qc-analysis":
                 this._selectedIndividualId = individual.id;
                 this.gridCommons.changeActiveModal("launch-individual-qc-analysis");
+                break;
+            case "view-pharmacogenomics":
+                this._selectedIndividualId = individual.id;
+                this.gridCommons.changeActiveModal("view-pharmacogenomics");
                 break;
         }
     }
